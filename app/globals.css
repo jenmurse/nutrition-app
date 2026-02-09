@@ -1,0 +1,77 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+main {
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+/* Improve default form control spacing */
+input, select, textarea, button {
+  font-family: inherit;
+}
+
+/* Make cards have a subtle background by default */
+.card {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 10px rgba(2,6,23,0.06);
+  padding: 1.25rem;
+  border: 1px solid #e6eef6;
+}
+
+header {
+  background: #ffffff;
+}
+
+header a {
+  color: #0f172a;
+  text-decoration: none;
+}
+
+nav a {
+  color: #475569;
+  text-decoration: none;
+  margin-left: 1rem;
+}
+
+main .container {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Prevent scroll wheel from changing number input values */
+input[type="number"] {
+  scroll-behavior: auto;
+}
+
+input[type="number"]:focus {
+  scroll-behavior: auto;
+}

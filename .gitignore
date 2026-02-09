@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Next.js
+/.next/
+/out/
+dist/
+build/
+
+# Production
+.vercel
+.env.production.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+.sublime-project
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Logs
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.next-dev.log
+.next-dev.pid
+
+# Prisma
+prisma/migrations/
+/generated/prisma
+*.db-journal
+
+# IDE specific
+.vscode/extensions.json
+launch.json
+settings.json

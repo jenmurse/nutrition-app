@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Pre-populated nutrients table
+model Nutrient {
+  id           Int                   @id @default(autoincrement())
+  name         String                @unique // e.g., "calories", "fat", "satFat"
+  displayName  String                // e.g., "Calories", "Saturated Fat"
+  unit         String                // e.g., "kcal", "g", "mg"
+  orderIndex   Int                   // for display order
+
+  ingredientNutrients IngredientNutrient[]
+  nutritionGoals      NutritionGoal[]
+}
+
+// Ingredients with basic info
+model Ingredient {
+  id           Int                   @id @default(autoincrement())
+  name         String                @unique
+  fdcId        String?               // USDA Food Data Central ID for lookups
+  defaultUnit  String                @default("g") // e.g., "g", "ml", or "other" if using custom units
+  customUnitName        String?          // e.g., "banana" when defaultUnit is "other"
+  customUnitAmount      Float?           // e.g., 1 (meaning 1 banana is the reference)
+  customUnitGrams       Float?           // e.g., 120 (meaning 1 banana = 120g or 120ml)
+  customUnitMeasurement String?          // "g" or "ml" to indicate the measurement type
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  nutrientValues    IngredientNutrient[]
+  recipeIngredients RecipeIngredient[]
+}
+
+// Junction table: Ingredients to Nutrients (per 100g)
+model IngredientNutrient {
+  id            Int       @id @default(autoincrement())
+  ingredientId  Int
+  nutrientId    Int
+  value         Float     // per 100g
+
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  nutrient      Nutrient   @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, nutrientId])
+}
+
+// Recipes containing multiple ingredients
+model Recipe {
+  id            Int       @id @default(autoincrement())
+  name          String
+  servingSize   Float     // number of servings
+  servingUnit   String    @default("servings") // "servings", "g", "ml", etc.
+  instructions  String    // markdown format
+  sourceApp     String?   // e.g., "Pestle"
+  isComplete    Boolean   @default(true) // false if has unresolved ingredients
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  ingredients RecipeIngredient[]
+  mealLogs    MealLog[]
+}
+
+// Junction table: Recipes to Ingredients
+model RecipeIngredient {
+  id                Int       @id @default(autoincrement())
+  recipeId          Int
+  ingredientId      Int?      // null if ingredient not yet matched
+  originalText      String?   // original ingredient text from import (e.g., Pestle)
+  quantity          Float     // amount in specified unit
+  unit              String    // e.g., "cup", "tsp", "g", "ml"
+  conversionGrams   Float?    // cached gram equivalent for quick lookup
+  notes             String?   // optional notes for this ingredient
+
+  recipe            Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient        Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+}
+
+// Weekly meal plans
+model MealPlan {
+  id              Int       @id @default(autoincrement())
+  weekStartDate   DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  mealLogs        MealLog[]
+  nutritionGoals  NutritionGoal[]
+}
+
+// Daily meal entries (breakfast, lunch, dinner, snacks)
+model MealLog {
+  id         Int       @id @default(autoincrement())
+  mealPlanId Int
+  date       DateTime  // specific date in the week
+  mealType   String    // "breakfast", "lunch", "dinner", "snack"
+  recipeId   Int
+  notes      String?   // optional notes
+  createdAt  DateTime  @default(now())
+
+  mealPlan   MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  recipe     Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+// Daily nutrient goals (low/high targets)
+model NutritionGoal {
+  id           Int       @id @default(autoincrement())
+  mealPlanId   Int
+  nutrientId   Int
+  lowGoal      Float?    // minimum daily intake (null = no min)
+  highGoal     Float?    // maximum daily intake (null = no max)
+
+  mealPlan     MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  nutrient     Nutrient  @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
+
+  @@unique([mealPlanId, nutrientId])
+}
