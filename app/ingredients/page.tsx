@@ -155,8 +155,9 @@ export default function IngredientsPage() {
       {/* Right Sidebar - Search & Details */}
       <aside className="flex w-80 flex-col border-l bg-muted/10">
         {/* Header */}
-        <div className="p-4">
-          <h2 className="text-sm font-semibold">Actions & Details</h2>
+        <div className="p-4 space-y-1">
+          <h2 className="text-sm font-semibold">Ingredients</h2>
+          <p className="text-xs text-muted-foreground">Select an ingredient to view nutrition details</p>
         </div>
 
         {/* Create Button */}
@@ -233,14 +234,6 @@ export default function IngredientsPage() {
               >
                 Edit Full Details
               </Link>
-            </div>
-          </div>
-        )}
-
-        {!selectedIngredient && !loading && ingredients.length > 0 && (
-          <div className="p-4">
-            <div className="text-xs text-muted-foreground text-center">
-              Select an ingredient to view nutrition details
             </div>
           </div>
         )}
