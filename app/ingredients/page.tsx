@@ -94,60 +94,45 @@ export default function IngredientsPage() {
     <div className="flex h-full">
       {/* Center Panel - Ingredient List */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-3xl">
-          <h1 className="text-xl font-semibold mb-6">Ingredients</h1>
+        <h1 className="text-xl font-semibold mb-6">Ingredients</h1>
 
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : filteredIngredients.length === 0 ? (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-sm text-muted-foreground">
-                {ingredients.length === 0 
-                  ? <>No ingredients yet. Create one from the sidebar →</>
-                  : "No ingredients match your search."
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="border divide-y">
-              {filteredIngredients.map((ing) => {
-                const isSelected = selectedIngredient?.id === ing.id;
-                return (
-                  <div
-                    key={ing.id}
-                    className={`px-4 py-3 transition cursor-pointer ${
-                      isSelected ? 'bg-muted/40' : 'hover:bg-muted/20'
-                    }`}
-                    onClick={() => setSelectedIngredient(ing)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-base truncate">{ing.name}</h3>
-                        <p className="font-mono text-xs text-muted-foreground">
-                          Default: {ing.defaultUnit === "other" && ing.customUnitName 
-                            ? `${ing.customUnitAmount} ${ing.customUnitName}` 
-                            : ing.defaultUnit}
-                        </p>
-                      </div>
-                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Link
-                          href={`/ingredients/${ing.id}`}
-                          className="px-3 py-1.5 border text-xs hover:bg-muted/40 transition"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(ing.id, ing.name)}
-                          className="px-3 py-1.5 border border-rose-600/40 bg-rose-600/10 text-xs text-rose-700 hover:bg-rose-600/20 transition"
-                        >
-                          Delete
-                        </button>
-                      </div>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : filteredIngredients.length === 0 ? (
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-sm text-muted-foreground">
+              {ingredients.length === 0 
+                ? <>No ingredients yet. Create one from the sidebar →</>
+                : "No ingredients match your search."
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="border divide-y max-w-4xl">
+            {filteredIngredients.map((ing) => {
+              const isSelected = selectedIngredient?.id === ing.id;
+              return (
+                <div
+                  key={ing.id}
+                  className={`px-4 py-2.5 transition cursor-pointer ${
+                    isSelected ? 'bg-muted/40' : 'hover:bg-muted/20'
+                  }`}
+                  onClick={() => setSelectedIngredient(ing)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate">{ing.name}</h3>
                     </div>
+                    <p className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                      {ing.defaultUnit === "other" && ing.customUnitName 
+                        ? `${ing.customUnitAmount} ${ing.customUnitName}` 
+                        : ing.defaultUnit}
+                    </p>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
+          </div>
           )}
         </div>
       </div>
@@ -228,12 +213,20 @@ export default function IngredientsPage() {
                 </div>
               )}
 
-              <Link
-                href={`/ingredients/${selectedIngredient.id}`}
-                className="flex w-full items-center justify-center border bg-background px-4 py-2 text-xs font-medium hover:bg-muted/40 transition"
-              >
-                Edit Full Details
-              </Link>
+              <div className="flex gap-2 pt-2">
+                <Link
+                  href={`/ingredients/${selectedIngredient.id}`}
+                  className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-xs font-medium hover:bg-muted/40 transition"
+                >
+                  Edit
+                </Link>
+                <button
+                  onClick={() => handleDelete(selectedIngredient.id, selectedIngredient.name)}
+                  className="flex flex-1 items-center justify-center border border-rose-600/40 bg-rose-600/10 px-4 py-2 text-xs font-medium text-rose-700 hover:bg-rose-600/20 transition"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         )}
