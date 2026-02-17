@@ -1,0 +1,381 @@
+.container {
+  width: 100%;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+.weekHeader {
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 12px;
+}
+
+.weekHeader h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.weekGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dayColumn {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.dayHeader {
+  text-align: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.dayName {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.dayDate {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.mealsContainer {
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+.mealTypeSection {
+  margin-bottom: 12px;
+}
+
+.mealTypeLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.mealsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emptyMeal {
+  cursor: pointer;
+  padding: 8px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  text-align: center;
+  background: #fafafa;
+  transition: all 0.2s ease;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyMeal:hover {
+  border-color: #999;
+  background: #f0f0f0;
+}
+
+.addMealButton {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.mealItem {
+  padding: 8px;
+  background: #e3f2fd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid #2196f3;
+}
+
+.mealItem:hover {
+  background: #bbdefb;
+  transform: translateX(2px);
+}
+
+.mealName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1565c0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mealServings {
+  font-size: 11px;
+  color: #0d47a1;
+  margin-top: 2px;
+}
+
+.addAnotherMeal {
+  cursor: pointer;
+  padding: 6px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  text-align: center;
+  background: #fafafa;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.addAnotherMeal:hover {
+  border-color: #999;
+  background: #f0f0f0;
+}
+
+.dayNutrients {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 8px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.nutrientsLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.nutrientsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nutrientItem {
+  font-size: 11px;
+  padding: 4px 6px;
+  border-left: 3px solid #999;
+  background: #f5f5f5;
+  border-radius: 0 2px 2px 0;
+  transition: background 0.2s ease;
+}
+
+.nutrientItem strong {
+  display: block;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.nutrientValue {
+  color: #666;
+  font-weight: 500;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 12px;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.mealTypesList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mealTypeOption {
+  background: #f5f7fa;
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f3a4a;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.mealTypeOption:hover {
+  background: #e3f2fd;
+  border-color: #64b5f6;
+  color: #0d47a1;
+}
+
+.mealTypeOption:active {
+  transform: translateY(1px);
+}
+
+.servingsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.servingsLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.servingsInput {
+  width: 120px;
+  padding: 6px 8px;
+  border: 1px solid #d5dbe3;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.recipesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipeOption {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recipeOption:hover {
+  border-color: #2196f3;
+  background: #e3f2fd;
+  transform: translateX(2px);
+}
+
+.recipeIncomplete {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: #f5f5f5;
+  border-color: #ffb74d;
+}
+
+.recipeIncomplete:hover {
+  border-color: #ffb74d;
+  background: #fff3e0;
+  transform: none;
+}
+
+.incompleteTag {
+  font-size: 12px;
+  color: #ff9800;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+.recipeName {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.recipeServings {
+  font-size: 12px;
+  color: #999;
+}
+
+.noRecipes {
+  text-align: center;
+  color: #999;
+  padding: 24px;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 1440px) {
+  .weekGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .weekGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 16px;
+  }
+
+  .modalContent {
+    width: 100%;
+    max-height: 90vh;
+  }
+}

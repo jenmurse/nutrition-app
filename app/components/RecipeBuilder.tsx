@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
@@ -11,75 +11,90 @@ type Ingredient = {
   customUnitName?: string | null;
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
-  customUnitMeasurement?: string | null;
   nutrientValues: { id: number; value: number; nutrient: Nutrient }[] 
 };
 
-type Row = {
-  id: string;
-  ingredientId?: number | null;
-  quantity?: number;
-  unit?: string;
-  notes?: string;
-  originalText?: string;
-  nameGuess?: string;
-  section?: string | null;
-};
+type Row = { id: string; ingredientId?: number; quantity?: number; unit?: string; notes?: string };
 
-type RecipeDraft = {
+type InitialRecipe = {
   id?: number;
   name: string;
   servingSize: number;
   servingUnit: string;
-  instructions: string;
+  instructions?: string;
+  tags?: string | string[];
+  ingredients: Array<{
+    id: string;
+    ingredientId?: number | null;
+    quantity?: number;
+    unit?: string;
+    notes?: string | null;
+  }>;
   sourceApp?: string | null;
   isComplete?: boolean;
-  ingredients: Row[];
 };
 
 export default function RecipeBuilder({
   initialRecipe,
   onSaved,
 }: {
-  initialRecipe?: RecipeDraft | null;
+  initialRecipe?: InitialRecipe;
   onSaved?: () => void;
 }) {
   const [name, setName] = useState("");
   const [servings, setServings] = useState(1);
   const [servingUnit, setServingUnit] = useState("servings");
   const [instructions, setInstructions] = useState("");
-  const [sourceApp, setSourceApp] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [rows, setRows] = useState<Row[]>([{ id: "r1" }]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState<Record<string, string>>({});
+  const [showDropdown, setShowDropdown] = useState<Record<string, boolean>>({});
+
+  const availableTags = ["breakfast", "lunch", "dinner", "snack", "dessert", "beverage"];
 
   useEffect(() => {
-    fetch("/api/ingredients").then((r) => r.json()).then((d) => setIngredients(d || []));
-    fetch("/api/nutrients").then((r) => r.json()).then((d) => setNutrients(d || []));
+    fetch("/api/ingredients")
+      .then((r) => r.json())
+      .then((d) => setIngredients(Array.isArray(d) ? d : []))
+      .catch((e) => {
+        console.error(e);
+        setIngredients([]);
+      });
+    fetch("/api/nutrients")
+      .then((r) => r.json())
+      .then((d) => setNutrients(Array.isArray(d) ? d : []))
+      .catch((e) => {
+        console.error(e);
+        setNutrients([]);
+      });
   }, []);
 
   useEffect(() => {
-    if (!initialRecipe) {
-      setEditingId(null);
-      return;
-    }
-    setEditingId(initialRecipe.id ?? null);
+    if (!initialRecipe) return;
+
     setName(initialRecipe.name || "");
-    setServings(initialRecipe.servingSize || 1);
+    setServings(Number(initialRecipe.servingSize) || 1);
     setServingUnit(initialRecipe.servingUnit || "servings");
     setInstructions(initialRecipe.instructions || "");
-    setSourceApp(initialRecipe.sourceApp ?? null);
-    if (initialRecipe.ingredients?.length) {
-      setRows(
-        initialRecipe.ingredients.map((row) => ({
-          ...row,
-          id: row.id || `r${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        }))
-      );
-    } else {
-      setRows([{ id: "r1" }]);
-    }
+
+    const nextTags = Array.isArray(initialRecipe.tags)
+      ? initialRecipe.tags
+      : typeof initialRecipe.tags === "string"
+        ? initialRecipe.tags.split(",").map((t) => t.trim()).filter(Boolean)
+        : [];
+    setTags(nextTags);
+
+    const nextRows = (initialRecipe.ingredients || []).map((item) => ({
+      id: item.id,
+      ingredientId: item.ingredientId ?? undefined,
+      quantity: item.quantity ?? undefined,
+      unit: item.unit ?? undefined,
+      notes: item.notes ?? undefined,
+    }));
+
+    setRows(nextRows.length > 0 ? nextRows : [{ id: "r1" }]);
   }, [initialRecipe]);
 
   function addRow() {
@@ -108,49 +123,64 @@ export default function RecipeBuilder({
     return totals;
   }
 
+  const rowConversionGrams = useMemo(() => {
+    const gramsByRow: Record<string, number | null> = {};
+    for (const row of rows) {
+      if (!row.ingredientId || !row.quantity || !row.unit) {
+        gramsByRow[row.id] = null;
+        continue;
+      }
+      const ingredient = ingredients.find((i) => i.id === row.ingredientId);
+      if (!ingredient) {
+        gramsByRow[row.id] = null;
+        continue;
+      }
+      const density = getIngredientDensity(ingredient.name);
+      gramsByRow[row.id] = convertToGrams(row.quantity, row.unit, density, ingredient);
+    }
+    return gramsByRow;
+  }, [ingredients, rows]);
+
   async function handleSave() {
     if (!name.trim()) {
       alert("Recipe name is required");
       return;
     }
     
-    const usableRows = rows.filter((r) => r.ingredientId || r.originalText || r.nameGuess);
-    if (usableRows.length === 0) {
-      alert("Add at least one ingredient");
+    // Filter only rows with ingredientId
+    const validRows = rows.filter((r) => r.ingredientId && r.quantity && r.unit);
+    if (validRows.length === 0) {
+      alert("Add at least one ingredient with quantity and unit");
       return;
     }
 
-    const isComplete = usableRows.every((r) => r.ingredientId);
-
     const payload = {
-      name: name.trim(),
-      servingSize: Number(servings) || 1,
-      servingUnit: servingUnit || "servings",
-      instructions: instructions || "",
-      sourceApp: sourceApp || null,
-      isComplete,
-      ingredients: usableRows.map((r) => ({
-        ingredientId: r.ingredientId ?? null,
-        originalText: r.originalText || null,
-        quantity: Number(r.quantity) || 0,
-        unit: r.unit || "",
-        notes: r.notes || r.section || null,
+      name,
+      servingSize: servings,
+      servingUnit,
+      instructions,
+      tags: tags.join(","), // Store as comma-separated string
+      ingredients: validRows.map((r) => ({
+        ingredientId: r.ingredientId,
+        quantity: r.quantity,
+        unit: r.unit,
+        notes: r.notes,
+        conversionGrams: rowConversionGrams[r.id] ?? null,
       })),
     };
     try {
-      const url = editingId ? `/api/recipes/${editingId}` : "/api/recipes";
-      const method = editingId ? "PUT" : "POST";
+      const isEdit = Boolean(initialRecipe?.id);
+      const url = isEdit ? `/api/recipes/${initialRecipe?.id}` : "/api/recipes";
+      const method = isEdit ? "PUT" : "POST";
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (res.ok) {
-        alert(editingId ? "Recipe updated" : "Recipe saved");
-        if (!editingId) {
+        alert(isEdit ? "Recipe updated" : "Recipe saved");
+        if (!isEdit) {
           setName("");
-          setServings(1);
-          setServingUnit("servings");
-          setInstructions("");
-          setSourceApp(null);
+          setTags([]);
           setRows([{ id: "r1" }]);
+          setInstructions("");
         }
         onSaved?.();
       } else {
@@ -162,72 +192,11 @@ export default function RecipeBuilder({
     }
   }
 
-  async function handleSaveAndCreateIngredient(ingredientName: string) {
-    if (!name.trim()) {
-      alert("Please enter a recipe name before creating ingredients");
-      return;
-    }
-
-    if (!confirm("Save this recipe before creating the ingredient?")) {
-      return;
-    }
-
-    const usableRows = rows.filter((r) => r.ingredientId || r.originalText || r.nameGuess);
-    const isComplete = usableRows.every((r) => r.ingredientId);
-
-    const payload = {
-      name: name.trim(),
-      servingSize: Number(servings) || 1,
-      servingUnit: servingUnit || "servings",
-      instructions: instructions || "",
-      sourceApp: sourceApp || null,
-      isComplete,
-      ingredients: usableRows.map((r) => ({
-        ingredientId: r.ingredientId ?? null,
-        originalText: r.originalText || null,
-        quantity: Number(r.quantity) || 0,
-        unit: r.unit || "",
-        notes: r.notes || r.section || null,
-      })),
-    };
-
-    try {
-      const url = editingId ? `/api/recipes/${editingId}` : "/api/recipes";
-      const method = editingId ? "PUT" : "POST";
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const data = await res.json();
-      
-      console.log("[RecipeBuilder] Response status:", res.status);
-      console.log("[RecipeBuilder] Response data:", data);
-      
-      if (res.ok) {
-        const recipeId = editingId || data.id;
-        if (!editingId) {
-          setEditingId(recipeId);
-        }
-        const returnUrl = `/recipes?edit=${recipeId}`;
-        window.location.href = `/ingredients?name=${encodeURIComponent(ingredientName)}&returnTo=${encodeURIComponent(returnUrl)}`;
-      } else {
-        alert(`Failed to save recipe: ${data.error || "Unknown error"}`);
-      }
-    } catch (err) {
-      console.error("[RecipeBuilder] Error:", err);
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
-    }
-  }
-
   const totals = computeTotals();
-  const hasMissingIngredients = rows.some((r) => !r.ingredientId && (r.originalText || r.nameGuess));
 
   return (
     <div className="p-4 border rounded bg-white">
-      <h3 className="text-lg font-medium mb-3">{editingId ? "Edit Recipe" : "Create Recipe"}</h3>
-
-      {hasMissingIngredients && (
-        <div className="mb-3 p-2 border border-amber-300 bg-amber-50 rounded text-sm text-amber-900">
-          This recipe is incomplete. Resolve missing ingredients before saving, or save as incomplete.
-        </div>
-      )}
+      <h3 className="text-lg font-medium mb-3">{initialRecipe?.id ? "Edit Recipe" : "Create Recipe"}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
         <input className="border rounded p-2 col-span-2" placeholder="Recipe name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -241,11 +210,34 @@ export default function RecipeBuilder({
         </div>
       </div>
 
+      <div className="mb-4 p-3 bg-slate-50 rounded border">
+        <label className="block text-sm font-medium mb-2">Tags</label>
+        <div className="flex flex-wrap gap-2">
+          {availableTags.map((tag) => (
+            <label key={tag} className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={tags.includes(tag)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setTags([...tags, tag]);
+                  } else {
+                    setTags(tags.filter((t) => t !== tag));
+                  }
+                }}
+                className="cursor-pointer"
+              />
+              <span className="text-sm capitalize">{tag}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       <div className="mb-4">
-        <label className="text-sm font-medium block mb-2">Instructions</label>
+        <label className="block text-sm font-medium mb-2">Instructions</label>
         <textarea
           className="w-full border rounded p-2 min-h-[120px]"
-          placeholder="Instructions (markdown supported)"
+          placeholder="Add recipe instructions..."
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
         />
@@ -255,73 +247,64 @@ export default function RecipeBuilder({
         {rows.map((row) => {
           const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
           const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
-          const prefillName = row.nameGuess || row.originalText || "";
-          const importedLabel = row.originalText || row.nameGuess || "";
+          const currentSearch = searchText[row.id] || "";
+          const filteredIngredients = currentSearch
+            ? ingredients.filter((i) => i.name.toLowerCase().includes(currentSearch.toLowerCase()))
+            : ingredients;
           
           return (
-            <div key={row.id} className="border rounded p-2">
-              {row.section && (
-                <div className="text-xs text-slate-500 mb-1">{row.section}</div>
-              )}
-              {importedLabel && (
-                <div className="text-xs text-slate-500 mb-2">Imported: {importedLabel}</div>
-              )}
-              <div className="flex gap-2 items-center">
-                <select 
-                  className="border rounded p-2 flex-1" 
-                  value={row.ingredientId ?? ""} 
+            <div key={row.id} className="flex gap-2 items-start">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  className="w-full border rounded p-2"
+                  placeholder="Type to search ingredients..."
+                  value={selectedIngredient ? selectedIngredient.name : currentSearch}
                   onChange={(e) => {
-                    const ingredientId = Number(e.target.value) || undefined;
-                    // Auto-set unit to custom unit if ingredient has one
-                    const ing = ingredientId ? ingredients.find((i) => i.id === ingredientId) : undefined;
-                    const defaultUnit = ing?.customUnitName || ing?.defaultUnit || "g";
-                    updateRow(row.id, { ingredientId, unit: defaultUnit });
+                    setSearchText({ ...searchText, [row.id]: e.target.value });
+                    setShowDropdown({ ...showDropdown, [row.id]: true });
+                    if (!e.target.value && row.ingredientId) {
+                      updateRow(row.id, { ingredientId: undefined });
+                    }
                   }}
-                >
-                  <option value="">Select ingredient</option>
-                  {ingredients.map((i) => (
-                    <option key={i.id} value={i.id}>
-                      {i.name}
-                      {i.customUnitName ? ` (${i.customUnitName})` : ""}
-                    </option>
-                  ))}
-                </select>
-                
-                {row.nameGuess && row.ingredientId && (
-                  <div className="text-xs text-green-600">
-                    Matched to: {selectedIngredient?.name}
+                  onFocus={() => setShowDropdown({ ...showDropdown, [row.id]: true })}
+                />
+                {showDropdown[row.id] && filteredIngredients.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-auto">
+                    {filteredIngredients.map((i) => (
+                      <div
+                        key={i.id}
+                        className="p-2 hover:bg-slate-100 cursor-pointer"
+                        onClick={() => {
+                          const defaultUnit = i.customUnitName || i.defaultUnit || "g";
+                          updateRow(row.id, { ingredientId: i.id, unit: defaultUnit });
+                          setSearchText({ ...searchText, [row.id]: "" });
+                          setShowDropdown({ ...showDropdown, [row.id]: false });
+                        }}
+                      >
+                        {i.name}
+                        {i.customUnitName ? ` (${i.customUnitName})` : ""}
+                      </div>
+                    ))}
                   </div>
                 )}
-
-                <input 
-                  className="w-24 border rounded p-2" 
-                  type="number" 
-                  placeholder="qty" 
-                  value={row.quantity ?? ""} 
-                  onChange={(e) => {
-                    const value = e.target.value === "" ? undefined : Number(e.target.value);
-                    updateRow(row.id, { quantity: value });
-                  }} 
-                />
-                <input 
-                  className="w-24 border rounded p-2" 
-                  placeholder={defaultUnitForRow}
-                  title={selectedIngredient?.customUnitName ? `Custom unit: ${selectedIngredient.customUnitName}` : ""}
-                  value={row.unit ?? ""} 
-                  onChange={(e) => updateRow(row.id, { unit: e.target.value || defaultUnitForRow })} 
-                />
-                <button className="px-3 py-1 border rounded" onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}>Remove</button>
               </div>
-              {prefillName && (
-                <div className="mt-2 text-xs">
-                  <button
-                    className="text-blue-600 hover:underline"
-                    onClick={() => handleSaveAndCreateIngredient(prefillName)}
-                  >
-                    Create new ingredient →
-                  </button>
-                </div>
-              )}
+
+              <input 
+                className="w-24 border rounded p-2" 
+                type="number" 
+                placeholder="qty" 
+                value={row.quantity ?? ""} 
+                onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value) || undefined })} 
+              />
+              <input 
+                className="w-24 border rounded p-2" 
+                placeholder={defaultUnitForRow}
+                title={selectedIngredient?.customUnitName ? `Custom unit: ${selectedIngredient.customUnitName}` : ""}
+                value={row.unit ?? ""} 
+                onChange={(e) => updateRow(row.id, { unit: e.target.value || defaultUnitForRow })} 
+              />
+              <button className="px-3 py-2 border rounded" onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}>Remove</button>
             </div>
           );
         })}

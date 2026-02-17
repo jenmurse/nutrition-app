@@ -36,7 +36,6 @@ describe('Ingredients API - GET /api/ingredients', () => {
         customUnitName: null,
         customUnitAmount: null,
         customUnitGrams: null,
-        customUnitMeasurement: null,
         nutrientValues: [
           {
             id: 1,
@@ -110,7 +109,6 @@ describe('Ingredients API - POST /api/ingredients', () => {
       customUnitName: null,
       customUnitAmount: null,
       customUnitGrams: null,
-      customUnitMeasurement: null,
       nutrientValues: [
         {
           id: 1,
@@ -154,7 +152,6 @@ describe('Ingredients API - POST /api/ingredients', () => {
       customUnitName: 'clove',
       customUnitAmount: 1,
       customUnitGrams: 3,
-      customUnitMeasurement: 'weight',
       nutrientValues: [],
     }
 

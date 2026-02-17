@@ -17,7 +17,6 @@ type Ingredient = {
   customUnitName?: string | null;
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
-  customUnitMeasurement?: string | null;
   nutrientValues: NutrientValue[];
 };
 
@@ -56,8 +55,11 @@ export default function IngredientsPage() {
     const loadIngredients = () => {
       fetch("/api/ingredients")
         .then((r) => r.json())
-        .then((data) => setIngredients(data || []))
-        .catch((e) => console.error(e))
+        .then((data) => setIngredients(Array.isArray(data) ? data : []))
+        .catch((e) => {
+          console.error(e);
+          setIngredients([]);
+        })
         .finally(() => setLoading(false));
     };
 
@@ -80,7 +82,7 @@ export default function IngredientsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Ingredients</h1>
         <Link
@@ -96,40 +98,25 @@ export default function IngredientsPage() {
       ) : ingredients.length === 0 ? (
         <p className="text-slate-600">No ingredients yet. <Link href="/ingredients/create" className="text-blue-600 hover:underline">Create one</Link></p>
       ) : (
-        <div className="space-y-3">
+        <div className="bg-white border rounded divide-y">
           {ingredients.map((ing) => (
-            <div key={ing.id} className="bg-white border rounded p-4 flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">{ing.name}</h3>
-                <p className="text-sm text-slate-600 mb-2">
-                  Default: {ing.defaultUnit === "other" && ing.customUnitName 
-                    ? `${ing.customUnitAmount} ${ing.customUnitName}` 
-                    : ing.defaultUnit}
-                </p>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {ing.nutrientValues.map((nv) => (
-                    <div key={nv.id} className="flex gap-2">
-                      <span className="font-medium">{nv.nutrient.displayName}:</span>
-                      <span>{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
-                    </div>
-                  ))}
+            <Link
+              key={ing.id}
+              href={`/ingredients/${ing.id}`}
+              className="block px-4 py-3 hover:bg-slate-50 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-lg">{ing.name}</h3>
+                  <p className="text-sm text-slate-600">
+                    Default: {ing.defaultUnit === "other" && ing.customUnitName 
+                      ? `${ing.customUnitAmount} ${ing.customUnitName}` 
+                      : ing.defaultUnit}
+                  </p>
                 </div>
+                <span className="text-slate-400">→</span>
               </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/ingredients/${ing.id}`}
-                  className="px-3 py-2 border rounded bg-white hover:bg-slate-50"
-                >
-                  Edit
-                </Link>
-                <button
-                  onClick={() => handleDelete(ing.id, ing.name)}
-                  className="px-3 py-2 border border-red-300 rounded bg-red-50 text-red-700 hover:bg-red-100"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

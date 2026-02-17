@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import RecipeBuilder from "../../components/RecipeBuilder";
@@ -95,12 +96,14 @@ export default function CreateRecipePage() {
         </div>
       )}
       
-      <RecipeBuilder
-        initialRecipe={importedRecipe || undefined}
-        onSaved={() => {
-          router.push("/recipes");
-        }}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <RecipeBuilder
+          initialRecipe={importedRecipe || undefined}
+          onSaved={() => {
+            router.push("/recipes");
+          }}
+        />
+      </Suspense>
     </div>
   );
 }

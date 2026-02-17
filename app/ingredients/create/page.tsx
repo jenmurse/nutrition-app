@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import IngredientForm from "../../components/IngredientForm";
 
@@ -15,11 +16,13 @@ export default function CreateIngredientPage() {
       </div>
       <h1 className="text-2xl font-semibold mb-6">Create New Ingredient</h1>
       
-      <IngredientForm
-        onCreated={() => {
-          router.push("/ingredients");
-        }}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <IngredientForm
+          onCreated={() => {
+            router.push("/ingredients");
+          }}
+        />
+      </Suspense>
     </div>
   );
 }

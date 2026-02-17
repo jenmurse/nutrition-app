@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, customUnitMeasurement, nutrientValues } = body;
+    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, nutrientValues } = body;
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
     const ingredient = await prisma.ingredient.create({
@@ -32,7 +32,6 @@ export async function POST(request: Request) {
         customUnitName: defaultUnit === "other" ? customUnitName : null,
         customUnitAmount: defaultUnit === "other" ? customUnitAmount : null,
         customUnitGrams: defaultUnit === "other" ? customUnitGrams : null,
-        customUnitMeasurement: defaultUnit === "other" ? customUnitMeasurement : null,
       },
     });
 

@@ -34,7 +34,6 @@ describe('Ingredients API - GET /api/ingredients/[id]', () => {
       customUnitName: null,
       customUnitAmount: null,
       customUnitGrams: null,
-      customUnitMeasurement: null,
       nutrientValues: [
         {
           id: 1,
@@ -105,7 +104,6 @@ describe('Ingredients API - PUT /api/ingredients/[id]', () => {
       customUnitName: null,
       customUnitAmount: null,
       customUnitGrams: null,
-      customUnitMeasurement: null,
       nutrientValues: [
         {
           id: 1,

@@ -331,7 +331,7 @@ See [TESTS.md](TESTS.md) for detailed testing documentation.
 6. Back to recipe auto-focused for editing
 7. Complete recipe now shows all nutrients
 
-## 🐛 Troubleshooting
+## 🐛 Troubleshooting 2
 
 ### USDA API Key Issues
 - Ensure `.env.local` has `USDA_API_KEY` set

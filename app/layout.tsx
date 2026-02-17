@@ -20,10 +20,12 @@ export default function RootLayout({
         <header className="bg-white shadow-sm border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <Link href="/" className="text-2xl font-semibold text-slate-800">Nutrition Tracker</Link>
-            <nav className="flex gap-4">
-              <Link href="/ingredients" className="text-slate-600 hover:text-slate-900">Ingredients</Link>
-              <Link href="/recipes" className="text-slate-600 hover:text-slate-900">Recipes</Link>
-              <Link href="/meal-plans" className="text-slate-600 hover:text-slate-900">Meal Plans</Link>
+            <nav className="flex gap-6">
+              <Link href="/" className="text-slate-600 hover:text-slate-900 font-medium transition">Dashboard</Link>
+              <Link href="/ingredients" className="text-slate-600 hover:text-slate-900 font-medium transition">Ingredients</Link>
+              <Link href="/recipes" className="text-slate-600 hover:text-slate-900 font-medium transition">Recipes</Link>
+              <Link href="/meal-plans" className="text-slate-600 hover:text-slate-900 font-medium transition">Meals</Link>
+              <Link href="/settings" className="text-slate-600 hover:text-slate-900 font-medium transition">Settings</Link>
             </nav>
           </div>
         </header>

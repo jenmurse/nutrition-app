@@ -10,6 +10,7 @@ type ImportDraft = {
   servingSize: number;
   servingUnit: string;
   instructions: string;
+  tags?: string;
   sourceApp?: string | null;
   isComplete?: boolean;
   ingredients: Array<{
@@ -46,6 +47,7 @@ export default function EditRecipePage() {
           servingSize: recipeData.servingSize,
           servingUnit: recipeData.servingUnit,
           instructions: recipeData.instructions || "",
+          tags: recipeData.tags || "",
           sourceApp: recipeData.sourceApp ?? null,
           isComplete: recipeData.isComplete,
           ingredients: (recipeData.ingredients || []).map((item: any) => ({

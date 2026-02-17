@@ -55,21 +55,29 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const numId = Number(id);
     const body = await request.json();
-    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp } = body;
+    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags } = body;
 
     await prisma.recipe.update({
       where: { id: numId },
-      data: { name, servingSize, servingUnit, instructions, isComplete: Boolean(isComplete), sourceApp },
+      data: { 
+        name, 
+        servingSize, 
+        servingUnit, 
+        instructions, 
+        isComplete: Boolean(isComplete), 
+        sourceApp,
+        tags: typeof tags === "string" ? tags : undefined,
+      },
     });
 
     if (Array.isArray(ingredients)) {
       // replace recipe ingredients
       await prisma.recipeIngredient.deleteMany({ where: { recipeId: numId } });
       for (const ri of ingredients) {
-        const ingredientId = ri.ingredientId ? Number(ri.ingredientId) : null;
+        if (!ri.ingredientId) continue; // Skip if no ingredient ID
+        const ingredientId = Number(ri.ingredientId);
         const quantity = Number(ri.quantity) || 0;
         const unit = typeof ri.unit === "string" ? ri.unit : "";
-        const originalText = typeof ri.originalText === "string" ? ri.originalText : null;
 
         await prisma.recipeIngredient.create({
           data: {
@@ -79,7 +87,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             unit,
             conversionGrams: ri.conversionGrams ?? null,
             notes: ri.notes ?? null,
-            originalText,
           },
         });
       }

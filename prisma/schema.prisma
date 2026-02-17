@@ -28,10 +28,9 @@ model Ingredient {
   name         String                @unique
   fdcId        String?               // USDA Food Data Central ID for lookups
   defaultUnit  String                @default("g") // e.g., "g", "ml", or "other" if using custom units
-  customUnitName        String?          // e.g., "banana" when defaultUnit is "other"
-  customUnitAmount      Float?           // e.g., 1 (meaning 1 banana is the reference)
-  customUnitGrams       Float?           // e.g., 120 (meaning 1 banana = 120g or 120ml)
-  customUnitMeasurement String?          // "g" or "ml" to indicate the measurement type
+  customUnitName    String?          // e.g., "banana" when defaultUnit is "other"
+  customUnitAmount  Float?           // e.g., 1 (meaning 1 banana is the reference)
+  customUnitGrams   Float?           // e.g., 120 (meaning 1 banana = 120g)
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
 
@@ -60,7 +59,8 @@ model Recipe {
   servingUnit   String    @default("servings") // "servings", "g", "ml", etc.
   instructions  String    // markdown format
   sourceApp     String?   // e.g., "Pestle"
-  isComplete    Boolean   @default(true) // false if has unresolved ingredients
+  isComplete    Boolean   @default(true) // whether all ingredients are specified
+  tags          String    @default("") // comma-separated recipe categories: breakfast, lunch, dinner, snack, dessert, beverage
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -72,15 +72,14 @@ model Recipe {
 model RecipeIngredient {
   id                Int       @id @default(autoincrement())
   recipeId          Int
-  ingredientId      Int?      // null if ingredient not yet matched
-  originalText      String?   // original ingredient text from import (e.g., Pestle)
+  ingredientId      Int
   quantity          Float     // amount in specified unit
   unit              String    // e.g., "cup", "tsp", "g", "ml"
   conversionGrams   Float?    // cached gram equivalent for quick lookup
   notes             String?   // optional notes for this ingredient
 
-  recipe            Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredient        Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  recipe            Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 }
 
 // Weekly meal plans
@@ -101,6 +100,7 @@ model MealLog {
   date       DateTime  // specific date in the week
   mealType   String    // "breakfast", "lunch", "dinner", "snack"
   recipeId   Int
+  servings   Float     @default(1)
   notes      String?   // optional notes
   createdAt  DateTime  @default(now())
 
