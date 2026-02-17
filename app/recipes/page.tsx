@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import RecipeBuilder from "../components/RecipeBuilder";
 
 type RecipeSummary = {
   id: number;
@@ -23,11 +24,35 @@ type RecipeSummary = {
   }>;
 };
 
+type RecipeDraft = {
+  id?: number;
+  name: string;
+  servingSize: number;
+  servingUnit: string;
+  instructions: string;
+  tags?: string;
+  sourceApp?: string | null;
+  isComplete?: boolean;
+  ingredients: Array<{
+    id: string;
+    ingredientId?: number | null;
+    quantity?: number;
+    unit?: string;
+    originalText?: string;
+    nameGuess?: string;
+    section?: string | null;
+    notes?: string;
+  }>;
+};
+
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeSummary | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editRecipe, setEditRecipe] = useState<RecipeDraft | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
   
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "dessert", "beverage"];
 
@@ -61,6 +86,45 @@ export default function RecipesPage() {
     }
   };
 
+  const handleEditClick = async (recipeId: number) => {
+    setEditLoading(true);
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Fetch failed");
+
+      const recipeData = data.recipe;
+      const draft: RecipeDraft = {
+        id: recipeData.id,
+        name: recipeData.name,
+        servingSize: recipeData.servingSize,
+        servingUnit: recipeData.servingUnit,
+        instructions: recipeData.instructions || "",
+        tags: recipeData.tags || "",
+        sourceApp: recipeData.sourceApp ?? null,
+        isComplete: recipeData.isComplete,
+        ingredients: (recipeData.ingredients || []).map((item: any) => ({
+          id: `edit-${item.id}`,
+          ingredientId: item.ingredientId ?? null,
+          quantity: item.quantity ?? 0,
+          unit: item.unit || "",
+          originalText: item.originalText || "",
+          nameGuess: item.ingredient?.name || item.originalText || "",
+          section: null,
+          notes: item.notes || null,
+        })),
+      };
+
+      setEditRecipe(draft);
+      setEditMode(true);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load recipe");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadRecipes();
   }, []);
@@ -84,81 +148,83 @@ export default function RecipesPage() {
     <div className="flex h-full">
       {/* Center Panel - Recipe List */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-3xl">
-          <h1 className="text-xl font-semibold mb-6">Recipes</h1>
+        {editMode ? (
+          <div>
+            <button
+              onClick={() => {
+                setEditMode(false);
+                setEditRecipe(null);
+              }}
+              className="mb-4 text-sm text-foreground hover:underline"
+            >
+              ← Back to list
+            </button>
+            <h1 className="text-xl font-semibold mb-6">Edit Recipe</h1>
+            {editLoading || !editRecipe ? (
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            ) : (
+              <RecipeBuilder
+                initialRecipe={editRecipe}
+                onSaved={() => {
+                  setEditMode(false);
+                  setEditRecipe(null);
+                  loadRecipes();
+                }}
+                onCancel={() => {
+                  setEditMode(false);
+                  setEditRecipe(null);
+                }}
+              />
+            )}
+          </div>
+        ) : (
+          <>
+            <h1 className="text-xl font-semibold mb-6">Recipes</h1>
 
-          {filteredRecipes.length === 0 ? (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-sm text-muted-foreground">
-                {recipes.length === 0 
-                  ? <>No recipes yet. Create one from the sidebar →</>
-                  : "No recipes match your filters."
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredRecipes.map((recipe) => {
-                const recipeTags = recipe.tags ? recipe.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
-                const isSelected = selectedRecipe?.id === recipe.id;
-                return (
-                  <div 
-                    key={recipe.id} 
-                    className={`border p-4 transition cursor-pointer ${
-                      isSelected ? 'border-foreground bg-muted/20' : 'bg-background hover:bg-muted/20'
-                    }`}
-                    onClick={() => setSelectedRecipe(recipe)}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base truncate">{recipe.name}</h3>
-                        <p className="font-mono text-xs text-muted-foreground mt-1">
+            {filteredRecipes.length === 0 ? (
+              <div className="flex h-64 items-center justify-center">
+                <p className="text-sm text-muted-foreground">
+                  {recipes.length === 0
+                    ? <>No recipes yet. Create one from the sidebar →</>
+                    : "No recipes match your filters."
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="border divide-y">
+                {filteredRecipes.map((recipe) => {
+                  const isSelected = selectedRecipe?.id === recipe.id;
+                  return (
+                    <div
+                      key={recipe.id}
+                      className={`px-4 py-2.5 transition cursor-pointer ${
+                        isSelected ? 'bg-muted/40' : 'hover:bg-muted/20'
+                      }`}
+                      onClick={() => setSelectedRecipe(recipe)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm truncate">{recipe.name}</h3>
+                        </div>
+                        <p className="font-mono text-xs text-muted-foreground whitespace-nowrap">
                           {recipe.servingSize} {recipe.servingUnit}
-                          {recipe.sourceApp && ` • From ${recipe.sourceApp}`}
                         </p>
-                        {recipeTags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {recipeTags.map((tag) => (
-                              <span key={tag} className="inline-block px-2 py-0.5 border text-[10px] uppercase tracking-wider">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {recipe.isComplete === false && (
-                          <div className="inline-block px-2 py-0.5 border border-amber-600/40 bg-amber-600/10 text-[10px] uppercase tracking-wider mt-2">
-                            Incomplete
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Link
-                          href={`/recipes/${recipe.id}`}
-                          className="px-3 py-1.5 border text-xs hover:bg-muted/40 transition"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(recipe.id, recipe.name)}
-                          className="px-3 py-1.5 border border-rose-600/40 bg-rose-600/10 text-xs text-rose-700 hover:bg-rose-600/20 transition"
-                        >
-                          Delete
-                        </button>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Right Sidebar - Search & Filters */}
       <aside className="flex w-80 flex-col border-l bg-muted/10">
         {/* Header */}
-        <div className="p-4">
-          <h2 className="text-sm font-semibold">Filters & Actions</h2>
+        <div className="p-4 space-y-1">
+          <h2 className="text-sm font-semibold">Recipes</h2>
+          <p className="text-xs text-muted-foreground">Select a recipe to view details</p>
         </div>
 
         {/* Create Button */}
@@ -178,7 +244,7 @@ export default function RecipesPage() {
           </label>
           <input
             type="text"
-            className="w-full border bg-background px-3 py-2 text-sm"
+            className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
             placeholder="Type recipe name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -220,7 +286,7 @@ export default function RecipesPage() {
         </div>
 
         {/* Recipe Count */}
-        <div className="p-4 space-y-2">
+        <div className="p-4">
           <div className="text-xs text-muted-foreground">
             Showing <span className="font-mono font-semibold text-foreground">{filteredRecipes.length}</span> of{' '}
             <span className="font-mono font-semibold text-foreground">{recipes.length}</span> recipes
@@ -239,6 +305,16 @@ export default function RecipesPage() {
                 <p className="font-mono text-xs text-muted-foreground">
                   {selectedRecipe.servingSize} {selectedRecipe.servingUnit}
                 </p>
+                {selectedRecipe.sourceApp && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    From {selectedRecipe.sourceApp}
+                  </p>
+                )}
+                {selectedRecipe.isComplete === false && (
+                  <div className="inline-block px-2 py-0.5 border border-amber-600/40 bg-amber-600/10 text-[10px] uppercase tracking-wider mt-2">
+                    Incomplete
+                  </div>
+                )}
               </div>
               
               {selectedRecipe.ingredients.length > 0 && (
@@ -272,12 +348,20 @@ export default function RecipesPage() {
                 </div>
               )}
 
-              <Link
-                href={`/recipes/${selectedRecipe.id}`}
-                className="flex w-full items-center justify-center border bg-background px-4 py-2 text-xs font-medium hover:bg-muted/40 transition"
-              >
-                Edit Full Recipe
-              </Link>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => handleEditClick(selectedRecipe.id)}
+                  className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-xs font-medium hover:bg-muted/40 transition"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedRecipe.id, selectedRecipe.name)}
+                  className="flex flex-1 items-center justify-center border border-rose-600/40 bg-rose-600/10 px-4 py-2 text-xs font-medium text-rose-700 hover:bg-rose-600/20 transition"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         )}

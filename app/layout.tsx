@@ -47,13 +47,6 @@ export default function RootLayout({
               {/* Navigation Links */}
               <nav className="flex-1 space-y-1 p-3">
                 <Link 
-                  href="/" 
-                  className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                >
-                  <span className="text-base">📊</span>
-                  Dashboard
-                </Link>
-                <Link 
                   href="/ingredients" 
                   className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
                 >

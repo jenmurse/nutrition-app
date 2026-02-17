@@ -66,21 +66,8 @@ const DailySummary: React.FC<DailySummaryProps> = ({
   };
 
   return (
-    <div className={isFlat ? 'bg-transparent p-0' : 'border bg-card p-3'}>
-      {!isFlat && (
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-              {dayOfWeek}
-            </p>
-            <h3 className="text-sm font-semibold">
-              {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </h3>
-          </div>
-        </div>
-      )}
-
-      <div className={isFlat ? 'space-y-3' : 'grid gap-3'}>
+    <div className={isFlat ? 'bg-transparent p-0' : 'border bg-card'}>
+      <div className={isFlat ? 'space-y-3' : 'divide-y'}>
         {nutrients.map((nutrient) => {
           const progressPercent = getProgressPercentage(
             nutrient.value,
@@ -92,7 +79,7 @@ const DailySummary: React.FC<DailySummaryProps> = ({
           return (
             <div
               key={nutrient.nutrientId}
-              className={isFlat ? 'py-2' : 'border bg-background px-2 py-2'}
+              className={isFlat ? 'py-2' : 'px-4 py-3'}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="text-sm font-semibold">

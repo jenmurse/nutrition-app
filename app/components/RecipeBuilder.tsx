@@ -37,9 +37,11 @@ type InitialRecipe = {
 export default function RecipeBuilder({
   initialRecipe,
   onSaved,
+  onCancel,
 }: {
   initialRecipe?: InitialRecipe;
   onSaved?: () => void;
+  onCancel?: () => void;
 }) {
   const [name, setName] = useState("");
   const [servings, setServings] = useState(1);
@@ -48,6 +50,7 @@ export default function RecipeBuilder({
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [rows, setRows] = useState<Row[]>([{ id: "r1" }]);
+  const [saving, setSaving] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<Record<string, string>>({});
   const [showDropdown, setShowDropdown] = useState<Record<string, boolean>>({});
@@ -154,6 +157,7 @@ export default function RecipeBuilder({
       return;
     }
 
+    setSaving(true);
     const payload = {
       name,
       servingSize: servings,
@@ -189,28 +193,53 @@ export default function RecipeBuilder({
     } catch (err) {
       console.error(err);
       alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setSaving(false);
     }
   }
 
   const totals = computeTotals();
 
   return (
-    <div className="p-4 border rounded bg-white">
-      <h3 className="text-lg font-medium mb-3">{initialRecipe?.id ? "Edit Recipe" : "Create Recipe"}</h3>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-        <input className="border rounded p-2 col-span-2" placeholder="Recipe name" value={name} onChange={(e) => setName(e.target.value)} />
-        <div className="flex gap-2">
-          <input className="border rounded p-2 flex-1" type="number" min={1} value={servings} onChange={(e) => setServings(Number(e.target.value))} />
-          <select className="border rounded p-2" value={servingUnit} onChange={(e) => setServingUnit(e.target.value)}>
-            <option value="servings">servings</option>
-            <option value="g">g</option>
-            <option value="ml">ml</option>
-          </select>
+    <div className="space-y-4">
+      <div className="space-y-3">
+        <div>
+          <label className="block text-sm font-medium mb-2">Recipe Name</label>
+          <input 
+            className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+            placeholder="Recipe name" 
+            value={name} 
+            onChange={(e) => setName(e.target.value)} 
+          />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium mb-2">Servings</label>
+            <input 
+              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+              type="number" 
+              min={1} 
+              value={servings} 
+              onChange={(e) => setServings(Number(e.target.value))} 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Unit</label>
+            <select 
+              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+              value={servingUnit} 
+              onChange={(e) => setServingUnit(e.target.value)}
+            >
+              <option value="servings">servings</option>
+              <option value="g">g</option>
+              <option value="ml">ml</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="mb-4 p-3 bg-slate-50 rounded border">
+      <div className="border bg-muted/10 p-3">
         <label className="block text-sm font-medium mb-2">Tags</label>
         <div className="flex flex-wrap gap-2">
           {availableTags.map((tag) => (
@@ -233,92 +262,105 @@ export default function RecipeBuilder({
         </div>
       </div>
 
-      <div className="mb-4">
+      <div>
         <label className="block text-sm font-medium mb-2">Instructions</label>
         <textarea
-          className="w-full border rounded p-2 min-h-[120px]"
+          className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground min-h-[120px]"
           placeholder="Add recipe instructions..."
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
         />
       </div>
 
-      <div className="space-y-2 mb-4">
-        {rows.map((row) => {
-          const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
-          const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
-          const currentSearch = searchText[row.id] || "";
-          const filteredIngredients = currentSearch
-            ? ingredients.filter((i) => i.name.toLowerCase().includes(currentSearch.toLowerCase()))
-            : ingredients;
-          
-          return (
-            <div key={row.id} className="flex gap-2 items-start">
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  className="w-full border rounded p-2"
-                  placeholder="Type to search ingredients..."
-                  value={selectedIngredient ? selectedIngredient.name : currentSearch}
-                  onChange={(e) => {
-                    setSearchText({ ...searchText, [row.id]: e.target.value });
-                    setShowDropdown({ ...showDropdown, [row.id]: true });
-                    if (!e.target.value && row.ingredientId) {
-                      updateRow(row.id, { ingredientId: undefined });
-                    }
-                  }}
-                  onFocus={() => setShowDropdown({ ...showDropdown, [row.id]: true })}
+      <div>
+        <label className="block text-sm font-medium mb-3">Ingredients</label>
+        <div className="space-y-2">
+          {rows.map((row) => {
+            const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
+            const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
+            const currentSearch = searchText[row.id] || "";
+            const filteredIngredients = currentSearch
+              ? ingredients.filter((i) => i.name.toLowerCase().includes(currentSearch.toLowerCase()))
+              : ingredients;
+            
+            return (
+              <div key={row.id} className="flex gap-2 items-start">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+                    placeholder="Type to search ingredients..."
+                    value={selectedIngredient ? selectedIngredient.name : currentSearch}
+                    onChange={(e) => {
+                      setSearchText({ ...searchText, [row.id]: e.target.value });
+                      setShowDropdown({ ...showDropdown, [row.id]: true });
+                      if (!e.target.value && row.ingredientId) {
+                        updateRow(row.id, { ingredientId: undefined });
+                      }
+                    }}
+                    onFocus={() => setShowDropdown({ ...showDropdown, [row.id]: true })}
+                  />
+                  {showDropdown[row.id] && filteredIngredients.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-background border shadow-lg max-h-48 overflow-auto">
+                      {filteredIngredients.map((i) => (
+                        <div
+                          key={i.id}
+                          className="p-2 hover:bg-muted/40 cursor-pointer text-sm"
+                          onClick={() => {
+                            const defaultUnit = i.customUnitName || i.defaultUnit || "g";
+                            updateRow(row.id, { ingredientId: i.id, unit: defaultUnit });
+                            setSearchText({ ...searchText, [row.id]: "" });
+                            setShowDropdown({ ...showDropdown, [row.id]: false });
+                          }}
+                        >
+                          {i.name}
+                          {i.customUnitName ? ` (${i.customUnitName})` : ""}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <input 
+                  className="w-24 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+                  type="number" 
+                  placeholder="qty" 
+                  value={row.quantity ?? ""} 
+                  onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value) || undefined })} 
                 />
-                {showDropdown[row.id] && filteredIngredients.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-auto">
-                    {filteredIngredients.map((i) => (
-                      <div
-                        key={i.id}
-                        className="p-2 hover:bg-slate-100 cursor-pointer"
-                        onClick={() => {
-                          const defaultUnit = i.customUnitName || i.defaultUnit || "g";
-                          updateRow(row.id, { ingredientId: i.id, unit: defaultUnit });
-                          setSearchText({ ...searchText, [row.id]: "" });
-                          setShowDropdown({ ...showDropdown, [row.id]: false });
-                        }}
-                      >
-                        {i.name}
-                        {i.customUnitName ? ` (${i.customUnitName})` : ""}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <input 
+                  className="w-24 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+                  placeholder={defaultUnitForRow}
+                  title={selectedIngredient?.customUnitName ? `Custom unit: ${selectedIngredient.customUnitName}` : ""}
+                  value={row.unit ?? ""} 
+                  onChange={(e) => updateRow(row.id, { unit: e.target.value || defaultUnitForRow })} 
+                />
+                <button 
+                  className="px-3 py-2 border text-sm hover:bg-muted/40 transition"
+                  onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}
+                >
+                  Remove
+                </button>
               </div>
-
-              <input 
-                className="w-24 border rounded p-2" 
-                type="number" 
-                placeholder="qty" 
-                value={row.quantity ?? ""} 
-                onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value) || undefined })} 
-              />
-              <input 
-                className="w-24 border rounded p-2" 
-                placeholder={defaultUnitForRow}
-                title={selectedIngredient?.customUnitName ? `Custom unit: ${selectedIngredient.customUnitName}` : ""}
-                value={row.unit ?? ""} 
-                onChange={(e) => updateRow(row.id, { unit: e.target.value || defaultUnitForRow })} 
-              />
-              <button className="px-3 py-2 border rounded" onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}>Remove</button>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      <div className="mb-4">
-        <button className="px-4 py-2 bg-slate-100 rounded" onClick={addRow}>Add ingredient</button>
+      <div>
+        <button 
+          className="px-4 py-2 border bg-muted/10 text-sm hover:bg-muted/20 transition"
+          onClick={addRow}
+        >
+          Add ingredient
+        </button>
       </div>
 
-      <div className="mb-4">
-        <h4 className="font-medium mb-2">Totals</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <div className="border-t pt-4">
+        <h4 className="text-sm font-medium mb-3">Nutrient Totals per Serving</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {nutrients.map((n) => (
-            <div key={n.id} className="flex justify-between border rounded p-2">
+            <div key={n.id} className="flex justify-between border bg-muted/10 px-3 py-2 text-sm">
               <div>{n.displayName}</div>
               <div className="font-mono">{Math.round((totals[n.id] || 0) * 100) / 100} {n.unit}</div>
             </div>
@@ -326,8 +368,21 @@ export default function RecipeBuilder({
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleSave}>Save Recipe</button>
+      <div className="flex gap-2 pt-4">
+        <button 
+          className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition disabled:opacity-50"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+        <button 
+          className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition disabled:opacity-50"
+          onClick={onCancel}
+          disabled={saving}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

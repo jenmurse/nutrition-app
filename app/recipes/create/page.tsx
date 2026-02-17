@@ -71,18 +71,18 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="p-6">
       <div className="mb-4">
-        <a href="/recipes" className="text-blue-600 hover:underline text-sm">
+        <a href="/recipes" className="text-foreground hover:underline text-sm">
           ← Back to recipes
         </a>
       </div>
-      <h1 className="text-2xl font-semibold mb-6">Create New Recipe</h1>
+      <h1 className="text-xl font-semibold mb-6">Create New Recipe</h1>
 
       {!importedRecipe && (
-        <div className="mb-6 p-4 border rounded bg-white">
-          <h3 className="text-lg font-medium mb-2">Import from Pestle</h3>
-          <p className="text-sm text-slate-600 mb-3">Or create a recipe from scratch below</p>
+        <div className="mb-6 p-4 border bg-muted/10">
+          <h3 className="text-base font-medium mb-2">Import from Pestle</h3>
+          <p className="text-sm text-muted-foreground mb-3">Or create a recipe from scratch below</p>
           <input
             type="file"
             accept=".md,text/markdown"
@@ -91,8 +91,9 @@ export default function CreateRecipePage() {
               if (file) handleImport(file);
             }}
             disabled={importing}
+            className="text-sm"
           />
-          {importing && <div className="text-sm text-slate-600 mt-2">Importing…</div>}
+          {importing && <div className="text-sm text-muted-foreground mt-2">Importing…</div>}
         </div>
       )}
       
@@ -100,6 +101,9 @@ export default function CreateRecipePage() {
         <RecipeBuilder
           initialRecipe={importedRecipe || undefined}
           onSaved={() => {
+            router.push("/recipes");
+          }}
+          onCancel={() => {
             router.push("/recipes");
           }}
         />

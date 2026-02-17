@@ -63,6 +63,7 @@ const MealPlansPage = () => {
   const [newWeekStartDate, setNewWeekStartDate] = useState('');
   const [creatingPlan, setCreatingPlan] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 
   useEffect(() => {
     fetchMealPlans();
@@ -285,7 +286,38 @@ const MealPlansPage = () => {
               onAddMeal={handleAddMeal}
               onRemoveMeal={handleRemoveMeal}
               onError={(msg) => setMessage({ type: 'error', text: msg })}
+              selectedDay={selectedDay}
+              onDayClick={setSelectedDay}
             />
+
+            {/* Daily Nutrition Summary */}
+            {selectedDay && selectedPlan.weeklySummary && (() => {
+              const dayData = selectedPlan.weeklySummary.dailyNutritions.find(
+                (day) => new Date(day.date).toDateString() === selectedDay.toDateString()
+              );
+              if (!dayData) return null;
+              return (
+                <div className="mt-6 pt-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">
+                      Nutrition - {dayData.dayOfWeek}, {new Date(dayData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </h2>
+                    <button
+                      className="text-xs text-muted-foreground hover:text-foreground transition"
+                      onClick={() => setSelectedDay(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <DailySummary
+                    dayOfWeek={dayData.dayOfWeek}
+                    date={new Date(dayData.date)}
+                    nutrients={dayData.totalNutrients}
+                    variant="card"
+                  />
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -401,58 +433,7 @@ const MealPlansPage = () => {
           )}
         </div>
 
-        {/* Daily Summaries - Only shown when a plan is selected */}
-        {selectedPlan && selectedPlan.weeklySummary && (
-          <div className="border-t">
-            <div className="p-4">
-              <h3 className="text-sm font-semibold">Daily Nutrition</h3>
-            </div>
-            <div className="max-h-96 overflow-y-auto">
-              {selectedPlan.weeklySummary.dailyNutritions.map((day) => (
-                <div
-                  key={new Date(day.date).toISOString()}
-                  className="border-b last:border-b-0"
-                >
-                  <button
-                    type="button"
-                    className="flex h-10 w-full items-center justify-between px-4 text-xs font-semibold hover:bg-muted/40 transition"
-                    onClick={(event) => {
-                      const content = event.currentTarget.nextElementSibling as HTMLDivElement | null;
-                      const icon = event.currentTarget.querySelector('[data-accordion-icon]') as HTMLSpanElement | null;
-                      if (!content) return;
-                      const isOpen = content.dataset.open === 'true';
-                      const nextOpen = !isOpen;
-                      content.dataset.open = nextOpen.toString();
-                      content.classList.toggle('hidden', !nextOpen);
-                      if (icon) {
-                        icon.textContent = nextOpen ? '-' : '+';
-                      }
-                    }}
-                  >
-                    <span>
-                      {day.dayOfWeek.slice(0, 3)} {new Date(day.date).getDate()}
-                    </span>
-                    <span
-                      className="text-xs font-semibold text-muted-foreground"
-                      aria-hidden="true"
-                      data-accordion-icon
-                    >
-                      +
-                    </span>
-                  </button>
-                  <div className="hidden px-4 pb-3" data-open="false">
-                    <DailySummary
-                      dayOfWeek={day.dayOfWeek}
-                      date={new Date(day.date)}
-                      nutrients={day.totalNutrients}
-                      variant="flat"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
       </aside>
     </div>
   );

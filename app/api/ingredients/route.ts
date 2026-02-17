@@ -24,14 +24,16 @@ export async function POST(request: Request) {
     const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, nutrientValues } = body;
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
+    const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(defaultUnit);
+
     const ingredient = await prisma.ingredient.create({
       data: {
         name,
         fdcId: fdcId || null,
         defaultUnit: defaultUnit || "g",
-        customUnitName: defaultUnit === "other" ? customUnitName : null,
-        customUnitAmount: defaultUnit === "other" ? customUnitAmount : null,
-        customUnitGrams: defaultUnit === "other" ? customUnitGrams : null,
+        customUnitName: isCustomUnit ? customUnitName : null,
+        customUnitAmount: isCustomUnit ? customUnitAmount : null,
+        customUnitGrams: isCustomUnit ? customUnitGrams : null,
       },
     });
 

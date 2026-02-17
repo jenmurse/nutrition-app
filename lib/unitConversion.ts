@@ -21,22 +21,16 @@ export function convertToGrams(
   value: number,
   unit: string,
   density = 1,
-  ingredient?: { customUnitName?: string | null; customUnitGrams?: number | null; customUnitAmount?: number | null; customUnitMeasurement?: string | null }
+  ingredient?: { customUnitName?: string | null; customUnitGrams?: number | null; customUnitAmount?: number | null }
 ): number {
   if (!unit || !value) return 0;
   
   // Handle custom units
   if (ingredient?.customUnitName && ingredient?.customUnitGrams) {
     if (unit.toLowerCase() === ingredient.customUnitName.toLowerCase()) {
+      // Convert custom units to grams
       const customAmount = ingredient.customUnitAmount || 1;
-      let customValueInGrams = ingredient.customUnitGrams;
-      
-      // If the custom unit is in mL, convert to grams using density
-      if (ingredient.customUnitMeasurement === "ml") {
-        customValueInGrams = ingredient.customUnitGrams * density;
-      }
-      
-      return (value / customAmount) * customValueInGrams;
+      return (value / customAmount) * ingredient.customUnitGrams;
     }
   }
 

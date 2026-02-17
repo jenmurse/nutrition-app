@@ -25,7 +25,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const numId = Number(id);
     const body = await request.json();
-    const { name, fdcId, defaultUnit, nutrientValues } = body;
+    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, nutrientValues } = body;
+    const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(defaultUnit);
 
     const updated = await prisma.ingredient.update({
       where: { id: numId },
@@ -33,6 +34,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         name,
         fdcId: fdcId || null,
         defaultUnit: defaultUnit || "g",
+        customUnitName: isCustomUnit ? customUnitName : null,
+        customUnitAmount: isCustomUnit ? customUnitAmount : null,
+        customUnitGrams: isCustomUnit ? customUnitGrams : null,
       },
     });
 

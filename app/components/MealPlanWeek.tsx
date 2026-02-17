@@ -43,6 +43,8 @@ interface MealPlanWeekProps {
   onRemoveMeal: (mealId: number) => Promise<void>;
   onError?: (message: string) => void;
   isLoading?: boolean;
+  selectedDay?: Date | null;
+  onDayClick?: (date: Date) => void;
 }
 
 const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
@@ -54,6 +56,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   onRemoveMeal,
   onError,
   isLoading = false,
+  selectedDay,
+  onDayClick,
 }) => {
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
     date: Date;
@@ -137,89 +141,60 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   return (
     <section className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Week of
-          </p>
-          <h2 className="text-lg font-semibold">
-            {weekStartDate.toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </h2>
-        </div>
-      </div>
-
       <div className="space-y-4">
         <div className="w-full max-w-full overflow-x-auto">
-          <div className="grid min-w-[860px] grid-cols-7 gap-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+          <div className="grid min-w-[860px] grid-cols-7 gap-3 text-center">
             {days.map((day) => (
-              <div key={day.date.toISOString()} className="text-center">
-                {day.dayOfWeek.slice(0, 3)}
+              <div key={day.date.toISOString()}>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  {day.dayOfWeek.slice(0, 3)}
+                </div>
+                <div className="text-sm font-semibold text-foreground">
+                  {new Date(day.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </div>
               </div>
             ))}
           </div>
         </div>
         <div className="w-full max-w-full overflow-x-auto">
           <div className="grid min-w-[860px] grid-cols-7 gap-3">
-            {days.map((day) => (
+            {days.map((day) => {
+              return (
               <div
                 key={day.date.toISOString()}
                 className="flex flex-col gap-3 border bg-card p-3"
               >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-semibold">
-                  {new Date(day.date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </div>
-                <div className="text-[11px] text-muted-foreground">
-                  {new Date(day.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                  })}
-                </div>
-              </div>
-              <div className="border bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                {day.meals.length} meal{day.meals.length === 1 ? '' : 's'}
-              </div>
-            </div>
+            <Button
+              variant="ghost"
+              className="h-8 w-full text-xs"
+              onClick={() => onDayClick?.(new Date(day.date))}
+            >
+              View Nutrition
+            </Button>
 
             <div className="flex-1 space-y-2">
               {day.meals.length > 0 ? (
-                availableMealTypes.map((mealType) => {
-                  const mealsOfType = day.meals.filter((m) => m.mealType === mealType);
-                  if (mealsOfType.length === 0) return null;
-
-                  return (
-                    <div key={mealType} className="space-y-2">
-                      <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-                        {mealType}
+                <div className="space-y-1.5">
+                  {day.meals.map((meal) => (
+                    <button
+                      key={meal.id}
+                      type="button"
+                      className="w-full border border-border bg-background px-2 py-1.5 text-left text-xs transition hover:border-foreground/40"
+                      title={`Remove meal: ${meal.recipe.name}`}
+                      onClick={() => handleRemoveMeal(meal.id)}
+                    >
+                      <div className="text-xs font-semibold text-foreground">
+                        {meal.recipe.name}
                       </div>
-                      <div className="space-y-1.5">
-                        {mealsOfType.map((meal) => (
-                          <button
-                            key={meal.id}
-                            type="button"
-                            className="w-full border border-border bg-background px-2 py-1.5 text-left text-xs transition hover:border-foreground/40"
-                            title={`Remove meal: ${meal.recipe.name}`}
-                            onClick={() => handleRemoveMeal(meal.id)}
-                          >
-                            <div className="text-xs font-semibold text-foreground">
-                              {meal.recipe.name}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground">
-                              {meal.servings ?? 1} {meal.recipe.servingUnit} serving{(meal.servings ?? 1) !== 1 ? 's' : ''}
-                            </div>
-                          </button>
-                        ))}
+                      <div className="text-[11px] text-muted-foreground">
+                        {meal.servings ?? 1} {meal.recipe.servingUnit} serving{(meal.servings ?? 1) !== 1 ? 's' : ''}
                       </div>
-                    </div>
-                  );
-                })
+                    </button>
+                  ))}
+                </div>
               ) : (
                 <div className="border border-dashed border-muted-foreground/40 bg-muted/10 px-3 py-4 text-center text-[11px] text-muted-foreground">
                   No meals planned yet
@@ -235,7 +210,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               + Add Meal
             </Button>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
