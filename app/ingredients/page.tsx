@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type NutrientValue = {
   id: number;
@@ -91,9 +92,10 @@ function formatNutrient(num: number): string {
 }
 
 export default function IngredientsPage() {
+  const searchParams = useSearchParams();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchQuery = searchParams?.get("search") || "";
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
@@ -881,13 +883,19 @@ export default function IngredientsPage() {
           <>
             <h1 className="text-xl font-semibold mb-6">Ingredients</h1>
 
+            {/* Ingredient Count */}
+            <div className="mb-4 text-sm text-muted-foreground">
+              Showing <span className="font-mono font-semibold text-foreground">{filteredIngredients.length}</span> of{' '}
+              <span className="font-mono font-semibold text-foreground">{ingredients.length}</span> ingredients
+            </div>
+
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading…</p>
             ) : filteredIngredients.length === 0 ? (
-              <div className="flex h-64 items-center justify-center">
+              <div className="flex h-64 items-center justify-center border">
                 <p className="text-sm text-muted-foreground">
                   {ingredients.length === 0
-                    ? <>No ingredients yet. Create one from the sidebar →</>
+                    ? <>No ingredients yet. Click "+ Create Ingredient" in the sidebar to get started.</>
                     : "No ingredients match your search."
                   }
                 </p>
@@ -899,15 +907,19 @@ export default function IngredientsPage() {
                   return (
                     <div
                       key={ing.id}
-                      className={`px-4 py-2.5 transition cursor-pointer ${
+                      className={`px-4 h-[40px] flex items-center transition cursor-pointer ${
                         isSelected ? 'bg-muted/40' : 'hover:bg-muted/20'
                       }`}
                       onClick={() => {
-                        setEditMode(false);
-                        refreshSelectedIngredient(ing.id);
+                        if (isSelected) {
+                          setSelectedIngredient(null);
+                        } else {
+                          setEditMode(false);
+                          refreshSelectedIngredient(ing.id);
+                        }
                       }}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between gap-4 w-full">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-sm truncate">{ing.name}</h3>
                         </div>
@@ -916,6 +928,28 @@ export default function IngredientsPage() {
                             ? `${ing.customUnitAmount} ${ing.customUnitName}`
                             : ing.defaultUnit}
                         </p>
+                        {isSelected && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick(ing);
+                              }}
+                              className="border bg-background px-3 py-1 text-xs font-medium hover:bg-muted/40 transition"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(ing.id, ing.name);
+                              }}
+                              className="border border-rose-600/40 bg-rose-600/10 px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-600/20 transition"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -925,105 +959,6 @@ export default function IngredientsPage() {
           </>
         )}
       </div>
-
-      {/* Right Sidebar - Search & Details */}
-      <aside className="flex w-80 flex-col border-l bg-muted/10">
-        {/* Header */}
-        <div className="p-4 space-y-1">
-          <h2 className="text-sm font-semibold">Ingredients</h2>
-          <p className="text-xs text-muted-foreground">Select an ingredient to view nutrition details</p>
-        </div>
-
-        {/* Create Button */}
-        <div className="p-4">
-          <button
-            onClick={() => {
-              setCreateMode(true);
-              setEditMode(false);
-              setSelectedIngredient(null);
-            }}
-            className="flex w-full items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition"
-          >
-            + Create Ingredient
-          </button>
-        </div>
-
-        {/* Search */}
-        <div className="p-4 space-y-2">
-          <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Search
-          </label>
-          <input
-            type="text"
-            className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
-            placeholder="Type ingredient name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {/* Ingredient Count */}
-        <div className="p-4">
-          <div className="text-xs text-muted-foreground">
-            Showing <span className="font-mono font-semibold text-foreground">{filteredIngredients.length}</span> of{' '}
-            <span className="font-mono font-semibold text-foreground">{ingredients.length}</span> ingredients
-          </div>
-        </div>
-
-        {/* Selected Ingredient Details */}
-        {selectedIngredient && (
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4">
-              <h3 className="text-sm font-semibold">Nutrition Info</h3>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <h4 className="font-semibold text-sm mb-1">{selectedIngredient.name}</h4>
-                <p className="font-mono text-xs text-muted-foreground">
-                  per 100g
-                </p>
-              </div>
-
-              {selectedIngredient.nutrientValues.length > 0 ? (
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-2">
-                    Nutrients
-                  </div>
-                  <div className="space-y-2">
-                    {selectedIngredient.nutrientValues.map((nv) => (
-                      <div key={nv.id} className="flex items-center justify-between text-xs border-b pb-2">
-                        <span className="text-muted-foreground">{nv.nutrient.displayName}</span>
-                        <span className="font-mono font-semibold">
-                          {formatNutrient(nv.value)} {nv.nutrient.unit}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-xs text-muted-foreground">
-                  No nutrient data available
-                </div>
-              )}
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  onClick={() => handleEditClick(selectedIngredient)}
-                  className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-xs font-medium hover:bg-muted/40 transition"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(selectedIngredient.id, selectedIngredient.name)}
-                  className="flex flex-1 items-center justify-center border border-rose-600/40 bg-rose-600/10 px-4 py-2 text-xs font-medium text-rose-700 hover:bg-rose-600/20 transition"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </aside>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import styles from './settings.module.css';
 
 interface Nutrient {
@@ -12,16 +13,35 @@ interface Nutrient {
 }
 
 const SettingsPage = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const isEditing = searchParams?.get("editing") === "true";
+  const shouldReset = searchParams?.get("reset") === "true";
+  
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     fetchNutrients();
   }, []);
+
+  useEffect(() => {
+    if (shouldReset && nutrients.length > 0) {
+      const defaultGoals: Record<number, { lowGoal?: number; highGoal?: number }> = {};
+      nutrients.forEach((nutrient) => {
+        defaultGoals[nutrient.id] = { lowGoal: undefined, highGoal: undefined };
+      });
+      setGoals(defaultGoals);
+      // Clear the reset param from URL
+      const params = new URLSearchParams(searchParams?.toString());
+      params.delete("reset");
+      params.set("editing", "true");
+      router.push(`/settings?${params.toString()}`);
+    }
+  }, [shouldReset, nutrients]);
 
   const fetchNutrients = async () => {
     try {
@@ -80,7 +100,10 @@ const SettingsPage = () => {
       }
 
       setMessage({ type: 'success', text: 'Nutrition goals saved successfully!' });
-      setIsEditing(false);
+      // Exit edit mode via URL
+      const params = new URLSearchParams(searchParams?.toString());
+      params.delete("editing");
+      router.push(`/settings?${params.toString()}`);
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Error saving goals:', error);
@@ -90,16 +113,6 @@ const SettingsPage = () => {
     }
   };
 
-  const handleResetGoals = () => {
-    if (!confirm("Reset all goals? This will clear every min/max value.")) return;
-    const defaultGoals: Record<number, { lowGoal?: number; highGoal?: number }> = {};
-    nutrients.forEach((nutrient) => {
-      defaultGoals[nutrient.id] = { lowGoal: undefined, highGoal: undefined };
-    });
-    setGoals(defaultGoals);
-    setIsEditing(true);
-  };
-
   const formatGoal = (value?: number) => {
     if (value === undefined || Number.isNaN(value)) return 'None';
     return value.toString();
@@ -107,17 +120,16 @@ const SettingsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex h-full">
+      <div className="flex h-full flex-col">
         <div className="flex-1 overflow-y-auto p-6">
           <div className="text-sm text-muted-foreground">Loading nutrition settings...</div>
         </div>
-        <aside className="w-80 border-l bg-muted/10" />
       </div>
     );
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto p-6">
         <div className={styles.container}>
             <h1 className="text-xl font-semibold mb-2">Nutrition Settings</h1>
@@ -211,7 +223,11 @@ const SettingsPage = () => {
                     </button>
                     <button
                       className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition disabled:opacity-50"
-                      onClick={() => setIsEditing(false)}
+                      onClick={() => {
+                        const params = new URLSearchParams(searchParams?.toString());
+                        params.delete("editing");
+                        router.push(`/settings?${params.toString()}`);
+                      }}
                       disabled={saving}
                     >
                       Cancel
@@ -222,45 +238,6 @@ const SettingsPage = () => {
             </div>
         </div>
       </div>
-
-      <aside className="flex w-80 flex-col border-l bg-muted/10">
-        <div className="p-4 space-y-1">
-          <h2 className="text-sm font-semibold">Goals</h2>
-          <p className="text-xs text-muted-foreground">
-            Edit goals and save when ready
-          </p>
-        </div>
-
-        {message && (
-          <div className="p-4">
-            <div
-              className={`border p-3 text-xs ${
-                message.type === 'success'
-                  ? 'border-green-600/40 bg-green-600/10 text-green-700'
-                  : 'border-red-600/40 bg-red-600/10 text-red-700'
-              }`}
-            >
-              {message.text}
-            </div>
-          </div>
-        )}
-
-        <div className="p-4 space-y-2">
-          <button
-            className="w-full border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition"
-            onClick={() => setIsEditing((prev) => !prev)}
-          >
-            {isEditing ? 'View Summary' : 'Edit Goals'}
-          </button>
-          <button
-            className="w-full border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition disabled:opacity-50"
-            onClick={handleResetGoals}
-            disabled={saving}
-          >
-            Reset to Defaults
-          </button>
-        </div>
-      </aside>
     </div>
   );
 };
