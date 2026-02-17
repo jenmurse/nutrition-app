@@ -157,12 +157,12 @@ export default function RecipesPage() {
       {/* Right Sidebar - Search & Filters */}
       <aside className="flex w-80 flex-col border-l bg-muted/10">
         {/* Header */}
-        <div className="border-b p-4">
+        <div className="p-4">
           <h2 className="text-sm font-semibold">Filters & Actions</h2>
         </div>
 
         {/* Create Button */}
-        <div className="border-b p-4">
+        <div className="p-4">
           <Link
             href="/recipes/create"
             className="flex w-full items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition"
@@ -172,7 +172,7 @@ export default function RecipesPage() {
         </div>
 
         {/* Search */}
-        <div className="border-b p-4 space-y-2">
+        <div className="p-4 space-y-2">
           <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Search
           </label>
@@ -186,7 +186,7 @@ export default function RecipesPage() {
         </div>
 
         {/* Tag Filters */}
-        <div className="border-b p-4 space-y-3">
+        <div className="p-4 space-y-3">
           <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Filter by Tags
           </label>
@@ -230,7 +230,7 @@ export default function RecipesPage() {
         {/* Selected Recipe Preview */}
         {selectedRecipe && (
           <div className="flex-1 border-t overflow-y-auto">
-            <div className="border-b p-4">
+            <div className="p-4">
               <h3 className="text-sm font-semibold">Recipe Details</h3>
             </div>
             <div className="p-4 space-y-4">

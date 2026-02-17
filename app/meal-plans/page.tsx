@@ -303,12 +303,12 @@ const MealPlansPage = () => {
       {/* Right Sidebar - Plan Selection & Summaries */}
       <aside className="flex w-80 flex-col border-l bg-muted/10">
         {/* Header */}
-        <div className="border-b p-4">
+        <div className="p-4">
           <h2 className="text-sm font-semibold">Meal Plans</h2>
         </div>
 
         {/* Create New Plan */}
-        <div className="border-b p-4 space-y-3">
+        <div className="p-4 space-y-3">
           <Button
             variant="outline"
             className="w-full"
@@ -404,7 +404,7 @@ const MealPlansPage = () => {
         {/* Daily Summaries - Only shown when a plan is selected */}
         {selectedPlan && selectedPlan.weeklySummary && (
           <div className="border-t">
-            <div className="border-b p-4">
+            <div className="p-4">
               <h3 className="text-sm font-semibold">Daily Nutrition</h3>
             </div>
             <div className="max-h-96 overflow-y-auto">
