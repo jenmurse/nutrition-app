@@ -191,8 +191,9 @@ nutrition-app/
 
 #### `/app/meal-plans/page.tsx`
 - **Pattern**: Single view with inline editing
-- **Features**: Weekly calendar, daily summaries, recipe assignment
-- **Layout**: 3-panel (nav | calendar | daily totals)
+- **Features**: Weekly calendar, daily summaries on demand, recipe assignment
+- **Layout**: 3-panel (nav | calendar + daily summary | sidebar)
+- **Interaction**: Click "View Nutrition" on any day to show summary below calendar
 
 #### `/app/settings/page.tsx`
 - **Pattern**: Summary view with inline editing
@@ -621,6 +622,31 @@ npm test -- --clearCache
   - [app/settings/page.tsx](app/settings/page.tsx) - Complete refactor to 3-panel layout
   - [app/settings/settings.module.css](app/settings/settings.module.css) - Styling overhaul
   - [app/recipes/page.tsx](app/recipes/page.tsx) - Added inline edit mode with state management
+
+#### Meal Plan Layout Redesign
+- **Daily nutrition moved to center panel**: Changed from cramped 320px sidebar accordion to full-width center panel display
+  - Shows below week grid when day is selected
+  - Header format: "Nutrition - [Day], [Date]"
+  - Close button to dismiss summary
+  - Provides spacious view of all nutrient categories with goals
+- **Week grid restructured**: Simplified calendar layout for better visual hierarchy
+  - Dates moved to header row (under SUN/MON/TUE labels)
+  - Removed duplicate "Week of" header
+  - Day cards simplified to flat list of meals
+- **Improved interaction patterns**:
+  - Added "View Nutrition" button to each day card
+  - Removed confusing clickable wrapper around entire day
+  - Clear call-to-action for viewing daily summaries
+- **Visual simplification**:
+  - Removed meal counter badges (e.g., "6 meals")
+  - Removed meal type grouping labels (breakfast, lunch, dinner)
+  - Removed bordered boxes around nutrient categories
+  - Changed to hairline dividers between nutrients
+  - Removed ring highlight on selected days
+- **Files modified**:
+  - [app/meal-plans/page.tsx](app/meal-plans/page.tsx) - Moved daily summary to center, removed sidebar accordion
+  - [app/components/MealPlanWeek.tsx](app/components/MealPlanWeek.tsx) - Restructured grid, added View Nutrition buttons
+  - [app/components/DailySummary.tsx](app/components/DailySummary.tsx) - Simplified styling with hairlines
 
 #### Architecture Decisions
 - **Inline editing over navigation**: Pages use state-based edit modes instead of navigating to separate edit pages
