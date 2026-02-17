@@ -230,67 +230,147 @@ const MealPlansPage = () => {
 
   if (loading) {
     return (
-      <div className="border bg-card p-8 text-center text-sm text-muted-foreground">
-        Loading meal plans...
+      <div className="flex h-full items-center justify-center">
+        <div className="text-sm text-muted-foreground">Loading meal plans...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
-      <section className="p-0">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">Meal Plans</h1>
+    <div className="flex h-full">
+      {/* Center Panel - Main Content (Week Grid) */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {selectedPlan ? (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-xl font-semibold">
+                Week of{' '}
+                {new Date(selectedPlan.weekStartDate).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </h1>
+            </div>
+            
+            <MealPlanWeek
+              mealPlanId={selectedPlan.id}
+              weekStartDate={new Date(selectedPlan.weekStartDate)}
+              days={
+                selectedPlan.weeklySummary?.dailyNutritions.map((day) => ({
+                  date: new Date(day.date),
+                  dayOfWeek: day.dayOfWeek,
+                  meals: selectedPlan.mealLogs
+                    ? selectedPlan.mealLogs
+                        .filter(
+                          (meal) =>
+                            new Date(meal.date).toDateString() ===
+                            new Date(day.date).toDateString()
+                        )
+                        .map((meal) => ({
+                          id: meal.id,
+                          mealType: meal.mealType as
+                            | 'breakfast'
+                            | 'lunch'
+                            | 'dinner'
+                            | 'snack',
+                          recipe: meal.recipe,
+                          servings: meal.servings ?? 1,
+                        }))
+                    : [],
+                  dayNutrients: day.totalNutrients,
+                })) || []
+              }
+              recipes={recipes}
+              onAddMeal={handleAddMeal}
+              onRemoveMeal={handleRemoveMeal}
+              onError={(msg) => setMessage({ type: 'error', text: msg })}
+            />
           </div>
-          <Button variant="outline" onClick={() => setShowCreateForm(!showCreateForm)}>
-            {showCreateForm ? 'Close planner' : '+ New Meal Plan'}
-          </Button>
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center space-y-3">
+              <div className="text-sm text-muted-foreground">
+                {mealPlans.length === 0
+                  ? 'No meal plans yet. Create one to get started →'
+                  : 'Select a meal plan from the sidebar →'}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right Sidebar - Plan Selection & Summaries */}
+      <aside className="flex w-80 flex-col border-l bg-muted/10">
+        {/* Header */}
+        <div className="border-b p-4">
+          <h2 className="text-sm font-semibold">Meal Plans</h2>
         </div>
 
-        {showCreateForm && (
-          <form
-            className="mt-6 grid gap-4 border bg-background p-4 md:grid-cols-[1fr_auto]"
-            onSubmit={handleCreateMealPlan}
+        {/* Create New Plan */}
+        <div className="border-b p-4 space-y-3">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => setShowCreateForm(!showCreateForm)}
           >
-            <label className="flex flex-col gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-              Week start date
-              <input
-                id="weekStartDate"
-                type="date"
-                value={newWeekStartDate}
-                onChange={(e) => setNewWeekStartDate(e.target.value)}
-                required
-                className="border bg-background px-3 py-2 text-sm text-foreground"
-              />
-            </label>
-            <div className="flex items-end">
-              <Button type="submit" variant="outline" disabled={creatingPlan}>
-                {creatingPlan ? 'Creating...' : 'Create Plan'}
+            {showCreateForm ? 'Cancel' : '+ New Plan'}
+          </Button>
+
+          {showCreateForm && (
+            <form onSubmit={handleCreateMealPlan} className="space-y-3">
+              <label className="flex flex-col gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Week start
+                <input
+                  id="weekStartDate"
+                  type="date"
+                  value={newWeekStartDate}
+                  onChange={(e) => setNewWeekStartDate(e.target.value)}
+                  required
+                  className="border bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
+                />
+              </label>
+              <Button type="submit" variant="outline" className="w-full" disabled={creatingPlan}>
+                {creatingPlan ? 'Creating...' : 'Create'}
               </Button>
+            </form>
+          )}
+        </div>
+
+        {/* Plan List */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {message && (
+            <div
+              className={`border px-3 py-2 text-xs mb-3 ${
+                message.type === 'success'
+                  ? 'border-foreground/20 bg-background'
+                  : 'border-rose-600/40 bg-rose-600/10'
+              }`}
+            >
+              {message.text}
             </div>
-          </form>
-        )}
-        <div className="mt-4">
+          )}
+
           {mealPlans.length === 0 ? (
-            <div className="border border-dashed border-muted-foreground/40 bg-muted/10 px-3 py-4 text-xs text-muted-foreground">
-              No meal plans yet. Create one to get started.
+            <div className="border border-dashed border-muted-foreground/40 bg-muted/10 px-3 py-3 text-[11px] text-muted-foreground">
+              No meal plans
             </div>
           ) : (
-            <div className="space-y-3">
-              {mealPlans.map((plan) => {
-                const isActive = selectedPlanId === plan.id;
-                return (
-                  <div key={plan.id} className="flex items-center gap-2">
-                    <button
-                      className={`flex-1 border px-3 py-2 text-left transition ${
-                        isActive
-                          ? 'border-foreground bg-background'
-                          : 'border-muted bg-background hover:bg-muted/40'
-                      }`}
-                      onClick={() => setSelectedPlanId(plan.id)}
-                    >
-                      <div className="text-sm font-semibold">
+            mealPlans.map((plan) => {
+              const isActive = selectedPlanId === plan.id;
+              return (
+                <div
+                  key={plan.id}
+                  className={`group border px-3 py-2 transition cursor-pointer ${
+                    isActive
+                      ? 'border-foreground bg-background'
+                      : 'border-muted bg-background hover:bg-muted/40'
+                  }`}
+                  onClick={() => setSelectedPlanId(plan.id)}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold truncate">
                         Week of{' '}
                         {new Date(plan.weekStartDate).toLocaleDateString('en-US', {
                           month: 'short',
@@ -302,131 +382,78 @@ const MealPlansPage = () => {
                           year: 'numeric',
                         })}
                       </div>
-                    </button>
+                    </div>
                     {isActive && (
-                      <Button
-                        variant="outline"
-                        className="h-full px-3 text-xs"
-                        onClick={() => handleDeleteMealPlan(plan.id)}
-                      >
-                        Delete
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {message && (
-        <div
-          className={`border px-4 py-2 text-sm ${
-            message.type === 'success'
-              ? 'border-foreground/20 bg-background text-foreground'
-              : 'border-foreground/20 bg-background text-foreground'
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
-      <section className="min-w-0 space-y-6">
-          {selectedPlan ? (
-            <>
-              <div className="mt-10">
-                <MealPlanWeek
-                  mealPlanId={selectedPlan.id}
-                  weekStartDate={new Date(selectedPlan.weekStartDate)}
-                  days={
-                    selectedPlan.weeklySummary?.dailyNutritions.map((day) => ({
-                      date: new Date(day.date),
-                      dayOfWeek: day.dayOfWeek,
-                      meals: selectedPlan.mealLogs
-                        ? selectedPlan.mealLogs
-                            .filter(
-                              (meal) =>
-                                new Date(meal.date).toDateString() ===
-                                new Date(day.date).toDateString()
-                            )
-                            .map((meal) => ({
-                              id: meal.id,
-                              mealType: meal.mealType as
-                                | 'breakfast'
-                                | 'lunch'
-                                | 'dinner'
-                                | 'snack',
-                              recipe: meal.recipe,
-                              servings: meal.servings ?? 1,
-                            }))
-                        : [],
-                      dayNutrients: day.totalNutrients,
-                    })) || []
-                  }
-                  recipes={recipes}
-                  onAddMeal={handleAddMeal}
-                  onRemoveMeal={handleRemoveMeal}
-                  onError={(msg) => setMessage({ type: 'error', text: msg })}
-                />
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Daily summaries</h2>
-                </div>
-                <div className="w-full space-y-2">
-                  {selectedPlan.weeklySummary?.dailyNutritions.map((day) => (
-                    <div
-                      key={new Date(day.date).toISOString()}
-                      className="border-t border-border last:border-b last:pb-2"
-                    >
                       <button
-                        type="button"
-                        className="flex h-12 w-full items-center justify-between px-1 pt-[3px] text-sm font-semibold"
-                        onClick={(event) => {
-                          const content = event.currentTarget.nextElementSibling as HTMLDivElement | null;
-                          const icon = event.currentTarget.querySelector('[data-accordion-icon]') as HTMLSpanElement | null;
-                          if (!content) return;
-                          const isOpen = content.dataset.open === 'true';
-                          const nextOpen = !isOpen;
-                          content.dataset.open = nextOpen.toString();
-                          content.classList.toggle('hidden', !nextOpen);
-                          if (icon) {
-                            icon.textContent = nextOpen ? '-' : '+';
-                          }
+                        className="text-xs text-muted-foreground hover:text-destructive transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteMealPlan(plan.id);
                         }}
                       >
-                        <span className="relative top-[3px]">
-                          {day.dayOfWeek} ·{' '}
-                          {new Date(day.date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </span>
-                        <span
-                          className="relative top-[3px] text-sm font-semibold text-muted-foreground"
-                          aria-hidden="true"
-                          data-accordion-icon
-                        >
-                          +
-                        </span>
+                        Delete
                       </button>
-                      <div className="hidden px-1 pb-3" data-open="false">
-                        <DailySummary
-                          dayOfWeek={day.dayOfWeek}
-                          date={new Date(day.date)}
-                          nutrients={day.totalNutrients}
-                          variant="flat"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
                 </div>
-              </div>
-            </>
-          ) : null}
-        </section>
+              );
+            })
+          )}
+        </div>
+
+        {/* Daily Summaries - Only shown when a plan is selected */}
+        {selectedPlan && selectedPlan.weeklySummary && (
+          <div className="border-t">
+            <div className="border-b p-4">
+              <h3 className="text-sm font-semibold">Daily Nutrition</h3>
+            </div>
+            <div className="max-h-96 overflow-y-auto">
+              {selectedPlan.weeklySummary.dailyNutritions.map((day) => (
+                <div
+                  key={new Date(day.date).toISOString()}
+                  className="border-b last:border-b-0"
+                >
+                  <button
+                    type="button"
+                    className="flex h-10 w-full items-center justify-between px-4 text-xs font-semibold hover:bg-muted/40 transition"
+                    onClick={(event) => {
+                      const content = event.currentTarget.nextElementSibling as HTMLDivElement | null;
+                      const icon = event.currentTarget.querySelector('[data-accordion-icon]') as HTMLSpanElement | null;
+                      if (!content) return;
+                      const isOpen = content.dataset.open === 'true';
+                      const nextOpen = !isOpen;
+                      content.dataset.open = nextOpen.toString();
+                      content.classList.toggle('hidden', !nextOpen);
+                      if (icon) {
+                        icon.textContent = nextOpen ? '-' : '+';
+                      }
+                    }}
+                  >
+                    <span>
+                      {day.dayOfWeek.slice(0, 3)} {new Date(day.date).getDate()}
+                    </span>
+                    <span
+                      className="text-xs font-semibold text-muted-foreground"
+                      aria-hidden="true"
+                      data-accordion-icon
+                    >
+                      +
+                    </span>
+                  </button>
+                  <div className="hidden px-4 pb-3" data-open="false">
+                    <DailySummary
+                      dayOfWeek={day.dayOfWeek}
+                      date={new Date(day.date)}
+                      nutrients={day.totalNutrients}
+                      variant="flat"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </aside>
     </div>
   );
 };

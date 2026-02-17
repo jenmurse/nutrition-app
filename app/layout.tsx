@@ -31,38 +31,71 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans min-h-screen bg-background text-foreground antialiased`}>
+      <body className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans h-screen overflow-hidden bg-background text-foreground antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <NumberInputHandler />
-          <header className="sticky top-0 z-40 bg-muted/60 backdrop-blur">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-              <Link href="/" className="text-2xl font-semibold">
-                Nutrition Tracker
-              </Link>
-              <div className="flex items-center gap-4">
-                <nav className="flex gap-6 text-sm font-medium text-muted-foreground">
-                  <Link href="/" className="transition hover:text-foreground">
-                    Dashboard
-                  </Link>
-                  <Link href="/ingredients" className="transition hover:text-foreground">
-                    Ingredients
-                  </Link>
-                  <Link href="/recipes" className="transition hover:text-foreground">
-                    Recipes
-                  </Link>
-                  <Link href="/meal-plans" className="transition hover:text-foreground">
-                    Meals
-                  </Link>
-                  <Link href="/settings" className="transition hover:text-foreground">
-                    Settings
-                  </Link>
-                </nav>
-                <ThemeToggle />
+          <div className="flex h-screen">
+            {/* Left Sidebar - Navigation */}
+            <aside className="flex w-48 flex-col border-r bg-muted/20">
+              {/* Logo/Brand */}
+              <div className="flex h-14 items-center border-b px-4">
+                <Link href="/" className="text-sm font-semibold tracking-tight">
+                  Nutrition Tracker
+                </Link>
               </div>
-            </div>
-          </header>
+              
+              {/* Navigation Links */}
+              <nav className="flex-1 space-y-1 p-3">
+                <Link 
+                  href="/" 
+                  className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                >
+                  <span className="text-base">📊</span>
+                  Dashboard
+                </Link>
+                <Link 
+                  href="/ingredients" 
+                  className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                >
+                  <span className="text-base">🥕</span>
+                  Ingredients
+                </Link>
+                <Link 
+                  href="/recipes" 
+                  className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                >
+                  <span className="text-base">📝</span>
+                  Recipes
+                </Link>
+                <Link 
+                  href="/meal-plans" 
+                  className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                >
+                  <span className="text-base">📅</span>
+                  Meal Plans
+                </Link>
+              </nav>
 
-          <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
+              {/* Bottom Actions */}
+              <div className="border-t p-3 space-y-1">
+                <Link 
+                  href="/settings" 
+                  className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                >
+                  <span className="text-base">⚙️</span>
+                  Settings
+                </Link>
+                <div className="px-3 py-2">
+                  <ThemeToggle />
+                </div>
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <main className="flex-1 overflow-y-auto">
+              {children}
+            </main>
+          </div>
         </ThemeProvider>
       </body>
     </html>

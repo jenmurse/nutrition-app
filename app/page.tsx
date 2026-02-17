@@ -2,49 +2,59 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-8">
-        <h2 className="text-3xl font-bold text-slate-800 mb-4">
-          Welcome to Your Nutrition Tracker
-        </h2>
-        <p className="text-slate-600 mb-2">
-          Track your recipes, ingredients, and meal plans to achieve your health goals.
-        </p>
-        <p className="text-sm text-slate-500">
-          Start by creating ingredients, building recipes, planning your meals, and setting nutrition goals.
-        </p>
-      </div>
+    <div className="h-full overflow-y-auto p-8">
+      <div className="max-w-4xl">
+        <div className="bg-background border p-6 mb-6">
+          <h2 className="text-2xl font-semibold mb-3">
+            Nutrition Tracker
+          </h2>
+          <p className="text-sm text-muted-foreground mb-2">
+            Track your recipes, ingredients, and meal plans to achieve your health goals.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Start by creating ingredients, building recipes, planning your meals, and setting nutrition goals.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Link href="/ingredients" className="block border border-slate-200 rounded-lg p-6 hover:shadow-lg hover:border-blue-300 transition-all card">
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">📋 Ingredients</h3>
-          <p className="text-slate-600 text-sm">Manage your ingredient database and add nutritional values.</p>
-        </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <Link href="/ingredients" className="block border p-5 hover:bg-muted/40 transition-all">
+            <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+              <span>🥕</span> Ingredients
+            </h3>
+            <p className="text-muted-foreground text-xs">Manage your ingredient database and add nutritional values.</p>
+          </Link>
 
-        <Link href="/recipes" className="block border border-slate-200 rounded-lg p-6 hover:shadow-lg hover:border-blue-300 transition-all card">
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">🍳 Recipes</h3>
-          <p className="text-slate-600 text-sm">Create recipes from ingredients or import from Pestle App.</p>
-        </Link>
+          <Link href="/recipes" className="block border p-5 hover:bg-muted/40 transition-all">
+            <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+              <span>📝</span> Recipes
+            </h3>
+            <p className="text-muted-foreground text-xs">Create recipes from ingredients or import from Pestle App.</p>
+          </Link>
 
-        <Link href="/meal-plans" className="block border border-slate-200 rounded-lg p-6 hover:shadow-lg hover:border-blue-300 transition-all card">
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">📅 Meal Plans</h3>
-          <p className="text-slate-600 text-sm">Plan your weekly meals and track nutritional goals.</p>
-        </Link>
+          <Link href="/meal-plans" className="block border p-5 hover:bg-muted/40 transition-all">
+            <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+              <span>📅</span> Meal Plans
+            </h3>
+            <p className="text-muted-foreground text-xs">Plan your weekly meals and track nutritional goals.</p>
+          </Link>
 
-        <Link href="/settings" className="block border border-slate-200 rounded-lg p-6 hover:shadow-lg hover:border-blue-300 transition-all card">
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">⚙️ Settings</h3>
-          <p className="text-slate-600 text-sm">Set your daily nutrition goals and preferences.</p>
-        </Link>
-      </div>
+          <Link href="/settings" className="block border p-5 hover:bg-muted/40 transition-all">
+            <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+              <span>⚙️</span> Settings
+            </h3>
+            <p className="text-muted-foreground text-xs">Set your daily nutrition goals and preferences.</p>
+          </Link>
+        </div>
 
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="font-semibold text-blue-900 mb-3">Getting Started</h3>
-        <ul className="text-sm text-blue-800 space-y-2">
-          <li>✓ <strong>Create ingredients:</strong> Add individual foods with their nutritional values</li>
-          <li>✓ <strong>Build recipes:</strong> Combine ingredients to create your favorite dishes</li>
-          <li>✓ <strong>Plan meals:</strong> Organize your week by adding recipes to daily meal slots</li>
-          <li>✓ <strong>Set goals:</strong> Define daily nutrition targets and track your progress</li>
-        </ul>
+        <div className="bg-muted/40 border p-5">
+          <h3 className="font-semibold text-sm mb-3">Getting Started</h3>
+          <ul className="text-xs text-muted-foreground space-y-2">
+            <li>✓ <strong className="text-foreground">Create ingredients:</strong> Add individual foods with their nutritional values</li>
+            <li>✓ <strong className="text-foreground">Build recipes:</strong> Combine ingredients to create your favorite dishes</li>
+            <li>✓ <strong className="text-foreground">Plan meals:</strong> Organize your week by adding recipes to daily meal slots</li>
+            <li>✓ <strong className="text-foreground">Set goals:</strong> Define daily nutrition targets and track your progress</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
