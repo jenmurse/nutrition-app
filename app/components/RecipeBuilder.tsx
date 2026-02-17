@@ -320,7 +320,7 @@ export default function RecipeBuilder({
           {nutrients.map((n) => (
             <div key={n.id} className="flex justify-between border rounded p-2">
               <div>{n.displayName}</div>
-              <div>{Math.round((totals[n.id] || 0) * 100) / 100} {n.unit}</div>
+              <div className="font-mono">{Math.round((totals[n.id] || 0) * 100) / 100} {n.unit}</div>
             </div>
           ))}
         </div>

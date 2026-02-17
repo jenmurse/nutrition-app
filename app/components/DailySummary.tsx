@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import styles from './DailySummary.module.css';
 
 interface NutrientData {
   nutrientId: number;
@@ -18,36 +17,26 @@ interface DailySummaryProps {
   dayOfWeek: string;
   date: Date;
   nutrients: NutrientData[];
+  variant?: 'card' | 'flat';
 }
 
 const DailySummary: React.FC<DailySummaryProps> = ({
   dayOfWeek,
   date,
   nutrients,
+  variant = 'card',
 }) => {
-  const getStatusIcon = (status?: string) => {
+  const isFlat = variant === 'flat';
+  const getStatusColorClass = (status?: string) => {
     switch (status) {
       case 'ok':
-        return '✓';
+        return 'text-emerald-600';
       case 'warning':
-        return '⚠';
+        return 'text-amber-600';
       case 'error':
-        return '✗';
+        return 'text-rose-600';
       default:
-        return '○';
-    }
-  };
-
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'ok':
-        return '#4caf50';
-      case 'warning':
-        return '#ff9800';
-      case 'error':
-        return '#f44336';
-      default:
-        return '#999';
+        return 'text-muted-foreground';
     }
   };
 
@@ -56,20 +45,16 @@ const DailySummary: React.FC<DailySummaryProps> = ({
     lowGoal?: number,
     highGoal?: number
   ) => {
-    // If no goals, default to a reasonable scale
     if (!lowGoal && !highGoal) return 0;
 
-    // If only high goal, percentage of high goal
     if (!lowGoal && highGoal) {
       return Math.min((value / highGoal) * 100, 100);
     }
 
-    // If only low goal, percentage of low goal
     if (lowGoal && !highGoal) {
       return Math.min((value / lowGoal) * 100, 100);
     }
 
-    // If both goals, scale between them
     const range = highGoal! - lowGoal!;
     if (value < lowGoal) {
       return (value / lowGoal) * 50;
@@ -81,94 +66,78 @@ const DailySummary: React.FC<DailySummaryProps> = ({
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h3>
-          {dayOfWeek} - {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </h3>
-      </div>
+    <div className={isFlat ? 'bg-transparent p-0' : 'border bg-card p-3'}>
+      {!isFlat && (
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+              {dayOfWeek}
+            </p>
+            <h3 className="text-sm font-semibold">
+              {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </h3>
+          </div>
+        </div>
+      )}
 
-      <div className={styles.nutrientsList}>
+      <div className={isFlat ? 'space-y-3' : 'grid gap-3'}>
         {nutrients.map((nutrient) => {
           const progressPercent = getProgressPercentage(
             nutrient.value,
             nutrient.lowGoal,
             nutrient.highGoal
           );
-          const statusColor = getStatusColor(nutrient.status);
-          const statusIcon = getStatusIcon(nutrient.status);
+          const statusClass = getStatusColorClass(nutrient.status);
 
           return (
-            <div key={nutrient.nutrientId} className={styles.nutrientCard}>
-              <div className={styles.nutrientHeader}>
-                <div className={styles.nutrientName}>
-                  <span
-                    className={styles.statusIcon}
-                    style={{ color: statusColor }}
-                  >
-                    {statusIcon}
-                  </span>
+            <div
+              key={nutrient.nutrientId}
+              className={isFlat ? 'py-2' : 'border bg-background px-2 py-2'}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-sm font-semibold">
                   {nutrient.displayName}
                 </div>
-                <div className={styles.nutrientValue}>
-                  <span className={styles.actualValue}>{nutrient.value}</span>
-                  <span className={styles.unit}>{nutrient.unit}</span>
+                <div className="flex items-center gap-2 text-right text-[10px] text-muted-foreground">
+                  <span className="font-mono text-sm font-semibold text-foreground">
+                    {nutrient.value}
+                    <span className="ml-1 text-[10px] text-muted-foreground">{nutrient.unit}</span>
+                  </span>
+                  {(nutrient.lowGoal !== null && nutrient.lowGoal !== undefined) ||
+                  (nutrient.highGoal !== null && nutrient.highGoal !== undefined) ? (
+                    <span className={`font-mono ${isFlat ? 'border px-1.5 py-0.5' : 'border bg-muted/20 px-1.5 py-0.5'}`}>
+                      {nutrient.lowGoal !== null && nutrient.lowGoal !== undefined
+                        ? `Min ${nutrient.lowGoal}`
+                        : 'Min —'}
+                      {nutrient.highGoal !== null && nutrient.highGoal !== undefined
+                        ? ` · Max ${nutrient.highGoal}`
+                        : ' · Max —'}
+                    </span>
+                  ) : null}
                 </div>
               </div>
 
-              <div className={styles.goalInfo}>
-                {nutrient.lowGoal !== null &&
-                  nutrient.lowGoal !== undefined && (
-                    <span className={styles.goal}>
-                      Min: {nutrient.lowGoal}
-                    </span>
-                  )}
-                {nutrient.highGoal !== null &&
-                  nutrient.highGoal !== undefined && (
-                    <span className={styles.goal}>
-                      Max: {nutrient.highGoal}
-                    </span>
-                  )}
-              </div>
-
-              <div className={styles.progressBarContainer}>
-                <div className={styles.progressBar}>
+              <div className="mt-2 space-y-1">
+                <div className="h-1 w-full bg-muted">
                   <div
-                    className={styles.progressFill}
-                    style={{
-                      width: `${Math.min(progressPercent, 100)}%`,
-                      backgroundColor: statusColor,
-                    }}
+                    className={`h-1 ${
+                      nutrient.status === 'ok'
+                        ? 'bg-foreground'
+                        : nutrient.status === 'warning'
+                        ? 'bg-amber-500'
+                        : nutrient.status === 'error'
+                        ? 'bg-rose-600'
+                        : 'bg-muted-foreground/40'
+                    }`}
+                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
                   />
                 </div>
-                {nutrient.lowGoal !== null &&
-                  nutrient.lowGoal !== undefined && (
-                    <div
-                      className={styles.goalMarker}
-                      style={{
-                        left: `${
-                          nutrient.highGoal
-                            ? ((nutrient.lowGoal -
-                                (nutrient.lowGoal === 0 ? 0 : nutrient.lowGoal * 0.5)) /
-                                nutrient.highGoal) *
-                              100
-                            : 50
-                        }%`,
-                      }}
-                    />
-                  )}
-              </div>
-
-              <div className={styles.statusText}>
-                {nutrient.status === 'ok' && (
-                  <span style={{ color: '#4caf50' }}>✓ Within range</span>
-                )}
-                {nutrient.status === 'warning' && (
-                  <span style={{ color: '#ff9800' }}>⚠ Below minimum</span>
-                )}
-                {nutrient.status === 'error' && (
-                  <span style={{ color: '#f44336' }}>✗ Above maximum</span>
-                )}
+                <div className={`text-[10px] ${statusClass}`}>
+                  {nutrient.status === 'ok' && 'Within range'}
+                  {nutrient.status === 'warning' && 'Below minimum'}
+                  {nutrient.status === 'error' && 'Above maximum'}
+                  {!nutrient.status && 'No goal set'}
+                </div>
               </div>
             </div>
           );

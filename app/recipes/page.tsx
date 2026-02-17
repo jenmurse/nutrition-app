@@ -138,7 +138,7 @@ export default function RecipesPage() {
               <div key={recipe.id} className="border rounded p-4 bg-white flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{recipe.name}</h3>
-                  <p className="text-sm text-slate-600 mb-2">
+                  <p className="font-mono text-sm text-slate-600 mb-2">
                     {recipe.servingSize} {recipe.servingUnit}
                     {recipe.sourceApp && ` • From ${recipe.sourceApp}`}
                   </p>

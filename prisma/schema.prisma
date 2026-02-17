@@ -20,6 +20,7 @@ model Nutrient {
 
   ingredientNutrients IngredientNutrient[]
   nutritionGoals      NutritionGoal[]
+  globalNutritionGoal GlobalNutritionGoal?
 }
 
 // Ingredients with basic info
@@ -120,4 +121,14 @@ model NutritionGoal {
   nutrient     Nutrient  @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
 
   @@unique([mealPlanId, nutrientId])
+}
+
+// Global nutrient goals (used by settings page defaults)
+model GlobalNutritionGoal {
+  id         Int      @id @default(autoincrement())
+  nutrientId Int      @unique
+  lowGoal    Float?
+  highGoal   Float?
+
+  nutrient   Nutrient @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
 }

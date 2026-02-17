@@ -1,10 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+
+/**
+ * GET /api/nutrition-goals
+ * Return saved global nutrition goals by nutrient id.
+ */
+export async function GET() {
+  try {
+    const rows = await prisma.globalNutritionGoal.findMany();
+    const goals = rows.reduce<Record<number, { lowGoal?: number; highGoal?: number }>>(
+      (acc, row) => {
+        acc[row.nutrientId] = {
+          lowGoal: row.lowGoal ?? undefined,
+          highGoal: row.highGoal ?? undefined,
+        };
+        return acc;
+      },
+      {}
+    );
+
+    return NextResponse.json({ goals }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching nutrition goals:', error);
+    return NextResponse.json(
+      { error: 'Failed to load nutrition goals' },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * PUT /api/nutrition-goals
  * Update global nutrition goal defaults
- * Currently, goals are managed per meal plan. This endpoint validates the goals
- * but actual storage happens when creating/updating a meal plan.
  */
 export async function PUT(request: NextRequest) {
   try {
@@ -36,16 +63,25 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // For now, we just validate and return success
-    // Actual goal storage happens per meal plan
-    return NextResponse.json(
-      {
-        message:
-          'Nutrition goals are managed per meal plan. Create or update a meal plan with these goals.',
-        goals,
-      },
-      { status: 200 }
+    const entries = Object.entries(goals) as Array<[string, { lowGoal?: number; highGoal?: number }]>;
+    await prisma.$transaction(
+      entries.map(([nutrientId, goal]) =>
+        prisma.globalNutritionGoal.upsert({
+          where: { nutrientId: Number(nutrientId) },
+          create: {
+            nutrientId: Number(nutrientId),
+            lowGoal: goal.lowGoal ?? null,
+            highGoal: goal.highGoal ?? null,
+          },
+          update: {
+            lowGoal: goal.lowGoal ?? null,
+            highGoal: goal.highGoal ?? null,
+          },
+        })
+      )
     );
+
+    return NextResponse.json({ message: 'Nutrition goals saved', goals }, { status: 200 });
   } catch (error) {
     console.error('Error updating nutrition goals:', error);
     return NextResponse.json(

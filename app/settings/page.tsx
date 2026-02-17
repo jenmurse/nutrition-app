@@ -17,6 +17,7 @@ const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     fetchNutrients();
@@ -31,10 +32,16 @@ const SettingsPage = () => {
       const nutrientsData = await nutrientsResponse.json();
       setNutrients(nutrientsData);
 
-      // Initialize goals with default values
+      const goalsResponse = await fetch('/api/nutrition-goals');
+      const savedGoals = goalsResponse.ok ? await goalsResponse.json() : { goals: {} };
+
+      // Initialize goals with saved values
       const defaultGoals: Record<number, { lowGoal?: number; highGoal?: number }> = {};
       nutrientsData.forEach((nutrient: Nutrient) => {
-        defaultGoals[nutrient.id] = { lowGoal: undefined, highGoal: undefined };
+        defaultGoals[nutrient.id] = {
+          lowGoal: savedGoals.goals?.[nutrient.id]?.lowGoal ?? undefined,
+          highGoal: savedGoals.goals?.[nutrient.id]?.highGoal ?? undefined,
+        };
       });
       setGoals(defaultGoals);
     } catch (error) {
@@ -73,6 +80,7 @@ const SettingsPage = () => {
       }
 
       setMessage({ type: 'success', text: 'Nutrition goals saved successfully!' });
+      setIsEditing(false);
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Error saving goals:', error);
@@ -88,6 +96,11 @@ const SettingsPage = () => {
       defaultGoals[nutrient.id] = { lowGoal: undefined, highGoal: undefined };
     });
     setGoals(defaultGoals);
+  };
+
+  const formatGoal = (value?: number) => {
+    if (value === undefined || Number.isNaN(value)) return 'None';
+    return value.toString();
   };
 
   if (loading) {
@@ -112,101 +125,99 @@ const SettingsPage = () => {
       )}
 
       <div className={styles.goalsForm}>
-        <div className={styles.formIntro}>
-          <p>
-            Set minimum (low goal) and maximum (high goal) daily intake targets for each nutrient.
-            Leave empty for no limit.
-          </p>
+        <div className={styles.formIntroRow}>
+          <div className={styles.formIntro}>
+            <p>
+              Set minimum (low goal) and maximum (high goal) daily intake targets for each nutrient.
+              Leave empty for no limit.
+            </p>
+          </div>
+          <button
+            className={styles.editButton}
+            onClick={() => setIsEditing((prev) => !prev)}
+          >
+            {isEditing ? 'Close' : 'Edit Goals'}
+          </button>
         </div>
 
-        <div className={styles.nutrientsList}>
-          {nutrients.map((nutrient) => (
-            <div key={nutrient.id} className={styles.nutrientRow}>
-              <div className={styles.nutrientLabel}>
-                <h3>{nutrient.displayName}</h3>
-                <p>{nutrient.unit}</p>
-              </div>
-
-              <div className={styles.goalInputs}>
-                <div className={styles.inputGroup}>
-                  <label htmlFor={`low-${nutrient.id}`}>Min Goal</label>
-                  <input
-                    id={`low-${nutrient.id}`}
-                    type="number"
-                    placeholder="No minimum"
-                    value={goals[nutrient.id]?.lowGoal ?? ''}
-                    onChange={(e) =>
-                      handleGoalChange(nutrient.id, 'lowGoal', e.target.value)
-                    }
-                    step="0.1"
-                  />
+        {!isEditing ? (
+          <div className={styles.summaryList}>
+            {nutrients.map((nutrient) => (
+              <div key={nutrient.id} className={styles.summaryRow}>
+                <div>
+                  <div className={styles.summaryName}>{nutrient.displayName}</div>
+                  <div className={styles.summaryUnit}>{nutrient.unit}</div>
                 </div>
-
-                <div className={styles.inputGroup}>
-                  <label htmlFor={`high-${nutrient.id}`}>Max Goal</label>
-                  <input
-                    id={`high-${nutrient.id}`}
-                    type="number"
-                    placeholder="No maximum"
-                    value={goals[nutrient.id]?.highGoal ?? ''}
-                    onChange={(e) =>
-                      handleGoalChange(nutrient.id, 'highGoal', e.target.value)
-                    }
-                    step="0.1"
-                  />
+                <div className={styles.summaryValues}>
+                  <span className="font-mono">Min: {formatGoal(goals[nutrient.id]?.lowGoal)}</span>
+                  <span className="font-mono">Max: {formatGoal(goals[nutrient.id]?.highGoal)}</span>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className={styles.nutrientsList}>
+              {nutrients.map((nutrient) => (
+                <div key={nutrient.id} className={styles.nutrientRow}>
+                  <div className={styles.nutrientLabel}>
+                    <h3>{nutrient.displayName}</h3>
+                    <p>{nutrient.unit}</p>
+                  </div>
+
+                  <div className={styles.goalInputs}>
+                    <div className={styles.inputGroup}>
+                      <label htmlFor={`low-${nutrient.id}`}>Min Goal</label>
+                      <input
+                        id={`low-${nutrient.id}`}
+                        type="number"
+                        placeholder="No minimum"
+                        value={goals[nutrient.id]?.lowGoal ?? ''}
+                        onChange={(e) =>
+                          handleGoalChange(nutrient.id, 'lowGoal', e.target.value)
+                        }
+                        step="0.1"
+                      />
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                      <label htmlFor={`high-${nutrient.id}`}>Max Goal</label>
+                      <input
+                        id={`high-${nutrient.id}`}
+                        type="number"
+                        placeholder="No maximum"
+                        value={goals[nutrient.id]?.highGoal ?? ''}
+                        onChange={(e) =>
+                          handleGoalChange(nutrient.id, 'highGoal', e.target.value)
+                        }
+                        step="0.1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className={styles.actions}>
-          <button
-            className={styles.saveButton}
-            onClick={handleSaveGoals}
-            disabled={saving}
-          >
-            {saving ? 'Saving...' : 'Save Goals'}
-          </button>
-          <button
-            className={styles.resetButton}
-            onClick={handleResetGoals}
-            disabled={saving}
-          >
-            Reset
-          </button>
-        </div>
+            <div className={styles.actions}>
+              <button
+                className={styles.saveButton}
+                onClick={handleSaveGoals}
+                disabled={saving}
+              >
+                {saving ? 'Saving...' : 'Save Goals'}
+              </button>
+              <button
+                className={styles.resetButton}
+                onClick={handleResetGoals}
+                disabled={saving}
+              >
+                Reset
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className={styles.helpSection}>
-        <h3>Recommended Daily Goals</h3>
-        <div className={styles.recommendations}>
-          <div className={styles.recommendation}>
-            <strong>Calories:</strong> 1800-2500 kcal (varies by person)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Fat:</strong> 44-77 g (20-35% of calories)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Saturated Fat:</strong> Max 22 g (less than 10% of calories)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Sodium:</strong> Max 2300 mg (based on USA guidelines)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Carbs:</strong> 225-325 g (45-65% of calories)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Sugar:</strong> Max 50 g (added sugars)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Protein:</strong> 50-150 g (0.8-2.2g per kg body weight)
-          </div>
-          <div className={styles.recommendation}>
-            <strong>Fiber:</strong> 25-38 g (25g for women, 38g for men)
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

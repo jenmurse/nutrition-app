@@ -246,7 +246,7 @@ export default function IngredientDetailPage() {
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{ingredient.name}</h1>
-          <p className="text-slate-600 mt-1">
+          <p className="font-mono text-slate-600 mt-1">
             Default: {ingredient.defaultUnit === "other" && ingredient.customUnitName 
               ? `${ingredient.customUnitAmount} ${ingredient.customUnitName}` 
               : ingredient.defaultUnit}
@@ -274,7 +274,7 @@ export default function IngredientDetailPage() {
           {ingredient.nutrientValues.map((nv) => (
             <div key={nv.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
               <span className="font-medium">{nv.nutrient.displayName}</span>
-              <span className="text-slate-700">
+              <span className="font-mono text-slate-700">
                 {formatNutrient(nv.value)} {nv.nutrient.unit}
               </span>
             </div>

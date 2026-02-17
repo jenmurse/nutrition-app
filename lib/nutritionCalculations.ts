@@ -192,6 +192,9 @@ export function applyNutrientGoals(
   return nutrients.map((nutrient) => {
     const goal = goals[nutrient.nutrientId];
     if (!goal) return nutrient;
+    if (goal.lowGoal === undefined && goal.highGoal === undefined) {
+      return nutrient;
+    }
 
     let status: 'ok' | 'warning' | 'error' = 'ok';
 
@@ -247,13 +250,30 @@ export async function getWeeklyNutritionSummary(mealPlanId: number) {
     throw new Error(`Meal plan with id ${mealPlanId} not found`);
   }
 
-  // Create goals map
+  const allNutrients = await prisma.nutrient.findMany({
+    orderBy: { orderIndex: 'asc' },
+  });
+
+  const globalGoals = await prisma.globalNutritionGoal.findMany();
+  const globalGoalsMap = new Map(
+    globalGoals.map((goal) => [goal.nutrientId, goal])
+  );
+
+  const mealPlanGoalsMap = new Map(
+    mealPlan.nutritionGoals.map((goal) => [goal.nutrientId, goal])
+  );
+
+  // Create goals map with meal-plan goals taking priority over global defaults.
   const goalsMap: Record<number, { lowGoal?: number; highGoal?: number }> = {};
-  for (const goal of mealPlan.nutritionGoals) {
-    goalsMap[goal.nutrientId] = {
-      lowGoal: goal.lowGoal || undefined,
-      highGoal: goal.highGoal || undefined,
-    };
+  for (const nutrient of allNutrients) {
+    const planGoal = mealPlanGoalsMap.get(nutrient.id);
+    const globalGoal = globalGoalsMap.get(nutrient.id);
+    const lowGoal = planGoal?.lowGoal ?? globalGoal?.lowGoal ?? undefined;
+    const highGoal = planGoal?.highGoal ?? globalGoal?.highGoal ?? undefined;
+
+    if (lowGoal !== undefined || highGoal !== undefined) {
+      goalsMap[nutrient.id] = { lowGoal, highGoal };
+    }
   }
 
   // Calculate nutrition for each day in the week

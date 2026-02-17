@@ -48,10 +48,18 @@
   margin-bottom: 32px;
 }
 
-.formIntro {
-  margin-bottom: 24px;
+.formIntroRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e0e0e0;
+}
+
+.formIntro {
+  flex: 1;
 }
 
 .formIntro p {
@@ -59,6 +67,59 @@
   font-size: 14px;
   color: #666;
   line-height: 1.6;
+}
+
+.editButton {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #ffffff;
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.editButton:hover {
+  background: #f2f2f2;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.summaryName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.summaryUnit {
+  font-size: 12px;
+  color: #999;
+}
+
+.summaryValues {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: #444;
+  text-align: right;
 }
 
 .nutrientsList {
@@ -181,38 +242,6 @@
   opacity: 0.5;
 }
 
-.helpSection {
-  background: #e3f2fd;
-  border-radius: 8px;
-  padding: 24px;
-  border-left: 4px solid #2196f3;
-}
-
-.helpSection h3 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  color: #1565c0;
-}
-
-.recommendations {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.recommendation {
-  padding: 12px;
-  background: white;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
-  line-height: 1.5;
-  border-left: 3px solid #2196f3;
-}
-
-.recommendation strong {
-  color: #1565c0;
-}
 
 .loading {
   text-align: center;

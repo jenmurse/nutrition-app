@@ -108,7 +108,7 @@ export default function IngredientsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-medium text-lg">{ing.name}</h3>
-                  <p className="text-sm text-slate-600">
+                  <p className="font-mono text-sm text-slate-600">
                     Default: {ing.defaultUnit === "other" && ing.customUnitName 
                       ? `${ing.customUnitAmount} ${ing.customUnitName}` 
                       : ing.defaultUnit}
