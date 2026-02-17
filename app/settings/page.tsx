@@ -105,29 +105,33 @@ const SettingsPage = () => {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading nutrition settings...</div>
+      <div className="h-full overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-sm text-muted-foreground">Loading nutrition settings...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Nutrition Settings</h1>
-        <p>Set your daily nutrition goals</p>
-      </div>
+    <div className="h-full overflow-y-auto p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h1>Nutrition Settings</h1>
+            <p>Set your daily nutrition goals</p>
+          </div>
 
-      {message && (
-        <div className={`${styles.message} ${styles[message.type]}`}>
-          {message.text}
-        </div>
-      )}
+          {message && (
+            <div className={`${styles.message} ${styles[message.type]}`}>
+              {message.text}
+            </div>
+          )}
 
-      <div className={styles.goalsForm}>
-        <div className={styles.formIntroRow}>
-          <div className={styles.formIntro}>
-            <p>
+          <div className={styles.goalsForm}>
+            <div className={styles.formIntroRow}>
+              <div className={styles.formIntro}>
+                <p>
               Set minimum (low goal) and maximum (high goal) daily intake targets for each nutrient.
               Leave empty for no limit.
             </p>
@@ -217,7 +221,8 @@ const SettingsPage = () => {
           </>
         )}
       </div>
-
+        </div>
+      </div>
     </div>
   );
 };
