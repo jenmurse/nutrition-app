@@ -54,6 +54,8 @@ export default function RecipeBuilder({
   const [tags, setTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<Record<string, string>>({});
   const [showDropdown, setShowDropdown] = useState<Record<string, boolean>>({});
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [quantityText, setQuantityText] = useState<Record<string, string>>({});
 
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "dessert", "beverage"];
 
@@ -98,6 +100,15 @@ export default function RecipeBuilder({
     }));
 
     setRows(nextRows.length > 0 ? nextRows : [{ id: "r1" }]);
+    
+    // Initialize quantity text values
+    const nextQuantityText: Record<string, string> = {};
+    nextRows.forEach((item) => {
+      if (item.quantity !== undefined) {
+        nextQuantityText[item.id] = String(item.quantity);
+      }
+    });
+    setQuantityText(nextQuantityText);
   }, [initialRecipe]);
 
   function addRow() {
@@ -106,6 +117,46 @@ export default function RecipeBuilder({
 
   function updateRow(id: string, patch: Partial<Row>) {
     setRows((s) => s.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+
+  function handleDragStart(e: React.DragEvent, id: string) {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function handleDrop(e: React.DragEvent, targetId: string) {
+    e.preventDefault();
+    if (!draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      return;
+    }
+
+    const draggedIndex = rows.findIndex((r) => r.id === draggedId);
+    const targetIndex = rows.findIndex((r) => r.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedId(null);
+      return;
+    }
+
+    setRows((s) => {
+      const newRows = [...s];
+      const draggedRow = newRows[draggedIndex];
+      newRows.splice(draggedIndex, 1);
+      newRows.splice(targetIndex, 0, draggedRow);
+      return newRows;
+    });
+
+    setDraggedId(null);
+  }
+
+  function handleDragEnd() {
+    setDraggedId(null);
   }
 
   function computeTotals() {
@@ -122,6 +173,11 @@ export default function RecipeBuilder({
         const contrib = (per100 * grams) / 100.0;
         totals[nid] = (totals[nid] || 0) + contrib;
       }
+    }
+    // Divide by serving size to get per-serving nutrition
+    const servingSize = servings || 1;
+    for (const nid in totals) {
+      totals[nid] = totals[nid] / servingSize;
     }
     return totals;
   }
@@ -164,6 +220,7 @@ export default function RecipeBuilder({
       servingUnit,
       instructions,
       tags: tags.join(","), // Store as comma-separated string
+      isComplete: initialRecipe?.isComplete ?? true, // Preserve existing value or default to true
       ingredients: validRows.map((r) => ({
         ingredientId: r.ingredientId,
         quantity: r.quantity,
@@ -218,10 +275,20 @@ export default function RecipeBuilder({
             <label className="block text-sm font-medium mb-2">Servings</label>
             <input 
               className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
-              type="number" 
-              min={1} 
-              value={servings} 
-              onChange={(e) => setServings(Number(e.target.value))} 
+              type="text"
+              inputMode="decimal"
+              value={servings === 0 ? "" : servings} 
+              onChange={(e) => {
+                const val = e.target.value.trim();
+                if (val === "") {
+                  setServings(0);
+                } else {
+                  const numVal = parseFloat(val);
+                  if (!isNaN(numVal)) {
+                    setServings(numVal);
+                  }
+                }
+              }} 
             />
           </div>
           <div>
@@ -275,7 +342,7 @@ export default function RecipeBuilder({
       <div>
         <label className="block text-sm font-medium mb-3">Ingredients</label>
         <div className="space-y-2">
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
             const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
             const currentSearch = searchText[row.id] || "";
@@ -284,7 +351,29 @@ export default function RecipeBuilder({
               : ingredients;
             
             return (
-              <div key={row.id} className="flex gap-2 items-start">
+              <div
+                key={row.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, row.id)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, row.id)}
+                onDragEnd={handleDragEnd}
+                className={`flex gap-2 items-start p-2 rounded border transition ${
+                  draggedId === row.id
+                    ? "opacity-50 bg-muted/20"
+                    : draggedId
+                      ? "border-dashed border-foreground/30"
+                      : ""
+                }`}
+              >
+                <div
+                  className="flex-shrink-0 px-2 py-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition"
+                  title="Drag to reorder ingredients"
+                  style={{ userSelect: "none" }}
+                >
+                  ⋮⋮
+                </div>
+
                 <div className="flex-1 relative">
                   <input
                     type="text"
@@ -299,6 +388,12 @@ export default function RecipeBuilder({
                       }
                     }}
                     onFocus={() => setShowDropdown({ ...showDropdown, [row.id]: true })}
+                    onBlur={() => {
+                      // Close dropdown after a small delay to allow click on dropdown items
+                      setTimeout(() => {
+                        setShowDropdown({ ...showDropdown, [row.id]: false });
+                      }, 150);
+                    }}
                   />
                   {showDropdown[row.id] && filteredIngredients.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-background border shadow-lg max-h-48 overflow-auto">
@@ -306,7 +401,9 @@ export default function RecipeBuilder({
                         <div
                           key={i.id}
                           className="p-2 hover:bg-muted/40 cursor-pointer text-sm"
-                          onClick={() => {
+                          onMouseDown={(e) => {
+                            // Use onMouseDown to prevent input blur from closing dropdown before click registers
+                            e.preventDefault();
                             const defaultUnit = i.customUnitName || i.defaultUnit || "g";
                             updateRow(row.id, { ingredientId: i.id, unit: defaultUnit });
                             setSearchText({ ...searchText, [row.id]: "" });
@@ -323,10 +420,37 @@ export default function RecipeBuilder({
 
                 <input 
                   className="w-24 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
-                  type="number" 
+                  type="text"
+                  inputMode="decimal"
                   placeholder="qty" 
-                  value={row.quantity ?? ""} 
-                  onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value) || undefined })} 
+                  value={quantityText[row.id] ?? ""} 
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuantityText({ ...quantityText, [row.id]: val });
+                    
+                    if (val === "") {
+                      updateRow(row.id, { quantity: undefined });
+                    } else {
+                      const numVal = parseFloat(val);
+                      if (!isNaN(numVal) && numVal >= 0) {
+                        updateRow(row.id, { quantity: numVal });
+                      }
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Clean up the text on blur
+                    const val = e.target.value;
+                    if (val !== "") {
+                      const numVal = parseFloat(val);
+                      if (!isNaN(numVal) && numVal >= 0) {
+                        setQuantityText({ ...quantityText, [row.id]: String(numVal) });
+                      } else {
+                        setQuantityText({ ...quantityText, [row.id]: "" });
+                        updateRow(row.id, { quantity: undefined });
+                      }
+                    }
+                  }}
+                  draggable={false}
                 />
                 <input 
                   className="w-24 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
@@ -334,6 +458,7 @@ export default function RecipeBuilder({
                   title={selectedIngredient?.customUnitName ? `Custom unit: ${selectedIngredient.customUnitName}` : ""}
                   value={row.unit ?? ""} 
                   onChange={(e) => updateRow(row.id, { unit: e.target.value || defaultUnitForRow })} 
+                  draggable={false}
                 />
                 <button 
                   className="px-3 py-2 border text-sm hover:bg-muted/40 transition"

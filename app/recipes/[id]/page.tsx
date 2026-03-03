@@ -32,6 +32,24 @@ export default function EditRecipePage() {
   
   const [recipe, setRecipe] = useState<ImportDraft | null>(null);
   const [loading, setLoading] = useState(true);
+  const [duplicating, setDuplicating] = useState(false);
+
+  const handleDuplicate = async () => {
+    setDuplicating(true);
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}/duplicate`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Duplicate failed");
+
+      // Navigate to the new duplicated recipe
+      router.push(`/recipes/${data.recipe.id}`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to duplicate recipe");
+    } finally {
+      setDuplicating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -79,10 +97,17 @@ export default function EditRecipePage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <a href="/recipes" className="text-blue-600 hover:underline text-sm">
           ← Back to recipes
         </a>
+        <button
+          onClick={handleDuplicate}
+          disabled={duplicating}
+          className="px-3 py-1 text-sm bg-background border hover:bg-muted/40 disabled:opacity-50 transition"
+        >
+          {duplicating ? "Duplicating..." : "Duplicate Recipe"}
+        </button>
       </div>
       <h1 className="text-2xl font-semibold mb-6">Edit Recipe</h1>
       

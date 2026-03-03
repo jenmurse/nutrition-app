@@ -65,6 +65,7 @@ const MealPlansPage = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   useEffect(() => {
     fetchMealPlans();
@@ -74,8 +75,30 @@ const MealPlansPage = () => {
   useEffect(() => {
     if (selectedPlanId) {
       fetchMealPlanDetails(selectedPlanId);
+    } else if (mealPlans.length > 0 && !hasAutoSelected) {
+      // Auto-select the meal plan for the current week if no plan is selected
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const currentWeekPlan = mealPlans.find((plan) => {
+        const weekStart = new Date(plan.weekStartDate);
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        return today >= weekStart && today <= weekEnd;
+      });
+      
+      if (currentWeekPlan) {
+        // Auto-select the current week's plan
+        setHasAutoSelected(true);
+        const params = new URLSearchParams(searchParams?.toString());
+        params.set("planId", String(currentWeekPlan.id));
+        router.push(`/meal-plans?${params.toString()}`);
+      }
     }
-  }, [selectedPlanId]);
+  }, [mealPlans, selectedPlanId, hasAutoSelected, router, searchParams]);
 
   const fetchMealPlans = async () => {
     try {
@@ -212,7 +235,7 @@ const MealPlansPage = () => {
   return (
     <div className="flex h-full flex-col">
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
         {selectedPlan ? (
           <div className="space-y-6">
             <div>

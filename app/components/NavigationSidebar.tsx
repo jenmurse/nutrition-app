@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import BulkIngredientImport from "./BulkIngredientImport";
 
 export default function NavigationSidebar() {
   const pathname = usePathname();
@@ -23,6 +24,7 @@ export default function NavigationSidebar() {
   const [newWeekStartDate, setNewWeekStartDate] = useState('');
   const [creatingPlan, setCreatingPlan] = useState(false);
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   
   // Fetch meal plans when on meal plans page
   useEffect(() => {
@@ -175,31 +177,77 @@ export default function NavigationSidebar() {
         </Link>
         
         {/* Ingredients Drawer - shows when on ingredients page and drawer is open */}
-        {isIngredientsPage && ingredientsDrawerOpen && (
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isIngredientsPage && ingredientsDrawerOpen 
+            ? 'max-h-[700px] opacity-100' 
+            : 'max-h-0 opacity-0'
+        }`}>
           <div className="px-3 py-3 space-y-4">
-            {/* Create Button */}
-            <button
-              onClick={() => router.push("/ingredients/create")}
-              className="flex w-full items-center justify-center border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
-            >
-              + Create Ingredient
-            </button>
-
-            {/* Search */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Search
-              </label>
-              <input
-                type="text"
-                className="w-full border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-foreground"
-                placeholder="Type ingredient name..."
-                value={searchQuery}
-                onChange={(e) => updateSearchParam("search", e.target.value)}
-              />
+            {/* Mode Toggle */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowBulkImport(false)}
+                className={`flex-1 px-2 py-1.5 text-xs font-medium rounded border transition ${
+                  !showBulkImport
+                    ? 'bg-foreground text-background'
+                    : 'bg-background text-foreground hover:bg-muted/40'
+                }`}
+              >
+                Single
+              </button>
+              <button
+                onClick={() => setShowBulkImport(true)}
+                className={`flex-1 px-2 py-1.5 text-xs font-medium rounded border transition ${
+                  showBulkImport
+                    ? 'bg-foreground text-background'
+                    : 'bg-background text-foreground hover:bg-muted/40'
+                }`}
+              >
+                Bulk
+              </button>
             </div>
+
+            {!showBulkImport ? (
+              <>
+                {/* Single Create Button */}
+                <button
+                  onClick={() => router.push("/ingredients/create")}
+                  className="flex w-full items-center justify-center border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
+                >
+                  + Create Ingredient
+                </button>
+
+                {/* Search */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                    Search
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-foreground"
+                    placeholder="Type ingredient name..."
+                    value={searchQuery}
+                    onChange={(e) => updateSearchParam("search", e.target.value)}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-[10px] text-muted-foreground mb-2">
+                  Upload multiple ingredients at once from CSV or TSV data
+                </div>
+                <BulkIngredientImport 
+                  onImportComplete={() => {
+                    setShowBulkImport(false);
+                    // Trigger a refresh by navigating
+                    router.refresh();
+                  }}
+                />
+              </>
+            )}
           </div>
-        )}
+        </div>
+        
         
         <Link 
           href="/recipes" 
@@ -211,7 +259,11 @@ export default function NavigationSidebar() {
         </Link>
         
         {/* Recipes Drawer - shows when on recipes page and drawer is open */}
-        {isRecipesPage && recipesDrawerOpen && (
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isRecipesPage && recipesDrawerOpen 
+            ? 'max-h-[500px] opacity-100' 
+            : 'max-h-0 opacity-0'
+        }`}>
           <div className="px-3 py-3 space-y-4">
             {/* Create Button */}
             <Link
@@ -263,7 +315,7 @@ export default function NavigationSidebar() {
               )}
             </div>
           </div>
-        )}
+        </div>
         
         <Link 
           href="/meal-plans" 
@@ -275,7 +327,11 @@ export default function NavigationSidebar() {
         </Link>
 
         {/* Meal Plans Drawer - shows when on meal plans page and drawer is open */}
-        {isMealPlansPage && mealPlansDrawerOpen && (
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isMealPlansPage && mealPlansDrawerOpen 
+            ? 'max-h-[600px] opacity-100' 
+            : 'max-h-0 opacity-0'
+        }`}>
           <div className="px-3 py-3 space-y-3">
             {/* Create Button */}
             <button
@@ -401,7 +457,7 @@ export default function NavigationSidebar() {
               )}
             </div>
           </div>
-        )}
+        </div>
         
         <Link 
           href="/settings" 
@@ -413,7 +469,11 @@ export default function NavigationSidebar() {
         </Link>
 
         {/* Settings Drawer - shows when on settings page and drawer is open */}
-        {isSettingsPage && settingsDrawerOpen && (
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isSettingsPage && settingsDrawerOpen 
+            ? 'max-h-[200px] opacity-100' 
+            : 'max-h-0 opacity-0'
+        }`}>
           <div className="px-3 py-3 space-y-3">
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground px-1">
               Nutrition Goals
@@ -448,7 +508,7 @@ export default function NavigationSidebar() {
               </button>
             </div>
           </div>
-        )}
+        </div>
       </nav>
 
       {/* Bottom Actions */}

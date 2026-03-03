@@ -444,7 +444,7 @@ export default function IngredientsPage() {
   return (
     <div className="flex h-full">
       {/* Center Panel - Ingredient List or Edit Form */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
         {createMode ? (
           // Create Form
           <div>
@@ -924,7 +924,7 @@ export default function IngredientsPage() {
                           <h3 className="font-medium text-sm truncate">{ing.name}</h3>
                         </div>
                         <p className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                          {ing.defaultUnit === "other" && ing.customUnitName
+                          {ing.customUnitName && ing.customUnitAmount
                             ? `${ing.customUnitAmount} ${ing.customUnitName}`
                             : ing.defaultUnit}
                         </p>

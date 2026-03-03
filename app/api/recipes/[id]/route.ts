@@ -29,6 +29,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       }
     }
 
+    // Divide by serving size to get per-serving nutrition
+    const servingSize = recipe.servingSize || 1;
+    for (const nid in totals) {
+      totals[nid].value = totals[nid].value / servingSize;
+    }
+
     const totalsArray = Object.values(totals);
 
     return NextResponse.json({ recipe, totals: totalsArray });

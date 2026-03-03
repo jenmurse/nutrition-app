@@ -53,7 +53,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(created);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to create ingredient" }, { status: 500 });
+    console.error("Error creating ingredient:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: `Failed to create ingredient: ${errorMessage}` }, { status: 500 });
   }
 }

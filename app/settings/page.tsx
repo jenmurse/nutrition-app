@@ -130,7 +130,7 @@ const SettingsPage = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
         <div className={styles.container}>
             <h1 className="text-xl font-semibold mb-2">Nutrition Settings</h1>
             <p className="text-sm text-muted-foreground mb-6">
