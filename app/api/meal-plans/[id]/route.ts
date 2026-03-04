@@ -22,7 +22,7 @@ export async function GET(
             recipe: true,
             ingredient: true,
           },
-          orderBy: [{ date: 'asc' }, { mealType: 'asc' }],
+          orderBy: [{ date: 'asc' }, { position: 'asc' }, { id: 'asc' }],
         },
         nutritionGoals: {
           include: { nutrient: true },

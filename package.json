@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev --webpack -p 3006",
     "dev:start": "bash -lc 'pkill -f \"next dev\" || true; nohup npm run dev > .next-dev.log 2>&1 & echo $! > .next-dev.pid; echo started $(cat .next-dev.pid) > /dev/stderr'",
-    "dev:stop": "bash -lc 'if [ -f .next-dev.pid ]; then kill \"$(cat .next-dev.pid)\" 2>/dev/null || true; rm -f .next-dev.pid; fi; pkill -f \"next dev\" || true; echo stopped > /dev/stderr'",
+    "dev:stop": "bash -lc 'if [ -f .next-dev.pid ]; then kill \"$(cat .next-dev.pid)\" 2>/dev/null || true; rm -f .next-dev.pid; fi; pkill -f \"next dev\" || true; pkill -f \"next-server\" || true; pkill -f \"next start\" || true; sleep 1; echo stopped > /dev/stderr'",
     "dev:restart": "bash -lc 'npm run dev:stop && sleep 1 && npm run dev:start'",
     "dev:logs": "bash -lc 'tail -n +1 -F .next-dev.log 2>/dev/null || true'",
     "build": "next build",

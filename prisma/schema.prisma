@@ -63,7 +63,7 @@ model Recipe {
   instructions  String    // markdown format
   sourceApp     String?   // e.g., "Pestle"
   isComplete    Boolean   @default(true) // whether all ingredients are specified
-  tags          String    @default("") // comma-separated recipe categories: breakfast, lunch, dinner, snack, dessert, beverage
+  tags          String    @default("") // comma-separated recipe categories: breakfast, lunch, dinner, snack, side, dessert, beverage
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -109,6 +109,7 @@ model MealLog {
   unit       String?   // unit for ingredient-based meals (e.g., "g", "ml", "banana")
   servings   Float     @default(1) // servings for recipe-based meals
   notes      String?   // optional notes
+  position   Int       @default(0) // display order within a day
   createdAt  DateTime  @default(now())
 
   mealPlan   MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)

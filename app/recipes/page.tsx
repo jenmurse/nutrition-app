@@ -251,7 +251,7 @@ export default function RecipesPage() {
           )}
         </div>
       ) : (
-        <div className="p-6">
+        <div className="p-6" onClick={() => setSelectedRecipe(null)}>
           <h1 className="text-xl font-semibold mb-6">Recipes</h1>
 
           {/* Recipe Count */}
@@ -270,11 +270,13 @@ export default function RecipesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            >
               {/* Recipe List */}
               <div
-                className="lg:col-span-1 border cursor-pointer"
-                onClick={() => setSelectedRecipe(null)}
+                className={`border ${selectedRecipe ? 'lg:col-span-1' : 'lg:col-span-3'}`}
+                onClick={(e) => e.stopPropagation()}
               >
                 <div className="divide-y">
                   {filteredRecipes.map((recipe) => {
@@ -306,10 +308,14 @@ export default function RecipesPage() {
               </div>
 
               {/* Recipe Detail View */}
-              <div className="lg:col-span-2 border bg-muted/5 p-6">
+              {selectedRecipe && (
+              <div
+                className="lg:col-span-2 border bg-muted/5 p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {selectedRecipeLoading ? (
                   <p className="text-sm text-muted-foreground">Loading…</p>
-                ) : selectedRecipe ? (
+                ) : (
                   <div className="space-y-6">
                     <div>
                       <div className="flex items-start justify-between mb-2">
@@ -388,10 +394,9 @@ export default function RecipesPage() {
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Select a recipe to view details</p>
                 )}
               </div>
+              )}
             </div>
           )}
         </div>

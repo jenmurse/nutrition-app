@@ -60,7 +60,7 @@ export default function RecipeBuilder({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newIngredientId, setNewIngredientId] = useState<number | null>(null);
 
-  const availableTags = ["breakfast", "lunch", "dinner", "snack", "dessert", "beverage"];
+  const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
 
   useEffect(() => {
     fetch("/api/ingredients")

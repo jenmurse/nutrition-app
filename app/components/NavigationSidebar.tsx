@@ -101,7 +101,7 @@ export default function NavigationSidebar() {
   
   const searchQuery = searchParams?.get("search") || "";
   const selectedTags = searchParams?.get("tags")?.split(",").filter(Boolean) || [];
-  const availableTags = ["breakfast", "lunch", "dinner", "snack", "dessert", "beverage"];
+  const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
 
   const handleRecipesClick = (e: React.MouseEvent) => {
     if (isRecipesPage) {

@@ -16,6 +16,9 @@ interface Ingredient {
   id: number;
   name: string;
   defaultUnit: string;
+  customUnitName?: string | null;
+  customUnitAmount?: number | null;
+  customUnitGrams?: number | null;
   isMealItem?: boolean;
 }
 
@@ -53,10 +56,14 @@ interface MealPlanWeekProps {
   onAddRecipeMeal: (date: Date, mealType: string, recipeId: number, servings: number) => Promise<void>;
   onAddIngredientMeal: (date: Date, mealType: string, ingredientId: number, quantity: number, unit: string) => Promise<void>;
   onRemoveMeal: (mealId: number) => Promise<void>;
+  onReorderMeals?: (dayDate: Date, orderedIds: number[]) => Promise<void>;
   onError?: (message: string) => void;
   isLoading?: boolean;
   selectedDay?: Date | null;
   onDayClick?: (date: Date) => void;
+  editMode?: boolean;
+  selectedMealIds?: Set<number>;
+  onToggleMealSelect?: (id: number) => void;
 }
 
 const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
@@ -68,10 +75,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   onAddRecipeMeal,
   onAddIngredientMeal,
   onRemoveMeal,
+  onReorderMeals,
   onError,
   isLoading = false,
   selectedDay,
   onDayClick,
+  editMode = false,
+  selectedMealIds = new Set(),
+  onToggleMealSelect,
 }) => {
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
     date: Date;
@@ -83,10 +94,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [ingredientDropdownOpen, setIngredientDropdownOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [addingMealLoading, setAddingMealLoading] = useState(false);
-  const [selectedServings, setSelectedServings] = useState(1);
-  const [selectedQuantity, setSelectedQuantity] = useState(100);
+  const [selectedServings, setSelectedServings] = useState('1');
+  const [selectedQuantity, setSelectedQuantity] = useState('100');
   const [selectedUnit, setSelectedUnit] = useState('g');
   const [ingredientSearchTerm, setIngredientSearchTerm] = useState('');
+  const [pendingRecipeId, setPendingRecipeId] = useState<number | null>(null);
+  const [pendingIngredientId, setPendingIngredientId] = useState<number | null>(null);
+  const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
+  const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
 
   const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage'];
 
@@ -113,12 +128,20 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
     setAddingMealLoading(true);
     try {
+      const parsedServings = parseFloat(selectedServings);
+      if (!Number.isFinite(parsedServings) || parsedServings <= 0) {
+        alert('Please enter a valid number of servings');
+        setAddingMealLoading(false);
+        return;
+      }
       await onAddRecipeMeal(
         selectedDayMeal.date,
         selectedDayMeal.mealType,
         recipeId,
-        selectedServings
+        parsedServings
       );
+      setPendingRecipeId(null);
+      setSelectedServings('1');
       setSelectedDayMeal(null);
       setItemTypeTabOpen(null);
       setRecipeDropdownOpen(false);
@@ -138,7 +161,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const handleSelectIngredient = async (ingredientId: number) => {
     if (!selectedDayMeal) return;
 
-    const normalizedQuantity = Number(selectedQuantity);
+    const normalizedQuantity = parseFloat(selectedQuantity);
     if (!Number.isFinite(normalizedQuantity) || normalizedQuantity <= 0) {
       alert('Please enter a valid quantity');
       return;
@@ -153,10 +176,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         normalizedQuantity,
         selectedUnit
       );
+      setPendingIngredientId(null);
       setSelectedDayMeal(null);
       setItemTypeTabOpen(null);
       setIngredientDropdownOpen(false);
-      setSelectedQuantity(100);
+      setSelectedQuantity('100');
       setSelectedUnit('g');
       setIngredientSearchTerm('');
     } catch (error) {
@@ -180,6 +204,20 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     } catch (error) {
       console.error('Error removing meal:', error);
     }
+  };
+
+  const handleDrop = (day: DayMeals, targetMealId: number) => {
+    if (!draggedMealId || draggedMealId === targetMealId) return;
+    const meals = day.meals;
+    const from = meals.findIndex((m) => m.id === draggedMealId);
+    const to = meals.findIndex((m) => m.id === targetMealId);
+    if (from === -1 || to === -1) return;
+    const reordered = [...meals];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    setDraggedMealId(null);
+    setDragOverMealId(null);
+    onReorderMeals?.(day.date, reordered.map((m) => m.id));
   };
 
   const filteredRecipes = useMemo(() => {
@@ -235,28 +273,78 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               {day.meals.length > 0 ? (
                 <div className="space-y-1.5">
                   {day.meals.map((meal) => (
-                    <button
+                    <div
                       key={meal.id}
-                      type="button"
-                      className="w-full border border-border bg-background px-2 py-1.5 text-left text-xs transition hover:border-foreground/40"
-                      title={`Remove meal: ${meal.recipe?.name || meal.ingredient?.name}`}
-                      onClick={() => handleRemoveMeal(meal.id)}
+                      draggable={!editMode}
+                      onDragStart={(e) => {
+                        if (editMode) return;
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDraggedMealId(meal.id);
+                      }}
+                      onDragOver={(e) => {
+                        if (editMode) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragOverMealId(meal.id);
+                      }}
+                      onDrop={(e) => {
+                        if (editMode) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDrop(day, meal.id);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedMealId(null);
+                        setDragOverMealId(null);
+                      }}
+                      onClick={() => editMode && onToggleMealSelect?.(meal.id)}
+                      className={`w-full border bg-background px-2 py-1.5 text-xs transition select-none ${
+                        editMode
+                          ? selectedMealIds.has(meal.id)
+                            ? 'border-destructive bg-destructive/10 cursor-pointer'
+                            : 'border-border cursor-pointer hover:border-destructive/40'
+                          : draggedMealId === meal.id
+                          ? 'opacity-40 border-dashed border-muted-foreground'
+                          : dragOverMealId === meal.id && draggedMealId !== null
+                          ? 'border-primary border-t-2'
+                          : 'border-border hover:border-foreground/40'
+                      }`}
                     >
-                      <div className="text-xs font-semibold text-foreground">
-                        {meal.recipe?.name || meal.ingredient?.name}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {meal.recipe ? (
-                          <>
-                            {meal.servings ?? 1} {meal.recipe.servingUnit} serving{(meal.servings ?? 1) !== 1 ? 's' : ''}
-                          </>
+                      <div className="flex items-start gap-1">
+                        {editMode ? (
+                          <input
+                            type="checkbox"
+                            className="mt-0.5 shrink-0 accent-destructive"
+                            checked={selectedMealIds.has(meal.id)}
+                            onChange={() => onToggleMealSelect?.(meal.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
                         ) : (
-                          <>
-                            {meal.quantity} {meal.unit}
-                          </>
+                          <span className="mt-0.5 text-muted-foreground/40 text-[13px] cursor-grab leading-none select-none">⠿</span>
                         )}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-foreground truncate">
+                            {meal.recipe?.name || meal.ingredient?.name}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {meal.recipe ? (
+                              <>
+                                {(() => {
+                                  const count = meal.servings ?? 1;
+                                  const unit = meal.recipe.servingUnit ?? '';
+                                  const isGenericServing = /^servings?$/i.test(unit.trim());
+                                  return isGenericServing
+                                    ? `${count} serving${count !== 1 ? 's' : ''}`
+                                    : `${count} ${unit}`;
+                                })()}
+                              </>
+                            ) : (
+                              <>{meal.quantity} {meal.unit}</>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -269,9 +357,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             <Button
               variant="outline"
               className="w-full text-xs"
+              disabled={editMode}
               onClick={() => handleAddMealClick(new Date(day.date))}
             >
-              + Add Meal
+              + Add Item
             </Button>
               </div>
               );
@@ -372,7 +461,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       step={0.25}
                       className="w-28 rounded-lg border bg-background px-2 py-1 text-sm"
                       value={selectedServings}
-                      onChange={(e) => setSelectedServings(Number(e.target.value) || 1)}
+                        onChange={(e) => setSelectedServings(e.target.value)}
                     />
                     <span className="text-xs text-muted-foreground">
                       Adjust serving count to scale nutrition totals
@@ -392,12 +481,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           className={`rounded-xl border px-4 py-3 text-left transition ${
                             recipe.isComplete === false
                               ? 'cursor-not-allowed border-destructive/40 bg-destructive/10 text-muted-foreground'
+                              : pendingRecipeId === recipe.id
+                              ? 'border-primary bg-primary/10 ring-1 ring-primary'
                               : 'border-muted bg-background hover:border-primary/40 hover:bg-primary/5'
                           }`}
                           onClick={
                             addingMealLoading || !recipe.isComplete
                               ? undefined
-                              : () => handleSelectRecipe(recipe.id)
+                              : () => setPendingRecipeId(recipe.id)
                           }
                           title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
                           disabled={addingMealLoading}
@@ -447,7 +538,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         step={0.1}
                         className="w-20 rounded-lg border bg-background px-2 py-1 text-sm"
                         value={selectedQuantity}
-                        onChange={(e) => setSelectedQuantity(Number(e.target.value) || 100)}
+                        onChange={(e) => setSelectedQuantity(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -479,15 +570,27 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         <button
                           key={ingredient.id}
                           type="button"
-                          className="rounded-xl border border-muted bg-background px-4 py-3 text-left transition hover:border-primary/40 hover:bg-primary/5"
-                          onClick={() => handleSelectIngredient(ingredient.id)}
+                          onClick={() => {
+                            const unit = ingredient.customUnitName || ingredient.defaultUnit;
+                            const qty = ingredient.customUnitName ? '1' : selectedQuantity;
+                            setSelectedUnit(unit);
+                            setSelectedQuantity(qty);
+                            setPendingIngredientId(ingredient.id);
+                          }}
                           disabled={addingMealLoading}
+                          className={`rounded-xl border px-4 py-3 text-left transition ${
+                            pendingIngredientId === ingredient.id
+                              ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                              : 'border-muted bg-background hover:border-primary/40 hover:bg-primary/5'
+                          }`}
                         >
                           <div className="text-sm font-semibold">
                             {ingredient.name}
                           </div>
                           <div className="mt-1 font-mono text-xs text-muted-foreground">
-                            Default unit: {ingredient.defaultUnit}
+                            {ingredient.customUnitName
+                              ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
+                              : `per ${ingredient.defaultUnit}`}
                           </div>
                         </button>
                       ))
@@ -504,9 +607,26 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   setItemTypeTabOpen(null);
                   setSelectedDayMeal(null);
                   setIngredientSearchTerm('');
+                  setPendingRecipeId(null);
+                  setPendingIngredientId(null);
                 }}
               >
                 Cancel
+              </Button>
+              <Button
+                disabled={
+                  addingMealLoading ||
+                  (itemTypeTabOpen === 'recipe' ? !pendingRecipeId : !pendingIngredientId)
+                }
+                onClick={() => {
+                  if (itemTypeTabOpen === 'recipe' && pendingRecipeId) {
+                    handleSelectRecipe(pendingRecipeId);
+                  } else if (pendingIngredientId) {
+                    handleSelectIngredient(pendingIngredientId);
+                  }
+                }}
+              >
+                {addingMealLoading ? 'Adding…' : 'Add to Plan'}
               </Button>
             </div>
           </div>

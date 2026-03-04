@@ -137,8 +137,20 @@ export async function POST(
     }
 
     // Create meal log
+    // Find the next position for this day
+    const dateObj = new Date(date);
+    const dayStart = new Date(dateObj);
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const dayEnd = new Date(dateObj);
+    dayEnd.setUTCHours(23, 59, 59, 999);
+    const lastEntry = await prisma.mealLog.findFirst({
+      where: { mealPlanId, date: { gte: dayStart, lte: dayEnd } },
+      orderBy: { position: 'desc' },
+    });
+    const nextPosition = lastEntry ? lastEntry.position + 1 : 0;
+
     const mealLog = await prisma.mealLog.create({
-      data: mealLogData,
+      data: { ...mealLogData, position: nextPosition },
       include: {
         recipe: true,
         ingredient: true,
@@ -152,5 +164,35 @@ export async function POST(
       { error: 'Failed to add meal to meal plan' },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * PATCH /api/meal-plans/[id]/meals
+ * Reorder meals within a day
+ * Body: { order: [{ id: number, position: number }] }
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    const body = await request.json();
+    const { order } = body as { order: { id: number; position: number }[] };
+
+    if (!Array.isArray(order)) {
+      return NextResponse.json({ error: 'order must be an array' }, { status: 400 });
+    }
+
+    await Promise.all(
+      order.map(({ id, position }) =>
+        prisma.mealLog.update({ where: { id }, data: { position } })
+      )
+    );
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('Error reordering meals:', error);
+    return NextResponse.json({ error: 'Failed to reorder meals' }, { status: 500 });
   }
 }

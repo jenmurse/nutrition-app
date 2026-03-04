@@ -19,6 +19,10 @@ interface Ingredient {
   id: number;
   name: string;
   defaultUnit: string;
+  customUnitName?: string | null;
+  customUnitAmount?: number | null;
+  customUnitGrams?: number | null;
+  isMealItem?: boolean;
 }
 
 interface Nutrient {
@@ -76,6 +80,8 @@ const MealPlansPage = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedMealIds, setSelectedMealIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     fetchMealPlans();
@@ -286,6 +292,40 @@ const MealPlansPage = () => {
     }
   };
 
+  const handleReorderMeals = async (_dayDate: Date, orderedIds: number[]) => {
+    if (!selectedPlanId) return;
+    try {
+      const order = orderedIds.map((id, position) => ({ id, position }));
+      const response = await fetch(`/api/meal-plans/${selectedPlanId}/meals`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order }),
+      });
+      if (!response.ok) throw new Error('Failed to reorder meals');
+      await fetchMealPlanDetails(selectedPlanId);
+    } catch (error) {
+      console.error('Error reordering meals:', error);
+    }
+  };
+
+  const toggleSelectMeal = (id: number) => {
+    setSelectedMealIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedMealIds.size === 0) return;
+    if (!confirm(`Remove ${selectedMealIds.size} item${selectedMealIds.size !== 1 ? 's' : ''} from the plan?`)) return;
+    for (const id of selectedMealIds) {
+      await handleRemoveMeal(id);
+    }
+    setSelectedMealIds(new Set());
+    setEditMode(false);
+  };
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -300,7 +340,7 @@ const MealPlansPage = () => {
       <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
         {selectedPlan ? (
           <div className="space-y-6">
-            <div>
+            <div className="flex items-center justify-between gap-4">
               <h1 className="text-xl font-semibold">
                 Week of{' '}
                 {new Date(selectedPlan.weekStartDate).toLocaleDateString('en-US', {
@@ -309,6 +349,33 @@ const MealPlansPage = () => {
                   year: 'numeric',
                 })}
               </h1>
+              <div className="flex items-center gap-2 shrink-0">
+                {editMode ? (
+                  <>
+                    <span className="text-xs text-muted-foreground">{selectedMealIds.size} selected</span>
+                    <button
+                      className="rounded border border-destructive bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/20 transition disabled:opacity-40"
+                      disabled={selectedMealIds.size === 0}
+                      onClick={handleDeleteSelected}
+                    >
+                      Delete selected
+                    </button>
+                    <button
+                      className="rounded border px-3 py-1.5 text-xs font-medium hover:bg-muted/40 transition"
+                      onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
+                    >
+                      Done
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="rounded border px-3 py-1.5 text-xs font-medium hover:bg-muted/40 transition"
+                    onClick={() => setEditMode(true)}
+                  >
+                    Edit Meal Plan
+                  </button>
+                )}
+              </div>
             </div>
             
             <MealPlanWeek
@@ -349,9 +416,13 @@ const MealPlansPage = () => {
               onAddRecipeMeal={handleAddRecipeMeal}
               onAddIngredientMeal={handleAddIngredientMeal}
               onRemoveMeal={handleRemoveMeal}
+              onReorderMeals={handleReorderMeals}
               onError={(msg) => setMessage({ type: 'error', text: msg })}
               selectedDay={selectedDay}
               onDayClick={setSelectedDay}
+              editMode={editMode}
+              selectedMealIds={selectedMealIds}
+              onToggleMealSelect={toggleSelectMeal}
             />
 
             {/* Daily Nutrition Summary */}
