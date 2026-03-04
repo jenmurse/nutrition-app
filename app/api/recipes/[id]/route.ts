@@ -61,7 +61,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const numId = Number(id);
     const body = await request.json();
-    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags } = body;
+    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags, prepTime, cookTime } = body;
 
     await prisma.recipe.update({
       where: { id: numId },
@@ -73,6 +73,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         isComplete: Boolean(isComplete), 
         sourceApp,
         tags: typeof tags === "string" ? tags : undefined,
+        prepTime: prepTime != null ? Number(prepTime) : null,
+        cookTime: cookTime != null ? Number(cookTime) : null,
       },
     });
 

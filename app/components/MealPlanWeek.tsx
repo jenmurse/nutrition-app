@@ -326,7 +326,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           <div className="text-xs font-semibold text-foreground truncate">
                             {meal.recipe?.name || meal.ingredient?.name}
                           </div>
-                          <div className="text-[11px] text-muted-foreground">
+                          <div className="text-[10px] text-muted-foreground">
                             {meal.recipe ? (
                               <>
                                 {(() => {

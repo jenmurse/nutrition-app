@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, servingSize = 1, servingUnit = "servings", instructions = "", sourceApp, tags = "", ingredients = [] } = body;
+    const { name, servingSize = 1, servingUnit = "servings", instructions = "", sourceApp, tags = "", prepTime, cookTime, ingredients = [] } = body;
     if (!name) return NextResponse.json({ error: "Name required" }, { status: 400 });
 
     const recipe = await prisma.recipe.create({
@@ -31,6 +31,8 @@ export async function POST(request: Request) {
         instructions, 
         sourceApp,
         tags: typeof tags === "string" ? tags : "",
+        prepTime: prepTime != null ? Number(prepTime) : null,
+        cookTime: cookTime != null ? Number(cookTime) : null,
       },
     });
 

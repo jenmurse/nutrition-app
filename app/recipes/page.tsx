@@ -14,6 +14,8 @@ type RecipeSummary = {
   instructions: string;
   sourceApp?: string | null;
   tags?: string;
+  prepTime?: number | null;
+  cookTime?: number | null;
   ingredients: Array<{
     id: number;
     ingredientId?: number | null;
@@ -38,6 +40,8 @@ type RecipeDraft = {
   tags?: string;
   sourceApp?: string | null;
   isComplete?: boolean;
+  prepTime?: number | null;
+  cookTime?: number | null;
   ingredients: Array<{
     id: string;
     ingredientId?: number | null;
@@ -134,6 +138,8 @@ export default function RecipesPage() {
         tags: recipeData.tags || "",
         sourceApp: recipeData.sourceApp ?? null,
         isComplete: recipeData.isComplete,
+        prepTime: recipeData.prepTime ?? null,
+        cookTime: recipeData.cookTime ?? null,
         ingredients: (recipeData.ingredients || []).map((item: any) => ({
           id: `edit-${item.id}`,
           ingredientId: item.ingredientId ?? null,
@@ -178,6 +184,8 @@ export default function RecipesPage() {
         tags: recipeData.tags || "",
         sourceApp: recipeData.sourceApp ?? null,
         isComplete: recipeData.isComplete,
+        prepTime: recipeData.prepTime ?? null,
+        cookTime: recipeData.cookTime ?? null,
         ingredients: (recipeData.ingredients || []).map((item: any) => ({
           id: `edit-${item.id}`,
           ingredientId: item.ingredientId ?? null,
@@ -334,6 +342,19 @@ export default function RecipesPage() {
                               {tag.trim()}
                             </span>
                           ))}
+                        </div>
+                      )}
+                      {(selectedRecipe.prepTime != null || selectedRecipe.cookTime != null) && (
+                        <div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
+                          {selectedRecipe.prepTime != null && (
+                            <span><span className="font-medium text-foreground">Prep:</span> {selectedRecipe.prepTime} min</span>
+                          )}
+                          {selectedRecipe.cookTime != null && (
+                            <span><span className="font-medium text-foreground">Cook:</span> {selectedRecipe.cookTime} min</span>
+                          )}
+                          {selectedRecipe.prepTime != null && selectedRecipe.cookTime != null && (
+                            <span><span className="font-medium text-foreground">Total:</span> {selectedRecipe.prepTime + selectedRecipe.cookTime} min</span>
+                          )}
                         </div>
                       )}
                     </div>

@@ -24,6 +24,8 @@ type InitialRecipe = {
   servingUnit: string;
   instructions?: string;
   tags?: string | string[];
+  prepTime?: number | null;
+  cookTime?: number | null;
   ingredients: Array<{
     id: string;
     ingredientId?: number | null;
@@ -48,6 +50,8 @@ export default function RecipeBuilder({
   const [servings, setServings] = useState(1);
   const [servingUnit, setServingUnit] = useState("servings");
   const [instructions, setInstructions] = useState("");
+  const [prepTime, setPrepTime] = useState("");
+  const [cookTime, setCookTime] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [rows, setRows] = useState<Row[]>([{ id: "r1" }]);
@@ -86,6 +90,8 @@ export default function RecipeBuilder({
     setServings(Number(initialRecipe.servingSize) || 1);
     setServingUnit(initialRecipe.servingUnit || "servings");
     setInstructions(initialRecipe.instructions || "");
+    setPrepTime(initialRecipe.prepTime != null ? String(initialRecipe.prepTime) : "");
+    setCookTime(initialRecipe.cookTime != null ? String(initialRecipe.cookTime) : "");
 
     const nextTags = Array.isArray(initialRecipe.tags)
       ? initialRecipe.tags
@@ -253,8 +259,10 @@ export default function RecipeBuilder({
       servingSize: servings,
       servingUnit,
       instructions,
-      tags: tags.join(","), // Store as comma-separated string
-      isComplete: initialRecipe?.isComplete ?? true, // Preserve existing value or default to true
+      tags: tags.join(","),
+      prepTime: prepTime !== "" ? Number(prepTime) : null,
+      cookTime: cookTime !== "" ? Number(cookTime) : null,
+      isComplete: initialRecipe?.isComplete ?? true,
       ingredients: validRows.map((r) => ({
         ingredientId: r.ingredientId,
         quantity: r.quantity,
@@ -360,6 +368,44 @@ export default function RecipeBuilder({
               <span className="text-sm capitalize">{tag}</span>
             </label>
           ))}
+        </div>
+      </div>
+
+      <div className="border bg-muted/10 p-3">
+        <label className="block text-sm font-medium mb-3">Time</label>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Prep (min)</label>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+              placeholder="—"
+              value={prepTime}
+              onChange={(e) => setPrepTime(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Cook (min)</label>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+              placeholder="—"
+              value={cookTime}
+              onChange={(e) => setCookTime(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Total (min)</label>
+            <div className="w-full border border-dashed bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+              {(prepTime !== "" || cookTime !== "")
+                ? (Number(prepTime) || 0) + (Number(cookTime) || 0)
+                : "—"}
+            </div>
+          </div>
         </div>
       </div>
 
