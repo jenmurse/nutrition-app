@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
+import CreateIngredientModal from "./CreateIngredientModal";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
 type Ingredient = { 
@@ -56,6 +57,8 @@ export default function RecipeBuilder({
   const [showDropdown, setShowDropdown] = useState<Record<string, boolean>>({});
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [quantityText, setQuantityText] = useState<Record<string, string>>({});
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newIngredientId, setNewIngredientId] = useState<number | null>(null);
 
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "dessert", "beverage"];
 
@@ -117,6 +120,37 @@ export default function RecipeBuilder({
 
   function updateRow(id: string, patch: Partial<Row>) {
     setRows((s) => s.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+
+  async function createIngredient(name: string, rowId: string) {
+    try {
+      const res = await fetch("/api/ingredients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, defaultUnit: "g" }),
+      });
+      
+      if (!res.ok) throw new Error("Failed to create ingredient");
+      
+      const newIngredient = await res.json();
+      
+      // Add to ingredients list
+      setIngredients((prev) => [...prev, newIngredient]);
+      
+      // Select it in the current row
+      updateRow(rowId, { ingredientId: newIngredient.id, unit: newIngredient.defaultUnit || "g" });
+      setSearchText({ ...searchText, [rowId]: "" });
+      setShowDropdown({ ...showDropdown, [rowId]: false });
+      
+      // Show modal to add nutrition
+      setNewIngredientId(newIngredient.id);
+      setShowCreateModal(true);
+      
+      return newIngredient;
+    } catch (error) {
+      console.error(error);
+      alert("Failed to create ingredient");
+    }
   }
 
   function handleDragStart(e: React.DragEvent, id: string) {
@@ -395,8 +429,22 @@ export default function RecipeBuilder({
                       }, 150);
                     }}
                   />
-                  {showDropdown[row.id] && filteredIngredients.length > 0 && (
+                  {showDropdown[row.id] && currentSearch && (
                     <div className="absolute z-10 w-full mt-1 bg-background border shadow-lg max-h-48 overflow-auto">
+                      {/* Show "Create new" option if search doesn't exactly match any ingredient */}
+                      {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
+                        <div
+                          className="p-2 hover:bg-muted/40 cursor-pointer text-sm border-b font-medium text-blue-600"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            createIngredient(currentSearch, row.id);
+                          }}
+                        >
+                          + Create new ingredient: "{currentSearch}"
+                        </div>
+                      )}
+                      
+                      {/* Show matching ingredients */}
                       {filteredIngredients.map((i) => (
                         <div
                           key={i.id}
@@ -414,6 +462,13 @@ export default function RecipeBuilder({
                           {i.customUnitName ? ` (${i.customUnitName})` : ""}
                         </div>
                       ))}
+                      
+                      {/* Show "no results" if no matches and we're not showing create option */}
+                      {filteredIngredients.length === 0 && ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
+                        <div className="p-2 text-sm text-muted-foreground">
+                          No matching ingredients
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -452,14 +507,34 @@ export default function RecipeBuilder({
                   }}
                   draggable={false}
                 />
-                <input 
-                  className="w-24 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
-                  placeholder={defaultUnitForRow}
-                  title={selectedIngredient?.customUnitName ? `Custom unit: ${selectedIngredient.customUnitName}` : ""}
-                  value={row.unit ?? ""} 
-                  onChange={(e) => updateRow(row.id, { unit: e.target.value || defaultUnitForRow })} 
+                <select 
+                  className="w-32 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+                  value={row.unit ?? defaultUnitForRow} 
+                  onChange={(e) => updateRow(row.id, { unit: e.target.value })} 
                   draggable={false}
-                />
+                >
+                  <optgroup label="Weight">
+                    <option value="g">g (grams)</option>
+                    <option value="oz">oz (ounces)</option>
+                    <option value="lb">lb (pounds)</option>
+                    <option value="kg">kg (kilograms)</option>
+                  </optgroup>
+                  <optgroup label="Volume">
+                    <option value="ml">ml (milliliters)</option>
+                    <option value="l">l (liters)</option>
+                    <option value="tsp">tsp (teaspoon)</option>
+                    <option value="tbsp">tbsp (tablespoon)</option>
+                    <option value="cup">cup</option>
+                    <option value="fl-oz">fl oz (fluid ounce)</option>
+                  </optgroup>
+                  {selectedIngredient?.customUnitName && (
+                    <optgroup label="Custom">
+                      <option value={selectedIngredient.customUnitName}>
+                        {selectedIngredient.customUnitName}
+                      </option>
+                    </optgroup>
+                  )}
+                </select>
                 <button 
                   className="px-3 py-2 border text-sm hover:bg-muted/40 transition"
                   onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}
@@ -509,6 +584,25 @@ export default function RecipeBuilder({
           Cancel
         </button>
       </div>
+
+      {showCreateModal && newIngredientId && (
+        <CreateIngredientModal
+          ingredientName={ingredients.find((i) => i.id === newIngredientId)?.name || "New ingredient"}
+          ingredientId={newIngredientId}
+          onClose={() => {
+            setShowCreateModal(false);
+            setNewIngredientId(null);
+          }}
+          onNutritionAdded={() => {
+            // Refresh ingredients list
+            fetch("/api/ingredients")
+              .then((r) => r.json())
+              .then((d) => setIngredients(Array.isArray(d) ? d : []))
+              .catch((e) => console.error(e));
+          }}
+        />
+      )}
     </div>
   );
 }
+

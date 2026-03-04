@@ -26,29 +26,37 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const numId = Number(id);
     const body = await request.json();
     const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, nutrientValues } = body;
-    const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(defaultUnit);
+    
+    // Only include fields that were actually provided
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (fdcId !== undefined) updateData.fdcId = fdcId || null;
+    if (defaultUnit !== undefined) updateData.defaultUnit = defaultUnit;
+    if (customUnitName !== undefined) updateData.customUnitName = customUnitName;
+    if (customUnitAmount !== undefined) updateData.customUnitAmount = customUnitAmount;
+    if (customUnitGrams !== undefined) updateData.customUnitGrams = customUnitGrams;
 
-    const updated = await prisma.ingredient.update({
-      where: { id: numId },
-      data: {
-        name,
-        fdcId: fdcId || null,
-        defaultUnit: defaultUnit || "g",
-        customUnitName: isCustomUnit ? customUnitName : null,
-        customUnitAmount: isCustomUnit ? customUnitAmount : null,
-        customUnitGrams: isCustomUnit ? customUnitGrams : null,
-      },
-    });
+    if (Object.keys(updateData).length > 0) {
+      await prisma.ingredient.update({
+        where: { id: numId },
+        data: updateData,
+      });
+    }
 
     if (Array.isArray(nutrientValues)) {
       // replace existing nutrient values for this ingredient
+      console.log(`Deleting existing nutrients for ingredient ${numId}`);
       await prisma.ingredientNutrient.deleteMany({ where: { ingredientId: numId } });
       const data = nutrientValues.map((nv: any) => ({
         ingredientId: numId,
         nutrientId: nv.nutrientId,
         value: nv.value,
       }));
-      if (data.length > 0) await prisma.ingredientNutrient.createMany({ data });
+      console.log(`Creating ${data.length} new nutrient values:`, JSON.stringify(data, null, 2));
+      if (data.length > 0) {
+        const result = await prisma.ingredientNutrient.createMany({ data });
+        console.log(`Successfully created ${result.count} nutrient records`);
+      }
     }
 
     const result = await prisma.ingredient.findUnique({
@@ -58,8 +66,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to update ingredient" }, { status: 500 });
+    console.error("PUT /api/ingredients/[id] error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: "Failed to update ingredient", details: errorMessage }, { status: 500 });
   }
 }
 
