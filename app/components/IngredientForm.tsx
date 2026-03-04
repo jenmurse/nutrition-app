@@ -13,8 +13,9 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
   const [customUnitName, setCustomUnitName] = useState("");
   const [customUnitAmount, setCustomUnitAmount] = useState("1");
   const [customUnitGrams, setCustomUnitGrams] = useState("");
+  const [isMealItem, setIsMealItem] = useState(false);
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
-  const [values, setValues] = useState<Record<number, number>>({});
+  const [values, setValues] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
@@ -34,7 +35,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
   }, []);
 
   function setNutrientValue(nutrientId: number, v: string) {
-    setValues((s) => ({ ...s, [nutrientId]: Number(v) }));
+    setValues((s) => ({ ...s, [nutrientId]: v }));
   }
 
   async function handleSave() {
@@ -64,7 +65,8 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       const body: any = { 
         name, 
         fdcId, 
-        defaultUnit, 
+        defaultUnit,
+        isMealItem,
         nutrientValues: normalizedValues 
       };
 
@@ -87,6 +89,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       setCustomUnitName("");
       setCustomUnitAmount("1");
       setCustomUnitGrams("");
+      setIsMealItem(false);
       setValues({});
       setSpecifiedAmount("100");
       setSpecifiedUnit("g");
@@ -158,7 +161,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       const ourNutrientMap: Record<string, number> = {};
       nutrients.forEach((n) => (ourNutrientMap[n.name] = n.id));
 
-      const newValues: Record<number, number> = {};
+      const newValues: Record<number, string> = {};
       const nutrientsArray = data.foodNutrients || [];
       
       console.log('Processing nutrients, found:', nutrientsArray.length);
@@ -173,7 +176,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
           const ourNutrientId = ourNutrientMap[ourNutrientName];
           if (ourNutrientId) {
             console.log(`Mapping USDA nutrient ${usdaNutrientId} (${u.nutrient?.name}) to ${ourNutrientName}: ${amount}`);
-            newValues[ourNutrientId] = amount;
+            newValues[ourNutrientId] = String(amount);
           }
         }
       });
@@ -193,18 +196,19 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
   }
 
   return (
-    <div className="p-4 border rounded bg-white">
+    <div>
       <h3 className="text-lg font-medium mb-3">Add Ingredient</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-        <input
-          className="border rounded p-2 col-span-2"
-          placeholder="Ingredient name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <div className="flex flex-col gap-3 mb-3">
+        <div className="flex gap-3">
+          <input
+            className="border rounded p-2 flex-1"
+            placeholder="Ingredient name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-        <div className="flex gap-2">
+          <div className="flex gap-2">
           <select
             className="border rounded p-2 flex-1"
             value={defaultUnit}
@@ -215,7 +219,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
             <option value="other">other (custom unit)</option>
           </select>
           <button
-            className="bg-slate-100 px-3 rounded disabled:opacity-50"
+            className="bg-slate-100 px-4 py-2 rounded disabled:opacity-50"
             disabled={searching || fetchingDetails}
             onClick={() => {
               const q = name || prompt("Search USDA for:") || "";
@@ -224,6 +228,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
           >
             {searching ? "Searching..." : fetchingDetails ? "Loading..." : "Lookup"}
           </button>
+        </div>
         </div>
       </div>
 
@@ -266,6 +271,21 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
           </div>
         </div>
       )}
+
+      <div className="mb-4 p-3 bg-amber-50 rounded border border-amber-200">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={isMealItem}
+            onChange={(e) => setIsMealItem(e.target.checked)}
+            className="w-4 h-4"
+          />
+          <span className="text-sm font-medium">This is a meal item (can be added directly to meal plans)</span>
+        </label>
+        <p className="text-xs text-slate-600 mt-2 ml-6">
+          Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)
+        </p>
+      </div>
 
       {showSearch && (
         <div className="mb-3">
@@ -346,7 +366,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
 
       <div className="flex gap-2">
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
           onClick={handleSave}
           disabled={loading || !name}
         >
@@ -362,6 +382,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
             setCustomUnitName("");
             setCustomUnitAmount("1");
             setCustomUnitGrams("");
+            setIsMealItem(false);
             setValues({});
             setSpecifiedAmount("100");
             setSpecifiedUnit("g");

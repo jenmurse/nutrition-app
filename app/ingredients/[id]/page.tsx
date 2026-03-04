@@ -17,6 +17,7 @@ type Ingredient = {
   customUnitName?: string | null;
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
+  isMealItem?: boolean;
   nutrientValues: NutrientValue[];
 };
 
@@ -57,6 +58,10 @@ export default function IngredientDetailPage() {
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("g");
+  const [isMealItem, setIsMealItem] = useState(false);
+  const [customUnitName, setCustomUnitName] = useState("");
+  const [customUnitAmount, setCustomUnitAmount] = useState("1");
+  const [customUnitGrams, setCustomUnitGrams] = useState("");
   const [values, setValues] = useState<Record<number, number>>({});
   const [nutrients, setNutrients] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
@@ -77,6 +82,10 @@ export default function IngredientDetailPage() {
         setIngredient(ing);
         setName(ing.name);
         setUnit(ing.defaultUnit);
+        setIsMealItem(Boolean(ing.isMealItem));
+        setCustomUnitName(ing.customUnitName || "");
+        setCustomUnitAmount(String(ing.customUnitAmount || "1"));
+        setCustomUnitGrams(String(ing.customUnitGrams || ""));
         setNutrients(Array.isArray(nutr) ? nutr : []);
         
         const vals: Record<number, number> = {};
@@ -103,19 +112,41 @@ export default function IngredientDetailPage() {
       return;
     }
     
+    // Validate custom unit if selected
+    if (unit === "other") {
+      if (!customUnitName.trim()) {
+        alert("Please enter a custom unit name (e.g., 'banana')");
+        return;
+      }
+      if (!customUnitGrams || Number(customUnitGrams) <= 0) {
+        alert("Please enter grams for the custom unit (e.g., 120 for 1 banana)");
+        return;
+      }
+    }
+    
     setSaving(true);
     try {
+      const body: any = {
+        name,
+        defaultUnit: unit,
+        isMealItem,
+        nutrientValues: Object.entries(values).map(([nutrientId, value]) => ({
+          nutrientId: Number(nutrientId),
+          value: Number(value),
+        })),
+      };
+      
+      // Add custom unit data if using custom units
+      if (unit === "other") {
+        body.customUnitName = customUnitName.trim();
+        body.customUnitAmount = Number(customUnitAmount) || 1;
+        body.customUnitGrams = Number(customUnitGrams);
+      }
+      
       const res = await fetch(`/api/ingredients/${ingredientId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          defaultUnit: unit,
-          nutrientValues: Object.entries(values).map(([nutrientId, value]) => ({
-            nutrientId: Number(nutrientId),
-            value: Number(value),
-          })),
-        }),
+        body: JSON.stringify(body),
       });
       
       if (!res.ok) {
@@ -157,11 +188,9 @@ export default function IngredientDetailPage() {
   if (editMode) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <div className="mb-4">
-          <button onClick={() => setEditMode(false)} className="text-blue-600 hover:underline text-sm">
-            ← Back to details
-          </button>
-        </div>
+        <button onClick={() => setEditMode(false)} className="text-blue-600 hover:underline text-sm mb-4">
+          ← Back to details
+        </button>
         <h1 className="text-2xl font-semibold mb-6">Edit Ingredient</h1>
         
         <div className="bg-white border rounded p-6 space-y-4">
@@ -184,15 +213,69 @@ export default function IngredientDetailPage() {
             >
               <option value="g">g (grams)</option>
               <option value="ml">ml (milliliters)</option>
+              <option value="other">other (custom unit)</option>
             </select>
+          </div>
+          
+          {unit === "other" && (
+            <div className="p-3 bg-blue-50 rounded border border-blue-200">
+              <h4 className="font-medium mb-2 text-sm">Custom Unit Settings</h4>
+              <div className="space-y-2">
+                <div className="flex gap-2 items-center">
+                  <label className="w-40 text-sm font-medium">Unit name:</label>
+                  <input
+                    className="border rounded p-2 flex-1"
+                    placeholder="e.g., banana, scoop, cup"
+                    value={customUnitName}
+                    onChange={(e) => setCustomUnitName(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2 items-center">
+                  <label className="w-40 text-sm font-medium">Amount per unit:</label>
+                  <input
+                    type="number"
+                    step="any"
+                    className="border rounded p-2 w-24"
+                    value={customUnitAmount}
+                    onChange={(e) => setCustomUnitAmount(e.target.value)}
+                  />
+                  <span className="text-sm text-slate-600">{customUnitName || "unit"}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <label className="w-40 text-sm font-medium">Grams per unit:</label>
+                  <input
+                    type="number"
+                    step="any"
+                    className="border rounded p-2 flex-1"
+                    value={customUnitGrams}
+                    onChange={(e) => setCustomUnitGrams(e.target.value)}
+                  />
+                  <span className="text-sm text-slate-600">g</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="p-3 bg-amber-50 rounded border border-amber-200" data-testid="meal-item-checkbox-container">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isMealItem}
+                onChange={(e) => setIsMealItem(e.target.checked)}
+                className="w-4 h-4 cursor-pointer"
+                data-testid="meal-item-checkbox"
+              />
+              <span className="text-sm font-medium">This is a meal item (can be added directly to meal plans)</span>
+            </label>
+            <p className="text-xs text-slate-600 mt-2 ml-6">Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)</p>
           </div>
           
           <div>
             <label className="block text-sm font-medium mb-3">Nutrient Values (per 100g)</label>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="space-y-2">
               {nutrients.map((n) => (
-                <label key={n.id} className="flex items-center gap-3 border rounded p-3 bg-slate-50">
-                  <div className="w-32 text-sm font-medium">{n.displayName}</div>
+                <div key={n.id} className="flex items-center gap-2 border rounded p-2 bg-slate-50">
+                  <label className="w-32 text-sm font-medium">{n.displayName}</label>
                   <input
                     type="number"
                     step="any"
@@ -209,7 +292,7 @@ export default function IngredientDetailPage() {
                     }
                   />
                   <div className="text-sm text-slate-600 w-12">{n.unit}</div>
-                </label>
+                </div>
               ))}
             </div>
           </div>
@@ -251,6 +334,11 @@ export default function IngredientDetailPage() {
               ? `${ingredient.customUnitAmount} ${ingredient.customUnitName}` 
               : ingredient.defaultUnit}
           </p>
+          {ingredient.isMealItem && (
+            <p className="text-sm font-medium text-amber-700 bg-amber-50 rounded px-2 py-1 inline-block mt-2">
+              ✓ Meal Item
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <button

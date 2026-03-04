@@ -3,8 +3,9 @@ import { prisma } from '@/lib/db';
 
 /**
  * POST /api/meal-plans/[id]/meals
- * Add a recipe to a meal (date + meal type)
- * Body: { recipeId: number, date: ISO string, mealType: "breakfast" | "lunch" | "dinner" | "snack", notes?: string }
+ * Add a recipe or ingredient to a meal (date + meal type)
+ * Body (Recipe-based): { recipeId: number, date: ISO string, mealType: string, servings?: number, notes?: string }
+ * Body (Ingredient-based): { ingredientId: number, quantity: number, unit: string, date: ISO string, mealType: string, notes?: string }
  */
 export async function POST(
   request: NextRequest,
@@ -14,19 +15,30 @@ export async function POST(
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
     const body = await request.json();
-    const { recipeId, date, mealType, notes, servings } = body;
+    const { recipeId, ingredientId, quantity, unit, date, mealType, notes, servings } = body;
 
-    if (!recipeId || !date || !mealType) {
+    // Validate required fields
+    if (!date || !mealType) {
       return NextResponse.json(
-        { error: 'recipeId, date, and mealType are required' },
+        { error: 'date and mealType are required' },
         { status: 400 }
       );
     }
 
-    const normalizedServings = Number(servings ?? 1);
-    if (!Number.isFinite(normalizedServings) || normalizedServings <= 0) {
+    // Must provide either recipeId OR (ingredientId + quantity + unit)
+    const isRecipeBased = recipeId;
+    const isIngredientBased = ingredientId && quantity != null && unit;
+
+    if (!isRecipeBased && !isIngredientBased) {
       return NextResponse.json(
-        { error: 'servings must be a positive number' },
+        { error: 'Either recipeId OR (ingredientId, quantity, unit) must be provided' },
+        { status: 400 }
+      );
+    }
+
+    if (isRecipeBased && isIngredientBased) {
+      return NextResponse.json(
+        { error: 'Cannot provide both recipeId and ingredientId' },
         { status: 400 }
       );
     }
@@ -43,28 +55,8 @@ export async function POST(
       );
     }
 
-    // Verify recipe exists
-    const recipe = await prisma.recipe.findUnique({
-      where: { id: recipeId },
-    });
-
-    if (!recipe) {
-      return NextResponse.json(
-        { error: 'Recipe not found' },
-        { status: 404 }
-      );
-    }
-
-    // Check if recipe is complete
-    if (!recipe.isComplete) {
-      return NextResponse.json(
-        { error: 'Recipe is incomplete. Please complete the recipe before adding it to a meal plan.' },
-        { status: 400 }
-      );
-    }
-
     // Validate meal type
-    const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
+    const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage'];
     if (!validMealTypes.includes(mealType)) {
       return NextResponse.json(
         {
@@ -74,18 +66,82 @@ export async function POST(
       );
     }
 
-    // Create meal log
-    const mealLog = await prisma.mealLog.create({
-      data: {
+    let mealLogData: any;
+
+    if (isRecipeBased) {
+      // Recipe-based meal validation
+      const normalizedServings = Number(servings ?? 1);
+      if (!Number.isFinite(normalizedServings) || normalizedServings <= 0) {
+        return NextResponse.json(
+          { error: 'servings must be a positive number' },
+          { status: 400 }
+        );
+      }
+
+      const recipe = await prisma.recipe.findUnique({
+        where: { id: recipeId },
+      });
+
+      if (!recipe) {
+        return NextResponse.json(
+          { error: 'Recipe not found' },
+          { status: 404 }
+        );
+      }
+
+      if (!recipe.isComplete) {
+        return NextResponse.json(
+          { error: 'Recipe is incomplete. Please complete the recipe before adding it to a meal plan.' },
+          { status: 400 }
+        );
+      }
+
+      mealLogData = {
         mealPlanId,
         recipeId,
         date: new Date(date),
         mealType,
         servings: normalizedServings,
         notes: notes || null,
-      },
+      };
+    } else {
+      // Ingredient-based meal validation
+      const ingredient = await prisma.ingredient.findUnique({
+        where: { id: ingredientId },
+      });
+
+      if (!ingredient) {
+        return NextResponse.json(
+          { error: 'Ingredient not found' },
+          { status: 404 }
+        );
+      }
+
+      const normalizedQuantity = Number(quantity);
+      if (!Number.isFinite(normalizedQuantity) || normalizedQuantity <= 0) {
+        return NextResponse.json(
+          { error: 'quantity must be a positive number' },
+          { status: 400 }
+        );
+      }
+
+      mealLogData = {
+        mealPlanId,
+        ingredientId,
+        quantity: normalizedQuantity,
+        unit,
+        date: new Date(date),
+        mealType,
+        notes: notes || null,
+      };
+    }
+
+    // Create meal log
+    const mealLog = await prisma.mealLog.create({
+      data: mealLogData,
       include: {
         recipe: true,
+        ingredient: true,
       },
     });
 

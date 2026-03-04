@@ -17,6 +17,7 @@ type Ingredient = {
   customUnitName?: string | null;
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
+  isMealItem?: boolean;
   nutrientValues: NutrientValue[];
 };
 
@@ -104,6 +105,7 @@ export default function IngredientsPage() {
   const [editCustomUnitName, setEditCustomUnitName] = useState("");
   const [editCustomUnitAmount, setEditCustomUnitAmount] = useState("1");
   const [editCustomUnitGrams, setEditCustomUnitGrams] = useState("");
+  const [editIsMealItem, setEditIsMealItem] = useState(false);
   const [editSpecifiedAmount, setEditSpecifiedAmount] = useState("100");
   const [editSpecifiedUnit, setEditSpecifiedUnit] = useState("g");
   const [editValues, setEditValues] = useState<Record<number, number>>({});
@@ -268,6 +270,7 @@ export default function IngredientsPage() {
     setEditMode(true);
     setEditName(ing.name);
     setEditUnit(ing.defaultUnit);
+    setEditIsMealItem(Boolean(ing.isMealItem));
     setEditCustomUnitName(
       ing.customUnitName ?? ("tsp" === ing.defaultUnit || "tbsp" === ing.defaultUnit || "cup" === ing.defaultUnit
         ? ing.defaultUnit
@@ -315,6 +318,7 @@ export default function IngredientsPage() {
       const body: any = {
         name: editName,
         defaultUnit: editUnit,
+        isMealItem: editIsMealItem,
         nutrientValues: normalizedValues,
       };
 
@@ -786,6 +790,19 @@ export default function IngredientsPage() {
                   </div>
                 </div>
               )}
+
+              <div className="p-3 bg-amber-50 rounded border border-amber-200">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editIsMealItem}
+                    onChange={(e) => setEditIsMealItem(e.target.checked)}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium">This is a meal item (can be added directly to meal plans)</span>
+                </label>
+                <p className="text-xs text-slate-600 mt-2 ml-6">Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">What amount are these nutrients for?</label>

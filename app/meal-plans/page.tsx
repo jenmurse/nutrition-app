@@ -15,6 +15,12 @@ interface Recipe {
   isComplete?: boolean;
 }
 
+interface Ingredient {
+  id: number;
+  name: string;
+  defaultUnit: string;
+}
+
 interface Nutrient {
   nutrientId: number;
   nutrientName: string;
@@ -40,8 +46,11 @@ interface MealPlan {
     id: number;
     date: string;
     mealType: string;
-    recipe: Recipe;
+    recipe?: Recipe;
+    ingredient?: Ingredient;
     servings?: number;
+    quantity?: number;
+    unit?: string;
   }>;
   nutritionGoals?: Array<{
     nutrientId: number;
@@ -61,6 +70,7 @@ const MealPlansPage = () => {
   
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -70,6 +80,7 @@ const MealPlansPage = () => {
   useEffect(() => {
     fetchMealPlans();
     fetchRecipes();
+    fetchIngredients();
   }, []);
 
   useEffect(() => {
@@ -141,6 +152,19 @@ const MealPlansPage = () => {
     }
   };
 
+  const fetchIngredients = async () => {
+    try {
+      const response = await fetch('/api/ingredients');
+      if (!response.ok) throw new Error('Failed to fetch ingredients');
+      const data = await response.json();
+      setIngredients(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching ingredients:', error);
+      setMessage({ type: 'error', text: 'Failed to load ingredients' });
+      setIngredients([]);
+    }
+  };
+
   const handleDeleteMealPlan = async (planId: number) => {
     if (!confirm('Delete this meal plan? All meals will be removed.')) return;
 
@@ -167,7 +191,7 @@ const MealPlansPage = () => {
     }
   };
 
-  const handleAddMeal = async (
+  const handleAddRecipeMeal = async (
     date: Date,
     mealType: string,
     recipeId: number,
@@ -199,6 +223,44 @@ const MealPlansPage = () => {
     } catch (error) {
       console.error('Error adding meal:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to add meal';
+      setMessage({ type: 'error', text: errorMessage });
+    }
+  };
+
+  const handleAddIngredientMeal = async (
+    date: Date,
+    mealType: string,
+    ingredientId: number,
+    quantity: number,
+    unit: string
+  ) => {
+    if (!selectedPlanId) return;
+
+    try {
+      const response = await fetch(`/api/meal-plans/${selectedPlanId}/meals`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ingredientId,
+          quantity,
+          unit,
+          date: date.toISOString(),
+          mealType,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to add ingredient meal');
+      }
+      
+      // Refresh meal plan details
+      await fetchMealPlanDetails(selectedPlanId);
+      setMessage({ type: 'success', text: 'Ingredient added successfully!' });
+      setTimeout(() => setMessage(null), 2000);
+    } catch (error) {
+      console.error('Error adding ingredient meal:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add ingredient meal';
       setMessage({ type: 'error', text: errorMessage });
     }
   };
@@ -269,16 +331,23 @@ const MealPlansPage = () => {
                             | 'breakfast'
                             | 'lunch'
                             | 'dinner'
-                            | 'snack',
+                            | 'snack'
+                            | 'dessert'
+                            | 'beverage',
                           recipe: meal.recipe,
-                          servings: meal.servings ?? 1,
+                          ingredient: meal.ingredient,
+                          servings: meal.servings,
+                          quantity: meal.quantity,
+                          unit: meal.unit,
                         }))
                     : [],
                   dayNutrients: day.totalNutrients,
                 })) || []
               }
               recipes={recipes}
-              onAddMeal={handleAddMeal}
+              ingredients={ingredients}
+              onAddRecipeMeal={handleAddRecipeMeal}
+              onAddIngredientMeal={handleAddIngredientMeal}
               onRemoveMeal={handleRemoveMeal}
               onError={(msg) => setMessage({ type: 'error', text: msg })}
               selectedDay={selectedDay}

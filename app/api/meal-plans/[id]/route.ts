@@ -20,6 +20,7 @@ export async function GET(
         mealLogs: {
           include: {
             recipe: true,
+            ingredient: true,
           },
           orderBy: [{ date: 'asc' }, { mealType: 'asc' }],
         },

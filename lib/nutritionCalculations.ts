@@ -114,6 +114,53 @@ export async function calculateRecipeNutrition(
 /**
  * Calculate daily nutrition totals for a specific date in a meal plan
  */
+/**
+ * Get nutrition values for an ingredient at a specific quantity
+ */
+async function getIngredientNutrition(
+  ingredientId: number,
+  quantity: number,
+  unit: string
+): Promise<Record<number, number>> {
+  const ingredient = await prisma.ingredient.findUnique({
+    where: { id: ingredientId },
+    include: {
+      nutrientValues: {
+        include: {
+          nutrient: true,
+        },
+      },
+    },
+  });
+
+  if (!ingredient) {
+    throw new Error(`Ingredient with id ${ingredientId} not found`);
+  }
+
+  // All nutrients are stored per 100g, so we need to convert based on the ingredient's unit
+  const nutrientTotals: Record<number, number> = {};
+
+  // Convert quantity to grams if needed
+  let gramsAmount = quantity;
+  
+  // If using a custom unit, we need to use the customUnitGrams conversion
+  if (unit === ingredient.customUnitName && ingredient.customUnitGrams) {
+    gramsAmount = (quantity / (ingredient.customUnitAmount || 1)) * ingredient.customUnitGrams;
+  } else if (unit === 'g' || unit === ingredient.defaultUnit) {
+    gramsAmount = quantity;
+  }
+  // For other units like ml, we assume 1:1 with grams (which is an approximation)
+  
+  // Calculate nutrition values
+  for (const nutrientValue of ingredient.nutrientValues) {
+    // nutrientValue.value is per 100g
+    const totalValue = (nutrientValue.value / 100) * gramsAmount;
+    nutrientTotals[nutrientValue.nutrientId] = totalValue;
+  }
+
+  return nutrientTotals;
+}
+
 export async function calculateDailyNutrition(
   mealPlanId: number,
   date: Date
@@ -129,6 +176,7 @@ export async function calculateDailyNutrition(
     },
     include: {
       recipe: true,
+      ingredient: true,
     },
   });
 
@@ -142,15 +190,32 @@ export async function calculateDailyNutrition(
     totalNutrients[nutrient.id] = 0;
   }
 
-  // Sum nutrition from all recipes in the day
+  // Sum nutrition from all meals in the day
   for (const mealLog of mealLogs) {
-    const recipeNutrition = await calculateRecipeNutrition(mealLog.recipeId);
-    const servings = Number((mealLog as { servings?: number }).servings ?? 1);
-    const recipeServings = recipeNutrition.servingSize || 1;
-    const servingMultiplier = servings / recipeServings;
+    let mealNutrients: Record<number, number> = {};
 
-    for (const nutrient of recipeNutrition.totalNutrients) {
-      totalNutrients[nutrient.nutrientId] += nutrient.value * servingMultiplier;
+    if (mealLog.recipeId && mealLog.recipe) {
+      // Handle recipe-based meal
+      const recipeNutrition = await calculateRecipeNutrition(mealLog.recipeId);
+      const servings = Number(mealLog.servings ?? 1);
+      const recipeServings = recipeNutrition.servingSize || 1;
+      const servingMultiplier = servings / recipeServings;
+
+      for (const nutrient of recipeNutrition.totalNutrients) {
+        mealNutrients[nutrient.nutrientId] = nutrient.value * servingMultiplier;
+      }
+    } else if (mealLog.ingredientId && mealLog.quantity != null && mealLog.unit) {
+      // Handle ingredient-based meal
+      mealNutrients = await getIngredientNutrition(
+        mealLog.ingredientId,
+        mealLog.quantity,
+        mealLog.unit
+      );
+    }
+
+    // Add to daily totals
+    for (const [nutrientId, value] of Object.entries(mealNutrients)) {
+      totalNutrients[Number(nutrientId)] += value;
     }
   }
 

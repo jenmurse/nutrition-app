@@ -25,7 +25,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const numId = Number(id);
     const body = await request.json();
-    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, nutrientValues } = body;
+    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, nutrientValues } = body;
     
     // Only include fields that were actually provided
     const updateData: any = {};
@@ -35,6 +35,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (customUnitName !== undefined) updateData.customUnitName = customUnitName;
     if (customUnitAmount !== undefined) updateData.customUnitAmount = customUnitAmount;
     if (customUnitGrams !== undefined) updateData.customUnitGrams = customUnitGrams;
+    if (isMealItem !== undefined) updateData.isMealItem = Boolean(isMealItem);
 
     if (Object.keys(updateData).length > 0) {
       await prisma.ingredient.update({

@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, nutrientValues } = body;
+    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, nutrientValues } = body;
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
     const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(defaultUnit);
@@ -34,6 +34,7 @@ export async function POST(request: Request) {
         customUnitName: isCustomUnit ? customUnitName : null,
         customUnitAmount: isCustomUnit ? customUnitAmount : null,
         customUnitGrams: isCustomUnit ? customUnitGrams : null,
+        isMealItem: Boolean(isMealItem),
       },
     });
 
