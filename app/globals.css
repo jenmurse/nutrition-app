@@ -4,17 +4,36 @@
 
 @layer base {
   :root {
-    --fg: #000;
-    --bg: #fff;
-    --mid: #666;
-    --muted: #767676;
-    --faint: #767676;
-    --placeholder: #aaa;
+    /* ═══════════════════════════════════════════════════════════════════════════
+       QUIET SURFACE DESIGN SYSTEM — Core Tokens
+       ═══════════════════════════════════════════════════════════════════════════ */
+
+    /* Core Color Tokens */
+    --bg: #ffffff;
+    --fg: #000000;
     --rule: #e8e8e8;
-    --sans: 'DM Sans', sans-serif;
-    --mono: 'DM Mono', monospace;
+    --muted: #767676;
+    --faint: #999999;
+    --acc: #000000;
+    --mid: #666666;
+    --placeholder: #aaaaaa;
+
+    /* Semantic Colors */
     --warning: #c08000;
     --error: #c03030;
+    --success: #2a7a2a;
+
+    /* Font Families */
+    --sans: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+
+    /* Typography Scale — Compact (Default) */
+    --fs-title: 16px;
+    --fs-field: 14px;
+    --fs-label: 12px;
+    --fs-body: 11px;
+    --fs-action: 9px;
+    --fs-ui: 10px;
 
     /* Tailwind compat — mapped to flat hex so hsl() wrappers still work */
     --background: 0 0% 100%;
@@ -37,6 +56,92 @@
     --input: 0 0% 91%;
     --ring: 0 0% 0%;
     --radius: 0;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     PALETTE: Slate (Dark)
+     ═══════════════════════════════════════════════════════════════════════════ */
+  [data-palette="slate"] {
+    --bg: #18191c;
+    --fg: #eceae6;
+    --rule: #333538;
+    --muted: #888480;
+    --faint: #555555;
+    --acc: #eceae6;
+    --mid: #b0ada9;
+    --placeholder: #666666;
+
+    --background: 220 8% 10%;
+    --foreground: 40 14% 92%;
+    --card: 220 8% 10%;
+    --card-foreground: 40 14% 92%;
+    --popover: 220 8% 10%;
+    --popover-foreground: 40 14% 92%;
+    --primary: 40 14% 92%;
+    --primary-foreground: 220 8% 10%;
+    --secondary: 220 6% 20%;
+    --secondary-foreground: 40 14% 92%;
+    --muted-hsl: 30 4% 52%;
+    --muted-foreground: 30 4% 52%;
+    --accent: 220 6% 20%;
+    --accent-foreground: 40 14% 92%;
+    --border: 216 5% 21%;
+    --input: 216 5% 21%;
+    --ring: 40 14% 92%;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     PALETTE: Fl. Pink
+     ═══════════════════════════════════════════════════════════════════════════ */
+  [data-palette="pink"] {
+    --bg: #ffffff;
+    --fg: #e8187c;
+    --rule: #fadadf;
+    --muted: #d4609a;
+    --faint: #f8c8d6;
+    --acc: #e8187c;
+    --mid: #d4408a;
+    --placeholder: #e090b8;
+
+    --foreground: 333 85% 50%;
+    --primary: 333 85% 50%;
+    --primary-foreground: 0 0% 100%;
+    --border: 350 73% 92%;
+    --input: 350 73% 92%;
+    --ring: 333 85% 50%;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     PALETTE: Lake Blue
+     ═══════════════════════════════════════════════════════════════════════════ */
+  [data-palette="blue"] {
+    --bg: #ffffff;
+    --fg: #0f4c96;
+    --rule: #d0dff0;
+    --muted: #5a88b8;
+    --faint: #c8daf0;
+    --acc: #0f4c96;
+    --mid: #2e6cb5;
+    --placeholder: #7a9ec8;
+
+    --foreground: 213 81% 32%;
+    --primary: 213 81% 32%;
+    --primary-foreground: 0 0% 100%;
+    --border: 213 48% 88%;
+    --input: 213 48% 88%;
+    --ring: 213 81% 32%;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     TYPOGRAPHY SCALE: Relaxed (alternate)
+     ═══════════════════════════════════════════════════════════════════════════ */
+  [data-density="relaxed"] {
+    --fs-title: 18px;
+    --fs-field: 16px;
+    --fs-label: 14px;
+    --fs-body: 13px;
+    --fs-action: 10px;
+    --fs-ui: 11px;
   }
 
   *,
@@ -80,21 +185,74 @@
   }
 
   ::selection {
-    background: #000;
-    color: #fff;
+    background: var(--fg);
+    color: var(--bg);
   }
 
-  *:focus {
+  *:focus:not(:focus-visible) {
     outline: none;
   }
 
-  button:focus-visible {
+  *:focus-visible {
     outline: 1px solid #999;
     outline-offset: 2px;
   }
 
   input[type="checkbox"] {
     accent-color: var(--fg);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     TYPOGRAPHY PATTERNS
+     ═══════════════════════════════════════════════════════════════════════════ */
+  
+  /* Page Title */
+  .page-title {
+    font-family: var(--sans);
+    font-size: var(--fs-title);
+    letter-spacing: 0.02em;
+    font-weight: normal;
+    color: var(--fg);
+  }
+
+  /* Section Label */
+  .section-label {
+    font-family: var(--sans);
+    font-size: var(--fs-label);
+    letter-spacing: 0.04em;
+    color: var(--fg);
+  }
+
+  /* Action Text (Buttons, Links) */
+  .action-text {
+    font-family: var(--sans);
+    font-size: var(--fs-action);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Body Text */
+  .body-text {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    color: var(--mid);
+  }
+
+  /* Uppercase Labels */
+  .label-text {
+    font-size: var(--fs-action);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Field Text */
+  .field-text {
+    font-family: var(--sans);
+    font-size: var(--fs-field);
+    color: var(--fg);
   }
 }
 
@@ -118,6 +276,10 @@ input[type="number"]:focus {
   scroll-behavior: auto;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -127,6 +289,297 @@ input[type="number"]:focus {
   }
 }
 
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES — Buttons
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Primary Action Button */
+.btn-primary {
+  background: var(--fg);
+  border: 1px solid var(--fg);
+  font-family: var(--sans);
+  font-size: var(--fs-action);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bg);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ghost/Text Button */
+.btn-ghost {
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: var(--fs-action);
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.1s;
+  padding: 0;
+}
+
+.btn-ghost:hover {
+  color: var(--fg);
+}
+
+/* Pill Button (Toggle) */
+.btn-pill {
+  flex: 1;
+  padding: 5px 0;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: var(--fs-action);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.btn-pill:hover {
+  border-color: var(--muted);
+  color: var(--mid);
+}
+
+.btn-pill.active {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--bg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES — Form Elements
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Text Input */
+.input-field {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: var(--fs-field);
+  color: var(--fg);
+  padding: 6px 0 10px;
+  outline: none;
+  line-height: 1.3;
+  transition: border-color 0.15s;
+}
+
+.input-field::placeholder {
+  color: var(--placeholder);
+}
+
+.input-field:focus {
+  border-bottom-color: var(--fg);
+}
+
+/* Settings Input */
+.input-settings {
+  font-family: var(--sans);
+  font-weight: 300;
+  flex: 1;
+  background: none;
+  border: none;
+  font-size: var(--fs-label);
+  color: var(--fg);
+  padding: 0;
+  outline: none;
+}
+
+.input-settings::placeholder {
+  color: var(--placeholder);
+}
+
+/* Textarea */
+.textarea-field {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: var(--fs-body);
+  color: var(--fg);
+  padding: 8px 0 10px;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES — Cards & Containers
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Section */
+.section {
+  margin-bottom: 44px;
+}
+
+.section-rule {
+  height: 1px;
+  background: #bbb;
+  margin-bottom: 14px;
+}
+
+.section-sub {
+  font-size: var(--fs-action);
+  color: var(--muted);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+/* Card */
+.card {
+  border: 1.5px solid #ddd;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: #999;
+}
+
+.card.selected {
+  border-color: var(--fg);
+  border-width: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES — Navigation
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Tab */
+.nav-tab {
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: var(--fs-action);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.1s;
+}
+
+.nav-tab:hover {
+  color: var(--mid);
+}
+
+.nav-tab.active {
+  color: var(--fg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES — Data Visualization
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Progress Bar Track */
+.progress-track {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+  position: relative;
+}
+
+/* Progress Bar Fill */
+.progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--fg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES — List Items
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* List Item */
+.list-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.list-item.archived {
+  opacity: 0.4;
+}
+
+.list-item-text {
+  font-family: var(--sans);
+  font-size: var(--fs-label);
+  color: var(--fg);
+  flex: 1;
+  line-height: 1.6;
+}
+
+.list-item-text.struck {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Skip Link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  background: var(--bg);
+  color: var(--fg);
+  padding: 8px 16px;
+  border: 1px solid var(--rule);
 }
