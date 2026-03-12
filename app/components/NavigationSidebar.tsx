@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import BulkIngredientImport from "./BulkIngredientImport";
 
 export default function NavigationSidebar() {
@@ -25,15 +24,13 @@ export default function NavigationSidebar() {
   const [creatingPlan, setCreatingPlan] = useState(false);
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showBulkImport, setShowBulkImport] = useState(false);
-  
-  // Fetch meal plans when on meal plans page
+
   useEffect(() => {
     if (isMealPlansPage) {
       fetchMealPlans();
     }
   }, [isMealPlansPage]);
 
-  // Sync form visibility with URL param
   useEffect(() => {
     setShowCreateForm(searchParams?.get("showForm") === "true");
   }, [searchParams]);
@@ -70,11 +67,10 @@ export default function NavigationSidebar() {
 
       if (!response.ok) throw new Error('Failed to create meal plan');
       const newPlan = await response.json();
-      
+
       setMealPlans([newPlan, ...mealPlans]);
       setFormMessage({ type: 'success', text: 'Meal plan created successfully!' });
-      
-      // Navigate to the new plan and close form
+
       const params = new URLSearchParams(searchParams?.toString());
       params.set("planId", String(newPlan.id));
       params.delete("showForm");
@@ -90,62 +86,34 @@ export default function NavigationSidebar() {
       setCreatingPlan(false);
     }
   };
-  
-  // Sync drawer state when route changes
+
   useEffect(() => {
     setRecipesDrawerOpen(isRecipesPage);
     setIngredientsDrawerOpen(isIngredientsPage);
     setMealPlansDrawerOpen(isMealPlansPage);
     setSettingsDrawerOpen(isSettingsPage);
   }, [isRecipesPage, isIngredientsPage, isMealPlansPage, isSettingsPage]);
-  
+
   const searchQuery = searchParams?.get("search") || "";
   const selectedTags = searchParams?.get("tags")?.split(",").filter(Boolean) || [];
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
 
   const handleRecipesClick = (e: React.MouseEvent) => {
-    if (isRecipesPage) {
-      // Already on recipes page, just toggle drawer
-      e.preventDefault();
-      setRecipesDrawerOpen(!recipesDrawerOpen);
-    }
-    // Otherwise let the Link navigate normally
+    if (isRecipesPage) { e.preventDefault(); setRecipesDrawerOpen(!recipesDrawerOpen); }
   };
-
   const handleIngredientsClick = (e: React.MouseEvent) => {
-    if (isIngredientsPage) {
-      // Already on ingredients page, just toggle drawer
-      e.preventDefault();
-      setIngredientsDrawerOpen(!ingredientsDrawerOpen);
-    }
-    // Otherwise let the Link navigate normally
+    if (isIngredientsPage) { e.preventDefault(); setIngredientsDrawerOpen(!ingredientsDrawerOpen); }
   };
-
   const handleMealPlansClick = (e: React.MouseEvent) => {
-    if (isMealPlansPage) {
-      // Already on meal plans page, just toggle drawer
-      e.preventDefault();
-      setMealPlansDrawerOpen(!mealPlansDrawerOpen);
-    }
-    // Otherwise let the Link navigate normally
+    if (isMealPlansPage) { e.preventDefault(); setMealPlansDrawerOpen(!mealPlansDrawerOpen); }
   };
-
   const handleSettingsClick = (e: React.MouseEvent) => {
-    if (isSettingsPage) {
-      // Already on settings page, just toggle drawer
-      e.preventDefault();
-      setSettingsDrawerOpen(!settingsDrawerOpen);
-    }
-    // Otherwise let the Link navigate normally
+    if (isSettingsPage) { e.preventDefault(); setSettingsDrawerOpen(!settingsDrawerOpen); }
   };
 
   const updateSearchParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams?.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
+    if (value) { params.set(key, value); } else { params.delete(key); }
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -156,51 +124,64 @@ export default function NavigationSidebar() {
     updateSearchParam("tags", newTags.join(","));
   };
 
+  /* ---- style constants matching mock ---- */
+  const navLink = (active: boolean | null | undefined) =>
+    `block py-2 px-4 font-mono text-[9px] font-normal tracking-[0.08em] uppercase cursor-pointer transition ${
+      active ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--fg)]'
+    }`;
+
+  const drawerWrap = "py-[10px] px-4 pb-[14px] bg-[#fafafa] border-b border-[var(--rule)]";
+
+  const drawerLabel = "block text-[9px] font-normal tracking-[0.12em] uppercase text-[var(--muted)] mb-[7px]";
+
+  const drawerInput = "w-full bg-transparent border-0 border-b border-[var(--rule)] py-1 px-0 text-[11px] font-light text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none mb-[10px]";
+
+  const btnPrimary = "w-full bg-[var(--fg)] text-[var(--bg)] py-[7px] px-3 text-[9px] font-normal tracking-[0.12em] uppercase border-0 cursor-pointer flex items-center justify-center gap-1";
+
+  const btnGhost = "w-full bg-transparent text-[var(--muted)] py-[6px] px-0 text-[9px] font-normal tracking-[0.12em] uppercase border-0 cursor-pointer text-left hover:text-[var(--fg)] transition";
+
   return (
-    <aside className="flex w-80 flex-col border-r bg-muted/20">
-      {/* Logo/Brand */}
-      <div className="flex h-14 items-center border-b px-4">
-        <Link href="/" className="text-sm font-semibold tracking-tight">
-          Nutrition Tracker
-        </Link>
-      </div>
-      
-      {/* Navigation Links */}
-      <nav className="space-y-1 p-3">
-        <Link 
-          href="/ingredients"
-          onClick={handleIngredientsClick}
-          className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-        >
-          <span className="text-base">🥕</span>
+    <aside className="flex w-[200px] flex-col border-r border-[var(--rule)] bg-[var(--bg)] overflow-y-auto" style={{ minWidth: 200, flexShrink: 0 }}>
+      {/* Brand */}
+      <Link href="/" className="flex items-center h-[44px] px-4 border-b border-[var(--rule)] font-mono text-[9px] font-normal tracking-[0.12em] uppercase text-[var(--fg)] no-underline" style={{ flexShrink: 0 }}>
+        Nutrition
+      </Link>
+
+      {/* Nav */}
+      <nav className="flex-1">
+        <Link href="/ingredients" onClick={handleIngredientsClick} className={navLink(isIngredientsPage)}>
           Ingredients
         </Link>
-        
-        {/* Ingredients Drawer - shows when on ingredients page and drawer is open */}
+
+        {/* Ingredients Drawer */}
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isIngredientsPage && ingredientsDrawerOpen 
-            ? 'max-h-[700px] opacity-100' 
-            : 'max-h-0 opacity-0'
+          isIngredientsPage && ingredientsDrawerOpen ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
-          <div className="px-3 py-3 space-y-4">
+          <div className={drawerWrap}>
+            {/* Search */}
+            <span className={drawerLabel}>Search</span>
+            <input
+              type="text"
+              className={drawerInput}
+              placeholder="ingredient name"
+              value={searchQuery}
+              onChange={(e) => updateSearchParam("search", e.target.value)}
+            />
+
             {/* Mode Toggle */}
-            <div className="flex gap-2">
+            <div className="flex border border-[var(--rule)] mb-[10px]">
               <button
                 onClick={() => setShowBulkImport(false)}
-                className={`flex-1 px-2 py-1.5 text-xs font-medium rounded border transition ${
-                  !showBulkImport
-                    ? 'bg-foreground text-background'
-                    : 'bg-background text-foreground hover:bg-muted/40'
+                className={`flex-1 py-[5px] px-2 font-mono text-[9px] tracking-[0.08em] uppercase border-0 cursor-pointer transition ${
+                  !showBulkImport ? 'bg-[var(--fg)] text-[var(--bg)]' : 'bg-transparent text-[var(--muted)]'
                 }`}
               >
                 Single
               </button>
               <button
                 onClick={() => setShowBulkImport(true)}
-                className={`flex-1 px-2 py-1.5 text-xs font-medium rounded border transition ${
-                  showBulkImport
-                    ? 'bg-foreground text-background'
-                    : 'bg-background text-foreground hover:bg-muted/40'
+                className={`flex-1 py-[5px] px-2 font-mono text-[9px] tracking-[0.08em] uppercase border-0 border-l border-[var(--rule)] cursor-pointer transition ${
+                  showBulkImport ? 'bg-[var(--fg)] text-[var(--bg)]' : 'bg-transparent text-[var(--muted)]'
                 }`}
               >
                 Bulk
@@ -208,174 +189,115 @@ export default function NavigationSidebar() {
             </div>
 
             {!showBulkImport ? (
-              <>
-                {/* Single Create Button */}
-                <button
-                  onClick={() => router.push("/ingredients/create")}
-                  className="flex w-full items-center justify-center border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
-                >
-                  + Create Ingredient
-                </button>
-
-                {/* Search */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                    Search
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-foreground"
-                    placeholder="Type ingredient name..."
-                    value={searchQuery}
-                    onChange={(e) => updateSearchParam("search", e.target.value)}
-                  />
-                </div>
-              </>
+              <button onClick={() => router.push("/ingredients/create")} className={btnPrimary}>
+                + New
+              </button>
             ) : (
               <>
-                <div className="text-[10px] text-muted-foreground mb-2">
+                <div className="text-[10px] text-[var(--muted)] mb-2">
                   Upload multiple ingredients at once from CSV or TSV data
                 </div>
-                <BulkIngredientImport 
-                  onImportComplete={() => {
-                    setShowBulkImport(false);
-                    // Trigger a refresh by navigating
-                    router.refresh();
-                  }}
+                <BulkIngredientImport
+                  onImportComplete={() => { setShowBulkImport(false); router.refresh(); }}
                 />
               </>
             )}
           </div>
         </div>
-        
-        
-        <Link 
-          href="/recipes" 
-          onClick={handleRecipesClick}
-          className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-        >
-          <span className="text-base">📝</span>
+
+        <Link href="/recipes" onClick={handleRecipesClick} className={navLink(isRecipesPage)}>
           Recipes
         </Link>
-        
-        {/* Recipes Drawer - shows when on recipes page and drawer is open */}
+
+        {/* Recipes Drawer */}
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isRecipesPage && recipesDrawerOpen 
-            ? 'max-h-[500px] opacity-100' 
-            : 'max-h-0 opacity-0'
+          isRecipesPage && recipesDrawerOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
-          <div className="px-3 py-3 space-y-4">
-            {/* Create Button */}
-            <Link
-              href="/recipes/create"
-              className="flex w-full items-center justify-center border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
-            >
-              + Create Recipe
-            </Link>
-
+          <div className={drawerWrap}>
             {/* Search */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Search
-              </label>
-              <input
-                type="text"
-                className="w-full border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-foreground"
-                placeholder="Type recipe name..."
-                value={searchQuery}
-                onChange={(e) => updateSearchParam("search", e.target.value)}
-              />
-            </div>
+            <span className={drawerLabel}>Search</span>
+            <input
+              type="text"
+              className={drawerInput}
+              placeholder="recipe name"
+              value={searchQuery}
+              onChange={(e) => updateSearchParam("search", e.target.value)}
+            />
 
-            {/* Tag Filters */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Filter
-              </label>
-              <div className="space-y-1">
-                {availableTags.map((tag) => (
-                  <label key={tag} className="flex items-center gap-2 cursor-pointer text-xs hover:text-foreground transition">
-                    <input
-                      type="checkbox"
-                      checked={selectedTags.includes(tag)}
-                      onChange={() => toggleTag(tag)}
-                      className="cursor-pointer"
-                    />
-                    <span className="capitalize">{tag}</span>
-                  </label>
-                ))}
-              </div>
-              {selectedTags.length > 0 && (
-                <button
-                  onClick={() => updateSearchParam("tags", "")}
-                  className="text-[10px] text-muted-foreground hover:text-foreground transition"
-                >
-                  Clear filters
-                </button>
-              )}
+            {/* + New */}
+            <button onClick={() => router.push("/recipes/create")} className={`${btnPrimary} mb-[10px]`}>
+              + New
+            </button>
+
+            {/* Filter */}
+            <span className={drawerLabel}>Filter</span>
+            <div className="flex flex-col gap-1">
+              {availableTags.map((tag) => (
+                <label key={tag} className="flex items-center gap-[6px] cursor-pointer text-[10px] text-[var(--muted)]">
+                  <input
+                    type="checkbox"
+                    checked={selectedTags.includes(tag)}
+                    onChange={() => toggleTag(tag)}
+                    className="cursor-pointer"
+                  />
+                  <span className="capitalize">{tag}</span>
+                </label>
+              ))}
             </div>
+            {selectedTags.length > 0 && (
+              <button
+                onClick={() => updateSearchParam("tags", "")}
+                className={`${btnGhost} mt-2`}
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         </div>
-        
-        <Link 
-          href="/meal-plans" 
-          onClick={handleMealPlansClick}
-          className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-        >
-          <span className="text-base">📅</span>
+
+        <Link href="/meal-plans" onClick={handleMealPlansClick} className={navLink(isMealPlansPage)}>
           Meal Plans
         </Link>
 
-        {/* Meal Plans Drawer - shows when on meal plans page and drawer is open */}
+        {/* Meal Plans Drawer */}
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isMealPlansPage && mealPlansDrawerOpen 
-            ? 'max-h-[600px] opacity-100' 
-            : 'max-h-0 opacity-0'
+          isMealPlansPage && mealPlansDrawerOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
-          <div className="px-3 py-3 space-y-3">
-            {/* Create Button */}
+          <div className={drawerWrap}>
             <button
               onClick={() => {
                 const params = new URLSearchParams(searchParams?.toString());
                 params.set("showForm", "true");
                 router.push(`/meal-plans?${params.toString()}`);
               }}
-              className="flex w-full items-center justify-center border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
+              className={btnPrimary}
             >
               + New Plan
             </button>
 
             {/* Create Form */}
             {showCreateForm && (
-              <div className="border rounded p-3 bg-muted/40 space-y-2">
+              <div className="mt-[10px] space-y-2">
                 {formMessage && (
-                  <div
-                    className={`border px-2 py-1.5 text-[11px] rounded ${
-                      formMessage.type === 'success'
-                        ? 'border-foreground/20 bg-background'
-                        : 'border-rose-600/40 bg-rose-600/10'
-                    }`}
-                  >
+                  <div className={`py-1.5 text-[11px] ${
+                    formMessage.type === 'success' ? 'text-[var(--fg)]' : 'text-[var(--error)]'
+                  }`}>
                     {formMessage.text}
                   </div>
                 )}
                 <form onSubmit={handleCreateMealPlan} className="space-y-2">
-                  <label className="flex flex-col gap-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                    Week start
+                  <label className="flex flex-col gap-1">
+                    <span className={drawerLabel}>Week start</span>
                     <input
                       type="date"
                       value={newWeekStartDate}
                       onChange={(e) => setNewWeekStartDate(e.target.value)}
                       required
-                      className="border bg-background px-2 py-1 text-xs font-normal normal-case tracking-normal text-foreground"
+                      className={drawerInput}
                     />
                   </label>
                   <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={creatingPlan}
-                      className="flex-1 border bg-background px-2 py-1.5 text-xs font-medium hover:bg-muted/40 transition disabled:opacity-50"
-                    >
+                    <button type="submit" disabled={creatingPlan} className={`flex-1 ${btnPrimary} disabled:opacity-50`}>
                       {creatingPlan ? 'Creating...' : 'Create'}
                     </button>
                     <button
@@ -387,7 +309,7 @@ export default function NavigationSidebar() {
                         setNewWeekStartDate('');
                         setFormMessage(null);
                       }}
-                      className="flex-1 border bg-background px-2 py-1.5 text-xs font-medium hover:bg-muted/40 transition"
+                      className={`flex-1 text-center ${btnGhost}`}
                     >
                       Cancel
                     </button>
@@ -397,126 +319,94 @@ export default function NavigationSidebar() {
             )}
 
             {/* Plan List */}
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="mt-[10px] max-h-[300px] overflow-y-auto">
               {loadingMealPlans ? (
-                <div className="text-[11px] text-muted-foreground px-1">Loading plans...</div>
+                <div className="text-[11px] text-[var(--muted)]">Loading plans...</div>
               ) : mealPlans.length === 0 ? (
-                <div className="border border-dashed border-muted-foreground/40 bg-muted/10 px-3 py-2 text-[11px] text-muted-foreground">
-                  No meal plans yet
-                </div>
+                <div className="text-[11px] text-[var(--muted)]">No meal plans yet</div>
               ) : (
                 mealPlans.map((plan) => {
                   const selectedPlanId = searchParams?.get("planId");
                   const isSelected = selectedPlanId === String(plan.id);
                   return (
-                    <div
+                    <button
                       key={plan.id}
-                      className={`h-[40px] flex items-center px-2 border text-left text-xs transition cursor-pointer ${
-                        isSelected
-                          ? 'bg-muted/40 border-foreground'
-                          : 'bg-background border-muted hover:bg-muted/20'
-                      }`}
                       onClick={() => {
                         const params = new URLSearchParams(searchParams?.toString());
                         params.set("planId", String(plan.id));
                         router.push(`/meal-plans?${params.toString()}`);
                       }}
+                      className={`${btnGhost} flex items-center justify-between ${
+                        isSelected ? 'text-[var(--fg)] bg-[#f5f5f5] px-[6px]' : ''
+                      }`}
                     >
-                      <div className="flex items-center justify-between gap-2 w-full">
-                        <div className="truncate flex-1">
-                          Week of{' '}
-                          {new Date(plan.weekStartDate).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </div>
-                        {isSelected && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm('Delete this meal plan? All meals will be removed.')) {
-                                fetch(`/api/meal-plans/${plan.id}`, { method: 'DELETE' })
-                                  .then(() => {
-                                    setMealPlans(mealPlans.filter(p => p.id !== plan.id));
-                                    const params = new URLSearchParams(searchParams?.toString());
-                                    params.delete("planId");
-                                    router.push(`/meal-plans${params.toString() ? '?' + params.toString() : ''}`);
-                                  })
-                                  .catch(error => console.error('Error deleting plan:', error));
-                              }
-                            }}
-                            className="text-xs text-muted-foreground hover:text-destructive transition whitespace-nowrap flex-shrink-0"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      <span className="truncate">
+                        Week of{' '}
+                        {new Date(plan.weekStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      {isSelected && (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm('Delete this meal plan? All meals will be removed.')) {
+                              fetch(`/api/meal-plans/${plan.id}`, { method: 'DELETE' })
+                                .then(() => {
+                                  setMealPlans(mealPlans.filter(p => p.id !== plan.id));
+                                  const params = new URLSearchParams(searchParams?.toString());
+                                  params.delete("planId");
+                                  router.push(`/meal-plans${params.toString() ? '?' + params.toString() : ''}`);
+                                })
+                                .catch(error => console.error('Error deleting plan:', error));
+                            }
+                          }}
+                          className="text-[9px] text-[var(--muted)] hover:text-[var(--error)] transition"
+                        >
+                          Delete
+                        </span>
+                      )}
+                    </button>
                   );
                 })
               )}
             </div>
           </div>
         </div>
-        
-        <Link 
-          href="/settings" 
-          onClick={handleSettingsClick}
-          className="flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-        >
-          <span className="text-base">⚙️</span>
+
+        <Link href="/settings" onClick={handleSettingsClick} className={navLink(isSettingsPage)}>
           Settings
         </Link>
 
-        {/* Settings Drawer - shows when on settings page and drawer is open */}
+        {/* Settings Drawer */}
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isSettingsPage && settingsDrawerOpen 
-            ? 'max-h-[200px] opacity-100' 
-            : 'max-h-0 opacity-0'
+          isSettingsPage && settingsDrawerOpen ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
-          <div className="px-3 py-3 space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground px-1">
-              Nutrition Goals
-            </h3>
-            <div className="space-y-2">
-              <button
-                onClick={() => {
+          <div className={drawerWrap}>
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(searchParams?.toString());
+                const isEditing = params.get("editing") === "true";
+                if (isEditing) { params.delete("editing"); } else { params.set("editing", "true"); }
+                router.push(`/settings?${params.toString()}`);
+              }}
+              className={`${btnPrimary} mb-2`}
+            >
+              {searchParams?.get("editing") === "true" ? 'View Summary' : 'Edit Goals'}
+            </button>
+            <button
+              onClick={() => {
+                if (confirm("Reset all goals? This will clear every min/max value.")) {
                   const params = new URLSearchParams(searchParams?.toString());
-                  const isEditing = params.get("editing") === "true";
-                  if (isEditing) {
-                    params.delete("editing");
-                  } else {
-                    params.set("editing", "true");
-                  }
+                  params.set("reset", "true");
                   router.push(`/settings?${params.toString()}`);
-                }}
-                className="w-full border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
-              >
-                {searchParams?.get("editing") === "true" ? 'View Summary' : 'Edit Goals'}
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm("Reset all goals? This will clear every min/max value.")) {
-                    const params = new URLSearchParams(searchParams?.toString());
-                    params.set("reset", "true");
-                    router.push(`/settings?${params.toString()}`);
-                  }
-                }}
-                className="w-full border bg-background px-3 py-2 text-xs font-medium hover:bg-muted/40 transition"
-              >
-                Reset to Defaults
-              </button>
-            </div>
+                }
+              }}
+              className={btnGhost}
+            >
+              Reset to Defaults
+            </button>
           </div>
         </div>
       </nav>
-
-      {/* Bottom Actions */}
-      <div className="p-3 space-y-1 mt-auto">
-        <div className="px-3 py-2">
-          <ThemeToggle />
-        </div>
-      </div>
     </aside>
   );
 }

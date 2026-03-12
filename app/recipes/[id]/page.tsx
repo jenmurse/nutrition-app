@@ -29,7 +29,7 @@ export default function EditRecipePage() {
   const params = useParams();
   const router = useRouter();
   const recipeId = params.id as string;
-  
+
   const [recipe, setRecipe] = useState<ImportDraft | null>(null);
   const [loading, setLoading] = useState(true);
   const [duplicating, setDuplicating] = useState(false);
@@ -92,31 +92,38 @@ export default function EditRecipePage() {
     fetchRecipe();
   }, [recipeId]);
 
-  if (loading) return <div className="p-6">Loading…</div>;
-  if (!recipe) return <div className="p-6">Recipe not found</div>;
+  if (loading) return <div className="px-7 py-5 text-[12px] font-mono font-light text-[var(--muted)]">Loading...</div>;
+  if (!recipe) return <div className="px-7 py-5 text-[12px] font-mono font-light text-[var(--muted)]">Recipe not found</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <a href="/recipes" className="text-blue-600 hover:underline text-sm">
-          ← Back to recipes
-        </a>
-        <button
-          onClick={handleDuplicate}
-          disabled={duplicating}
-          className="px-3 py-1 text-sm bg-background border hover:bg-muted/40 disabled:opacity-50 transition"
-        >
-          {duplicating ? "Duplicating..." : "Duplicate Recipe"}
-        </button>
+    <div>
+      <div className="px-7 py-5 border-b border-[var(--rule)] flex items-center justify-between">
+        <div>
+          <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Recipes</div>
+          <h1 className="font-sans text-[16px] font-normal text-[var(--fg)] mt-[2px]">Edit Recipe</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleDuplicate}
+            disabled={duplicating}
+            className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)] disabled:opacity-50"
+          >
+            {duplicating ? "Duplicating..." : "Duplicate"}
+          </button>
+          <button onClick={() => router.push('/recipes')} className="text-[11px] text-[var(--muted)] hover:text-[var(--fg)]">
+            ← Back to list
+          </button>
+        </div>
       </div>
-      <h1 className="text-2xl font-semibold mb-6">Edit Recipe</h1>
-      
-      <RecipeBuilder
-        initialRecipe={recipe}
-        onSaved={() => {
-          router.push("/recipes");
-        }}
-      />
+
+      <div className="px-7 py-5">
+        <RecipeBuilder
+          initialRecipe={recipe}
+          onSaved={() => {
+            router.push("/recipes");
+          }}
+        />
+      </div>
     </div>
   );
 }

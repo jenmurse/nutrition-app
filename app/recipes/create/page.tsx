@@ -71,43 +71,48 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <a href="/recipes" className="text-foreground hover:underline text-sm">
-          ← Back to recipes
-        </a>
-      </div>
-      <h1 className="text-xl font-semibold mb-6">Create New Recipe</h1>
-
-      {!importedRecipe && (
-        <div className="mb-6 p-4 border bg-muted/10">
-          <h3 className="text-base font-medium mb-2">Import from Pestle</h3>
-          <p className="text-sm text-muted-foreground mb-3">Or create a recipe from scratch below</p>
-          <input
-            type="file"
-            accept=".md,text/markdown"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleImport(file);
-            }}
-            disabled={importing}
-            className="text-sm"
-          />
-          {importing && <div className="text-sm text-muted-foreground mt-2">Importing…</div>}
+    <div>
+      <div className="px-7 py-5 border-b border-[var(--rule)] flex items-center justify-between">
+        <div>
+          <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Recipes</div>
+          <h1 className="font-sans text-[16px] font-normal text-[var(--fg)] mt-[2px]">New Recipe</h1>
         </div>
-      )}
-      
-      <Suspense fallback={<div>Loading...</div>}>
-        <RecipeBuilder
-          initialRecipe={importedRecipe || undefined}
-          onSaved={() => {
-            router.push("/recipes");
-          }}
-          onCancel={() => {
-            router.push("/recipes");
-          }}
-        />
-      </Suspense>
+        <button onClick={() => router.push('/recipes')} className="text-[11px] text-[var(--muted)] hover:text-[var(--fg)]">
+          ← Back to list
+        </button>
+      </div>
+
+      <div className="px-7 py-5">
+        {!importedRecipe && (
+          <div className="mb-6 p-4 border border-[var(--rule)]">
+            <h3 className="font-sans text-[12px] font-medium mb-2">Import from Pestle</h3>
+            <p className="font-mono text-[12px] font-light text-[var(--muted)] mb-3">Or create a recipe from scratch below</p>
+            <input
+              type="file"
+              accept=".md,text/markdown"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImport(file);
+              }}
+              disabled={importing}
+              className="text-[12px]"
+            />
+            {importing && <div className="font-mono text-[12px] font-light text-[var(--muted)] mt-2">Importing...</div>}
+          </div>
+        )}
+
+        <Suspense fallback={<div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading...</div>}>
+          <RecipeBuilder
+            initialRecipe={importedRecipe || undefined}
+            onSaved={() => {
+              router.push("/recipes");
+            }}
+            onCancel={() => {
+              router.push("/recipes");
+            }}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 }

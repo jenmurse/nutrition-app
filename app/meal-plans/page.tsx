@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
 import DailySummary from '@/app/components/DailySummary';
-import { Button } from '@/components/ui/button';
 
 interface Recipe {
   id: number;
@@ -71,7 +70,7 @@ const MealPlansPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const selectedPlanId = searchParams?.get("planId") ? Number(searchParams.get("planId")) : null;
-  
+
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -96,17 +95,17 @@ const MealPlansPage = () => {
       // Auto-select the meal plan for the current week if no plan is selected
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const currentWeekPlan = mealPlans.find((plan) => {
         const weekStart = new Date(plan.weekStartDate);
         weekStart.setHours(0, 0, 0, 0);
-        
+
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
-        
+
         return today >= weekStart && today <= weekEnd;
       });
-      
+
       if (currentWeekPlan) {
         // Auto-select the current week's plan
         setHasAutoSelected(true);
@@ -221,7 +220,7 @@ const MealPlansPage = () => {
         const error = await response.json();
         throw new Error(error.error || 'Failed to add meal');
       }
-      
+
       // Refresh meal plan details
       await fetchMealPlanDetails(selectedPlanId);
       setMessage({ type: 'success', text: 'Meal added successfully!' });
@@ -259,7 +258,7 @@ const MealPlansPage = () => {
         const error = await response.json();
         throw new Error(error.error || 'Failed to add ingredient meal');
       }
-      
+
       // Refresh meal plan details
       await fetchMealPlanDetails(selectedPlanId);
       setMessage({ type: 'success', text: 'Ingredient added successfully!' });
@@ -329,55 +328,60 @@ const MealPlansPage = () => {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="text-sm text-muted-foreground">Loading meal plans...</div>
+        <div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading meal plans...</div>
       </div>
     );
   }
 
   return (
     <div className="flex h-full flex-col">
+      {/* Page Head */}
+      <div className="px-7 py-5 border-b border-[var(--rule)]">
+        <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Meal Plans</div>
+        {selectedPlan && (
+          <h1 className="font-sans text-[16px] font-normal text-[var(--fg)] mt-[2px]">
+            Week of{' '}
+            {new Date(selectedPlan.weekStartDate).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </h1>
+        )}
+      </div>
+
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
+      <div className="flex-1 overflow-y-auto px-7 py-5">
         {selectedPlan ? (
           <div className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="text-xl font-semibold">
-                Week of{' '}
-                {new Date(selectedPlan.weekStartDate).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </h1>
-              <div className="flex items-center gap-2 shrink-0">
-                {editMode ? (
-                  <>
-                    <span className="text-xs text-muted-foreground">{selectedMealIds.size} selected</span>
-                    <button
-                      className="rounded border border-destructive bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/20 transition disabled:opacity-40"
-                      disabled={selectedMealIds.size === 0}
-                      onClick={handleDeleteSelected}
-                    >
-                      Delete selected
-                    </button>
-                    <button
-                      className="rounded border px-3 py-1.5 text-xs font-medium hover:bg-muted/40 transition"
-                      onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
-                    >
-                      Done
-                    </button>
-                  </>
-                ) : (
+            <div className="flex items-center justify-end gap-3">
+              {editMode ? (
+                <>
+                  <span className="font-mono text-[10px] font-light text-[var(--muted)]">{selectedMealIds.size} selected</span>
                   <button
-                    className="rounded border px-3 py-1.5 text-xs font-medium hover:bg-muted/40 transition"
-                    onClick={() => setEditMode(true)}
+                    className="border border-[var(--error)] text-[var(--error)] px-3 py-[6px] text-[9px] font-mono uppercase tracking-[0.12em] hover:opacity-80 transition disabled:opacity-40"
+                    disabled={selectedMealIds.size === 0}
+                    onClick={handleDeleteSelected}
                   >
-                    Edit Meal Plan
+                    Delete selected
                   </button>
-                )}
-              </div>
+                  <button
+                    className="text-[9px] font-mono uppercase tracking-[0.12em] border border-[var(--rule)] px-3 py-[6px] text-[var(--muted)] hover:text-[var(--fg)] transition"
+                    onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
+                  >
+                    Done
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="text-[9px] font-mono uppercase tracking-[0.12em] border border-[var(--rule)] px-3 py-[6px] text-[var(--muted)] hover:text-[var(--fg)] transition"
+                  onClick={() => setEditMode(true)}
+                >
+                  Edit Meal Plan
+                </button>
+              )}
             </div>
-            
+
             <MealPlanWeek
               mealPlanId={selectedPlan.id}
               weekStartDate={new Date(selectedPlan.weekStartDate)}
@@ -432,13 +436,16 @@ const MealPlansPage = () => {
               );
               if (!dayData) return null;
               return (
-                <div className="mt-6 pt-6">
+                <div className="mt-6 pt-6 border-t border-[var(--rule)]">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">
-                      Nutrition - {dayData.dayOfWeek}, {new Date(dayData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </h2>
+                    <div>
+                      <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Daily Summary</div>
+                      <h2 className="font-sans text-[14px] font-medium text-[var(--fg)] mt-[2px]">
+                        {dayData.dayOfWeek}, {new Date(dayData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </h2>
+                    </div>
                     <button
-                      className="text-xs text-muted-foreground hover:text-foreground transition"
+                      className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)] transition"
                       onClick={() => setSelectedDay(null)}
                     >
                       Close
@@ -457,10 +464,10 @@ const MealPlansPage = () => {
         ) : (
           <div className="flex h-full items-center justify-center">
             <div className="text-center space-y-3">
-              <div className="text-sm text-muted-foreground">
+              <div className="font-mono text-[12px] font-light text-[var(--muted)]">
                 {mealPlans.length === 0
-                  ? 'No meal plans yet. Click "+ New Plan" to get started →'
-                  : 'Select a meal plan from the list →'}
+                  ? 'No meal plans yet. Click "+ New Plan" to get started.'
+                  : 'Select a meal plan from the list.'}
               </div>
             </div>
           </div>
@@ -470,4 +477,12 @@ const MealPlansPage = () => {
   );
 };
 
-export default MealPlansPage;
+function MealPlansPageWrapper() {
+  return (
+    <Suspense>
+      <MealPlansPage />
+    </Suspense>
+  );
+}
+
+export default MealPlansPageWrapper;

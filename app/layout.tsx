@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Suspense } from "react";
+import { DM_Sans, DM_Mono } from "next/font/google";
 
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
 import NavigationSidebar from "./components/NavigationSidebar";
-import { ThemeProvider } from "@/components/theme-provider";
 
-const ibmPlexSans = IBM_Plex_Sans({ 
-  weight: ['400', '500', '600'],
+const dmSans = DM_Sans({
+  weight: ['300', '400', '500', '600'],
   subsets: ["latin"],
   variable: '--font-sans',
 });
 
-const ibmPlexMono = IBM_Plex_Mono({ 
-  weight: ['400', '500'],
+const dmMono = DM_Mono({
+  weight: ['300', '400', '500'],
   subsets: ["latin"],
   variable: '--font-mono',
 });
@@ -29,19 +29,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans h-screen overflow-hidden bg-background text-foreground antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <NumberInputHandler />
-          <div className="flex h-screen">
+    <html lang="en">
+      <body className={`${dmSans.variable} ${dmMono.variable} font-mono h-screen overflow-hidden`}>
+        <NumberInputHandler />
+        <div className="flex h-screen">
+          <Suspense>
             <NavigationSidebar />
-            
-            {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto">
-              {children}
-            </main>
-          </div>
-        </ThemeProvider>
+          </Suspense>
+
+          {/* Main Content Area */}
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

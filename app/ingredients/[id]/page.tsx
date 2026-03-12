@@ -52,7 +52,7 @@ export default function IngredientDetailPage() {
   const params = useParams();
   const router = useRouter();
   const ingredientId = params.id as string;
-  
+
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -73,12 +73,12 @@ export default function IngredientDetailPage() {
           fetch(`/api/ingredients/${ingredientId}`),
           fetch("/api/nutrients"),
         ]);
-        
+
         if (!ingredRes.ok) throw new Error("Failed to fetch ingredient");
-        
+
         const ing = await ingredRes.json();
         const nutr = await nutrRes.json();
-        
+
         setIngredient(ing);
         setName(ing.name);
         setUnit(ing.defaultUnit);
@@ -87,7 +87,7 @@ export default function IngredientDetailPage() {
         setCustomUnitAmount(String(ing.customUnitAmount || "1"));
         setCustomUnitGrams(String(ing.customUnitGrams || ""));
         setNutrients(Array.isArray(nutr) ? nutr : []);
-        
+
         const vals: Record<number, number> = {};
         if (ing.nutrientValues && Array.isArray(ing.nutrientValues)) {
           ing.nutrientValues.forEach((nv: any) => {
@@ -102,7 +102,7 @@ export default function IngredientDetailPage() {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [ingredientId]);
 
@@ -111,7 +111,7 @@ export default function IngredientDetailPage() {
       alert("Name is required");
       return;
     }
-    
+
     // Validate custom unit if selected
     if (unit === "other") {
       if (!customUnitName.trim()) {
@@ -123,7 +123,7 @@ export default function IngredientDetailPage() {
         return;
       }
     }
-    
+
     setSaving(true);
     try {
       const body: any = {
@@ -135,25 +135,25 @@ export default function IngredientDetailPage() {
           value: Number(value),
         })),
       };
-      
+
       // Add custom unit data if using custom units
       if (unit === "other") {
         body.customUnitName = customUnitName.trim();
         body.customUnitAmount = Number(customUnitAmount) || 1;
         body.customUnitGrams = Number(customUnitGrams);
       }
-      
+
       const res = await fetch(`/api/ingredients/${ingredientId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      
+
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Save failed");
       }
-      
+
       // Reload the ingredient data
       const updatedIng = await res.json();
       setIngredient(updatedIng);
@@ -166,7 +166,7 @@ export default function IngredientDetailPage() {
       setSaving(false);
     }
   };
-  
+
   const handleDelete = async () => {
     if (!ingredient || !confirm(`Delete "${ingredient.name}"?`)) return;
     try {
@@ -182,32 +182,43 @@ export default function IngredientDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading…</div>;
-  if (!ingredient) return <div className="p-6">Ingredient not found</div>;
+  if (loading) return <div className="px-7 py-5 font-mono text-[12px] font-light text-[var(--muted)]">Loading...</div>;
+  if (!ingredient) return <div className="px-7 py-5 font-mono text-[12px] font-light text-[var(--muted)]">Ingredient not found</div>;
 
   if (editMode) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <button onClick={() => setEditMode(false)} className="text-blue-600 hover:underline text-sm mb-4">
+      <div className="max-w-2xl px-7 py-5">
+        <button
+          onClick={() => setEditMode(false)}
+          className="text-[11px] text-[var(--muted)] hover:text-[var(--fg)] mb-4"
+        >
           ← Back to details
         </button>
-        <h1 className="text-2xl font-semibold mb-6">Edit Ingredient</h1>
-        
-        <div className="bg-white border rounded p-6 space-y-4">
+
+        <div className="border-b border-[var(--rule)] pb-4 mb-6">
+          <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Ingredients</div>
+          <h1 className="font-sans text-[16px] font-normal text-[var(--fg)] mt-[2px]">Edit Ingredient</h1>
+          <div className="font-mono text-[11px] text-[var(--muted)] mt-[2px]">Modify {ingredient.name}</div>
+        </div>
+
+        {/* Details section */}
+        <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-2 mt-6 border-b border-[var(--rule)] pb-2">Details</div>
+
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Name</label>
+            <label className="font-sans text-[12px] font-medium text-[var(--fg)] block mb-1">Name</label>
             <input
               type="text"
-              className="w-full border rounded p-2"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] font-mono font-light focus:outline-none focus:border-[var(--fg)]"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium mb-2">Default Unit</label>
+            <label className="font-sans text-[12px] font-medium text-[var(--fg)] block mb-1">Default Unit</label>
             <select
-              className="w-full border rounded p-2"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] font-mono font-light focus:outline-none focus:border-[var(--fg)] appearance-none"
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
             >
@@ -216,158 +227,156 @@ export default function IngredientDetailPage() {
               <option value="other">other (custom unit)</option>
             </select>
           </div>
-          
+
           {unit === "other" && (
-            <div className="p-3 bg-blue-50 rounded border border-blue-200">
-              <h4 className="font-medium mb-2 text-sm">Custom Unit Settings</h4>
-              <div className="space-y-2">
-                <div className="flex gap-2 items-center">
-                  <label className="w-40 text-sm font-medium">Unit name:</label>
+            <div className="border border-[var(--rule)] p-4 mt-4">
+              <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-3">Custom Unit Settings</div>
+              <div className="space-y-3">
+                <div className="flex gap-3 items-center">
+                  <label className="font-sans text-[12px] font-medium text-[var(--fg)] w-32 shrink-0">Unit name</label>
                   <input
-                    className="border rounded p-2 flex-1"
+                    className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] font-mono font-light focus:outline-none focus:border-[var(--fg)]"
                     placeholder="e.g., banana, scoop, cup"
                     value={customUnitName}
                     onChange={(e) => setCustomUnitName(e.target.value)}
                   />
                 </div>
-                <div className="flex gap-2 items-center">
-                  <label className="w-40 text-sm font-medium">Amount per unit:</label>
+                <div className="flex gap-3 items-center">
+                  <label className="font-sans text-[12px] font-medium text-[var(--fg)] w-32 shrink-0">Amount per unit</label>
                   <input
                     type="number"
                     step="any"
-                    className="border rounded p-2 w-24"
+                    className="w-24 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] font-mono font-light focus:outline-none focus:border-[var(--fg)]"
                     value={customUnitAmount}
                     onChange={(e) => setCustomUnitAmount(e.target.value)}
                   />
-                  <span className="text-sm text-slate-600">{customUnitName || "unit"}</span>
+                  <span className="font-mono text-[11px] text-[var(--muted)]">{customUnitName || "unit"}</span>
                 </div>
-                <div className="flex gap-2 items-center">
-                  <label className="w-40 text-sm font-medium">Grams per unit:</label>
+                <div className="flex gap-3 items-center">
+                  <label className="font-sans text-[12px] font-medium text-[var(--fg)] w-32 shrink-0">Grams per unit</label>
                   <input
                     type="number"
                     step="any"
-                    className="border rounded p-2 flex-1"
+                    className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] font-mono font-light focus:outline-none focus:border-[var(--fg)]"
                     value={customUnitGrams}
                     onChange={(e) => setCustomUnitGrams(e.target.value)}
                   />
-                  <span className="text-sm text-slate-600">g</span>
+                  <span className="font-mono text-[11px] text-[var(--muted)]">g</span>
                 </div>
               </div>
             </div>
           )}
-          
-          <div className="p-3 bg-amber-50 rounded border border-amber-200" data-testid="meal-item-checkbox-container">
+
+          <div className="border border-[var(--rule)] p-4 mt-4" data-testid="meal-item-checkbox-container">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isMealItem}
                 onChange={(e) => setIsMealItem(e.target.checked)}
-                className="w-4 h-4 cursor-pointer"
+                className="w-4 h-4 cursor-pointer accent-[var(--fg)]"
                 data-testid="meal-item-checkbox"
               />
-              <span className="text-sm font-medium">This is a meal item (can be added directly to meal plans)</span>
+              <span className="font-sans text-[12px] font-medium text-[var(--fg)]">This is a meal item (can be added directly to meal plans)</span>
             </label>
-            <p className="text-xs text-slate-600 mt-2 ml-6">Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)</p>
+            <p className="font-mono text-[11px] text-[var(--muted)] mt-2 ml-6">Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)</p>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-3">Nutrient Values (per 100g)</label>
-            <div className="space-y-2">
-              {nutrients.map((n) => (
-                <div key={n.id} className="flex items-center gap-2 border rounded p-2 bg-slate-50">
-                  <label className="w-32 text-sm font-medium">{n.displayName}</label>
-                  <input
-                    type="number"
-                    step="any"
-                    className="border rounded p-2 flex-1"
-                    value={values[n.id] ?? ""}
-                    onChange={(e) =>
-                      setValues((s) => {
-                        if (e.target.value === "") {
-                          const { [n.id]: _, ...rest } = s;
-                          return rest;
-                        }
-                        return { ...s, [n.id]: Number(e.target.value) };
-                      })
+        </div>
+
+        {/* Nutrient values section */}
+        <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-2 mt-6 border-b border-[var(--rule)] pb-2">Nutrient Values (per 100g)</div>
+
+        <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-3">
+          {nutrients.map((n) => (
+            <div key={n.id} className="flex items-center gap-2">
+              <label className="font-sans text-[12px] font-medium text-[var(--fg)] w-24 shrink-0">{n.displayName}</label>
+              <input
+                type="number"
+                step="any"
+                className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] font-mono font-light focus:outline-none focus:border-[var(--fg)]"
+                value={values[n.id] ?? ""}
+                onChange={(e) =>
+                  setValues((s) => {
+                    if (e.target.value === "") {
+                      const { [n.id]: _, ...rest } = s;
+                      return rest;
                     }
-                  />
-                  <div className="text-sm text-slate-600 w-12">{n.unit}</div>
-                </div>
-              ))}
+                    return { ...s, [n.id]: Number(e.target.value) };
+                  })
+                }
+              />
+              <div className="font-mono text-[11px] text-[var(--muted)] w-8 shrink-0">{n.unit}</div>
             </div>
-          </div>
-          
-          <div className="flex gap-2 pt-4">
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? "Saving…" : "Save"}
-            </button>
-            <button
-              className="px-4 py-2 border rounded hover:bg-slate-50"
-              onClick={() => setEditMode(false)}
-              disabled={saving}
-            >
-              Cancel
-            </button>
-          </div>
+          ))}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-3 mt-8">
+          <button
+            className="bg-[var(--fg)] text-[var(--bg)] px-5 py-[7px] text-[9px] font-mono uppercase tracking-[0.12em] hover:opacity-80 disabled:opacity-50"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+          <button
+            className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)]"
+            onClick={() => setEditMode(false)}
+            disabled={saving}
+          >
+            Cancel
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="mb-4">
-        <a href="/ingredients" className="text-blue-600 hover:underline text-sm">
-          ← Back to ingredients
-        </a>
-      </div>
-      
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">{ingredient.name}</h1>
-          <p className="font-mono text-slate-600 mt-1">
-            Default: {ingredient.defaultUnit === "other" && ingredient.customUnitName 
-              ? `${ingredient.customUnitAmount} ${ingredient.customUnitName}` 
-              : ingredient.defaultUnit}
-          </p>
-          {ingredient.isMealItem && (
-            <p className="text-sm font-medium text-amber-700 bg-amber-50 rounded px-2 py-1 inline-block mt-2">
-              ✓ Meal Item
-            </p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setEditMode(true)}
-            className="px-4 py-2 border rounded bg-white hover:bg-slate-50"
-          >
-            Edit
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2 border border-red-300 rounded bg-red-50 text-red-700 hover:bg-red-100"
-          >
-            Delete
-          </button>
+    <div className="max-w-2xl px-7 py-5">
+      <button
+        onClick={() => router.push("/ingredients")}
+        className="text-[11px] text-[var(--muted)] hover:text-[var(--fg)] mb-4"
+      >
+        ← Back to list
+      </button>
+
+      <div className="border-b border-[var(--rule)] pb-4 mb-6">
+        <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Ingredients</div>
+        <h1 className="font-sans text-[16px] font-normal text-[var(--fg)] mt-[2px]">{ingredient.name}</h1>
+        <div className="font-mono text-[11px] text-[var(--muted)] mt-[2px]">
+          Default unit: {ingredient.defaultUnit === "other" && ingredient.customUnitName
+            ? `${ingredient.customUnitAmount} ${ingredient.customUnitName}`
+            : ingredient.defaultUnit}
+          {ingredient.isMealItem && <span className="ml-3">Meal item</span>}
         </div>
       </div>
-      
-      <div className="bg-white border rounded p-6">
-        <h2 className="text-lg font-semibold mb-4">Nutrition Information (per 100g)</h2>
-        <div className="space-y-3">
-          {ingredient.nutrientValues.map((nv) => (
-            <div key={nv.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
-              <span className="font-medium">{nv.nutrient.displayName}</span>
-              <span className="font-mono text-slate-700">
-                {formatNutrient(nv.value)} {nv.nutrient.unit}
-              </span>
-            </div>
-          ))}
-        </div>
+
+      {/* Nutrition grid */}
+      <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-2 border-b border-[var(--rule)] pb-2">Nutrition (per 100g)</div>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-0">
+        {ingredient.nutrientValues.map((nv) => (
+          <div key={nv.id} className="flex items-center justify-between py-[6px] border-b border-[var(--rule)]">
+            <span className="font-mono text-[12px] font-light text-[var(--fg)]">{nv.nutrient.displayName}</span>
+            <span className="font-mono text-[12px] font-light text-[var(--muted)]">
+              {formatNutrient(nv.value)} {nv.nutrient.unit}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex gap-3 mt-8">
+        <button
+          onClick={() => setEditMode(true)}
+          className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)]"
+        >
+          Edit
+        </button>
+        <button
+          onClick={handleDelete}
+          className="border border-[var(--error)] text-[var(--error)] px-5 py-[7px] text-[9px] font-mono uppercase tracking-[0.12em]"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

@@ -5,14 +5,14 @@ import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
 import CreateIngredientModal from "./CreateIngredientModal";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
-type Ingredient = { 
-  id: number; 
-  name: string; 
-  defaultUnit: string; 
+type Ingredient = {
+  id: number;
+  name: string;
+  defaultUnit: string;
   customUnitName?: string | null;
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
-  nutrientValues: { id: number; value: number; nutrient: Nutrient }[] 
+  nutrientValues: { id: number; value: number; nutrient: Nutrient }[]
 };
 
 type Row = { id: string; ingredientId?: number; quantity?: number; unit?: string; notes?: string };
@@ -109,7 +109,7 @@ export default function RecipeBuilder({
     }));
 
     setRows(nextRows.length > 0 ? nextRows : [{ id: "r1" }]);
-    
+
     // Initialize quantity text values
     const nextQuantityText: Record<string, string> = {};
     nextRows.forEach((item) => {
@@ -135,23 +135,23 @@ export default function RecipeBuilder({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, defaultUnit: "g" }),
       });
-      
+
       if (!res.ok) throw new Error("Failed to create ingredient");
-      
+
       const newIngredient = await res.json();
-      
+
       // Add to ingredients list
       setIngredients((prev) => [...prev, newIngredient]);
-      
+
       // Select it in the current row
       updateRow(rowId, { ingredientId: newIngredient.id, unit: newIngredient.defaultUnit || "g" });
       setSearchText({ ...searchText, [rowId]: "" });
       setShowDropdown({ ...showDropdown, [rowId]: false });
-      
+
       // Show modal to add nutrition
       setNewIngredientId(newIngredient.id);
       setShowCreateModal(true);
-      
+
       return newIngredient;
     } catch (error) {
       console.error(error);
@@ -245,7 +245,7 @@ export default function RecipeBuilder({
       alert("Recipe name is required");
       return;
     }
-    
+
     // Filter only rows with ingredientId
     const validRows = rows.filter((r) => r.ingredientId && r.quantity && r.unit);
     if (validRows.length === 0) {
@@ -300,26 +300,26 @@ export default function RecipeBuilder({
   const totals = computeTotals();
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-3">
+    <div className="space-y-6">
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Recipe Name</label>
-          <input 
-            className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
-            placeholder="Recipe name" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
+          <label className="block font-sans text-[12px] font-medium mb-1">Recipe Name</label>
+          <input
+            className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+            placeholder="Recipe name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
-        
-        <div className="grid grid-cols-2 gap-3">
+
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Servings</label>
-            <input 
-              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+            <label className="block font-sans text-[12px] font-medium mb-1">Servings</label>
+            <input
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
               type="text"
               inputMode="decimal"
-              value={servings === 0 ? "" : servings} 
+              value={servings === 0 ? "" : servings}
               onChange={(e) => {
                 const val = e.target.value.trim();
                 if (val === "") {
@@ -330,14 +330,14 @@ export default function RecipeBuilder({
                     setServings(numVal);
                   }
                 }
-              }} 
+              }}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Unit</label>
-            <select 
-              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
-              value={servingUnit} 
+            <label className="block font-sans text-[12px] font-medium mb-1">Unit</label>
+            <select
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              value={servingUnit}
               onChange={(e) => setServingUnit(e.target.value)}
             >
               <option value="servings">servings</option>
@@ -348,11 +348,11 @@ export default function RecipeBuilder({
         </div>
       </div>
 
-      <div className="border bg-muted/10 p-3">
-        <label className="block text-sm font-medium mb-2">Tags</label>
-        <div className="flex flex-wrap gap-2">
+      <div>
+        <label className="block font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-3">Tags</label>
+        <div className="flex flex-wrap gap-3">
           {availableTags.map((tag) => (
-            <label key={tag} className="flex items-center gap-1 cursor-pointer">
+            <label key={tag} className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={tags.includes(tag)}
@@ -365,54 +365,54 @@ export default function RecipeBuilder({
                 }}
                 className="cursor-pointer"
               />
-              <span className="text-sm capitalize">{tag}</span>
+              <span className="text-[12px] capitalize">{tag}</span>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="border bg-muted/10 p-3">
-        <label className="block text-sm font-medium mb-3">Time</label>
-        <div className="grid grid-cols-3 gap-3">
+      <div>
+        <label className="block font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-3">Time</label>
+        <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">Prep (min)</label>
+            <label className="block font-sans text-[12px] font-medium mb-1">Prep (min)</label>
             <input
               type="number"
               min={0}
               step={1}
-              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
-              placeholder="—"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              placeholder="--"
               value={prepTime}
               onChange={(e) => setPrepTime(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">Cook (min)</label>
+            <label className="block font-sans text-[12px] font-medium mb-1">Cook (min)</label>
             <input
               type="number"
               min={0}
               step={1}
-              className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
-              placeholder="—"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              placeholder="--"
               value={cookTime}
               onChange={(e) => setCookTime(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">Total (min)</label>
-            <div className="w-full border border-dashed bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+            <label className="block font-sans text-[12px] font-medium mb-1">Total (min)</label>
+            <div className="w-full border-0 border-b border-dashed border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] text-[var(--muted)]">
               {(prepTime !== "" || cookTime !== "")
                 ? (Number(prepTime) || 0) + (Number(cookTime) || 0)
-                : "—"}
+                : "--"}
             </div>
           </div>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Instructions</label>
+        <label className="block font-sans text-[12px] font-medium mb-1">Instructions</label>
         <textarea
-          className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground min-h-[120px]"
+          className="w-full border border-[var(--rule)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
           placeholder="Add recipe instructions..."
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
@@ -420,8 +420,8 @@ export default function RecipeBuilder({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-3">Ingredients</label>
-        <div className="space-y-2">
+        <label className="block font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-3">Ingredients</label>
+        <div className="space-y-0">
           {rows.map((row, index) => {
             const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
             const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
@@ -429,7 +429,7 @@ export default function RecipeBuilder({
             const filteredIngredients = currentSearch
               ? ingredients.filter((i) => i.name.toLowerCase().includes(currentSearch.toLowerCase()))
               : ingredients;
-            
+
             return (
               <div
                 key={row.id}
@@ -438,16 +438,16 @@ export default function RecipeBuilder({
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, row.id)}
                 onDragEnd={handleDragEnd}
-                className={`flex gap-2 items-start p-2 rounded border transition ${
+                className={`flex gap-2 items-start py-2 border-b border-[var(--rule)] transition ${
                   draggedId === row.id
-                    ? "opacity-50 bg-muted/20"
+                    ? "opacity-50"
                     : draggedId
-                      ? "border-dashed border-foreground/30"
+                      ? "border-dashed"
                       : ""
                 }`}
               >
                 <div
-                  className="flex-shrink-0 px-2 py-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition"
+                  className="flex-shrink-0 px-1 py-[6px] cursor-grab active:cursor-grabbing text-[var(--muted)] hover:text-[var(--fg)] transition"
                   title="Drag to reorder ingredients"
                   style={{ userSelect: "none" }}
                 >
@@ -457,7 +457,7 @@ export default function RecipeBuilder({
                 <div className="flex-1 relative">
                   <input
                     type="text"
-                    className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+                    className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
                     placeholder="Type to search ingredients..."
                     value={selectedIngredient ? selectedIngredient.name : currentSearch}
                     onChange={(e) => {
@@ -476,25 +476,25 @@ export default function RecipeBuilder({
                     }}
                   />
                   {showDropdown[row.id] && currentSearch && (
-                    <div className="absolute z-10 w-full mt-1 bg-background border shadow-lg max-h-48 overflow-auto">
+                    <div className="absolute z-10 w-full mt-1 border border-[var(--rule)] bg-[var(--bg)] max-h-48 overflow-auto">
                       {/* Show "Create new" option if search doesn't exactly match any ingredient */}
                       {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
                         <div
-                          className="p-2 hover:bg-muted/40 cursor-pointer text-sm border-b font-medium text-blue-600"
+                          className="px-3 py-2 hover:bg-[var(--rule)] cursor-pointer text-[12px] border-b border-[var(--rule)] text-[var(--fg)] font-medium"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             createIngredient(currentSearch, row.id);
                           }}
                         >
-                          + Create new ingredient: "{currentSearch}"
+                          + Create new ingredient: &ldquo;{currentSearch}&rdquo;
                         </div>
                       )}
-                      
+
                       {/* Show matching ingredients */}
                       {filteredIngredients.map((i) => (
                         <div
                           key={i.id}
-                          className="p-2 hover:bg-muted/40 cursor-pointer text-sm"
+                          className="px-3 py-2 hover:bg-[var(--rule)] cursor-pointer text-[12px]"
                           onMouseDown={(e) => {
                             // Use onMouseDown to prevent input blur from closing dropdown before click registers
                             e.preventDefault();
@@ -508,10 +508,10 @@ export default function RecipeBuilder({
                           {i.customUnitName ? ` (${i.customUnitName})` : ""}
                         </div>
                       ))}
-                      
+
                       {/* Show "no results" if no matches and we're not showing create option */}
                       {filteredIngredients.length === 0 && ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
-                        <div className="p-2 text-sm text-muted-foreground">
+                        <div className="px-3 py-2 text-[12px] text-[var(--muted)]">
                           No matching ingredients
                         </div>
                       )}
@@ -519,16 +519,16 @@ export default function RecipeBuilder({
                   )}
                 </div>
 
-                <input 
-                  className="w-24 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
+                <input
+                  className="w-24 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
                   type="text"
                   inputMode="decimal"
-                  placeholder="qty" 
-                  value={quantityText[row.id] ?? ""} 
+                  placeholder="qty"
+                  value={quantityText[row.id] ?? ""}
                   onChange={(e) => {
                     const val = e.target.value;
                     setQuantityText({ ...quantityText, [row.id]: val });
-                    
+
                     if (val === "") {
                       updateRow(row.id, { quantity: undefined });
                     } else {
@@ -553,10 +553,10 @@ export default function RecipeBuilder({
                   }}
                   draggable={false}
                 />
-                <select 
-                  className="w-32 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground" 
-                  value={row.unit ?? defaultUnitForRow} 
-                  onChange={(e) => updateRow(row.id, { unit: e.target.value })} 
+                <select
+                  className="w-32 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+                  value={row.unit ?? defaultUnitForRow}
+                  onChange={(e) => updateRow(row.id, { unit: e.target.value })}
                   draggable={false}
                 >
                   <optgroup label="Weight">
@@ -581,8 +581,8 @@ export default function RecipeBuilder({
                     </optgroup>
                   )}
                 </select>
-                <button 
-                  className="px-3 py-2 border text-sm hover:bg-muted/40 transition"
+                <button
+                  className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)] py-[6px]"
                   onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}
                 >
                   Remove
@@ -594,36 +594,36 @@ export default function RecipeBuilder({
       </div>
 
       <div>
-        <button 
-          className="px-4 py-2 border bg-muted/10 text-sm hover:bg-muted/20 transition"
+        <button
+          className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)]"
           onClick={addRow}
         >
-          Add ingredient
+          + Add ingredient
         </button>
       </div>
 
-      <div className="border-t pt-4">
-        <h4 className="text-sm font-medium mb-3">Nutrient Totals per Serving</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      <div className="border-t border-[var(--rule)] pt-5">
+        <h4 className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)] mb-3">Nutrient Totals per Serving</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1">
           {nutrients.map((n) => (
-            <div key={n.id} className="flex justify-between border bg-muted/10 px-3 py-2 text-sm">
+            <div key={n.id} className="flex justify-between py-[5px] border-b border-[var(--rule)] text-[12px]">
               <div>{n.displayName}</div>
-              <div className="font-mono">{Math.round((totals[n.id] || 0) * 100) / 100} {n.unit}</div>
+              <div className="font-mono text-[var(--muted)]">{Math.round((totals[n.id] || 0) * 100) / 100} {n.unit}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex gap-2 pt-4">
-        <button 
-          className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition disabled:opacity-50"
+      <div className="flex gap-3 pt-4">
+        <button
+          className="bg-[var(--fg)] text-[var(--bg)] px-5 py-[7px] text-[9px] font-mono uppercase tracking-[0.12em] hover:opacity-80 disabled:opacity-50"
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? "Saving…" : "Save"}
+          {saving ? "Saving..." : "Save"}
         </button>
-        <button 
-          className="flex flex-1 items-center justify-center border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition disabled:opacity-50"
+        <button
+          className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)] px-5 py-[7px] disabled:opacity-50"
           onClick={onCancel}
           disabled={saving}
         >
@@ -651,4 +651,3 @@ export default function RecipeBuilder({
     </div>
   );
 }
-
