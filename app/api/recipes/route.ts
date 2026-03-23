@@ -20,49 +20,40 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, servingSize = 1, servingUnit = "servings", instructions = "", sourceApp, tags = "", prepTime, cookTime, ingredients = [] } = body;
+    const { name, servingSize = 1, servingUnit = "servings", instructions = "", sourceApp, tags = "", prepTime, cookTime, image, ingredients = [] } = body;
     if (!name) return NextResponse.json({ error: "Name required" }, { status: 400 });
 
+    const imageVal = typeof image === "string" && image.trim() ? image.trim() : null;
+
     const recipe = await prisma.recipe.create({
-      data: { 
-        name, 
-        servingSize: Number(servingSize), 
-        servingUnit, 
-        instructions, 
+      data: {
+        name,
+        servingSize: Number(servingSize),
+        servingUnit,
+        instructions,
         sourceApp,
         tags: typeof tags === "string" ? tags : "",
         prepTime: prepTime != null ? Number(prepTime) : null,
         cookTime: cookTime != null ? Number(cookTime) : null,
+        image: imageVal,
       },
     });
 
-    // create recipe ingredients
     for (const ri of ingredients) {
       const ingredientId = Number(ri.ingredientId);
       const quantity = Number(ri.quantity) || 0;
       const unit = ri.unit || "g";
 
-      if (isNaN(ingredientId)) {
-        throw new Error(`Invalid ingredient ID: ${ri.ingredientId}`);
-      }
+      if (isNaN(ingredientId)) throw new Error(`Invalid ingredient ID: ${ri.ingredientId}`);
 
       const ingredient = await prisma.ingredient.findUnique({ where: { id: ingredientId } });
-      if (!ingredient) {
-        throw new Error(`Ingredient not found: ${ingredientId}`);
-      }
+      if (!ingredient) throw new Error(`Ingredient not found: ${ingredientId}`);
 
       const density = getIngredientDensity(ingredient.name);
       const grams = convertToGrams(quantity, unit, density, ingredient);
 
       await prisma.recipeIngredient.create({
-        data: {
-          recipeId: recipe.id,
-          ingredientId,
-          quantity,
-          unit,
-          conversionGrams: grams,
-          notes: ri.notes || null,
-        },
+        data: { recipeId: recipe.id, ingredientId, quantity, unit, conversionGrams: grams, notes: ri.notes || null },
       });
     }
 

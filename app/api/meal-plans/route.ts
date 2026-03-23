@@ -8,12 +8,18 @@ import { getWeeklyNutritionSummary } from '@/lib/nutritionCalculations';
  */
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const personIdParam = searchParams.get('personId');
+    const personId = personIdParam ? parseInt(personIdParam, 10) : undefined;
+
     const mealPlans = await prisma.mealPlan.findMany({
+      where: personId !== undefined ? { personId } : undefined,
       orderBy: { weekStartDate: 'desc' },
       include: {
         _count: {
           select: { mealLogs: true },
         },
+        person: true,
       },
     });
 
@@ -35,7 +41,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { weekStartDate, goals } = body;
+    const { weekStartDate, goals, personId } = body;
 
     if (!weekStartDate) {
       return NextResponse.json(
@@ -50,6 +56,7 @@ export async function POST(request: NextRequest) {
     const mealPlan = await prisma.mealPlan.create({
       data: {
         weekStartDate: new Date(dateStr),
+        personId: personId ?? null,
       },
     });
 

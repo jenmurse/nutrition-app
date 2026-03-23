@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
 /**
- * GET /api/nutrition-goals
- * Return saved global nutrition goals by nutrient id.
+ * GET /api/nutrition-goals?personId=1
+ * Return saved global nutrition goals by nutrient id, scoped to a person.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const rows = await prisma.globalNutritionGoal.findMany();
+    const { searchParams } = new URL(request.url);
+    const personIdParam = searchParams.get('personId');
+    const personId = personIdParam ? parseInt(personIdParam, 10) : null;
+
+    const rows = await prisma.globalNutritionGoal.findMany({
+      where: { personId },
+    });
     const goals = rows.reduce<Record<number, { lowGoal?: number; highGoal?: number }>>(
       (acc, row) => {
         acc[row.nutrientId] = {
@@ -31,12 +37,13 @@ export async function GET() {
 
 /**
  * PUT /api/nutrition-goals
- * Update global nutrition goal defaults
+ * Update global nutrition goal defaults, scoped to a person.
+ * Body: { personId?: number, goals: { [nutrientId]: { lowGoal?, highGoal? } } }
  */
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { goals } = body;
+    const { goals, personId } = body;
 
     if (!goals) {
       return NextResponse.json(
@@ -63,13 +70,15 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    const pid: number | null = personId ?? null;
     const entries = Object.entries(goals) as Array<[string, { lowGoal?: number; highGoal?: number }]>;
     await prisma.$transaction(
       entries.map(([nutrientId, goal]) =>
         prisma.globalNutritionGoal.upsert({
-          where: { nutrientId: Number(nutrientId) },
+          where: { nutrientId_personId: { nutrientId: Number(nutrientId), personId: pid } },
           create: {
             nutrientId: Number(nutrientId),
+            personId: pid,
             lowGoal: goal.lowGoal ?? null,
             highGoal: goal.highGoal ?? null,
           },

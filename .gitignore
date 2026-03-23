@@ -62,3 +62,10 @@ prisma/migrations/
 .vscode/extensions.json
 launch.json
 settings.json
+
+# SQLite (migrated to Supabase)
+*.db
+
+# Migration artifacts
+migration_data.sql
+tsconfig.tsbuildinfo

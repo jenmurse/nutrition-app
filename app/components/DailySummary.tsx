@@ -42,7 +42,7 @@ const DailySummary: React.FC<DailySummaryProps> = ({
   const getBarColor = (status?: string) => {
     switch (status) {
       case 'ok':
-        return 'bg-[var(--fg)]';
+        return 'bg-[var(--accent)]';
       case 'warning':
         return 'bg-[var(--warning)]';
       case 'error':
@@ -106,17 +106,17 @@ const DailySummary: React.FC<DailySummaryProps> = ({
         return (
           <div
             key={nutrient.nutrientId}
-            className={`py-4 ${!isLast ? 'border-b border-[var(--rule)]' : ''}`}
+            className={`py-[10px] ${!isLast ? 'border-b border-[var(--rule)]' : ''}`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="font-sans text-[13px] font-medium text-[var(--fg)]">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="font-sans text-[11px] font-normal text-[var(--muted)]">
                 {nutrient.displayName}
               </div>
-              <div className="text-right">
-                <span className="font-mono text-[20px] font-normal text-[var(--fg)]">
+              <div className="text-right flex items-baseline gap-[4px]">
+                <span className="font-serif text-[18px] text-[var(--fg)] leading-none">
                   {nutrient.value}
                 </span>
-                <span className="font-mono text-[11px] text-[var(--muted)] ml-1">
+                <span className="font-mono text-[10px] text-[var(--muted)]">
                   {nutrient.unit}
                 </span>
               </div>
@@ -124,25 +124,25 @@ const DailySummary: React.FC<DailySummaryProps> = ({
 
             {(nutrient.lowGoal !== null && nutrient.lowGoal !== undefined) ||
             (nutrient.highGoal !== null && nutrient.highGoal !== undefined) ? (
-              <div className="mt-1 text-right font-mono text-[10px] text-[var(--muted)]">
+              <div className="mt-[3px] text-right font-mono text-[10px] text-[var(--muted)]">
                 {nutrient.lowGoal !== null && nutrient.lowGoal !== undefined
-                  ? `Min ${nutrient.lowGoal}`
-                  : 'Min --'}
-                {' · '}
+                  ? `${nutrient.lowGoal}`
+                  : '—'}
+                {' – '}
                 {nutrient.highGoal !== null && nutrient.highGoal !== undefined
-                  ? `Max ${nutrient.highGoal}`
-                  : 'Max --'}
+                  ? `${nutrient.highGoal} ${nutrient.unit}`
+                  : '—'}
               </div>
             ) : null}
 
-            <div className="mt-3">
+            <div className="mt-[10px]">
               <div className="h-[2px] w-full bg-[var(--rule)]">
                 <div
-                  className={`h-[2px] ${barColor}`}
+                  className={`h-[2px] ${barColor} transition-all duration-300`}
                   style={{ width: `${Math.min(progressPercent, 100)}%` }}
                 />
               </div>
-              <div className={`mt-1 text-[10px] ${statusColor}`}>
+              <div className={`mt-[5px] text-[10px] tracking-[0.1em] ${statusColor}`}>
                 {statusLabel}
               </div>
             </div>

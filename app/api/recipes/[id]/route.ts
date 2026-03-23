@@ -13,31 +13,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     });
     if (!recipe) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // calculate totals
     const totals: Record<number, { nutrientId: number; displayName: string; value: number; unit: string }> = {};
-
     for (const ri of recipe.ingredients) {
       if (!ri.ingredient) continue;
       const grams = ri.conversionGrams ?? 0;
-      const ing = ri.ingredient;
-      for (const iv of ing.nutrientValues) {
+      for (const iv of ri.ingredient.nutrientValues) {
         const nid = iv.nutrient.id;
-        const per100g = iv.value || 0;
-        const contribution = (per100g * grams) / 100.0;
+        const contribution = (iv.value * grams) / 100.0;
         if (!totals[nid]) totals[nid] = { nutrientId: nid, displayName: iv.nutrient.displayName, value: 0, unit: iv.nutrient.unit };
         totals[nid].value += contribution;
       }
     }
-
-    // Divide by serving size to get per-serving nutrition
     const servingSize = recipe.servingSize || 1;
-    for (const nid in totals) {
-      totals[nid].value = totals[nid].value / servingSize;
-    }
+    for (const nid in totals) totals[nid].value /= servingSize;
 
-    const totalsArray = Object.values(totals);
-
-    return NextResponse.json({ recipe, totals: totalsArray });
+    return NextResponse.json({ recipe, totals: Object.values(totals) });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch recipe" }, { status: 500 });
@@ -47,8 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const numId = Number(id);
-    await prisma.recipe.delete({ where: { id: numId } });
+    await prisma.recipe.delete({ where: { id: Number(id) } });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error(error);
@@ -61,38 +50,38 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const numId = Number(id);
     const body = await request.json();
-    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags, prepTime, cookTime } = body;
+    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags, prepTime, cookTime, image } = body;
+
+    const imageVal = image !== undefined
+      ? (typeof image === "string" && image.trim() ? image.trim() : null)
+      : undefined;
 
     await prisma.recipe.update({
       where: { id: numId },
-      data: { 
-        name, 
-        servingSize, 
-        servingUnit, 
-        instructions, 
-        isComplete: Boolean(isComplete), 
+      data: {
+        name,
+        servingSize,
+        servingUnit,
+        instructions,
+        isComplete: Boolean(isComplete),
         sourceApp,
         tags: typeof tags === "string" ? tags : undefined,
         prepTime: prepTime != null ? Number(prepTime) : null,
         cookTime: cookTime != null ? Number(cookTime) : null,
+        ...(imageVal !== undefined && { image: imageVal }),
       },
     });
 
     if (Array.isArray(ingredients)) {
-      // replace recipe ingredients
       await prisma.recipeIngredient.deleteMany({ where: { recipeId: numId } });
       for (const ri of ingredients) {
-        if (!ri.ingredientId) continue; // Skip if no ingredient ID
-        const ingredientId = Number(ri.ingredientId);
-        const quantity = Number(ri.quantity) || 0;
-        const unit = typeof ri.unit === "string" ? ri.unit : "";
-
+        if (!ri.ingredientId) continue;
         await prisma.recipeIngredient.create({
           data: {
             recipeId: numId,
-            ingredientId,
-            quantity,
-            unit,
+            ingredientId: Number(ri.ingredientId),
+            quantity: Number(ri.quantity) || 0,
+            unit: typeof ri.unit === "string" ? ri.unit : "",
             conversionGrams: ri.conversionGrams ?? null,
             notes: ri.notes ?? null,
           },

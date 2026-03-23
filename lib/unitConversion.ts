@@ -83,6 +83,40 @@ export function getDisplayConversion(value: number, unit: string, convertedValue
 }
 
 /**
+ * Formats a unit display showing both the custom unit and gram equivalent.
+ * Examples:
+ *   formatUnitWithGrams({ defaultUnit: 'g' }) → 'g'
+ *   formatUnitWithGrams({ defaultUnit: 'other', customUnitName: 'apple', customUnitAmount: 1, customUnitGrams: 182 }) → '1 apple (182g)'
+ *   formatUnitWithGrams({ defaultUnit: 'cup', customUnitName: 'cup', customUnitAmount: 1, customUnitGrams: 240 }) → '1 cup (240g)'
+ *   formatUnitWithGrams({ defaultUnit: 'other', customUnitName: 'scoop', customUnitAmount: 1, customUnitGrams: 30 }, 2) → '2 scoops (60g)'
+ */
+export function formatUnitWithGrams(
+  ingredient: {
+    defaultUnit: string;
+    customUnitName?: string | null;
+    customUnitAmount?: number | null;
+    customUnitGrams?: number | null;
+  },
+  quantity?: number
+): string {
+  const { defaultUnit, customUnitName, customUnitAmount, customUnitGrams } = ingredient;
+
+  if (!customUnitName || !customUnitGrams) {
+    if (quantity != null) return `${quantity} ${defaultUnit}`;
+    return defaultUnit;
+  }
+
+  const amt = customUnitAmount || 1;
+  if (quantity != null) {
+    const grams = Math.round((quantity / amt) * customUnitGrams * 100) / 100;
+    return `${quantity} ${customUnitName} (${grams}g)`;
+  }
+
+  const grams = Math.round(customUnitGrams * 100) / 100;
+  return `${amt} ${customUnitName} (${grams}g)`;
+}
+
+/**
  * Basic density lookup (g/ml) for common ingredients. Add entries as needed.
  */
 export function getIngredientDensity(name?: string): number {

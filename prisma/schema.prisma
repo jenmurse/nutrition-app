@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // Pre-populated nutrients table
@@ -18,9 +19,9 @@ model Nutrient {
   unit         String                // e.g., "kcal", "g", "mg"
   orderIndex   Int                   // for display order
 
-  ingredientNutrients IngredientNutrient[]
-  nutritionGoals      NutritionGoal[]
-  globalNutritionGoal GlobalNutritionGoal?
+  ingredientNutrients  IngredientNutrient[]
+  nutritionGoals       NutritionGoal[]
+  globalNutritionGoals GlobalNutritionGoal[]
 }
 
 // Ingredients with basic info
@@ -69,6 +70,14 @@ model Recipe {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  image         String?   // optional image URL
+
+  // AI analysis — stored results, run once on save/import
+  optimizeAnalysis  String?   // JSON: optimization suggestions
+  mealPrepAnalysis  String?   // JSON: meal prep candidacy + notes
+  analysisModel     String?   // model used, e.g. "claude-sonnet-4-20250514"
+  analyzedAt        DateTime? // when analysis was last run
+
   ingredients RecipeIngredient[]
   mealLogs    MealLog[]
 }
@@ -87,13 +96,26 @@ model RecipeIngredient {
   ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 }
 
+// Household persons (e.g. Jen, Garth)
+model Person {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  color     String   @default("#6B9E7B")
+  createdAt DateTime @default(now())
+
+  mealPlans            MealPlan[]
+  globalNutritionGoals GlobalNutritionGoal[]
+}
+
 // Weekly meal plans
 model MealPlan {
   id              Int       @id @default(autoincrement())
   weekStartDate   DateTime
+  personId        Int?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  person          Person?         @relation(fields: [personId], references: [id])
   mealLogs        MealLog[]
   nutritionGoals  NutritionGoal[]
 }
@@ -133,12 +155,32 @@ model NutritionGoal {
   @@unique([mealPlanId, nutrientId])
 }
 
+// Key-value store for app-level settings (API key, provider, etc.)
+model SystemSetting {
+  key   String @id
+  value String
+}
+
+// Token usage tracking per AI call
+model ApiUsageLog {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  provider     String   @default("anthropic")
+  model        String   @default("")
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+}
+
 // Global nutrient goals (used by settings page defaults)
 model GlobalNutritionGoal {
   id         Int      @id @default(autoincrement())
-  nutrientId Int      @unique
+  nutrientId Int
+  personId   Int?
   lowGoal    Float?
   highGoal   Float?
 
   nutrient   Nutrient @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
+  person     Person?  @relation(fields: [personId], references: [id])
+
+  @@unique([nutrientId, personId])
 }

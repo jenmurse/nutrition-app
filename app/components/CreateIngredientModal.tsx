@@ -197,12 +197,12 @@ export default function CreateIngredientModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-background border rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[var(--bg-raised)] border p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Add nutrition for: {ingredientName}</h2>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-[var(--muted)] hover:text-[var(--fg)]"
           >
             ✕
           </button>
@@ -214,8 +214,8 @@ export default function CreateIngredientModal({
             onClick={() => setTab("search")}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
               tab === "search"
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-[var(--fg)] text-[var(--fg)]"
+                : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
           >
             USDA Search
@@ -224,8 +224,8 @@ export default function CreateIngredientModal({
             onClick={() => setTab("manual")}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
               tab === "manual"
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-[var(--fg)] text-[var(--fg)]"
+                : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
           >
             Manual Entry
@@ -238,7 +238,7 @@ export default function CreateIngredientModal({
             <div className="flex gap-2">
               <input
                 type="text"
-                className="flex-1 border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+                className="flex-1 border bg-[var(--bg-raised)] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--fg)]"
                 placeholder="Search USDA database..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -247,7 +247,7 @@ export default function CreateIngredientModal({
               <button
                 onClick={handleUSDASearch}
                 disabled={searching}
-                className="border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 disabled:opacity-50 transition"
+                className="border bg-[var(--bg-raised)] px-4 py-2 text-sm font-medium hover:bg-[var(--bg-subtle)] disabled:opacity-50 transition"
               >
                 {searching ? "Searching..." : "Search"}
               </button>
@@ -258,18 +258,18 @@ export default function CreateIngredientModal({
                 {searchResults.map((result) => (
                   <div
                     key={result.fdcId}
-                    className="p-3 border rounded hover:bg-muted/20 cursor-pointer transition"
+                    className="p-3 border hover:bg-[var(--bg-subtle)] cursor-pointer transition"
                     onClick={() => handleSelectUSDAResult(result)}
                   >
                     <p className="text-sm font-medium">{result.description}</p>
-                    <p className="text-xs text-muted-foreground">FDC ID: {result.fdcId}</p>
+                    <p className="text-xs text-[var(--muted)]">FDC ID: {result.fdcId}</p>
                   </div>
                 ))}
               </div>
             )}
 
             {searchQuery && !searching && searchResults.length === 0 && (
-              <p className="text-sm text-muted-foreground">No results found. Try a different search.</p>
+              <p className="text-sm text-[var(--muted)]">No results found. Try a different search.</p>
             )}
           </div>
         )}
@@ -277,7 +277,7 @@ export default function CreateIngredientModal({
         {/* Manual Entry Tab */}
         {tab === "manual" && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground mb-3">
+            <p className="text-sm text-[var(--muted)] mb-3">
               Enter nutrition values per 100g or your preferred unit:
             </p>
             <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -288,7 +288,7 @@ export default function CreateIngredientModal({
                     type="text"
                     inputMode="decimal"
                     placeholder="0"
-                    className="w-24 border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+                    className="w-24 border bg-[var(--bg-raised)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--fg)]"
                     value={manualNutrients[nutrient.id] ?? ""}
                     onChange={(e) =>
                       setManualNutrients({
@@ -297,7 +297,7 @@ export default function CreateIngredientModal({
                       })
                     }
                   />
-                  <span className="w-12 text-xs text-muted-foreground text-right">{nutrient.unit}</span>
+                  <span className="w-12 text-xs text-[var(--muted)] text-right">{nutrient.unit}</span>
                 </div>
               ))}
             </div>
@@ -308,14 +308,14 @@ export default function CreateIngredientModal({
         <div className="flex gap-2 mt-6 border-t pt-4">
           <button
             onClick={onClose}
-            className="flex-1 border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition"
+            className="flex-1 border bg-[var(--bg-raised)] px-4 py-2 text-sm font-medium hover:bg-[var(--bg-subtle)] transition"
           >
             Skip for now
           </button>
           {tab === "manual" && (
             <button
               onClick={handleManualSave}
-              className="flex-1 border bg-background px-4 py-2 text-sm font-medium hover:bg-muted/40 transition"
+              className="flex-1 border bg-[var(--bg-raised)] px-4 py-2 text-sm font-medium hover:bg-[var(--bg-subtle)] transition"
             >
               Save nutrition
             </button>

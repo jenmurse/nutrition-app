@@ -28,6 +28,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         sourceApp: originalRecipe.sourceApp,
         isComplete: originalRecipe.isComplete,
         tags: originalRecipe.tags,
+        image: originalRecipe.image,
       },
     });
 

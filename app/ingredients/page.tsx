@@ -2,6 +2,10 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import IngredientContextPanel from "../components/IngredientContextPanel";
+import { usePersonContext } from "../components/PersonContext";
+
 
 type NutrientValue = {
   id: number;
@@ -102,12 +106,22 @@ export default function IngredientsPageWrapper() {
 
 function IngredientsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { selectedPerson } = usePersonContext();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
   const searchQuery = searchParams?.get("search") || "";
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
+
+
+  const updateSearchParam = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams?.toString());
+    if (value) params.set(key, value);
+    else params.delete(key);
+    router.push(`/ingredients?${params.toString()}`);
+  };
   const [editName, setEditName] = useState("");
   const [editUnit, setEditUnit] = useState("g");
   const [editCustomUnitName, setEditCustomUnitName] = useState("");
@@ -124,6 +138,7 @@ function IngredientsPage() {
   const [createCustomUnitGrams, setCreateCustomUnitGrams] = useState("");
   const [createSpecifiedAmount, setCreateSpecifiedAmount] = useState("100");
   const [createSpecifiedUnit, setCreateSpecifiedUnit] = useState("g");
+  const [createIsMealItem, setCreateIsMealItem] = useState(false);
   const [createValues, setCreateValues] = useState<Record<number, number>>({});
   const [usdaLookupQuery, setUsdaLookupQuery] = useState("");
   const [usdaLookupResults, setUsdaLookupResults] = useState<any[]>([]);
@@ -163,6 +178,13 @@ function IngredientsPage() {
 
     loadIngredients();
   }, []);
+
+  // Auto-select first ingredient when list loads
+  useEffect(() => {
+    if (!loading && ingredients.length > 0 && !selectedIngredient && !createMode && !editMode) {
+      refreshSelectedIngredient(ingredients[0].id);
+    }
+  }, [loading, ingredients.length]);
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Delete "${name}"?`)) return;
@@ -393,6 +415,7 @@ function IngredientsPage() {
       const body: any = {
         name: createName,
         defaultUnit: createUnit,
+        isMealItem: createIsMealItem,
         nutrientValues: normalizedValues,
       };
 
@@ -425,6 +448,7 @@ function IngredientsPage() {
       setCreateCustomUnitGrams("");
       setCreateSpecifiedAmount("100");
       setCreateSpecifiedUnit("g");
+      setCreateIsMealItem(false);
       setCreateValues({});
       const savedCount = newIng.nutrientValues?.length || 0;
       alert(`Ingredient created with ${savedCount} nutrient values`);
@@ -454,13 +478,15 @@ function IngredientsPage() {
   };
 
   /* ── Shared input/select style for forms ── */
-  const inputClass =
-    "w-full bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 font-mono text-[12px] font-light text-[var(--fg)] focus:outline-none focus:border-[#bbb] transition-colors";
+  const inputBase =
+    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] transition-colors";
+  const inputClass = inputBase + " w-full";
+  const inputNarrow = inputBase + " w-[120px]";
   const selectClass =
-    "w-full bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 font-mono text-[12px] font-light text-[var(--fg)] focus:outline-none focus:border-[#bbb] appearance-none transition-colors";
-  const labelClass = "block text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]";
+    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] appearance-none transition-colors w-full";
+  const labelClass = "block text-[9px] font-mono tracking-[0.1em] uppercase text-[var(--muted)] mb-[6px]";
   const sectionLabelClass =
-    "text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px] pb-[6px] border-b border-[var(--rule)]";
+    "font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mt-4 mb-[10px]";
 
   /* ── Helper: unit select dropdown SVG ── */
   const selectBgStyle = {
@@ -471,19 +497,120 @@ function IngredientsPage() {
     backgroundSize: "12px",
   };
 
-  /* ── Create Form JSX ── */
-  const renderCreateForm = () => (
-    <div className="flex-1 overflow-y-auto p-6 px-7 animate-fade-in">
-      <button
-        onClick={() => setCreateMode(false)}
-        className="bg-transparent text-[var(--muted)] py-[8px] px-0 text-[9px] tracking-[0.12em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer mb-4"
-      >
-        Back to list
-      </button>
-      <h1 className="font-sans text-[15px] font-normal mb-1">Create Ingredient</h1>
-      <p className="text-[11px] text-[var(--muted)] mb-5">Add a new ingredient to your database</p>
+  /* ── Unified Form JSX ── */
+  const renderForm = (mode: 'create' | 'edit') => {
+    const isCreate = mode === 'create';
+    const name = isCreate ? createName : editName;
+    const setName = isCreate ? setCreateName : setEditName;
+    const unit = isCreate ? createUnit : editUnit;
+    const setUnit = isCreate ? setCreateUnit : setEditUnit;
+    const customUnitName = isCreate ? createCustomUnitName : editCustomUnitName;
+    const setCustomUnitName = isCreate ? setCreateCustomUnitName : setEditCustomUnitName;
+    const customUnitAmount = isCreate ? createCustomUnitAmount : editCustomUnitAmount;
+    const setCustomUnitAmount = isCreate ? setCreateCustomUnitAmount : setEditCustomUnitAmount;
+    const customUnitGrams = isCreate ? createCustomUnitGrams : editCustomUnitGrams;
+    const setCustomUnitGrams = isCreate ? setCreateCustomUnitGrams : setEditCustomUnitGrams;
+    const isMealItem = isCreate ? createIsMealItem : editIsMealItem;
+    const setIsMealItem = isCreate ? setCreateIsMealItem : setEditIsMealItem;
+    const specifiedAmount = isCreate ? createSpecifiedAmount : editSpecifiedAmount;
+    const setSpecifiedAmount = isCreate ? setCreateSpecifiedAmount : setEditSpecifiedAmount;
+    const specifiedUnit = isCreate ? createSpecifiedUnit : editSpecifiedUnit;
+    const setSpecifiedUnit = isCreate ? setCreateSpecifiedUnit : setEditSpecifiedUnit;
+    const values = isCreate ? createValues : editValues;
+    const setValues = isCreate ? setCreateValues : setEditValues;
+    const baseUnit = isCreate ? createBaseUnit : editBaseUnit;
+    const volumeNote = isCreate ? createVolumeNote : editVolumeNote;
+    const onSave = isCreate ? handleCreateSave : handleSave;
+    const onCancel = isCreate ? () => setCreateMode(false) : () => setEditMode(false);
+    const title = isCreate ? "New Ingredient" : "Edit Ingredient";
+    const subtitle = "";
+    const saveLabel = isCreate ? "Create" : "Save";
+    const savingLabel = isCreate ? "Creating..." : "Saving...";
 
-      <div className="space-y-5">
+    const handleUsdaSelectForMode = async (food: any) => {
+      try {
+        setUsdaSelectedFood(food);
+        setName(food.description);
+
+        const res = await fetch(`/api/usda/fetch/${food.fdcId}`);
+        if (res.ok) {
+          const foodData = await res.json();
+
+          const nutrientMap: Record<string, number> = {};
+          if (foodData.foodNutrients && Array.isArray(foodData.foodNutrients)) {
+            foodData.foodNutrients.forEach((fn: any) => {
+              const nutrientName = fn.nutrient?.name || "";
+              const value = fn.amount;
+              const lowerName = nutrientName.toLowerCase();
+              if (lowerName.includes("energy")) {
+                nutrientMap["calories"] = Math.round(value);
+              } else if (lowerName.includes("total lipid") || lowerName.includes("total fat")) {
+                nutrientMap["fat"] = Math.round(value * 10) / 10;
+              } else if (lowerName.includes("saturated")) {
+                nutrientMap["satFat"] = Math.round(value * 10) / 10;
+              } else if (lowerName.includes("sodium")) {
+                nutrientMap["sodium"] = Math.round(value);
+              } else if (lowerName.includes("carbohydrate")) {
+                nutrientMap["carbs"] = Math.round(value * 10) / 10;
+              } else if (lowerName.includes("sugar")) {
+                nutrientMap["sugar"] = Math.round(value * 10) / 10;
+              } else if (lowerName.includes("protein")) {
+                nutrientMap["protein"] = Math.round(value * 10) / 10;
+              } else if (lowerName.includes("fiber")) {
+                nutrientMap["fiber"] = Math.round(value * 10) / 10;
+              }
+            });
+          }
+
+          let nutrientsList = nutrients;
+          if (!nutrientsList || nutrientsList.length === 0) {
+            const nutrRes = await fetch("/api/nutrients");
+            if (nutrRes.ok) {
+              nutrientsList = await nutrRes.json();
+            }
+          }
+
+          const newValues: Record<number, number> = {};
+          nutrientsList.forEach((n: any) => {
+            if (nutrientMap[n.name] !== undefined) {
+              newValues[n.id] = nutrientMap[n.name];
+            }
+          });
+          setValues(newValues);
+          setUsdaLookupQuery("");
+          setUsdaLookupResults([]);
+        }
+      } catch (err) {
+        console.error("USDA fetch error:", err);
+      }
+    };
+
+    return (
+    <div className="flex-1 flex flex-col overflow-hidden animate-fade-in">
+      {/* Sticky header with title + actions */}
+      <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
+        <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight">{title}</h1>
+        <div className="flex items-center gap-3">
+          <button
+            className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 cursor-pointer disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+            onClick={onSave}
+            disabled={saving}
+            aria-label={saveLabel}
+          >
+            {saving ? savingLabel : saveLabel}
+          </button>
+          <button
+            className="bg-transparent text-[var(--muted)] py-[6px] px-0 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer disabled:opacity-50"
+            onClick={onCancel}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 px-7">
+
+      <div className="space-y-5 max-w-[720px]">
         {/* USDA Lookup */}
         <div>
           <div className={sectionLabelClass}>USDA Lookup</div>
@@ -506,8 +633,8 @@ function IngredientsPage() {
             {usdaLookupResults.map((food: any) => (
               <button
                 key={food.fdcId}
-                onClick={() => handleUsdaSelect(food)}
-                className="block w-full text-left py-[8px] px-[12px] text-[11px] text-[var(--fg)] hover:bg-[#fafafa] border-b border-[var(--rule)] last:border-b-0 cursor-pointer bg-transparent transition-colors"
+                onClick={() => handleUsdaSelectForMode(food)}
+                className="block w-full text-left py-[8px] px-[12px] text-[11px] text-[var(--fg)] hover:bg-[var(--bg-subtle)] border-b border-[var(--rule)] last:border-b-0 cursor-pointer bg-transparent transition-colors"
               >
                 <div className="font-sans text-[11px]">{food.description.slice(0, 60)}</div>
                 <div className="text-[10px] text-[var(--muted)]">{food.dataType}</div>
@@ -518,18 +645,17 @@ function IngredientsPage() {
 
         {/* Selected USDA Food Indicator */}
         {usdaSelectedFood && (
-          <p className="text-[11px] text-[#408040]">Data imported from USDA FDC</p>
+          <p className="text-[11px] text-[var(--accent)]">Data imported from USDA FDC</p>
         )}
 
         {/* Name */}
         <div>
-          <div className={sectionLabelClass}>Details</div>
-          <label className={labelClass}>Name</label>
+          <label className={labelClass}>Ingredient name</label>
           <input
             type="text"
             className={inputClass}
-            value={createName}
-            onChange={(e) => setCreateName(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
 
@@ -539,10 +665,10 @@ function IngredientsPage() {
           <select
             className={selectClass}
             style={selectBgStyle}
-            value={createUnit}
+            value={unit}
             onChange={(e) => {
               const nextUnit = e.target.value;
-              setCreateUnit(nextUnit);
+              setUnit(nextUnit);
               if (
                 nextUnit === "g" ||
                 nextUnit === "ml" ||
@@ -550,10 +676,10 @@ function IngredientsPage() {
                 nextUnit === "tbsp" ||
                 nextUnit === "cup"
               ) {
-                setCreateSpecifiedUnit(nextUnit);
+                setSpecifiedUnit(nextUnit);
               }
               if (nextUnit === "tsp" || nextUnit === "tbsp" || nextUnit === "cup") {
-                setCreateCustomUnitName(nextUnit);
+                setCustomUnitName(nextUnit);
               }
             }}
           >
@@ -567,254 +693,50 @@ function IngredientsPage() {
         </div>
 
         {/* Custom Unit Settings */}
-        {["other", "tsp", "tbsp", "cup"].includes(createUnit) && (
+        {["other", "tsp", "tbsp", "cup"].includes(unit) && (
           <div className="border border-[var(--rule)] p-4 space-y-4">
             <div className={sectionLabelClass}>Custom Unit Settings</div>
             <div>
               <label className={labelClass}>Unit name</label>
-              {createUnit === "other" ? (
+              {unit === "other" ? (
                 <input
                   type="text"
                   className={inputClass}
                   placeholder="e.g., banana, scoop, cup"
-                  value={createCustomUnitName}
-                  onChange={(e) => setCreateCustomUnitName(e.target.value)}
+                  value={customUnitName}
+                  onChange={(e) => setCustomUnitName(e.target.value)}
                 />
               ) : (
                 <div className="py-[6px] font-mono text-[12px] font-light text-[var(--fg)]">
-                  {createUnit}
+                  {unit}
                 </div>
               )}
             </div>
             <div>
               <label className={labelClass}>Amount per unit</label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   step="any"
-                  className={inputClass + " w-32 flex-none"}
-                  value={createCustomUnitAmount}
-                  onChange={(e) => setCreateCustomUnitAmount(e.target.value)}
+                  className={inputNarrow}
+                  value={customUnitAmount}
+                  onChange={(e) => setCustomUnitAmount(e.target.value)}
                 />
                 <span className="text-[11px] text-[var(--muted)]">
-                  {createCustomUnitName || "unit"}
+                  {customUnitName || "unit"}
                 </span>
               </div>
             </div>
             <div>
               <label className={labelClass}>Grams per unit</label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   step="any"
-                  className={inputClass + " flex-1"}
+                  className={inputNarrow}
                   placeholder="e.g., 120 for an average banana"
-                  value={createCustomUnitGrams}
-                  onChange={(e) => setCreateCustomUnitGrams(e.target.value)}
-                />
-                <span className="text-[11px] text-[var(--muted)]">g</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Specified amount for nutrient entry */}
-        <div>
-          <div className={sectionLabelClass}>Nutrient Basis</div>
-          <label className={labelClass}>What amount are these nutrients for?</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="number"
-              step="any"
-              className={inputClass + " w-28 flex-none"}
-              placeholder="100"
-              value={createSpecifiedAmount}
-              onChange={(e) => setCreateSpecifiedAmount(e.target.value)}
-            />
-            <select
-              className={selectClass + " w-32 flex-none"}
-              style={selectBgStyle}
-              value={createSpecifiedUnit}
-              onChange={(e) => setCreateSpecifiedUnit(e.target.value)}
-            >
-              <option value="g">g (grams)</option>
-              <option value="ml">ml (milliliters)</option>
-              <option value="tsp">tsp (teaspoon)</option>
-              <option value="tbsp">tbsp (tablespoon)</option>
-              <option value="cup">cup</option>
-            </select>
-            <div className="text-[10px] text-[var(--muted)] whitespace-nowrap">
-              {createSpecifiedAmount && createSpecifiedUnit && createSpecifiedAmount !== "100"
-                ? `Will convert to per 100${createBaseUnit}`
-                : `Per 100${createBaseUnit}`}
-              {createVolumeNote ? ` (${createVolumeNote})` : ""}
-            </div>
-          </div>
-        </div>
-
-        {/* Nutrient Values */}
-        <div>
-          <div className={sectionLabelClass}>
-            Nutrient Values (per 100{createBaseUnit})
-            <span className="ml-2 normal-case tracking-normal">
-              {Object.keys(createValues).length} filled
-            </span>
-          </div>
-          {nutrients.length === 0 ? (
-            <p className="text-[11px] text-[var(--muted)]">Loading nutrients...</p>
-          ) : (
-            <div className="space-y-4">
-              {nutrients.map((n) => {
-                const inputValue = createValues[n.id];
-                return (
-                  <div key={n.id}>
-                    <label className={labelClass}>{n.displayName} ({n.unit})</label>
-                    <input
-                      type="number"
-                      step="any"
-                      className={inputClass}
-                      value={inputValue != null ? String(inputValue) : ""}
-                      onChange={(e) =>
-                        setCreateValues((prev) => {
-                          if (e.target.value === "") {
-                            const { [n.id]: _, ...rest } = prev;
-                            return rest;
-                          }
-                          return { ...prev, [n.id]: Number(e.target.value) };
-                        })
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-[6px] mt-5 border-t border-[var(--rule)] pt-4">
-          <button
-            className="bg-[var(--fg)] text-[var(--bg)] py-[8px] px-5 text-[9px] tracking-[0.12em] uppercase border-0 cursor-pointer disabled:opacity-50"
-            onClick={handleCreateSave}
-            disabled={saving}
-          >
-            {saving ? "Creating..." : "Create"}
-          </button>
-          <button
-            className="bg-transparent text-[var(--muted)] py-[8px] px-0 text-[9px] tracking-[0.12em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer disabled:opacity-50"
-            onClick={() => setCreateMode(false)}
-            disabled={saving}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ── Edit Form JSX ── */
-  const renderEditForm = () => (
-    <div className="flex-1 overflow-y-auto p-6 px-7 animate-fade-in">
-      <button
-        onClick={() => setEditMode(false)}
-        className="bg-transparent text-[var(--muted)] py-[8px] px-0 text-[9px] tracking-[0.12em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer mb-4"
-      >
-        Back to list
-      </button>
-      <h1 className="font-sans text-[15px] font-normal mb-1">Edit Ingredient</h1>
-      <p className="text-[11px] text-[var(--muted)] mb-5">Modify {selectedIngredient?.name}</p>
-
-      <div className="space-y-5">
-        {/* Name */}
-        <div>
-          <div className={sectionLabelClass}>Details</div>
-          <label className={labelClass}>Name</label>
-          <input
-            type="text"
-            className={inputClass}
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-          />
-        </div>
-
-        {/* Default Unit */}
-        <div>
-          <label className={labelClass}>Default Unit</label>
-          <select
-            className={selectClass}
-            style={selectBgStyle}
-            value={editUnit}
-            onChange={(e) => {
-              const nextUnit = e.target.value;
-              setEditUnit(nextUnit);
-              if (
-                nextUnit === "g" ||
-                nextUnit === "ml" ||
-                nextUnit === "tsp" ||
-                nextUnit === "tbsp" ||
-                nextUnit === "cup"
-              ) {
-                setEditSpecifiedUnit(nextUnit);
-              }
-              if (nextUnit === "tsp" || nextUnit === "tbsp" || nextUnit === "cup") {
-                setEditCustomUnitName(nextUnit);
-              }
-            }}
-          >
-            <option value="g">g (grams)</option>
-            <option value="ml">ml (milliliters)</option>
-            <option value="tsp">tsp (teaspoon)</option>
-            <option value="tbsp">tbsp (tablespoon)</option>
-            <option value="cup">cup</option>
-            <option value="other">other (custom unit)</option>
-          </select>
-        </div>
-
-        {/* Custom Unit Settings */}
-        {["other", "tsp", "tbsp", "cup"].includes(editUnit) && (
-          <div className="border border-[var(--rule)] p-4 space-y-4">
-            <div className={sectionLabelClass}>Custom Unit Settings</div>
-            <div>
-              <label className={labelClass}>Unit name</label>
-              {editUnit === "other" ? (
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="e.g., banana, scoop, cup"
-                  value={editCustomUnitName}
-                  onChange={(e) => setEditCustomUnitName(e.target.value)}
-                />
-              ) : (
-                <div className="py-[6px] font-mono text-[12px] font-light text-[var(--fg)]">
-                  {editUnit}
-                </div>
-              )}
-            </div>
-            <div>
-              <label className={labelClass}>Amount per unit</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="number"
-                  step="any"
-                  className={inputClass + " w-32 flex-none"}
-                  value={editCustomUnitAmount}
-                  onChange={(e) => setEditCustomUnitAmount(e.target.value)}
-                />
-                <span className="text-[11px] text-[var(--muted)]">
-                  {editCustomUnitName || "unit"}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className={labelClass}>Grams per unit</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="number"
-                  step="any"
-                  className={inputClass + " flex-1"}
-                  placeholder="e.g., 120 for an average banana"
-                  value={editCustomUnitGrams}
-                  onChange={(e) => setEditCustomUnitGrams(e.target.value)}
+                  value={customUnitGrams}
+                  onChange={(e) => setCustomUnitGrams(e.target.value)}
                 />
                 <span className="text-[11px] text-[var(--muted)]">g</span>
               </div>
@@ -827,8 +749,8 @@ function IngredientsPage() {
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={editIsMealItem}
-              onChange={(e) => setEditIsMealItem(e.target.checked)}
+              checked={isMealItem}
+              onChange={(e) => setIsMealItem(e.target.checked)}
               className="w-3 h-3 cursor-pointer"
             />
             <span className="text-[11px] text-[var(--fg)]">This is a meal item</span>
@@ -846,16 +768,16 @@ function IngredientsPage() {
             <input
               type="number"
               step="any"
-              className={inputClass + " w-28 flex-none"}
+              className={inputNarrow}
               placeholder="100"
-              value={editSpecifiedAmount}
-              onChange={(e) => setEditSpecifiedAmount(e.target.value)}
+              value={specifiedAmount}
+              onChange={(e) => setSpecifiedAmount(e.target.value)}
             />
             <select
-              className={selectClass + " w-32 flex-none"}
+              className={selectClass.replace('w-full', 'w-[140px]')}
               style={selectBgStyle}
-              value={editSpecifiedUnit}
-              onChange={(e) => setEditSpecifiedUnit(e.target.value)}
+              value={specifiedUnit}
+              onChange={(e) => setSpecifiedUnit(e.target.value)}
             >
               <option value="g">g (grams)</option>
               <option value="ml">ml (milliliters)</option>
@@ -864,10 +786,10 @@ function IngredientsPage() {
               <option value="cup">cup</option>
             </select>
             <div className="text-[10px] text-[var(--muted)] whitespace-nowrap">
-              {editSpecifiedAmount && editSpecifiedUnit && editSpecifiedAmount !== "100"
-                ? `Will convert to per 100${editBaseUnit}`
-                : `Per 100${editBaseUnit}`}
-              {editVolumeNote ? ` (${editVolumeNote})` : ""}
+              {specifiedAmount && specifiedUnit && specifiedAmount !== "100"
+                ? `Will convert to per 100${baseUnit}`
+                : `Per 100${baseUnit}`}
+              {volumeNote ? ` (${volumeNote})` : ""}
             </div>
           </div>
         </div>
@@ -875,111 +797,100 @@ function IngredientsPage() {
         {/* Nutrient Values */}
         <div>
           <div className={sectionLabelClass}>
-            Nutrient Values (per 100{editBaseUnit})
+            Nutrient Values (per 100{baseUnit})
             <span className="ml-2 normal-case tracking-normal">
-              {Object.keys(editValues).length} filled
+              {Object.keys(values).length} filled
             </span>
           </div>
           {nutrients.length === 0 ? (
             <p className="text-[11px] text-[var(--muted)]">Loading nutrients...</p>
           ) : (
             <div className="space-y-4">
-              {nutrients.map((n) => (
-                <div key={n.id}>
-                  <label className={labelClass}>{n.displayName} ({n.unit})</label>
-                  <input
-                    type="number"
-                    step="any"
-                    className={inputClass}
-                    value={editValues[n.id] != null ? String(editValues[n.id]) : ""}
-                    onChange={(e) =>
-                      setEditValues((prev) => {
-                        if (e.target.value === "") {
-                          const { [n.id]: _, ...rest } = prev;
-                          return rest;
-                        }
-                        return { ...prev, [n.id]: Number(e.target.value) };
-                      })
-                    }
-                  />
-                </div>
-              ))}
+              {nutrients.map((n) => {
+                const inputValue = values[n.id];
+                return (
+                  <div key={n.id}>
+                    <label className={labelClass}>{n.displayName} ({n.unit})</label>
+                    <input
+                      type="number"
+                      step="any"
+                      className={inputClass}
+                      value={inputValue != null ? String(inputValue) : ""}
+                      onChange={(e) =>
+                        setValues((prev) => {
+                          if (e.target.value === "") {
+                            const { [n.id]: _, ...rest } = prev;
+                            return rest;
+                          }
+                          return { ...prev, [n.id]: Number(e.target.value) };
+                        })
+                      }
+                    />
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-[6px] mt-5 border-t border-[var(--rule)] pt-4">
-          <button
-            className="bg-[var(--fg)] text-[var(--bg)] py-[8px] px-5 text-[9px] tracking-[0.12em] uppercase border-0 cursor-pointer disabled:opacity-50"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save"}
-          </button>
-          <button
-            className="bg-transparent text-[var(--muted)] py-[8px] px-0 text-[9px] tracking-[0.12em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer disabled:opacity-50"
-            onClick={() => setEditMode(false)}
-            disabled={saving}
-          >
-            Cancel
-          </button>
-        </div>
       </div>
     </div>
-  );
+    </div>
+    );
+  };
 
   /* ── Detail Panel JSX (right side of split) ── */
   const renderDetailPanel = () => {
     if (!selectedIngredient) return null;
     const ing = selectedIngredient;
-    const unitDisplay = ing.customUnitName && ing.customUnitAmount
+    const unitDisplay = ing.customUnitName && ing.customUnitGrams
+      ? `${ing.customUnitAmount || 1} ${ing.customUnitName} = ${ing.customUnitGrams}g`
+      : ing.customUnitName && ing.customUnitAmount
       ? `${ing.customUnitAmount} ${ing.customUnitName}`
       : ing.defaultUnit;
 
     return (
-      <div className="flex-1 overflow-y-auto p-6 px-7">
-        <h2 className="font-sans text-[15px] font-normal mb-1">{ing.name}</h2>
-        <p className="text-[11px] text-[var(--muted)] mb-5">
-          Default unit: {unitDisplay}
-          {ing.isMealItem ? " / Meal item" : ""}
-          {ing.fdcId ? ` / FDC #${ing.fdcId}` : ""}
-        </p>
-
-        {/* Nutrient Grid */}
-        <div className={sectionLabelClass}>Nutrition per 100g</div>
-        {ing.nutrientValues.length > 0 ? (
-          <div
-            className="grid grid-cols-2 border border-[var(--rule)]"
-            style={{ gap: "1px", background: "var(--rule)" }}
-          >
-            {ing.nutrientValues.map((nv) => (
-              <div key={nv.id} className="bg-[var(--bg)] p-[8px_12px]">
-                <div className="text-[11px] text-[var(--muted)]">{nv.nutrient.displayName}</div>
-                <div className="text-[11px] text-[var(--fg)]">
-                  {formatNutrient(nv.value)} {nv.nutrient.unit}
-                </div>
-              </div>
-            ))}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
+        {/* Sticky header */}
+        <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
+          <div>
+            <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-1">{ing.name}</h2>
+            <p className="font-mono text-[10px] text-[var(--muted)]">
+              {unitDisplay}
+              {ing.isMealItem ? " · Meal item" : ""}
+            </p>
           </div>
-        ) : (
-          <p className="text-[11px] text-[var(--muted)]">No nutrient data</p>
-        )}
+          <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
+            <button
+              onClick={() => handleEditClick(ing)}
+              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDelete(ing.id, ing.name)}
+              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-[6px] mt-5 border-t border-[var(--rule)] pt-4">
-          <button
-            onClick={() => handleEditClick(ing)}
-            className="flex-1 py-[7px] px-[10px] text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[#bbb] transition-colors"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => handleDelete(ing.id, ing.name)}
-            className="flex-1 py-[7px] px-[10px] text-[9px] tracking-[0.1em] uppercase bg-transparent text-[#c03030] border border-[#e8b0b0] cursor-pointer hover:bg-[#fff5f5] transition-colors"
-          >
-            Delete
-          </button>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className={sectionLabelClass}>Nutrition per 100g</div>
+          {ing.nutrientValues.length > 0 ? (
+            <div className="space-y-0">
+              {ing.nutrientValues.map((nv, idx) => (
+                <div key={nv.id} className={`flex justify-between items-baseline py-[7px] text-[11px] ${idx < ing.nutrientValues.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                  <span className="text-[var(--muted)]">{nv.nutrient.displayName}</span>
+                  <span className="font-mono text-[var(--muted)] tabular-nums">{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[11px] text-[var(--muted)]">No nutrient data</p>
+          )}
         </div>
       </div>
     );
@@ -987,68 +898,47 @@ function IngredientsPage() {
 
   /* ── Main Return ── */
 
-  // Create mode: full-width form
-  if (createMode) {
-    return (
-      <div className="flex flex-col h-full">
-        {renderCreateForm()}
-      </div>
-    );
-  }
-
-  // Edit mode: full-width form
-  if (editMode && selectedIngredient) {
-    return (
-      <div className="flex flex-col h-full">
-        {renderEditForm()}
-      </div>
-    );
-  }
+  // Edit mode: rendered inline in the detail panel below
 
   // List + optional detail split
   const hasSplit = !!selectedIngredient;
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Page Head */}
-      <div className="flex items-end justify-between px-7 pt-6 pb-5 border-b border-[var(--rule)]">
-        <div>
-          <div className="text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">Ingredients</div>
-          <div className="font-sans text-[16px] font-normal text-[var(--fg)]">All Ingredients</div>
+    <div className="flex h-full">
+      {/* ── Left: List pane with integrated header ── */}
+      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]">
+        {/* List header */}
+        <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0">
+          <div className="flex items-baseline justify-between mb-3">
+            <h1 className="font-serif text-[18px] text-[var(--fg)] leading-none">Ingredients</h1>
+            <span className="font-mono text-[9px] tracking-[0.1em] text-[var(--muted)] uppercase">{filteredIngredients.length}</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => updateSearchParam("search", e.target.value)}
+            aria-label="Search ingredients"
+            className="w-full bg-transparent border border-[var(--rule)] py-1 px-2 text-[11px] font-mono text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
+          />
         </div>
-        <div className="text-[9px] uppercase tracking-[0.06em] text-[var(--muted)]">
-          {filteredIngredients.length} item{filteredIngredients.length !== 1 ? "s" : ""}
-        </div>
-      </div>
 
-      {/* Body */}
-      {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[11px] text-[var(--muted)]">Loading...</p>
-        </div>
-      ) : filteredIngredients.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[11px] text-[var(--muted)]">
-            {ingredients.length === 0
-              ? "No ingredients yet. Create one to get started."
-              : "No ingredients match your search."}
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-1 min-h-0">
-          {/* List */}
-          <div
-            className={`overflow-y-auto ${
-              hasSplit ? "w-[260px] border-r border-[var(--rule)] flex-none" : "flex-1"
-            }`}
-          >
-            {filteredIngredients.map((ing) => {
+        {/* Scrollable list */}
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="py-8 text-center text-[11px] text-[var(--muted)]">Loading...</div>
+          ) : filteredIngredients.length === 0 ? (
+            <div className="py-8 px-4 text-center text-[11px] text-[var(--muted)]">
+              {ingredients.length === 0 ? 'No ingredients yet' : 'No matches'}
+            </div>
+          ) : (
+            filteredIngredients.map((ing) => {
               const isSelected = selectedIngredient?.id === ing.id;
               return (
                 <div
                   key={ing.id}
-                  className={`flex items-center justify-between py-[10px] px-7 border-b border-[var(--rule)] cursor-pointer transition-colors ${
-                    isSelected ? "bg-[#f5f5f5]" : "hover:bg-[#fafafa]"
+                  className={`flex items-center justify-between py-[10px] px-6 border-b border-[var(--rule)] cursor-pointer transition-colors ${
+                    isSelected ? "bg-[var(--accent-light)]" : "hover:bg-[var(--bg-subtle)]"
                   }`}
                   onClick={() => {
                     if (isSelected) {
@@ -1062,21 +952,61 @@ function IngredientsPage() {
                   <span className="font-sans text-[12px] font-normal text-[var(--fg)] truncate">
                     {ing.name}
                   </span>
-                  {!hasSplit && (
-                    <span className="text-[11px] text-[var(--muted)] whitespace-nowrap ml-4">
-                      {ing.customUnitName && ing.customUnitAmount
-                        ? `${ing.customUnitAmount} ${ing.customUnitName}`
-                        : ing.defaultUnit}
-                    </span>
-                  )}
                 </div>
               );
-            })}
-          </div>
-
-          {/* Detail Panel (split right) */}
-          {hasSplit && renderDetailPanel()}
+            })
+          )}
         </div>
+
+        {/* New ingredient button at bottom */}
+        <button
+          onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
+          aria-label="Create new ingredient"
+          className="shrink-0 w-full py-[10px] px-6 font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left"
+        >
+          + New Ingredient
+        </button>
+      </div>
+
+      {/* ── Center + Right: Detail + Context ── */}
+      {createMode ? (
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {renderForm('create')}
+        </div>
+      ) : !selectedIngredient ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-3 max-w-[280px]">
+            <div className="font-serif text-[20px] text-[var(--fg)]">
+              {ingredients.length === 0 ? 'No ingredients yet' : 'Select an ingredient'}
+            </div>
+            <p className="text-[11px] text-[var(--muted)] leading-relaxed">
+              {ingredients.length === 0
+                ? 'Add your first ingredient manually or look it up from the USDA database.'
+                : 'Click an ingredient from the list to view its details.'}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+
+          {/* Detail Panel or Edit Form (center pane) */}
+          {editMode ? renderForm('edit') : renderDetailPanel()}
+
+          {/* Context Panel — right pane with goals % bars */}
+          {!editMode && (
+            <div className="panel-slide-in w-[300px] min-w-[300px] border-l border-[var(--rule)]">
+              <IngredientContextPanel
+                nutrientValues={selectedIngredient.nutrientValues}
+                defaultUnit={selectedIngredient.defaultUnit}
+                customUnitName={selectedIngredient.customUnitName}
+                customUnitAmount={selectedIngredient.customUnitAmount}
+                customUnitGrams={selectedIngredient.customUnitGrams}
+                personId={selectedPerson?.id}
+                personName={selectedPerson?.name}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -17,6 +17,7 @@ export async function GET(
     const mealPlan = await prisma.mealPlan.findUnique({
       where: { id: mealPlanId },
       include: {
+        person: true,
         mealLogs: {
           include: {
             recipe: true,

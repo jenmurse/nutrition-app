@@ -1,192 +1,208 @@
 .container {
   width: 100%;
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 8px;
+  background: var(--bg);
+  padding: 0;
 }
 
 .weekHeader {
   margin-bottom: 24px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 12px;
 }
 
 .weekHeader h2 {
   margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--fg);
+  font-family: var(--serif);
 }
 
 .weekGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
+  gap: 0;
   margin-bottom: 24px;
+  border: 1px solid var(--rule);
 }
 
 .dayColumn {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
+  border-right: 1px solid var(--rule);
   padding: 12px;
-  background: #f9f9f9;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
 }
 
+.dayColumn:last-child {
+  border-right: none;
+}
+
 .dayHeader {
-  text-align: center;
-  margin-bottom: 12px;
-  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 8px;
 }
 
 .dayName {
-  font-weight: 600;
-  font-size: 14px;
-  color: #333;
+  font-weight: 400;
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--mono);
 }
 
 .dayDate {
-  font-size: 12px;
-  color: #999;
+  font-size: 18px;
+  color: var(--fg);
   margin-top: 2px;
+  font-family: var(--serif);
+  line-height: 1;
+}
+
+.dayColumn.isToday .dayDate {
+  color: var(--accent);
 }
 
 .mealsContainer {
   flex: 1;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .mealTypeSection {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .mealTypeLabel {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 400;
   text-transform: uppercase;
-  color: #666;
+  color: var(--muted);
   margin-bottom: 4px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  font-family: var(--mono);
 }
 
 .mealsList {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .emptyMeal {
   cursor: pointer;
-  padding: 8px;
-  border: 1px dashed #ccc;
-  border-radius: 4px;
+  padding: 6px;
+  border: 1px dashed var(--rule);
   text-align: center;
-  background: #fafafa;
-  transition: all 0.2s ease;
-  min-height: 32px;
+  background: transparent;
+  transition: all 0.15s ease;
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .emptyMeal:hover {
-  border-color: #999;
-  background: #f0f0f0;
+  border-color: var(--accent);
+  background: var(--accent-light);
 }
 
 .addMealButton {
-  font-size: 12px;
-  color: #666;
-  font-weight: 500;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 400;
+  font-family: var(--mono);
 }
 
 .mealItem {
-  padding: 8px;
-  background: #e3f2fd;
-  border-radius: 4px;
+  padding: 6px 8px;
+  background: var(--bg-subtle);
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-left: 3px solid #2196f3;
+  transition: all 0.15s ease;
+  border-left: 2px solid var(--rule-strong);
 }
 
 .mealItem:hover {
-  background: #bbdefb;
-  transform: translateX(2px);
+  background: var(--bg-selected);
+  border-left-color: var(--accent);
 }
 
 .mealName {
-  font-size: 12px;
-  font-weight: 600;
-  color: #1565c0;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--fg);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--mono);
 }
 
 .mealServings {
-  font-size: 11px;
-  color: #0d47a1;
-  margin-top: 2px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 1px;
+  font-family: var(--mono);
 }
 
 .addAnotherMeal {
   cursor: pointer;
-  padding: 6px;
-  border: 1px dashed #ccc;
-  border-radius: 4px;
+  padding: 5px;
+  border: 1px dashed var(--rule);
   text-align: center;
-  background: #fafafa;
-  transition: all 0.2s ease;
+  background: transparent;
+  transition: all 0.15s ease;
   margin-top: 2px;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
 }
 
 .addAnotherMeal:hover {
-  border-color: #999;
-  background: #f0f0f0;
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
 }
 
 .dayNutrients {
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--rule);
   padding-top: 8px;
-  background: #fff;
-  border-radius: 4px;
-  padding: 8px;
 }
 
 .nutrientsLabel {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 400;
   text-transform: uppercase;
-  color: #666;
+  color: var(--muted);
   margin-bottom: 4px;
+  letter-spacing: 0.08em;
+  font-family: var(--mono);
 }
 
 .nutrientsList {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .nutrientItem {
-  font-size: 11px;
-  padding: 4px 6px;
-  border-left: 3px solid #999;
-  background: #f5f5f5;
-  border-radius: 0 2px 2px 0;
-  transition: background 0.2s ease;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-left: 2px solid var(--rule-strong);
+  background: var(--bg-subtle);
+  transition: background 0.15s ease;
+  font-family: var(--mono);
 }
 
 .nutrientItem strong {
   display: block;
-  color: #333;
-  margin-bottom: 2px;
+  color: var(--fg);
+  margin-bottom: 1px;
 }
 
 .nutrientValue {
-  color: #666;
-  font-weight: 500;
+  color: var(--muted);
 }
 
 /* Modal Styles */
@@ -196,7 +212,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(26, 23, 20, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,14 +220,13 @@
 }
 
 .modalContent {
-  background: white;
-  border-radius: 8px;
+  background: var(--bg-raised);
   padding: 24px;
   max-width: 500px;
   width: 90%;
   max-height: 70vh;
   overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--rule);
 }
 
 .modalHeader {
@@ -219,64 +234,62 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 12px;
 }
 
 .modalHeader h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  color: var(--fg);
+  font-family: var(--serif);
+  font-weight: 400;
 }
 
 .closeButton {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
-  color: #999;
+  color: var(--muted);
   padding: 0;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .closeButton:hover {
-  background: #f0f0f0;
-  color: #333;
+  color: var(--fg);
 }
 
 .mealTypesList {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .mealTypeOption {
-  background: #f5f7fa;
-  border: 1px solid #d5dbe3;
-  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
   padding: 10px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #2f3a4a;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--fg);
   cursor: pointer;
   text-align: center;
   transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--mono);
 }
 
 .mealTypeOption:hover {
-  background: #e3f2fd;
-  border-color: #64b5f6;
-  color: #0d47a1;
-}
-
-.mealTypeOption:active {
-  transform: translateY(1px);
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .servingsRow {
@@ -287,75 +300,83 @@
 }
 
 .servingsLabel {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--mono);
 }
 
 .servingsInput {
   width: 120px;
   padding: 6px 8px;
-  border: 1px solid #d5dbe3;
-  border-radius: 6px;
-  font-size: 14px;
+  border: 1px solid var(--rule);
+  font-size: 12px;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--mono);
 }
 
 .recipesList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 .recipeOption {
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  background: transparent;
+}
+
+.recipeOption:last-child {
+  border-bottom: none;
 }
 
 .recipeOption:hover {
-  border-color: #2196f3;
-  background: #e3f2fd;
-  transform: translateX(2px);
+  background: var(--bg-subtle);
 }
 
 .recipeIncomplete {
   cursor: not-allowed;
   opacity: 0.6;
-  background: #f5f5f5;
-  border-color: #ffb74d;
 }
 
 .recipeIncomplete:hover {
-  border-color: #ffb74d;
-  background: #fff3e0;
-  transform: none;
+  background: transparent;
 }
 
 .incompleteTag {
-  font-size: 12px;
-  color: #ff9800;
+  font-size: 10px;
+  color: var(--warning);
   font-weight: normal;
   margin-left: 4px;
+  font-family: var(--mono);
 }
 
 .recipeName {
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4px;
+  font-weight: 400;
+  color: var(--fg);
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-family: var(--sans);
 }
 
 .recipeServings {
-  font-size: 12px;
-  color: #999;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
 }
 
 .noRecipes {
   text-align: center;
-  color: #999;
+  color: var(--muted);
   padding: 24px;
-  font-style: italic;
+  font-size: 11px;
+  font-family: var(--mono);
 }
 
 /* Responsive Design */

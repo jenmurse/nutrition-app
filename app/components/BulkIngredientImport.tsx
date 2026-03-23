@@ -231,7 +231,7 @@ export default function BulkIngredientImport({
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button
           onClick={handleParse}
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+          className="w-full px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded hover:bg-[var(--accent-hover)] text-sm font-medium"
         >
           Parse & Preview
         </button>

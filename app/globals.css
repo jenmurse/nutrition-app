@@ -4,38 +4,72 @@
 
 @layer base {
   :root {
-    --fg: #000;
-    --bg: #fff;
-    --mid: #666;
-    --muted: #767676;
-    --faint: #767676;
-    --placeholder: #aaa;
-    --rule: #e8e8e8;
+    /* Core palette — neutral monochrome */
+    --fg: #111111;
+    --bg: #FAFAFA;
+    --bg-nav: #F5F5F5;
+    --bg-raised: #FFFFFF;
+    --bg-subtle: #F0F0F0;
+    --bg-selected: #E4E4E4;
+    --mid: #555555;
+    --muted: #888888;
+    --faint: #888888;
+    --placeholder: #BBBBBB;
+    --rule: #E5E5E5;
+    --rule-strong: #D0D0D0;
+
+    /* Accent — soft sage green */
+    --accent: #6B9E7B;
+    --accent-hover: #5A8A6A;
+    --accent-light: #F0F7F2;
+    --accent-text: #FFFFFF;
+
+    /* Person colors — used in person switcher palette */
+    --person-1: #6B9E7B;  /* sage green */
+    --person-2: #7B8E9E;  /* slate blue */
+    --person-3: #9E7B6B;  /* warm clay */
+    --person-4: #9E8B6B;  /* sand */
+    --person-5: #7B6B9E;  /* lavender */
+    --person-6: #9E6B8B;  /* dusty rose */
+    --person-7: #6B8E9E;  /* ocean */
+    --person-8: #8B9E6B;  /* olive */
+    --person-9: #9E6B6B;  /* terracotta */
+    --person-10: #6B9E8E; /* teal */
+
+    /* Semantic */
+    --warning: #D97706;
+    --warning-light: #FAF5EC;
+    --warning-border: #DDD0B8;
+    --warning-text: #92400E;
+    --error: #DC2626;
+    --error-light: #FEE2E2;
+    --error-border: #EF4444;
+
+    /* Typography */
+    --serif: 'DM Serif Display', serif;
     --sans: 'DM Sans', sans-serif;
     --mono: 'DM Mono', monospace;
-    --warning: #c08000;
-    --error: #c03030;
 
-    /* Tailwind compat — mapped to flat hex so hsl() wrappers still work */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    /* Tailwind compat */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 143 22% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 0%;
-    --muted-hsl: 0 0% 46%;
-    --muted-foreground: 0 0% 46%;
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 72% 47%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 7%;
+    --muted-hsl: 0 0% 53%;
+    --muted-foreground: 0 0% 53%;
+    --accent-hsl: 143 22% 52%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 91%;
-    --input: 0 0% 91%;
-    --ring: 0 0% 0%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 143 22% 52%;
     --radius: 0;
   }
 
@@ -56,6 +90,8 @@
   html {
     font-size: 12px;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html, body {
@@ -65,23 +101,37 @@
   }
 
   body {
-    font-family: var(--mono);
-    font-weight: 300;
+    font-family: var(--sans);
+    font-weight: 400;
     line-height: 1.6;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   input, textarea {
-    font-family: var(--mono);
-    font-weight: 300;
+    font-family: var(--sans);
+    font-weight: 400;
   }
 
   button {
-    font-family: var(--mono);
+    font-family: var(--sans);
+  }
+
+  /* Tactile press feedback on all enabled buttons */
+  button:not(:disabled):active {
+    scale: 0.96;
+    transition: scale 150ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   ::selection {
-    background: #000;
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-text);
   }
 
   *:focus {
@@ -89,12 +139,12 @@
   }
 
   button:focus-visible {
-    outline: 1px solid #999;
+    outline: 1px solid var(--accent);
     outline-offset: 2px;
   }
 
   input[type="checkbox"] {
-    accent-color: var(--fg);
+    accent-color: var(--accent);
   }
 }
 
@@ -119,14 +169,48 @@ input[type="number"]:focus {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* Tabular numbers on all mono text — prevents layout shift on live values */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Page container — prevents content from being uncomfortably wide */
+.page-container {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Custom easing curves */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Dropdown enter animation — uses @starting-style for zero-JS transition */
+.dropdown-enter {
+  transition: opacity 120ms var(--ease-out), transform 120ms var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Panel slide-in — for recipe/ingredient context panels */
+.panel-slide-in {
+  animation: panelSlideIn 150ms var(--ease-out) both;
+}
+
+@keyframes panelSlideIn {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
 }

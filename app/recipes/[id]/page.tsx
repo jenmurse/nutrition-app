@@ -96,33 +96,33 @@ export default function EditRecipePage() {
   if (!recipe) return <div className="px-7 py-5 text-[12px] font-mono font-light text-[var(--muted)]">Recipe not found</div>;
 
   return (
-    <div>
-      <div className="px-7 py-5 border-b border-[var(--rule)] flex items-center justify-between">
-        <div>
-          <div className="font-mono text-[9px] font-light uppercase tracking-[0.12em] text-[var(--muted)]">Recipes</div>
-          <h1 className="font-sans text-[16px] font-normal text-[var(--fg)] mt-[2px]">Edit Recipe</h1>
-        </div>
-        <div className="flex items-center gap-4">
+    <div className="flex flex-col h-full page-container">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 px-7 animate-fade-in">
+        <button
+          onClick={() => router.push('/recipes')}
+          className="bg-transparent text-[var(--muted)] py-[8px] px-0 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer mb-4"
+        >
+          ← Back to list
+        </button>
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="font-serif text-[22px] text-[var(--fg)] leading-none">Edit Recipe</h1>
           <button
             onClick={handleDuplicate}
             disabled={duplicating}
-            className="text-[9px] font-mono uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--fg)] disabled:opacity-50"
+            className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] disabled:opacity-50 bg-transparent border-0 cursor-pointer"
           >
             {duplicating ? "Duplicating..." : "Duplicate"}
           </button>
-          <button onClick={() => router.push('/recipes')} className="text-[11px] text-[var(--muted)] hover:text-[var(--fg)]">
-            ← Back to list
-          </button>
         </div>
-      </div>
 
-      <div className="px-7 py-5">
-        <RecipeBuilder
-          initialRecipe={recipe}
-          onSaved={() => {
-            router.push("/recipes");
-          }}
-        />
+        <div className="space-y-5 max-w-[720px]">
+          <RecipeBuilder
+            initialRecipe={recipe}
+            onSaved={() => {
+              router.push("/recipes");
+            }}
+          />
+        </div>
       </div>
     </div>
   );

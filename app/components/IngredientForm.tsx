@@ -202,7 +202,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       <div className="flex flex-col gap-3 mb-3">
         <div className="flex gap-3">
           <input
-            className="border rounded p-2 flex-1"
+            className="border p-2 flex-1"
             placeholder="Ingredient name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -210,7 +210,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
 
           <div className="flex gap-2">
           <select
-            className="border rounded p-2 flex-1"
+            className="border p-2 flex-1"
             value={defaultUnit}
             onChange={(e) => setDefaultUnit(e.target.value)}
           >
@@ -219,7 +219,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
             <option value="other">other (custom unit)</option>
           </select>
           <button
-            className="bg-slate-100 px-4 py-2 rounded disabled:opacity-50"
+            className="bg-[var(--bg-subtle)] px-4 py-2 disabled:opacity-50"
             disabled={searching || fetchingDetails}
             onClick={() => {
               const q = name || prompt("Search USDA for:") || "";
@@ -233,13 +233,13 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       </div>
 
       {defaultUnit === "other" && (
-        <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+        <div className="mb-4 p-3 bg-[var(--bg-subtle)] border border-[var(--rule)]">
           <h4 className="font-medium mb-2 text-sm">Custom Unit Settings</h4>
           <div className="space-y-2">
             <div className="flex gap-2 items-center">
               <label className="w-32 text-sm font-medium">Unit name:</label>
               <input
-                className="border rounded p-2 flex-1"
+                className="border p-2 flex-1"
                 placeholder="e.g., banana, scoop, cup"
                 value={customUnitName}
                 onChange={(e) => setCustomUnitName(e.target.value)}
@@ -250,29 +250,29 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
               <input
                 type="number"
                 step="any"
-                className="border rounded p-2 w-24"
+                className="border p-2 w-24"
                 value={customUnitAmount}
                 onChange={(e) => setCustomUnitAmount(e.target.value)}
               />
-              <span className="text-sm text-slate-600">{customUnitName || "unit"}</span>
+              <span className="text-sm text-[var(--muted)]">{customUnitName || "unit"}</span>
             </div>
             <div className="flex gap-2 items-center">
               <label className="w-32 text-sm font-medium">Grams per unit:</label>
               <input
                 type="number"
                 step="any"
-                className="border rounded p-2 flex-1"
+                className="border p-2 flex-1"
                 placeholder="e.g., 120 for an average banana"
                 value={customUnitGrams}
                 onChange={(e) => setCustomUnitGrams(e.target.value)}
               />
-              <span className="text-sm text-slate-600">g</span>
+              <span className="text-sm text-[var(--muted)]">g</span>
             </div>
           </div>
         </div>
       )}
 
-      <div className="mb-4 p-3 bg-amber-50 rounded border border-amber-200">
+      <div className="mb-4 p-3 bg-[var(--bg-subtle)] border border-[var(--rule)]">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -282,60 +282,60 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
           />
           <span className="text-sm font-medium">This is a meal item (can be added directly to meal plans)</span>
         </label>
-        <p className="text-xs text-slate-600 mt-2 ml-6">
+        <p className="text-xs text-[var(--muted)] mt-2 ml-6">
           Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)
         </p>
       </div>
 
       {showSearch && (
         <div className="mb-3">
-          <div className="text-sm text-slate-600 mb-2">
+          <div className="text-sm text-[var(--muted)] mb-2">
             {searching ? "Searching USDA database..." : "Select a USDA match"}
           </div>
           <div className="space-y-2 max-h-48 overflow-auto">
             {searchResults.map((r, i) => (
               <div
                 key={i}
-                className="p-2 border rounded hover:bg-slate-50 cursor-pointer"
+                className="p-2 border hover:bg-[var(--bg-subtle)] cursor-pointer"
                 onClick={() => selectSearchResult(r)}
               >
                 <div className="font-medium">{r.description || r.foodName || r.description}</div>
-                <div className="text-sm text-slate-600">{r.brandOwner || r.dataType || r.foodCategory}</div>
+                <div className="text-sm text-[var(--muted)]">{r.brandOwner || r.dataType || r.foodCategory}</div>
               </div>
             ))}
             {!searching && searchResults.length === 0 && (
-              <div className="p-2 text-sm text-slate-500">No results found</div>
+              <div className="p-2 text-sm text-[var(--muted)]">No results found</div>
             )}
           </div>
         </div>
       )}
 
       {fetchingDetails && (
-        <div className="mb-3 p-3 bg-blue-50 rounded text-sm text-blue-700">
+        <div className="mb-3 p-3 bg-[var(--bg-subtle)] text-sm text-[var(--fg)]">
           Loading food details from USDA...
         </div>
       )}
 
-      <div className="mb-4 p-3 bg-slate-50 rounded border">
+      <div className="mb-4 p-3 bg-[var(--bg-subtle)] border">
         <h4 className="font-medium mb-2 text-sm">What amount are these nutrients for?</h4>
         <div className="flex gap-2">
           <input
             type="number"
             step="any"
-            className="border rounded p-2 w-24"
+            className="border p-2 w-24"
             placeholder="100"
             value={specifiedAmount}
             onChange={(e) => setSpecifiedAmount(e.target.value)}
           />
           <select
-            className="border rounded p-2 flex-1"
+            className="border p-2 flex-1"
             value={specifiedUnit}
             onChange={(e) => setSpecifiedUnit(e.target.value)}
           >
             <option value="g">g (grams)</option>
             <option value="ml">ml (milliliters)</option>
           </select>
-          <div className="text-sm text-slate-600 self-center">
+          <div className="text-sm text-[var(--muted)] self-center">
             {specifiedAmount && specifiedUnit && specifiedAmount !== "100" ? (
               <span>Will convert to per 100{specifiedUnit}</span>
             ) : (
@@ -349,16 +349,16 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
         <h4 className="font-medium mb-2">Nutrient values (per 100g)</h4>
         <div className="grid grid-cols-1 gap-2">
           {nutrients.map((n) => (
-            <label key={n.id} className="flex items-center gap-2 border rounded p-2">
+            <label key={n.id} className="flex items-center gap-2 border p-2">
               <div className="w-36 text-sm">{n.displayName}</div>
               <input
                 type="number"
                 step="any"
-                className="border rounded p-1 flex-1"
+                className="border p-1 flex-1"
                 value={values[n.id] ?? ""}
                 onChange={(e) => setNutrientValue(n.id, e.target.value)}
               />
-              <div className="text-sm text-slate-600">{n.unit}</div>
+              <div className="text-sm text-[var(--muted)]">{n.unit}</div>
             </label>
           ))}
         </div>
@@ -366,7 +366,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
 
       <div className="flex gap-2">
         <button
-          className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-[var(--accent)] text-[var(--accent-text)] px-4 py-2 disabled:opacity-50"
           onClick={handleSave}
           disabled={loading || !name}
         >
@@ -374,7 +374,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
         </button>
 
         <button
-          className="px-4 py-2 border rounded"
+          className="px-4 py-2 border"
           onClick={() => {
             setName("");
             setFdcId(null);

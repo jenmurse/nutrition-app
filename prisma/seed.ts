@@ -61,6 +61,19 @@ async function main() {
   });
 
   console.log(`Seeded ${nutrients.count} nutrients`);
+
+  // Seed household persons (upsert so re-running is safe)
+  await prisma.person.upsert({
+    where: { name: "Jen" },
+    update: {},
+    create: { name: "Jen", color: "#6B9E7B" },
+  });
+  await prisma.person.upsert({
+    where: { name: "Garth" },
+    update: {},
+    create: { name: "Garth", color: "#7B8E9E" },
+  });
+  console.log("Seeded persons: Jen, Garth");
 }
 
 main()

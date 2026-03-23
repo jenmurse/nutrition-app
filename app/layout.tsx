@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { DM_Sans, DM_Mono } from "next/font/google";
+import { DM_Sans, DM_Mono, DM_Serif_Display } from "next/font/google";
 
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
-import NavigationSidebar from "./components/NavigationSidebar";
+import TopNav from "./components/TopNav";
+import { PersonProvider } from "./components/PersonContext";
 
 const dmSans = DM_Sans({
   weight: ['300', '400', '500', '600'],
@@ -18,9 +19,15 @@ const dmMono = DM_Mono({
   variable: '--font-mono',
 });
 
+const dmSerifDisplay = DM_Serif_Display({
+  weight: ['400'],
+  subsets: ["latin"],
+  variable: '--font-serif',
+});
+
 export const metadata: Metadata = {
-  title: "Nutrition Tracking App",
-  description: "Track recipes and meal plans with nutritional values",
+  title: "Course",
+  description: "Plan meals, track nutrition, build better habits.",
 };
 
 export default function RootLayout({
@@ -29,19 +36,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${dmSans.variable} ${dmMono.variable} font-mono h-screen overflow-hidden`}>
-        <NumberInputHandler />
-        <div className="flex h-screen">
-          <Suspense>
-            <NavigationSidebar />
-          </Suspense>
+    <html lang="en" className="antialiased">
+      <body className={`${dmSans.variable} ${dmMono.variable} ${dmSerifDisplay.variable} font-sans h-screen overflow-hidden`}>
+        <PersonProvider>
+          <NumberInputHandler />
+          <div className="flex flex-col h-screen">
+            <Suspense>
+              <TopNav />
+            </Suspense>
 
-          {/* Main Content Area */}
-          <main className="flex-1 overflow-y-auto">
-            {children}
-          </main>
-        </div>
+            {/* Main Content Area — overflow-hidden so each page manages its own scroll panes */}
+            <main className="flex-1 overflow-hidden">
+              {children}
+            </main>
+          </div>
+        </PersonProvider>
       </body>
     </html>
   );
