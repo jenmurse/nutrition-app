@@ -37,17 +37,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       },
     });
 
-    // Duplicate all ingredients
-    for (const ingredient of originalRecipe.ingredients) {
-      await prisma.recipeIngredient.create({
-        data: {
+    // Duplicate all ingredients in one batch
+    if (originalRecipe.ingredients.length > 0) {
+      await prisma.recipeIngredient.createMany({
+        data: originalRecipe.ingredients.map((ingredient) => ({
           recipeId: newRecipe.id,
           ingredientId: ingredient.ingredientId,
           quantity: ingredient.quantity,
           unit: ingredient.unit,
           conversionGrams: ingredient.conversionGrams,
           notes: ingredient.notes,
-        },
+        })),
       });
     }
 

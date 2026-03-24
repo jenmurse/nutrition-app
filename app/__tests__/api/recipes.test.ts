@@ -15,9 +15,11 @@ jest.mock('@/lib/db', () => ({
     },
     ingredient: {
       findUnique: jest.fn(),
+      findMany: jest.fn(),
     },
     recipeIngredient: {
       create: jest.fn(),
+      createMany: jest.fn(),
       deleteMany: jest.fn(),
     },
   },
@@ -80,7 +82,11 @@ describe('Recipes API - GET /api/recipes', () => {
     expect(prisma.recipe.findMany).toHaveBeenCalledWith({
       where: { householdId: 1 },
       include: {
-        ingredients: { include: { ingredient: { include: { nutrientValues: { include: { nutrient: true } } } } } },
+        ingredients: {
+          include: {
+            ingredient: { select: { id: true, name: true } },
+          },
+        },
       },
       orderBy: { name: 'asc' },
     })
@@ -136,8 +142,8 @@ describe('Recipes API - POST /api/recipes', () => {
     }
 
     ;(prisma.recipe.create as jest.Mock).mockResolvedValue({ id: 1, ...requestBody })
-    ;(prisma.ingredient.findUnique as jest.Mock).mockResolvedValue({ id: 1, name: 'Pasta', defaultUnit: 'g' })
-    ;(prisma.recipeIngredient.create as jest.Mock).mockResolvedValue(undefined)
+    ;(prisma.ingredient.findMany as jest.Mock).mockResolvedValue([{ id: 1, name: 'Pasta', defaultUnit: 'g' }])
+    ;(prisma.recipeIngredient.createMany as jest.Mock).mockResolvedValue(undefined)
     ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue(mockCreated)
 
     const request = new Request('http://localhost:3000', {
@@ -152,7 +158,7 @@ describe('Recipes API - POST /api/recipes', () => {
     expect(data.id).toBe(1)
     expect(data.name).toBe('Pasta Carbonara')
     expect(prisma.recipe.create).toHaveBeenCalled()
-    expect(prisma.recipeIngredient.create).toHaveBeenCalled()
+    expect(prisma.recipeIngredient.createMany).toHaveBeenCalled()
   })
 
   it('should create recipe with no ingredients', async () => {

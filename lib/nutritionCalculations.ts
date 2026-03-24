@@ -26,80 +26,56 @@ export interface DailyNutrition {
   totalNutrients: NutrientValue[];
 }
 
-/**
- * Calculate total nutrition for a recipe
- * Returns both total nutrition and per-serving nutrition
- */
-export async function calculateRecipeNutrition(
-  recipeId: number
-): Promise<RecipeNutrition> {
-  const recipe = await prisma.recipe.findUnique({
-    where: { id: recipeId },
-    include: {
-      ingredients: {
-        include: {
-          ingredient: {
-            include: {
-              nutrientValues: {
-                include: {
-                  nutrient: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+// Internal types for pre-fetched data
+type NutrientRow = { id: number; name: string; displayName: string; unit: string; orderIndex: number };
 
-  if (!recipe) {
-    throw new Error(`Recipe with id ${recipeId} not found`);
-  }
+type RecipeForNutrition = {
+  id: number;
+  name: string;
+  servingSize: number;
+  servingUnit: string;
+  ingredients: {
+    conversionGrams: number | null;
+    ingredient: {
+      nutrientValues: { nutrientId: number; value: number }[];
+    };
+  }[];
+};
 
-  // Initialize nutrition totals (per 100g first, then we'll scale)
-  const allNutrients = await prisma.nutrient.findMany({
-    orderBy: { orderIndex: 'asc' },
-  });
+type IngredientForNutrition = {
+  customUnitName: string | null;
+  customUnitAmount: number | null;
+  customUnitGrams: number | null;
+  nutrientValues: { nutrientId: number; value: number }[];
+};
 
+// Pure in-memory computation — no DB calls
+function _computeRecipeNutritionFromData(
+  recipe: RecipeForNutrition,
+  allNutrients: NutrientRow[]
+): RecipeNutrition {
   const totalNutrients: Record<number, number> = {};
-  const nutrientInfo: Record<number, Nutrient> = {};
+  for (const n of allNutrients) totalNutrients[n.id] = 0;
 
-  // Initialize all nutrients to 0
-  for (const nutrient of allNutrients) {
-    totalNutrients[nutrient.id] = 0;
-    nutrientInfo[nutrient.id] = nutrient;
-  }
-
-  // Sum up nutrition from all ingredients in recipe
-  for (const recipeIngredient of recipe.ingredients) {
-    // Get gram equivalent for this ingredient
-    const gramsAmount = recipeIngredient.conversionGrams || 0;
-
-    // For each nutrient in this ingredient
-    for (const ingredientNutrient of recipeIngredient.ingredient.nutrientValues) {
-      const nutrientId = ingredientNutrient.nutrientId;
-      // value is per 100g, so: (value / 100) * gramsAmount
-      const contributedValue = (ingredientNutrient.value / 100) * gramsAmount;
-      totalNutrients[nutrientId] += contributedValue;
+  for (const ri of recipe.ingredients) {
+    const grams = ri.conversionGrams || 0;
+    for (const nv of ri.ingredient.nutrientValues) {
+      totalNutrients[nv.nutrientId] = (totalNutrients[nv.nutrientId] || 0) + (nv.value / 100) * grams;
     }
   }
 
-  // Convert to NutrientValue objects
-  const totalNutrientValues: NutrientValue[] = allNutrients.map((nutrient) => ({
-    nutrientId: nutrient.id,
-    nutrientName: nutrient.name,
-    displayName: nutrient.displayName,
-    unit: nutrient.unit,
-    value: Math.round(totalNutrients[nutrient.id] * 10) / 10, // Round to 1 decimal
+  const totalNutrientValues: NutrientValue[] = allNutrients.map((n) => ({
+    nutrientId: n.id,
+    nutrientName: n.name,
+    displayName: n.displayName,
+    unit: n.unit,
+    value: Math.round(totalNutrients[n.id] * 10) / 10,
   }));
 
-  // Calculate per-serving nutrition
-  const perServingNutrients: NutrientValue[] = totalNutrientValues.map(
-    (nutrient) => ({
-      ...nutrient,
-      value: Math.round((nutrient.value / recipe.servingSize) * 10) / 10,
-    })
-  );
+  const perServingNutrients: NutrientValue[] = totalNutrientValues.map((n) => ({
+    ...n,
+    value: Math.round((n.value / recipe.servingSize) * 10) / 10,
+  }));
 
   return {
     recipeId: recipe.id,
@@ -111,139 +87,158 @@ export async function calculateRecipeNutrition(
   };
 }
 
-/**
- * Calculate daily nutrition totals for a specific date in a meal plan
- */
-/**
- * Get nutrition values for an ingredient at a specific quantity
- */
-async function getIngredientNutrition(
-  ingredientId: number,
+// Pure in-memory ingredient nutrition computation — no DB calls
+function _computeIngredientNutrition(
+  ingredient: IngredientForNutrition,
   quantity: number,
   unit: string
-): Promise<Record<number, number>> {
-  const ingredient = await prisma.ingredient.findUnique({
-    where: { id: ingredientId },
-    include: {
-      nutrientValues: {
-        include: {
-          nutrient: true,
-        },
-      },
-    },
-  });
-
-  if (!ingredient) {
-    throw new Error(`Ingredient with id ${ingredientId} not found`);
-  }
-
-  // All nutrients are stored per 100g, so we need to convert based on the ingredient's unit
-  const nutrientTotals: Record<number, number> = {};
-
-  // Convert quantity to grams if needed
-  let gramsAmount = quantity;
-  
-  // If using a custom unit, we need to use the customUnitGrams conversion
+): Record<number, number> {
+  let grams = quantity;
   if (unit === ingredient.customUnitName && ingredient.customUnitGrams) {
-    gramsAmount = (quantity / (ingredient.customUnitAmount || 1)) * ingredient.customUnitGrams;
-  } else if (unit === 'g' || unit === ingredient.defaultUnit) {
-    gramsAmount = quantity;
+    grams = (quantity / (ingredient.customUnitAmount || 1)) * ingredient.customUnitGrams;
   }
-  // For other units like ml, we assume 1:1 with grams (which is an approximation)
-  
-  // Calculate nutrition values
-  for (const nutrientValue of ingredient.nutrientValues) {
-    // nutrientValue.value is per 100g
-    const totalValue = (nutrientValue.value / 100) * gramsAmount;
-    nutrientTotals[nutrientValue.nutrientId] = totalValue;
+  const totals: Record<number, number> = {};
+  for (const nv of ingredient.nutrientValues) {
+    totals[nv.nutrientId] = (nv.value / 100) * grams;
   }
-
-  return nutrientTotals;
+  return totals;
 }
 
+/**
+ * Calculate total nutrition for a recipe.
+ * Parallelizes the recipe fetch and nutrient list fetch.
+ */
+export async function calculateRecipeNutrition(recipeId: number): Promise<RecipeNutrition> {
+  const [recipe, allNutrients] = await Promise.all([
+    prisma.recipe.findUnique({
+      where: { id: recipeId },
+      include: {
+        ingredients: {
+          include: {
+            ingredient: {
+              include: {
+                nutrientValues: { select: { nutrientId: true, value: true } },
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
+  ]);
+
+  if (!recipe) throw new Error(`Recipe with id ${recipeId} not found`);
+  return _computeRecipeNutritionFromData(recipe, allNutrients);
+}
+
+/**
+ * Calculate daily nutrition totals for a specific date in a meal plan.
+ * Batches all DB fetches to avoid N+1 queries.
+ */
 export async function calculateDailyNutrition(
   mealPlanId: number,
   date: Date
 ): Promise<DailyNutrition> {
-  // Get all meals for this date
-  const mealLogs = await prisma.mealLog.findMany({
-    where: {
-      mealPlanId,
-      date: {
-        gte: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
-        lt: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1),
-      },
-    },
-    include: {
-      recipe: true,
-      ingredient: true,
-    },
-  });
+  const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
 
-  // Initialize nutrition totals
-  const allNutrients = await prisma.nutrient.findMany({
-    orderBy: { orderIndex: 'asc' },
-  });
+  const [mealLogs, allNutrients] = await Promise.all([
+    prisma.mealLog.findMany({
+      where: {
+        mealPlanId,
+        date: { gte: dayStart, lt: dayEnd },
+      },
+      select: {
+        recipeId: true,
+        ingredientId: true,
+        quantity: true,
+        unit: true,
+        servings: true,
+      },
+    }),
+    prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
+  ]);
+
+  // Batch fetch all recipes and ingredients needed for this day
+  const recipeIds = [...new Set(mealLogs.flatMap((m) => (m.recipeId ? [m.recipeId] : [])))];
+  const ingredientIds = [...new Set(mealLogs.flatMap((m) => (m.ingredientId ? [m.ingredientId] : [])))];
+
+  const [recipes, ingredients] = await Promise.all([
+    recipeIds.length > 0
+      ? prisma.recipe.findMany({
+          where: { id: { in: recipeIds } },
+          select: {
+            id: true,
+            name: true,
+            servingSize: true,
+            servingUnit: true,
+            ingredients: {
+              select: {
+                conversionGrams: true,
+                ingredient: {
+                  select: {
+                    nutrientValues: { select: { nutrientId: true, value: true } },
+                  },
+                },
+              },
+            },
+          },
+        })
+      : Promise.resolve([]),
+    ingredientIds.length > 0
+      ? prisma.ingredient.findMany({
+          where: { id: { in: ingredientIds } },
+          select: {
+            id: true,
+            customUnitName: true,
+            customUnitAmount: true,
+            customUnitGrams: true,
+            nutrientValues: { select: { nutrientId: true, value: true } },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+  const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
 
   const totalNutrients: Record<number, number> = {};
-  for (const nutrient of allNutrients) {
-    totalNutrients[nutrient.id] = 0;
-  }
+  for (const n of allNutrients) totalNutrients[n.id] = 0;
 
-  // Sum nutrition from all meals in the day
   for (const mealLog of mealLogs) {
-    let mealNutrients: Record<number, number> = {};
-
-    if (mealLog.recipeId && mealLog.recipe) {
-      // Handle recipe-based meal
-      const recipeNutrition = await calculateRecipeNutrition(mealLog.recipeId);
-      const servings = Number(mealLog.servings ?? 1);
-      const recipeServings = recipeNutrition.servingSize || 1;
-      const servingMultiplier = servings / recipeServings;
-
-      for (const nutrient of recipeNutrition.totalNutrients) {
-        mealNutrients[nutrient.nutrientId] = nutrient.value * servingMultiplier;
+    if (mealLog.recipeId) {
+      const recipe = recipeMap.get(mealLog.recipeId);
+      if (recipe) {
+        const nutrition = _computeRecipeNutritionFromData(recipe, allNutrients);
+        const servings = Number(mealLog.servings ?? 1);
+        const multiplier = servings / (recipe.servingSize || 1);
+        for (const n of nutrition.totalNutrients) {
+          totalNutrients[n.nutrientId] += n.value * multiplier;
+        }
       }
     } else if (mealLog.ingredientId && mealLog.quantity != null && mealLog.unit) {
-      // Handle ingredient-based meal
-      mealNutrients = await getIngredientNutrition(
-        mealLog.ingredientId,
-        mealLog.quantity,
-        mealLog.unit
-      );
-    }
-
-    // Add to daily totals
-    for (const [nutrientId, value] of Object.entries(mealNutrients)) {
-      totalNutrients[Number(nutrientId)] += value;
+      const ingredient = ingredientMap.get(mealLog.ingredientId);
+      if (ingredient) {
+        const mealNutrients = _computeIngredientNutrition(ingredient, mealLog.quantity, mealLog.unit);
+        for (const [id, value] of Object.entries(mealNutrients)) {
+          totalNutrients[Number(id)] += value;
+        }
+      }
     }
   }
 
-  // Convert to NutrientValue objects
-  const dailyNutrientValues: NutrientValue[] = allNutrients.map((nutrient) => ({
-    nutrientId: nutrient.id,
-    nutrientName: nutrient.name,
-    displayName: nutrient.displayName,
-    unit: nutrient.unit,
-    value: Math.round(totalNutrients[nutrient.id] * 10) / 10,
-  }));
-
-  // Get day of week
-  const days = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
-  const dayOfWeek = days[date.getDay()];
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   return {
     date,
-    dayOfWeek,
-    totalNutrients: dailyNutrientValues,
+    dayOfWeek: days[date.getDay()],
+    totalNutrients: allNutrients.map((n) => ({
+      nutrientId: n.id,
+      nutrientName: n.name,
+      displayName: n.displayName,
+      unit: n.unit,
+      value: Math.round(totalNutrients[n.id] * 10) / 10,
+    })),
   };
 }
 
@@ -257,146 +252,237 @@ export function applyNutrientGoals(
   return nutrients.map((nutrient) => {
     const goal = goals[nutrient.nutrientId];
     if (!goal) return nutrient;
-    if (goal.lowGoal === undefined && goal.highGoal === undefined) {
-      return nutrient;
-    }
+    if (goal.lowGoal === undefined && goal.highGoal === undefined) return nutrient;
 
     let status: 'ok' | 'warning' | 'error' = 'ok';
 
     if (goal.lowGoal !== null && goal.lowGoal !== undefined) {
-      if (nutrient.value < goal.lowGoal) {
-        status = 'warning'; // Below minimum
-      }
+      if (nutrient.value < goal.lowGoal) status = 'warning';
     }
 
     if (goal.highGoal !== null && goal.highGoal !== undefined) {
-      if (nutrient.value > goal.highGoal) {
-        status = 'error'; // Above maximum
-      }
+      if (nutrient.value > goal.highGoal) status = 'error';
     }
 
-    // Check if we need to override with ok status
     if (
-      goal.lowGoal !== null &&
-      goal.lowGoal !== undefined &&
-      goal.highGoal !== null &&
-      goal.highGoal !== undefined
+      goal.lowGoal !== null && goal.lowGoal !== undefined &&
+      goal.highGoal !== null && goal.highGoal !== undefined
     ) {
-      if (nutrient.value >= goal.lowGoal && nutrient.value <= goal.highGoal) {
-        status = 'ok';
-      }
+      if (nutrient.value >= goal.lowGoal && nutrient.value <= goal.highGoal) status = 'ok';
     }
 
-    return {
-      ...nutrient,
-      lowGoal: goal.lowGoal,
-      highGoal: goal.highGoal,
-      status,
-    };
+    return { ...nutrient, lowGoal: goal.lowGoal, highGoal: goal.highGoal, status };
   });
 }
 
+type PrefetchedGoal = { nutrientId: number; lowGoal: number | null; highGoal: number | null };
+
 /**
- * Get weekly nutrition summary for a meal plan
+ * Get weekly nutrition summary for a meal plan.
+ * Fetches all 7 days of meal logs in one query, batches recipe/ingredient loads,
+ * then computes all days synchronously — no per-day DB round-trips.
+ *
+ * Pass `prefetched` to skip the internal mealPlan lookup (when the caller already has it).
  */
-export async function getWeeklyNutritionSummary(mealPlanId: number) {
-  const mealPlan = await prisma.mealPlan.findUnique({
-    where: { id: mealPlanId },
-    include: {
-      nutritionGoals: {
-        include: {
-          nutrient: true,
-        },
-      },
-    },
-  });
+export async function getWeeklyNutritionSummary(
+  mealPlanId: number,
+  prefetched?: { weekStartDate: Date | string; nutritionGoals: PrefetchedGoal[] }
+) {
+  // Fetch mealPlan (if not prefetched), allNutrients, and globalGoals in parallel
+  const [mealPlanData, allNutrients, globalGoals] = await Promise.all([
+    prefetched
+      ? Promise.resolve(null)
+      : prisma.mealPlan.findUnique({
+          where: { id: mealPlanId },
+          include: {
+            nutritionGoals: { select: { nutrientId: true, lowGoal: true, highGoal: true } },
+          },
+        }),
+    prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
+    prisma.globalNutritionGoal.findMany(),
+  ]);
 
-  if (!mealPlan) {
-    throw new Error(`Meal plan with id ${mealPlanId} not found`);
-  }
+  const weekStartRaw = prefetched?.weekStartDate ?? mealPlanData?.weekStartDate;
+  if (!weekStartRaw) throw new Error(`Meal plan with id ${mealPlanId} not found`);
 
-  const allNutrients = await prisma.nutrient.findMany({
-    orderBy: { orderIndex: 'asc' },
-  });
+  const planNutritionGoals: PrefetchedGoal[] =
+    prefetched?.nutritionGoals ?? mealPlanData?.nutritionGoals ?? [];
 
-  const globalGoals = await prisma.globalNutritionGoal.findMany();
-  const globalGoalsMap = new Map(
-    globalGoals.map((goal) => [goal.nutrientId, goal])
-  );
+  const globalGoalsMap = new Map(globalGoals.map((g) => [g.nutrientId, g]));
+  const mealPlanGoalsMap = new Map(planNutritionGoals.map((g) => [g.nutrientId, g]));
 
-  const mealPlanGoalsMap = new Map(
-    mealPlan.nutritionGoals.map((goal) => [goal.nutrientId, goal])
-  );
-
-  // Create goals map with meal-plan goals taking priority over global defaults.
   const goalsMap: Record<number, { lowGoal?: number; highGoal?: number }> = {};
   for (const nutrient of allNutrients) {
     const planGoal = mealPlanGoalsMap.get(nutrient.id);
     const globalGoal = globalGoalsMap.get(nutrient.id);
     const lowGoal = planGoal?.lowGoal ?? globalGoal?.lowGoal ?? undefined;
     const highGoal = planGoal?.highGoal ?? globalGoal?.highGoal ?? undefined;
-
     if (lowGoal !== undefined || highGoal !== undefined) {
       goalsMap[nutrient.id] = { lowGoal, highGoal };
     }
   }
 
-  // Calculate nutrition for each day in the week
-  const dailyNutritions: DailyNutrition[] = [];
-  for (let i = 0; i < 7; i++) {
-    // Parse the date string as local time to avoid timezone issues
-    const weekStart = mealPlan.weekStartDate instanceof Date 
-      ? mealPlan.weekStartDate 
-      : new Date(mealPlan.weekStartDate + 'T00:00:00');
+  const weekStart =
+    weekStartRaw instanceof Date
+      ? weekStartRaw
+      : new Date((weekStartRaw as string) + 'T00:00:00');
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+
+  // Fetch ALL meal logs for the entire week in ONE query
+  const allMealLogs = await prisma.mealLog.findMany({
+    where: {
+      mealPlanId,
+      date: { gte: weekStart, lt: weekEnd },
+    },
+    select: {
+      date: true,
+      recipeId: true,
+      ingredientId: true,
+      quantity: true,
+      unit: true,
+      servings: true,
+    },
+  });
+
+  // Collect unique IDs needed across all 7 days
+  const recipeIds = [...new Set(allMealLogs.flatMap((m) => (m.recipeId ? [m.recipeId] : [])))];
+  const ingredientIds = [
+    ...new Set(allMealLogs.flatMap((m) => (m.ingredientId ? [m.ingredientId] : []))),
+  ];
+
+  // Batch fetch all recipes and ingredients in parallel
+  const [recipes, ingredients] = await Promise.all([
+    recipeIds.length > 0
+      ? prisma.recipe.findMany({
+          where: { id: { in: recipeIds } },
+          select: {
+            id: true,
+            name: true,
+            servingSize: true,
+            servingUnit: true,
+            ingredients: {
+              select: {
+                conversionGrams: true,
+                ingredient: {
+                  select: {
+                    nutrientValues: { select: { nutrientId: true, value: true } },
+                  },
+                },
+              },
+            },
+          },
+        })
+      : Promise.resolve([]),
+    ingredientIds.length > 0
+      ? prisma.ingredient.findMany({
+          where: { id: { in: ingredientIds } },
+          select: {
+            id: true,
+            customUnitName: true,
+            customUnitAmount: true,
+            customUnitGrams: true,
+            nutrientValues: { select: { nutrientId: true, value: true } },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+  const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
+
+  // Calculate all 7 days synchronously (data already in memory)
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const dailyNutritions: DailyNutrition[] = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(weekStart);
     date.setDate(date.getDate() + i);
-    const dailyNutrition = await calculateDailyNutrition(mealPlanId, date);
+    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
 
-    // Apply goals
-    dailyNutrition.totalNutrients = applyNutrientGoals(
-      dailyNutrition.totalNutrients,
-      goalsMap
-    );
+    const dayLogs = allMealLogs.filter((m) => {
+      const d = new Date(m.date);
+      return d >= dayStart && d < dayEnd;
+    });
 
-    dailyNutritions.push(dailyNutrition);
-  }
+    const totalNutrients: Record<number, number> = {};
+    for (const n of allNutrients) totalNutrients[n.id] = 0;
+
+    for (const mealLog of dayLogs) {
+      if (mealLog.recipeId) {
+        const recipe = recipeMap.get(mealLog.recipeId);
+        if (recipe) {
+          const nutrition = _computeRecipeNutritionFromData(recipe, allNutrients);
+          const servings = Number(mealLog.servings ?? 1);
+          const multiplier = servings / (recipe.servingSize || 1);
+          for (const n of nutrition.totalNutrients) {
+            totalNutrients[n.nutrientId] += n.value * multiplier;
+          }
+        }
+      } else if (mealLog.ingredientId && mealLog.quantity != null && mealLog.unit) {
+        const ingredient = ingredientMap.get(mealLog.ingredientId);
+        if (ingredient) {
+          const mealNutrients = _computeIngredientNutrition(ingredient, mealLog.quantity, mealLog.unit);
+          for (const [id, value] of Object.entries(mealNutrients)) {
+            totalNutrients[Number(id)] += value;
+          }
+        }
+      }
+    }
+
+    const totalNutrientValues: NutrientValue[] = allNutrients.map((n) => ({
+      nutrientId: n.id,
+      nutrientName: n.name,
+      displayName: n.displayName,
+      unit: n.unit,
+      value: Math.round(totalNutrients[n.id] * 10) / 10,
+    }));
+
+    return {
+      date,
+      dayOfWeek: dayNames[date.getDay()],
+      totalNutrients: applyNutrientGoals(totalNutrientValues, goalsMap),
+    };
+  });
 
   return {
     mealPlanId,
-    weekStartDate: mealPlan.weekStartDate,
+    weekStartDate: weekStart,
     dailyNutritions,
   };
 }
 
 /**
- * Get all recipes and their basic nutrition info for UI dropdowns
+ * Get all recipes and their basic nutrition info.
+ * Fetches all recipes with nutrients in one query — no N+1.
  */
 export async function getRecipesWithNutrition() {
-  const recipes = await prisma.recipe.findMany({
-    orderBy: { name: 'asc' },
+  const [recipes, allNutrients] = await Promise.all([
+    prisma.recipe.findMany({
+      orderBy: { name: 'asc' },
+      include: {
+        ingredients: {
+          include: {
+            ingredient: {
+              include: {
+                nutrientValues: { select: { nutrientId: true, value: true } },
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
+  ]);
+
+  return recipes.map((recipe) => {
+    const nutrition = _computeRecipeNutritionFromData(recipe, allNutrients);
+    return {
+      id: recipe.id,
+      name: recipe.name,
+      servingSize: recipe.servingSize,
+      servingUnit: recipe.servingUnit,
+      nutrition: nutrition.totalNutrients,
+    };
   });
-
-  const recipesWithNutrition = await Promise.all(
-    recipes.map(async (recipe) => {
-      const nutrition = await calculateRecipeNutrition(recipe.id);
-      return {
-        id: recipe.id,
-        name: recipe.name,
-        servingSize: recipe.servingSize,
-        servingUnit: recipe.servingUnit,
-        nutrition: nutrition.totalNutrients,
-      };
-    })
-  );
-
-  return recipesWithNutrition;
 }
-
-// Type for Prisma Nutrient model
-type Nutrient = {
-  id: number;
-  name: string;
-  displayName: string;
-  unit: string;
-  orderIndex: number;
-};

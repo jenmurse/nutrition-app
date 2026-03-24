@@ -68,6 +68,8 @@ model HouseholdMember {
   household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
   @@unique([personId, householdId])
+  @@index([personId])
+  @@index([householdId])
 }
 
 // Invite tokens for joining a household
@@ -106,6 +108,7 @@ model Ingredient {
   mealLogs          MealLog[]
 
   @@unique([name, householdId])
+  @@index([householdId])
 }
 
 // Junction table: Ingredients to Nutrients (per 100g)
@@ -119,6 +122,7 @@ model IngredientNutrient {
   nutrient      Nutrient   @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
 
   @@unique([ingredientId, nutrientId])
+  @@index([ingredientId])
 }
 
 // Recipes containing multiple ingredients (household-scoped)
@@ -148,6 +152,9 @@ model Recipe {
   household   Household?       @relation(fields: [householdId], references: [id])
   ingredients RecipeIngredient[]
   mealLogs    MealLog[]
+
+  @@index([householdId])
+  @@index([isComplete])
 }
 
 // Junction table: Recipes to Ingredients
@@ -162,6 +169,9 @@ model RecipeIngredient {
 
   recipe            Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([ingredientId])
 }
 
 // Weekly meal plans (household-scoped, person-filtered)
@@ -177,6 +187,10 @@ model MealPlan {
   person          Person?         @relation(fields: [personId], references: [id])
   mealLogs        MealLog[]
   nutritionGoals  NutritionGoal[]
+
+  @@index([householdId])
+  @@index([personId])
+  @@index([weekStartDate])
 }
 
 // Daily meal entries (breakfast, lunch, dinner, snacks)
@@ -198,6 +212,10 @@ model MealLog {
   mealPlan   MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
   recipe     Recipe?   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredient Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([mealPlanId, date])
+  @@index([recipeId])
+  @@index([ingredientId])
 }
 
 // Daily nutrient goals per meal plan (scoped through MealPlan)
@@ -212,6 +230,7 @@ model NutritionGoal {
   nutrient     Nutrient  @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
 
   @@unique([mealPlanId, nutrientId])
+  @@index([mealPlanId])
 }
 
 // Key-value store for app-level settings (household-scoped)
@@ -269,4 +288,6 @@ model GlobalNutritionGoal {
   person     Person?  @relation(fields: [personId], references: [id])
 
   @@unique([nutrientId, personId, householdId])
+  @@index([personId])
+  @@index([householdId])
 }

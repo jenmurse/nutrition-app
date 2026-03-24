@@ -89,25 +89,22 @@ export async function POST(
       }
     }
 
-    // Copy meals, adjusting dates to target week
+    // Copy meals in one batch, adjusting dates to target week
     const dayOffset = targetWeekStart.getTime() - sourceWeekStart.getTime();
 
-    for (const meal of sourcePlan.mealLogs) {
-      const newDate = new Date(new Date(meal.date).getTime() + dayOffset);
-      await prisma.mealLog.create({
-        data: {
-          mealPlanId: targetPlan.id,
-          date: newDate,
-          mealType: meal.mealType,
-          recipeId: meal.recipeId,
-          ingredientId: meal.ingredientId,
-          quantity: meal.quantity,
-          unit: meal.unit,
-          servings: meal.servings,
-          position: meal.position,
-        },
-      });
-    }
+    await prisma.mealLog.createMany({
+      data: sourcePlan.mealLogs.map((meal) => ({
+        mealPlanId: targetPlan!.id,
+        date: new Date(new Date(meal.date).getTime() + dayOffset),
+        mealType: meal.mealType,
+        recipeId: meal.recipeId,
+        ingredientId: meal.ingredientId,
+        quantity: meal.quantity,
+        unit: meal.unit,
+        servings: meal.servings,
+        position: meal.position,
+      })),
+    });
 
     return NextResponse.json({
       planId: targetPlan.id,

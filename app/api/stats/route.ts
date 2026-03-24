@@ -26,27 +26,24 @@ export async function GET(request: NextRequest) {
       take: 3,
       select: { id: true, name: true, tags: true, createdAt: true },
     }),
-    // Find the plan covering the current week
+    // Find the plan covering the current week using SQL date filter
     (async () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const plans = await prisma.mealPlan.findMany({
-        where: mealPlanWhere,
+      // A plan covers today if: weekStartDate <= today AND weekStartDate >= today - 6 days
+      const sixDaysAgo = new Date(today);
+      sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+      return prisma.mealPlan.findFirst({
+        where: {
+          ...mealPlanWhere,
+          weekStartDate: { gte: sixDaysAgo, lte: today },
+        },
         include: {
           _count: { select: { mealLogs: true } },
-          mealLogs: {
-            select: { date: true },
-          },
+          mealLogs: { select: { date: true } },
         },
         orderBy: { weekStartDate: 'desc' },
       });
-      return plans.find((p) => {
-        const start = new Date(p.weekStartDate);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        return today >= start && today <= end;
-      }) ?? null;
     })(),
   ]);
 

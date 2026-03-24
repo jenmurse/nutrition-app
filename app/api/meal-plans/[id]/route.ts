@@ -42,8 +42,11 @@ export async function GET(
       );
     }
 
-    // Get weekly nutrition summary
-    const weeklySummary = await getWeeklyNutritionSummary(mealPlanId);
+    // Get weekly nutrition summary — pass prefetched goals to skip redundant DB query
+    const weeklySummary = await getWeeklyNutritionSummary(mealPlanId, {
+      weekStartDate: mealPlan.weekStartDate,
+      nutritionGoals: mealPlan.nutritionGoals,
+    });
 
     return NextResponse.json(
       {

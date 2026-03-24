@@ -52,22 +52,30 @@ export async function POST(request: Request) {
       },
     });
 
-    for (const ri of ingredients) {
-      const ingredientId = Number(ri.ingredientId);
-      const quantity = Number(ri.quantity) || 0;
-      const unit = ri.unit || "g";
-
-      if (isNaN(ingredientId)) throw new Error(`Invalid ingredient ID: ${ri.ingredientId}`);
-
-      const ingredient = await prisma.ingredient.findUnique({ where: { id: ingredientId } });
-      if (!ingredient) throw new Error(`Ingredient not found: ${ingredientId}`);
-
-      const density = getIngredientDensity(ingredient.name);
-      const grams = convertToGrams(quantity, unit, density, ingredient);
-
-      await prisma.recipeIngredient.create({
-        data: { recipeId: recipe.id, ingredientId, quantity, unit, conversionGrams: grams, notes: ri.notes || null },
+    if (ingredients.length > 0) {
+      const ingredientIds = ingredients.map((ri: { ingredientId: string | number }) => {
+        const id = Number(ri.ingredientId);
+        if (isNaN(id)) throw new Error(`Invalid ingredient ID: ${ri.ingredientId}`);
+        return id;
       });
+
+      const fetchedIngredients = await prisma.ingredient.findMany({
+        where: { id: { in: ingredientIds } },
+      });
+      const ingredientMap = new Map(fetchedIngredients.map((i) => [i.id, i]));
+
+      const recipeIngredientData = ingredients.map((ri: { ingredientId: string | number; quantity?: number; unit?: string; notes?: string }) => {
+        const ingredientId = Number(ri.ingredientId);
+        const quantity = Number(ri.quantity) || 0;
+        const unit = ri.unit || "g";
+        const ingredient = ingredientMap.get(ingredientId);
+        if (!ingredient) throw new Error(`Ingredient not found: ${ingredientId}`);
+        const density = getIngredientDensity(ingredient.name);
+        const grams = convertToGrams(quantity, unit, density, ingredient);
+        return { recipeId: recipe.id, ingredientId, quantity, unit, conversionGrams: grams, notes: ri.notes || null };
+      });
+
+      await prisma.recipeIngredient.createMany({ data: recipeIngredientData });
     }
 
     const created = await prisma.recipe.findUnique({ where: { id: recipe.id }, include: { ingredients: true } });

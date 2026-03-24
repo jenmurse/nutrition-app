@@ -11,6 +11,10 @@ jest.mock('@/lib/db', () => ({
   prisma: {
     recipe: {
       findUnique: jest.fn(),
+      findMany: jest.fn(),
+    },
+    ingredient: {
+      findMany: jest.fn(),
     },
     mealLog: {
       findMany: jest.fn(),
@@ -101,12 +105,11 @@ describe('Nutrition Calculations', () => {
     it('should sum nutrition from all meals in a day', async () => {
       const mockMealLogs = [
         {
-          id: 1,
-          mealPlanId: 1,
-          date: new Date('2026-02-08'),
-          mealType: 'breakfast',
           recipeId: 1,
-          recipe: { id: 1, name: 'Oatmeal', servingSize: 1, servingUnit: 'bowl' },
+          ingredientId: null,
+          quantity: null,
+          unit: null,
+          servings: 1,
         },
       ];
 
@@ -114,15 +117,20 @@ describe('Nutrition Calculations', () => {
         { id: 1, name: 'calories', displayName: 'Calories', unit: 'kcal', orderIndex: 1 },
       ];
 
+      const mockRecipes = [
+        {
+          id: 1,
+          name: 'Oatmeal',
+          servingSize: 1,
+          servingUnit: 'bowl',
+          ingredients: [],
+        },
+      ];
+
       (prisma.mealLog.findMany as jest.Mock).mockResolvedValueOnce(mockMealLogs);
       (prisma.nutrient.findMany as jest.Mock).mockResolvedValue(mockNutrients);
-      (prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 1,
-        name: 'Oatmeal',
-        servingSize: 1,
-        servingUnit: 'bowl',
-        ingredients: [],
-      });
+      (prisma.recipe.findMany as jest.Mock).mockResolvedValueOnce(mockRecipes);
+      (prisma.ingredient.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       const result = await calculateDailyNutrition(1, new Date('2026-02-08'));
 
