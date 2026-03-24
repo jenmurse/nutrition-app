@@ -394,8 +394,7 @@ export async function GET(
             const gain = (r.nutrients[deficit.nutrientId] ?? 0) - currentDeficitValue;
             return { recipeId: r.id, name: r.name, gainAmount: Math.round(gain * 10) / 10, calorieDiff: Math.round(rCals - currentCals) };
           })
-          .sort((a, b) => b.gainAmount - a.gainAmount;
-          })
+          .sort((a, b) => b.gainAmount - a.gainAmount)
           .slice(0, 3);
 
         if (swaps.length > 0) {
