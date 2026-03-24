@@ -444,7 +444,7 @@ function IngredientsPage() {
       }
 
       const newIng = await res.json();
-      setIngredients((prev) => [...prev, newIng]);
+      setIngredients((prev) => [...prev, newIng].sort((a, b) => a.name.localeCompare(b.name)));
       setSelectedIngredient(newIng);
       setCreateMode(false);
       setCreateName("");
@@ -456,8 +456,7 @@ function IngredientsPage() {
       setCreateSpecifiedUnit("g");
       setCreateIsMealItem(false);
       setCreateValues({});
-      const savedCount = newIng.nutrientValues?.length || 0;
-      toast.success(`Ingredient created${savedCount > 0 ? ` with ${savedCount} nutrient values` : ""}`);
+      toast.success(`${newIng.name} added`);
     } catch (e) {
       console.error(e);
       toast.error(`Failed to create: ${e instanceof Error ? e.message : "Unknown error"}`);
