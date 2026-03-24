@@ -35,13 +35,16 @@ export function PersonProvider({ children }: { children: ReactNode }) {
   const refreshPersons = async () => {
     const res = await fetch("/api/persons");
     if (res.ok) {
-      const data: Person[] = await res.json();
+      const { persons: data, currentPersonId } = await res.json() as {
+        persons: Person[];
+        currentPersonId: number | null;
+      };
       setPersons(data);
-      // On initial load, restore from localStorage or default to first person
-      const stored = localStorage.getItem("selectedPersonId");
-      const storedId = stored ? parseInt(stored, 10) : null;
-      if (storedId && data.some((p) => p.id === storedId)) {
-        setSelectedPersonIdState(storedId);
+      // Always default to the authenticated user's own Person record so a
+      // logged-in user always sees their own data first, regardless of any
+      // device-level localStorage left by a previous user on this browser.
+      if (currentPersonId && data.some((p) => p.id === currentPersonId)) {
+        setSelectedPersonIdState(currentPersonId);
       } else if (data.length > 0) {
         setSelectedPersonIdState(data[0].id);
       }

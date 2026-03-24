@@ -10,7 +10,8 @@ export async function GET() {
     where: { householdMembers: { some: { householdId: auth.householdId } } },
     orderBy: { id: "asc" },
   });
-  return NextResponse.json(persons);
+  // Include the authenticated user's own personId so the client can default to it
+  return NextResponse.json({ persons, currentPersonId: auth.personId });
 }
 
 export async function POST(request: Request) {

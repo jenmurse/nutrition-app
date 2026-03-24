@@ -260,8 +260,10 @@ const SettingsPage = () => {
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
 
-  // Household info
-  const [householdName, setHouseholdName] = useState('');
+  // Household info — seed from localStorage so name appears instantly
+  const [householdName, setHouseholdName] = useState(
+    () => (typeof window !== 'undefined' ? localStorage.getItem('householdName') ?? '' : '')
+  );
   const [editingHouseholdName, setEditingHouseholdName] = useState(false);
   const [householdNameDraft, setHouseholdNameDraft] = useState('');
   const [householdNameSaving, setHouseholdNameSaving] = useState(false);
@@ -315,6 +317,7 @@ const SettingsPage = () => {
         const active = data.find((h) => h.active) ?? data[0];
         if (active) {
           setHouseholdName(active.name);
+          localStorage.setItem('householdName', active.name);
           const roles: Record<number, string> = {};
           active.members.forEach((m) => { roles[m.personId] = m.role; });
           setMemberRoles(roles);
@@ -348,6 +351,7 @@ const SettingsPage = () => {
       if (res.ok) {
         const data = await res.json();
         setHouseholdName(data.name);
+        localStorage.setItem('householdName', data.name);
         setEditingHouseholdName(false);
       }
     } finally {
