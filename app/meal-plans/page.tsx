@@ -1069,8 +1069,11 @@ const MealPlansPage = () => {
                       onClose={() => setSelectedDay(null)}
                       onSwapMeal={async (mealLogId, newRecipeId) => {
                         try {
+                          // Preserve the original meal's type (breakfast/lunch/dinner/snack)
+                          const originalMeal = selectedPlan.mealLogs?.find((m: MealLog) => m.id === mealLogId);
+                          const mealType = originalMeal?.mealType ?? 'snack';
                           await handleRemoveMeal(mealLogId);
-                          await handleAddRecipeMeal(activeDate, 'snack', newRecipeId, 1);
+                          await handleAddRecipeMeal(activeDate, mealType, newRecipeId, 1);
                           setMessage({ type: 'success', text: 'Meal swapped!' });
                           setAnalysisRefreshKey(k => k + 1);
                           setTimeout(() => setMessage(null), 3000);
@@ -1080,7 +1083,7 @@ const MealPlansPage = () => {
                       }}
                       onAddMeal={async (recipeId) => {
                         try {
-                          await handleAddRecipeMeal(activeDate, 'snack', recipeId, 1);
+                          await handleAddRecipeMeal(activeDate, 'dinner', recipeId, 1);
                           setMessage({ type: 'success', text: 'Meal added!' });
                           setAnalysisRefreshKey(k => k + 1);
                           setTimeout(() => setMessage(null), 3000);

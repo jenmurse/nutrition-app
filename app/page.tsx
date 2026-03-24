@@ -4,13 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePersonContext } from "./components/PersonContext";
 
-function getCurrentWeekMonday(): Date {
+/** Get the Sunday that starts the current week */
+function getCurrentWeekStart(): Date {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
-  const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff);
+  d.setDate(d.getDate() - d.getDay()); // roll back to Sunday
   return d;
+}
+
+/** Parse a UTC date string preserving the calendar date in local timezone */
+function parseUTCDate(dateStr: string | Date): Date {
+  const d = dateStr instanceof Date ? dateStr : new Date(dateStr);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
 function getGreeting(): string {
@@ -56,15 +61,15 @@ export default function Home() {
     setWeekPlanId(null);
     setPlanLoading(true);
 
-    const monday = getCurrentWeekMonday();
+    const weekStart = getCurrentWeekStart();
 
     fetch(`/api/meal-plans?personId=${selectedPersonId}`)
       .then((r) => r.json())
       .then(async (plans: { id: number; weekStartDate: string }[]) => {
+        // Find plan whose weekStartDate falls within the current week
         const plan = plans.find((p) => {
-          const d = new Date(p.weekStartDate);
-          d.setHours(0, 0, 0, 0);
-          return d.toDateString() === monday.toDateString();
+          const d = parseUTCDate(p.weekStartDate);
+          return d.toDateString() === weekStart.toDateString();
         });
         setPlanChecked(true);
         if (!plan) return;
@@ -76,7 +81,7 @@ export default function Home() {
         if (!detail?.weeklySummary?.dailyNutritions) return;
 
         const dayEntry = detail.weeklySummary.dailyNutritions.find(
-          (d: DayData) => new Date(d.date).toDateString() === today.toDateString()
+          (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
         );
         if (dayEntry) setTodayData(dayEntry);
       })
