@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { clientCache } from "@/lib/clientCache";
 
 type NutrientTotal = {
   nutrientId: number;
@@ -47,6 +48,7 @@ export default function RecipeContextPanel({
 }: RecipeContextPanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>("goals");
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalsLoading, setGoalsLoading] = useState(true);
   const [optimize, setOptimize] = useState<OptimizeData | null>(null);
   const [mealPrep, setMealPrep] = useState<MealPrepData | null>(null);
   const [analyzedAt, setAnalyzedAt] = useState<string | null>(null);
@@ -55,13 +57,21 @@ export default function RecipeContextPanel({
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
 
-  // Fetch person's nutrition goals
+  // Fetch person's nutrition goals (with cache)
   useEffect(() => {
-    if (!personId) return;
-    fetch(`/api/persons/${personId}/goals`)
+    if (!personId) { setGoalsLoading(false); return; }
+    const cacheKey = `/api/persons/${personId}/goals`;
+    const cached = clientCache.get<Goal[]>(cacheKey);
+    if (cached) { setGoals(cached); setGoalsLoading(false); return; }
+    fetch(cacheKey)
       .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setGoals(Array.isArray(data) ? data : []))
-      .catch(() => setGoals([]));
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        clientCache.set(cacheKey, list);
+        setGoals(list);
+      })
+      .catch(() => setGoals([]))
+      .finally(() => setGoalsLoading(false));
   }, [personId]);
 
   // Fetch cached analysis
@@ -125,7 +135,7 @@ export default function RecipeContextPanel({
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto px-5 py-4">
         {activeTab === "goals" && (
-          <GoalsTab totals={totals} goals={goals} personId={personId} />
+          <GoalsTab totals={totals} goals={goals} personId={personId} loading={goalsLoading} />
         )}
 
         {activeTab === "optimize" && (
@@ -163,15 +173,33 @@ function GoalsTab({
   totals,
   goals,
   personId,
+  loading,
 }: {
   totals: NutrientTotal[];
   goals: Goal[];
   personId?: number;
+  loading?: boolean;
 }) {
   if (!personId) {
     return (
       <div className="text-[11px] text-[var(--muted)] py-4">
         Select a person in the nav to see nutrition goals.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-3 pt-2">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="space-y-[5px]">
+            <div className="flex justify-between">
+              <div className="h-[9px] w-16 bg-[var(--bg-subtle)] animate-loading rounded-sm" />
+              <div className="h-[9px] w-10 bg-[var(--bg-subtle)] animate-loading rounded-sm" />
+            </div>
+            <div className="h-[3px] w-full bg-[var(--rule)] animate-loading" />
+          </div>
+        ))}
       </div>
     );
   }
@@ -247,7 +275,7 @@ function AnalysisTab({
   if (loading) {
     return (
       <div className="text-center py-8">
-        <div className="font-mono text-[10px] text-[var(--muted)]">Analyzing...</div>
+        <div className="font-mono text-[10px] text-[var(--muted)] animate-loading">Analyzing...</div>
       </div>
     );
   }
@@ -337,7 +365,7 @@ function MealPrepTab({
   if (loading) {
     return (
       <div className="text-center py-8">
-        <div className="font-mono text-[10px] text-[var(--muted)]">Analyzing...</div>
+        <div className="font-mono text-[10px] text-[var(--muted)] animate-loading">Analyzing...</div>
       </div>
     );
   }

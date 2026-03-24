@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { clientCache } from "@/lib/clientCache";
 
 type NutrientValue = {
   id: number;
@@ -39,13 +40,22 @@ export default function IngredientContextPanel({
   personName,
 }: IngredientContextPanelProps) {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalsLoading, setGoalsLoading] = useState(true);
 
   useEffect(() => {
-    if (!personId) return;
-    fetch(`/api/persons/${personId}/goals`)
+    if (!personId) { setGoalsLoading(false); return; }
+    const cacheKey = `/api/persons/${personId}/goals`;
+    const cached = clientCache.get<Goal[]>(cacheKey);
+    if (cached) { setGoals(cached); setGoalsLoading(false); return; }
+    fetch(cacheKey)
       .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setGoals(Array.isArray(data) ? data : []))
-      .catch(() => setGoals([]));
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        clientCache.set(cacheKey, list);
+        setGoals(list);
+      })
+      .catch(() => setGoals([]))
+      .finally(() => setGoalsLoading(false));
   }, [personId]);
 
   // Calculate serving info for display
@@ -64,6 +74,26 @@ export default function IngredientContextPanel({
         <div className="flex-1 overflow-y-auto p-4">
           <div className="text-[11px] text-[var(--muted)] tracking-[0.02em] leading-relaxed py-4">
             Select a person in the nav to see nutrition goals.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (goalsLoading) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          <div className="space-y-3 pt-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-[5px]">
+                <div className="flex justify-between">
+                  <div className="h-[9px] w-16 bg-[var(--bg-subtle)] animate-loading rounded-sm" />
+                  <div className="h-[9px] w-10 bg-[var(--bg-subtle)] animate-loading rounded-sm" />
+                </div>
+                <div className="h-[3px] w-full bg-[var(--rule)] animate-loading" />
+              </div>
+            ))}
           </div>
         </div>
       </div>

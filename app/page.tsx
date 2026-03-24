@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePersonContext } from "./components/PersonContext";
+import { clientCache } from "@/lib/clientCache";
 
 /** Get the Sunday that starts the current week */
 function getCurrentWeekStart(): Date {
@@ -62,31 +63,39 @@ export default function Home() {
     setPlanLoading(true);
 
     const weekStart = getCurrentWeekStart();
+    const planListKey = `/api/meal-plans?personId=${selectedPersonId}`;
 
-    fetch(`/api/meal-plans?personId=${selectedPersonId}`)
-      .then((r) => r.json())
-      .then(async (plans: { id: number; weekStartDate: string }[]) => {
-        // Find plan whose weekStartDate falls within the current week
-        const plan = plans.find((p) => {
-          const d = parseUTCDate(p.weekStartDate);
-          return d.toDateString() === weekStart.toDateString();
-        });
-        setPlanChecked(true);
-        if (!plan) return;
+    const runWithPlans = async (plans: { id: number; weekStartDate: string }[]) => {
+      const plan = plans.find((p) => {
+        const d = parseUTCDate(p.weekStartDate);
+        return d.toDateString() === weekStart.toDateString();
+      });
+      setPlanChecked(true);
+      if (!plan) { setPlanLoading(false); return; }
 
-        setWeekPlanId(plan.id);
-        const detail = await fetch(`/api/meal-plans/${plan.id}`).then((r) =>
-          r.ok ? r.json() : null
-        );
-        if (!detail?.weeklySummary?.dailyNutritions) return;
+      setWeekPlanId(plan.id);
+      // Use cached detail if available
+      const cached = clientCache.get<{ weeklySummary?: { dailyNutritions: DayData[] } }>(`/api/meal-plans/${plan.id}`);
+      const detail = cached ?? await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
+      if (!detail?.weeklySummary?.dailyNutritions) { setPlanLoading(false); return; }
 
-        const dayEntry = detail.weeklySummary.dailyNutritions.find(
-          (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
-        );
-        if (dayEntry) setTodayData(dayEntry);
-      })
-      .catch(() => setPlanChecked(true))
-      .finally(() => setPlanLoading(false));
+      const dayEntry = detail.weeklySummary.dailyNutritions.find(
+        (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
+      );
+      if (dayEntry) setTodayData(dayEntry);
+      setPlanLoading(false);
+    };
+
+    // Use cached plan list if available for instant render
+    const cachedPlans = clientCache.get<{ id: number; weekStartDate: string }[]>(planListKey);
+    if (cachedPlans) {
+      runWithPlans(cachedPlans).catch(() => { setPlanChecked(true); setPlanLoading(false); });
+    } else {
+      fetch(planListKey)
+        .then((r) => r.json())
+        .then((plans) => runWithPlans(plans))
+        .catch(() => { setPlanChecked(true); setPlanLoading(false); });
+    }
   }, [selectedPersonId]);
 
   const calNutrient = todayData?.totalNutrients.find((n) =>
@@ -124,10 +133,10 @@ export default function Home() {
         <div className="px-8 pt-5 pb-7">
           {!planChecked || planLoading ? (
             <div className="space-y-[10px] max-w-[480px]">
-              <div className="h-8 w-28 bg-[var(--bg-subtle)]" />
+              <div className="h-8 w-28 bg-[var(--bg-subtle)] animate-loading" />
               <div className="h-[3px] w-full bg-[var(--rule)]" />
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-[28px] w-full bg-[var(--bg-subtle)] opacity-50" />
+                <div key={i} className="h-[28px] w-full bg-[var(--bg-subtle)] animate-loading" />
               ))}
             </div>
           ) : !weekPlanId ? (
