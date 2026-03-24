@@ -19,7 +19,12 @@ export async function POST(
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
     const body = await request.json();
-    const { recipeId, ingredientId, quantity, unit, date, mealType, notes, servings } = body;
+    const { recipeId, ingredientId, quantity, unit, date: rawDate, mealType, notes, servings } = body;
+
+    // Parse date as UTC — handles both "YYYY-MM-DD" and full ISO strings
+    const date = typeof rawDate === 'string' && !rawDate.includes('T')
+      ? rawDate + 'T00:00:00Z'
+      : rawDate;
 
     // Validate required fields
     if (!date || !mealType) {

@@ -52,7 +52,7 @@ export async function POST(
     const targetWeekStart = new Date(
       targetWeekStartDate.includes("T")
         ? targetWeekStartDate
-        : targetWeekStartDate + "T00:00:00"
+        : targetWeekStartDate + "T00:00:00Z"
     );
     const sourceWeekStart = new Date(sourcePlan.weekStartDate);
 

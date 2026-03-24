@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     // Find the plan covering the current week using SQL date filter
     (async () => {
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      today.setUTCHours(0, 0, 0, 0);
       // A plan covers today if: weekStartDate <= today AND weekStartDate >= today - 6 days
       const sixDaysAgo = new Date(today);
       sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);

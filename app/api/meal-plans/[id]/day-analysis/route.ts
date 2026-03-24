@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getAuthenticatedHousehold } from '@/lib/auth';
 import {
-  calculateRecipeNutrition,
   applyNutrientGoals,
 } from '@/lib/nutritionCalculations';
 import {
@@ -34,57 +33,79 @@ export async function GET(
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
 
-    // Verify meal plan belongs to household
-    const mealPlanCheck = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
-    if (!mealPlanCheck || mealPlanCheck.householdId !== auth.householdId) {
-      return NextResponse.json({ error: "Meal plan not found" }, { status: 404 });
-    }
-
     const dateStr = request.nextUrl.searchParams.get('date');
-
     if (!dateStr) {
       return NextResponse.json({ error: 'date query param required (YYYY-MM-DD)' }, { status: 400 });
     }
 
-    const date = new Date(`${dateStr}T00:00:00`);
-    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const dateEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    const dateStart = new Date(`${dateStr}T00:00:00Z`);
+    const dateEnd = new Date(dateStart.getTime() + 24 * 60 * 60 * 1000);
 
     // -----------------------------------------------------------------------
-    // 1. Load the day's meals
+    // 1. Batch fetch everything we need in parallel (3 queries)
     // -----------------------------------------------------------------------
-    const mealLogs = await prisma.mealLog.findMany({
-      where: {
-        mealPlanId,
-        date: { gte: dateStart, lt: dateEnd },
-      },
-      include: {
-        recipe: true,
-        ingredient: {
-          include: {
-            nutrientValues: { include: { nutrient: true } },
+    const [mealLogs, goalsData, allRecipesWithIngredients] = await Promise.all([
+      // Day's meals with ingredient nutrients (for ingredient-based meals)
+      prisma.mealLog.findMany({
+        where: {
+          mealPlanId,
+          date: { gte: dateStart, lt: dateEnd },
+        },
+        include: {
+          recipe: true,
+          ingredient: {
+            include: {
+              nutrientValues: { select: { nutrientId: true, value: true } },
+            },
           },
         },
-      },
-      orderBy: [{ mealType: 'asc' }, { id: 'asc' }],
-    });
-
-    // -----------------------------------------------------------------------
-    // 2. Load goals
-    // -----------------------------------------------------------------------
-    const [mealPlan, globalGoals, allNutrients] = await Promise.all([
-      prisma.mealPlan.findUnique({
-        where: { id: mealPlanId },
-        include: { nutritionGoals: { include: { nutrient: true } } },
+        orderBy: [{ mealType: 'asc' }, { id: 'asc' }],
       }),
-      prisma.globalNutritionGoal.findMany(),
-      prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
+
+      // Goals + nutrients in one query group
+      Promise.all([
+        prisma.mealPlan.findUnique({
+          where: { id: mealPlanId },
+          include: { nutritionGoals: { select: { nutrientId: true, lowGoal: true, highGoal: true } } },
+        }),
+        prisma.globalNutritionGoal.findMany(),
+        prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
+      ]),
+
+      // ALL complete recipes with their ingredients + nutrients in ONE query
+      // This replaces the N+1 loop that called calculateRecipeNutrition per recipe
+      prisma.recipe.findMany({
+        where: { householdId: auth.householdId, isComplete: true },
+        select: {
+          id: true,
+          name: true,
+          servingSize: true,
+          servingUnit: true,
+          tags: true,
+          ingredients: {
+            select: {
+              conversionGrams: true,
+              ingredient: {
+                select: {
+                  nutrientValues: { select: { nutrientId: true, value: true } },
+                },
+              },
+            },
+          },
+        },
+        orderBy: { name: 'asc' },
+      }),
     ]);
 
-    if (!mealPlan) {
+    const [mealPlan, globalGoals, allNutrients] = goalsData;
+
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json({ error: 'Meal plan not found' }, { status: 404 });
     }
 
+    // -----------------------------------------------------------------------
+    // 2. Build goals map
+    // -----------------------------------------------------------------------
     const globalGoalsMap = new Map(globalGoals.map((g) => [g.nutrientId, g]));
     const planGoalsMap = new Map(mealPlan.nutritionGoals.map((g) => [g.nutrientId, g]));
 
@@ -100,7 +121,33 @@ export async function GET(
     }
 
     // -----------------------------------------------------------------------
-    // 3. Compute per-meal nutrient contributions
+    // 3. Pre-compute nutrition for ALL recipes in memory (no more N+1)
+    // -----------------------------------------------------------------------
+    const recipeNutritionMap = new Map<number, { total: Record<number, number>; perServing: Record<number, number> }>();
+
+    for (const recipe of allRecipesWithIngredients) {
+      const total: Record<number, number> = {};
+      for (const n of allNutrients) total[n.id] = 0;
+
+      for (const ri of recipe.ingredients) {
+        const grams = ri.conversionGrams || 0;
+        for (const nv of ri.ingredient.nutrientValues) {
+          total[nv.nutrientId] = (total[nv.nutrientId] || 0) + (nv.value / 100) * grams;
+        }
+      }
+
+      const perServing: Record<number, number> = {};
+      const servSize = recipe.servingSize || 1;
+      for (const [nId, val] of Object.entries(total)) {
+        perServing[Number(nId)] = Math.round((val / servSize) * 10) / 10;
+        total[Number(nId)] = Math.round(val * 10) / 10;
+      }
+
+      recipeNutritionMap.set(recipe.id, { total, perServing });
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. Compute per-meal nutrient contributions
     // -----------------------------------------------------------------------
     const nutrientTotals: Record<number, number> = {};
     for (const n of allNutrients) nutrientTotals[n.id] = 0;
@@ -108,18 +155,19 @@ export async function GET(
     const mealContributions: MealContribution[] = [];
 
     for (const mealLog of mealLogs) {
-      const meal = mealLog as any; // Prisma nested-include type inference
+      const meal = mealLog as any;
       const nutrients: Record<number, number> = {};
 
       if (meal.recipeId && meal.recipe) {
-        const recipeNutrition = await calculateRecipeNutrition(meal.recipeId);
-        const servings = Number(meal.servings ?? 1);
-        const multiplier = servings / (recipeNutrition.servingSize || 1);
-        for (const n of recipeNutrition.totalNutrients) {
-          nutrients[n.nutrientId] = Math.round(n.value * multiplier * 10) / 10;
+        const recipeNutrition = recipeNutritionMap.get(meal.recipeId);
+        if (recipeNutrition) {
+          const servings = Number(meal.servings ?? 1);
+          const multiplier = servings / (meal.recipe.servingSize || 1);
+          for (const [nId, val] of Object.entries(recipeNutrition.total)) {
+            nutrients[Number(nId)] = Math.round(val * multiplier * 10) / 10;
+          }
         }
       } else if (meal.ingredientId && meal.ingredient && meal.quantity != null && meal.unit) {
-        // Inline ingredient nutrition to avoid code duplication
         let gramsAmount = meal.quantity;
         const ing = meal.ingredient;
         if (meal.unit === ing.customUnitName && ing.customUnitGrams) {
@@ -130,7 +178,6 @@ export async function GET(
         }
       }
 
-      // Accumulate totals
       for (const [nId, val] of Object.entries(nutrients)) {
         nutrientTotals[Number(nId)] = (nutrientTotals[Number(nId)] ?? 0) + val;
       }
@@ -144,7 +191,7 @@ export async function GET(
     }
 
     // -----------------------------------------------------------------------
-    // 4. Build nutrient snapshot with status
+    // 5. Build nutrient snapshot with status
     // -----------------------------------------------------------------------
     const dailyNutrientValues = allNutrients.map((n) => ({
       nutrientId: n.id,
@@ -155,39 +202,24 @@ export async function GET(
     }));
 
     const nutrientsWithStatus = applyNutrientGoals(dailyNutrientValues, goalsMap);
-
     const overBudget = getOverBudgetAlerts(nutrientsWithStatus);
 
     // -----------------------------------------------------------------------
-    // 5. Top contributors per over-budget nutrient
+    // 6. Top contributors per over-budget nutrient
     // -----------------------------------------------------------------------
-    const topContributors: Record<
-      number,
-      ReturnType<typeof getTopContributors>
-    > = {};
+    const topContributors: Record<number, ReturnType<typeof getTopContributors>> = {};
     for (const alert of overBudget) {
-      topContributors[alert.nutrientId] = getTopContributors(
-        mealContributions,
-        alert.nutrientId
-      );
+      topContributors[alert.nutrientId] = getTopContributors(mealContributions, alert.nutrientId);
     }
 
     // -----------------------------------------------------------------------
-    // 6. Swap candidates — find recipes that are lower in the problem nutrient
+    // 7. Recipe pool for swaps (already computed in memory — no extra queries)
     // -----------------------------------------------------------------------
-    // For each over-budget nutrient, take the top contributing meal and suggest
-    // alternatives that have fewer of that nutrient and similar calories.
     const CALORIE_NAMES = ['energy', 'calories'];
     const calorieNutrient = allNutrients.find((n) =>
       CALORIE_NAMES.some((c) => n.displayName.toLowerCase().includes(c))
     );
     const calorieNutrientId = calorieNutrient?.id ?? null;
-
-    // Get a pool of all recipes with their per-serving nutrition
-    const recipesRaw = await prisma.recipe.findMany({
-      where: { isComplete: true },
-      orderBy: { name: 'asc' },
-    });
 
     const recipePool: Array<{
       id: number;
@@ -198,39 +230,39 @@ export async function GET(
       nutrients: Record<number, number>;
     }> = [];
 
-    for (const recipe of recipesRaw) {
-      try {
-        const rn = await calculateRecipeNutrition(recipe.id);
-        const perServing: Record<number, number> = {};
-        for (const n of rn.perServingNutrients) {
-          perServing[n.nutrientId] = n.value;
-        }
-        const tags = (recipe as any).tags ? (recipe as any).tags.split(',').map((t: string) => t.trim().toLowerCase()) : [];
-        recipePool.push({ id: recipe.id, name: recipe.name, type: 'recipe', servingSize: recipe.servingSize, tags, nutrients: perServing });
-      } catch {
-        // Skip recipes with calculation errors
-      }
+    for (const recipe of allRecipesWithIngredients) {
+      const nutrition = recipeNutritionMap.get(recipe.id);
+      if (!nutrition) continue;
+      const tags = recipe.tags ? recipe.tags.split(',').map((t: string) => t.trim().toLowerCase()) : [];
+      recipePool.push({
+        id: recipe.id,
+        name: recipe.name,
+        type: 'recipe',
+        servingSize: recipe.servingSize,
+        tags,
+        nutrients: nutrition.perServing,
+      });
     }
 
-    // Build swap suggestions
+    // -----------------------------------------------------------------------
+    // 8. Swap candidates for over-budget nutrients
+    // -----------------------------------------------------------------------
     const swapCandidates: Record<
-      number /* mealLogId */,
+      number,
       Array<{
         recipeId: number;
         name: string;
-        savingAmounts: Record<number /* nutrientId */, number>;
+        savingAmounts: Record<number, number>;
         calorieDiff: number;
       }>
     > = {};
 
     for (const alert of overBudget.slice(0, 3)) {
-      // limit to worst 3 nutrients
       const contributors = topContributors[alert.nutrientId];
       if (!contributors?.length) continue;
 
-      // Generate swaps for ALL contributors, not just the top one
       for (const meal of contributors.slice(0, 3)) {
-        if (swapCandidates[meal.mealLogId]) continue; // already generated for this meal
+        if (swapCandidates[meal.mealLogId]) continue;
 
         const currentMealNutrients = mealContributions.find(
           (m) => m.mealLogId === meal.mealLogId
@@ -238,7 +270,6 @@ export async function GET(
         const currentCals = calorieNutrientId ? (currentMealNutrients[calorieNutrientId] ?? 0) : 0;
         const currentProblemValue = currentMealNutrients[alert.nutrientId] ?? 0;
 
-        // Get the meal type for this meal so we can prioritize same-category swaps
         const mealLog = mealLogs.find(m => m.id === meal.mealLogId);
         const mealType = mealLog?.mealType?.toLowerCase() ?? '';
 
@@ -248,22 +279,14 @@ export async function GET(
             if (rProblem >= currentProblemValue) return false;
             if (r.id === (mealLog?.recipeId ?? -1)) return false;
 
-            // Check that swapping wouldn't create new goal violations
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
               const currentTotal = nutrientTotals[nId] ?? 0;
               const currentMealContrib = currentMealNutrients[nId] ?? 0;
               const swapContrib = r.nutrients[nId] ?? 0;
               const newTotal = currentTotal - currentMealContrib + swapContrib;
-
-              // Would create a NEW overage
-              if (goal.highGoal && newTotal > goal.highGoal && currentTotal <= goal.highGoal) {
-                return false;
-              }
-              // Would create a NEW underage
-              if (goal.lowGoal && newTotal < goal.lowGoal && currentTotal >= goal.lowGoal) {
-                return false;
-              }
+              if (goal.highGoal && newTotal > goal.highGoal && currentTotal <= goal.highGoal) return false;
+              if (goal.lowGoal && newTotal < goal.lowGoal && currentTotal >= goal.lowGoal) return false;
             }
             return true;
           })
@@ -274,17 +297,9 @@ export async function GET(
               const saving = (currentMealNutrients[alert2.nutrientId] ?? 0) - (r.nutrients[alert2.nutrientId] ?? 0);
               if (saving > 0) savingAmounts[alert2.nutrientId] = Math.round(saving * 10) / 10;
             }
-            // Check if recipe tags match the meal type
             const matchesMealType = mealType && r.tags.includes(mealType);
-            return {
-              recipeId: r.id,
-              name: r.name,
-              savingAmounts,
-              calorieDiff: Math.round(rCals - currentCals),
-              matchesMealType,
-            };
+            return { recipeId: r.id, name: r.name, savingAmounts, calorieDiff: Math.round(rCals - currentCals), matchesMealType };
           })
-          // Sort: same category first, then by savings amount
           .sort((a, b) => {
             if (a.matchesMealType && !b.matchesMealType) return -1;
             if (!a.matchesMealType && b.matchesMealType) return 1;
@@ -299,7 +314,7 @@ export async function GET(
     }
 
     // -----------------------------------------------------------------------
-    // 6b. Under-budget detection — nutrients below their low goal
+    // 9. Under-budget detection
     // -----------------------------------------------------------------------
     const underBudget: Array<{
       nutrientId: number;
@@ -326,10 +341,8 @@ export async function GET(
       }
     }
 
-    // For under-budget nutrients, find which meals could be swapped for
-    // alternatives with MORE of the deficient nutrient
     const underBudgetSwaps: Record<
-      number /* nutrientId */,
+      number,
       Array<{
         mealLogId: number;
         mealName: string;
@@ -345,7 +358,6 @@ export async function GET(
     for (const deficit of underBudget) {
       const results: typeof underBudgetSwaps[number] = [];
 
-      // For each meal, find swaps that have MORE of the deficient nutrient
       for (const mc of mealContributions.slice(0, 5)) {
         const currentMealNuts = mc.nutrients;
         const currentDeficitValue = currentMealNuts[deficit.nutrientId] ?? 0;
@@ -359,7 +371,6 @@ export async function GET(
             if (rDeficit <= currentDeficitValue) return false;
             if (r.id === (mealLog?.recipeId ?? -1)) return false;
 
-            // Don't create new violations
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
               const curTotal = nutrientTotals[nId] ?? 0;
@@ -395,7 +406,7 @@ export async function GET(
     }
 
     // -----------------------------------------------------------------------
-    // 7. Fill-gap candidates (calorie-based)
+    // 10. Fill-gap candidates (calorie-based)
     // -----------------------------------------------------------------------
     let fillGapCandidates: ReturnType<typeof scoreFillGapCandidates> = [];
 

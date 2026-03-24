@@ -139,8 +139,9 @@ export async function calculateDailyNutrition(
   mealPlanId: number,
   date: Date
 ): Promise<DailyNutrition> {
-  const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+  const dayStart = new Date(date);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
 
   const [mealLogs, allNutrients] = await Promise.all([
     prisma.mealLog.findMany({
@@ -324,10 +325,10 @@ export async function getWeeklyNutritionSummary(
 
   const weekStart =
     weekStartRaw instanceof Date
-      ? weekStartRaw
-      : new Date((weekStartRaw as string) + 'T00:00:00');
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 7);
+      ? new Date(weekStartRaw)
+      : new Date((weekStartRaw as string) + 'T00:00:00Z');
+  weekStart.setUTCHours(0, 0, 0, 0);
+  const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   // Fetch ALL meal logs for the entire week in ONE query
   const allMealLogs = await prisma.mealLog.findMany({
@@ -395,10 +396,9 @@ export async function getWeeklyNutritionSummary(
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   const dailyNutritions: DailyNutrition[] = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(weekStart);
-    date.setDate(date.getDate() + i);
-    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    const dayStart = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000);
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+    const date = dayStart;
 
     const dayLogs = allMealLogs.filter((m) => {
       const d = new Date(m.date);

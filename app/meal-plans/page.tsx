@@ -479,7 +479,8 @@ const MealPlansPage = () => {
     alsoAddToPlanIds?: number[]
   ) => {
     if (!selectedPlanId) return;
-    const body = { recipeId, date: date.toISOString(), mealType, servings };
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const body = { recipeId, date: dateStr, mealType, servings };
     const newMeal = await addMealToPlan(selectedPlanId, body);
     if (alsoAddToPlanIds) {
       for (const planId of alsoAddToPlanIds) {
@@ -509,7 +510,8 @@ const MealPlansPage = () => {
     alsoAddToPlanIds?: number[]
   ) => {
     if (!selectedPlanId) return;
-    const body = { ingredientId, quantity, unit, date: date.toISOString(), mealType };
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const body = { ingredientId, quantity, unit, date: dateStr, mealType };
     const newMeal = await addMealToPlan(selectedPlanId, body);
     if (alsoAddToPlanIds) {
       for (const planId of alsoAddToPlanIds) {

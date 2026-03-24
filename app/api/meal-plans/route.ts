@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create meal plan
-    // Parse date as local time by appending time if not present
-    const dateStr = weekStartDate.includes('T') ? weekStartDate : weekStartDate + 'T00:00:00';
+    // Parse date as UTC midnight
+    const dateStr = weekStartDate.includes('T') ? weekStartDate : weekStartDate + 'T00:00:00Z';
     const mealPlan = await prisma.mealPlan.create({
       data: {
         weekStartDate: new Date(dateStr),
