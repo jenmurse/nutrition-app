@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getAuthenticatedHousehold } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   'fill-gaps': `You are a nutrition advisor. Given a day's current nutrient totals, goals, and available recipes, suggest specific meals to add that fill nutritional gaps. Be specific about which recipes to add and why. Keep suggestions concise and actionable. Format your response in markdown with headers and bullet points.`,
@@ -25,13 +26,18 @@ export async function POST(request: NextRequest) {
   const auth = await getAuthenticatedHousehold();
   if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-  const apiKey = process.env.AI_API_KEY;
-  const provider = process.env.AI_PROVIDER || 'openai';
+  const [keyRow, providerRow] = await Promise.all([
+    prisma.systemSetting.findFirst({ where: { key: 'anthropicApiKey', householdId: auth.householdId } }),
+    prisma.systemSetting.findFirst({ where: { key: 'aiProvider', householdId: auth.householdId } }),
+  ]);
+
+  const apiKey = keyRow?.value ?? null;
+  const provider = providerRow?.value ?? 'anthropic';
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'AI_API_KEY not configured. Add it to .env.local.' },
-      { status: 500 }
+      { error: 'No API key configured. Add your API key in Settings → AI & API.' },
+      { status: 402 }
     );
   }
 

@@ -181,15 +181,14 @@ async function callAnthropic(
   };
 }
 
-async function getApiKey(): Promise<string | null> {
-  // DB setting takes priority over env var
-  const row = await prisma.systemSetting.findFirst({ where: { key: "anthropicApiKey" } });
-  return row?.value ?? process.env.AI_API_KEY ?? null;
+async function getApiKey(householdId: number): Promise<string | null> {
+  const row = await prisma.systemSetting.findFirst({ where: { key: "anthropicApiKey", householdId } });
+  return row?.value ?? null;
 }
 
-async function getProvider(): Promise<string> {
-  const row = await prisma.systemSetting.findFirst({ where: { key: "aiProvider" } });
-  return row?.value ?? process.env.AI_PROVIDER ?? "anthropic";
+async function getProvider(householdId: number): Promise<string> {
+  const row = await prisma.systemSetting.findFirst({ where: { key: "aiProvider", householdId } });
+  return row?.value ?? "anthropic";
 }
 
 function parseJsonResponse(text: string): object {
@@ -244,8 +243,8 @@ export async function POST(
       });
     }
 
-    const apiKey = await getApiKey();
-    const provider = await getProvider();
+    const apiKey = await getApiKey(auth.householdId);
+    const provider = await getProvider(auth.householdId);
     const useMock = !apiKey || provider === "mock";
 
     let optimize: object;
@@ -270,6 +269,7 @@ export async function POST(
       // Log token usage
       await prisma.apiUsageLog.create({
         data: {
+          householdId: auth.householdId,
           provider: "anthropic",
           model: ANTHROPIC_MODEL,
           inputTokens: optimizeResult.inputTokens + mealPrepResult.inputTokens,
