@@ -53,6 +53,7 @@ interface MealLog {
   servings?: number;
   quantity?: number;
   unit?: string;
+  position?: number;
 }
 
 interface MealPlan {
@@ -261,22 +262,6 @@ const MealPlansPage = () => {
 
   const prevPersonId = useRef<number | null>(null);
 
-  const fetchMealPlans = useCallback(async (personId: number) => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/meal-plans?personId=${personId}`);
-      if (!response.ok) throw new Error('Failed to fetch meal plans');
-      const data = await response.json();
-      setMealPlans(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error fetching meal plans:', error);
-      setMessage({ type: 'error', text: 'Failed to load meal plans' });
-      setMealPlans([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   const fetchMealPlanDetails = useCallback(async (planId: number) => {
     try {
       const response = await fetch(`/api/meal-plans/${planId}`);
@@ -318,7 +303,7 @@ const MealPlansPage = () => {
     fetchIngredients();
   }, []);
 
-  // Re-fetch plans when selected person changes
+  // Load plans + auto-select + fetch details in one flow (no waterfall)
   useEffect(() => {
     if (selectedPersonId === null) return;
     if (prevPersonId.current !== null && prevPersonId.current !== selectedPersonId) {
@@ -332,48 +317,82 @@ const MealPlansPage = () => {
       router.replace(`/meal-plans${params.toString() ? '?' + params.toString() : ''}`);
     }
     prevPersonId.current = selectedPersonId;
-    fetchMealPlans(selectedPersonId);
-  }, [selectedPersonId]);
 
-  useEffect(() => {
-    if (selectedPlanId) {
-      // Wait until plans are loaded, then validate this planId belongs to the current person
-      if (!loading) {
-        if (!mealPlans.some((p) => p.id === selectedPlanId)) {
-          // Stale planId from previous person — clear it
+    const load = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/meal-plans?personId=${selectedPersonId}`);
+        if (!response.ok) throw new Error('Failed to fetch meal plans');
+        const plans: MealPlan[] = await response.json();
+        setMealPlans(Array.isArray(plans) ? plans : []);
+
+        // Determine which plan to load details for
+        let targetPlanId = selectedPlanId;
+
+        if (targetPlanId && !plans.some((p) => p.id === targetPlanId)) {
+          // Stale planId — clear it
+          targetPlanId = null;
           const params = new URLSearchParams(searchParams?.toString());
           params.delete("planId");
           router.replace(`/meal-plans${params.toString() ? '?' + params.toString() : ''}`);
-          return;
         }
+
+        if (!targetPlanId && plans.length > 0 && !hasAutoSelected) {
+          // Auto-select current week's plan or first plan
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const currentWeekPlan = plans.find((plan) => {
+            const weekStart = new Date(plan.weekStartDate);
+            weekStart.setHours(0, 0, 0, 0);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            return today >= weekStart && today <= weekEnd;
+          });
+          const planToSelect = currentWeekPlan || plans[0];
+          if (planToSelect) {
+            targetPlanId = planToSelect.id;
+            setHasAutoSelected(true);
+            const params = new URLSearchParams(searchParams?.toString());
+            params.set("planId", String(planToSelect.id));
+            router.push(`/meal-plans?${params.toString()}`);
+          }
+        }
+
+        // Fetch plan details immediately (no second useEffect wait)
+        if (targetPlanId) {
+          fetchMealPlanDetails(targetPlanId);
+        }
+      } catch (error) {
+        console.error('Error fetching meal plans:', error);
+        setMessage({ type: 'error', text: 'Failed to load meal plans' });
+        setMealPlans([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPersonId]);
+
+  // Handle URL-driven plan changes (user clicks a different plan in the sidebar)
+  useEffect(() => {
+    if (selectedPlanId && !loading && mealPlans.some((p) => p.id === selectedPlanId)) {
+      // Only fetch if this is a different plan than what's loaded
+      if (selectedPlan?.id !== selectedPlanId) {
         fetchMealPlanDetails(selectedPlanId);
       }
-    } else if (mealPlans.length > 0 && !hasAutoSelected) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const currentWeekPlan = mealPlans.find((plan) => {
-        const weekStart = new Date(plan.weekStartDate);
-        weekStart.setHours(0, 0, 0, 0);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-        return today >= weekStart && today <= weekEnd;
-      });
-      const planToSelect = currentWeekPlan || mealPlans[0];
-      if (planToSelect) {
-        setHasAutoSelected(true);
-        const params = new URLSearchParams(searchParams?.toString());
-        params.set("planId", String(planToSelect.id));
-        router.push(`/meal-plans?${params.toString()}`);
-      }
     }
-  }, [mealPlans, selectedPlanId, hasAutoSelected, loading, router, searchParams]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPlanId]);
 
-  // Fetch other persons' plans when selected plan changes
+  // Fetch other persons' plans using weekStartDate from the plan list (not detail)
   useEffect(() => {
-    if (selectedPlan) {
-      fetchAllPersonPlansForWeek(selectedPlan.weekStartDate);
+    if (mealPlans.length > 0 && selectedPlanId) {
+      const plan = mealPlans.find((p) => p.id === selectedPlanId);
+      if (plan) fetchAllPersonPlansForWeek(plan.weekStartDate);
     }
-  }, [selectedPlan, fetchAllPersonPlansForWeek]);
+  }, [mealPlans, selectedPlanId, fetchAllPersonPlansForWeek]);
 
   // Default selectedDay to today (if in range) when a plan loads
   useEffect(() => {
@@ -449,6 +468,7 @@ const MealPlansPage = () => {
       const error = await response.json();
       throw new Error(error.error || 'Failed to add meal');
     }
+    return response.json();
   };
 
   const handleAddRecipeMeal = async (
@@ -460,16 +480,24 @@ const MealPlansPage = () => {
   ) => {
     if (!selectedPlanId) return;
     const body = { recipeId, date: date.toISOString(), mealType, servings };
-    await addMealToPlan(selectedPlanId, body);
+    const newMeal = await addMealToPlan(selectedPlanId, body);
     if (alsoAddToPlanIds) {
       for (const planId of alsoAddToPlanIds) {
         await addMealToPlan(planId, body);
       }
     }
-    await fetchMealPlanDetails(selectedPlanId);
-    setAnalysisRefreshKey(k => k + 1);
+    // Optimistic: add meal to local state immediately
+    setSelectedPlan(prev => prev ? {
+      ...prev,
+      mealLogs: [...prev.mealLogs, newMeal].sort((a: MealLog, b: MealLog) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime() || a.position - b.position
+      ),
+    } : prev);
     setMessage({ type: 'success', text: 'Meal added successfully!' });
     setTimeout(() => setMessage(null), 2000);
+    // Background refresh for nutrition recalc (non-blocking)
+    fetchMealPlanDetails(selectedPlanId);
+    setAnalysisRefreshKey(k => k + 1);
   };
 
   const handleAddIngredientMeal = async (
@@ -482,16 +510,24 @@ const MealPlansPage = () => {
   ) => {
     if (!selectedPlanId) return;
     const body = { ingredientId, quantity, unit, date: date.toISOString(), mealType };
-    await addMealToPlan(selectedPlanId, body);
+    const newMeal = await addMealToPlan(selectedPlanId, body);
     if (alsoAddToPlanIds) {
       for (const planId of alsoAddToPlanIds) {
         await addMealToPlan(planId, body);
       }
     }
-    await fetchMealPlanDetails(selectedPlanId);
-    setAnalysisRefreshKey(k => k + 1);
+    // Optimistic: add meal to local state immediately
+    setSelectedPlan(prev => prev ? {
+      ...prev,
+      mealLogs: [...prev.mealLogs, newMeal].sort((a: MealLog, b: MealLog) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime() || a.position - b.position
+      ),
+    } : prev);
     setMessage({ type: 'success', text: 'Ingredient added successfully!' });
     setTimeout(() => setMessage(null), 2000);
+    // Background refresh for nutrition recalc (non-blocking)
+    fetchMealPlanDetails(selectedPlanId);
+    setAnalysisRefreshKey(k => k + 1);
   };
 
   const handleRemoveMeal = async (mealId: number) => {
@@ -499,10 +535,16 @@ const MealPlansPage = () => {
     try {
       const response = await fetch(`/api/meal-plans/${selectedPlanId}/meals/${mealId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to remove meal');
-      await fetchMealPlanDetails(selectedPlanId);
-      setAnalysisRefreshKey(k => k + 1);
+      // Optimistic: remove meal from local state immediately
+      setSelectedPlan(prev => prev ? {
+        ...prev,
+        mealLogs: prev.mealLogs.filter((m: MealLog) => m.id !== mealId),
+      } : prev);
       setMessage({ type: 'success', text: 'Meal removed successfully' });
       setTimeout(() => setMessage(null), 2000);
+      // Background refresh for nutrition recalc (non-blocking)
+      fetchMealPlanDetails(selectedPlanId);
+      setAnalysisRefreshKey(k => k + 1);
     } catch (error) {
       console.error('Error removing meal:', error);
       setMessage({ type: 'error', text: 'Failed to remove meal' });

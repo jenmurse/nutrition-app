@@ -164,7 +164,7 @@ function IngredientsPage() {
   useEffect(() => {
     const loadIngredients = () => {
       Promise.all([
-        fetch("/api/ingredients").then((r) => r.json()),
+        fetch("/api/ingredients?slim=true").then((r) => r.json()),
         fetch("/api/nutrients").then((r) => r.json()),
       ])
         .then(([data, nutrData]) => {

@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  // Create response with forwarded request headers (we'll add user ID later)
+  const requestHeaders = new Headers(request.headers);
+  let response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,6 +41,11 @@ export async function middleware(request: NextRequest) {
 
   if (user && request.nextUrl.pathname === "/login") {
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // Pass verified user ID to API routes via request header — avoids redundant getUser() call
+  if (user) {
+    requestHeaders.set("x-supabase-user-id", user.id);
   }
 
   return response;
