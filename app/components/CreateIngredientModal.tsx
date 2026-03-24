@@ -37,6 +37,7 @@ export default function CreateIngredientModal({
   const [searching, setSearching] = useState(false);
   const [tab, setTab] = useState<"search" | "manual">("search");
   const [manualNutrients, setManualNutrients] = useState<Record<number, string>>({});
+  const [duplicateIngredient, setDuplicateIngredient] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/nutrients")
@@ -72,6 +73,19 @@ export default function CreateIngredientModal({
   };
 
   const handleSelectUSDAResult = async (result: USDAResult) => {
+    setDuplicateIngredient(null);
+
+    // Check for existing ingredient with this fdcId
+    try {
+      const dupRes = await fetch(`/api/ingredients/by-fdc-id/${result.fdcId}`);
+      const dupData = await dupRes.json();
+      if (dupData.found && dupData.ingredient.id !== ingredientId) {
+        setDuplicateIngredient({ id: dupData.ingredient.id, name: dupData.ingredient.name });
+      }
+    } catch (e) {
+      // Non-blocking
+    }
+
     try {
       const res = await fetch(`/api/usda/fetch/${result.fdcId}`);
       const data = await res.json();
@@ -270,6 +284,21 @@ export default function CreateIngredientModal({
 
             {searchQuery && !searching && searchResults.length === 0 && (
               <p className="text-sm text-[var(--muted)]">No results found. Try a different search.</p>
+            )}
+
+            {duplicateIngredient && (
+              <div className="p-3 border border-[var(--warning)] bg-[var(--warning-bg,var(--bg-subtle))]" role="status" aria-live="polite">
+                <p className="text-sm">
+                  Another ingredient (<strong>{duplicateIngredient.name}</strong>) already uses this USDA food.
+                </p>
+                <button
+                  className="text-sm underline mt-1"
+                  onClick={() => setDuplicateIngredient(null)}
+                  aria-label="Dismiss duplicate warning"
+                >
+                  Dismiss
+                </button>
+              </div>
             )}
           </div>
         )}

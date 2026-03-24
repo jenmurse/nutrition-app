@@ -8,12 +8,15 @@ Build a React/Next.js web app to track recipes and meal plans with nutritional d
 
 ## Technology Stack
 
-- **Frontend**: Next.js with React
-- **Database**: SQLite with Prisma ORM + better-sqlite3 adapter
+- **Frontend**: Next.js 16 with React (App Router)
+- **Database**: Supabase PostgreSQL with Prisma ORM (session pooler)
+- **Auth**: Supabase Auth (email/password, Google OAuth planned)
+- **Hosting**: Vercel (production: v0-nutrition-app-nu.vercel.app)
 - **APIs**: USDA FoodData Central (nutrition lookup), direct markdown parsing (Pestle imports)
 - **Libraries**:
   - `convert-units` (unit conversion)
   - `marked` (markdown parsing)
+  - `@supabase/ssr` (auth for Next.js SSR)
 
 ---
 
@@ -330,14 +333,14 @@ NutrientGoals
 
 | Aspect | Choice | Rationale |
 |--------|--------|-----------|
-| **Database** | SQLite with Prisma + better-sqlite3 | Type-safe ORM, fast local storage, no server needed |
+| **Database** | Supabase PostgreSQL with Prisma | Type-safe ORM, managed hosting, connection pooling |
 | **Nutrition Source** | USDA FoodData Central API | Most comprehensive, free, no rate limits concerns |
 | **Markdown Parsing** | `marked` library | Simple, fast for Pestle exports |
 | **Unit Conversion** | `convert-units` library | Comprehensive cooking unit support |
 | **Storage Model** | Per 100g normalized | Consistent calculations, easy to scale quantities |
 | **Display Model** | Original units + grams | Familiar to user, precise conversion |
 | **Caching** | Store USDA data locally | Minimize API calls, improve performance |
-| **Auth** | None (single-user) | No cloud sync needed, local-only data |
+| **Auth** | Supabase Auth (email/password) | Closed beta — invite-only, single household |
 
 ---
 
@@ -403,12 +406,11 @@ nutrition-app/
 
 ## Next Steps
 
-1. Initialize Next.js project with TypeScript
-2. Set up Prisma with SQLite
-3. Create database schema
-4. Build API routes starting with ingredient management
-5. Implement USDA integration
-6. Build UI components
-7. Test with sample data
-8. Deploy or package for local use
+- [ ] Google OAuth setup (Supabase Authentication → Providers)
+- [ ] Logo / favicon / OG text
+- [ ] Landing page
+- [ ] Onboarding flow
+- [ ] USDA shared ingredient library
+- [ ] MCP server for this app
+- [ ] Per-user data isolation (when expanding beyond single household)
 

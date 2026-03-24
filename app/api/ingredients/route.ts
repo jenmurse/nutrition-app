@@ -30,6 +30,7 @@ export async function POST(request: Request) {
       data: {
         name,
         fdcId: fdcId || null,
+        source: fdcId ? "usda" : "custom",
         defaultUnit: defaultUnit || "g",
         customUnitName: isCustomUnit ? customUnitName : null,
         customUnitAmount: isCustomUnit ? customUnitAmount : null,

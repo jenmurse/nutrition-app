@@ -1,7 +1,7 @@
 # Deployment & Multi-User Architecture Plan
 
-> Saved: March 10, 2026
-> Status: Not started — revisit when ready to deploy
+> Saved: March 23, 2026
+> Status: Phase 1 + 2 + 4 (partial) complete — app is live
 
 ---
 
@@ -9,24 +9,25 @@
 
 Switch from SQLite to Supabase PostgreSQL so the app can run on Vercel.
 
-- [ ] Create Supabase project and get connection string
-- [ ] Change `provider = "sqlite"` to `provider = "postgresql"` in `prisma/schema.prisma`
-- [ ] Update `DATABASE_URL` in `.env` to point to Supabase
-- [ ] Run `prisma migrate dev` to generate PostgreSQL migrations
-- [ ] Seed the 8 nutrients
-- [ ] Test all existing API routes against the new database
-- [ ] Remove `better-sqlite3` from `package.json`
+- [x] Create Supabase project (dxugcmykyidplpktbduo, aws-1-us-west-1)
+- [x] Change `provider = "sqlite"` to `provider = "postgresql"` in `prisma/schema.prisma`
+- [x] Update `DATABASE_URL` in `.env` to point to Supabase (session pooler, port 5432)
+- [x] Generate migration SQL via `prisma migrate diff` and apply via Supabase SQL editor
+- [x] Seed 8 nutrients + 2 persons (Jen, Garth) via SQL editor
+- [x] Migrate 140 ingredients + 29 recipes from SQLite via SQL editor
+- [x] Remove `better-sqlite3` from `package.json`
 
 ## Phase 2: Vercel Deployment
 
 Get the app live on Vercel.
 
-- [ ] Create Vercel project linked to the repo
-- [ ] Add environment variables in Vercel dashboard:
-  - `DATABASE_URL` (Supabase connection string)
-  - `USDA_API_KEY`
-- [ ] Deploy and verify all pages and API routes work
-- [ ] Set up Supabase connection pooling if needed (Vercel serverless can exhaust connections)
+- [x] Create Vercel project linked to repo (v0-nutrition-app-nu.vercel.app)
+- [x] Add environment variables in Vercel dashboard:
+  - `DATABASE_URL` (session pooler, port 5432)
+  - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+  - `AI_PROVIDER=mock`
+- [x] Deploy and verify all pages and API routes work
+- [x] Session pooler (port 5432) used — transaction pooler (port 6543) had connectivity issues from Vercel
 
 ## Phase 3: USDA Caching
 
@@ -75,11 +76,14 @@ Note: USDA nutrient data for a given fdcId is stable. No expiration needed — r
 
 Add Supabase Auth so multiple people can each have their own data.
 
-- [ ] Enable Supabase Auth (email/password to start, OAuth later)
+- [x] Enable Supabase Auth (email/password, Google OAuth planned)
 - [ ] Add `userId` column to: `Ingredient`, `Recipe`, `MealPlan`, `NutritionGoal`, `GlobalNutritionGoal`
 - [ ] Update all API routes to filter by `userId` from the authenticated session
-- [ ] Add login/signup pages
-- [ ] Add auth middleware to protect API routes
+- [x] Add login page (`app/login/page.tsx`) with email/password + Google OAuth button
+- [x] Add auth proxy (`proxy.ts`) to protect all routes + refresh sessions
+- [x] Auth callback route (`app/auth/callback/route.ts`) for OAuth flow
+- [x] Sign out button in TopNav
+- [x] Disable public signups (invite-only closed beta: Jen + Garth)
 - [ ] Set up Supabase Row Level Security (RLS) policies:
   - `Ingredient`: users can only SELECT/INSERT/UPDATE/DELETE their own rows
   - `Recipe`: same — user-scoped

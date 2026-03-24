@@ -23,6 +23,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
   const [fetchingDetails, setFetchingDetails] = useState(false);
   const [specifiedAmount, setSpecifiedAmount] = useState("100");
   const [specifiedUnit, setSpecifiedUnit] = useState("g");
+  const [duplicateIngredient, setDuplicateIngredient] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/nutrients")
@@ -129,6 +130,19 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
     // item expected to have fdcId
     const id = item.fdcId || item.fdcId;
     if (!id) return;
+    setDuplicateIngredient(null);
+
+    // Check for existing ingredient with this fdcId
+    try {
+      const dupRes = await fetch(`/api/ingredients/by-fdc-id/${id}`);
+      const dupData = await dupRes.json();
+      if (dupData.found) {
+        setDuplicateIngredient({ id: dupData.ingredient.id, name: dupData.ingredient.name });
+      }
+    } catch (e) {
+      // Non-blocking — proceed even if check fails
+    }
+
     setShowSearch(false);
     setFdcId(String(id));
     setFetchingDetails(true);
@@ -313,6 +327,36 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       {fetchingDetails && (
         <div className="mb-3 p-3 bg-[var(--bg-subtle)] text-sm text-[var(--fg)]">
           Loading food details from USDA...
+        </div>
+      )}
+
+      {duplicateIngredient && (
+        <div className="mb-3 p-3 border border-[var(--warning)] bg-[var(--warning-bg,var(--bg-subtle))]" role="status" aria-live="polite">
+          <p className="text-sm">
+            This food already exists as <strong>{duplicateIngredient.name}</strong> in your ingredients.
+          </p>
+          <div className="flex gap-2 mt-2">
+            <button
+              className="text-sm underline"
+              onClick={() => {
+                setDuplicateIngredient(null);
+                setName("");
+                setFdcId(null);
+                setValues({});
+                onCreated?.();
+              }}
+              aria-label={`Use existing ingredient ${duplicateIngredient.name}`}
+            >
+              Dismiss
+            </button>
+            <button
+              className="text-sm underline"
+              onClick={() => setDuplicateIngredient(null)}
+              aria-label="Create ingredient anyway"
+            >
+              Add anyway
+            </button>
+          </div>
         </div>
       )}
 

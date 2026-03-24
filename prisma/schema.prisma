@@ -29,6 +29,7 @@ model Ingredient {
   id           Int                   @id @default(autoincrement())
   name         String                @unique
   fdcId        String?               // USDA Food Data Central ID for lookups
+  source       String                @default("custom") // "usda" or "custom"
   defaultUnit  String                @default("g") // e.g., "g", "ml", or "other" if using custom units
   customUnitName    String?          // e.g., "banana" when defaultUnit is "other"
   customUnitAmount  Float?           // e.g., 1 (meaning 1 banana is the reference)
@@ -169,6 +170,22 @@ model ApiUsageLog {
   model        String   @default("")
   inputTokens  Int      @default(0)
   outputTokens Int      @default(0)
+}
+
+// USDA search result cache (7-day TTL)
+model UsdaSearchCache {
+  id        Int      @id @default(autoincrement())
+  query     String   @unique // lowercase-normalized search term
+  response  Json     // full filtered USDA response
+  createdAt DateTime @default(now())
+}
+
+// USDA food detail cache (no expiry — USDA data is stable)
+model UsdaFoodCache {
+  id        Int      @id @default(autoincrement())
+  fdcId     String   @unique
+  response  Json     // full USDA food detail response
+  createdAt DateTime @default(now())
 }
 
 // Global nutrient goals (used by settings page defaults)

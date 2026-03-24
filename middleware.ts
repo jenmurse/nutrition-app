@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -28,6 +28,9 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/auth");
 
   if (!user && !isAuthRoute) {
+    if (request.nextUrl.pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
