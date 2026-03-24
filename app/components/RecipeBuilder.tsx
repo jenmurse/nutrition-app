@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
 import CreateIngredientModal from "./CreateIngredientModal";
+import { toast } from "@/lib/toast";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
 type Ingredient = {
@@ -209,7 +210,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       return resData;
     } catch (error) {
       console.error("createIngredient error:", error);
-      alert(`Could not add ingredient: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error(`Could not add ingredient: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
@@ -316,14 +317,14 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
   async function handleSave() {
     if (!name.trim()) {
-      alert("Recipe name is required");
+      toast.error("Recipe name is required");
       return;
     }
 
     // Filter only rows with ingredientId
     const validRows = rows.filter((r) => r.ingredientId && r.quantity && r.unit);
     if (validRows.length === 0) {
-      alert("Add at least one ingredient with quantity and unit");
+      toast.error("Add at least one ingredient with quantity and unit");
       return;
     }
 
@@ -353,7 +354,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (res.ok) {
-        alert(isEdit ? "Recipe updated" : "Recipe saved");
+        toast.success(isEdit ? "Recipe updated" : "Recipe saved");
         if (!isEdit) {
           setName("");
           setTags([]);
@@ -362,11 +363,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         }
         onSaved?.();
       } else {
-        alert(`Failed to save recipe: ${data.error || "Unknown error"}`);
+        toast.error(`Failed to save recipe: ${data.error || "Unknown error"}`);
       }
     } catch (err) {
       console.error(err);
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      toast.error(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setSaving(false);
     }

@@ -11,7 +11,11 @@ export async function GET() {
     const recipes = await prisma.recipe.findMany({
       where: { householdId: auth.householdId },
       include: {
-        ingredients: { include: { ingredient: { include: { nutrientValues: { include: { nutrient: true } } } } } },
+        ingredients: {
+          include: {
+            ingredient: { select: { id: true, name: true } },
+          },
+        },
       },
       orderBy: { name: "asc" },
     });

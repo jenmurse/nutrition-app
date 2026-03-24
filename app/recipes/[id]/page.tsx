@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import RecipeBuilder from "../../components/RecipeBuilder";
+import { toast } from "@/lib/toast";
 
 type ImportDraft = {
   id?: number;
@@ -45,7 +46,7 @@ export default function EditRecipePage() {
       router.push(`/recipes/${data.recipe.id}`);
     } catch (error) {
       console.error(error);
-      alert("Failed to duplicate recipe");
+      toast.error("Failed to duplicate recipe");
     } finally {
       setDuplicating(false);
     }
@@ -83,7 +84,7 @@ export default function EditRecipePage() {
         setRecipe(draft);
       } catch (error) {
         console.error(error);
-        alert("Failed to load recipe");
+        toast.error("Failed to load recipe");
       } finally {
         setLoading(false);
       }

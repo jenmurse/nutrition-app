@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePersonContext } from '@/app/components/PersonContext';
+import { toast } from '@/lib/toast';
+import { dialog } from '@/lib/dialog';
 
 interface Nutrient {
   id: number;
@@ -108,13 +110,13 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`)) return;
+    if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
-        alert(data.error || 'Failed to remove person');
+        toast.error(data.error || 'Failed to remove person');
       } else {
         onSaved();
       }
@@ -411,7 +413,7 @@ const SettingsPage = () => {
   };
 
   const handleRevokeMcpToken = async () => {
-    if (!confirm('Revoke this token? Any configured MCP servers will stop working until you generate a new one.')) return;
+    if (!await dialog.confirm('Revoke this token? Any configured MCP servers will stop working until you generate a new one.', { confirmLabel: 'Revoke', danger: true })) return;
     setRevokingMcpToken(true);
     try {
       await fetch('/api/mcp/token', { method: 'DELETE' });
@@ -481,7 +483,7 @@ const SettingsPage = () => {
   };
 
   const handleRemoveApiKey = async () => {
-    if (!confirm('Remove the API key? AI analysis will fall back to mock data.')) return;
+    if (!await dialog.confirm('Remove the API key? AI analysis will fall back to mock data.', { confirmLabel: 'Remove', danger: true })) return;
     await fetch('/api/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -491,7 +493,7 @@ const SettingsPage = () => {
   };
 
   const handleClearLogs = async () => {
-    if (!confirm('Clear all usage logs?')) return;
+    if (!await dialog.confirm('Clear all usage logs?', { confirmLabel: 'Clear', danger: true })) return;
     setClearingLogs(true);
     try {
       await fetch('/api/settings/usage', { method: 'DELETE' });
@@ -505,7 +507,7 @@ const SettingsPage = () => {
     setExportLoading(true);
     try {
       const res = await fetch('/api/export');
-      if (!res.ok) { alert('Export failed'); return; }
+      if (!res.ok) { toast.error('Export failed'); return; }
       const data = await res.json();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -525,7 +527,7 @@ const SettingsPage = () => {
 
   const handleImport = async () => {
     if (!importFile) return;
-    if (!confirm('This will permanently overwrite all household data with the contents of this backup. Continue?')) return;
+    if (!await dialog.confirm('This will permanently overwrite all household data with the contents of this backup. Continue?', { confirmLabel: 'Overwrite', danger: true })) return;
     setImportLoading(true);
     setImportResult(null);
     try {

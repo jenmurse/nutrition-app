@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "@/lib/toast";
 
 type BulkIngredient = {
   name: string;
@@ -195,15 +196,10 @@ export default function BulkIngredientImport({
       setParsedData([]);
       setShowPreviewModal(false);
       
-      let message = `Successfully imported ${successCount} ingredient${successCount !== 1 ? "s" : ""}`;
-      if (skippedCount > 0) {
-        message += ` (${skippedCount} already existed, skipped)`;
-      }
-      if (errors.length > 0) {
-        message += `\n\nErrors:\n${errors.join("\n")}`;
-      }
-      
-      alert(message);
+      let message = `Imported ${successCount} ingredient${successCount !== 1 ? "s" : ""}`;
+      if (skippedCount > 0) message += `, ${skippedCount} skipped`;
+      toast.success(message);
+      if (errors.length > 0) toast.error(`${errors.length} error${errors.length !== 1 ? "s" : ""}: ${errors[0]}${errors.length > 1 ? ` (+${errors.length - 1} more)` : ""}`);
       onImportComplete?.();
     } catch (err) {
       setError(

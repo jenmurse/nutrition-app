@@ -7,6 +7,7 @@ import DailySummary from '@/app/components/DailySummary';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
 import AIAnalysisPanel from '@/app/components/AIAnalysisPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
+import { dialog } from '@/lib/dialog';
 
 interface Recipe {
   id: number;
@@ -415,7 +416,7 @@ const MealPlansPage = () => {
   };
 
   const handleDeleteMealPlan = async (planId: number) => {
-    if (!confirm('Delete this meal plan? All meals will be removed.')) return;
+    if (!await dialog.confirm('Delete this meal plan? All meals will be removed.', { confirmLabel: 'Delete', danger: true })) return;
     try {
       const response = await fetch(`/api/meal-plans/${planId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete meal plan');
@@ -533,7 +534,7 @@ const MealPlansPage = () => {
 
   const handleDeleteSelected = async () => {
     if (selectedMealIds.size === 0) return;
-    if (!confirm(`Remove ${selectedMealIds.size} item${selectedMealIds.size !== 1 ? 's' : ''} from the plan?`)) return;
+    if (!await dialog.confirm(`Remove ${selectedMealIds.size} item${selectedMealIds.size !== 1 ? 's' : ''} from the plan?`, { confirmLabel: 'Remove', danger: true })) return;
     for (const id of selectedMealIds) await handleRemoveMeal(id);
     setSelectedMealIds(new Set());
     setEditMode(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { toast } from "@/lib/toast";
 
 type Nutrient = {
   id: number;
@@ -75,9 +76,9 @@ export default function CreateIngredientModal({
       const data = await res.json();
       const foods = data.foods || data || [];
       setSearchResults(Array.isArray(foods) ? foods : []);
-      if (foods.length === 0) alert("No results found. Try a different search term.");
+      if (foods.length === 0) toast.info("No results found. Try a different search term.");
     } catch (error) {
-      alert(`Search failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error(`Search failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setSearching(false);
     }
@@ -133,7 +134,7 @@ export default function CreateIngredientModal({
       setPending({ fdcId: result.fdcId, usdaDescription: result.description, nutrientUpdates: updates });
       setConfirmedName(searchQuery.trim() || ingredientName);
     } catch (error) {
-      alert(`Error fetching nutrition: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error(`Error fetching nutrition: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setFetchingFdcId(null);
     }
@@ -157,7 +158,7 @@ export default function CreateIngredientModal({
       onNutritionAdded?.();
       onClose();
     } catch (error) {
-      alert(`Failed to save: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error(`Failed to save: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setSaving(false);
     }
@@ -169,7 +170,7 @@ export default function CreateIngredientModal({
       .map(([nutrientId, value]) => ({ nutrientId: Number(nutrientId), value: parseFloat(value) }));
 
     if (updates.length === 0) {
-      alert("Please enter at least one nutrition value");
+      toast.error("Please enter at least one nutrition value");
       return;
     }
     try {
@@ -179,7 +180,7 @@ export default function CreateIngredientModal({
         body: JSON.stringify({ nutrientValues: updates }),
       });
       if (res.ok) { onNutritionAdded?.(); onClose(); }
-    } catch { alert("Failed to update ingredient"); }
+    } catch { toast.error("Failed to update ingredient"); }
   };
 
   return (

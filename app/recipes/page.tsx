@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import RecipeBuilder, { type RecipeBuilderHandle } from "../components/RecipeBuilder";
 import RecipeContextPanel from "../components/RecipeContextPanel";
 import { usePersonContext } from "../components/PersonContext";
+import { toast } from "@/lib/toast";
+import { dialog } from "@/lib/dialog";
 
 type RecipeSummary = {
   id: number;
@@ -146,20 +148,20 @@ function RecipesPage() {
       setSelectedRecipe({ ...recipe, totals: data.totals });
     } catch (error) {
       console.error(error);
-      alert("Failed to load recipe details");
+      toast.error("Failed to load recipe details");
     } finally {
       setSelectedRecipeLoading(false);
     }
   };
 
-  const handleDelete = (id: number, name: string) => {
-    if (confirm(`Delete recipe "${name}"?`)) {
-      fetch(`/api/recipes/${id}`, { method: "DELETE" })
-        .then((r) => {
-          if (r.ok) { if (selectedRecipe?.id === id) setSelectedRecipe(null); loadRecipes(); }
-          else alert("Failed to delete recipe");
-        })
-        .catch(() => alert("Failed to delete recipe"));
+  const handleDelete = async (id: number, name: string) => {
+    if (!await dialog.confirm(`Delete recipe "${name}"?`, { confirmLabel: "Delete", danger: true })) return;
+    try {
+      const r = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
+      if (r.ok) { if (selectedRecipe?.id === id) setSelectedRecipe(null); loadRecipes(); }
+      else toast.error("Failed to delete recipe");
+    } catch {
+      toast.error("Failed to delete recipe");
     }
   };
 
@@ -201,7 +203,7 @@ function RecipesPage() {
       setEditMode(true);
     } catch (error) {
       console.error(error);
-      alert("Failed to load recipe");
+      toast.error("Failed to load recipe");
     } finally {
       setEditLoading(false);
     }
@@ -219,7 +221,7 @@ function RecipesPage() {
       loadRecipes();
     } catch (error) {
       console.error(error);
-      alert("Failed to duplicate recipe");
+      toast.error("Failed to duplicate recipe");
     }
   };
 

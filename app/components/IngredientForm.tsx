@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "@/lib/toast";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
 
@@ -45,12 +46,12 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       // Validate custom unit if selected
       if (defaultUnit === "other") {
         if (!customUnitName.trim()) {
-          alert("Please enter a custom unit name (e.g., 'banana')");
+          toast.error("Please enter a custom unit name (e.g., 'banana')");
           setLoading(false);
           return;
         }
         if (!customUnitGrams || Number(customUnitGrams) <= 0) {
-          alert("Please enter grams for the custom unit (e.g., 120 for 1 banana)");
+          toast.error("Please enter grams for the custom unit (e.g., 120 for 1 banana)");
           setLoading(false);
           return;
         }
@@ -97,7 +98,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       onCreated?.();
     } catch (err) {
       console.error(err);
-      alert("Failed to save ingredient");
+      toast.error("Failed to save ingredient");
     } finally {
       setLoading(false);
     }
@@ -112,14 +113,14 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       const data = await res.json();
       if (!res.ok) {
         console.error('USDA search error:', data);
-        alert(data.error || 'Failed to search USDA database');
+        toast.error(data.error || 'Failed to search USDA database');
         setSearchResults([]);
       } else {
         setSearchResults(data.foods || data || []);
       }
     } catch (e) {
       console.error(e);
-      alert('Network error while searching USDA database');
+      toast.error('Network error while searching USDA database');
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -152,7 +153,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       
       if (!res.ok) {
         console.error('USDA fetch error:', data);
-        alert(data.error || 'Failed to fetch food details');
+        toast.error(data.error || 'Failed to fetch food details');
         return;
       }
       
@@ -203,7 +204,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       else if (data.lowercaseDescription) setName(data.lowercaseDescription);
     } catch (e) {
       console.error(e);
-      alert("Network error while fetching USDA data");
+      toast.error("Network error while fetching USDA data");
     } finally {
       setFetchingDetails(false);
     }

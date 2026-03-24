@@ -5,6 +5,8 @@ import { DM_Sans, DM_Mono, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
 import TopNav from "./components/TopNav";
+import Toaster from "./components/Toaster";
+import ConfirmModal from "./components/ConfirmModal";
 import { PersonProvider } from "./components/PersonContext";
 
 const dmSans = DM_Sans({
@@ -40,6 +42,8 @@ export default function RootLayout({
       <body className={`${dmSans.variable} ${dmMono.variable} ${dmSerifDisplay.variable} font-sans h-screen overflow-hidden`}>
         <PersonProvider>
           <NumberInputHandler />
+          <Toaster />
+          <ConfirmModal />
           <div className="flex flex-col h-screen">
             <Suspense>
               <TopNav />

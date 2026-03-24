@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { toast } from '@/lib/toast';
+import { dialog } from '@/lib/dialog';
 
 interface Recipe {
   id: number;
@@ -124,7 +126,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
     const recipe = recipes.find((r) => r.id === recipeId);
     if (recipe && recipe.isComplete === false) {
-      alert('This recipe is incomplete. Please finish adding ingredients before using it in a meal plan.');
+      toast.error('This recipe is incomplete. Please finish adding ingredients before using it in a meal plan.');
       return;
     }
 
@@ -132,7 +134,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     try {
       const parsedServings = parseFloat(selectedServings);
       if (!Number.isFinite(parsedServings) || parsedServings <= 0) {
-        alert('Please enter a valid number of servings');
+        toast.error('Please enter a valid number of servings');
         setAddingMealLoading(false);
         return;
       }
@@ -155,7 +157,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       if (onError) {
         onError(errorMessage);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setAddingMealLoading(false);
@@ -167,7 +169,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
     const normalizedQuantity = parseFloat(selectedQuantity);
     if (!Number.isFinite(normalizedQuantity) || normalizedQuantity <= 0) {
-      alert('Please enter a valid quantity');
+      toast.error('Please enter a valid quantity');
       return;
     }
 
@@ -195,7 +197,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       if (onError) {
         onError(errorMessage);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setAddingMealLoading(false);
@@ -203,7 +205,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   };
 
   const handleRemoveMeal = async (mealId: number) => {
-    if (!confirm('Remove this meal from the plan?')) return;
+    if (!await dialog.confirm('Remove this meal from the plan?', { confirmLabel: 'Remove', danger: true })) return;
 
     try {
       await onRemoveMeal(mealId);

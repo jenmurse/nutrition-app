@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import IngredientContextPanel from "../components/IngredientContextPanel";
 import { usePersonContext } from "../components/PersonContext";
+import { toast } from "@/lib/toast";
+import { dialog } from "@/lib/dialog";
 
 
 type NutrientValue = {
@@ -187,7 +189,7 @@ function IngredientsPage() {
   }, [loading, ingredients.length]);
 
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!await dialog.confirm(`Delete "${name}"?`, { confirmLabel: "Delete", danger: true })) return;
     try {
       const res = await fetch(`/api/ingredients/${id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -201,7 +203,7 @@ function IngredientsPage() {
       setIngredients((prev) => prev.filter((ing) => ing.id !== id));
     } catch (err) {
       console.error(err);
-      alert(`Failed to delete: ${err instanceof Error ? err.message : "Unknown error"}`);
+      toast.error(`Failed to delete: ${err instanceof Error ? err.message : "Unknown error"}`);
     }
   };
 
@@ -319,7 +321,7 @@ function IngredientsPage() {
 
   const handleSave = async () => {
     if (!editName.trim()) {
-      alert("Name is required");
+      toast.error("Name is required");
       return;
     }
 
@@ -327,7 +329,7 @@ function IngredientsPage() {
 
     const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(editUnit);
     if (isCustomUnit && editUnit === "other" && !editCustomUnitName.trim()) {
-      alert("Please enter a custom unit name (e.g., 'banana')");
+      toast.error("Please enter a custom unit name (e.g., 'banana')");
       return;
     }
 
@@ -377,10 +379,10 @@ function IngredientsPage() {
       setSelectedIngredient(updatedIng);
       setEditMode(false);
       const savedCount = updatedIng.nutrientValues?.length || 0;
-      alert(`Ingredient saved with ${savedCount} nutrient values`);
+      toast.success(`Ingredient saved${savedCount > 0 ? ` with ${savedCount} nutrient values` : ""}`);
     } catch (e) {
       console.error(e);
-      alert(`Failed to save: ${e instanceof Error ? e.message : "Unknown error"}`);
+      toast.error(`Failed to save: ${e instanceof Error ? e.message : "Unknown error"}`);
     } finally {
       setSaving(false);
     }
@@ -388,13 +390,13 @@ function IngredientsPage() {
 
   const handleCreateSave = async () => {
     if (!createName.trim()) {
-      alert("Name is required");
+      toast.error("Name is required");
       return;
     }
 
     const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(createUnit);
     if (isCustomUnit && createUnit === "other" && !createCustomUnitName.trim()) {
-      alert("Please enter a custom unit name (e.g., 'banana')");
+      toast.error("Please enter a custom unit name (e.g., 'banana')");
       return;
     }
 
@@ -451,10 +453,10 @@ function IngredientsPage() {
       setCreateIsMealItem(false);
       setCreateValues({});
       const savedCount = newIng.nutrientValues?.length || 0;
-      alert(`Ingredient created with ${savedCount} nutrient values`);
+      toast.success(`Ingredient created${savedCount > 0 ? ` with ${savedCount} nutrient values` : ""}`);
     } catch (e) {
       console.error(e);
-      alert(`Failed to create: ${e instanceof Error ? e.message : "Unknown error"}`);
+      toast.error(`Failed to create: ${e instanceof Error ? e.message : "Unknown error"}`);
     } finally {
       setSaving(false);
     }
