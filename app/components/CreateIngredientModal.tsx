@@ -32,9 +32,10 @@ export default function CreateIngredientModal({
   onNutritionAdded,
 }: CreateIngredientModalProps) {
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(ingredientName);
   const [searchResults, setSearchResults] = useState<USDAResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [savingFdcId, setSavingFdcId] = useState<string | null>(null);
   const [tab, setTab] = useState<"search" | "manual">("search");
   const [manualNutrients, setManualNutrients] = useState<Record<number, string>>({});
   const [duplicateIngredient, setDuplicateIngredient] = useState<{ id: number; name: string } | null>(null);
@@ -73,6 +74,8 @@ export default function CreateIngredientModal({
   };
 
   const handleSelectUSDAResult = async (result: USDAResult) => {
+    if (savingFdcId) return;
+    setSavingFdcId(result.fdcId);
     setDuplicateIngredient(null);
 
     // Check for existing ingredient with this fdcId
@@ -149,11 +152,14 @@ export default function CreateIngredientModal({
       console.log("Updates to send:", updates);
 
       // Allow saving even with 0 nutrients - user can add manually
+      // Use the search query as the new ingredient name (what the user actually searched for)
+      const newName = searchQuery.trim() || ingredientName;
       const updateRes = await fetch(`/api/ingredients/${ingredientId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          nutrientValues: updates, 
+        body: JSON.stringify({
+          name: newName,
+          nutrientValues: updates,
           fdcId: String(result.fdcId)
         }),
       });
@@ -176,6 +182,8 @@ export default function CreateIngredientModal({
     } catch (error) {
       console.error("selectUSDAResult error:", error);
       alert(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setSavingFdcId(null);
     }
   };
 
@@ -269,16 +277,32 @@ export default function CreateIngredientModal({
 
             {searchResults.length > 0 && (
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {searchResults.map((result) => (
-                  <div
-                    key={result.fdcId}
-                    className="p-3 border hover:bg-[var(--bg-subtle)] cursor-pointer transition"
-                    onClick={() => handleSelectUSDAResult(result)}
-                  >
-                    <p className="text-sm font-medium">{result.description}</p>
-                    <p className="text-xs text-[var(--muted)]">FDC ID: {result.fdcId}</p>
-                  </div>
-                ))}
+                {searchResults.map((result) => {
+                  const isLoading = savingFdcId === result.fdcId;
+                  return (
+                    <div
+                      key={result.fdcId}
+                      className={`p-3 border transition ${
+                        savingFdcId
+                          ? isLoading
+                            ? 'bg-[var(--bg-subtle)] border-[var(--fg)] cursor-wait'
+                            : 'opacity-40 cursor-not-allowed'
+                          : 'hover:bg-[var(--bg-subtle)] cursor-pointer'
+                      }`}
+                      onClick={() => handleSelectUSDAResult(result)}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium">{result.description}</p>
+                        {isLoading && (
+                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] shrink-0">
+                            Saving…
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[var(--muted)]">FDC ID: {result.fdcId}</p>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
