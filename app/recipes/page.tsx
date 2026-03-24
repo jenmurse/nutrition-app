@@ -145,7 +145,7 @@ function RecipesPage() {
       const res = await fetch(`/api/recipes/${recipe.id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fetch failed");
-      setSelectedRecipe({ ...recipe, totals: data.totals });
+      setSelectedRecipe({ ...recipe, ...data.recipe, totals: data.totals });
     } catch (error) {
       console.error(error);
       toast.error("Failed to load recipe details");
@@ -435,7 +435,7 @@ function RecipesPage() {
               ref={createBuilderRef}
               hideFooterButtons
               initialRecipe={createImportedRecipe || undefined}
-              onSaved={() => { setCreateMode(false); setCreateImportedRecipe(null); loadRecipes(); }}
+              onSaved={() => { setCreateMode(false); setCreateImportedRecipe(null); setSelectedRecipe(null); loadRecipes(); }}
               onCancel={() => { setCreateMode(false); setCreateImportedRecipe(null); }}
             />
           </div>
@@ -468,7 +468,17 @@ function RecipesPage() {
                 ref={editBuilderRef}
                 initialRecipe={editRecipe}
                 hideFooterButtons
-                onSaved={() => { setEditMode(false); setEditRecipe(null); loadRecipes(); }}
+                onSaved={() => {
+                const editedId = editRecipe?.id;
+                setEditMode(false);
+                setEditRecipe(null);
+                setSelectedRecipe(null);
+                loadRecipes();
+                // Re-fetch the edited recipe's nutrition totals
+                if (editedId) {
+                  handleSelectRecipe({ id: editedId } as RecipeSummary);
+                }
+              }}
                 onCancel={() => { setEditMode(false); setEditRecipe(null); }}
               />
             )}

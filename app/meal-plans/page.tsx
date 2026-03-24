@@ -9,6 +9,14 @@ import AIAnalysisPanel from '@/app/components/AIAnalysisPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
 
+/** Parse a UTC date string as a local Date preserving the calendar date.
+ *  e.g. "2026-03-22T00:00:00.000Z" → local Date for March 22 midnight,
+ *  not March 21 (which happens when JS shifts UTC to local timezone). */
+function parseUTCDate(dateStr: string | Date): Date {
+  const d = dateStr instanceof Date ? dateStr : new Date(dateStr);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
 interface Recipe {
   id: number;
   name: string;
@@ -93,8 +101,7 @@ function BothView({
     if (!weekStartDate) return;
     setLoading(true);
 
-    const weekStart = new Date(weekStartDate);
-    weekStart.setHours(0, 0, 0, 0);
+    const weekStart = parseUTCDate(weekStartDate);
 
     async function fetchAll() {
       const map = new Map<number, MealPlan | null>();
@@ -104,8 +111,7 @@ function BothView({
           if (!res.ok) { map.set(p.id, null); return; }
           const plans: MealPlan[] = await res.json();
           const match = plans.find((pl) => {
-            const d = new Date(pl.weekStartDate);
-            d.setHours(0, 0, 0, 0);
+            const d = parseUTCDate(pl.weekStartDate);
             return d.getTime() === weekStart.getTime();
           });
           if (!match) { map.set(p.id, null); return; }
@@ -143,8 +149,7 @@ function BothView({
   }
 
   // Build 7 day dates from weekStartDate
-  const weekStart = new Date(weekStartDate);
-  weekStart.setHours(0, 0, 0, 0);
+  const weekStart = parseUTCDate(weekStartDate);
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + i);
@@ -277,8 +282,7 @@ const MealPlansPage = () => {
   // Fetch all persons' plans for the current week (for "also add to" feature)
   const fetchAllPersonPlansForWeek = useCallback(async (weekStartDate: string) => {
     if (persons.length < 2) return;
-    const weekStart = new Date(weekStartDate);
-    weekStart.setHours(0, 0, 0, 0);
+    const weekStart = parseUTCDate(weekStartDate);
     try {
       const all = await Promise.all(
         persons.map(async (p) => {
@@ -286,8 +290,7 @@ const MealPlansPage = () => {
           if (!res.ok) return [];
           const plans: MealPlan[] = await res.json();
           return plans.filter((pl) => {
-            const d = new Date(pl.weekStartDate);
-            d.setHours(0, 0, 0, 0);
+            const d = parseUTCDate(pl.weekStartDate);
             return d.getTime() === weekStart.getTime();
           });
         })
@@ -342,8 +345,7 @@ const MealPlansPage = () => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const currentWeekPlan = plans.find((plan) => {
-            const weekStart = new Date(plan.weekStartDate);
-            weekStart.setHours(0, 0, 0, 0);
+            const weekStart = parseUTCDate(plan.weekStartDate);
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
             return today >= weekStart && today <= weekEnd;
@@ -400,13 +402,13 @@ const MealPlansPage = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const inPlan = selectedPlan.weeklySummary.dailyNutritions.some(
-      d => new Date(d.date).toDateString() === today.toDateString()
+      d => parseUTCDate(d.date).toDateString() === today.toDateString()
     );
     if (inPlan) {
       setSelectedDay(today);
     } else if (!selectedDay) {
       const first = selectedPlan.weeklySummary.dailyNutritions[0];
-      if (first) setSelectedDay(new Date(first.date));
+      if (first) setSelectedDay(parseUTCDate(first.date));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlan?.id]);
@@ -611,7 +613,7 @@ const MealPlansPage = () => {
         {/* Week title */}
         <h1 className="font-serif text-[16px] text-[var(--fg)] mr-2 whitespace-nowrap shrink-0">
           {selectedPlan
-            ? `Week of ${new Date(selectedPlan.weekStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+            ? `Week of ${parseUTCDate(selectedPlan.weekStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
             : 'Meal Plans'}
         </h1>
 
@@ -652,8 +654,7 @@ const MealPlansPage = () => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const todayPlan = mealPlans.find((plan) => {
-              const start = new Date(plan.weekStartDate);
-              start.setHours(0, 0, 0, 0);
+              const start = parseUTCDate(plan.weekStartDate);
               const end = new Date(start);
               end.setDate(end.getDate() + 6);
               return today >= start && today <= end;
@@ -841,7 +842,7 @@ const MealPlansPage = () => {
                     .filter(p => p.personId === selectedPersonId && (p._count?.mealLogs ?? 0) > 0)
                     .slice(0, 8)
                     .map(p => {
-                      const d = new Date(p.weekStartDate);
+                      const d = parseUTCDate(p.weekStartDate);
                       const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                       return (
                         <option key={p.id} value={p.id}>
@@ -884,14 +885,14 @@ const MealPlansPage = () => {
             <div className="flex-1 overflow-y-auto">
               <MealPlanWeek
                 mealPlanId={selectedPlan.id}
-                weekStartDate={new Date(selectedPlan.weekStartDate)}
+                weekStartDate={parseUTCDate(selectedPlan.weekStartDate)}
                 days={
                   selectedPlan.weeklySummary?.dailyNutritions.map((day) => ({
-                    date: new Date(day.date),
+                    date: parseUTCDate(day.date),
                     dayOfWeek: day.dayOfWeek,
                     meals: selectedPlan.mealLogs
                       ? selectedPlan.mealLogs
-                          .filter((meal) => new Date(meal.date).toDateString() === new Date(day.date).toDateString())
+                          .filter((meal) => parseUTCDate(meal.date).toDateString() === parseUTCDate(day.date).toDateString())
                           .map((meal) => ({
                             id: meal.id,
                             mealType: meal.mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'dessert' | 'beverage',
@@ -931,7 +932,7 @@ const MealPlansPage = () => {
             {selectedPlan.weeklySummary && (() => {
               const dailyNutritions = selectedPlan.weeklySummary.dailyNutritions;
               const dayData = selectedDay
-                ? dailyNutritions.find(d => new Date(d.date).toDateString() === selectedDay.toDateString())
+                ? dailyNutritions.find(d => parseUTCDate(d.date).toDateString() === selectedDay.toDateString())
                 : null;
               const activeDayData = dayData ?? dailyNutritions[0];
               if (!activeDayData) return null;
@@ -954,10 +955,10 @@ const MealPlansPage = () => {
               );
 
               const dayMeals = selectedPlan.mealLogs?.filter(m =>
-                new Date(m.date).toDateString() === new Date(activeDayData.date).toDateString()
+                parseUTCDate(m.date).toDateString() === parseUTCDate(activeDayData.date).toDateString()
               ) ?? [];
 
-              const activeDate = new Date(activeDayData.date);
+              const activeDate = parseUTCDate(activeDayData.date);
 
               return (
                 <div className="relative flex shrink-0">
