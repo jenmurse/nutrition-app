@@ -53,32 +53,9 @@
 ## What's left to do
 
 ### Multi-tenancy — invite flow UI
-The schema and API routes exist but the UI isn't wired up yet:
+The schema and backend exist but the UI isn't wired up yet:
 - Settings → Invites tab: generate an invite link, show active members, revoke access
 - Login page: detect `?invite=<token>` in URL, store in cookie, show join banner
 - OAuth flow needs to pass invite token through redirect URL
-- `POST /api/households/invite`, `POST /api/households/switch`, `GET /api/households` routes need to be created/verified
+- `POST /api/households/invite`, `POST /api/households/switch`, `GET /api/households` routes to be created
 - Household name display in TopNav
-
-### Meal plans
-- Nutrition summary panel: currently shows raw numbers; could show progress bars vs goals
-- "Copy from previous week" flow works but UX is minimal
-- No mobile layout
-
-### Ingredients
-- Edit form doesn't currently allow changing nutrient values inline (have to delete and recreate)
-- No way to merge duplicate ingredients
-
-### Recipes
-- AI analyze uses OpenAI — prompt could be tuned
-- No tagging or categorization
-
-### Settings
-- Data export/import is basic — no validation on import
-- No way to rename the household
-
-### General
-- No tests (jest/vitest setup exists but coverage is ~0%)
-- No mobile/responsive layout anywhere
-- No dark mode (CSS vars are set up for it but no toggle)
-- Error boundaries — unhandled fetch errors surface as blank panels in some places
