@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 /**
  * GET /api/settings
@@ -7,9 +8,12 @@ import { prisma } from "@/lib/db";
  */
 export async function GET() {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const [keyRow, providerRow] = await Promise.all([
-      prisma.systemSetting.findUnique({ where: { key: "anthropicApiKey" } }),
-      prisma.systemSetting.findUnique({ where: { key: "aiProvider" } }),
+      prisma.systemSetting.findFirst({ where: { key: "anthropicApiKey", householdId: auth.householdId } }),
+      prisma.systemSetting.findFirst({ where: { key: "aiProvider", householdId: auth.householdId } }),
     ]);
 
     const rawKey = keyRow?.value ?? process.env.AI_API_KEY ?? "";
@@ -36,6 +40,9 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { apiKey, provider } = body;
 
@@ -44,13 +51,13 @@ export async function PUT(request: NextRequest) {
     if (typeof apiKey === "string") {
       if (apiKey.trim() === "") {
         // Clear the key
-        ops.push(prisma.systemSetting.deleteMany({ where: { key: "anthropicApiKey" } }));
+        ops.push(prisma.systemSetting.deleteMany({ where: { key: "anthropicApiKey", householdId: auth.householdId } }));
       } else {
         ops.push(
           prisma.systemSetting.upsert({
-            where: { key: "anthropicApiKey" },
+            where: { key_householdId: { key: "anthropicApiKey", householdId: auth.householdId } },
             update: { value: apiKey.trim() },
-            create: { key: "anthropicApiKey", value: apiKey.trim() },
+            create: { key: "anthropicApiKey", value: apiKey.trim(), householdId: auth.householdId },
           })
         );
       }
@@ -59,9 +66,9 @@ export async function PUT(request: NextRequest) {
     if (typeof provider === "string" && provider.trim()) {
       ops.push(
         prisma.systemSetting.upsert({
-          where: { key: "aiProvider" },
+          where: { key_householdId: { key: "aiProvider", householdId: auth.householdId } },
           update: { value: provider.trim() },
-          create: { key: "aiProvider", value: provider.trim() },
+          create: { key: "aiProvider", value: provider.trim(), householdId: auth.householdId },
         })
       );
     }

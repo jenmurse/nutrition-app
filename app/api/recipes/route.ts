@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/db";
 import { convertToGrams, getIngredientDensity } from "../../../lib/unitConversion";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 export async function GET() {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const recipes = await prisma.recipe.findMany({
+      where: { householdId: auth.householdId },
       include: {
         ingredients: { include: { ingredient: { include: { nutrientValues: { include: { nutrient: true } } } } } },
       },
@@ -19,6 +24,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { name, servingSize = 1, servingUnit = "servings", instructions = "", sourceApp, tags = "", prepTime, cookTime, image, ingredients = [] } = body;
     if (!name) return NextResponse.json({ error: "Name required" }, { status: 400 });
@@ -36,6 +44,7 @@ export async function POST(request: Request) {
         prepTime: prepTime != null ? Number(prepTime) : null,
         cookTime: cookTime != null ? Number(cookTime) : null,
         image: imageVal,
+        householdId: auth.householdId,
       },
     });
 

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
     const numId = Number(id);
 
@@ -14,7 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       },
     });
 
-    if (!originalRecipe) {
+    if (!originalRecipe || originalRecipe.householdId !== auth.householdId) {
       return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
     }
 
@@ -29,6 +33,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         isComplete: originalRecipe.isComplete,
         tags: originalRecipe.tags,
         image: originalRecipe.image,
+        householdId: auth.householdId,
       },
     });
 

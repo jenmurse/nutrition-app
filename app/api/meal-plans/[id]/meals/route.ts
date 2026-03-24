@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 
 /**
  * POST /api/meal-plans/[id]/meals
@@ -12,6 +13,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
     const body = await request.json();
@@ -48,7 +52,7 @@ export async function POST(
       where: { id: mealPlanId },
     });
 
-    if (!mealPlan) {
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json(
         { error: 'Meal plan not found' },
         { status: 404 }
@@ -177,6 +181,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { order } = body as { order: { id: number; position: number }[] };
 

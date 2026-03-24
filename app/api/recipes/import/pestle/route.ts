@@ -5,6 +5,7 @@ import {
   type ParsedRecipe,
   matchIngredients,
 } from "../../../../../lib/ingredientMatcher";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 function unicodeFractionToDecimal(token: string): number | null {
   const map: Record<string, number> = {
@@ -192,6 +193,9 @@ function parsePestleMarkdown(markdown: string): ParsedRecipe {
 
 export async function POST(request: Request) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const markdown = typeof body?.markdown === "string" ? body.markdown : "";
     if (!markdown.trim()) return NextResponse.json({ error: "Markdown required" }, { status: 400 });

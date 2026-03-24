@@ -1,3 +1,9 @@
+jest.mock('@/lib/auth', () => ({
+  getAuthenticatedHousehold: jest.fn().mockResolvedValue({
+    personId: 1, supabaseId: 'test-uuid', householdId: 1, role: 'owner',
+  }),
+}))
+
 jest.mock('@/lib/db', () => ({
   prisma: {
     ingredient: {
@@ -56,6 +62,7 @@ describe('Ingredients API - GET /api/ingredients', () => {
     expect(response.status).toBe(200)
     expect(data).toEqual(mockIngredients)
     expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
+      where: { householdId: 1 },
       include: {
         nutrientValues: {
           include: { nutrient: true },

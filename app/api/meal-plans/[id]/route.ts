@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getWeeklyNutritionSummary } from '@/lib/nutritionCalculations';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 
 /**
  * GET /api/meal-plans/[id]
@@ -11,6 +12,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
 
@@ -31,7 +35,7 @@ export async function GET(
       },
     });
 
-    if (!mealPlan) {
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json(
         { error: 'Meal plan not found' },
         { status: 404 }
@@ -67,17 +71,20 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
     const body = await request.json();
     const { goals } = body;
 
-    // Verify meal plan exists
+    // Verify meal plan exists and belongs to household
     const mealPlan = await prisma.mealPlan.findUnique({
       where: { id: mealPlanId },
     });
 
-    if (!mealPlan) {
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json(
         { error: 'Meal plan not found' },
         { status: 404 }
@@ -137,6 +144,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
 
@@ -144,7 +154,7 @@ export async function DELETE(
       where: { id: mealPlanId },
     });
 
-    if (!mealPlan) {
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json(
         { error: 'Meal plan not found' },
         { status: 404 }

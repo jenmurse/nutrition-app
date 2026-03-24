@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
 import { matchIngredients, type ParsedIngredient, type ParsedRecipe } from "../../../../../lib/ingredientMatcher";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 /**
  * Extract recipes from URLs using Schema.org JSON-LD structured data.
@@ -246,6 +247,9 @@ function extractTags(recipeData: any): string {
 
 export async function POST(request: Request) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const url = typeof body?.url === "string" ? body.url.trim() : "";
     if (!url) {

@@ -1,3 +1,9 @@
+jest.mock('@/lib/auth', () => ({
+  getAuthenticatedHousehold: jest.fn().mockResolvedValue({
+    personId: 1, supabaseId: 'test-uuid', householdId: 1, role: 'owner',
+  }),
+}))
+
 jest.mock('@/lib/db', () => ({
   prisma: {
     ingredient: {

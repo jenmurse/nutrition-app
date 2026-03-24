@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 // Anthropic pricing per million tokens (as of mid-2025)
 const PRICING: Record<string, { input: number; output: number }> = {
@@ -15,7 +16,11 @@ const PRICING: Record<string, { input: number; output: number }> = {
  */
 export async function GET() {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const logs = await prisma.apiUsageLog.findMany({
+      where: { householdId: auth.householdId },
       orderBy: { createdAt: "desc" },
     });
 
@@ -48,7 +53,10 @@ export async function GET() {
  */
 export async function DELETE() {
   try {
-    await prisma.apiUsageLog.deleteMany();
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+    await prisma.apiUsageLog.deleteMany({ where: { householdId: auth.householdId } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/settings/usage error:", error);

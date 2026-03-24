@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 import {
   calculateRecipeNutrition,
   applyNutrientGoals,
@@ -27,8 +28,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
+
+    // Verify meal plan belongs to household
+    const mealPlan = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
+      return NextResponse.json({ error: "Meal plan not found" }, { status: 404 });
+    }
+
     const dateStr = request.nextUrl.searchParams.get('date');
 
     if (!dateStr) {

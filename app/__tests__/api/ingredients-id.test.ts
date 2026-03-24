@@ -1,8 +1,15 @@
+jest.mock('@/lib/auth', () => ({
+  getAuthenticatedHousehold: jest.fn().mockResolvedValue({
+    personId: 1, supabaseId: 'test-uuid', householdId: 1, role: 'owner',
+  }),
+}))
+
 jest.mock('@/lib/db', () => ({
   prisma: {
     ingredient: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -34,6 +41,7 @@ describe('Ingredients API - GET /api/ingredients/[id]', () => {
       customUnitName: null,
       customUnitAmount: null,
       customUnitGrams: null,
+      householdId: 1,
       nutrientValues: [
         {
           id: 1,
@@ -45,7 +53,7 @@ describe('Ingredients API - GET /api/ingredients/[id]', () => {
       ],
     }
 
-    ;(prisma.ingredient.findUnique as jest.Mock).mockResolvedValue(mockIngredient)
+    ;(prisma.ingredient.findFirst as jest.Mock).mockResolvedValue(mockIngredient)
 
     const response = await getIngredient(new Request('http://localhost:3000'), {
       params: Promise.resolve({ id: '1' }),
@@ -54,14 +62,14 @@ describe('Ingredients API - GET /api/ingredients/[id]', () => {
 
     expect(response.status).toBe(200)
     expect(data).toEqual(mockIngredient)
-    expect(prisma.ingredient.findUnique).toHaveBeenCalledWith({
-      where: { id: 1 },
+    expect(prisma.ingredient.findFirst).toHaveBeenCalledWith({
+      where: { id: 1, householdId: 1 },
       include: { nutrientValues: { include: { nutrient: true } } },
     })
   })
 
   it('should return 404 for non-existent ingredient', async () => {
-    ;(prisma.ingredient.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(prisma.ingredient.findFirst as jest.Mock).mockResolvedValue(null)
 
     const response = await getIngredient(new Request('http://localhost:3000'), {
       params: Promise.resolve({ id: '999' }),
@@ -73,7 +81,7 @@ describe('Ingredients API - GET /api/ingredients/[id]', () => {
   })
 
   it('should handle database errors', async () => {
-    ;(prisma.ingredient.findUnique as jest.Mock).mockRejectedValue(new Error('DB Error'))
+    ;(prisma.ingredient.findFirst as jest.Mock).mockRejectedValue(new Error('DB Error'))
 
     const response = await getIngredient(new Request('http://localhost:3000'), {
       params: Promise.resolve({ id: '1' }),
@@ -115,6 +123,7 @@ describe('Ingredients API - PUT /api/ingredients/[id]', () => {
       ],
     }
 
+    ;(prisma.ingredient.findFirst as jest.Mock).mockResolvedValue({ id: 1, householdId: 1 })
     ;(prisma.ingredient.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
     ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue({ count: 1 })
     ;(prisma.ingredientNutrient.createMany as jest.Mock).mockResolvedValue({ count: 1 })
@@ -146,6 +155,7 @@ describe('Ingredients API - PUT /api/ingredients/[id]', () => {
       ],
     }
 
+    ;(prisma.ingredient.findFirst as jest.Mock).mockResolvedValue({ id: 1, householdId: 1 })
     ;(prisma.ingredient.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
     ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue({ count: 1 })
     ;(prisma.ingredientNutrient.createMany as jest.Mock).mockResolvedValue({ count: 3 })
@@ -175,6 +185,7 @@ describe('Ingredients API - DELETE /api/ingredients/[id]', () => {
   })
 
   it('should delete ingredient and cascade delete related records', async () => {
+    ;(prisma.ingredient.findFirst as jest.Mock).mockResolvedValue({ id: 1, householdId: 1 })
     ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue({ count: 5 })
     ;(prisma.recipeIngredient.deleteMany as jest.Mock).mockResolvedValue({ count: 2 })
     ;(prisma.ingredient.delete as jest.Mock).mockResolvedValue({ id: 1, name: 'Chicken' })

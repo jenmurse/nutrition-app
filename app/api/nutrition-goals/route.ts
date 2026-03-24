@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 
 /**
  * GET /api/nutrition-goals?personId=1
@@ -7,12 +8,15 @@ import { prisma } from '@/lib/db';
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { searchParams } = new URL(request.url);
     const personIdParam = searchParams.get('personId');
     const personId = personIdParam ? parseInt(personIdParam, 10) : null;
 
     const rows = await prisma.globalNutritionGoal.findMany({
-      where: { personId },
+      where: { personId, householdId: auth.householdId },
     });
     const goals = rows.reduce<Record<number, { lowGoal?: number; highGoal?: number }>>(
       (acc, row) => {
@@ -42,6 +46,9 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { goals, personId } = body;
 
@@ -75,10 +82,17 @@ export async function PUT(request: NextRequest) {
     await prisma.$transaction(
       entries.map(([nutrientId, goal]) =>
         prisma.globalNutritionGoal.upsert({
-          where: { nutrientId_personId: { nutrientId: Number(nutrientId), personId: pid } },
+          where: {
+            nutrientId_personId_householdId: {
+              nutrientId: Number(nutrientId),
+              personId: pid,
+              householdId: auth.householdId,
+            },
+          },
           create: {
             nutrientId: Number(nutrientId),
             personId: pid,
+            householdId: auth.householdId,
             lowGoal: goal.lowGoal ?? null,
             highGoal: goal.highGoal ?? null,
           },

@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 export async function GET() {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const ingredients = await prisma.ingredient.findMany({
+      where: { householdId: auth.householdId },
       include: {
         nutrientValues: {
           include: { nutrient: true },
@@ -20,6 +25,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, nutrientValues } = body;
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -36,6 +44,7 @@ export async function POST(request: Request) {
         customUnitAmount: isCustomUnit ? customUnitAmount : null,
         customUnitGrams: isCustomUnit ? customUnitGrams : null,
         isMealItem: Boolean(isMealItem),
+        householdId: auth.householdId,
       },
     });
 

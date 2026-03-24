@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await getAuthenticatedHousehold();
+  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
   const { id } = await params;
   const personId = Number(id);
   if (isNaN(personId)) {
     return NextResponse.json({ error: "Invalid person ID" }, { status: 400 });
+  }
+
+  // Verify person belongs to household
+  const membership = await prisma.householdMember.findFirst({
+    where: { householdId: auth.householdId, personId },
+  });
+  if (!membership) {
+    return NextResponse.json({ error: "Person not found" }, { status: 404 });
   }
 
   const body = await request.json();
@@ -44,10 +56,21 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await getAuthenticatedHousehold();
+  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
   const { id } = await params;
   const personId = Number(id);
   if (isNaN(personId)) {
     return NextResponse.json({ error: "Invalid person ID" }, { status: 400 });
+  }
+
+  // Verify person belongs to household
+  const membership = await prisma.householdMember.findFirst({
+    where: { householdId: auth.householdId, personId },
+  });
+  if (!membership) {
+    return NextResponse.json({ error: "Person not found" }, { status: 404 });
   }
 
   // Prevent deleting the last person

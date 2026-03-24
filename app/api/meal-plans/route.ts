@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getWeeklyNutritionSummary } from '@/lib/nutritionCalculations';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 
 /**
  * GET /api/meal-plans
@@ -8,12 +9,18 @@ import { getWeeklyNutritionSummary } from '@/lib/nutritionCalculations';
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { searchParams } = new URL(request.url);
     const personIdParam = searchParams.get('personId');
     const personId = personIdParam ? parseInt(personIdParam, 10) : undefined;
 
     const mealPlans = await prisma.mealPlan.findMany({
-      where: personId !== undefined ? { personId } : undefined,
+      where: {
+        householdId: auth.householdId,
+        ...(personId !== undefined ? { personId } : {}),
+      },
       orderBy: { weekStartDate: 'desc' },
       include: {
         _count: {
@@ -40,6 +47,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { weekStartDate, goals, personId } = body;
 
@@ -57,6 +67,7 @@ export async function POST(request: NextRequest) {
       data: {
         weekStartDate: new Date(dateStr),
         personId: personId ?? null,
+        householdId: auth.householdId,
       },
     });
 

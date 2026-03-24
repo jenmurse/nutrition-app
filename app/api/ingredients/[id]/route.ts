@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
     const numId = Number(id);
-    const ingredient = await prisma.ingredient.findUnique({
-      where: { id: numId },
+    const ingredient = await prisma.ingredient.findFirst({
+      where: { id: numId, householdId: auth.householdId },
       include: { nutrientValues: { include: { nutrient: true } } },
     });
     if (!ingredient) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -22,11 +26,21 @@ export async function GET(
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
     const numId = Number(id);
+
+    // Verify the ingredient belongs to this household
+    const existing = await prisma.ingredient.findFirst({
+      where: { id: numId, householdId: auth.householdId },
+    });
+    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     const body = await request.json();
     const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, nutrientValues } = body;
-    
+
     // Only include fields that were actually provided
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
@@ -78,8 +92,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
     const numId = Number(id);
+
+    // Verify the ingredient belongs to this household
+    const existing = await prisma.ingredient.findFirst({
+      where: { id: numId, householdId: auth.householdId },
+    });
+    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     // Delete related records explicitly to handle cascading
     await prisma.ingredientNutrient.deleteMany({ where: { ingredientId: numId } });
     await prisma.recipeIngredient.deleteMany({ where: { ingredientId: numId } });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 
 /**
  * DELETE /api/meal-plans/[id]/meals/[mealId]
@@ -10,16 +11,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; mealId: string }> | { id: string; mealId: string } }
 ) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id, mealId } = params instanceof Promise ? await params : params;
     const mealPlanId = parseInt(id);
     const mealLogId = parseInt(mealId);
 
-    // Verify meal plan exists
+    // Verify meal plan exists and belongs to household
     const mealPlan = await prisma.mealPlan.findUnique({
       where: { id: mealPlanId },
     });
 
-    if (!mealPlan) {
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json(
         { error: 'Meal plan not found' },
         { status: 404 }

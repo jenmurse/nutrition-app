@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../lib/db';
+import { getAuthenticatedHousehold } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
+  const auth = await getAuthenticatedHousehold();
+  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
   const { searchParams } = new URL(request.url);
   const personIdParam = searchParams.get('personId');
   const personId = personIdParam ? parseInt(personIdParam, 10) : undefined;
 
+  const householdFilter = { householdId: auth.householdId };
+  const mealPlanWhere = { ...householdFilter, ...(personId !== undefined ? { personId } : {}) };
+
   const [ingredientCount, recipeCount, mealPlanCount, recentPlan, recentRecipes, currentWeekPlan] = await Promise.all([
     prisma.ingredient.count(),
     prisma.recipe.count(),
-    prisma.mealPlan.count(personId !== undefined ? { where: { personId } } : undefined),
+    prisma.mealPlan.count({ where: mealPlanWhere }),
     prisma.mealPlan.findFirst({
-      where: personId !== undefined ? { personId } : undefined,
+      where: mealPlanWhere,
       orderBy: { weekStartDate: 'desc' },
     }),
     prisma.recipe.findMany({
@@ -24,7 +31,7 @@ export async function GET(request: NextRequest) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const plans = await prisma.mealPlan.findMany({
-        where: personId !== undefined ? { personId } : undefined,
+        where: mealPlanWhere,
         include: {
           _count: { select: { mealLogs: true } },
           mealLogs: {

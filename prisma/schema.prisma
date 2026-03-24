@@ -11,7 +11,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Pre-populated nutrients table
+// Pre-populated nutrients table (shared, not household-scoped)
 model Nutrient {
   id           Int                   @id @default(autoincrement())
   name         String                @unique // e.g., "calories", "fat", "satFat"
@@ -24,10 +24,71 @@ model Nutrient {
   globalNutritionGoals GlobalNutritionGoal[]
 }
 
-// Ingredients with basic info
+// People (authenticated users + household members)
+model Person {
+  id           Int      @id @default(autoincrement())
+  supabaseId   String?  @unique // Supabase auth UUID — null for legacy/migration
+  email        String?
+  name         String
+  color        String   @default("#6B9E7B")
+  createdAt    DateTime @default(now())
+
+  mealPlans            MealPlan[]
+  globalNutritionGoals GlobalNutritionGoal[]
+  householdMembers     HouseholdMember[]
+  createdInvites       HouseholdInvite[]
+}
+
+// Household groups people together; all data is scoped to a household
+model Household {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+
+  members              HouseholdMember[]
+  invites              HouseholdInvite[]
+  ingredients          Ingredient[]
+  recipes              Recipe[]
+  mealPlans            MealPlan[]
+  globalNutritionGoals GlobalNutritionGoal[]
+  systemSettings       SystemSetting[]
+  apiUsageLogs         ApiUsageLog[]
+}
+
+// Maps people to households; a person can belong to multiple but only one is active
+model HouseholdMember {
+  id           Int      @id @default(autoincrement())
+  personId     Int
+  householdId  Int
+  active       Boolean  @default(true)
+  role         String   @default("member") // "owner" or "member"
+  joinedAt     DateTime @default(now())
+
+  person       Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, householdId])
+}
+
+// Invite tokens for joining a household
+model HouseholdInvite {
+  id           Int       @id @default(autoincrement())
+  householdId  Int
+  token        String    @unique @default(uuid())
+  createdBy    Int       // personId
+  expiresAt    DateTime
+  usedAt       DateTime?
+  usedBy       Int?      // personId who redeemed
+
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  creator      Person    @relation(fields: [createdBy], references: [id])
+}
+
+// Ingredients with basic info (household-scoped)
 model Ingredient {
   id           Int                   @id @default(autoincrement())
-  name         String                @unique
+  householdId  Int?
+  name         String
   fdcId        String?               // USDA Food Data Central ID for lookups
   source       String                @default("custom") // "usda" or "custom"
   defaultUnit  String                @default("g") // e.g., "g", "ml", or "other" if using custom units
@@ -38,9 +99,12 @@ model Ingredient {
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
 
+  household         Household?         @relation(fields: [householdId], references: [id])
   nutrientValues    IngredientNutrient[]
   recipeIngredients RecipeIngredient[]
   mealLogs          MealLog[]
+
+  @@unique([name, householdId])
 }
 
 // Junction table: Ingredients to Nutrients (per 100g)
@@ -56,9 +120,10 @@ model IngredientNutrient {
   @@unique([ingredientId, nutrientId])
 }
 
-// Recipes containing multiple ingredients
+// Recipes containing multiple ingredients (household-scoped)
 model Recipe {
   id            Int       @id @default(autoincrement())
+  householdId   Int?
   name          String
   servingSize   Float     // number of servings
   servingUnit   String    @default("servings") // "servings", "g", "ml", etc.
@@ -79,6 +144,7 @@ model Recipe {
   analysisModel     String?   // model used, e.g. "claude-sonnet-4-20250514"
   analyzedAt        DateTime? // when analysis was last run
 
+  household   Household?       @relation(fields: [householdId], references: [id])
   ingredients RecipeIngredient[]
   mealLogs    MealLog[]
 }
@@ -97,25 +163,16 @@ model RecipeIngredient {
   ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 }
 
-// Household persons (e.g. Jen, Garth)
-model Person {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  color     String   @default("#6B9E7B")
-  createdAt DateTime @default(now())
-
-  mealPlans            MealPlan[]
-  globalNutritionGoals GlobalNutritionGoal[]
-}
-
-// Weekly meal plans
+// Weekly meal plans (household-scoped, person-filtered)
 model MealPlan {
   id              Int       @id @default(autoincrement())
+  householdId     Int?
   weekStartDate   DateTime
   personId        Int?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  household       Household?      @relation(fields: [householdId], references: [id])
   person          Person?         @relation(fields: [personId], references: [id])
   mealLogs        MealLog[]
   nutritionGoals  NutritionGoal[]
@@ -142,7 +199,7 @@ model MealLog {
   ingredient Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 }
 
-// Daily nutrient goals (low/high targets)
+// Daily nutrient goals per meal plan (scoped through MealPlan)
 model NutritionGoal {
   id           Int       @id @default(autoincrement())
   mealPlanId   Int
@@ -156,23 +213,32 @@ model NutritionGoal {
   @@unique([mealPlanId, nutrientId])
 }
 
-// Key-value store for app-level settings (API key, provider, etc.)
+// Key-value store for app-level settings (household-scoped)
 model SystemSetting {
-  key   String @id
-  value String
+  id           Int        @id @default(autoincrement())
+  householdId  Int?
+  key          String
+  value        String
+
+  household    Household? @relation(fields: [householdId], references: [id])
+
+  @@unique([key, householdId])
 }
 
-// Token usage tracking per AI call
+// Token usage tracking per AI call (household-scoped)
 model ApiUsageLog {
   id           Int      @id @default(autoincrement())
+  householdId  Int?
   createdAt    DateTime @default(now())
   provider     String   @default("anthropic")
   model        String   @default("")
   inputTokens  Int      @default(0)
   outputTokens Int      @default(0)
+
+  household    Household? @relation(fields: [householdId], references: [id])
 }
 
-// USDA search result cache (7-day TTL)
+// USDA search result cache (7-day TTL, shared across all households)
 model UsdaSearchCache {
   id        Int      @id @default(autoincrement())
   query     String   @unique // lowercase-normalized search term
@@ -180,7 +246,7 @@ model UsdaSearchCache {
   createdAt DateTime @default(now())
 }
 
-// USDA food detail cache (no expiry — USDA data is stable)
+// USDA food detail cache (no expiry, shared across all households)
 model UsdaFoodCache {
   id        Int      @id @default(autoincrement())
   fdcId     String   @unique
@@ -188,16 +254,18 @@ model UsdaFoodCache {
   createdAt DateTime @default(now())
 }
 
-// Global nutrient goals (used by settings page defaults)
+// Global nutrient goals per person (household-scoped)
 model GlobalNutritionGoal {
   id         Int      @id @default(autoincrement())
+  householdId Int?
   nutrientId Int
   personId   Int?
   lowGoal    Float?
   highGoal   Float?
 
+  household  Household? @relation(fields: [householdId], references: [id])
   nutrient   Nutrient @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
   person     Person?  @relation(fields: [personId], references: [id])
 
-  @@unique([nutrientId, personId])
+  @@unique([nutrientId, personId, householdId])
 }

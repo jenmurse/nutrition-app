@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
     const numId = Number(id);
     const recipe = await prisma.recipe.findUnique({
@@ -11,7 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         ingredients: { include: { ingredient: { include: { nutrientValues: { include: { nutrient: true } } } } } },
       },
     });
-    if (!recipe) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!recipe || recipe.householdId !== auth.householdId) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const totals: Record<number, { nutrientId: number; displayName: string; value: number; unit: string }> = {};
     for (const ri of recipe.ingredients) {
@@ -36,7 +40,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
+    const recipe = await prisma.recipe.findUnique({ where: { id: Number(id) } });
+    if (!recipe || recipe.householdId !== auth.householdId) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     await prisma.recipe.delete({ where: { id: Number(id) } });
     return NextResponse.json({ ok: true });
   } catch (error) {
@@ -47,8 +57,15 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const { id } = await params;
     const numId = Number(id);
+
+    const existingRecipe = await prisma.recipe.findUnique({ where: { id: numId } });
+    if (!existingRecipe || existingRecipe.householdId !== auth.householdId) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     const body = await request.json();
     const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags, prepTime, cookTime, image } = body;
 

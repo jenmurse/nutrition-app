@@ -1,3 +1,9 @@
+jest.mock('@/lib/auth', () => ({
+  getAuthenticatedHousehold: jest.fn().mockResolvedValue({
+    personId: 1, supabaseId: 'test-uuid', householdId: 1, role: 'owner',
+  }),
+}))
+
 jest.mock('@/lib/db', () => ({
   prisma: {
     recipe: {
@@ -25,6 +31,7 @@ describe('Recipes API - GET /api/recipes/[id]', () => {
   it('should return recipe with calculated nutrient totals', async () => {
     const mockRecipe = {
       id: 1,
+      householdId: 1,
       name: 'Chicken Stir Fry',
       servingSize: 2,
       servingUnit: 'servings',
@@ -77,6 +84,7 @@ describe('Recipes API - GET /api/recipes/[id]', () => {
   it('should calculate nutrient totals correctly', async () => {
     const mockRecipe = {
       id: 1,
+      householdId: 1,
       ingredients: [
         {
           ingredient: {
@@ -145,11 +153,13 @@ describe('Recipes API - PUT /api/recipes/[id]', () => {
       ],
     }
 
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({ id: 1, householdId: 1 })
     ;(prisma.recipe.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
     ;(prisma.recipeIngredient.deleteMany as jest.Mock).mockResolvedValue({ count: 1 })
     ;(prisma.recipeIngredient.create as jest.Mock).mockResolvedValue(undefined)
-    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue({
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({
       id: 1,
+      householdId: 1,
       ...updateData,
       ingredients: [{ id: 1, ...updateData.ingredients[0], recipeId: 1 }],
     })
@@ -185,9 +195,10 @@ describe('Recipes API - PUT /api/recipes/[id]', () => {
       ],
     }
 
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({ id: 1, householdId: 1 })
     ;(prisma.recipe.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
     ;(prisma.recipeIngredient.deleteMany as jest.Mock).mockResolvedValue(undefined)
-    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue({ id: 1, ...updateData, ingredients: [] })
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({ id: 1, householdId: 1, ...updateData, ingredients: [] })
 
     const request = new Request('http://localhost:3000', {
       method: 'PUT',
@@ -210,6 +221,7 @@ describe('Recipes API - DELETE /api/recipes/[id]', () => {
   })
 
   it('should delete recipe', async () => {
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({ id: 1, householdId: 1 })
     ;(prisma.recipe.delete as jest.Mock).mockResolvedValue({ id: 1, name: 'Deleted Recipe' })
 
     const response = await deleteRecipe(new Request('http://localhost:3000'), {
@@ -223,6 +235,7 @@ describe('Recipes API - DELETE /api/recipes/[id]', () => {
   })
 
   it('should handle delete errors', async () => {
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({ id: 1, householdId: 1 })
     ;(prisma.recipe.delete as jest.Mock).mockRejectedValue(new Error('DB Error'))
 
     const response = await deleteRecipe(new Request('http://localhost:3000'), {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 
 /**
  * POST /api/meal-plans/[id]/duplicate
@@ -20,6 +21,9 @@ export async function POST(
   }
 
   try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
     const body = await request.json();
     const { targetWeekStartDate, personId } = body;
 
@@ -36,7 +40,7 @@ export async function POST(
       include: { mealLogs: true },
     });
 
-    if (!sourcePlan) {
+    if (!sourcePlan || sourcePlan.householdId !== auth.householdId) {
       return NextResponse.json({ error: "Source plan not found" }, { status: 404 });
     }
 
@@ -65,6 +69,7 @@ export async function POST(
         data: {
           weekStartDate: targetWeekStart,
           personId: targetPersonId,
+          householdId: auth.householdId,
         },
       });
 
