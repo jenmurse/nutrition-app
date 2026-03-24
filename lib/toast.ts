@@ -22,7 +22,7 @@ export const toast = {
   success(message: string) { add(message, "success"); },
   error(message: string)   { add(message, "error"); },
   info(message: string)    { add(message, "info"); },
-  subscribe(fn: Listener)  { listeners.add(fn); return () => listeners.delete(fn); },
+  subscribe(fn: Listener)  { listeners.add(fn); return () => { listeners.delete(fn); }; },
 };
 
 function add(message: string, type: ToastType) {

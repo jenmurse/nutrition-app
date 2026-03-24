@@ -32,6 +32,6 @@ export const dialog = {
   },
   subscribe(fn: Listener) {
     listeners.add(fn);
-    return () => listeners.delete(fn);
+    return () => { listeners.delete(fn); };
   },
 };
