@@ -7,6 +7,13 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export async function GET(request: Request) {
   try {
+    if (!API_KEY) {
+      return NextResponse.json(
+        { error: "USDA API key not configured. Add USDA_API_KEY to your environment variables." },
+        { status: 503 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q") || searchParams.get("query");
     if (!query) return NextResponse.json({ error: "query param required" }, { status: 400 });
