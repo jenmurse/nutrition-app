@@ -116,8 +116,8 @@ describe('Ingredients API - PUT /api/ingredients/[id]', () => {
     }
 
     ;(prisma.ingredient.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
-    ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue(undefined)
-    ;(prisma.ingredientNutrient.createMany as jest.Mock).mockResolvedValue(undefined)
+    ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue({ count: 1 })
+    ;(prisma.ingredientNutrient.createMany as jest.Mock).mockResolvedValue({ count: 1 })
     ;(prisma.ingredient.findUnique as jest.Mock).mockResolvedValue(mockUpdated)
 
     const request = new Request('http://localhost:3000', {
@@ -147,8 +147,8 @@ describe('Ingredients API - PUT /api/ingredients/[id]', () => {
     }
 
     ;(prisma.ingredient.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
-    ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue(undefined)
-    ;(prisma.ingredientNutrient.createMany as jest.Mock).mockResolvedValue(undefined)
+    ;(prisma.ingredientNutrient.deleteMany as jest.Mock).mockResolvedValue({ count: 1 })
+    ;(prisma.ingredientNutrient.createMany as jest.Mock).mockResolvedValue({ count: 3 })
     ;(prisma.ingredient.findUnique as jest.Mock).mockResolvedValue({ id: 1, ...updateData, nutrientValues: [] })
 
     const request = new Request('http://localhost:3000', {

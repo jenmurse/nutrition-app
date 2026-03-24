@@ -213,7 +213,7 @@ describe('Ingredients API - POST /api/ingredients', () => {
     const data = await response.json()
 
     expect(response.status).toBe(500)
-    expect(data).toEqual({ error: 'Failed to create ingredient' })
+    expect(data).toEqual({ error: 'Failed to create ingredient: DB Error' })
   })
 
   it('should create ingredient without nutrient values', async () => {

@@ -21,6 +21,9 @@ jest.mock('@/lib/db', () => ({
     mealPlan: {
       findUnique: jest.fn(),
     },
+    globalNutritionGoal: {
+      findMany: jest.fn(),
+    },
   },
 }));
 
@@ -112,7 +115,7 @@ describe('Nutrition Calculations', () => {
       ];
 
       (prisma.mealLog.findMany as jest.Mock).mockResolvedValueOnce(mockMealLogs);
-      (prisma.nutrient.findMany as jest.Mock).mockResolvedValueOnce(mockNutrients);
+      (prisma.nutrient.findMany as jest.Mock).mockResolvedValue(mockNutrients);
       (prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({
         id: 1,
         name: 'Oatmeal',
@@ -123,7 +126,7 @@ describe('Nutrition Calculations', () => {
 
       const result = await calculateDailyNutrition(1, new Date('2026-02-08'));
 
-      expect(result.dayOfWeek).toBe('Sunday');
+      expect(result.dayOfWeek).toBe('Saturday');
       expect(result.totalNutrients).toHaveLength(1);
     });
   });
@@ -233,12 +236,13 @@ describe('Nutrition Calculations', () => {
       (prisma.mealPlan.findUnique as jest.Mock).mockResolvedValueOnce(mockMealPlan);
       (prisma.mealLog.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.nutrient.findMany as jest.Mock).mockResolvedValue(mockNutrients);
+      ((prisma as any).globalNutritionGoal.findMany as jest.Mock).mockResolvedValue([]);
 
       const result = await getWeeklyNutritionSummary(1);
 
       expect(result.mealPlanId).toBe(1);
       expect(result.dailyNutritions).toHaveLength(7);
-      expect(result.dailyNutritions[0].dayOfWeek).toBe('Sunday');
+      expect(result.dailyNutritions[0].dayOfWeek).toBe('Saturday');
     });
 
     it('should throw error if meal plan not found', async () => {

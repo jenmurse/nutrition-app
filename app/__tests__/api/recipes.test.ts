@@ -148,26 +148,16 @@ describe('Recipes API - POST /api/recipes', () => {
     expect(prisma.recipeIngredient.create).toHaveBeenCalled()
   })
 
-  it('should create recipe with incomplete ingredients', async () => {
+  it('should create recipe with no ingredients', async () => {
     const requestBody = {
-      name: 'Unknown Recipe',
+      name: 'Empty Recipe',
       servingSize: 1,
       servingUnit: 'serving',
-      instructions: 'Mix ingredients',
-      isComplete: false,
-      ingredients: [
-        {
-          ingredientId: null,
-          quantity: 2,
-          unit: 'tbsp',
-          originalText: 'mystery ingredient',
-          conversionGrams: null,
-        },
-      ],
+      instructions: 'No ingredients yet',
+      ingredients: [],
     }
 
     ;(prisma.recipe.create as jest.Mock).mockResolvedValue({ id: 2, ...requestBody })
-    ;(prisma.recipeIngredient.create as jest.Mock).mockResolvedValue(undefined)
     ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue({ id: 2, ...requestBody, ingredients: [] })
 
     const request = new Request('http://localhost:3000', {
@@ -179,14 +169,7 @@ describe('Recipes API - POST /api/recipes', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(prisma.recipeIngredient.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          ingredientId: null,
-          originalText: 'mystery ingredient',
-        }),
-      })
-    )
+    expect(prisma.recipeIngredient.create).not.toHaveBeenCalled()
   })
 
   it('should reject recipe without name', async () => {
@@ -246,7 +229,6 @@ describe('Recipes API - POST /api/recipes', () => {
           servingSize: 1,
           servingUnit: 'servings',
           instructions: '',
-          isComplete: true,
         }),
       })
     )

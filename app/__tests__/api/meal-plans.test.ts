@@ -108,7 +108,7 @@ describe('Meal Plans API', () => {
         nutritionGoals: [],
       };
 
-      (prisma.mealPlan.findUnique as jest.Mock).mockClear().mockResolvedValueOnce(mockMealPlan);
+      (prisma.mealPlan.findUnique as jest.Mock).mockReset().mockResolvedValueOnce(mockMealPlan);
 
       const result: any = await prisma.mealPlan.findUnique({
         where: { id: 1 },
@@ -119,7 +119,7 @@ describe('Meal Plans API', () => {
     });
 
     it('should return null if meal plan not found', async () => {
-      (prisma.mealPlan.findUnique as jest.Mock).mockClear().mockResolvedValueOnce(null);
+      (prisma.mealPlan.findUnique as jest.Mock).mockReset().mockResolvedValueOnce(null);
 
       const result = await prisma.mealPlan.findUnique({
         where: { id: 999 },

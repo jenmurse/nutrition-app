@@ -169,7 +169,7 @@ describe('Recipes API - PUT /api/recipes/[id]', () => {
     expect(prisma.recipeIngredient.deleteMany).toHaveBeenCalledWith({ where: { recipeId: 1 } })
   })
 
-  it('should handle incomplete recipe update', async () => {
+  it('should skip ingredients with null ingredientId during update', async () => {
     const updateData = {
       name: 'Incomplete Recipe',
       servingSize: 1,
@@ -181,14 +181,12 @@ describe('Recipes API - PUT /api/recipes/[id]', () => {
           ingredientId: null,
           quantity: 1,
           unit: 'tbsp',
-          originalText: 'unknown ingredient',
         },
       ],
     }
 
     ;(prisma.recipe.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
     ;(prisma.recipeIngredient.deleteMany as jest.Mock).mockResolvedValue(undefined)
-    ;(prisma.recipeIngredient.create as jest.Mock).mockResolvedValue(undefined)
     ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue({ id: 1, ...updateData, ingredients: [] })
 
     const request = new Request('http://localhost:3000', {
@@ -201,14 +199,8 @@ describe('Recipes API - PUT /api/recipes/[id]', () => {
     } as any)
 
     expect(response.status).toBe(200)
-    expect(prisma.recipeIngredient.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          ingredientId: null,
-          originalText: 'unknown ingredient',
-        }),
-      })
-    )
+    // Ingredients with null ingredientId are skipped
+    expect(prisma.recipeIngredient.create).not.toHaveBeenCalled()
   })
 })
 
