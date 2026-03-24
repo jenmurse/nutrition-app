@@ -287,6 +287,12 @@ const SettingsPage = () => {
   const [usageLoading, setUsageLoading] = useState(false);
   const [clearingLogs, setClearingLogs] = useState(false);
 
+  // Data export / import
+  const [exportLoading, setExportLoading] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importResult, setImportResult] = useState<{ ok: boolean; message: string } | null>(null);
+
   const setSection = (section: string) => {
     const params = new URLSearchParams(searchParams?.toString());
     params.set('section', section);
@@ -439,6 +445,55 @@ const SettingsPage = () => {
     }
   };
 
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const res = await fetch('/api/export');
+      if (!res.ok) { alert('Export failed'); return; }
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      const safeName = (data.householdName || 'course').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      a.href = url;
+      a.download = `${safeName}-${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!importFile) return;
+    if (!confirm('This will permanently overwrite all household data with the contents of this backup. Continue?')) return;
+    setImportLoading(true);
+    setImportResult(null);
+    try {
+      const text = await importFile.text();
+      const data = JSON.parse(text);
+      const res = await fetch('/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setImportResult({ ok: true, message: 'Import complete. Reload the page to see your restored data.' });
+        setImportFile(null);
+      } else {
+        const err = await res.json();
+        setImportResult({ ok: false, message: err.error || 'Import failed.' });
+      }
+    } catch {
+      setImportResult({ ok: false, message: 'Could not read file — make sure it is a valid Course backup.' });
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   const handleAddPerson = async () => {
     if (!newName.trim()) return;
     setAddSaving(true);
@@ -469,7 +524,7 @@ const SettingsPage = () => {
       <div className="px-7 pt-5 pb-0 border-b border-[var(--rule)] shrink-0">
         <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-4">Settings</h1>
         <div className="flex gap-4">
-          {(['household', 'invites', 'api'] as const).map((section) => (
+          {(['household', 'invites', 'api', 'data'] as const).map((section) => (
             <button
               key={section}
               onClick={() => setSection(section)}
@@ -479,7 +534,7 @@ const SettingsPage = () => {
                   : 'text-[var(--muted)] hover:text-[var(--fg)]'
               }`}
             >
-              {section === 'household' ? 'Household' : section === 'invites' ? 'Invites' : 'AI & API'}
+              {section === 'household' ? 'Household' : section === 'invites' ? 'Invites' : section === 'api' ? 'AI & API' : 'Data'}
             </button>
           ))}
         </div>
@@ -655,6 +710,90 @@ const SettingsPage = () => {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── DATA TAB ── */}
+        {activeSection === 'data' && (
+          <div className="px-7 py-6 space-y-8 max-w-[560px]">
+
+            {/* Export */}
+            <div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
+              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
+                Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
+              </p>
+              <button
+                onClick={handleExport}
+                disabled={exportLoading}
+                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                aria-label="Export household data"
+              >
+                {exportLoading ? 'Exporting…' : 'Export data'}
+              </button>
+            </div>
+
+            <div className="border-t border-[var(--rule)]" />
+
+            {/* Import */}
+            <div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
+              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
+                Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
+              </p>
+
+              <label
+                htmlFor="import-file"
+                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                aria-label="Select backup file"
+              >
+                {importFile ? importFile.name : 'Choose backup file'}
+              </label>
+              <input
+                id="import-file"
+                type="file"
+                accept=".json,application/json"
+                className="sr-only"
+                onChange={(e) => {
+                  setImportFile(e.target.files?.[0] ?? null);
+                  setImportResult(null);
+                }}
+                aria-label="Backup file input"
+              />
+
+              {importFile && (
+                <div className="flex items-center gap-3 mt-3">
+                  <button
+                    onClick={handleImport}
+                    disabled={importLoading}
+                    className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                    aria-label="Restore from backup"
+                  >
+                    {importLoading ? 'Importing…' : 'Restore'}
+                  </button>
+                  <button
+                    onClick={() => { setImportFile(null); setImportResult(null); }}
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {importResult && (
+                <div
+                  className={`mt-4 px-4 py-3 font-sans text-[12px] border ${
+                    importResult.ok
+                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
+                      : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
+                  }`}
+                  role="status"
+                >
+                  {importResult.message}
+                </div>
+              )}
+            </div>
+
           </div>
         )}
 
