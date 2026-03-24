@@ -183,12 +183,12 @@ async function callAnthropic(
 
 async function getApiKey(): Promise<string | null> {
   // DB setting takes priority over env var
-  const row = await prisma.systemSetting.findUnique({ where: { key: "anthropicApiKey" } });
+  const row = await prisma.systemSetting.findFirst({ where: { key: "anthropicApiKey" } });
   return row?.value ?? process.env.AI_API_KEY ?? null;
 }
 
 async function getProvider(): Promise<string> {
-  const row = await prisma.systemSetting.findUnique({ where: { key: "aiProvider" } });
+  const row = await prisma.systemSetting.findFirst({ where: { key: "aiProvider" } });
   return row?.value ?? process.env.AI_PROVIDER ?? "anthropic";
 }
 

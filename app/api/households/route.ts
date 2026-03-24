@@ -24,13 +24,22 @@ export async function GET() {
 
     if (!person) return NextResponse.json({ error: "Person not found" }, { status: 404 });
 
-    const households = person.householdMembers.map((m) => ({
-      id: m.household.id,
-      name: m.household.name,
-      active: m.active,
-      role: m.role,
-      joinedAt: m.joinedAt,
-    }));
+    const households = await Promise.all(
+      person.householdMembers.map(async (m) => {
+        const members = await prisma.householdMember.findMany({
+          where: { householdId: m.household.id, active: true },
+          select: { personId: true, role: true },
+        });
+        return {
+          id: m.household.id,
+          name: m.household.name,
+          active: m.active,
+          role: m.role,
+          joinedAt: m.joinedAt,
+          members,
+        };
+      })
+    );
 
     return NextResponse.json(households);
   } catch (error) {

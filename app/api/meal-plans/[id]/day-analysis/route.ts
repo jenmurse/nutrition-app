@@ -35,8 +35,8 @@ export async function GET(
     const mealPlanId = parseInt(id);
 
     // Verify meal plan belongs to household
-    const mealPlan = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
-    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
+    const mealPlanCheck = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
+    if (!mealPlanCheck || mealPlanCheck.householdId !== auth.householdId) {
       return NextResponse.json({ error: "Meal plan not found" }, { status: 404 });
     }
 

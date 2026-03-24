@@ -23,6 +23,7 @@ interface UsageData {
 
 interface PersonRowProps {
   person: { id: number; name: string; color: string };
+  role?: string;
   nutrients: Nutrient[];
   isExpanded: boolean;
   onToggle: () => void;
@@ -30,7 +31,7 @@ interface PersonRowProps {
   canDelete: boolean;
 }
 
-function PersonRow({ person, nutrients, isExpanded, onToggle, onSaved, canDelete }: PersonRowProps) {
+function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete }: PersonRowProps) {
   const [name, setName] = useState(person.name);
   const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
   const [goalsLoaded, setGoalsLoaded] = useState(false);
@@ -126,6 +127,11 @@ function PersonRow({ person, nutrients, isExpanded, onToggle, onSaved, canDelete
             aria-hidden="true"
           />
           <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
+          {role && (
+            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px]">
+              {role}
+            </span>
+          )}
         </div>
         <span className="text-[var(--muted)] text-[10px] select-none" aria-hidden="true">
           {isExpanded ? '▾' : '▸'}
@@ -243,6 +249,13 @@ const SettingsPage = () => {
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
 
+  // Household info
+  const [householdName, setHouseholdName] = useState('');
+  const [memberRoles, setMemberRoles] = useState<Record<number, string>>({});
+  const [inviting, setInviting] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState('');
+  const [inviteCopied, setInviteCopied] = useState(false);
+
   // Add member
   const [addingPerson, setAddingPerson] = useState(false);
   const [newName, setNewName] = useState('');
@@ -273,6 +286,37 @@ const SettingsPage = () => {
       .then(setNutrients)
       .catch(() => {});
   }, []);
+
+  // Load household info once
+  useEffect(() => {
+    fetch('/api/households')
+      .then((r) => r.ok ? r.json() : [])
+      .then((data: { name: string; active: boolean; members: { personId: number; role: string }[] }[]) => {
+        const active = data.find((h) => h.active) ?? data[0];
+        if (active) {
+          setHouseholdName(active.name);
+          const roles: Record<number, string> = {};
+          active.members.forEach((m) => { roles[m.personId] = m.role; });
+          setMemberRoles(roles);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleInvite = async () => {
+    setInviting(true);
+    try {
+      const res = await fetch('/api/households/invite', { method: 'POST' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setInviteUrl(data.url);
+      await navigator.clipboard.writeText(data.url);
+      setInviteCopied(true);
+      setTimeout(() => setInviteCopied(false), 3000);
+    } finally {
+      setInviting(false);
+    }
+  };
 
   // Load API settings when on API tab
   const loadApiSettings = useCallback(async () => {
@@ -395,10 +439,34 @@ const SettingsPage = () => {
         {/* ── HOUSEHOLD TAB ── */}
         {activeSection === 'household' && (
           <div>
+            {/* Household header */}
+            <div className="px-7 py-5 border-b border-[var(--rule)] flex items-center justify-between">
+              <div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[3px]">Household</div>
+                <div className="font-serif text-[16px] text-[var(--fg)]">{householdName || '…'}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                {inviteUrl && (
+                  <span className="font-mono text-[9px] text-[var(--muted)] max-w-[200px] truncate hidden sm:block" title={inviteUrl}>
+                    {inviteUrl.replace(/^https?:\/\//, '')}
+                  </span>
+                )}
+                <button
+                  onClick={handleInvite}
+                  disabled={inviting}
+                  className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                  aria-label="Generate and copy invite link"
+                >
+                  {inviting ? 'Generating…' : inviteCopied ? 'Copied!' : 'Invite'}
+                </button>
+              </div>
+            </div>
+
             {persons.map((person) => (
               <PersonRow
                 key={person.id}
                 person={person}
+                role={memberRoles[person.id]}
                 nutrients={nutrients}
                 isExpanded={expandedPersonId === person.id}
                 onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
