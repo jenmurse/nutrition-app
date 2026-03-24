@@ -143,7 +143,7 @@ function LoginPage() {
                 required
                 autoComplete="given-name"
                 className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
-                placeholder="Jane"
+                placeholder=""
               />
             </div>
           )}
@@ -159,7 +159,7 @@ function LoginPage() {
               required
               autoComplete="email"
               className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
-              placeholder="you@example.com"
+              placeholder=""
             />
           </div>
 
@@ -175,7 +175,7 @@ function LoginPage() {
               required
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
-              placeholder="••••••••"
+              placeholder=""
             />
           </div>
 

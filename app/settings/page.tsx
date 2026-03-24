@@ -469,7 +469,7 @@ const SettingsPage = () => {
       <div className="px-7 pt-5 pb-0 border-b border-[var(--rule)] shrink-0">
         <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-4">Settings</h1>
         <div className="flex gap-4">
-          {(['household', 'api'] as const).map((section) => (
+          {(['household', 'invites', 'api'] as const).map((section) => (
             <button
               key={section}
               onClick={() => setSection(section)}
@@ -479,7 +479,7 @@ const SettingsPage = () => {
                   : 'text-[var(--muted)] hover:text-[var(--fg)]'
               }`}
             >
-              {section === 'household' ? 'Household' : 'AI & API'}
+              {section === 'household' ? 'Household' : section === 'invites' ? 'Invites' : 'AI & API'}
             </button>
           ))}
         </div>
@@ -523,13 +523,16 @@ const SettingsPage = () => {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
-                  className="font-serif text-[16px] text-[var(--fg)] bg-transparent border-0 cursor-pointer hover:text-[var(--accent)] transition-colors text-left p-0"
-                  aria-label="Click to edit household name"
-                >
-                  {householdName || '…'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <span className="font-serif text-[16px] text-[var(--fg)]">{householdName || '…'}</span>
+                  <button
+                    onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                    aria-label="Edit household name"
+                  >
+                    Edit
+                  </button>
+                </div>
               )}
             </div>
 
@@ -588,65 +591,70 @@ const SettingsPage = () => {
               )}
             </div>
 
-            {/* ── Invites section ── */}
-            <div className="px-7 py-5 border-t border-[var(--rule)]">
-              <div className="flex items-center justify-between mb-4">
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Invites</div>
-                <button
-                  onClick={handleInvite}
-                  disabled={inviting}
-                  className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
-                  aria-label="Generate invite link"
-                >
-                  {inviting ? 'Generating…' : '+ New invite'}
-                </button>
-              </div>
+          </div>
+        )}
 
-              {invites.length === 0 ? (
-                <p className="font-mono text-[11px] text-[var(--muted)] italic">No invites yet.</p>
-              ) : (
-                <div className="space-y-[1px] border border-[var(--rule)]">
-                  {/* Header row */}
-                  <div className="grid grid-cols-[1fr_80px_100px_100px_80px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
-                    {['Invite URL', 'Status', 'Created', 'Redeemed', ''].map((h) => (
-                      <span key={h} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
-                    ))}
-                  </div>
-                  {invites.map((inv) => {
-                    const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
-                    const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
-                    return (
-                      <div key={inv.id} className="grid grid-cols-[1fr_80px_100px_100px_80px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule)] items-center gap-2">
+        {/* ── INVITES TAB ── */}
+        {activeSection === 'invites' && (
+          <div className="px-7 py-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Invite Links</div>
+              <button
+                onClick={handleInvite}
+                disabled={inviting}
+                className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                aria-label="Generate invite link"
+              >
+                {inviting ? 'Generating…' : '+ New invite'}
+              </button>
+            </div>
+
+            {invites.length === 0 ? (
+              <p className="font-mono text-[11px] text-[var(--muted)] italic">No invites yet.</p>
+            ) : (
+              <div className="border border-[var(--rule)]">
+                {/* Header */}
+                <div className="grid grid-cols-[1fr_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
+                  {['Invite URL', 'Status', 'Created', 'Redeemed'].map((h) => (
+                    <span key={h} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
+                  ))}
+                </div>
+                {invites.map((inv) => {
+                  const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
+                  const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
+                  return (
+                    <div key={inv.id} className="grid grid-cols-[1fr_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule)] last:border-b-0 items-center">
+                      <div className="flex items-center gap-3 min-w-0">
                         <span className="font-mono text-[10px] text-[var(--fg)] truncate" title={inv.url}>
                           {inv.url.replace(/^https?:\/\//, '')}
-                        </span>
-                        <div>
-                          <span className={`font-mono text-[9px] uppercase tracking-[0.05em] ${statusColor}`}>{status}</span>
-                          {inv.usedByName && (
-                            <div className="font-sans text-[10px] text-[var(--muted)] mt-[1px]">{inv.usedByName}</div>
-                          )}
-                        </div>
-                        <span className="font-mono text-[10px] text-[var(--muted)]">
-                          {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
-                        </span>
-                        <span className="font-mono text-[10px] text-[var(--muted)]">
-                          {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
                         </span>
                         {status === 'active' && (
                           <button
                             onClick={() => handleCopyInvite(inv.url, inv.token)}
-                            className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer text-right"
+                            className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer shrink-0"
                             aria-label="Copy invite link"
                           >
                             {copiedToken === inv.token ? 'Copied!' : 'Copy'}
                           </button>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                      <div>
+                        <span className={`font-mono text-[9px] uppercase tracking-[0.05em] ${statusColor}`}>{status}</span>
+                        {inv.usedByName && (
+                          <div className="font-sans text-[10px] text-[var(--muted)] mt-[1px]">{inv.usedByName}</div>
+                        )}
+                      </div>
+                      <span className="font-mono text-[10px] text-[var(--muted)]">
+                        {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                      </span>
+                      <span className="font-mono text-[10px] text-[var(--muted)]">
+                        {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
