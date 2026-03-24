@@ -456,8 +456,9 @@ const SettingsPage = () => {
     if (activeSection === 'api') {
       loadApiSettings();
       loadUsage();
+    }
+    if (activeSection === 'mcp') {
       loadMcpToken();
-
     }
   }, [activeSection, loadApiSettings, loadUsage, loadMcpToken]);
 
@@ -579,7 +580,7 @@ const SettingsPage = () => {
       <div className="px-7 pt-5 pb-0 border-b border-[var(--rule)] shrink-0">
         <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-4">Settings</h1>
         <div className="flex gap-8">
-          {(['household', 'invites', 'api', 'data'] as const).map((section) => (
+          {(['household', 'invites', 'api', 'mcp', 'data'] as const).map((section) => (
             <button
               key={section}
               onClick={() => setSection(section)}
@@ -981,17 +982,23 @@ const SettingsPage = () => {
               )}
             </div>
 
-            <div className="border-t border-[var(--rule)]" />
 
-            {/* MCP Integration */}
+          </div>
+        )}
+
+        {/* ── MCP TAB ── */}
+        {activeSection === 'mcp' && (
+          <div className="px-7 py-6 space-y-8 max-w-[680px]">
+
+            {/* Token */}
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">MCP Integration</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
               <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                Connect Course to Claude, ChatGPT, Gemini, and other AI assistants via the Model Context Protocol. Once configured, you can ask any AI to save a recipe directly to your collection.
+                Generate a token to connect any MCP-compatible AI assistant to your Course recipe collection. Once set up, you can ask your AI to save, search, or list recipes directly.
               </p>
 
               {newMcpToken ? (
-                <div className="space-y-3 max-w-[560px]">
+                <div className="space-y-3">
                   <div className="border border-[var(--accent)] bg-[var(--bg-subtle)] px-4 py-3">
                     <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] mb-2">
                       Copy this token now — it won't be shown again
@@ -1006,21 +1013,6 @@ const SettingsPage = () => {
                         {mcpCopied ? 'Copied!' : 'Copy'}
                       </button>
                     </div>
-                  </div>
-                  <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-4 py-3 space-y-1">
-                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Claude Desktop config</div>
-                    <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
-  "mcpServers": {
-    "course": {
-      "command": "npx",
-      "args": ["tsx", "/path/to/nutrition-app/mcp/src/index.ts"],
-      "env": {
-        "COURSE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}",
-        "COURSE_API_TOKEN": "${newMcpToken}"
-      }
-    }
-  }
-}`}</pre>
                   </div>
                   <button
                     onClick={() => setNewMcpToken(null)}
@@ -1057,36 +1049,40 @@ const SettingsPage = () => {
                   )}
                 </div>
               )}
+            </div>
 
-              {/* Setup instructions */}
-              <div className="mt-6 space-y-5 max-w-[560px]">
-                <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">How to set up</div>
+            <div className="border-t border-[var(--rule)]" />
 
+            {/* Setup instructions */}
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--fg)] mb-5">How to set up</div>
+
+              <div className="space-y-6">
                 {/* Step 1 */}
-                <div className="flex gap-4">
-                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">1.</span>
-                  <div className="space-y-1">
+                <div className="grid grid-cols-[28px_1fr] gap-2">
+                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">1.</span>
+                  <div className="space-y-2">
                     <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
-                      Generate a token above, then install the MCP server package from the <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">mcp/</code> folder in this project:
+                      Install the MCP server from the <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">mcp/</code> folder in this project:
                     </p>
-                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2 mt-2">
+                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)]">cd mcp && npm install && npm run build</pre>
                     </div>
                   </div>
                 </div>
 
                 {/* Step 2 */}
-                <div className="flex gap-4">
-                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">2.</span>
-                  <div className="space-y-1">
+                <div className="grid grid-cols-[28px_1fr] gap-2">
+                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">2.</span>
+                  <div className="space-y-2">
                     <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
-                      Open your Claude Desktop config file and add a <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">course</code> entry under <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">mcpServers</code>:
+                      Add Course to your AI assistant's MCP config. For Claude Desktop, open the config file and add a <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">course</code> entry:
                     </p>
-                    <ul className="font-sans text-[12px] text-[var(--muted)] space-y-[2px] mt-1 ml-1">
+                    <ul className="font-sans text-[12px] text-[var(--muted)] space-y-[3px]">
                       <li><strong className="text-[var(--fg)]">Mac:</strong> ~/Library/Application Support/Claude/claude_desktop_config.json</li>
                       <li><strong className="text-[var(--fg)]">Windows:</strong> %APPDATA%\Claude\claude_desktop_config.json</li>
                     </ul>
-                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2 mt-2">
+                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
   "mcpServers": {
     "course": {
@@ -1100,30 +1096,30 @@ const SettingsPage = () => {
   }
 }`}</pre>
                     </div>
-                    <p className="font-sans text-[12px] text-[var(--muted)] mt-2">
-                      Replace <code className="font-mono text-[10px] bg-[var(--bg-subtle)] px-1">/absolute/path/to/mcp/dist/index.js</code> with the actual path on your machine, and paste your token where shown.
+                    <p className="font-sans text-[12px] text-[var(--muted)]">
+                      Replace <code className="font-mono text-[10px] bg-[var(--bg-subtle)] px-1">/absolute/path/to/mcp/dist/index.js</code> with the actual path on your machine and paste your token above.
                     </p>
                   </div>
                 </div>
 
                 {/* Step 3 */}
-                <div className="flex gap-4">
-                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">3.</span>
-                  <div>
+                <div className="grid grid-cols-[28px_1fr] gap-2">
+                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">3.</span>
+                  <div className="space-y-2">
                     <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
-                      Restart Claude Desktop. You should see a <em>Course</em> tool available. Try it by saying:
+                      Restart your AI assistant. You should see a Course tool available. Test it:
                     </p>
-                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2 mt-2">
+                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
                       <p className="font-mono text-[10px] text-[var(--fg)] italic">"Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Other AI assistants */}
-                <div className="flex gap-4">
-                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">✦</span>
+                {/* Note */}
+                <div className="grid grid-cols-[28px_1fr] gap-2">
+                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">✦</span>
                   <p className="font-sans text-[13px] text-[var(--muted)] leading-relaxed">
-                    Other MCP-compatible assistants (ChatGPT, Gemini, Cursor, etc.) use a similar config — point them at the same server binary with the same env vars.
+                    Any MCP-compatible assistant works — Claude, Cursor, Windsurf, and others. Point them at the same server binary with the same environment variables.
                   </p>
                 </div>
               </div>

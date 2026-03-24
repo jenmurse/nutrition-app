@@ -156,7 +156,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       .trim();
     const nextSearchText: Record<string, string> = {};
     nextRows.forEach((item) => {
-      if (!item.ingredientId && item.nameGuess) {
+      if (item.nameGuess) {
         nextSearchText[item.id] = cleanGuess(item.nameGuess) || item.nameGuess;
       }
     });
