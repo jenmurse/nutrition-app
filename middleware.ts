@@ -43,9 +43,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Pass verified user ID to API routes via request header — avoids redundant getUser() call
+  // Pass verified user ID to API routes via request header — avoids redundant getUser() call.
+  // We must recreate the response after the auth check so the mutated requestHeaders are
+  // captured (NextResponse.next() snapshots headers at construction time, not by reference).
+  // Copy Set-Cookie headers from the original response to preserve Supabase session refresh.
   if (user) {
     requestHeaders.set("x-supabase-user-id", user.id);
+    const newResponse = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.getSetCookie().forEach((cookie) => {
+      newResponse.headers.append("Set-Cookie", cookie);
+    });
+    return newResponse;
   }
 
   return response;

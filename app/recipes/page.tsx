@@ -102,6 +102,7 @@ function RecipesPage() {
   const createBuilderRef = useRef<RecipeBuilderHandle>(null);
   const editBuilderRef = useRef<RecipeBuilderHandle>(null);
   const [editRecipe, setEditRecipe] = useState<RecipeDraft | null>(null);
+  const [loading, setLoading] = useState(true);
   const [editLoading, setEditLoading] = useState(false);
   const [selectedRecipeLoading, setSelectedRecipeLoading] = useState(false);
 
@@ -131,11 +132,32 @@ function RecipesPage() {
     updateSearchParam("tags", newTags.join(","));
   };
 
-  const loadRecipes = () => {
-    fetch("/api/recipes")
-      .then((r) => r.json())
-      .then((data) => setRecipes(Array.isArray(data) ? data : []))
-      .catch((e) => { console.error(e); setRecipes([]); });
+  const loadRecipes = async (skipAutoSelect = false) => {
+    setLoading(true);
+    try {
+      const r = await fetch("/api/recipes");
+      const data = await r.json();
+      const list: RecipeSummary[] = Array.isArray(data) ? data : [];
+      setRecipes(list);
+      // Auto-select first recipe before clearing loading — prevents the empty-state flash
+      if (!skipAutoSelect && list.length > 0 && !editMode && !createMode) {
+        setSelectedRecipeLoading(true);
+        try {
+          const res = await fetch(`/api/recipes/${list[0].id}`);
+          const detail = await res.json();
+          if (res.ok) setSelectedRecipe({ ...list[0], ...detail.recipe, totals: detail.totals });
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setSelectedRecipeLoading(false);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setRecipes([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSelectRecipe = async (recipe: RecipeSummary) => {
@@ -158,7 +180,7 @@ function RecipesPage() {
     if (!await dialog.confirm(`Delete recipe "${name}"?`, { confirmLabel: "Delete", danger: true })) return;
     try {
       const r = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
-      if (r.ok) { if (selectedRecipe?.id === id) setSelectedRecipe(null); loadRecipes(); }
+      if (r.ok) { if (selectedRecipe?.id === id) setSelectedRecipe(null); loadRecipes(true); }
       else toast.error("Failed to delete recipe");
     } catch {
       toast.error("Failed to delete recipe");
@@ -218,7 +240,7 @@ function RecipesPage() {
       setEditRecipe(draft);
       setEditMode(true);
       setSelectedRecipe(null);
-      loadRecipes();
+      loadRecipes(true);
     } catch (error) {
       console.error(error);
       toast.error("Failed to duplicate recipe");
@@ -268,12 +290,6 @@ function RecipesPage() {
   };
 
   useEffect(() => { loadRecipes(); }, []);
-
-  useEffect(() => {
-    if (recipes.length > 0 && !selectedRecipe && !editMode && !createMode) {
-      handleSelectRecipe(recipes[0]);
-    }
-  }, [recipes.length]);
 
   const filteredRecipes = recipes.filter((recipe) => {
     if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -473,7 +489,7 @@ function RecipesPage() {
                 setEditMode(false);
                 setEditRecipe(null);
                 setSelectedRecipe(null);
-                loadRecipes();
+                loadRecipes(true);
                 // Re-fetch the edited recipe's nutrition totals
                 if (editedId) {
                   handleSelectRecipe({ id: editedId } as RecipeSummary);
@@ -483,6 +499,11 @@ function RecipesPage() {
               />
             )}
           </div>
+        </div>
+
+      ) : loading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading recipes...</div>
         </div>
 
       ) : !selectedRecipe ? (

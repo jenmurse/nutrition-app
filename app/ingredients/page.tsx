@@ -162,32 +162,31 @@ function IngredientsPage() {
   );
 
   useEffect(() => {
-    const loadIngredients = () => {
-      Promise.all([
-        fetch("/api/ingredients?slim=true").then((r) => r.json()),
-        fetch("/api/nutrients").then((r) => r.json()),
-      ])
-        .then(([data, nutrData]) => {
-          setIngredients(Array.isArray(data) ? data : []);
-          setNutrients(Array.isArray(nutrData) ? nutrData : []);
-        })
-        .catch((e) => {
-          console.error(e);
-          setIngredients([]);
-          setNutrients([]);
-        })
-        .finally(() => setLoading(false));
+    const loadIngredients = async () => {
+      try {
+        const [data, nutrData] = await Promise.all([
+          fetch("/api/ingredients?slim=true").then((r) => r.json()),
+          fetch("/api/nutrients").then((r) => r.json()),
+        ]);
+        const ings: Ingredient[] = Array.isArray(data) ? data : [];
+        setIngredients(ings);
+        setNutrients(Array.isArray(nutrData) ? nutrData : []);
+        // Auto-select first ingredient before clearing loading — prevents empty-state flash
+        if (ings.length > 0) {
+          await refreshSelectedIngredient(ings[0].id);
+        }
+      } catch (e) {
+        console.error(e);
+        setIngredients([]);
+        setNutrients([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadIngredients();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Auto-select first ingredient when list loads
-  useEffect(() => {
-    if (!loading && ingredients.length > 0 && !selectedIngredient && !createMode && !editMode) {
-      refreshSelectedIngredient(ingredients[0].id);
-    }
-  }, [loading, ingredients.length]);
 
   const handleDelete = async (id: number, name: string) => {
     if (!await dialog.confirm(`Delete "${name}"?`, { confirmLabel: "Delete", danger: true })) return;
@@ -976,6 +975,10 @@ function IngredientsPage() {
       {createMode ? (
         <div className="flex-1 flex flex-col overflow-hidden">
           {renderForm('create')}
+        </div>
+      ) : loading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading ingredients...</div>
         </div>
       ) : !selectedIngredient ? (
         <div className="flex-1 flex items-center justify-center">

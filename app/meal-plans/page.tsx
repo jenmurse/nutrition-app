@@ -360,9 +360,9 @@ const MealPlansPage = () => {
           }
         }
 
-        // Fetch plan details immediately (no second useEffect wait)
+        // Fetch plan details before clearing loading — prevents the "Select a meal plan" flash
         if (targetPlanId) {
-          fetchMealPlanDetails(targetPlanId);
+          await fetchMealPlanDetails(targetPlanId);
         }
       } catch (error) {
         console.error('Error fetching meal plans:', error);
