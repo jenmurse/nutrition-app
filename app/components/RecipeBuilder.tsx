@@ -145,11 +145,13 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
     });
     setQuantityText(nextQuantityText);
 
-    // Pre-fill search text for unmatched imported rows — clean footnote markers
+    // Pre-fill search text for unmatched imported rows — clean footnote markers and leading qty/unit
     const cleanGuess = (s: string) => s
       .replace(/\(\([^)]*\)\)/g, "")
       .replace(/\([^)]*note[^)]*\)/gi, "")
       .replace(/\([^)]*\*[^)]*\)/g, "")
+      // Strip leading quantity + unit, e.g. "1/4 cup ", "2 tbsp ", "1.5 oz "
+      .replace(/^\d+(?:\/\d+)?(?:\.\d+)?\s+(?:cups?|tbsp?|tsp?|oz|ml|g|kg|lb|lbs|fl\.?\s*oz|pints?|quarts?|gallons?|pieces?|slices?|cans?|cloves?|stalks?|sprigs?|pinch|dash|handful)\s+/i, "")
       .replace(/\s{2,}/g, " ")
       .trim();
     const nextSearchText: Record<string, string> = {};

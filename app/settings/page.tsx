@@ -578,7 +578,7 @@ const SettingsPage = () => {
       {/* Page Header */}
       <div className="px-7 pt-5 pb-0 border-b border-[var(--rule)] shrink-0">
         <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-4">Settings</h1>
-        <div className="flex gap-4">
+        <div className="flex gap-8">
           {(['household', 'invites', 'api', 'data'] as const).map((section) => (
             <button
               key={section}
@@ -864,7 +864,7 @@ const SettingsPage = () => {
 
               {!editingApiKey ? (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 px-4 py-[10px] border border-[var(--rule)] bg-[var(--bg-subtle)] min-w-[220px]">
+                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule)] bg-[var(--bg-subtle)] min-w-[220px]">
                     {hasApiKey ? (
                       <>
                         <span className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0" aria-hidden="true" />
@@ -1031,7 +1031,7 @@ const SettingsPage = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-3 px-4 py-[10px] border border-[var(--rule)] bg-[var(--bg-subtle)]">
+                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule)] bg-[var(--bg-subtle)] min-w-[220px]">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--accent)]' : 'bg-[var(--muted)]'}`} aria-hidden="true" />
                     <span className="font-mono text-[11px] text-[var(--muted)]">
                       {hasMcpToken ? 'Token active' : 'No token'}
@@ -1057,6 +1057,76 @@ const SettingsPage = () => {
                   )}
                 </div>
               )}
+
+              {/* Setup instructions */}
+              <div className="mt-6 space-y-5 max-w-[560px]">
+                <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">How to set up</div>
+
+                {/* Step 1 */}
+                <div className="flex gap-4">
+                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">1.</span>
+                  <div className="space-y-1">
+                    <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
+                      Generate a token above, then install the MCP server package from the <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">mcp/</code> folder in this project:
+                    </p>
+                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2 mt-2">
+                      <pre className="font-mono text-[10px] text-[var(--fg)]">cd mcp && npm install && npm run build</pre>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex gap-4">
+                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">2.</span>
+                  <div className="space-y-1">
+                    <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
+                      Open your Claude Desktop config file and add a <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">course</code> entry under <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">mcpServers</code>:
+                    </p>
+                    <ul className="font-sans text-[12px] text-[var(--muted)] space-y-[2px] mt-1 ml-1">
+                      <li><strong className="text-[var(--fg)]">Mac:</strong> ~/Library/Application Support/Claude/claude_desktop_config.json</li>
+                      <li><strong className="text-[var(--fg)]">Windows:</strong> %APPDATA%\Claude\claude_desktop_config.json</li>
+                    </ul>
+                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2 mt-2">
+                      <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
+  "mcpServers": {
+    "course": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp/dist/index.js"],
+      "env": {
+        "COURSE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
+        "COURSE_API_TOKEN": "<your token>"
+      }
+    }
+  }
+}`}</pre>
+                    </div>
+                    <p className="font-sans text-[12px] text-[var(--muted)] mt-2">
+                      Replace <code className="font-mono text-[10px] bg-[var(--bg-subtle)] px-1">/absolute/path/to/mcp/dist/index.js</code> with the actual path on your machine, and paste your token where shown.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex gap-4">
+                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">3.</span>
+                  <div>
+                    <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
+                      Restart Claude Desktop. You should see a <em>Course</em> tool available. Try it by saying:
+                    </p>
+                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2 mt-2">
+                      <p className="font-mono text-[10px] text-[var(--fg)] italic">"Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Other AI assistants */}
+                <div className="flex gap-4">
+                  <span className="font-mono text-[9px] text-[var(--muted)] shrink-0 w-4 pt-[1px]">✦</span>
+                  <p className="font-sans text-[13px] text-[var(--muted)] leading-relaxed">
+                    Other MCP-compatible assistants (ChatGPT, Gemini, Cursor, etc.) use a similar config — point them at the same server binary with the same env vars.
+                  </p>
+                </div>
+              </div>
             </div>
 
           </div>
