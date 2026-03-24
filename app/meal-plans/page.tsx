@@ -9,6 +9,7 @@ import AIAnalysisPanel from '@/app/components/AIAnalysisPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
 import { toast } from '@/lib/toast';
+import { clientCache } from '@/lib/clientCache';
 
 /** Parse a UTC date string as a local Date preserving the calendar date.
  *  e.g. "2026-03-22T00:00:00.000Z" → local Date for March 22 midnight,
@@ -269,14 +270,18 @@ const MealPlansPage = () => {
   const prevPersonId = useRef<number | null>(null);
 
   const fetchMealPlanDetails = useCallback(async (planId: number) => {
+    // Show cached plan instantly, then always revalidate (meal logs change frequently)
+    const cached = clientCache.get<MealPlan>(`/api/meal-plans/${planId}`);
+    if (cached) setSelectedPlan(cached);
     try {
       const response = await fetch(`/api/meal-plans/${planId}`);
       if (!response.ok) throw new Error('Failed to fetch meal plan details');
       const data = await response.json();
+      clientCache.set(`/api/meal-plans/${planId}`, data);
       setSelectedPlan(data);
     } catch (error) {
       console.error('Error fetching meal plan details:', error);
-      toast.error('Failed to load meal plan details');
+      if (!cached) toast.error('Failed to load meal plan details');
     }
   }, []);
 
@@ -323,11 +328,30 @@ const MealPlansPage = () => {
     prevPersonId.current = selectedPersonId;
 
     const load = async () => {
+      const planListKey = `/api/meal-plans?personId=${selectedPersonId}`;
+      const cachedPlans = clientCache.get<MealPlan[]>(planListKey);
+
+      if (cachedPlans) {
+        // Instant render from cache
+        setMealPlans(cachedPlans);
+        const cachedPlanId = selectedPlanId ?? (cachedPlans.length > 0 ? cachedPlans[0].id : null);
+        if (cachedPlanId && cachedPlans.some(p => p.id === cachedPlanId)) {
+          await fetchMealPlanDetails(cachedPlanId);
+        }
+        setLoading(false);
+        // Background revalidate plan list
+        fetch(`/api/meal-plans?personId=${selectedPersonId}`).then(r => r.json()).then((data) => {
+          if (Array.isArray(data)) { clientCache.set(planListKey, data); setMealPlans(data); }
+        }).catch(console.error);
+        return;
+      }
+
       setLoading(true);
       try {
         const response = await fetch(`/api/meal-plans?personId=${selectedPersonId}`);
         if (!response.ok) throw new Error('Failed to fetch meal plans');
         const plans: MealPlan[] = await response.json();
+        clientCache.set(planListKey, plans);
         setMealPlans(Array.isArray(plans) ? plans : []);
 
         // Determine which plan to load details for
@@ -415,11 +439,15 @@ const MealPlansPage = () => {
   }, [selectedPlan?.id]);
 
   const fetchRecipes = async () => {
+    const cached = clientCache.get<Recipe[]>('/api/recipes');
+    if (cached) { setRecipes(cached); return; }
     try {
       const response = await fetch('/api/recipes');
       if (!response.ok) throw new Error('Failed to fetch recipes');
       const data = await response.json();
-      setRecipes(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      clientCache.set('/api/recipes', list);
+      setRecipes(list);
     } catch (error) {
       console.error('Error fetching recipes:', error);
       setRecipes([]);
@@ -427,11 +455,15 @@ const MealPlansPage = () => {
   };
 
   const fetchIngredients = async () => {
+    const cached = clientCache.get<Ingredient[]>('/api/ingredients?slim=true');
+    if (cached) { setIngredients(cached); return; }
     try {
       const response = await fetch('/api/ingredients?slim=true');
       if (!response.ok) throw new Error('Failed to fetch ingredients');
       const data = await response.json();
-      setIngredients(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      clientCache.set('/api/ingredients?slim=true', list);
+      setIngredients(list);
     } catch (error) {
       console.error('Error fetching ingredients:', error);
       setIngredients([]);
@@ -443,6 +475,8 @@ const MealPlansPage = () => {
     try {
       const response = await fetch(`/api/meal-plans/${planId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete meal plan');
+      clientCache.delete(`/api/meal-plans/${planId}`);
+      clientCache.invalidate(`/api/meal-plans?personId=${selectedPersonId}`);
       setMealPlans(mealPlans.filter((p) => p.id !== planId));
       if (selectedPlanId === planId) {
         setSelectedPlan(null);
@@ -790,6 +824,7 @@ const MealPlansPage = () => {
                   }
                 }
 
+                clientCache.invalidate(`/api/meal-plans?personId=${selectedPersonId}`);
                 setMealPlans(prev => [plan, ...prev]);
                 setNewWeekStartDate('');
                 setCopyFromPlanId('');

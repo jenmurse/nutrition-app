@@ -7,6 +7,7 @@ import IngredientContextPanel from "../components/IngredientContextPanel";
 import { usePersonContext } from "../components/PersonContext";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
+import { clientCache } from "@/lib/clientCache";
 
 
 type NutrientValue = {
@@ -110,10 +111,10 @@ function IngredientsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { selectedPerson } = usePersonContext();
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(() => clientCache.get<Ingredient[]>('/api/ingredients?slim=true') ?? []);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
   const searchQuery = searchParams?.get("search") || "";
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients?slim=true'));
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
 
@@ -163,12 +164,36 @@ function IngredientsPage() {
 
   useEffect(() => {
     const loadIngredients = async () => {
+      const cachedIngs = clientCache.get<Ingredient[]>('/api/ingredients?slim=true');
+      const cachedNutrients = clientCache.get<unknown[]>('/api/nutrients');
+
+      if (cachedIngs && cachedIngs.length > 0) {
+        // Instant render from cache
+        setIngredients(cachedIngs);
+        if (cachedNutrients) setNutrients(cachedNutrients as never[]);
+        const cachedDetail = clientCache.get<Ingredient>(`/api/ingredients/${cachedIngs[0].id}`);
+        if (cachedDetail) setSelectedIngredient(cachedDetail);
+        setLoading(false);
+        // Background revalidate list only (nutrients are static — skip)
+        fetch("/api/ingredients?slim=true").then(r => r.json()).then((data) => {
+          const fresh: Ingredient[] = Array.isArray(data) ? data : [];
+          clientCache.set('/api/ingredients?slim=true', fresh);
+          setIngredients(fresh);
+        }).catch(console.error);
+        return;
+      }
+
+      // Cache miss — normal loading flow
       try {
         const [data, nutrData] = await Promise.all([
           fetch("/api/ingredients?slim=true").then((r) => r.json()),
-          fetch("/api/nutrients").then((r) => r.json()),
+          cachedNutrients
+            ? Promise.resolve(cachedNutrients)
+            : fetch("/api/nutrients").then((r) => r.json()),
         ]);
         const ings: Ingredient[] = Array.isArray(data) ? data : [];
+        clientCache.set('/api/ingredients?slim=true', ings);
+        if (!cachedNutrients) clientCache.set('/api/nutrients', nutrData);
         setIngredients(ings);
         setNutrients(Array.isArray(nutrData) ? nutrData : []);
         // Auto-select first ingredient before clearing loading — prevents empty-state flash
@@ -196,6 +221,8 @@ function IngredientsPage() {
         const error = await res.json();
         throw new Error(error.error || "Delete failed");
       }
+      clientCache.delete(`/api/ingredients/${id}`);
+      clientCache.invalidate('/api/ingredients?slim=true');
       if (selectedIngredient?.id === id) {
         setSelectedIngredient(null);
         setEditMode(false);
@@ -376,6 +403,8 @@ function IngredientsPage() {
       }
 
       const updatedIng = await res.json();
+      clientCache.set(`/api/ingredients/${updatedIng.id}`, updatedIng);
+      clientCache.invalidate('/api/ingredients?slim=true');
       setIngredients((prev) =>
         prev.map((ing) => (ing.id === updatedIng.id ? updatedIng : ing))
       );
@@ -443,6 +472,8 @@ function IngredientsPage() {
       }
 
       const newIng = await res.json();
+      clientCache.set(`/api/ingredients/${newIng.id}`, newIng);
+      clientCache.invalidate('/api/ingredients?slim=true');
       setIngredients((prev) => [...prev, newIng].sort((a, b) => a.name.localeCompare(b.name)));
       setSelectedIngredient(newIng);
       setCreateMode(false);
@@ -469,11 +500,14 @@ function IngredientsPage() {
   );
 
   const refreshSelectedIngredient = async (id: number) => {
+    // Instant render from cache if available
+    const cached = clientCache.get<Ingredient>(`/api/ingredients/${id}`);
+    if (cached) { setSelectedIngredient(cached); return; }
     try {
       const res = await fetch(`/api/ingredients/${id}`);
       if (res.ok) {
         const updated = await res.json();
-        console.log("Refreshed ingredient:", updated);
+        clientCache.set(`/api/ingredients/${id}`, updated);
         setSelectedIngredient(updated);
       }
     } catch (err) {

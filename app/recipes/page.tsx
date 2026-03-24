@@ -7,6 +7,7 @@ import RecipeContextPanel from "../components/RecipeContextPanel";
 import { usePersonContext } from "../components/PersonContext";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
+import { clientCache } from "@/lib/clientCache";
 
 type RecipeSummary = {
   id: number;
@@ -95,14 +96,14 @@ function RecipesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { selectedPerson } = usePersonContext();
-  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(() => clientCache.get<RecipeSummary[]>('/api/recipes') ?? []);
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeDetail | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
   const createBuilderRef = useRef<RecipeBuilderHandle>(null);
   const editBuilderRef = useRef<RecipeBuilderHandle>(null);
   const [editRecipe, setEditRecipe] = useState<RecipeDraft | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !clientCache.get('/api/recipes'));
   const [editLoading, setEditLoading] = useState(false);
   const [selectedRecipeLoading, setSelectedRecipeLoading] = useState(false);
 
@@ -133,19 +134,43 @@ function RecipesPage() {
   };
 
   const loadRecipes = async (skipAutoSelect = false) => {
+    const cached = clientCache.get<RecipeSummary[]>('/api/recipes');
+
+    if (cached && cached.length > 0) {
+      // Instant render from cache — no spinner
+      setRecipes(cached);
+      if (!skipAutoSelect && !editMode && !createMode) {
+        const cachedDetail = clientCache.get<RecipeDetail>(`/api/recipes/${cached[0].id}`);
+        if (cachedDetail) setSelectedRecipe(cachedDetail);
+      }
+      setLoading(false);
+      // Background revalidate
+      fetch("/api/recipes").then(r => r.json()).then((data) => {
+        const fresh: RecipeSummary[] = Array.isArray(data) ? data : [];
+        clientCache.set('/api/recipes', fresh);
+        setRecipes(fresh);
+      }).catch(console.error);
+      return;
+    }
+
+    // Cache miss — normal loading flow
     setLoading(true);
     try {
       const r = await fetch("/api/recipes");
       const data = await r.json();
       const list: RecipeSummary[] = Array.isArray(data) ? data : [];
+      clientCache.set('/api/recipes', list);
       setRecipes(list);
-      // Auto-select first recipe before clearing loading — prevents the empty-state flash
       if (!skipAutoSelect && list.length > 0 && !editMode && !createMode) {
         setSelectedRecipeLoading(true);
         try {
           const res = await fetch(`/api/recipes/${list[0].id}`);
           const detail = await res.json();
-          if (res.ok) setSelectedRecipe({ ...list[0], ...detail.recipe, totals: detail.totals });
+          if (res.ok) {
+            const full = { ...list[0], ...detail.recipe, totals: detail.totals };
+            clientCache.set(`/api/recipes/${list[0].id}`, full);
+            setSelectedRecipe(full);
+          }
         } catch (e) {
           console.error(e);
         } finally {
@@ -162,12 +187,17 @@ function RecipesPage() {
 
   const handleSelectRecipe = async (recipe: RecipeSummary) => {
     if (selectedRecipe?.id === recipe.id) { setSelectedRecipe(null); return; }
+    // Instant render from cache if available
+    const cached = clientCache.get<RecipeDetail>(`/api/recipes/${recipe.id}`);
+    if (cached) { setSelectedRecipe(cached); return; }
     setSelectedRecipeLoading(true);
     try {
       const res = await fetch(`/api/recipes/${recipe.id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fetch failed");
-      setSelectedRecipe({ ...recipe, ...data.recipe, totals: data.totals });
+      const full = { ...recipe, ...data.recipe, totals: data.totals };
+      clientCache.set(`/api/recipes/${recipe.id}`, full);
+      setSelectedRecipe(full);
     } catch (error) {
       console.error(error);
       toast.error("Failed to load recipe details");
@@ -180,8 +210,11 @@ function RecipesPage() {
     if (!await dialog.confirm(`Delete recipe "${name}"?`, { confirmLabel: "Delete", danger: true })) return;
     try {
       const r = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
-      if (r.ok) { if (selectedRecipe?.id === id) setSelectedRecipe(null); loadRecipes(true); }
-      else toast.error("Failed to delete recipe");
+      if (r.ok) {
+        clientCache.invalidate('/api/recipes');
+        if (selectedRecipe?.id === id) setSelectedRecipe(null);
+        loadRecipes(true);
+      } else toast.error("Failed to delete recipe");
     } catch {
       toast.error("Failed to delete recipe");
     }
@@ -240,6 +273,7 @@ function RecipesPage() {
       setEditRecipe(draft);
       setEditMode(true);
       setSelectedRecipe(null);
+      clientCache.invalidate('/api/recipes');
       loadRecipes(true);
     } catch (error) {
       console.error(error);
@@ -451,7 +485,7 @@ function RecipesPage() {
               ref={createBuilderRef}
               hideFooterButtons
               initialRecipe={createImportedRecipe || undefined}
-              onSaved={() => { setCreateMode(false); setCreateImportedRecipe(null); setSelectedRecipe(null); loadRecipes(); }}
+              onSaved={() => { clientCache.invalidate('/api/recipes'); setCreateMode(false); setCreateImportedRecipe(null); setSelectedRecipe(null); loadRecipes(); }}
               onCancel={() => { setCreateMode(false); setCreateImportedRecipe(null); }}
             />
           </div>
@@ -486,6 +520,8 @@ function RecipesPage() {
                 hideFooterButtons
                 onSaved={() => {
                 const editedId = editRecipe?.id;
+                if (editedId) clientCache.delete(`/api/recipes/${editedId}`);
+                clientCache.invalidate('/api/recipes');
                 setEditMode(false);
                 setEditRecipe(null);
                 setSelectedRecipe(null);
