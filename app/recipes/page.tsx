@@ -475,13 +475,22 @@ function RecipesPage() {
 
       ) : !selectedRecipe ? (
         <div className="flex-1 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-          <div className="text-center space-y-3 max-w-[280px]">
+          <div className="text-center space-y-4 max-w-[280px]">
             <div className="font-serif text-[20px] text-[var(--fg)]">
               {recipes.length === 0 ? 'No recipes yet' : 'Select a recipe'}
             </div>
             <p className="text-[11px] text-[var(--muted)] leading-relaxed">
               {recipes.length === 0 ? 'Create a recipe from scratch or import one.' : 'Click a recipe from the list to view its details.'}
             </p>
+            {recipes.length === 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setSelectedRecipe(null); setEditMode(false); setEditRecipe(null); setCreateMode(true); setCreateImportedRecipe(null); setCreateImportUrl(''); setCreateImportError(''); }}
+                className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
+                aria-label="Create first recipe"
+              >
+                + New Recipe
+              </button>
+            )}
           </div>
         </div>
 

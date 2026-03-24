@@ -126,12 +126,19 @@ export default function Home() {
               ))}
             </div>
           ) : !weekPlanId ? (
-            <div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                No meal plan for this week.
+            <div className="border border-[var(--rule)] max-w-[380px] px-7 py-8 space-y-4">
+              <div className="font-serif text-[18px] text-[var(--fg)] leading-snug">
+                No plan for this week
+              </div>
+              <p className="font-sans text-[12px] text-[var(--muted)] leading-relaxed">
+                Create a weekly meal plan to start logging meals and tracking your nutrition.
               </p>
-              <Link href="/meal-plans" className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:underline">
-                Create a plan →
+              <Link
+                href="/meal-plans"
+                className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors no-underline"
+                aria-label="Create a meal plan for this week"
+              >
+                + Create this week's plan
               </Link>
             </div>
           ) : !hasData ? (

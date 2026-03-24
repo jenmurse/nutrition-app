@@ -975,7 +975,7 @@ function IngredientsPage() {
         </div>
       ) : !selectedIngredient ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center space-y-3 max-w-[280px]">
+          <div className="text-center space-y-4 max-w-[280px]">
             <div className="font-serif text-[20px] text-[var(--fg)]">
               {ingredients.length === 0 ? 'No ingredients yet' : 'Select an ingredient'}
             </div>
@@ -984,6 +984,15 @@ function IngredientsPage() {
                 ? 'Add your first ingredient manually or look it up from the USDA database.'
                 : 'Click an ingredient from the list to view its details.'}
             </p>
+            {ingredients.length === 0 && (
+              <button
+                onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
+                className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
+                aria-label="Add first ingredient"
+              >
+                + New Ingredient
+              </button>
+            )}
           </div>
         </div>
       ) : (
