@@ -53,8 +53,25 @@ async function provisionUser(
     }
   }
 
+  // If no match by supabaseId, also try by email (guards against Supabase
+  // issuing a new auth UID for the same email, e.g. after re-signup)
+  if (!person && user.email) {
+    const byEmail = await prisma.person.findFirst({
+      where: { email: user.email },
+      include: { householdMembers: { where: { active: true } } },
+    });
+    if (byEmail) {
+      // Re-link the existing Person to the new Supabase UID
+      person = await prisma.person.update({
+        where: { id: byEmail.id },
+        data: { supabaseId: user.id },
+        include: { householdMembers: { where: { active: true } } },
+      });
+    }
+  }
+
   if (!person) {
-    // New user — create Person record
+    // Genuinely new user — create Person record
     const displayName =
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||
