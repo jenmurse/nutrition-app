@@ -978,7 +978,7 @@ function IngredientsPage() {
         </div>
       ) : loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading ingredients...</div>
+          <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading ingredients...</div>
         </div>
       ) : !selectedIngredient ? (
         <div className="flex-1 flex items-center justify-center">

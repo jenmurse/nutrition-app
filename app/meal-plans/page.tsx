@@ -8,6 +8,7 @@ import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
 import AIAnalysisPanel from '@/app/components/AIAnalysisPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
+import { toast } from '@/lib/toast';
 
 /** Parse a UTC date string as a local Date preserving the calendar date.
  *  e.g. "2026-03-22T00:00:00.000Z" → local Date for March 22 midnight,
@@ -242,7 +243,7 @@ const MealPlansPage = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [analysisRefreshKey, setAnalysisRefreshKey] = useState(0);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
@@ -275,7 +276,7 @@ const MealPlansPage = () => {
       setSelectedPlan(data);
     } catch (error) {
       console.error('Error fetching meal plan details:', error);
-      setMessage({ type: 'error', text: 'Failed to load meal plan details' });
+      toast.error('Failed to load meal plan details');
     }
   }, []);
 
@@ -366,7 +367,7 @@ const MealPlansPage = () => {
         }
       } catch (error) {
         console.error('Error fetching meal plans:', error);
-        setMessage({ type: 'error', text: 'Failed to load meal plans' });
+        toast.error('Failed to load meal plans');
         setMealPlans([]);
       } finally {
         setLoading(false);
@@ -449,11 +450,11 @@ const MealPlansPage = () => {
         params.delete("planId");
         router.push(`/meal-plans${params.toString() ? '?' + params.toString() : ''}`);
       }
-      setMessage({ type: 'success', text: 'Meal plan deleted successfully' });
-      setTimeout(() => setMessage(null), 3000);
+      toast.success('Meal plan deleted successfully');
+      
     } catch (error) {
       console.error('Error deleting meal plan:', error);
-      setMessage({ type: 'error', text: 'Failed to delete meal plan' });
+      toast.error('Failed to delete meal plan');
     }
   };
 
@@ -496,8 +497,8 @@ const MealPlansPage = () => {
         new Date(a.date).getTime() - new Date(b.date).getTime() || a.position - b.position
       ),
     } : prev);
-    setMessage({ type: 'success', text: 'Meal added successfully!' });
-    setTimeout(() => setMessage(null), 2000);
+    toast.success('Meal added successfully!');
+    
     // Background refresh for nutrition recalc (non-blocking)
     fetchMealPlanDetails(selectedPlanId);
     setAnalysisRefreshKey(k => k + 1);
@@ -527,8 +528,8 @@ const MealPlansPage = () => {
         new Date(a.date).getTime() - new Date(b.date).getTime() || a.position - b.position
       ),
     } : prev);
-    setMessage({ type: 'success', text: 'Ingredient added successfully!' });
-    setTimeout(() => setMessage(null), 2000);
+    toast.success('Ingredient added successfully!');
+    
     // Background refresh for nutrition recalc (non-blocking)
     fetchMealPlanDetails(selectedPlanId);
     setAnalysisRefreshKey(k => k + 1);
@@ -544,14 +545,14 @@ const MealPlansPage = () => {
         ...prev,
         mealLogs: prev.mealLogs.filter((m: MealLog) => m.id !== mealId),
       } : prev);
-      setMessage({ type: 'success', text: 'Meal removed successfully' });
-      setTimeout(() => setMessage(null), 2000);
+      toast.success('Meal removed successfully');
+      
       // Background refresh for nutrition recalc (non-blocking)
       fetchMealPlanDetails(selectedPlanId);
       setAnalysisRefreshKey(k => k + 1);
     } catch (error) {
       console.error('Error removing meal:', error);
-      setMessage({ type: 'error', text: 'Failed to remove meal' });
+      toast.error('Failed to remove meal');
     }
   };
 
@@ -601,7 +602,7 @@ const MealPlansPage = () => {
   if (loading && selectedPersonId !== null) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading meal plans...</div>
+        <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading meal plans...</div>
       </div>
     );
   }
@@ -668,8 +669,8 @@ const MealPlansPage = () => {
               const params = new URLSearchParams(searchParams?.toString());
               params.set("showForm", "true");
               router.push(`/meal-plans?${params.toString()}`);
-              setMessage({ type: 'error', text: 'No meal plan covers today. Create a new plan starting this week.' });
-              setTimeout(() => setMessage(null), 5000);
+              toast.error('No meal plan covers today. Create a new plan starting this week.');
+              
             }
           }}
         >This Week</button>
@@ -753,14 +754,6 @@ const MealPlansPage = () => {
         )}
       </div>
 
-      {/* Status message */}
-      {message && (
-        <div className={`px-7 py-3 text-[11px] border-b border-[var(--rule)] ${
-          message.type === 'success' ? 'text-[var(--accent)]' : 'text-[var(--error)]'
-        }`}>
-          {message.text}
-        </div>
-      )}
 
       {/* Inline create form */}
       {showCreateForm && (
@@ -793,7 +786,7 @@ const MealPlansPage = () => {
                     });
                   } catch {
                     // Non-critical — plan was created, just meals weren't copied
-                    setMessage({ type: 'error', text: 'Plan created but failed to copy meals' });
+                    toast.error('Plan created but failed to copy meals');
                   }
                 }
 
@@ -807,7 +800,7 @@ const MealPlansPage = () => {
                 router.push(`/meal-plans?${params.toString()}`);
                 setViewMode('personal');
               } catch {
-                setMessage({ type: 'error', text: 'Failed to create meal plan' });
+                toast.error('Failed to create meal plan');
               } finally {
                 setCreatingPlan(false);
               }
@@ -912,7 +905,7 @@ const MealPlansPage = () => {
                 onAddIngredientMeal={handleAddIngredientMeal}
                 onRemoveMeal={handleRemoveMeal}
                 onReorderMeals={handleReorderMeals}
-                onError={(msg) => setMessage({ type: 'error', text: msg })}
+                onError={(msg) => toast.error(msg)}
                 selectedDay={selectedDay}
                 onDayClick={(date) => {
                   if (selectedDay && date.toDateString() === selectedDay.toDateString()) {
@@ -1074,21 +1067,21 @@ const MealPlansPage = () => {
                           const mealType = originalMeal?.mealType ?? 'snack';
                           await handleRemoveMeal(mealLogId);
                           await handleAddRecipeMeal(activeDate, mealType, newRecipeId, 1);
-                          setMessage({ type: 'success', text: 'Meal swapped!' });
+                          toast.success('Meal swapped!');
                           setAnalysisRefreshKey(k => k + 1);
-                          setTimeout(() => setMessage(null), 3000);
+                          
                         } catch {
-                          setMessage({ type: 'error', text: 'Failed to swap meal' });
+                          toast.error('Failed to swap meal');
                         }
                       }}
                       onAddMeal={async (recipeId) => {
                         try {
                           await handleAddRecipeMeal(activeDate, 'dinner', recipeId, 1);
-                          setMessage({ type: 'success', text: 'Meal added!' });
+                          toast.success('Meal added!');
                           setAnalysisRefreshKey(k => k + 1);
-                          setTimeout(() => setMessage(null), 3000);
+                          
                         } catch {
-                          setMessage({ type: 'error', text: 'Failed to add meal' });
+                          toast.error('Failed to add meal');
                         }
                       }}
                     />

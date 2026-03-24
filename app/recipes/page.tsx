@@ -503,7 +503,7 @@ function RecipesPage() {
 
       ) : loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading recipes...</div>
+          <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading recipes...</div>
         </div>
 
       ) : !selectedRecipe ? (

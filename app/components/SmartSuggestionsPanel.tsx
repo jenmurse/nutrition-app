@@ -192,7 +192,7 @@ export default function SmartSuggestionsPanel({
     <div className="mt-2">
 
       {loading && (
-        <div className="px-4 py-8 text-center font-sans text-[11px] text-[var(--muted)]">
+        <div className="px-4 py-8 text-center font-mono text-[11px] text-[var(--muted)] animate-loading">
           Analysing your day…
         </div>
       )}
@@ -318,7 +318,7 @@ export default function SmartSuggestionsPanel({
           {analysis.fillGapCandidates.length > 0 && (
             <div className="space-y-3 mt-6">
               <div className="font-sans text-[11px] text-[var(--muted)]">
-                Recipes to fill your remaining budget:
+                Recipes to help meet your daily goals:
               </div>
               <div className="space-y-1.5">
                 {analysis.fillGapCandidates.map((c) => (
