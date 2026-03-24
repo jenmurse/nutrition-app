@@ -97,7 +97,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       .catch((e) => { console.error(e); setNutrients([]); });
     fetch("/api/persons")
       .then((r) => r.json())
-      .then((d) => setPersons(Array.isArray(d) ? d : []))
+      .then((d) => setPersons(Array.isArray(d?.persons) ? d.persons : Array.isArray(d) ? d : []))
       .catch(() => {});
   }, []);
 

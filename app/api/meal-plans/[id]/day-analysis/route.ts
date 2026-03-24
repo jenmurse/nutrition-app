@@ -272,12 +272,18 @@ export async function GET(
 
         const mealLog = mealLogs.find(m => m.id === meal.mealLogId);
         const mealType = mealLog?.mealType?.toLowerCase() ?? '';
+        // Use the source recipe's tags for category matching (not just the meal slot)
+        const sourceRecipe = mealLog?.recipeId ? recipePool.find(r => r.id === mealLog.recipeId) : null;
+        const sourceTags = sourceRecipe?.tags?.length ? sourceRecipe.tags : (mealType ? [mealType] : []);
+        const hasCategory = sourceTags.length > 0;
 
         const swaps = recipePool
           .filter((r) => {
             const rProblem = r.nutrients[alert.nutrientId] ?? 0;
             if (rProblem >= currentProblemValue) return false;
             if (r.id === (mealLog?.recipeId ?? -1)) return false;
+            // Require at least one category overlap
+            if (hasCategory && !r.tags.some(t => sourceTags.includes(t))) return false;
 
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
@@ -297,14 +303,9 @@ export async function GET(
               const saving = (currentMealNutrients[alert2.nutrientId] ?? 0) - (r.nutrients[alert2.nutrientId] ?? 0);
               if (saving > 0) savingAmounts[alert2.nutrientId] = Math.round(saving * 10) / 10;
             }
-            const matchesMealType = mealType && r.tags.includes(mealType);
-            return { recipeId: r.id, name: r.name, savingAmounts, calorieDiff: Math.round(rCals - currentCals), matchesMealType };
+            return { recipeId: r.id, name: r.name, savingAmounts, calorieDiff: Math.round(rCals - currentCals) };
           })
-          .sort((a, b) => {
-            if (a.matchesMealType && !b.matchesMealType) return -1;
-            if (!a.matchesMealType && b.matchesMealType) return 1;
-            return (b.savingAmounts[alert.nutrientId] ?? 0) - (a.savingAmounts[alert.nutrientId] ?? 0);
-          })
+          .sort((a, b) => (b.savingAmounts[alert.nutrientId] ?? 0) - (a.savingAmounts[alert.nutrientId] ?? 0))
           .slice(0, 4);
 
         if (swaps.length > 0) {
@@ -364,12 +365,18 @@ export async function GET(
         const currentCals = calorieNutrientId ? (currentMealNuts[calorieNutrientId] ?? 0) : 0;
         const mealLog = mealLogs.find(m => m.id === mc.mealLogId);
         const mealType = mealLog?.mealType?.toLowerCase() ?? '';
+        // Use the source recipe's tags for category matching
+        const sourceRecipe = mealLog?.recipeId ? recipePool.find(r => r.id === mealLog.recipeId) : null;
+        const sourceTags = sourceRecipe?.tags?.length ? sourceRecipe.tags : (mealType ? [mealType] : []);
+        const hasCategory = sourceTags.length > 0;
 
         const swaps = recipePool
           .filter((r) => {
             const rDeficit = r.nutrients[deficit.nutrientId] ?? 0;
             if (rDeficit <= currentDeficitValue) return false;
             if (r.id === (mealLog?.recipeId ?? -1)) return false;
+            // Require at least one category overlap
+            if (hasCategory && !r.tags.some(t => sourceTags.includes(t))) return false;
 
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
@@ -385,13 +392,9 @@ export async function GET(
           .map((r) => {
             const rCals = calorieNutrientId ? (r.nutrients[calorieNutrientId] ?? 0) : 0;
             const gain = (r.nutrients[deficit.nutrientId] ?? 0) - currentDeficitValue;
-            const matchesMealType = mealType && r.tags.includes(mealType);
-            return { recipeId: r.id, name: r.name, gainAmount: Math.round(gain * 10) / 10, calorieDiff: Math.round(rCals - currentCals), matchesMealType };
+            return { recipeId: r.id, name: r.name, gainAmount: Math.round(gain * 10) / 10, calorieDiff: Math.round(rCals - currentCals) };
           })
-          .sort((a, b) => {
-            if (a.matchesMealType && !b.matchesMealType) return -1;
-            if (!a.matchesMealType && b.matchesMealType) return 1;
-            return b.gainAmount - a.gainAmount;
+          .sort((a, b) => b.gainAmount - a.gainAmount;
           })
           .slice(0, 3);
 
