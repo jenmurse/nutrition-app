@@ -289,6 +289,13 @@ const SettingsPage = () => {
   const [usageLoading, setUsageLoading] = useState(false);
   const [clearingLogs, setClearingLogs] = useState(false);
 
+  // MCP token
+  const [hasMcpToken, setHasMcpToken] = useState(false);
+  const [newMcpToken, setNewMcpToken] = useState<string | null>(null);
+  const [mcpTokenLoading, setMcpTokenLoading] = useState(false);
+  const [revokingMcpToken, setRevokingMcpToken] = useState(false);
+  const [mcpCopied, setMcpCopied] = useState(false);
+
   // Data export / import
   const [exportLoading, setExportLoading] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
@@ -380,6 +387,48 @@ const SettingsPage = () => {
     setTimeout(() => setCopiedToken(null), 3000);
   };
 
+  const loadMcpToken = useCallback(async () => {
+    try {
+      const res = await fetch('/api/mcp/token');
+      if (!res.ok) return;
+      const data = await res.json();
+      setHasMcpToken(data.hasToken);
+    } catch {}
+  }, []);
+
+  const handleGenerateMcpToken = async () => {
+    setMcpTokenLoading(true);
+    setNewMcpToken(null);
+    try {
+      const res = await fetch('/api/mcp/token', { method: 'POST' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setNewMcpToken(data.token);
+      setHasMcpToken(true);
+    } finally {
+      setMcpTokenLoading(false);
+    }
+  };
+
+  const handleRevokeMcpToken = async () => {
+    if (!confirm('Revoke this token? Any configured MCP servers will stop working until you generate a new one.')) return;
+    setRevokingMcpToken(true);
+    try {
+      await fetch('/api/mcp/token', { method: 'DELETE' });
+      setHasMcpToken(false);
+      setNewMcpToken(null);
+    } finally {
+      setRevokingMcpToken(false);
+    }
+  };
+
+  const handleCopyMcpToken = async () => {
+    if (!newMcpToken) return;
+    await navigator.clipboard.writeText(newMcpToken);
+    setMcpCopied(true);
+    setTimeout(() => setMcpCopied(false), 3000);
+  };
+
   // Load API settings when on API tab
   const loadApiSettings = useCallback(async () => {
     try {
@@ -407,8 +456,10 @@ const SettingsPage = () => {
     if (activeSection === 'api') {
       loadApiSettings();
       loadUsage();
+      loadMcpToken();
+
     }
-  }, [activeSection, loadApiSettings, loadUsage]);
+  }, [activeSection, loadApiSettings, loadUsage, loadMcpToken]);
 
   const handleSaveApiKey = async () => {
     setApiSaving(true);
@@ -926,6 +977,84 @@ const SettingsPage = () => {
                       <div className="font-mono text-[15px] text-[var(--fg)]">{value}</div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-[var(--rule)]" />
+
+            {/* MCP Integration */}
+            <div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">MCP Integration</div>
+              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
+                Connect Course to Claude, ChatGPT, Gemini, and other AI assistants via the Model Context Protocol. Once configured, you can ask any AI to save a recipe directly to your collection.
+              </p>
+
+              {newMcpToken ? (
+                <div className="space-y-3 max-w-[560px]">
+                  <div className="border border-[var(--accent)] bg-[var(--bg-subtle)] px-4 py-3">
+                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] mb-2">
+                      Copy this token now — it won't be shown again
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
+                      <button
+                        onClick={handleCopyMcpToken}
+                        className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer shrink-0"
+                        aria-label="Copy MCP token"
+                      >
+                        {mcpCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-4 py-3 space-y-1">
+                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Claude Desktop config</div>
+                    <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
+  "mcpServers": {
+    "course": {
+      "command": "npx",
+      "args": ["tsx", "/path/to/nutrition-app/mcp/src/index.ts"],
+      "env": {
+        "COURSE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}",
+        "COURSE_API_TOKEN": "${newMcpToken}"
+      }
+    }
+  }
+}`}</pre>
+                  </div>
+                  <button
+                    onClick={() => setNewMcpToken(null)}
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 px-4 py-[10px] border border-[var(--rule)] bg-[var(--bg-subtle)]">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--accent)]' : 'bg-[var(--muted)]'}`} aria-hidden="true" />
+                    <span className="font-mono text-[11px] text-[var(--muted)]">
+                      {hasMcpToken ? 'Token active' : 'No token'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleGenerateMcpToken}
+                    disabled={mcpTokenLoading}
+                    className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                    aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
+                  >
+                    {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate token'}
+                  </button>
+                  {hasMcpToken && (
+                    <button
+                      onClick={handleRevokeMcpToken}
+                      disabled={revokingMcpToken}
+                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
+                      aria-label="Revoke MCP token"
+                    >
+                      {revokingMcpToken ? 'Revoking…' : 'Revoke'}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
