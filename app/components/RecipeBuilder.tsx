@@ -81,6 +81,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [quantityText, setQuantityText] = useState<Record<string, string>>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newIngredientId, setNewIngredientId] = useState<number | null>(null);
+  const [sourceRowId, setSourceRowId] = useState<string | null>(null);
 
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
 
@@ -182,6 +183,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       setSearchText({ ...searchText, [rowId]: "" });
       setShowDropdown({ ...showDropdown, [rowId]: false });
       setNewIngredientId(existing.id);
+      setSourceRowId(rowId);
       setShowCreateModal(true);
       return existing;
     }
@@ -201,6 +203,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       setSearchText({ ...searchText, [rowId]: "" });
       setShowDropdown({ ...showDropdown, [rowId]: false });
       setNewIngredientId(resData.id);
+      setSourceRowId(rowId);
       setShowCreateModal(true);
 
       return resData;
@@ -963,11 +966,32 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         onClose={() => {
           setShowCreateModal(false);
           setNewIngredientId(null);
+          setSourceRowId(null);
         }}
         onNutritionAdded={() => {
+          // Capture the source row's nameGuess before state clears
+          const sourceNameGuess = rows.find((r) => r.id === sourceRowId)?.nameGuess?.toLowerCase();
+          const savedIngredientId = newIngredientId;
+
           fetch("/api/ingredients")
             .then((r) => r.json())
-            .then((d) => setIngredients(Array.isArray(d) ? d : []))
+            .then((d) => {
+              const fresh = Array.isArray(d) ? d : [];
+              setIngredients(fresh);
+              // Auto-link any other unmatched rows that share the same original nameGuess
+              if (savedIngredientId && sourceNameGuess) {
+                const saved = fresh.find((i) => i.id === savedIngredientId);
+                if (saved) {
+                  setRows((prev) => prev.map((row) => {
+                    if (row.ingredientId || !row.nameGuess) return row;
+                    if (row.nameGuess.toLowerCase() === sourceNameGuess) {
+                      return { ...row, ingredientId: saved.id, unit: saved.defaultUnit || "g" };
+                    }
+                    return row;
+                  }));
+                }
+              }
+            })
             .catch((e) => console.error(e));
         }}
       />
