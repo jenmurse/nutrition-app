@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import IngredientContextPanel from "../components/IngredientContextPanel";
@@ -145,6 +145,7 @@ function IngredientsPage() {
   const [usdaLookupQuery, setUsdaLookupQuery] = useState("");
   const [usdaLookupResults, setUsdaLookupResults] = useState<any[]>([]);
   const [usdaLookupLoading, setUsdaLookupLoading] = useState(false);
+  const usdaSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [usdaSelectedFood, setUsdaSelectedFood] = useState<any | null>(null);
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [saving, setSaving] = useState(false);
@@ -207,28 +208,31 @@ function IngredientsPage() {
     }
   };
 
-  const handleUsdaSearch = async (query: string) => {
+  const handleUsdaSearch = (query: string) => {
     setUsdaLookupQuery(query);
+    if (usdaSearchTimerRef.current) clearTimeout(usdaSearchTimerRef.current);
     if (!query.trim()) {
       setUsdaLookupResults([]);
+      setUsdaLookupLoading(false);
       return;
     }
-
     setUsdaLookupLoading(true);
-    try {
-      const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setUsdaLookupResults(data.foods || []);
-      } else {
+    usdaSearchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setUsdaLookupResults(data.foods || []);
+        } else {
+          setUsdaLookupResults([]);
+        }
+      } catch (err) {
+        console.error("USDA search error:", err);
         setUsdaLookupResults([]);
+      } finally {
+        setUsdaLookupLoading(false);
       }
-    } catch (err) {
-      console.error("USDA search error:", err);
-      setUsdaLookupResults([]);
-    } finally {
-      setUsdaLookupLoading(false);
-    }
+    }, 500);
   };
 
   const handleUsdaSelect = async (food: any) => {
@@ -615,7 +619,6 @@ function IngredientsPage() {
       <div className="space-y-5 max-w-[720px]">
         {/* USDA Lookup */}
         <div>
-          <div className={sectionLabelClass}>USDA Lookup</div>
           <label className={labelClass}>Search USDA (Optional)</label>
           <input
             type="text"

@@ -242,7 +242,8 @@ const MealPlansPage = () => {
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const [newWeekStartDate, setNewWeekStartDate] = useState('');
   const [creatingPlan, setCreatingPlan] = useState(false);
-  const showCreateForm = searchParams?.get("showForm") === "true";
+  const [planJustCreated, setPlanJustCreated] = useState(false);
+  const showCreateForm = !planJustCreated && searchParams?.get("showForm") === "true";
   const [editMode, setEditMode] = useState(false);
   const [selectedMealIds, setSelectedMealIds] = useState<Set<number>>(new Set());
   const [viewMode, setViewMode] = useState<'personal' | 'both'>('personal');
@@ -405,7 +406,7 @@ const MealPlansPage = () => {
 
   const fetchIngredients = async () => {
     try {
-      const response = await fetch('/api/ingredients');
+      const response = await fetch('/api/ingredients?slim=true');
       if (!response.ok) throw new Error('Failed to fetch ingredients');
       const data = await response.json();
       setIngredients(Array.isArray(data) ? data : []);
@@ -632,6 +633,7 @@ const MealPlansPage = () => {
         <button
           className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--accent)] bg-[var(--accent)] text-white px-[9px] py-[3px] hover:bg-[var(--accent-hover)] transition-colors shrink-0"
           onClick={() => {
+            setPlanJustCreated(false);
             const params = new URLSearchParams(searchParams?.toString());
             params.set("showForm", "true");
             router.push(`/meal-plans?${params.toString()}`);
@@ -753,6 +755,7 @@ const MealPlansPage = () => {
                 setMealPlans(prev => [plan, ...prev]);
                 setNewWeekStartDate('');
                 setCopyFromPlanId('');
+                setPlanJustCreated(true);
                 const params = new URLSearchParams(searchParams?.toString());
                 params.set("planId", String(plan.id));
                 params.delete("showForm");

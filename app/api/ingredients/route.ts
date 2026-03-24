@@ -2,18 +2,22 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/db";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await getAuthenticatedHousehold();
     if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
+    const slim = new URL(request.url).searchParams.get("slim") === "true";
+
     const ingredients = await prisma.ingredient.findMany({
       where: { householdId: auth.householdId },
-      include: {
-        nutrientValues: {
-          include: { nutrient: true },
+      ...(!slim && {
+        include: {
+          nutrientValues: {
+            include: { nutrient: true },
+          },
         },
-      },
+      }),
       orderBy: { name: "asc" },
     });
     return NextResponse.json(ingredients);

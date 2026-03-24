@@ -592,7 +592,7 @@ const SettingsPage = () => {
                   : 'text-[var(--muted)] hover:text-[var(--fg)]'
               }`}
             >
-              {section === 'household' ? 'Household' : section === 'invites' ? 'Invites' : section === 'api' ? 'AI & API' : 'Data'}
+              {section === 'household' ? 'Household' : section === 'invites' ? 'Invites' : section === 'api' ? 'AI & API' : section === 'mcp' ? 'MCP' : 'Data'}
             </button>
           ))}
         </div>
@@ -995,8 +995,8 @@ const SettingsPage = () => {
             {/* Token */}
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                Generate a token to connect any MCP-compatible AI assistant to your Course recipe collection. Once set up, you can ask your AI to save, search, or list recipes directly.
+              <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
+                Connect any MCP-compatible AI assistant to your recipe collection. Ask your AI to save, search, or list recipes directly.
               </p>
 
               {newMcpToken ? (
@@ -1057,15 +1057,15 @@ const SettingsPage = () => {
 
             {/* Setup instructions */}
             <div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--fg)] mb-5">How to set up</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
 
-              <div className="space-y-6">
+              <div className="space-y-5">
                 {/* Step 1 */}
-                <div className="grid grid-cols-[28px_1fr] gap-2">
-                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">1.</span>
+                <div className="grid grid-cols-[20px_1fr] gap-3">
+                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
                   <div className="space-y-2">
-                    <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
-                      Install the MCP server from the <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">mcp/</code> folder in this project:
+                    <p className="font-mono text-[11px] text-[var(--fg)]">
+                      Build the MCP server from the <code className="bg-[var(--bg-subtle)] px-1">mcp/</code> folder:
                     </p>
                     <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)]">cd mcp && npm install && npm run build</pre>
@@ -1074,16 +1074,16 @@ const SettingsPage = () => {
                 </div>
 
                 {/* Step 2 */}
-                <div className="grid grid-cols-[28px_1fr] gap-2">
-                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">2.</span>
+                <div className="grid grid-cols-[20px_1fr] gap-3">
+                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
                   <div className="space-y-2">
-                    <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
-                      Add Course to your AI assistant's MCP config. For Claude Desktop, open the config file and add a <code className="font-mono text-[11px] bg-[var(--bg-subtle)] px-1">course</code> entry:
+                    <p className="font-mono text-[11px] text-[var(--fg)]">
+                      Add to your AI assistant's MCP config (e.g. Claude Desktop):
                     </p>
-                    <ul className="font-sans text-[12px] text-[var(--muted)] space-y-[3px]">
-                      <li><strong className="text-[var(--fg)]">Mac:</strong> ~/Library/Application Support/Claude/claude_desktop_config.json</li>
-                      <li><strong className="text-[var(--fg)]">Windows:</strong> %APPDATA%\Claude\claude_desktop_config.json</li>
-                    </ul>
+                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px]">
+                      <div><span className="text-[var(--fg)]">Mac</span> — ~/Library/Application Support/Claude/claude_desktop_config.json</div>
+                      <div><span className="text-[var(--fg)]">Win</span> — %APPDATA%\Claude\claude_desktop_config.json</div>
+                    </div>
                     <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
   "mcpServers": {
@@ -1098,32 +1098,29 @@ const SettingsPage = () => {
   }
 }`}</pre>
                     </div>
-                    <p className="font-sans text-[12px] text-[var(--muted)]">
-                      Replace <code className="font-mono text-[10px] bg-[var(--bg-subtle)] px-1">/absolute/path/to/mcp/dist/index.js</code> with the actual path on your machine and paste your token above.
+                    <p className="font-mono text-[10px] text-[var(--muted)]">
+                      Replace <code className="bg-[var(--bg-subtle)] px-1">/absolute/path/to/mcp/dist/index.js</code> with the actual path and paste your token.
                     </p>
                   </div>
                 </div>
 
                 {/* Step 3 */}
-                <div className="grid grid-cols-[28px_1fr] gap-2">
-                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">3.</span>
+                <div className="grid grid-cols-[20px_1fr] gap-3">
+                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">3.</span>
                   <div className="space-y-2">
-                    <p className="font-sans text-[13px] text-[var(--fg)] leading-relaxed">
-                      Restart your AI assistant. You should see a Course tool available. Test it:
+                    <p className="font-mono text-[11px] text-[var(--fg)]">
+                      Restart your AI assistant and test it:
                     </p>
                     <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
-                      <p className="font-mono text-[10px] text-[var(--fg)] italic">"Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
+                      <p className="font-mono text-[10px] text-[var(--muted)] italic">"Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Note */}
-                <div className="grid grid-cols-[28px_1fr] gap-2">
-                  <span className="font-mono text-[11px] text-[var(--muted)] pt-[2px]">✦</span>
-                  <p className="font-sans text-[13px] text-[var(--muted)] leading-relaxed">
-                    Any MCP-compatible assistant works — Claude, Cursor, Windsurf, and others. Point them at the same server binary with the same environment variables.
-                  </p>
-                </div>
+                <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed pl-[32px]">
+                  Works with any MCP-compatible assistant — Claude, Cursor, Windsurf, and others.
+                </p>
               </div>
             </div>
 

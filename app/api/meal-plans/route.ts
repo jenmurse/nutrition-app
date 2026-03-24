@@ -71,32 +71,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create nutrition goals if provided
+    // Create nutrition goals — use createMany for a single round-trip
     if (goals) {
-      for (const nutrientId of Object.keys(goals)) {
-        const goal = goals[nutrientId];
-        await prisma.nutritionGoal.create({
-          data: {
-            mealPlanId: mealPlan.id,
-            nutrientId: parseInt(nutrientId),
-            lowGoal: goal.lowGoal || null,
-            highGoal: goal.highGoal || null,
-          },
-        });
-      }
+      await prisma.nutritionGoal.createMany({
+        data: Object.keys(goals).map((nutrientId) => ({
+          mealPlanId: mealPlan.id,
+          nutrientId: parseInt(nutrientId),
+          lowGoal: goals[nutrientId].lowGoal || null,
+          highGoal: goals[nutrientId].highGoal || null,
+        })),
+      });
     } else {
-      // Create default goals for all nutrients (no limits)
-      const nutrients = await prisma.nutrient.findMany();
-      for (const nutrient of nutrients) {
-        await prisma.nutritionGoal.create({
-          data: {
-            mealPlanId: mealPlan.id,
-            nutrientId: nutrient.id,
-            lowGoal: null,
-            highGoal: null,
-          },
-        });
-      }
+      // Default goals (no limits) for all nutrients
+      const nutrients = await prisma.nutrient.findMany({ select: { id: true } });
+      await prisma.nutritionGoal.createMany({
+        data: nutrients.map((n) => ({
+          mealPlanId: mealPlan.id,
+          nutrientId: n.id,
+          lowGoal: null,
+          highGoal: null,
+        })),
+      });
     }
 
     const createdMealPlan = await prisma.mealPlan.findUnique({
