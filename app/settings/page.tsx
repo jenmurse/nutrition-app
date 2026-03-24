@@ -19,6 +19,17 @@ interface UsageData {
   estimatedCostUsd: number;
 }
 
+interface Invite {
+  id: number;
+  token: string;
+  url: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
+  usedByName: string | null;
+  expired: boolean;
+}
+
 // ─── Household section ──────────────────────────────────────────────────────
 
 interface PersonRowProps {
@@ -251,10 +262,13 @@ const SettingsPage = () => {
 
   // Household info
   const [householdName, setHouseholdName] = useState('');
+  const [editingHouseholdName, setEditingHouseholdName] = useState(false);
+  const [householdNameDraft, setHouseholdNameDraft] = useState('');
+  const [householdNameSaving, setHouseholdNameSaving] = useState(false);
   const [memberRoles, setMemberRoles] = useState<Record<number, string>>({});
+  const [invites, setInvites] = useState<Invite[]>([]);
   const [inviting, setInviting] = useState(false);
-  const [inviteUrl, setInviteUrl] = useState('');
-  const [inviteCopied, setInviteCopied] = useState(false);
+  const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   // Add member
   const [addingPerson, setAddingPerson] = useState(false);
@@ -301,7 +315,39 @@ const SettingsPage = () => {
         }
       })
       .catch(() => {});
+
+    fetch('/api/households/invite')
+      .then((r) => r.ok ? r.json() : [])
+      .then(setInvites)
+      .catch(() => {});
   }, []);
+
+  const loadInvites = async () => {
+    const r = await fetch('/api/households/invite');
+    if (r.ok) setInvites(await r.json());
+  };
+
+  const handleSaveHouseholdName = async () => {
+    if (!householdNameDraft.trim() || householdNameDraft.trim() === householdName) {
+      setEditingHouseholdName(false);
+      return;
+    }
+    setHouseholdNameSaving(true);
+    try {
+      const res = await fetch('/api/households', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: householdNameDraft.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setHouseholdName(data.name);
+        setEditingHouseholdName(false);
+      }
+    } finally {
+      setHouseholdNameSaving(false);
+    }
+  };
 
   const handleInvite = async () => {
     setInviting(true);
@@ -309,13 +355,19 @@ const SettingsPage = () => {
       const res = await fetch('/api/households/invite', { method: 'POST' });
       if (!res.ok) return;
       const data = await res.json();
-      setInviteUrl(data.url);
       await navigator.clipboard.writeText(data.url);
-      setInviteCopied(true);
-      setTimeout(() => setInviteCopied(false), 3000);
+      setCopiedToken(data.token);
+      setTimeout(() => setCopiedToken(null), 3000);
+      await loadInvites();
     } finally {
       setInviting(false);
     }
+  };
+
+  const handleCopyInvite = async (url: string, token: string) => {
+    await navigator.clipboard.writeText(url);
+    setCopiedToken(token);
+    setTimeout(() => setCopiedToken(null), 3000);
   };
 
   // Load API settings when on API tab
@@ -439,27 +491,46 @@ const SettingsPage = () => {
         {/* ── HOUSEHOLD TAB ── */}
         {activeSection === 'household' && (
           <div>
-            {/* Household header */}
-            <div className="px-7 py-5 border-b border-[var(--rule)] flex items-center justify-between">
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[3px]">Household</div>
-                <div className="font-serif text-[16px] text-[var(--fg)]">{householdName || '…'}</div>
-              </div>
-              <div className="flex items-center gap-3">
-                {inviteUrl && (
-                  <span className="font-mono text-[9px] text-[var(--muted)] max-w-[200px] truncate hidden sm:block" title={inviteUrl}>
-                    {inviteUrl.replace(/^https?:\/\//, '')}
-                  </span>
-                )}
+            {/* Household name */}
+            <div className="px-7 py-5 border-b border-[var(--rule)]">
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household Name</div>
+              {editingHouseholdName ? (
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={householdNameDraft}
+                    onChange={(e) => setHouseholdNameDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveHouseholdName();
+                      if (e.key === 'Escape') setEditingHouseholdName(false);
+                    }}
+                    autoFocus
+                    className="bg-[var(--bg)] border border-[var(--rule)] px-3 py-[7px] font-sans text-[14px] text-[var(--fg)] w-[220px] focus:outline-none focus:border-[var(--accent)]"
+                    aria-label="Household name"
+                  />
+                  <button
+                    onClick={handleSaveHouseholdName}
+                    disabled={householdNameSaving || !householdNameDraft.trim()}
+                    className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                  >
+                    {householdNameSaving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    onClick={() => setEditingHouseholdName(false)}
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={handleInvite}
-                  disabled={inviting}
-                  className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
-                  aria-label="Generate and copy invite link"
+                  onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
+                  className="font-serif text-[16px] text-[var(--fg)] bg-transparent border-0 cursor-pointer hover:text-[var(--accent)] transition-colors text-left p-0"
+                  aria-label="Click to edit household name"
                 >
-                  {inviting ? 'Generating…' : inviteCopied ? 'Copied!' : 'Invite'}
+                  {householdName || '…'}
                 </button>
-              </div>
+              )}
             </div>
 
             {persons.map((person) => (
@@ -513,6 +584,66 @@ const SettingsPage = () => {
                   >
                     Cancel
                   </button>
+                </div>
+              )}
+            </div>
+
+            {/* ── Invites section ── */}
+            <div className="px-7 py-5 border-t border-[var(--rule)]">
+              <div className="flex items-center justify-between mb-4">
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Invites</div>
+                <button
+                  onClick={handleInvite}
+                  disabled={inviting}
+                  className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                  aria-label="Generate invite link"
+                >
+                  {inviting ? 'Generating…' : '+ New invite'}
+                </button>
+              </div>
+
+              {invites.length === 0 ? (
+                <p className="font-mono text-[11px] text-[var(--muted)] italic">No invites yet.</p>
+              ) : (
+                <div className="space-y-[1px] border border-[var(--rule)]">
+                  {/* Header row */}
+                  <div className="grid grid-cols-[1fr_80px_100px_100px_80px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
+                    {['Invite URL', 'Status', 'Created', 'Redeemed', ''].map((h) => (
+                      <span key={h} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
+                    ))}
+                  </div>
+                  {invites.map((inv) => {
+                    const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
+                    const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
+                    return (
+                      <div key={inv.id} className="grid grid-cols-[1fr_80px_100px_100px_80px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule)] items-center gap-2">
+                        <span className="font-mono text-[10px] text-[var(--fg)] truncate" title={inv.url}>
+                          {inv.url.replace(/^https?:\/\//, '')}
+                        </span>
+                        <div>
+                          <span className={`font-mono text-[9px] uppercase tracking-[0.05em] ${statusColor}`}>{status}</span>
+                          {inv.usedByName && (
+                            <div className="font-sans text-[10px] text-[var(--muted)] mt-[1px]">{inv.usedByName}</div>
+                          )}
+                        </div>
+                        <span className="font-mono text-[10px] text-[var(--muted)]">
+                          {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                        </span>
+                        <span className="font-mono text-[10px] text-[var(--muted)]">
+                          {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
+                        </span>
+                        {status === 'active' && (
+                          <button
+                            onClick={() => handleCopyInvite(inv.url, inv.token)}
+                            className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer text-right"
+                            aria-label="Copy invite link"
+                          >
+                            {copiedToken === inv.token ? 'Copied!' : 'Copy'}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

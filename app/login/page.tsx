@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -55,7 +56,10 @@ function LoginPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback${getInviteParam()}` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback${getInviteParam()}`,
+        data: { full_name: firstName.trim() || undefined },
+      },
     });
     if (error) {
       setError(error.message);
@@ -126,6 +130,23 @@ function LoginPage() {
 
         {/* Email/password form */}
         <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-4">
+          {mode === "signup" && (
+            <div className="space-y-1">
+              <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="firstName">
+                First name
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                autoComplete="given-name"
+                className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+                placeholder="Jane"
+              />
+            </div>
+          )}
           <div className="space-y-1">
             <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="email">
               Email

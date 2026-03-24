@@ -76,6 +76,7 @@ model HouseholdInvite {
   householdId  Int
   token        String    @unique @default(uuid())
   createdBy    Int       // personId
+  createdAt    DateTime  @default(now())
   expiresAt    DateTime
   usedAt       DateTime?
   usedBy       Int?      // personId who redeemed

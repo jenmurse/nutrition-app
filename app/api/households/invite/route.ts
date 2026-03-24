@@ -3,6 +3,47 @@ import { prisma } from "@/lib/db";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 
 /**
+ * GET /api/households/invite — list all invites for the active household
+ */
+export async function GET(request: Request) {
+  try {
+    const auth = await getAuthenticatedHousehold();
+    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+    const { origin } = new URL(request.url);
+
+    const invites = await prisma.householdInvite.findMany({
+      where: { householdId: auth.householdId },
+      orderBy: { id: "desc" },
+    });
+
+    // Resolve names for redeemed invites
+    const usedByIds = invites.map((i) => i.usedBy).filter((id): id is number => id !== null);
+    const persons = usedByIds.length
+      ? await prisma.person.findMany({ where: { id: { in: usedByIds } }, select: { id: true, name: true } })
+      : [];
+    const personMap = new Map(persons.map((p) => [p.id, p.name]));
+
+    const now = new Date();
+    return NextResponse.json(
+      invites.map((inv) => ({
+        id: inv.id,
+        token: inv.token,
+        url: `${origin}/login?invite=${inv.token}`,
+        createdAt: inv.createdAt,
+        expiresAt: inv.expiresAt,
+        usedAt: inv.usedAt,
+        usedByName: inv.usedBy ? (personMap.get(inv.usedBy) ?? null) : null,
+        expired: inv.expiresAt < now && !inv.usedAt,
+      }))
+    );
+  } catch (error) {
+    console.error("Error fetching invites:", error);
+    return NextResponse.json({ error: "Failed to fetch invites" }, { status: 500 });
+  }
+}
+
+/**
  * POST /api/households/invite — generate an invite link for the active household
  * Returns: { token, url, expiresAt }
  */
