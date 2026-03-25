@@ -28,7 +28,7 @@ export default function TopNav() {
   return (
     <nav className="flex items-center h-[52px] border-b border-[var(--rule)] bg-[var(--bg-nav)] px-5 shrink-0" role="navigation" aria-label="Main navigation">
       {/* Brand */}
-      <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em]">
+      <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em] leading-[52px]">
         Course
       </Link>
 
@@ -40,7 +40,7 @@ export default function TopNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[14px] h-[52px] flex items-center no-underline border-b-2 transition-[color,border-color] duration-[120ms] ease-in-out whitespace-nowrap ${
+              className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[14px] h-[52px] flex items-center no-underline border-b-2 transition-[color,border-color] duration-[120ms] ease-in-out whitespace-nowrap leading-[52px] ${
                 isActive
                   ? "text-[var(--fg)] border-[var(--accent)]"
                   : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -81,7 +81,7 @@ export default function TopNav() {
 
         <button
           onClick={handleSignOut}
-          className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[52px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+          className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[52px] flex items-center leading-[52px] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
           aria-label="Sign out"
         >
           Sign out

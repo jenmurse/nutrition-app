@@ -338,8 +338,25 @@ const MealPlansPage = () => {
         setMealPlans(cachedPlans);
         // Ignore stale URL planId when person just switched
         const effectivePlanId = personJustSwitched ? null : selectedPlanId;
-        const cachedPlanId = effectivePlanId ?? (cachedPlans.length > 0 ? cachedPlans[0].id : null);
+        let cachedPlanId = effectivePlanId;
+        if (!cachedPlanId && cachedPlans.length > 0) {
+          // Auto-select current week's plan (same logic as non-cached path)
+          const todayLocal = new Date();
+          todayLocal.setHours(0, 0, 0, 0);
+          const currentWeekPlan = cachedPlans.find((plan) => {
+            const weekStart = parseUTCDate(plan.weekStartDate);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            return todayLocal >= weekStart && todayLocal <= weekEnd;
+          });
+          cachedPlanId = (currentWeekPlan || cachedPlans[0]).id;
+        }
         if (cachedPlanId && cachedPlans.some(p => p.id === cachedPlanId)) {
+          // Update URL so other effects can see the selected plan
+          const params = new URLSearchParams(searchParams?.toString());
+          params.set("planId", String(cachedPlanId));
+          router.push(`/meal-plans?${params.toString()}`);
+          setHasAutoSelected(true);
           await fetchMealPlanDetails(cachedPlanId);
         }
         setLoading(false);
@@ -520,13 +537,14 @@ const MealPlansPage = () => {
     servings: number,
     alsoAddToPlanIds?: number[]
   ) => {
-    if (!selectedPlanId) return;
+    const planId = selectedPlanId ?? selectedPlan?.id;
+    if (!planId) return;
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const body = { recipeId, date: dateStr, mealType, servings };
-    const newMeal = await addMealToPlan(selectedPlanId, body);
+    const newMeal = await addMealToPlan(planId, body);
     if (alsoAddToPlanIds) {
-      for (const planId of alsoAddToPlanIds) {
-        await addMealToPlan(planId, body);
+      for (const otherPlanId of alsoAddToPlanIds) {
+        await addMealToPlan(otherPlanId, body);
       }
     }
     // Optimistic: add meal to local state immediately
@@ -537,9 +555,9 @@ const MealPlansPage = () => {
       ),
     } : prev);
     toast.success('Meal added successfully!');
-    
+
     // Background refresh for nutrition recalc (non-blocking)
-    fetchMealPlanDetails(selectedPlanId);
+    fetchMealPlanDetails(planId);
     setAnalysisRefreshKey(k => k + 1);
   };
 
@@ -551,13 +569,14 @@ const MealPlansPage = () => {
     unit: string,
     alsoAddToPlanIds?: number[]
   ) => {
-    if (!selectedPlanId) return;
+    const planId = selectedPlanId ?? selectedPlan?.id;
+    if (!planId) return;
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const body = { ingredientId, quantity, unit, date: dateStr, mealType };
-    const newMeal = await addMealToPlan(selectedPlanId, body);
+    const newMeal = await addMealToPlan(planId, body);
     if (alsoAddToPlanIds) {
-      for (const planId of alsoAddToPlanIds) {
-        await addMealToPlan(planId, body);
+      for (const otherPlanId of alsoAddToPlanIds) {
+        await addMealToPlan(otherPlanId, body);
       }
     }
     // Optimistic: add meal to local state immediately
@@ -568,9 +587,9 @@ const MealPlansPage = () => {
       ),
     } : prev);
     toast.success('Ingredient added successfully!');
-    
+
     // Background refresh for nutrition recalc (non-blocking)
-    fetchMealPlanDetails(selectedPlanId);
+    fetchMealPlanDetails(planId);
     setAnalysisRefreshKey(k => k + 1);
   };
 
@@ -747,50 +766,53 @@ const MealPlansPage = () => {
           </>
         )}
 
-        {/* Summary panel toggle — hidden in "everyone" view */}
-        {selectedPlan && viewMode !== 'both' && (
-          <button
-            onClick={() => setSummaryPanelOpen(o => !o)}
-            aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
-            aria-expanded={summaryPanelOpen}
-            className={`ml-auto font-mono text-[8px] uppercase tracking-[0.1em] px-[9px] py-[3px] border transition-colors shrink-0 ${
-              summaryPanelOpen
-                ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-light)]'
-                : 'border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)]'
-            }`}
-          >
-            {summaryPanelOpen ? 'Nutrition ›' : '‹ Nutrition'}
-          </button>
-        )}
-
-        {/* Person tabs — anchored right */}
-        {persons.length > 1 && selectedPlan && (
+        {/* Person tabs + Nutrition — anchored right */}
+        {selectedPlan && (
           <div className="flex items-center shrink-0 ml-auto">
-            {persons.map((p) => {
-              const isActive = viewMode === 'personal' && selectedPersonId === p.id;
-              return (
+            {/* Summary panel toggle — hidden in "everyone" view */}
+            {viewMode !== 'both' && (
+              <button
+                onClick={() => setSummaryPanelOpen(o => !o)}
+                aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
+                aria-expanded={summaryPanelOpen}
+                className={`font-mono text-[8px] uppercase tracking-[0.1em] px-[9px] py-[3px] border transition-colors shrink-0 mr-2 ${
+                  summaryPanelOpen
+                    ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-light)]'
+                    : 'border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)]'
+                }`}
+              >
+                {summaryPanelOpen ? 'Nutrition ›' : '‹ Nutrition'}
+              </button>
+            )}
+            {persons.length > 1 && (
+              <>
+                {persons.map((p) => {
+                  const isActive = viewMode === 'personal' && selectedPersonId === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => { setViewMode('personal'); setSelectedPersonId(p.id); }}
+                      style={{ borderRadius: 0 }}
+                      className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
+                        isActive ? 'text-[var(--fg)] border-[var(--accent)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[var(--accent)]" aria-hidden="true" />
+                      {p.name}
+                    </button>
+                  );
+                })}
                 <button
-                  key={p.id}
-                  onClick={() => { setViewMode('personal'); setSelectedPersonId(p.id); }}
+                  onClick={() => setViewMode('both')}
                   style={{ borderRadius: 0 }}
-                  className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
-                    isActive ? 'text-[var(--fg)] border-[var(--accent)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                  className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
+                    viewMode === 'both' ? 'text-[var(--fg)] border-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
                   }`}
-                  aria-pressed={isActive}
-                >
-                  <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[var(--accent)]" aria-hidden="true" />
-                  {p.name}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setViewMode('both')}
-              style={{ borderRadius: 0 }}
-              className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
-                viewMode === 'both' ? 'text-[var(--fg)] border-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
-              }`}
-              aria-pressed={viewMode === 'both'}
-            >Everyone</button>
+                  aria-pressed={viewMode === 'both'}
+                >Everyone</button>
+              </>
+            )}
           </div>
         )}
       </div>

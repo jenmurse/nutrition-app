@@ -160,7 +160,10 @@ export default function Home() {
               <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
                 No meals logged for today yet.
               </p>
-              <Link href={`/meal-plans?planId=${weekPlanId}`} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:underline">
+              <Link
+                href={`/meal-plans?planId=${weekPlanId}`}
+                className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-sm px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
+              >
                 Open meal plan →
               </Link>
             </div>

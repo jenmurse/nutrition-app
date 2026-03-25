@@ -926,7 +926,7 @@ function IngredientsPage() {
             <div className="space-y-0">
               {ing.nutrientValues.map((nv, idx) => (
                 <div key={nv.id} className={`flex justify-between items-baseline py-[7px] ${idx < ing.nutrientValues.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
-                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)]">{nv.nutrient.displayName}</span>
+                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--fg)]">{nv.nutrient.displayName}</span>
                   <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
                 </div>
               ))}
@@ -962,7 +962,7 @@ function IngredientsPage() {
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search ingredients"
-            className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
+            className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[5px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
           />
         </div>
 

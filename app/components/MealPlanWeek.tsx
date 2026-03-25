@@ -236,13 +236,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const filteredRecipes = useMemo(() => {
     let result = recipes;
-    // Auto-filter by meal type
+    // Auto-filter by meal type — only show recipes tagged for this meal type
     if (selectedDayMeal) {
       const target = selectedDayMeal.mealType.toLowerCase();
       result = result.filter((recipe) => {
-        if (!recipe.tags) return true;
+        if (!recipe.tags) return false;
         const tags = recipe.tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
-        return tags.length === 0 || tags.includes(target);
+        return tags.length === 0 ? false : tags.includes(target);
       });
     }
     // Search filter
