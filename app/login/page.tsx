@@ -93,7 +93,7 @@ function LoginPage() {
 
         {/* Invite banner */}
         {inviteHousehold && (
-          <div className="mb-6 p-3 border border-[var(--accent)] bg-[var(--accent-light)]" role="status" aria-live="polite">
+          <div className="mb-6 p-3 border border-[var(--accent)] bg-[var(--accent-light)] rounded-[var(--radius-sm,4px)]" role="status" aria-live="polite">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--fg)]">
               You&apos;ve been invited to join <strong>{inviteHousehold}</strong>
             </p>
@@ -105,7 +105,8 @@ function LoginPage() {
           <button
             type="button"
             onClick={() => setMode("signin")}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 rounded-none transition-colors ${
+            style={{ borderRadius: 0 }}
+            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
               mode === "signin"
                 ? "border-[var(--accent)] text-[var(--fg)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
@@ -117,7 +118,8 @@ function LoginPage() {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 rounded-none transition-colors ${
+            style={{ borderRadius: 0 }}
+            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
               mode === "signup"
                 ? "border-[var(--accent)] text-[var(--fg)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
@@ -142,7 +144,7 @@ function LoginPage() {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 autoComplete="given-name"
-                className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+                className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors rounded-[var(--radius-sm,4px)]"
                 placeholder=""
               />
             </div>
@@ -158,7 +160,7 @@ function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+              className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors rounded-[var(--radius-sm,4px)]"
               placeholder=""
             />
           </div>
@@ -174,7 +176,7 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+              className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors rounded-[var(--radius-sm,4px)]"
               placeholder=""
             />
           </div>
@@ -188,7 +190,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--accent)] text-[var(--accent-text)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
+            className="w-full bg-[var(--accent)] text-[var(--accent-text)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 rounded-[var(--radius-sm,4px)]"
           >
             {loading
               ? mode === "signin" ? "Signing in…" : "Creating account…"
@@ -207,7 +209,7 @@ function LoginPage() {
         <button
           type="button"
           onClick={handleGoogle}
-          className="w-full border border-[var(--rule)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
+          className="w-full border border-[var(--rule)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors rounded-[var(--radius-sm,4px)]"
         >
           Continue with Google
         </button>

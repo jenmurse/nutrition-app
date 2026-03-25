@@ -771,6 +771,7 @@ const MealPlansPage = () => {
                 <button
                   key={p.id}
                   onClick={() => { setViewMode('personal'); setSelectedPersonId(p.id); }}
+                  style={{ borderRadius: 0 }}
                   className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
                     isActive ? 'text-[var(--fg)] border-[var(--accent)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
                   }`}
@@ -783,6 +784,7 @@ const MealPlansPage = () => {
             })}
             <button
               onClick={() => setViewMode('both')}
+              style={{ borderRadius: 0 }}
               className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
                 viewMode === 'both' ? 'text-[var(--fg)] border-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
               }`}

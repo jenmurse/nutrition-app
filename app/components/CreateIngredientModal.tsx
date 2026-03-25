@@ -275,7 +275,8 @@ export default function CreateIngredientModal({
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] border-b-2 rounded-none transition ${
+                  style={{ borderRadius: 0 }}
+                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] border-b-2 transition ${
                     tab === t
                       ? "border-[var(--accent)] text-[var(--fg)]"
                       : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
@@ -292,7 +293,7 @@ export default function CreateIngredientModal({
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    className="flex-1 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[13px] text-[var(--fg)] focus:outline-none focus:border-[var(--fg)]"
+                    className="flex-1 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--fg)]"
                     placeholder="Search USDA database…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}

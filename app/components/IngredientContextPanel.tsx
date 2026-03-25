@@ -112,6 +112,11 @@ export default function IngredientContextPanel({
     );
   }
 
+  const formatGoalVal = (val: number) => {
+    const rounded = Math.round(val);
+    return rounded >= 1000 ? rounded.toLocaleString() : String(rounded);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -125,43 +130,26 @@ export default function IngredientContextPanel({
           const value = (valuePer100g / 100) * gramsPerServing;
           const target = goal.highGoal || goal.lowGoal || 0;
           const pct = target > 0 ? Math.round((value / target) * 100) : 0;
-          const isHigh = pct > 80;
           const isOver = pct > 100;
+          const isWarn = !isOver && pct > 80;
+          const unitSuffix = goal.nutrient.displayName.toLowerCase() === "calories" ? "" : ` ${goal.nutrient.unit}`;
+          const overLabel = isOver ? " — over" : "";
 
           return (
-            <div key={goal.nutrientId} className="mb-4">
-              <div className="flex justify-between font-mono text-[9px] tracking-[0.1em] uppercase mb-[5px]">
-                <span className="text-[var(--muted)]">{goal.nutrient.displayName}</span>
-                <span
-                  className={`font-medium ${
-                    isOver
-                      ? "text-[var(--error)]"
-                      : isHigh
-                      ? "text-[var(--warning)]"
-                      : "text-[var(--muted)]"
-                  }`}
-                >
-                  {Math.round(value * 10) / 10} {goal.nutrient.unit}
+            <div key={goal.nutrientId} className="mb-3">
+              <div className="flex justify-between items-baseline mb-[5px]">
+                <span className="font-mono text-[10px] text-[var(--fg)]">{goal.nutrient.displayName}</span>
+                <span className={`font-mono text-[10px] tabular-nums ${isOver ? "text-[var(--error)]" : "text-[var(--muted)]"}`}>
+                  {formatGoalVal(Math.round(value * 10) / 10)} / {formatGoalVal(target)}{unitSuffix}{overLabel}
                 </span>
               </div>
-              <div className="h-[3px] bg-[var(--rule)] relative mb-[4px] rounded-full">
+              <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
                 <div
-                  className={`h-full absolute top-0 left-0 rounded-full ${
-                    isOver
-                      ? "bg-[var(--error)]"
-                      : isHigh
-                      ? "bg-[var(--warning)]"
-                      : "bg-[var(--accent)]"
+                  className={`h-full rounded-sm ${
+                    isOver ? "bg-[var(--error)]" : isWarn ? "bg-[var(--warning)]" : "bg-[var(--accent)]"
                   }`}
                   style={{ width: `${Math.min(pct, 100)}%` }}
                 />
-              </div>
-              <div
-                className={`font-sans text-[10px] tracking-[0.02em] ${
-                  isOver ? "text-[var(--error)]" : "text-[var(--muted)]"
-                }`}
-              >
-                {pct}% of {target} {goal.nutrient.unit} goal
               </div>
             </div>
           );

@@ -422,6 +422,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               <div className="flex gap-4">
                 <button
                   onClick={() => setItemTypeTabOpen('recipe')}
+                  style={{ borderRadius: 0 }}
                   className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
                     itemTypeTabOpen === 'recipe'
                       ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'
@@ -432,6 +433,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
                 <button
                   onClick={() => setItemTypeTabOpen('ingredient')}
+                  style={{ borderRadius: 0 }}
                   className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
                     itemTypeTabOpen === 'ingredient'
                       ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'

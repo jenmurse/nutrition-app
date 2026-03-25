@@ -523,11 +523,11 @@ function IngredientsPage() {
 
   /* ── Shared input/select style for forms ── */
   const inputBase =
-    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] transition-colors";
+    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] transition-colors rounded-none";
   const inputClass = inputBase + " w-full";
   const inputNarrow = inputBase + " w-[120px]";
   const selectClass =
-    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] appearance-none transition-colors w-full";
+    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] appearance-none transition-colors w-full rounded-none";
   const labelClass = "block text-[9px] font-mono tracking-[0.1em] uppercase text-[var(--muted)] mb-[6px]";
   const sectionLabelClass =
     "font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mt-4 mb-[10px]";

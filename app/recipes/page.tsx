@@ -368,14 +368,14 @@ function RecipesPage() {
             aria-label="Search recipes"
             className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none mb-2"
           />
-          <div className="flex gap-[3px] flex-wrap mt-2">
+          <div className="flex gap-[5px] flex-wrap mt-2">
             {availableTags.map((tag) => (
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
                 aria-label={`Filter by ${tag}`}
                 aria-pressed={selectedTags.includes(tag)}
-                className={`py-[1px] px-[5px] font-mono text-[9px] tracking-[0.04em] rounded-[var(--radius-xs,2px)] cursor-pointer transition-colors border-0 ${
+                className={`py-[2px] px-[6px] font-mono text-[9px] tracking-[0.04em] uppercase rounded-[var(--radius-xs,2px)] cursor-pointer transition-colors border-0 ${
                   selectedTags.includes(tag)
                     ? 'bg-[var(--accent)] text-[var(--accent-text)]'
                     : 'bg-[var(--bg-subtle)] text-[var(--muted)] hover:text-[var(--fg)]'
@@ -405,7 +405,7 @@ function RecipesPage() {
                 <div className="flex items-center gap-[7px] font-mono text-[9px] text-[var(--muted)]">
                   <span>{recipe.servingSize} servings</span>
                   {recipeTags.map((tag) => (
-                    <span key={tag} className="text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[5px] rounded-[var(--radius-xs,2px)] tracking-[0.04em]">{tag}</span>
+                    <span key={tag} className="text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[5px] rounded-[var(--radius-xs,2px)] tracking-[0.04em] uppercase">{tag}</span>
                   ))}
                   {recipe.isComplete === false && (
                     <span className="text-[var(--warning)] tracking-[0.04em]">incomplete</span>
@@ -453,7 +453,7 @@ function RecipesPage() {
                     onKeyDown={(e) => { if (e.key === "Enter") handleCreateUrlImport(); }}
                     disabled={createImporting}
                     aria-label="Recipe URL to import"
-                    className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
+                    className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
                   />
                   <button
                     onClick={handleCreateUrlImport}
@@ -627,7 +627,7 @@ function RecipesPage() {
                     });
                     return (
                       <div className="mb-5">
-                        <div className="grid grid-cols-4 bg-[var(--bg-raised)] border border-[var(--rule)] rounded-md shadow-[var(--shadow-sm)] overflow-hidden">
+                        <div className="grid grid-cols-4 bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-md,8px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
                           {gridNutrients.map((n, i) => (
                             <div key={n.label} className={`py-[14px] px-3 text-center ${
                               i % 4 !== 3 ? "border-r border-[var(--rule)]" : ""
@@ -643,7 +643,7 @@ function RecipesPage() {
 
                   {/* Ingredients — 3-column */}
                   <div className="mb-5">
-                    <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5 first:mt-0">Ingredients — per serving</p>
+                    <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients — per serving</p>
                     {selectedRecipe.ingredients.map((ing, idx) => (
                       <div key={ing.id}
                         className={`flex items-center py-[8px] gap-[10px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>

@@ -399,7 +399,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         <div>
           <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Recipe Name</label>
           <input
-            className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+            className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
             placeholder="Recipe name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -426,7 +426,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             <div className="flex items-center gap-3">
               <input
                 type="url"
-                className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
+                className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
                 placeholder="Paste image URL…"
                 onChange={(e) => setImage(e.target.value)}
               />
@@ -465,7 +465,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <div>
             <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Servings</label>
             <input
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               type="text"
               inputMode="decimal"
               value={servings === 0 ? "" : servings}
@@ -485,7 +485,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <div>
             <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Unit</label>
             <select
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               value={servingUnit}
               onChange={(e) => setServingUnit(e.target.value)}
             >
@@ -529,7 +529,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               type="number"
               min={0}
               step={1}
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               placeholder="--"
               value={prepTime}
               onChange={(e) => setPrepTime(e.target.value)}
@@ -541,7 +541,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               type="number"
               min={0}
               step={1}
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               placeholder="--"
               value={cookTime}
               onChange={(e) => setCookTime(e.target.value)}
@@ -612,7 +612,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <div className="flex-1 relative">
                   <input
                     type="text"
-                    className={`w-full border-0 border-b bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)] ${!selectedIngredient && row.nameGuess && !currentSearch ? 'border-[var(--warning)] text-[var(--warning)]' : 'border-[var(--rule)]'}`}
+                    className={`w-full border-0 border-b bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] ${!selectedIngredient && row.nameGuess && !currentSearch ? 'border-[var(--warning)] text-[var(--warning)]' : 'border-[var(--rule)]'}`}
                     placeholder="Type to search ingredients..."
                     value={selectedIngredient ? selectedIngredient.name : currentSearch}
                     onChange={(e) => {
@@ -690,7 +690,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 </div>
 
                 <input
-                  className="w-24 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+                  className="w-24 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
                   type="text"
                   inputMode="decimal"
                   placeholder="qty"
@@ -724,7 +724,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   draggable={false}
                 />
                 <select
-                  className="w-32 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)]"
+                  className="w-32 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
                   value={row.unit ?? defaultUnitForRow}
                   onChange={(e) => updateRow(row.id, { unit: e.target.value })}
                   draggable={false}
