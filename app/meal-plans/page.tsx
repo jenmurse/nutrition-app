@@ -476,8 +476,9 @@ const MealPlansPage = () => {
       const response = await fetch(`/api/meal-plans/${planId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete meal plan');
       clientCache.delete(`/api/meal-plans/${planId}`);
-      clientCache.invalidate(`/api/meal-plans?personId=${selectedPersonId}`);
-      setMealPlans(mealPlans.filter((p) => p.id !== planId));
+      const updated = mealPlans.filter(p => p.id !== planId);
+      clientCache.set(`/api/meal-plans?personId=${selectedPersonId}`, updated);
+      setMealPlans(updated);
       if (selectedPlanId === planId) {
         setSelectedPlan(null);
         const params = new URLSearchParams(searchParams?.toString());
@@ -824,8 +825,9 @@ const MealPlansPage = () => {
                   }
                 }
 
-                clientCache.invalidate(`/api/meal-plans?personId=${selectedPersonId}`);
-                setMealPlans(prev => [plan, ...prev]);
+                const updatedPlans = [plan, ...mealPlans];
+                clientCache.set(`/api/meal-plans?personId=${selectedPersonId}`, updatedPlans);
+                setMealPlans(updatedPlans);
                 setNewWeekStartDate('');
                 setCopyFromPlanId('');
                 setPlanJustCreated(true);

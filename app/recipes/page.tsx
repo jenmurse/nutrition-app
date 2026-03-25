@@ -211,9 +211,11 @@ function RecipesPage() {
     try {
       const r = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
       if (r.ok) {
-        clientCache.invalidate('/api/recipes');
+        const updated = recipes.filter(r => r.id !== id);
+        clientCache.set('/api/recipes', updated);
+        clientCache.delete(`/api/recipes/${id}`);
+        setRecipes(updated);
         if (selectedRecipe?.id === id) setSelectedRecipe(null);
-        loadRecipes(true);
       } else toast.error("Failed to delete recipe");
     } catch {
       toast.error("Failed to delete recipe");
@@ -273,8 +275,10 @@ function RecipesPage() {
       setEditRecipe(draft);
       setEditMode(true);
       setSelectedRecipe(null);
-      clientCache.invalidate('/api/recipes');
-      loadRecipes(true);
+      const newRecipe = data.recipe;
+      const updated = [...recipes, newRecipe].sort((a: RecipeSummary, b: RecipeSummary) => a.name.localeCompare(b.name));
+      clientCache.set('/api/recipes', updated);
+      setRecipes(updated);
     } catch (error) {
       console.error(error);
       toast.error("Failed to duplicate recipe");
@@ -485,7 +489,7 @@ function RecipesPage() {
               ref={createBuilderRef}
               hideFooterButtons
               initialRecipe={createImportedRecipe || undefined}
-              onSaved={() => { clientCache.invalidate('/api/recipes'); setCreateMode(false); setCreateImportedRecipe(null); setSelectedRecipe(null); loadRecipes(); }}
+              onSaved={() => { setCreateMode(false); setCreateImportedRecipe(null); setSelectedRecipe(null); loadRecipes(); }}
               onCancel={() => { setCreateMode(false); setCreateImportedRecipe(null); }}
             />
           </div>
@@ -521,11 +525,10 @@ function RecipesPage() {
                 onSaved={() => {
                 const editedId = editRecipe?.id;
                 if (editedId) clientCache.delete(`/api/recipes/${editedId}`);
-                clientCache.invalidate('/api/recipes');
                 setEditMode(false);
                 setEditRecipe(null);
                 setSelectedRecipe(null);
-                loadRecipes(true);
+                loadRecipes();
                 // Re-fetch the edited recipe's nutrition totals
                 if (editedId) {
                   handleSelectRecipe({ id: editedId } as RecipeSummary);

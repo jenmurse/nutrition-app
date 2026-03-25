@@ -222,12 +222,13 @@ function IngredientsPage() {
         throw new Error(error.error || "Delete failed");
       }
       clientCache.delete(`/api/ingredients/${id}`);
-      clientCache.invalidate('/api/ingredients?slim=true');
+      const updated = ingredients.filter(ing => ing.id !== id);
+      clientCache.set('/api/ingredients?slim=true', updated);
       if (selectedIngredient?.id === id) {
         setSelectedIngredient(null);
         setEditMode(false);
       }
-      setIngredients((prev) => prev.filter((ing) => ing.id !== id));
+      setIngredients(updated);
     } catch (err) {
       console.error(err);
       toast.error(`Failed to delete: ${err instanceof Error ? err.message : "Unknown error"}`);
@@ -404,10 +405,9 @@ function IngredientsPage() {
 
       const updatedIng = await res.json();
       clientCache.set(`/api/ingredients/${updatedIng.id}`, updatedIng);
-      clientCache.invalidate('/api/ingredients?slim=true');
-      setIngredients((prev) =>
-        prev.map((ing) => (ing.id === updatedIng.id ? updatedIng : ing))
-      );
+      const updatedList = ingredients.map(ing => ing.id === updatedIng.id ? updatedIng : ing);
+      clientCache.set('/api/ingredients?slim=true', updatedList);
+      setIngredients(updatedList);
       setSelectedIngredient(updatedIng);
       setEditMode(false);
       const savedCount = updatedIng.nutrientValues?.length || 0;
@@ -473,8 +473,9 @@ function IngredientsPage() {
 
       const newIng = await res.json();
       clientCache.set(`/api/ingredients/${newIng.id}`, newIng);
-      clientCache.invalidate('/api/ingredients?slim=true');
-      setIngredients((prev) => [...prev, newIng].sort((a, b) => a.name.localeCompare(b.name)));
+      const updatedList = [...ingredients, newIng].sort((a, b) => a.name.localeCompare(b.name));
+      clientCache.set('/api/ingredients?slim=true', updatedList);
+      setIngredients(updatedList);
       setSelectedIngredient(newIng);
       setCreateMode(false);
       setCreateName("");
