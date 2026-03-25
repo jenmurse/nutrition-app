@@ -40,10 +40,12 @@ export function PersonProvider({ children }: { children: ReactNode }) {
         currentPersonId: number | null;
       };
       setPersons(data);
-      // Always default to the authenticated user's own Person record so a
-      // logged-in user always sees their own data first, regardless of any
-      // device-level localStorage left by a previous user on this browser.
-      if (currentPersonId && data.some((p) => p.id === currentPersonId)) {
+      // Restore saved person selection if valid, otherwise default to current user
+      const saved = localStorage.getItem("selectedPersonId");
+      const savedId = saved ? Number(saved) : null;
+      if (savedId && data.some((p) => p.id === savedId)) {
+        setSelectedPersonIdState(savedId);
+      } else if (currentPersonId && data.some((p) => p.id === currentPersonId)) {
         setSelectedPersonIdState(currentPersonId);
       } else if (data.length > 0) {
         setSelectedPersonIdState(data[0].id);

@@ -315,7 +315,8 @@ const MealPlansPage = () => {
   // Load plans + auto-select + fetch details in one flow (no waterfall)
   useEffect(() => {
     if (selectedPersonId === null) return;
-    if (prevPersonId.current !== null && prevPersonId.current !== selectedPersonId) {
+    const personJustSwitched = prevPersonId.current !== null && prevPersonId.current !== selectedPersonId;
+    if (personJustSwitched) {
       // Person switched — clear plan selection
       setSelectedPlan(null);
       setSelectedDay(null);
@@ -334,7 +335,9 @@ const MealPlansPage = () => {
       if (cachedPlans) {
         // Instant render from cache
         setMealPlans(cachedPlans);
-        const cachedPlanId = selectedPlanId ?? (cachedPlans.length > 0 ? cachedPlans[0].id : null);
+        // Ignore stale URL planId when person just switched
+        const effectivePlanId = personJustSwitched ? null : selectedPlanId;
+        const cachedPlanId = effectivePlanId ?? (cachedPlans.length > 0 ? cachedPlans[0].id : null);
         if (cachedPlanId && cachedPlans.some(p => p.id === cachedPlanId)) {
           await fetchMealPlanDetails(cachedPlanId);
         }
@@ -354,8 +357,8 @@ const MealPlansPage = () => {
         clientCache.set(planListKey, plans);
         setMealPlans(Array.isArray(plans) ? plans : []);
 
-        // Determine which plan to load details for
-        let targetPlanId = selectedPlanId;
+        // Determine which plan to load details for — ignore stale URL planId on person switch
+        let targetPlanId = personJustSwitched ? null : selectedPlanId;
 
         if (targetPlanId && !plans.some((p) => p.id === targetPlanId)) {
           // Stale planId — clear it
