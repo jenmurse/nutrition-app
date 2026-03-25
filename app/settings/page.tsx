@@ -602,7 +602,6 @@ const SettingsPage = () => {
         <>
         {/* Household name + members */}
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Household members</div>
 
           {/* Household name row */}
           <div className="flex items-center justify-between py-[10px] border-b border-[var(--rule)]">
@@ -735,7 +734,6 @@ const SettingsPage = () => {
 
         {/* ── PERSONS & GOALS ── */}
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Persons &amp; goals</div>
           {persons.map((person) => (
             <PersonRow
               key={person.id}
@@ -753,7 +751,6 @@ const SettingsPage = () => {
         {/* ── INVITES ── */}
         {invites.length > 0 && (
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Invites</div>
             {(
               <div className="border border-[var(--rule)]">
                 {/* Header */}
@@ -807,7 +804,6 @@ const SettingsPage = () => {
         {/* ── AI API TAB ── */}
         {settingsTab === 'ai' && (
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">AI API</div>
           <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">AI API Key</div>
@@ -879,7 +875,7 @@ const SettingsPage = () => {
               )}
             </div>
 
-            <div className="border-t border-[var(--rule)]" />
+            <div className="h-2" />
 
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -931,7 +927,6 @@ const SettingsPage = () => {
         {/* ── MCP TAB ── */}
         {settingsTab === 'mcp' && (
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">MCP</div>
           <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
@@ -992,7 +987,7 @@ const SettingsPage = () => {
               )}
             </div>
 
-            <div className="border-t border-[var(--rule)]" />
+            <div className="h-2" />
 
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
@@ -1060,7 +1055,6 @@ const SettingsPage = () => {
         {/* ── DATA TAB ── */}
         {settingsTab === 'data' && (
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Data</div>
           <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
@@ -1077,7 +1071,7 @@ const SettingsPage = () => {
               </button>
             </div>
 
-            <div className="border-t border-[var(--rule)]" />
+            <div className="h-2" />
 
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>

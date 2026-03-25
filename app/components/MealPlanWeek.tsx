@@ -279,14 +279,15 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         <div style={{ display: 'grid', gridTemplateColumns: '90px repeat(7, minmax(0, 1fr))', minWidth: 660 }} className="border-b border-[var(--rule)]">
           {/* Column headers */}
           <div className="bg-[var(--bg-nav)] border-b border-r border-[var(--rule)] p-2" />
-          {days.map((day) => {
+          {days.map((day, dayIdx) => {
             const todayFlag = isToday(new Date(day.date));
             const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
             const dayNum = new Date(day.date).getDate();
+            const isLastCol = dayIdx === days.length - 1;
             return (
               <div
                 key={`header-${day.date.toISOString()}`}
-                className={`border-b border-r border-[var(--rule)] last:border-r-0 p-2 text-center cursor-pointer transition-colors ${
+                className={`border-b border-[var(--rule)] ${isLastCol ? '' : 'border-r'} p-2 text-center cursor-pointer transition-colors ${
                   isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[var(--bg-selected)]' : 'bg-[var(--bg-nav)]'
                 }`}
                 onClick={() => onDayClick?.(new Date(day.date))}
@@ -307,14 +308,15 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
               </div>
               {/* Day cells for this meal type */}
-              {days.map((day) => {
+              {days.map((day, dayIdx) => {
                 const todayFlag = isToday(new Date(day.date));
                 const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
                 const mealsOfType = day.meals.filter((m) => m.mealType === mealType);
+                const isLastCol = dayIdx === days.length - 1;
                 return (
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
-                    className={`border-r border-b border-[var(--rule)] last:border-r-0 p-1 flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[36px] ${
+                    className={`border-b border-[var(--rule)] ${isLastCol ? '' : 'border-r'} p-1 flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[36px] ${
                       isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
                     } hover:bg-[var(--bg-subtle)]`}
                     onClick={() => onDayClick?.(new Date(day.date))}
@@ -359,13 +361,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {!editMode && (
             <>
               <div className="bg-[var(--bg-nav)] border-r border-[var(--rule)]" />
-              {days.map((day) => {
+              {days.map((day, dayIdx) => {
                 const todayFlag = isToday(new Date(day.date));
                 const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
+                const isLastCol = dayIdx === days.length - 1;
                 return (
                   <div
                     key={`add-${day.date.toISOString()}`}
-                    className={`border-r border-[var(--rule)] last:border-r-0 flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] ${
+                    className={`border-[var(--rule)] ${isLastCol ? '' : 'border-r'} flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] ${
                       isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
                     }`}
                     onClick={(e) => {

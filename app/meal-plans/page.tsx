@@ -1001,7 +1001,7 @@ const MealPlansPage = () => {
                 <div className="relative flex shrink-0">
                   {/* Panel — collapses via width transition */}
                   <div
-                    className="flex flex-col overflow-hidden transition-[width,min-width] duration-300"
+                    className="flex flex-col overflow-hidden border-l border-[var(--rule)] transition-[width,min-width] duration-300"
                     style={{
                       width: summaryPanelOpen ? 380 : 0,
                       minWidth: summaryPanelOpen ? 380 : 0,
