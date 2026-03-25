@@ -766,64 +766,63 @@ const MealPlansPage = () => {
           </>
         )}
 
-        {/* Person tabs + Nutrition — anchored right */}
-        {selectedPlan && (
-          <div className="flex items-center shrink-0 ml-auto">
-            {/* Summary panel toggle — hidden in "everyone" view */}
-            {viewMode !== 'both' && (
+        {/* Nutrition button + Person tabs — anchored right */}
+        <div className="flex items-center shrink-0 ml-auto">
+          {/* Summary panel toggle — visible when a plan is loaded and not in "everyone" view */}
+          {selectedPlan && viewMode !== 'both' && (
+            <button
+              onClick={() => setSummaryPanelOpen(o => !o)}
+              aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
+              aria-expanded={summaryPanelOpen}
+              className={`font-mono text-[8px] uppercase tracking-[0.1em] px-[9px] py-[3px] border transition-colors shrink-0 mr-2 ${
+                summaryPanelOpen
+                  ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-light)]'
+                  : 'border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)]'
+              }`}
+            >
+              {summaryPanelOpen ? 'Nutrition ›' : '‹ Nutrition'}
+            </button>
+          )}
+          {/* Person tabs — always visible when multiple persons exist and plans have been loaded */}
+          {persons.length > 1 && mealPlans.length > 0 && (
+            <>
+              {persons.map((p) => {
+                const isActive = viewMode === 'personal' && selectedPersonId === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      const wasEveryone = viewMode === 'both';
+                      setViewMode('personal');
+                      if (wasEveryone && selectedPersonId === p.id) {
+                        // Same person — useEffect won't re-trigger, so reload plan manually
+                        if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
+                      } else {
+                        setSelectedPersonId(p.id);
+                      }
+                    }}
+                    style={{ borderRadius: 0 }}
+                    className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
+                      isActive ? 'text-[var(--fg)] border-[var(--accent)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                    }`}
+                    aria-pressed={isActive}
+                  >
+                    <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[var(--accent)]" aria-hidden="true" />
+                    {p.name}
+                  </button>
+                );
+              })}
               <button
-                onClick={() => setSummaryPanelOpen(o => !o)}
-                aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
-                aria-expanded={summaryPanelOpen}
-                className={`font-mono text-[8px] uppercase tracking-[0.1em] px-[9px] py-[3px] border transition-colors shrink-0 mr-2 ${
-                  summaryPanelOpen
-                    ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-light)]'
-                    : 'border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)]'
+                onClick={() => setViewMode('both')}
+                style={{ borderRadius: 0 }}
+                className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
+                  viewMode === 'both' ? 'text-[var(--fg)] border-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
                 }`}
-              >
-                {summaryPanelOpen ? 'Nutrition ›' : '‹ Nutrition'}
-              </button>
-            )}
-            {persons.length > 1 && (
-              <>
-                {persons.map((p) => {
-                  const isActive = viewMode === 'personal' && selectedPersonId === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => {
-                        const wasEveryone = viewMode === 'both';
-                        setViewMode('personal');
-                        if (wasEveryone && selectedPersonId === p.id) {
-                          // Same person — useEffect won't re-trigger, so reload plan manually
-                          if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
-                        } else {
-                          setSelectedPersonId(p.id);
-                        }
-                      }}
-                      style={{ borderRadius: 0 }}
-                      className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
-                        isActive ? 'text-[var(--fg)] border-[var(--accent)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
-                      }`}
-                      aria-pressed={isActive}
-                    >
-                      <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[var(--accent)]" aria-hidden="true" />
-                      {p.name}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => setViewMode('both')}
-                  style={{ borderRadius: 0 }}
-                  className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
-                    viewMode === 'both' ? 'text-[var(--fg)] border-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
-                  }`}
-                  aria-pressed={viewMode === 'both'}
-                >Everyone</button>
-              </>
-            )}
-          </div>
-        )}
+                aria-pressed={viewMode === 'both'}
+              >Everyone</button>
+            </>
+          )}
+        </div>
       </div>
 
 
