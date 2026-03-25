@@ -670,10 +670,14 @@ const MealPlansPage = () => {
       {/* Unified header bar — 46px */}
       <div className="flex items-center h-[46px] px-6 border-b border-[var(--rule)] gap-2 shrink-0 overflow-hidden">
         {/* Week title */}
-        <h1 className="font-serif text-[16px] text-[var(--fg)] mr-2 whitespace-nowrap shrink-0">
-          {selectedPlan
-            ? `Week of ${parseUTCDate(selectedPlan.weekStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-            : 'Meal Plans'}
+        <h1 className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--muted)] mr-2 whitespace-nowrap shrink-0">
+          {selectedPlan ? (() => {
+            const s = parseUTCDate(selectedPlan.weekStartDate);
+            const e = new Date(s); e.setDate(e.getDate() + 6);
+            return s.getMonth() === e.getMonth()
+              ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
+              : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+          })() : 'Meal Plans'}
         </h1>
 
         {/* Prev / Next */}
@@ -1045,15 +1049,15 @@ const MealPlansPage = () => {
                 <div className="relative flex shrink-0">
                   {/* Panel — collapses via width transition */}
                   <div
-                    className="flex flex-col overflow-hidden border-l border-[var(--rule)] transition-[width,min-width] duration-300"
+                    className="flex flex-col overflow-hidden border-l border-[var(--rule)] transition-[width,min-width] duration-300 [transition-timing-function:var(--ease-drawer)]"
                     style={{
                       width: summaryPanelOpen ? 380 : 0,
                       minWidth: summaryPanelOpen ? 380 : 0,
                     }}
                   >
                   {/* Summary header — matches shared header height */}
-                  <div className="h-[46px] flex items-center justify-between px-5 border-b border-[var(--rule)] shrink-0 bg-[var(--accent-light)]">
-                    <h2 className="font-serif text-[17px] text-[var(--accent)]">
+                  <div className="h-[46px] flex items-center justify-between px-5 border-b border-[var(--rule)] shrink-0 bg-[var(--bg)]">
+                    <h2 className="font-sans text-[13px] font-medium text-[var(--fg)]">
                       {activeDayData.dayOfWeek},{' '}
                       {activeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </h2>
@@ -1081,9 +1085,9 @@ const MealPlansPage = () => {
                             of {calorieGoal.toLocaleString()} kcal daily goal · {Math.round(caloriePct)}%
                           </div>
                         )}
-                        <div className="h-[5px] bg-[var(--rule)] w-full">
+                        <div className="h-[4px] bg-[var(--bg-subtle)] w-full rounded-sm overflow-hidden">
                           <div
-                            className="h-[5px] bg-[var(--accent)]"
+                            className="h-full bg-[var(--accent)] rounded-sm"
                             style={{ width: `${caloriePct}%` }}
                           />
                         </div>
@@ -1111,7 +1115,7 @@ const MealPlansPage = () => {
                           return (
                             <div key={nutrient.nutrientId} className="mb-3">
                               <div className="flex justify-between items-baseline mb-[5px]">
-                                <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{nutrient.displayName}</span>
+                                <span className="font-mono text-[10px] text-[var(--muted)] uppercase tracking-[0.1em]">{nutrient.displayName}</span>
                                 <span className={`font-mono text-[10px] tabular-nums ${valueColor}`}>
                                   {formatVal(nutrient.value)} / {formatVal(goal ?? 0)}{unitSuffix}
                                 </span>
@@ -1132,7 +1136,7 @@ const MealPlansPage = () => {
                       return (
                         <div
                           key={n.nutrientId}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] px-[10px] py-[5px] mb-2 text-[var(--warning-text)]"
+                          className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] rounded-sm px-[10px] py-[5px] mb-2 text-[var(--warning-text)]"
                         >
                           {isBelowMin
                             ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`

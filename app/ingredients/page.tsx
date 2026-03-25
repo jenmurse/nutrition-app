@@ -1095,7 +1095,7 @@ function IngredientsPage() {
           <button
             onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
             aria-label="Create new ingredient"
-            className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left rounded-none"
+            className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 border-t border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-none"
           >
             + New Ingredient
           </button>

@@ -388,9 +388,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       </div>
 
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 overflow-y-auto">
           <div
-            className="w-full max-w-lg border border-[var(--rule)] bg-[var(--bg)] p-6 my-4"
+            className="w-full max-w-lg border border-[var(--rule)] bg-[var(--bg-raised)] rounded-lg shadow-[var(--shadow-lg)] p-6 my-4 animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule)] pb-3 mb-4">
@@ -411,7 +411,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 <button
                   key={mealType}
                   type="button"
-                  className="border border-[var(--rule)] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition hover:bg-[var(--bg-subtle)]"
+                  className="border border-[var(--rule)] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition-colors duration-150 ease-out hover:bg-[var(--bg-subtle)]"
                   onClick={() => handleSelectMealType(mealType)}
                 >
                   {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
@@ -423,16 +423,15 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       )}
 
       {itemTypeTabOpen && selectedDayMeal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div
-            className="w-full max-w-2xl max-h-[90vh] border border-[var(--rule)] bg-[var(--bg)] flex flex-col"
+            className="w-full max-w-2xl max-h-[90vh] border border-[var(--rule)] bg-[var(--bg-raised)] rounded-lg shadow-[var(--shadow-lg)] flex flex-col animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule)] p-6 shrink-0">
               <div className="flex gap-4">
                 <button
                   onClick={() => setItemTypeTabOpen('recipe')}
-                  style={{ borderRadius: 0 }}
                   className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
                     itemTypeTabOpen === 'recipe'
                       ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'
@@ -443,7 +442,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
                 <button
                   onClick={() => setItemTypeTabOpen('ingredient')}
-                  style={{ borderRadius: 0 }}
                   className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
                     itemTypeTabOpen === 'ingredient'
                       ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'

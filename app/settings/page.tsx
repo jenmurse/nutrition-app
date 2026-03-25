@@ -573,13 +573,12 @@ const SettingsPage = () => {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Tab bar */}
-      <div className="flex border-b border-[var(--rule)] shrink-0 bg-[var(--bg)]" style={{ padding: '0 32px' }}>
+      <div className="flex border-b border-[var(--rule)] shrink-0 bg-[var(--bg)] px-8">
         {settingsTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setSettingsTab(tab.key)}
-            style={{ borderRadius: 0 }}
-            className={`px-[14px] h-[44px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center ${
+            className={`px-[14px] h-[46px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center rounded-none ${
               settingsTab === tab.key
                 ? 'text-[var(--fg)] border-[var(--accent)]'
                 : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
