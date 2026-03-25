@@ -737,7 +737,7 @@ function IngredientsPage() {
 
         {/* Custom Unit Settings */}
         {["other", "tsp", "tbsp", "cup"].includes(unit) && (
-          <div className="border border-[var(--rule)] p-4 space-y-4">
+          <div className="border border-[var(--rule)] rounded-md p-4 space-y-4">
             <div className={sectionLabelClass}>Custom Unit Settings</div>
             <div>
               <label className={labelClass}>Unit name</label>

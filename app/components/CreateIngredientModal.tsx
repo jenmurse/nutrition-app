@@ -185,7 +185,7 @@ export default function CreateIngredientModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[var(--bg-raised)] border p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[var(--bg-raised)] border border-[var(--rule)] rounded-lg shadow-[var(--shadow-lg)] p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -277,7 +277,7 @@ export default function CreateIngredientModal({
                   onClick={() => setTab(t)}
                   className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] border-b-2 transition ${
                     tab === t
-                      ? "border-[var(--fg)] text-[var(--fg)]"
+                      ? "border-[var(--accent)] text-[var(--fg)]"
                       : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
                   }`}
                 >

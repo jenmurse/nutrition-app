@@ -107,7 +107,7 @@ function LoginPage() {
             onClick={() => setMode("signin")}
             className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
               mode === "signin"
-                ? "border-[var(--fg)] text-[var(--fg)]"
+                ? "border-[var(--accent)] text-[var(--fg)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             aria-label="Switch to sign in"
@@ -119,7 +119,7 @@ function LoginPage() {
             onClick={() => setMode("signup")}
             className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
               mode === "signup"
-                ? "border-[var(--fg)] text-[var(--fg)]"
+                ? "border-[var(--accent)] text-[var(--fg)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             aria-label="Switch to create account"

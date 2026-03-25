@@ -312,7 +312,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
-                    className={`border-r border-b border-[var(--rule)] last:border-r-0 p-1 flex flex-col gap-[3px] cursor-pointer transition-colors ${
+                    className={`border-r border-b border-[var(--rule)] last:border-r-0 p-1 flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[36px] ${
                       isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
                     } hover:bg-[var(--bg-subtle)]`}
                     onClick={() => onDayClick?.(new Date(day.date))}

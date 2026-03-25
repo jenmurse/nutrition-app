@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
 import { usePersonContext } from "./PersonContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -16,46 +15,35 @@ const navItems = [
 export default function TopNav() {
   const pathname = usePathname();
   const { persons, selectedPerson, setSelectedPersonId } = usePersonContext();
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+
+  // Hide nav on login page
+  if (pathname === "/login") return null;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
 
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
   return (
-    <nav className="flex items-center h-[48px] border-b border-[var(--rule)] bg-[var(--bg)] px-6 shrink-0" role="navigation" aria-label="Main navigation">
+    <nav className="flex items-center h-[52px] border-b border-[var(--rule)] bg-[var(--bg-nav)] px-5 shrink-0" role="navigation" aria-label="Main navigation">
       {/* Brand */}
-      <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-8 tracking-[-0.01em]">
+      <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em]">
         Course
       </Link>
 
       {/* Nav links */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center flex-1">
         {navItems.map((item) => {
           const isActive = pathname?.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[6px] no-underline transition-colors ${
+              className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[14px] h-[52px] flex items-center no-underline border-b-2 transition-[color,border-color] duration-[120ms] ease-in-out whitespace-nowrap ${
                 isActive
-                  ? "text-[var(--accent)] bg-[var(--accent-light)]"
-                  : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)]"
+                  ? "text-[var(--fg)] border-[var(--accent)]"
+                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
               }`}
             >
               {item.label}
@@ -65,81 +53,40 @@ export default function TopNav() {
       </div>
 
       {/* Right side: person switcher + sign out */}
-      <div className="ml-auto flex items-center">
-      {/* Person indicator / switcher */}
-      {persons.length > 0 && (
-        <div className="relative" ref={dropdownRef}>
-          {persons.length === 1 ? (
-            // Single person — static label, no dropdown affordance
-            <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[6px] text-[var(--muted)] select-none">
-              {selectedPerson && (
-                <span
-                  className="w-[8px] h-[8px] rounded-full shrink-0 bg-[var(--accent)]"
-                  aria-hidden="true"
-                />
-              )}
-              {selectedPerson?.name ?? "—"}
-            </span>
-          ) : (
-            // Multiple persons — dropdown switcher, no add flow
-            <>
-              <button
-                onClick={() => setOpen((o) => !o)}
-                className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[6px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors"
-                aria-haspopup="listbox"
-                aria-expanded={open}
-                aria-label="Switch person"
-              >
-                {selectedPerson && (
-                  <span
-                    className="w-[8px] h-[8px] rounded-full shrink-0 bg-[var(--accent)]"
-                    aria-hidden="true"
-                  />
-                )}
-                {selectedPerson?.name ?? "—"}
-                <span aria-hidden="true">▾</span>
-              </button>
-
-              {open && (
-                <div
-                  className="dropdown-enter absolute right-0 top-full mt-1 min-w-[160px] bg-[var(--bg)] border border-[var(--rule)] rounded-md shadow-[var(--shadow-md)] z-50 overflow-hidden"
-                  role="listbox"
-                  aria-label="Select person"
+      <div className="ml-auto flex items-center gap-[10px]">
+        {/* Person dots */}
+        {persons.length > 0 && (
+          <div className="flex items-center gap-[10px]">
+            {persons.map((p) => {
+              const isSelected = p.id === selectedPerson?.id;
+              const initial = (p.name || "?").charAt(0).toUpperCase();
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedPersonId(p.id)}
+                  className="w-[28px] h-[28px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white shrink-0 transition-opacity duration-[120ms] ease-in-out cursor-pointer border-0"
+                  style={{
+                    background: p.color || "var(--accent)",
+                    opacity: isSelected ? 1 : 0.4,
+                  }}
+                  aria-label={`Switch to ${p.name}`}
+                  aria-pressed={isSelected}
                 >
-                  {persons.map((p) => (
-                    <button
-                      key={p.id}
-                      role="option"
-                      aria-selected={p.id === selectedPerson?.id}
-                      onClick={() => { setSelectedPersonId(p.id); setOpen(false); }}
-                      className={`w-full flex items-center gap-2 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] text-left transition-colors ${
-                        p.id === selectedPerson?.id
-                          ? "text-[var(--accent)] bg-[var(--accent-light)]"
-                          : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)]"
-                      }`}
-                    >
-                      <span
-                        className="w-[8px] h-[8px] rounded-full shrink-0 bg-[var(--accent)]"
-                        aria-hidden="true"
-                      />
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
+                  {initial}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <button
           onClick={handleSignOut}
-          className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[6px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors"
+          className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[52px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
           aria-label="Sign out"
         >
           Sign out
         </button>
-      </div>{/* end right side */}
+      </div>
     </nav>
   );
 }

@@ -581,67 +581,33 @@ function RecipesPage() {
       ) : (
         <>
           <div className="flex-1 overflow-y-auto flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
-              <div>
-                <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-1">{selectedRecipe.name}</h2>
-                <div className="font-mono text-[10px] text-[var(--muted)]">
-                  {selectedRecipe.servingSize} {selectedRecipe.servingUnit}
-                  {selectedRecipe.prepTime != null && <> &middot; Prep {selectedRecipe.prepTime} min</>}
-                  {selectedRecipe.cookTime != null && <> &middot; Cook {selectedRecipe.cookTime} min</>}
-                </div>
-                {selectedRecipe.tags && (
-                  <div className="flex flex-wrap gap-[4px] mt-2">
-                    {selectedRecipe.tags.split(",").map((tag) => (
-                      <span key={tag} className="inline-block font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[2px] px-[5px] rounded-sm">
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
-                <button onClick={() => handleEditClick(selectedRecipe.id)}
-                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors rounded-sm">
-                  Edit
-                </button>
-                <button onClick={() => handleDuplicate(selectedRecipe.id)}
-                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors rounded-sm">
-                  Duplicate
-                </button>
-                <button onClick={() => handleDelete(selectedRecipe.id, selectedRecipe.name)}
-                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors rounded-sm">
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-5">
+            <div className="flex-1 overflow-y-auto px-7 py-6">
               {selectedRecipeLoading ? (
                 <p className="text-[11px] text-[var(--muted)]">Loading…</p>
               ) : (
                 <>
+                  {/* Title + meta + tags */}
+                  <h2 className="font-serif text-[26px] text-[var(--fg)] leading-[1.2] mb-[10px]">{selectedRecipe.name}</h2>
+                  <div className="flex items-center gap-3 flex-wrap mb-5">
+                    <span className="font-mono text-[10px] text-[var(--muted)]">{selectedRecipe.servingSize} {selectedRecipe.servingUnit}</span>
+                    {selectedRecipe.prepTime != null && <><span className="w-[3px] h-[3px] rounded-full bg-[var(--rule-strong)] shrink-0" /><span className="font-mono text-[10px] text-[var(--muted)]">{selectedRecipe.prepTime} min prep</span></>}
+                    {selectedRecipe.cookTime != null && <><span className="w-[3px] h-[3px] rounded-full bg-[var(--rule-strong)] shrink-0" /><span className="font-mono text-[10px] text-[var(--muted)]">{selectedRecipe.cookTime} min cook</span></>}
+                    {selectedRecipe.tags && selectedRecipe.tags.split(",").map((tag) => (
+                      <span key={tag} className="inline-block font-mono text-[9px] tracking-[0.04em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[5px] rounded-[var(--radius-xs,2px)]">
+                        {tag.trim()}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Image — inset */}
                   {selectedRecipe.image && (
-                    <div className="mb-5 -mx-6 -mt-5">
+                    <div className="mb-5 rounded-md overflow-hidden">
                       <img src={selectedRecipe.image} alt={selectedRecipe.name} className="w-full max-h-[300px] object-cover"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     </div>
                   )}
-                  {selectedRecipe.instructions && (
-                    <div className="mb-[18px]">
-                      <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[8px]">Instructions</div>
-                      <p className="text-[11px] text-[var(--muted)] whitespace-pre-wrap leading-[1.6]">{selectedRecipe.instructions}</p>
-                    </div>
-                  )}
-                  <div className="mb-[18px]">
-                    <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[8px] pb-[5px] border-b border-[var(--rule)]">Ingredients</div>
-                    {selectedRecipe.ingredients.map((ing, idx) => (
-                      <div key={ing.id}
-                        className={`flex justify-between items-baseline py-[7px] text-[11px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
-                        <span className="text-[var(--fg)]">{ing.ingredient?.name || "Unknown"}</span>
-                        <span className="font-mono text-[var(--muted)]">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
-                      </div>
-                    ))}
-                  </div>
+
+                  {/* Nutrition grid */}
                   {selectedRecipe.totals && selectedRecipe.totals.length > 0 && (() => {
                     const GRID_KEYS = [
                       { match: ["energy", "calorie"], label: "KCAL" },
@@ -660,21 +626,56 @@ function RecipesPage() {
                       return { label, value: n ? Math.round(n.value * 10) / 10 : 0, unit: n?.unit ?? "" };
                     });
                     return (
-                      <div className="mb-[18px]">
-                        <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[8px]">Nutrition per Serving</div>
+                      <div className="mb-5">
                         <div className="grid grid-cols-4 bg-[var(--bg-raised)] border border-[var(--rule)] rounded-md shadow-[var(--shadow-sm)] overflow-hidden">
                           {gridNutrients.map((n, i) => (
-                            <div key={n.label} className={`py-3 px-2 text-center ${
+                            <div key={n.label} className={`py-[14px] px-3 text-center ${
                               i % 4 !== 3 ? "border-r border-[var(--rule)]" : ""
                             } ${i < 4 ? "border-b border-[var(--rule)]" : ""}`}>
-                              <div className="font-serif text-[16px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>
-                              <div className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
+                              <div className="font-serif text-[22px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>
+                              <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
                             </div>
                           ))}
                         </div>
                       </div>
                     );
                   })()}
+
+                  {/* Ingredients — 3-column */}
+                  <div className="mb-5">
+                    <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5 first:mt-0">Ingredients — per serving</p>
+                    {selectedRecipe.ingredients.map((ing, idx) => (
+                      <div key={ing.id}
+                        className={`flex items-center py-2 gap-[10px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                        <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
+                        <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Instructions */}
+                  {selectedRecipe.instructions && (
+                    <div className="mb-5">
+                      <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Instructions</p>
+                      <p className="text-[12px] text-[var(--mid)] whitespace-pre-wrap leading-[1.6]">{selectedRecipe.instructions}</p>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2 mt-5 flex-wrap">
+                    <button onClick={() => handleEditClick(selectedRecipe.id)}
+                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors border-0 inline-flex items-center gap-[6px] leading-none">
+                      Edit Recipe
+                    </button>
+                    <button onClick={() => {/* TODO: add to meal plan */}}
+                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule)] cursor-pointer hover:bg-[var(--bg-selected)] transition-colors inline-flex items-center gap-[6px] leading-none">
+                      Add to Meal Plan
+                    </button>
+                    <button onClick={() => handleDuplicate(selectedRecipe.id)}
+                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors inline-flex items-center gap-[6px] leading-none">
+                      Duplicate
+                    </button>
+                  </div>
                 </>
               )}
             </div>

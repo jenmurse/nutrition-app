@@ -564,142 +564,165 @@ const SettingsPage = () => {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Page Header */}
-      <div className="px-7 pt-5 pb-4 border-b border-[var(--rule)] shrink-0">
-        <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight">Settings</h1>
-      </div>
+      {/* Scrollable sections — no page header, matches preview */}
+      <div className="flex-1 overflow-y-auto bg-[var(--bg)]">
+        <div style={{ maxWidth: 640, padding: '28px 32px' }}>
 
-      {/* Scrollable sections */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[640px] mx-auto">
+        {/* ── HOUSEHOLD MEMBERS ── */}
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Household members</div>
 
-        {/* ── HOUSEHOLD NAME ── */}
-        <div className="px-7 pt-6 pb-0">
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-4 border-b border-[var(--rule)]">Household Name</div>
-        </div>
-        <div>
-            {/* Household name */}
-            <div className="px-7 py-5 border-b border-[var(--rule)]">
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household Name</div>
-              {editingHouseholdName ? (
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={householdNameDraft}
-                    onChange={(e) => setHouseholdNameDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSaveHouseholdName();
-                      if (e.key === 'Escape') setEditingHouseholdName(false);
-                    }}
-                    autoFocus
-                    className="bg-[var(--bg)] border border-[var(--rule)] px-3 py-[7px] font-sans text-[14px] text-[var(--fg)] w-[220px] focus:outline-none focus:border-[var(--accent)]"
-                    aria-label="Household name"
-                  />
-                  <button
-                    onClick={handleSaveHouseholdName}
-                    disabled={householdNameSaving || !householdNameDraft.trim()}
-                    className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                  >
-                    {householdNameSaving ? 'Saving…' : 'Save'}
-                  </button>
-                  <button
-                    onClick={() => setEditingHouseholdName(false)}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="font-serif text-[16px] text-[var(--fg)]">{householdName || '…'}</span>
-                  <button
-                    onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                    aria-label="Edit household name"
-                  >
-                    Edit
-                  </button>
-                </div>
-              )}
+          {/* Household name row */}
+          <div className="flex items-center justify-between py-[10px] border-b border-[var(--rule)]">
+            <div>
+              <div className="text-[12px] text-[var(--fg)] font-medium">Household name</div>
             </div>
-
-            {persons.map((person) => (
-              <PersonRow
-                key={person.id}
-                person={person}
-                role={memberRoles[person.id]}
-                nutrients={nutrients}
-                isExpanded={expandedPersonId === person.id}
-                onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
-                onSaved={handlePersonSaved}
-                canDelete={persons.length > 1}
-              />
-            ))}
-
-            {/* Add member */}
-            <div className="px-7 py-4 border-b border-[var(--rule)]">
-              {!addingPerson ? (
+            {editingHouseholdName ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={householdNameDraft}
+                  onChange={(e) => setHouseholdNameDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveHouseholdName();
+                    if (e.key === 'Escape') setEditingHouseholdName(false);
+                  }}
+                  autoFocus
+                  className="bg-[var(--bg-subtle)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] max-w-[200px] focus:outline-none focus:border-[var(--accent)]"
+                  aria-label="Household name"
+                />
                 <button
-                  onClick={() => setAddingPerson(true)}
-                  className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                  aria-label="Add a household member"
+                  onClick={handleSaveHouseholdName}
+                  disabled={householdNameSaving || !householdNameDraft.trim()}
+                  className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
                 >
-                  <span className="text-[13px]">+</span> Add member
+                  {householdNameSaving ? 'Saving…' : 'Save'}
                 </button>
-              ) : (
-                <div className="flex items-center gap-3 flex-wrap">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAddPerson();
-                      if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); }
-                    }}
-                    placeholder="Name"
-                    autoFocus
-                    className="bg-[var(--bg)] border border-[var(--rule)] px-3 py-[7px] font-sans text-[13px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
-                    aria-label="New member name"
-                  />
-                  <button
-                    onClick={handleAddPerson}
-                    disabled={!newName.trim() || addSaving}
-                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                  >
-                    {addSaving ? 'Adding…' : 'Add'}
-                  </button>
-                  <button
-                    onClick={() => { setAddingPerson(false); setNewName(''); }}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-
+                <button
+                  onClick={() => setEditingHouseholdName(false)}
+                  className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[11px] text-[var(--fg)]">{householdName || '…'}</span>
+                <button
+                  onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
+                  className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                  aria-label="Edit household name"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
           </div>
 
-        {/* ── INVITES ── */}
-        <div className="px-7 pt-6 pb-0">
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-4 border-b border-[var(--rule)]">Invites</div>
-        </div>
-          <div className="px-7 pb-6">
-            <div className="flex items-center justify-between mb-5">
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Invite Links</div>
-              <button
-                onClick={handleInvite}
-                disabled={inviting}
-                className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
-                aria-label="Generate invite link"
-              >
-                {inviting ? 'Generating…' : '+ New invite'}
-              </button>
-            </div>
+          {/* Member rows with avatars */}
+          {persons.map((person, idx) => {
+            const initial = (person.name || '?').charAt(0).toUpperCase();
+            const role = memberRoles[person.id];
+            return (
+              <div key={person.id} className="flex items-center gap-3 py-[10px] border-b border-[var(--rule)]">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0"
+                  style={{ background: person.color || 'var(--accent)' }}
+                  aria-hidden="true"
+                >
+                  {initial}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12px] text-[var(--fg)] font-medium">{person.name}</div>
+                  <div className="font-mono text-[10px] text-[var(--muted)] capitalize">{role || 'Member'}</div>
+                </div>
+                {role === 'owner' ? (
+                  <span className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)]">Owner</span>
+                ) : (
+                  <button
+                    onClick={() => {/* remove handled by PersonRow */}}
+                    className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            );
+          })}
 
-            {invites.length === 0 ? (
-              <p className="font-mono text-[11px] text-[var(--muted)] italic">No invites yet.</p>
+          {/* Add / Invite member */}
+          <div className="mt-[14px] flex gap-2">
+            {!addingPerson ? (
+              <button
+                onClick={() => setAddingPerson(true)}
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule)] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors"
+                aria-label="Add a household member"
+              >
+                + Add member
+              </button>
             ) : (
+              <div className="flex items-center gap-2 flex-wrap">
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddPerson();
+                    if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); }
+                  }}
+                  placeholder="Name"
+                  autoFocus
+                  className="bg-[var(--bg-subtle)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
+                  aria-label="New member name"
+                />
+                <button
+                  onClick={handleAddPerson}
+                  disabled={!newName.trim() || addSaving}
+                  className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                >
+                  {addSaving ? 'Adding…' : 'Add'}
+                </button>
+                <button
+                  onClick={() => { setAddingPerson(false); setNewName(''); }}
+                  className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+            <button
+              onClick={handleInvite}
+              disabled={inviting}
+              className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule)] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors disabled:opacity-40"
+              aria-label="Generate invite link"
+            >
+              {inviting ? 'Generating…' : 'Invite member'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── PERSONS & GOALS ── */}
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Persons &amp; goals</div>
+          {persons.map((person) => (
+            <PersonRow
+              key={person.id}
+              person={person}
+              role={memberRoles[person.id]}
+              nutrients={nutrients}
+              isExpanded={expandedPersonId === person.id}
+              onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
+              onSaved={handlePersonSaved}
+              canDelete={persons.length > 1}
+            />
+          ))}
+        </div>
+
+        {/* ── INVITES ── */}
+        {invites.length > 0 && (
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Invites</div>
+            {(
               <div className="border border-[var(--rule)]">
                 {/* Header */}
                 <div className="grid grid-cols-[1fr_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
@@ -743,13 +766,13 @@ const SettingsPage = () => {
                 })}
               </div>
             )}
-          </div>
-
-        {/* ── AI & API ── */}
-        <div className="px-7 pt-6 pb-0">
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-0 border-b border-[var(--rule)]">AI & API</div>
         </div>
-          <div className="px-7 py-6 space-y-8">
+        )}
+
+        {/* ── AI & ANALYSIS ── */}
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">AI &amp; analysis</div>
+          <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">AI API Key</div>
               {!editingApiKey ? (
@@ -866,12 +889,12 @@ const SettingsPage = () => {
               )}
             </div>
           </div>
+        </div>
 
         {/* ── MCP ── */}
-        <div className="px-7 pt-6 pb-0">
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-0 border-b border-[var(--rule)]">MCP</div>
-        </div>
-          <div className="px-7 py-6 space-y-8">
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">MCP</div>
+          <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
               <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
@@ -993,12 +1016,12 @@ const SettingsPage = () => {
               </div>
             </div>
           </div>
+        </div>
 
         {/* ── DATA ── */}
-        <div className="px-7 pt-6 pb-0">
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-0 border-b border-[var(--rule)]">Data</div>
-        </div>
-          <div className="px-7 py-6 space-y-8">
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Data</div>
+          <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
               <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
@@ -1071,8 +1094,9 @@ const SettingsPage = () => {
               )}
             </div>
           </div>
+        </div>
 
-        </div>{/* end max-w container */}
+        </div>{/* end settings-layout */}
       </div>
     </div>
   );
