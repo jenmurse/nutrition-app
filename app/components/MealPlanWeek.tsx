@@ -66,6 +66,7 @@ interface MealPlanWeekProps {
   selectedMealIds?: Set<number>;
   onToggleMealSelect?: (id: number) => void;
   otherPersonPlans?: { personId: number; planId: number; name: string }[];
+  recipeCaloriesMap?: Record<number, number>;
 }
 
 const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
@@ -86,6 +87,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   selectedMealIds = new Set(),
   onToggleMealSelect,
   otherPersonPlans = [],
+  recipeCaloriesMap = {},
 }) => {
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
     date: Date;
@@ -274,7 +276,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   return (
     <>
       <div className="overflow-x-auto">
-        <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', minWidth: 620 }} className="border-b border-[var(--rule)]">
+        <div style={{ display: 'grid', gridTemplateColumns: '90px repeat(7, minmax(0, 1fr))', minWidth: 660 }} className="border-b border-[var(--rule)]">
           {/* Column headers */}
           <div className="bg-[var(--bg-nav)] border-b border-r border-[var(--rule)] p-2" />
           {days.map((day) => {
@@ -301,7 +303,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {availableMealTypes.map((mealType) => (
             <React.Fragment key={mealType}>
               {/* Row label */}
-              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule)] flex items-center px-2 py-1">
+              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule)] flex items-center px-[10px] py-1">
                 <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
               </div>
               {/* Day cells for this meal type */}
@@ -320,9 +322,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     {mealsOfType.map((meal) => (
                       <div
                         key={meal.id}
-                        className={`bg-[var(--bg-raised)] border border-[var(--rule)] rounded-sm p-[4px_6px] shadow-[var(--shadow-sm)] transition-colors ${
+                        className={`bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] p-[4px_6px] transition-colors ${
                           editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--error-light)] border-[var(--error)]' : ''
                         }`}
+                        style={{ boxShadow: 'var(--shadow-sm)' }}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (editMode) onToggleMealSelect?.(meal.id);
@@ -339,7 +342,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           />
                         )}
                         <div className="text-[10px] text-[var(--fg)] font-medium leading-[1.3] truncate">{meal.recipe?.name || meal.ingredient?.name}</div>
-                        {(() => { const cal = getCalories(day.dayNutrients); return null; })()}
+                        {meal.recipe && recipeCaloriesMap[meal.recipe.id] != null && (
+                          <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">
+                            {Math.round(recipeCaloriesMap[meal.recipe.id] * (meal.servings ?? 1))} kcal
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

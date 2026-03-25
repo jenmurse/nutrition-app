@@ -807,7 +807,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
     {/* ── Goals Panel (guided mode only) ── */}
     {guidedMode && (
-      <div className="w-80 shrink-0 sticky top-4 border border-[var(--rule)] rounded-md shadow-[var(--shadow-sm)] p-5 space-y-4">
+      <div className="w-80 shrink-0 sticky top-4 border border-[var(--rule)] rounded-[var(--radius-md,8px)] bg-[var(--bg-raised)] p-5 space-y-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Nutrition Guidance</div>
 
         {/* Person picker */}
@@ -892,17 +892,17 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     key={g.nutrientId}
                     className={`py-[6px] border-b border-[var(--rule)] last:border-b-0 transition-opacity ${isFocused ? "opacity-100" : "opacity-40"}`}
                   >
-                    <div className="flex justify-between mb-[4px]">
-                      <span className={`font-sans text-[10px] ${isFocused ? "text-[var(--fg)]" : "text-[var(--muted)]"}`}>
+                    <div className="flex justify-between items-baseline mb-[4px]">
+                      <span className={`font-mono text-[10px] ${isFocused ? "text-[var(--fg)]" : "text-[var(--muted)]"}`}>
                         {g.nutrient.displayName}
                       </span>
-                      <span className={`font-mono text-[9px] tabular-nums ${valColor}`}>
-                        {Math.round(current * 10) / 10}/{Math.round(goal)}{g.nutrient.unit}
+                      <span className={`font-mono text-[10px] tabular-nums ${valColor}`}>
+                        {Math.round(current * 10) / 10} / {Math.round(goal)} {g.nutrient.unit}
                       </span>
                     </div>
-                    <div className="h-[3px] bg-[var(--rule)]">
+                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
                       <div
-                        className={`h-full ${barColor}`}
+                        className={`h-full rounded-sm ${barColor}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>

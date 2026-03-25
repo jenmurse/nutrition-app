@@ -48,10 +48,50 @@ export async function GET(
       nutritionGoals: mealPlan.nutritionGoals,
     });
 
+    // Compute calories-per-serving for each recipe in this meal plan
+    const recipeIds = [...new Set(mealPlan.mealLogs.filter(m => m.recipeId).map(m => m.recipeId!))];
+    let recipeCaloriesMap: Record<number, number> = {};
+    if (recipeIds.length > 0) {
+      const calorieNutrient = await prisma.nutrient.findFirst({ where: { name: 'calories' } });
+      if (calorieNutrient) {
+        const recipes = await prisma.recipe.findMany({
+          where: { id: { in: recipeIds } },
+          select: {
+            id: true,
+            servingSize: true,
+            ingredients: {
+              select: {
+                conversionGrams: true,
+                ingredient: {
+                  select: {
+                    nutrientValues: {
+                      where: { nutrientId: calorieNutrient.id },
+                      select: { value: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+        for (const recipe of recipes) {
+          let totalCal = 0;
+          for (const ri of recipe.ingredients) {
+            const grams = ri.conversionGrams || 0;
+            for (const nv of ri.ingredient.nutrientValues) {
+              totalCal += (nv.value / 100) * grams;
+            }
+          }
+          recipeCaloriesMap[recipe.id] = Math.round(totalCal / (recipe.servingSize || 1));
+        }
+      }
+    }
+
     return NextResponse.json(
       {
         ...mealPlan,
         weeklySummary,
+        recipeCaloriesMap,
       },
       { status: 200 }
     );

@@ -81,6 +81,7 @@ interface MealPlan {
   weeklySummary?: {
     dailyNutritions: DayNutrients[];
   };
+  recipeCaloriesMap?: Record<number, number>;
   _count?: { mealLogs: number };
 }
 
@@ -960,6 +961,7 @@ const MealPlansPage = () => {
                 selectedMealIds={selectedMealIds}
                 onToggleMealSelect={toggleSelectMeal}
                 otherPersonPlans={otherPersonPlans}
+                recipeCaloriesMap={selectedPlan.recipeCaloriesMap}
               />
             </div>
 

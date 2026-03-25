@@ -119,7 +119,7 @@ export default function RecipeContextPanel({
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             style={{ borderRadius: 0 }}
-            className={`flex-1 h-[40px] font-mono text-[9px] tracking-[0.1em] uppercase text-center border-b-2 transition-colors flex items-center justify-center ${
+            className={`px-[14px] h-[40px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center ${
               activeTab === tab.key
                 ? "text-[var(--fg)] border-[var(--accent)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"

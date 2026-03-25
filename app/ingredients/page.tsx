@@ -895,9 +895,9 @@ function IngredientsPage() {
     return (
       <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
         {/* Sticky header */}
-        <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
+        <div className="px-6 pt-5 pb-4 shrink-0 flex items-start justify-between">
           <div>
-            <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-1">{ing.name}</h2>
+            <h2 className="font-serif text-[26px] text-[var(--fg)] leading-[1.2] mb-1">{ing.name}</h2>
             <p className="font-mono text-[10px] text-[var(--muted)]">
               {unitDisplay}
               {ing.isMealItem ? " · Meal item" : ""}
@@ -926,7 +926,7 @@ function IngredientsPage() {
             <div className="space-y-0">
               {ing.nutrientValues.map((nv, idx) => (
                 <div key={nv.id} className={`flex justify-between items-baseline py-[7px] ${idx < ing.nutrientValues.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
-                  <span className="font-mono text-[10px] tracking-[0.06em] uppercase text-[var(--muted)]">{nv.nutrient.displayName}</span>
+                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)]">{nv.nutrient.displayName}</span>
                   <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
                 </div>
               ))}

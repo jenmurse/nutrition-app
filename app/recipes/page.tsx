@@ -384,7 +384,7 @@ function RecipesPage() {
             ))}
             {selectedTags.length > 0 && (
               <button onClick={() => updateSearchParam("tags", "")} aria-label="Clear tag filters"
-                className="py-[1px] px-[4px] font-mono text-[9px] tracking-[0.04em] bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)]">
+                className="py-[1px] px-[4px] font-mono text-[9px] tracking-[0.04em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)]">
                 clear
               </button>
             )}
@@ -442,7 +442,7 @@ function RecipesPage() {
           <div className="flex-1 overflow-y-auto p-6 px-7">
             {/* Import section */}
             {!createImportedRecipe && (
-              <div className="mb-6 p-4 border border-[var(--rule)] rounded-md">
+              <div className="mb-6 p-4 border border-[var(--rule)] rounded-[var(--radius-md,8px)] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Import Recipe</div>
                 <div className="flex items-center gap-2 mb-3">
                   <input
@@ -643,10 +643,10 @@ function RecipesPage() {
 
                   {/* Ingredients — 3-column */}
                   <div className="mb-5">
-                    <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients — per serving</p>
+                    <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
                     {selectedRecipe.ingredients.map((ing, idx) => (
                       <div key={ing.id}
-                        className={`flex items-center py-[8px] gap-[10px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                        className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
                         <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
                         <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
                       </div>
