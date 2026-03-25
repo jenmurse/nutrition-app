@@ -592,7 +592,7 @@ function RecipesPage() {
                 {selectedRecipe.tags && (
                   <div className="flex flex-wrap gap-[4px] mt-2">
                     {selectedRecipe.tags.split(",").map((tag) => (
-                      <span key={tag} className="inline-block font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] border border-[var(--rule)] py-[2px] px-[5px] rounded-sm">
+                      <span key={tag} className="inline-block font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[2px] px-[5px] rounded-sm">
                         {tag.trim()}
                       </span>
                     ))}
@@ -601,15 +601,15 @@ function RecipesPage() {
               </div>
               <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
                 <button onClick={() => handleEditClick(selectedRecipe.id)}
-                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors">
+                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors rounded-sm">
                   Edit
                 </button>
                 <button onClick={() => handleDuplicate(selectedRecipe.id)}
-                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors">
+                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors rounded-sm">
                   Duplicate
                 </button>
                 <button onClick={() => handleDelete(selectedRecipe.id, selectedRecipe.name)}
-                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors">
+                  className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors rounded-sm">
                   Delete
                 </button>
               </div>
@@ -642,17 +642,39 @@ function RecipesPage() {
                       </div>
                     ))}
                   </div>
-                  {selectedRecipe.totals && selectedRecipe.totals.length > 0 && (
-                    <div className="mb-[18px]">
-                      <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[8px] pb-[5px] border-b border-[var(--rule)]">Nutrition per Serving</div>
-                      {selectedRecipe.totals.map((nutrient) => (
-                        <div key={nutrient.nutrientId} className="flex justify-between items-baseline py-[6px] text-[11px]">
-                          <span className="text-[var(--muted)]">{nutrient.displayName}</span>
-                          <span className="font-mono text-[var(--muted)]">{Math.round(nutrient.value * 100) / 100} {nutrient.unit}</span>
+                  {selectedRecipe.totals && selectedRecipe.totals.length > 0 && (() => {
+                    const GRID_KEYS = [
+                      { match: ["energy", "calorie"], label: "KCAL" },
+                      { match: ["total fat"], label: "FAT" },
+                      { match: ["saturated"], label: "SAT FAT" },
+                      { match: ["sodium"], label: "SODIUM" },
+                      { match: ["carbohydrate", "carb"], label: "CARBS" },
+                      { match: ["sugar"], label: "SUGAR" },
+                      { match: ["protein"], label: "PROTEIN" },
+                      { match: ["fiber"], label: "FIBER" },
+                    ];
+                    const gridNutrients = GRID_KEYS.map(({ match, label }) => {
+                      const n = selectedRecipe.totals!.find((t) =>
+                        match.some((k) => t.displayName.toLowerCase().includes(k))
+                      );
+                      return { label, value: n ? Math.round(n.value * 10) / 10 : 0, unit: n?.unit ?? "" };
+                    });
+                    return (
+                      <div className="mb-[18px]">
+                        <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[8px]">Nutrition per Serving</div>
+                        <div className="grid grid-cols-4 bg-[var(--bg-raised)] border border-[var(--rule)] rounded-md shadow-[var(--shadow-sm)] overflow-hidden">
+                          {gridNutrients.map((n, i) => (
+                            <div key={n.label} className={`py-3 px-2 text-center ${
+                              i % 4 !== 3 ? "border-r border-[var(--rule)]" : ""
+                            } ${i < 4 ? "border-b border-[var(--rule)]" : ""}`}>
+                              <div className="font-serif text-[16px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>
+                              <div className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    );
+                  })()}
                 </>
               )}
             </div>

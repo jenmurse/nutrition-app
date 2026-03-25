@@ -120,7 +120,7 @@ export default function RecipeContextPanel({
             onClick={() => setActiveTab(tab.key)}
             className={`flex-1 py-[10px] font-mono text-[9px] tracking-[0.1em] uppercase text-center border-b-2 transition-colors ${
               activeTab === tab.key
-                ? "text-[var(--fg)] border-[var(--fg)]"
+                ? "text-[var(--fg)] border-[var(--accent)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
             }`}
             aria-label={`${tab.label} tab`}
@@ -233,9 +233,9 @@ function GoalsTab({
                 {Math.round(value * 10) / 10} {goal.nutrient.unit}
               </span>
             </div>
-            <div className="h-[3px] bg-[var(--rule)] relative mb-[4px]">
+            <div className="h-[3px] bg-[var(--rule)] relative mb-[4px] rounded-full">
               <div
-                className={`h-full absolute top-0 left-0 ${
+                className={`h-full absolute top-0 left-0 rounded-full ${
                   isOver ? "bg-[var(--error)]" : isHigh ? "bg-[var(--warning)]" : "bg-[var(--accent)]"
                 }`}
                 style={{ width: `${Math.min(pct, 100)}%` }}

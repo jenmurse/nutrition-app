@@ -144,9 +144,9 @@ export default function IngredientContextPanel({
                   {Math.round(value * 10) / 10} {goal.nutrient.unit}
                 </span>
               </div>
-              <div className="h-[3px] bg-[var(--rule)] relative mb-[4px]">
+              <div className="h-[3px] bg-[var(--rule)] relative mb-[4px] rounded-full">
                 <div
-                  className={`h-full absolute top-0 left-0 ${
+                  className={`h-full absolute top-0 left-0 rounded-full ${
                     isOver
                       ? "bg-[var(--error)]"
                       : isHigh

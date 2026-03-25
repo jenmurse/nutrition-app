@@ -180,9 +180,9 @@ export default function Home() {
                 )}
               </div>
               {calGoal > 0 && (
-                <div className="h-[4px] bg-[var(--rule)] mb-5 relative">
+                <div className="h-[4px] bg-[var(--rule)] mb-5 relative rounded-full">
                   <div
-                    className={`absolute top-0 left-0 h-full transition-[width] duration-500 ${
+                    className={`absolute top-0 left-0 h-full transition-[width] duration-500 rounded-full ${
                       calPct >= 100 ? "bg-[var(--error)]" : "bg-[var(--accent)]"
                     }`}
                     style={{ width: `${calPct}%` }}
@@ -202,8 +202,8 @@ export default function Home() {
                 return (
                   <div key={n.nutrientId} className="flex items-center gap-3 py-[7px] border-b border-[var(--rule)] last:border-b-0">
                     <span className="font-sans text-[11px] text-[var(--muted)] w-[88px] shrink-0">{n.displayName}</span>
-                    <div className="flex-1 h-[3px] bg-[var(--rule)] relative">
-                      <div className={`absolute top-0 left-0 h-full ${barColor}`} style={{ width: `${pct}%` }} />
+                    <div className="flex-1 h-[3px] bg-[var(--rule)] relative rounded-full">
+                      <div className={`absolute top-0 left-0 h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
                     </div>
                     <span className={`font-mono text-[10px] tabular-nums w-[80px] text-right shrink-0 ${valColor}`}>
                       {Math.round(n.value * 10) / 10}{n.unit}{goal > 0 ? ` / ${Math.round(goal)}` : ""}
@@ -226,7 +226,7 @@ export default function Home() {
               <div className="mt-6">
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:underline"
+                  className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-sm px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
                 >
                   View meal plan →
                 </Link>

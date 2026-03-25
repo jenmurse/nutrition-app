@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
@@ -254,9 +253,6 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
 // ─── Main page ───────────────────────────────────────────────────────────────
 
 const SettingsPage = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const activeSection = searchParams?.get('section') || 'household';
   const { persons, refreshPersons } = usePersonContext();
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
@@ -303,12 +299,6 @@ const SettingsPage = () => {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ ok: boolean; message: string } | null>(null);
-
-  const setSection = (section: string) => {
-    const params = new URLSearchParams(searchParams?.toString());
-    params.set('section', section);
-    router.push(`/settings?${params.toString()}`);
-  };
 
   // Load nutrients once
   useEffect(() => {
@@ -455,14 +445,10 @@ const SettingsPage = () => {
   }, []);
 
   useEffect(() => {
-    if (activeSection === 'api') {
-      loadApiSettings();
-      loadUsage();
-    }
-    if (activeSection === 'mcp') {
-      loadMcpToken();
-    }
-  }, [activeSection, loadApiSettings, loadUsage, loadMcpToken]);
+    loadApiSettings();
+    loadUsage();
+    loadMcpToken();
+  }, [loadApiSettings, loadUsage, loadMcpToken]);
 
   const handleSaveApiKey = async () => {
     setApiSaving(true);
@@ -579,31 +565,19 @@ const SettingsPage = () => {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Page Header */}
-      <div className="px-7 pt-5 pb-0 border-b border-[var(--rule)] shrink-0">
-        <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight mb-4">Settings</h1>
-        <div className="flex gap-8">
-          {(['household', 'invites', 'api', 'mcp', 'data'] as const).map((section) => (
-            <button
-              key={section}
-              onClick={() => setSection(section)}
-              className={`pb-2 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors border-0 bg-transparent cursor-pointer ${
-                activeSection === section
-                  ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]'
-                  : 'text-[var(--muted)] hover:text-[var(--fg)]'
-              }`}
-            >
-              {section === 'household' ? 'Household' : section === 'invites' ? 'Invites' : section === 'api' ? 'AI & API' : section === 'mcp' ? 'MCP' : 'Data'}
-            </button>
-          ))}
-        </div>
+      <div className="px-7 pt-5 pb-4 border-b border-[var(--rule)] shrink-0">
+        <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight">Settings</h1>
       </div>
 
-      {/* Body */}
+      {/* Scrollable sections */}
       <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[640px] mx-auto">
 
-        {/* ── HOUSEHOLD TAB ── */}
-        {activeSection === 'household' && (
-          <div>
+        {/* ── HOUSEHOLD NAME ── */}
+        <div className="px-7 pt-6 pb-0">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-4 border-b border-[var(--rule)]">Household Name</div>
+        </div>
+        <div>
             {/* Household name */}
             <div className="px-7 py-5 border-b border-[var(--rule)]">
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household Name</div>
@@ -705,11 +679,12 @@ const SettingsPage = () => {
             </div>
 
           </div>
-        )}
 
-        {/* ── INVITES TAB ── */}
-        {activeSection === 'invites' && (
-          <div className="px-7 py-6">
+        {/* ── INVITES ── */}
+        <div className="px-7 pt-6 pb-0">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-4 border-b border-[var(--rule)]">Invites</div>
+        </div>
+          <div className="px-7 pb-6">
             <div className="flex items-center justify-between mb-5">
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Invite Links</div>
               <button
@@ -769,102 +744,14 @@ const SettingsPage = () => {
               </div>
             )}
           </div>
-        )}
 
-        {/* ── DATA TAB ── */}
-        {activeSection === 'data' && (
-          <div className="px-7 py-6 space-y-8 max-w-[560px]">
-
-            {/* Export */}
-            <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
-              </p>
-              <button
-                onClick={handleExport}
-                disabled={exportLoading}
-                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
-                aria-label="Export household data"
-              >
-                {exportLoading ? 'Exporting…' : 'Export data'}
-              </button>
-            </div>
-
-            <div className="border-t border-[var(--rule)]" />
-
-            {/* Import */}
-            <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
-              </p>
-
-              <label
-                htmlFor="import-file"
-                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-                aria-label="Select backup file"
-              >
-                {importFile ? importFile.name : 'Choose backup file'}
-              </label>
-              <input
-                id="import-file"
-                type="file"
-                accept=".json,application/json"
-                className="sr-only"
-                onChange={(e) => {
-                  setImportFile(e.target.files?.[0] ?? null);
-                  setImportResult(null);
-                }}
-                aria-label="Backup file input"
-              />
-
-              {importFile && (
-                <div className="flex items-center gap-3 mt-3">
-                  <button
-                    onClick={handleImport}
-                    disabled={importLoading}
-                    className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                    aria-label="Restore from backup"
-                  >
-                    {importLoading ? 'Importing…' : 'Restore'}
-                  </button>
-                  <button
-                    onClick={() => { setImportFile(null); setImportResult(null); }}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-
-              {importResult && (
-                <div
-                  className={`mt-4 px-4 py-3 font-sans text-[12px] border ${
-                    importResult.ok
-                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
-                      : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
-                  }`}
-                  role="status"
-                >
-                  {importResult.message}
-                </div>
-              )}
-            </div>
-
-          </div>
-        )}
-
-        {/* ── API TAB ── */}
-        {activeSection === 'api' && (
+        {/* ── AI & API ── */}
+        <div className="px-7 pt-6 pb-0">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-0 border-b border-[var(--rule)]">AI & API</div>
+        </div>
           <div className="px-7 py-6 space-y-8">
-
-            {/* API Key section */}
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">
-                AI API Key
-              </div>
-
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">AI API Key</div>
               {!editingApiKey ? (
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule)] bg-[var(--bg-subtle)] min-w-[220px]">
@@ -933,15 +820,11 @@ const SettingsPage = () => {
               )}
             </div>
 
-            {/* Divider */}
             <div className="border-t border-[var(--rule)]" />
 
-            {/* Usage section */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
-                  API Usage
-                </div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">API Usage</div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={loadUsage}
@@ -962,7 +845,6 @@ const SettingsPage = () => {
                   )}
                 </div>
               </div>
-
               {usageLoading ? (
                 <div className="text-[11px] text-[var(--muted)]">Loading…</div>
               ) : !usage || usage.callCount === 0 ? (
@@ -983,22 +865,18 @@ const SettingsPage = () => {
                 </div>
               )}
             </div>
-
-
           </div>
-        )}
 
-        {/* ── MCP TAB ── */}
-        {activeSection === 'mcp' && (
-          <div className="px-7 py-6 space-y-8 max-w-[680px]">
-
-            {/* Token */}
+        {/* ── MCP ── */}
+        <div className="px-7 pt-6 pb-0">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-0 border-b border-[var(--rule)]">MCP</div>
+        </div>
+          <div className="px-7 py-6 space-y-8">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
               <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
                 Connect any MCP-compatible AI assistant to your recipe collection. Ask your AI to save, search, or list recipes directly.
               </p>
-
               {newMcpToken ? (
                 <div className="space-y-3">
                   <div className="border border-[var(--accent)] bg-[var(--bg-subtle)] px-4 py-3">
@@ -1055,12 +933,9 @@ const SettingsPage = () => {
 
             <div className="border-t border-[var(--rule)]" />
 
-            {/* Setup instructions */}
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
-
               <div className="space-y-5">
-                {/* Step 1 */}
                 <div className="grid grid-cols-[20px_1fr] gap-3">
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
                   <div className="space-y-2">
@@ -1072,8 +947,6 @@ const SettingsPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Step 2 */}
                 <div className="grid grid-cols-[20px_1fr] gap-3">
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
                   <div className="space-y-2">
@@ -1103,8 +976,6 @@ const SettingsPage = () => {
                     </p>
                   </div>
                 </div>
-
-                {/* Step 3 */}
                 <div className="grid grid-cols-[20px_1fr] gap-3">
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">3.</span>
                   <div className="space-y-2">
@@ -1116,27 +987,99 @@ const SettingsPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Note */}
                 <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed pl-[32px]">
                   Works with any MCP-compatible assistant — Claude, Cursor, Windsurf, and others.
                 </p>
               </div>
             </div>
-
           </div>
-        )}
+
+        {/* ── DATA ── */}
+        <div className="px-7 pt-6 pb-0">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pb-2 mb-0 border-b border-[var(--rule)]">Data</div>
+        </div>
+          <div className="px-7 py-6 space-y-8">
+            <div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
+              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
+                Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
+              </p>
+              <button
+                onClick={handleExport}
+                disabled={exportLoading}
+                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                aria-label="Export household data"
+              >
+                {exportLoading ? 'Exporting…' : 'Export data'}
+              </button>
+            </div>
+
+            <div className="border-t border-[var(--rule)]" />
+
+            <div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
+              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
+                Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
+              </p>
+              <label
+                htmlFor="import-file"
+                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                aria-label="Select backup file"
+              >
+                {importFile ? importFile.name : 'Choose backup file'}
+              </label>
+              <input
+                id="import-file"
+                type="file"
+                accept=".json,application/json"
+                className="sr-only"
+                onChange={(e) => {
+                  setImportFile(e.target.files?.[0] ?? null);
+                  setImportResult(null);
+                }}
+                aria-label="Backup file input"
+              />
+              {importFile && (
+                <div className="flex items-center gap-3 mt-3">
+                  <button
+                    onClick={handleImport}
+                    disabled={importLoading}
+                    className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                    aria-label="Restore from backup"
+                  >
+                    {importLoading ? 'Importing…' : 'Restore'}
+                  </button>
+                  <button
+                    onClick={() => { setImportFile(null); setImportResult(null); }}
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+              {importResult && (
+                <div
+                  className={`mt-4 px-4 py-3 font-sans text-[12px] border ${
+                    importResult.ok
+                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
+                      : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
+                  }`}
+                  role="status"
+                >
+                  {importResult.message}
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>{/* end max-w container */}
       </div>
     </div>
   );
 };
 
 function SettingsPageWrapper() {
-  return (
-    <Suspense>
-      <SettingsPage />
-    </Suspense>
-  );
+  return <SettingsPage />;
 }
 
 export default SettingsPageWrapper;

@@ -258,8 +258,9 @@ body { font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.5; b
   border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
   overflow: hidden; margin-bottom: 20px;
 }
-.nutrition-cell { padding: 14px 12px; text-align: center; border-right: 1px solid var(--rule); }
-.nutrition-cell:last-child { border-right: none; }
+.nutrition-cell { padding: 14px 12px; text-align: center; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.nutrition-cell:nth-child(4n) { border-right: none; }
+.nutrition-cell:nth-last-child(-n+4) { border-bottom: none; }
 .nutrition-unit {
   font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px;
@@ -423,9 +424,9 @@ body { font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.5; b
 }
 
 .meal-cell {
-  padding: 6px 8px; border-right: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule); min-height: 72px;
-  display: flex; flex-direction: column; gap: 4px; cursor: pointer;
+  padding: 4px 6px; border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display: flex; flex-direction: column; align-items: stretch; gap: 3px; cursor: pointer;
   transition: background 80ms ease; position: relative;
 }
 .meal-cell:last-child { border-right: none; }
@@ -433,17 +434,26 @@ body { font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.5; b
 .meal-cell.today-col { background: color-mix(in srgb, var(--bg-selected) 50%, var(--bg)); }
 .meal-chip {
   background: var(--bg-raised); border: 1px solid var(--rule);
-  border-radius: var(--radius-sm); padding: 5px 7px;
+  border-radius: var(--radius-sm); padding: 4px 6px;
   box-shadow: var(--shadow-sm);
 }
 .meal-chip-name { font-size: 10px; color: var(--fg); font-weight: 500; line-height: 1.3; }
-.meal-chip-cal { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 2px; }
+.meal-chip-cal { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 1px; }
 .add-meal {
-  font-family: 'DM Mono', monospace; font-size: 9px; color: var(--placeholder);
-  letter-spacing: 0.05em; align-self: flex-start; margin-top: auto;
-  opacity: 0; transition: opacity 100ms ease;
+  font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  opacity: 0; transition: opacity 100ms ease; margin-top: auto;
 }
 .meal-cell:hover .add-meal { opacity: 1; }
+.add-row-cell {
+  padding: 6px; border-right: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 80ms ease;
+}
+.add-row-cell:last-child { border-right: none; }
+.add-row-cell:hover { background: var(--bg-subtle); }
+.add-row-cell .add-meal { opacity: 0.7; margin-top: 0; color: var(--muted); }
+.add-row-cell:hover .add-meal { opacity: 1; }
 
 .day-summary-pane {
   width: 280px; min-width: 280px; border-left: 1px solid var(--rule);
@@ -667,9 +677,13 @@ body { font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.5; b
         </div>
         <div class="nutrition-grid">
           <div class="nutrition-cell"><div class="display-num">487</div><div class="nutrition-unit">kcal</div></div>
-          <div class="nutrition-cell"><div class="display-num">38g</div><div class="nutrition-unit">protein</div></div>
-          <div class="nutrition-cell"><div class="display-num">52g</div><div class="nutrition-unit">carbs</div></div>
           <div class="nutrition-cell"><div class="display-num">11g</div><div class="nutrition-unit">fat</div></div>
+          <div class="nutrition-cell"><div class="display-num">3.5g</div><div class="nutrition-unit">sat fat</div></div>
+          <div class="nutrition-cell"><div class="display-num">620mg</div><div class="nutrition-unit">sodium</div></div>
+          <div class="nutrition-cell"><div class="display-num">52g</div><div class="nutrition-unit">carbs</div></div>
+          <div class="nutrition-cell"><div class="display-num">8g</div><div class="nutrition-unit">sugar</div></div>
+          <div class="nutrition-cell"><div class="display-num">38g</div><div class="nutrition-unit">protein</div></div>
+          <div class="nutrition-cell"><div class="display-num">6g</div><div class="nutrition-unit">fiber</div></div>
         </div>
         <p class="section-heading">Ingredients — per serving</p>
         <div>
@@ -883,43 +897,73 @@ body { font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.5; b
 
             <!-- Breakfast row -->
             <div class="row-label"><span class="meal-type-label">Breakfast</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Overnight Oats</div><div class="meal-chip-cal">380 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Overnight Oats</div><div class="meal-chip-cal">380 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Scrambled Eggs</div><div class="meal-chip-cal">290 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Greek Yogurt Bowl</div><div class="meal-chip-cal">310 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Overnight Oats</div><div class="meal-chip-cal">380 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Overnight Oats</div><div class="meal-chip-cal">380 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Scrambled Eggs</div><div class="meal-chip-cal">290 kcal</div></div></div>
+            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Greek Yogurt Bowl</div><div class="meal-chip-cal">310 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
 
             <!-- Lunch row -->
             <div class="row-label"><span class="meal-type-label">Lunch</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Chicken &amp; Rice Bowl</div><div class="meal-chip-cal">487 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Lentil Dal</div><div class="meal-chip-cal">420 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Chicken &amp; Rice Bowl</div><div class="meal-chip-cal">487 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Black Bean Soup</div><div class="meal-chip-cal">380 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Salmon + Asparagus</div><div class="meal-chip-cal">390 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Chicken &amp; Rice Bowl</div><div class="meal-chip-cal">487 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Lentil Dal</div><div class="meal-chip-cal">420 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Chicken &amp; Rice Bowl</div><div class="meal-chip-cal">487 kcal</div></div></div>
+            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Black Bean Soup</div><div class="meal-chip-cal">380 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Salmon + Asparagus</div><div class="meal-chip-cal">390 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
 
             <!-- Dinner row -->
             <div class="row-label"><span class="meal-type-label">Dinner</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Turkey Meatballs</div><div class="meal-chip-cal">520 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Salmon + Asparagus</div><div class="meal-chip-cal">390 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Lentil Dal</div><div class="meal-chip-cal">420 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell today-col"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Turkey Meatballs</div><div class="meal-chip-cal">520 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Salmon + Asparagus</div><div class="meal-chip-cal">390 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Lentil Dal</div><div class="meal-chip-cal">420 kcal</div></div></div>
+            <div class="meal-cell today-col"></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
 
-            <!-- Snack row -->
+            <!-- Dessert row -->
+            <div class="row-label"><span class="meal-type-label">Dessert</span></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Dark Chocolate</div><div class="meal-chip-cal">85 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell today-col"></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Fruit Salad</div><div class="meal-chip-cal">95 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+
+            <!-- Snack row (can have multiple items per day) -->
             <div class="row-label"><span class="meal-type-label">Snack</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Almonds (30g)</div><div class="meal-chip-cal">174 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Greek Yogurt</div><div class="meal-chip-cal">130 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Almonds (30g)</div><div class="meal-chip-cal">174 kcal</div></div><span class="add-meal">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
-            <div class="meal-cell"><span class="add-meal" style="opacity:1">+ add</span></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Almonds (30g)</div><div class="meal-chip-cal">174 kcal</div></div><div class="meal-chip"><div class="meal-chip-name">Apple</div><div class="meal-chip-cal">95 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Greek Yogurt</div><div class="meal-chip-cal">130 kcal</div></div></div>
+            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Almonds (30g)</div><div class="meal-chip-cal">174 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+
+            <!-- Beverage row (can have multiple items per day) -->
+            <div class="row-label"><span class="meal-type-label">Beverage</span></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Coffee + Oat Milk</div><div class="meal-chip-cal">45 kcal</div></div><div class="meal-chip"><div class="meal-chip-name">Green Smoothie</div><div class="meal-chip-cal">180 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Coffee + Oat Milk</div><div class="meal-chip-cal">45 kcal</div></div></div>
+            <div class="meal-cell"><div class="meal-chip"><div class="meal-chip-name">Matcha Latte</div><div class="meal-chip-cal">120 kcal</div></div></div>
+            <div class="meal-cell today-col"><div class="meal-chip"><div class="meal-chip-name">Coffee + Oat Milk</div><div class="meal-chip-cal">45 kcal</div></div></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+            <div class="meal-cell"></div>
+
+            <!-- + ADD row at bottom of each day column -->
+            <div class="row-label"></div>
+            <div class="add-row-cell"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
+            <div class="add-row-cell"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
+            <div class="add-row-cell"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
+            <div class="add-row-cell today-col"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
+            <div class="add-row-cell"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
+            <div class="add-row-cell"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
+            <div class="add-row-cell"><span class="add-meal" style="opacity:0.7">+ ADD</span></div>
           </div>
         </div>
       </div>

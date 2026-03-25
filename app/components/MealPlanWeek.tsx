@@ -273,51 +273,55 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: '76px 1fr' }}>
-        {days.map((day) => {
-          const todayFlag = isToday(new Date(day.date));
-          const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
-          const monthDay = new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-          return (
-            <React.Fragment key={day.date.toISOString()}>
-              {/* Day label cell */}
+      <div className="overflow-x-auto">
+        <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', minWidth: 620 }} className="border-b border-[var(--rule)]">
+          {/* Column headers */}
+          <div className="bg-[var(--bg-nav)] border-b border-r border-[var(--rule)] p-2" />
+          {days.map((day) => {
+            const todayFlag = isToday(new Date(day.date));
+            const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
+            const dayNum = new Date(day.date).getDate();
+            return (
               <div
-                className={`flex flex-col justify-center border-b border-[var(--rule)] cursor-pointer select-none transition-colors ${
-                  isSelected
-                    ? 'bg-[var(--accent-light)]'
-                    : 'hover:bg-[var(--bg-subtle)]'
-                } ${isSelected || todayFlag ? 'border-l-2 border-l-[var(--accent)] pl-[22px]' : 'pl-6'}`}
-                style={{ paddingTop: 14, paddingBottom: 14, paddingRight: 0 }}
-                onClick={() => onDayClick?.(new Date(day.date))}
-                role="button"
-                aria-label={`${day.dayOfWeek}, ${monthDay}`}
-                aria-pressed={!!isSelected}
-              >
-                <span className={`font-mono text-[9px] uppercase tracking-[0.1em] ${isSelected ? 'text-[var(--accent)]' : 'text-[var(--muted)]'}`}>
-                  {day.dayOfWeek.slice(0, 3)}
-                </span>
-                <span className={`font-mono text-[9px] mt-[1px] uppercase ${isSelected || todayFlag ? 'text-[var(--accent)]' : 'text-[var(--muted)]'}`}>
-                  {monthDay}
-                </span>
-              </div>
-
-              {/* Day content cell */}
-              <div
-                className={`border-b border-l border-[var(--rule)] px-4 py-[10px] cursor-pointer transition-colors ${
-                  isSelected ? 'bg-[var(--accent-light)]' : 'hover:bg-[var(--bg-subtle)]'
+                key={`header-${day.date.toISOString()}`}
+                className={`border-b border-r border-[var(--rule)] last:border-r-0 p-2 text-center cursor-pointer transition-colors ${
+                  isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[var(--bg-selected)]' : 'bg-[var(--bg-nav)]'
                 }`}
                 onClick={() => onDayClick?.(new Date(day.date))}
+                role="button"
+                aria-label={day.dayOfWeek}
               >
-                {day.meals.length > 0 ? (
-                  <div className="flex flex-col gap-1 mb-2">
-                    {day.meals.map((meal) => (
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{day.dayOfWeek.slice(0, 3)}</div>
+                <div className={`font-serif text-[18px] leading-none ${todayFlag || isSelected ? 'text-[var(--accent)]' : 'text-[var(--fg)]'}`}>{dayNum}</div>
+              </div>
+            );
+          })}
+
+          {/* Meal type rows */}
+          {availableMealTypes.map((mealType) => (
+            <React.Fragment key={mealType}>
+              {/* Row label */}
+              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule)] flex items-center px-2 py-1">
+                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
+              </div>
+              {/* Day cells for this meal type */}
+              {days.map((day) => {
+                const todayFlag = isToday(new Date(day.date));
+                const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
+                const mealsOfType = day.meals.filter((m) => m.mealType === mealType);
+                return (
+                  <div
+                    key={`${mealType}-${day.date.toISOString()}`}
+                    className={`border-r border-b border-[var(--rule)] last:border-r-0 p-1 flex flex-col gap-[3px] cursor-pointer transition-colors ${
+                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
+                    } hover:bg-[var(--bg-subtle)]`}
+                    onClick={() => onDayClick?.(new Date(day.date))}
+                  >
+                    {mealsOfType.map((meal) => (
                       <div
                         key={meal.id}
-                        className={`flex items-center gap-[5px] bg-white border border-[var(--rule)] px-2 py-1 text-[11px] text-[var(--fg)] transition-colors ${
-                          editMode && selectedMealIds.has(meal.id)
-                            ? 'bg-[var(--error-light)] border-[var(--error)]'
-                            : ''
+                        className={`bg-[var(--bg-raised)] border border-[var(--rule)] rounded-sm p-[4px_6px] shadow-[var(--shadow-sm)] transition-colors ${
+                          editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--error-light)] border-[var(--error)]' : ''
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -330,36 +334,47 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                             checked={selectedMealIds.has(meal.id)}
                             onChange={() => onToggleMealSelect?.(meal.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="shrink-0 w-[12px] h-[12px]"
+                            className="shrink-0 w-[12px] h-[12px] mb-[2px]"
                             aria-label={`Select ${meal.recipe?.name || meal.ingredient?.name}`}
                           />
                         )}
-                        <span className="truncate flex-1">{meal.recipe?.name || meal.ingredient?.name}</span>
-                        <span className="font-sans text-[10px] text-[var(--muted)] shrink-0 capitalize">
-                          {meal.mealType}
-                        </span>
+                        <div className="text-[10px] text-[var(--fg)] font-medium leading-[1.3] truncate">{meal.recipe?.name || meal.ingredient?.name}</div>
+                        {(() => { const cal = getCalories(day.dayNutrients); return null; })()}
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <span className="text-[var(--muted)] text-[11px]">—</span>
-                )}
-                {!editMode && (
-                  <button
-                    className="text-[9px] font-mono text-[var(--muted)] hover:text-[var(--accent)] transition-colors mt-1"
+                );
+              })}
+            </React.Fragment>
+          ))}
+
+          {/* + ADD row at bottom */}
+          {!editMode && (
+            <>
+              <div className="bg-[var(--bg-nav)] border-r border-[var(--rule)]" />
+              {days.map((day) => {
+                const todayFlag = isToday(new Date(day.date));
+                const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
+                return (
+                  <div
+                    key={`add-${day.date.toISOString()}`}
+                    className={`border-r border-[var(--rule)] last:border-r-0 flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] ${
+                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
+                    }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddMealClick(new Date(day.date));
                     }}
+                    role="button"
                     aria-label={`Add meal on ${day.dayOfWeek}`}
                   >
-                    + Add
-                  </button>
-                )}
-              </div>
-            </React.Fragment>
-          );
-        })}
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] opacity-70 hover:opacity-100 transition-opacity">+ ADD</span>
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </div>
       </div>
 
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
@@ -409,7 +424,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   onClick={() => setItemTypeTabOpen('recipe')}
                   className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
                     itemTypeTabOpen === 'recipe'
-                      ? 'border-b-2 border-[var(--fg)] text-[var(--fg)]'
+                      ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
@@ -419,7 +434,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   onClick={() => setItemTypeTabOpen('ingredient')}
                   className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
                     itemTypeTabOpen === 'ingredient'
-                      ? 'border-b-2 border-[var(--fg)] text-[var(--fg)]'
+                      ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >

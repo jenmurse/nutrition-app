@@ -117,16 +117,18 @@
 }
 
 .mealItem {
-  padding: 6px 8px;
-  background: var(--bg-subtle);
+  padding: 4px 6px;
+  background: var(--bg-raised);
   cursor: pointer;
   transition: all 0.15s ease;
-  border-left: 2px solid var(--rule-strong);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: var(--shadow-sm);
 }
 
 .mealItem:hover {
   background: var(--bg-selected);
-  border-left-color: var(--accent);
+  border-color: var(--accent);
 }
 
 .mealName {

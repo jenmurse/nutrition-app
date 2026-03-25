@@ -136,9 +136,9 @@ const DailySummary: React.FC<DailySummaryProps> = ({
             ) : null}
 
             <div className="mt-[10px]">
-              <div className="h-[2px] w-full bg-[var(--rule)]">
+              <div className="h-[2px] w-full bg-[var(--rule)] rounded-full">
                 <div
-                  className={`h-[2px] ${barColor} transition-all duration-300`}
+                  className={`h-[2px] rounded-full ${barColor} transition-all duration-300`}
                   style={{ width: `${Math.min(progressPercent, 100)}%` }}
                 />
               </div>

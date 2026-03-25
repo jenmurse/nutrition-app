@@ -906,13 +906,13 @@ function IngredientsPage() {
           <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
             <button
               onClick={() => handleEditClick(ing)}
-              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors rounded-sm"
             >
               Edit
             </button>
             <button
               onClick={() => handleDelete(ing.id, ing.name)}
-              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
+              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors rounded-sm"
             >
               Delete
             </button>
