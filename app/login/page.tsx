@@ -105,7 +105,7 @@ function LoginPage() {
           <button
             type="button"
             onClick={() => setMode("signin")}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 rounded-none transition-colors ${
               mode === "signin"
                 ? "border-[var(--accent)] text-[var(--fg)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
@@ -117,7 +117,7 @@ function LoginPage() {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 rounded-none transition-colors ${
               mode === "signup"
                 ? "border-[var(--accent)] text-[var(--fg)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"

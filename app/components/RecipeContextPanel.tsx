@@ -118,7 +118,7 @@ export default function RecipeContextPanel({
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-[10px] font-mono text-[9px] tracking-[0.1em] uppercase text-center border-b-2 transition-colors ${
+            className={`flex-1 h-[40px] font-mono text-[9px] tracking-[0.1em] uppercase text-center border-b-2 rounded-none transition-colors flex items-center justify-center ${
               activeTab === tab.key
                 ? "text-[var(--fg)] border-[var(--accent)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -133,7 +133,7 @@ export default function RecipeContextPanel({
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto px-5 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         {activeTab === "goals" && (
           <GoalsTab totals={totals} goals={goals} personId={personId} loading={goalsLoading} />
         )}

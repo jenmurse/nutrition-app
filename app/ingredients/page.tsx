@@ -672,7 +672,7 @@ function IngredientsPage() {
           <p className="text-[11px] text-[var(--muted)]">Searching USDA...</p>
         )}
         {usdaLookupResults.length > 0 && (
-          <div className="border border-[var(--rule)] max-h-48 overflow-y-auto">
+          <div className="border border-[var(--rule)] rounded-[var(--radius-sm,4px)] max-h-48 overflow-y-auto">
             {usdaLookupResults.map((food: any) => (
               <button
                 key={food.fdcId}
@@ -788,7 +788,7 @@ function IngredientsPage() {
         )}
 
         {/* Meal Item Checkbox */}
-        <div className="border border-[var(--rule)] p-4">
+        <div className="border border-[var(--rule)] rounded-[var(--radius-sm,4px)] p-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -920,14 +920,14 @@ function IngredientsPage() {
         </div>
 
         {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto" style={{ padding: '24px 28px' }}>
           <div className={sectionLabelClass}>Nutrition per 100g</div>
           {ing.nutrientValues.length > 0 ? (
             <div className="space-y-0">
               {ing.nutrientValues.map((nv, idx) => (
-                <div key={nv.id} className={`flex justify-between items-baseline py-[7px] text-[11px] ${idx < ing.nutrientValues.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
-                  <span className="text-[var(--muted)]">{nv.nutrient.displayName}</span>
-                  <span className="font-mono text-[var(--muted)] tabular-nums">{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
+                <div key={nv.id} className={`flex justify-between items-baseline py-[7px] ${idx < ing.nutrientValues.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                  <span className="font-mono text-[10px] tracking-[0.06em] uppercase text-[var(--muted)]">{nv.nutrient.displayName}</span>
+                  <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
                 </div>
               ))}
             </div>
@@ -951,10 +951,10 @@ function IngredientsPage() {
       {/* ── Left: List pane with integrated header ── */}
       <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]">
         {/* List header */}
-        <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0">
+        <div className="px-[14px] pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
-            <h1 className="font-serif text-[18px] text-[var(--fg)] leading-none">Ingredients</h1>
-            <span className="font-mono text-[9px] tracking-[0.1em] text-[var(--muted)] uppercase">{filteredIngredients.length}</span>
+            <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Ingredients</h1>
+            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">{filteredIngredients.length}</span>
           </div>
           <input
             type="text"
@@ -962,7 +962,7 @@ function IngredientsPage() {
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search ingredients"
-            className="w-full bg-transparent border border-[var(--rule)] py-1 px-2 text-[11px] font-mono text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
+            className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
           />
         </div>
 
@@ -980,8 +980,8 @@ function IngredientsPage() {
               return (
                 <div
                   key={ing.id}
-                  className={`flex items-center justify-between py-[10px] px-6 border-b border-[var(--rule)] cursor-pointer transition-colors ${
-                    isSelected ? "bg-[var(--accent-light)]" : "hover:bg-[var(--bg-subtle)]"
+                  className={`flex items-center justify-between py-[10px] px-[14px] border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
+                    isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
                   }`}
                   onClick={() => {
                     if (isSelected) {
@@ -992,7 +992,7 @@ function IngredientsPage() {
                     }
                   }}
                 >
-                  <span className="font-sans text-[12px] font-normal text-[var(--fg)] truncate">
+                  <span className="text-[12px] font-medium text-[var(--fg)] truncate">
                     {ing.name}
                   </span>
                 </div>
@@ -1005,7 +1005,7 @@ function IngredientsPage() {
         <button
           onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
           aria-label="Create new ingredient"
-          className="shrink-0 w-full py-[10px] px-6 font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left"
+          className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left rounded-none"
         >
           + New Ingredient
         </button>

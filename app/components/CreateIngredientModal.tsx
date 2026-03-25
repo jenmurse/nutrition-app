@@ -275,7 +275,7 @@ export default function CreateIngredientModal({
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] border-b-2 transition ${
+                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] border-b-2 rounded-none transition ${
                     tab === t
                       ? "border-[var(--accent)] text-[var(--fg)]"
                       : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
@@ -309,7 +309,7 @@ export default function CreateIngredientModal({
                 </div>
 
                 {searchResults.length > 0 && (
-                  <div className="space-y-[2px] max-h-80 overflow-y-auto">
+                  <div className="space-y-[2px] max-h-80 overflow-y-auto border border-[var(--rule)] rounded-[var(--radius-sm,4px)]">
                     {searchResults.map((result) => {
                       const isLoading = fetchingFdcId === result.fdcId;
                       return (

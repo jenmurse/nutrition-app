@@ -561,7 +561,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div>
         <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Instructions</label>
         <textarea
-          className="w-full border border-[var(--rule)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
+          className="w-full border border-[var(--rule)] rounded-[var(--radius-sm,4px)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
           placeholder="Add recipe instructions..."
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}

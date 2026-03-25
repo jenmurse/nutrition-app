@@ -133,7 +133,7 @@
   input:not([type="checkbox"]):not([type="radio"]), textarea, select {
     font-family: var(--sans);
     font-weight: 400;
-    border-radius: calc(var(--radius) - 2px);
+    border-radius: 0;
   }
 
   button {

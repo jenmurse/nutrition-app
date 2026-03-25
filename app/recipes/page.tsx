@@ -355,10 +355,10 @@ function RecipesPage() {
 
       {/* ── Left: List pane ── */}
       <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0">
+        <div className="px-[14px] pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
-            <h1 className="font-serif text-[18px] text-[var(--fg)] leading-none">Recipes</h1>
-            <span className="font-mono text-[9px] tracking-[0.1em] text-[var(--muted)] uppercase">{filteredRecipes.length}</span>
+            <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Recipes</h1>
+            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">{filteredRecipes.length}</span>
           </div>
           <input
             type="text"
@@ -366,25 +366,25 @@ function RecipesPage() {
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search recipes"
-            className="w-full bg-transparent border border-[var(--rule)] py-1 px-2 text-[11px] font-mono text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none mb-2"
+            className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none mb-2"
           />
-          <div className="flex gap-[3px] flex-wrap mt-1">
+          <div className="flex gap-[3px] flex-wrap mt-2">
             {availableTags.map((tag) => (
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
                 aria-label={`Filter by ${tag}`}
                 aria-pressed={selectedTags.includes(tag)}
-                className={`py-[2px] px-[6px] font-mono text-[8px] tracking-[0.1em] uppercase border rounded-sm cursor-pointer transition-colors ${
+                className={`py-[1px] px-[5px] font-mono text-[9px] tracking-[0.04em] rounded-[var(--radius-xs,2px)] cursor-pointer transition-colors border-0 ${
                   selectedTags.includes(tag)
-                    ? 'bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]'
-                    : 'bg-transparent text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)]'
+                    ? 'bg-[var(--accent)] text-[var(--accent-text)]'
+                    : 'bg-[var(--bg-subtle)] text-[var(--muted)] hover:text-[var(--fg)]'
                 }`}
               >{tag}</button>
             ))}
             {selectedTags.length > 0 && (
               <button onClick={() => updateSearchParam("tags", "")} aria-label="Clear tag filters"
-                className="py-[2px] px-[4px] font-mono text-[8px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)]">
+                className="py-[1px] px-[4px] font-mono text-[9px] tracking-[0.04em] bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)]">
                 clear
               </button>
             )}
@@ -394,21 +394,21 @@ function RecipesPage() {
         <div className="flex-1 overflow-y-auto">
           {filteredRecipes.map((recipe) => {
             const isSelected = !editMode && !createMode && selectedRecipe?.id === recipe.id;
+            const recipeTags = recipe.tags ? recipe.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
             return (
               <div
                 key={recipe.id}
-                className={`py-[10px] px-6 border-b border-[var(--rule)] cursor-pointer transition-colors ${isSelected ? 'bg-[var(--accent-light)]' : 'hover:bg-[var(--bg-subtle)]'}`}
+                className={`py-[10px] px-[14px] border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)]' : 'hover:bg-[var(--bg-subtle)]'}`}
                 onClick={() => { setEditMode(false); setEditRecipe(null); setCreateMode(false); handleSelectRecipe(recipe); }}
               >
-                <div className="flex items-center gap-2">
-                  {recipe.image ? (
-                    <img src={recipe.image} alt="" aria-hidden="true" className="w-8 h-8 object-cover shrink-0 border border-[var(--rule)]" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  ) : (
-                    <div className="w-8 h-8 bg-[var(--bg-subtle)] border border-[var(--rule)] shrink-0" />
-                  )}
-                  <span className="font-sans text-[12px] font-normal text-[var(--fg)] truncate">{recipe.name}</span>
+                <div className="text-[12px] font-medium text-[var(--fg)] mb-[3px]">{recipe.name}</div>
+                <div className="flex items-center gap-[7px] font-mono text-[9px] text-[var(--muted)]">
+                  <span>{recipe.servingSize} servings</span>
+                  {recipeTags.map((tag) => (
+                    <span key={tag} className="text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[5px] rounded-[var(--radius-xs,2px)] tracking-[0.04em]">{tag}</span>
+                  ))}
                   {recipe.isComplete === false && (
-                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warning)] border border-[var(--warning-border)] py-[1px] px-[4px] leading-none shrink-0 rounded-sm">Incomplete</span>
+                    <span className="text-[var(--warning)] tracking-[0.04em]">incomplete</span>
                   )}
                 </div>
               </div>
@@ -419,7 +419,7 @@ function RecipesPage() {
         <button
           onClick={() => { setSelectedRecipe(null); setEditMode(false); setEditRecipe(null); setCreateMode(true); setCreateImportedRecipe(null); setCreateImportUrl(""); setCreateImportError(""); }}
           aria-label="Create new recipe"
-          className="shrink-0 w-full py-[10px] px-6 font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left"
+          className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left rounded-none"
         >+ New Recipe</button>
       </div>
 
@@ -581,7 +581,7 @@ function RecipesPage() {
       ) : (
         <>
           <div className="flex-1 overflow-y-auto flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex-1 overflow-y-auto px-7 py-6">
+            <div className="flex-1 overflow-y-auto px-7 py-6" style={{ padding: '24px 28px' }}>
               {selectedRecipeLoading ? (
                 <p className="text-[11px] text-[var(--muted)]">Loading…</p>
               ) : (
@@ -646,7 +646,7 @@ function RecipesPage() {
                     <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5 first:mt-0">Ingredients — per serving</p>
                     {selectedRecipe.ingredients.map((ing, idx) => (
                       <div key={ing.id}
-                        className={`flex items-center py-2 gap-[10px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                        className={`flex items-center py-[8px] gap-[10px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
                         <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
                         <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
                       </div>
@@ -664,16 +664,19 @@ function RecipesPage() {
                   {/* Action buttons */}
                   <div className="flex gap-2 mt-5 flex-wrap">
                     <button onClick={() => handleEditClick(selectedRecipe.id)}
-                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors border-0 inline-flex items-center gap-[6px] leading-none">
+                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors border-0 inline-flex items-center gap-[6px] leading-none"
+                      aria-label="Edit recipe">
                       Edit Recipe
                     </button>
-                    <button onClick={() => {/* TODO: add to meal plan */}}
-                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule)] cursor-pointer hover:bg-[var(--bg-selected)] transition-colors inline-flex items-center gap-[6px] leading-none">
-                      Add to Meal Plan
-                    </button>
                     <button onClick={() => handleDuplicate(selectedRecipe.id)}
-                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors inline-flex items-center gap-[6px] leading-none">
+                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors inline-flex items-center gap-[6px] leading-none"
+                      aria-label="Duplicate recipe">
                       Duplicate
+                    </button>
+                    <button onClick={() => handleDelete(selectedRecipe.id, selectedRecipe.name)}
+                      className="py-2 px-4 text-[10px] font-mono tracking-[0.08em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors border-0 inline-flex items-center gap-[6px] leading-none"
+                      aria-label="Delete recipe">
+                      Delete
                     </button>
                   </div>
                 </>
