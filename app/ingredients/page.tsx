@@ -172,7 +172,12 @@ function IngredientsPage() {
         setIngredients(cachedIngs);
         if (cachedNutrients) setNutrients(cachedNutrients as never[]);
         const cachedDetail = clientCache.get<Ingredient>(`/api/ingredients/${cachedIngs[0].id}`);
-        if (cachedDetail) setSelectedIngredient(cachedDetail);
+        if (cachedDetail) {
+          setSelectedIngredient(cachedDetail);
+        } else {
+          // Detail not cached — fetch it so we don't land on empty state
+          refreshSelectedIngredient(cachedIngs[0].id);
+        }
         setLoading(false);
         // Background revalidate list only (nutrients are static — skip)
         fetch("/api/ingredients?slim=true").then(r => r.json()).then((data) => {

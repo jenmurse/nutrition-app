@@ -141,7 +141,19 @@ function RecipesPage() {
       setRecipes(cached);
       if (!skipAutoSelect && !editMode && !createMode) {
         const cachedDetail = clientCache.get<RecipeDetail>(`/api/recipes/${cached[0].id}`);
-        if (cachedDetail) setSelectedRecipe(cachedDetail);
+        if (cachedDetail) {
+          setSelectedRecipe(cachedDetail);
+        } else {
+          // Detail not cached — fetch it so we don't land on empty state
+          setSelectedRecipeLoading(true);
+          fetch(`/api/recipes/${cached[0].id}`).then(r => r.json()).then(detail => {
+            if (detail?.recipe) {
+              const full = { ...cached[0], ...detail.recipe, totals: detail.totals };
+              clientCache.set(`/api/recipes/${cached[0].id}`, full);
+              setSelectedRecipe(full);
+            }
+          }).catch(console.error).finally(() => setSelectedRecipeLoading(false));
+        }
       }
       setLoading(false);
       // Background revalidate
