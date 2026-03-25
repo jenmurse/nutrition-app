@@ -303,7 +303,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {availableMealTypes.map((mealType) => (
             <React.Fragment key={mealType}>
               {/* Row label */}
-              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule)] flex items-center px-[10px] py-1">
+              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule)] flex items-center px-[16px] py-1">
                 <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
               </div>
               {/* Day cells for this meal type */}

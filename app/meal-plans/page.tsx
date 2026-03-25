@@ -1001,7 +1001,7 @@ const MealPlansPage = () => {
                 <div className="relative flex shrink-0">
                   {/* Panel — collapses via width transition */}
                   <div
-                    className="flex flex-col overflow-hidden border-l border-[var(--rule)] transition-[width,min-width] duration-300"
+                    className="flex flex-col overflow-hidden transition-[width,min-width] duration-300"
                     style={{
                       width: summaryPanelOpen ? 380 : 0,
                       minWidth: summaryPanelOpen ? 380 : 0,
@@ -1051,28 +1051,30 @@ const MealPlansPage = () => {
                       <div className="mb-4">
                         {keyNutrients.map(nutrient => {
                           const goal = nutrient.highGoal ?? nutrient.lowGoal;
-                          const pct = goal ? Math.min((nutrient.value / goal) * 100, 100) : 0;
-                          const barColor = nutrient.status === 'error'
+                          const pct = goal ? Math.min(Math.round((nutrient.value / goal) * 100), 100) : 0;
+                          const isOver = goal ? nutrient.value > goal : false;
+                          const isWarn = nutrient.status === 'warning';
+                          const barColor = isOver || nutrient.status === 'error'
                             ? 'bg-[var(--error)]'
-                            : nutrient.status === 'warning'
+                            : isWarn
                             ? 'bg-[var(--warning)]'
                             : 'bg-[var(--accent)]';
-                          const valueColor = nutrient.status === 'error'
+                          const valueColor = isOver || nutrient.status === 'error'
                             ? 'text-[var(--error)]'
-                            : nutrient.status === 'warning'
-                            ? 'text-[var(--warning)]'
                             : 'text-[var(--muted)]';
+                          const unitSuffix = nutrient.displayName.toLowerCase() === 'calories' ? '' : ` ${nutrient.unit}`;
+                          const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
                           return (
-                            <div key={nutrient.nutrientId} className="flex items-center gap-2 mb-2">
-                              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] w-16 shrink-0">
-                                {nutrient.displayName}
-                              </span>
-                              <div className="flex-1 h-[3px] bg-[var(--rule)]">
-                                <div className={`h-[3px] ${barColor}`} style={{ width: `${pct}%` }} />
+                            <div key={nutrient.nutrientId} className="mb-3">
+                              <div className="flex justify-between items-baseline mb-[5px]">
+                                <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{nutrient.displayName}</span>
+                                <span className={`font-mono text-[10px] tabular-nums ${valueColor}`}>
+                                  {formatVal(nutrient.value)} / {formatVal(goal ?? 0)}{unitSuffix}
+                                </span>
                               </div>
-                              <span className={`font-mono text-[9px] w-[72px] text-right whitespace-nowrap ${valueColor}`}>
-                                {Math.round(nutrient.value)}{nutrient.unit} / {goal}{nutrient.unit}
-                              </span>
+                              <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
+                                <div className={`h-full rounded-sm ${barColor}`} style={{ width: `${pct}%` }} />
+                              </div>
                             </div>
                           );
                         })}

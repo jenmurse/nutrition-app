@@ -257,6 +257,7 @@ const SettingsPage = () => {
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
+  const [settingsTab, setSettingsTab] = useState<'household' | 'ai' | 'mcp' | 'data'>('household');
 
   // Household info — seed from localStorage so name appears instantly
   const [householdName, setHouseholdName] = useState(
@@ -562,13 +563,44 @@ const SettingsPage = () => {
     setExpandedPersonId(null);
   };
 
+  const settingsTabs: { key: typeof settingsTab; label: string }[] = [
+    { key: 'household', label: 'Household' },
+    { key: 'ai', label: 'AI API' },
+    { key: 'mcp', label: 'MCP' },
+    { key: 'data', label: 'Data' },
+  ];
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Scrollable sections — no page header, matches preview */}
+      {/* Tab bar */}
+      <div className="flex border-b border-[var(--rule)] shrink-0 bg-[var(--bg)]" style={{ padding: '0 32px' }}>
+        {settingsTabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setSettingsTab(tab.key)}
+            style={{ borderRadius: 0 }}
+            className={`px-[14px] h-[44px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center ${
+              settingsTab === tab.key
+                ? 'text-[var(--fg)] border-[var(--accent)]'
+                : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+            }`}
+            aria-label={`${tab.label} tab`}
+            aria-selected={settingsTab === tab.key}
+            role="tab"
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Scrollable tab content */}
       <div className="flex-1 overflow-y-auto bg-[var(--bg)]">
         <div style={{ maxWidth: 640, padding: '28px 32px' }}>
 
-        {/* ── HOUSEHOLD MEMBERS ── */}
+        {/* ── HOUSEHOLD TAB ── */}
+        {settingsTab === 'household' && (
+        <>
+        {/* Household name + members */}
         <div className="mb-8">
           <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Household members</div>
 
@@ -769,9 +801,13 @@ const SettingsPage = () => {
         </div>
         )}
 
-        {/* ── AI & ANALYSIS ── */}
+        </>
+        )}
+
+        {/* ── AI API TAB ── */}
+        {settingsTab === 'ai' && (
         <div className="mb-8">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">AI &amp; analysis</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">AI API</div>
           <div className="space-y-6">
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">AI API Key</div>
@@ -890,8 +926,10 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {/* ── MCP ── */}
+        {/* ── MCP TAB ── */}
+        {settingsTab === 'mcp' && (
         <div className="mb-8">
           <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">MCP</div>
           <div className="space-y-6">
@@ -1017,8 +1055,10 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {/* ── DATA ── */}
+        {/* ── DATA TAB ── */}
+        {settingsTab === 'data' && (
         <div className="mb-8">
           <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[14px] pb-2 border-b border-[var(--rule)]">Data</div>
           <div className="space-y-6">
@@ -1095,6 +1135,7 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
+        )}
 
         </div>{/* end settings-layout */}
       </div>
