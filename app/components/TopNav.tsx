@@ -21,6 +21,7 @@ export default function TopNav() {
   if (pathname === "/login") return null;
 
   const handleSignOut = async () => {
+    localStorage.removeItem("selectedPersonId");
     await supabase.auth.signOut();
     window.location.href = "/login";
   };

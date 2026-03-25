@@ -386,7 +386,7 @@ const MealPlansPage = () => {
           router.replace(`/meal-plans${params.toString() ? '?' + params.toString() : ''}`);
         }
 
-        if (!targetPlanId && plans.length > 0 && !hasAutoSelected) {
+        if (!targetPlanId && plans.length > 0 && (personJustSwitched || !hasAutoSelected)) {
           // Auto-select current week's plan or first plan
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -538,7 +538,7 @@ const MealPlansPage = () => {
     alsoAddToPlanIds?: number[]
   ) => {
     const planId = selectedPlanId ?? selectedPlan?.id;
-    if (!planId) return;
+    if (!planId) { toast.error('No meal plan selected'); return; }
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const body = { recipeId, date: dateStr, mealType, servings };
     const newMeal = await addMealToPlan(planId, body);
@@ -550,8 +550,8 @@ const MealPlansPage = () => {
     // Optimistic: add meal to local state immediately
     setSelectedPlan(prev => prev ? {
       ...prev,
-      mealLogs: [...prev.mealLogs, newMeal].sort((a: MealLog, b: MealLog) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime() || a.position - b.position
+      mealLogs: [...(prev.mealLogs || []), newMeal].sort((a: MealLog, b: MealLog) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime() || (a.position ?? 0) - (b.position ?? 0)
       ),
     } : prev);
     toast.success('Meal added successfully!');
@@ -570,7 +570,7 @@ const MealPlansPage = () => {
     alsoAddToPlanIds?: number[]
   ) => {
     const planId = selectedPlanId ?? selectedPlan?.id;
-    if (!planId) return;
+    if (!planId) { toast.error('No meal plan selected'); return; }
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const body = { ingredientId, quantity, unit, date: dateStr, mealType };
     const newMeal = await addMealToPlan(planId, body);
@@ -582,8 +582,8 @@ const MealPlansPage = () => {
     // Optimistic: add meal to local state immediately
     setSelectedPlan(prev => prev ? {
       ...prev,
-      mealLogs: [...prev.mealLogs, newMeal].sort((a: MealLog, b: MealLog) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime() || a.position - b.position
+      mealLogs: [...(prev.mealLogs || []), newMeal].sort((a: MealLog, b: MealLog) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime() || (a.position ?? 0) - (b.position ?? 0)
       ),
     } : prev);
     toast.success('Ingredient added successfully!');
@@ -796,7 +796,21 @@ const MealPlansPage = () => {
                       setViewMode('personal');
                       if (wasEveryone && selectedPersonId === p.id) {
                         // Same person — useEffect won't re-trigger, so reload plan manually
-                        if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
+                        if (selectedPlan?.id) {
+                          fetchMealPlanDetails(selectedPlan.id);
+                        } else if (selectedPlanId) {
+                          fetchMealPlanDetails(selectedPlanId);
+                        } else {
+                          // Force re-load by toggling person id
+                          setHasAutoSelected(false);
+                          prevPersonId.current = null;
+                          setSelectedPersonId(p.id);
+                        }
+                      } else if (selectedPersonId === p.id) {
+                        // Already this person but not from Everyone — force reload
+                        setHasAutoSelected(false);
+                        prevPersonId.current = null;
+                        setSelectedPersonId(p.id);
                       } else {
                         setSelectedPersonId(p.id);
                       }

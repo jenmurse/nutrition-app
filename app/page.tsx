@@ -186,7 +186,7 @@ export default function Home() {
                 <div className="h-[4px] bg-[var(--rule)] mb-5 relative rounded-full">
                   <div
                     className={`absolute top-0 left-0 h-full transition-[width] duration-500 rounded-full ${
-                      calPct >= 100 ? "bg-[var(--error)]" : "bg-[var(--accent)]"
+                      calPct >= 100 && calNutrient?.highGoal != null ? "bg-[var(--error)]" : "bg-[var(--accent)]"
                     }`}
                     style={{ width: `${calPct}%` }}
                   />
