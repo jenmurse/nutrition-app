@@ -763,9 +763,9 @@ const MealPlansPage = () => {
           </button>
         )}
 
-        {/* Person tabs — right-aligned */}
+        {/* Person tabs — anchored right */}
         {persons.length > 1 && selectedPlan && (
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center shrink-0 ml-auto">
             {persons.map((p) => {
               const isActive = viewMode === 'personal' && selectedPersonId === p.id;
               return (
@@ -949,14 +949,14 @@ const MealPlansPage = () => {
                 onRemoveMeal={handleRemoveMeal}
                 onReorderMeals={handleReorderMeals}
                 onError={(msg) => toast.error(msg)}
-                selectedDay={selectedDay}
-                onDayClick={(date) => {
+                selectedDay={summaryPanelOpen ? selectedDay : null}
+                onDayClick={summaryPanelOpen ? (date) => {
                   if (selectedDay && date.toDateString() === selectedDay.toDateString()) {
                     setSelectedDay(null);
                   } else {
                     setSelectedDay(date);
                   }
-                }}
+                } : undefined}
                 editMode={editMode}
                 selectedMealIds={selectedMealIds}
                 onToggleMealSelect={toggleSelectMeal}

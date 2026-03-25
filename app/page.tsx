@@ -194,20 +194,25 @@ export default function Home() {
               {macros.map((n) => {
                 const goal = n.highGoal ?? n.lowGoal ?? 0;
                 const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
+                const isOver = goal > 0 && n.value > goal;
                 const isWarning = n.status === "warning";
-                const isError = n.status === "error";
+                const isError = n.status === "error" || isOver;
                 const barColor = isError ? "bg-[var(--error)]" : isWarning ? "bg-[var(--warning)]" : "bg-[var(--accent)]";
                 const valColor = isError ? "text-[var(--error)]" : isWarning ? "text-[var(--warning)]" : "text-[var(--muted)]";
+                const unitSuffix = n.displayName.toLowerCase() === "calories" ? "" : ` ${n.unit}`;
+                const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
 
                 return (
-                  <div key={n.nutrientId} className="flex items-center gap-3 py-[7px] border-b border-[var(--rule)] last:border-b-0">
-                    <span className="font-sans text-[11px] text-[var(--muted)] w-[88px] shrink-0">{n.displayName}</span>
-                    <div className="flex-1 h-[3px] bg-[var(--rule)] relative rounded-full">
-                      <div className={`absolute top-0 left-0 h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
+                  <div key={n.nutrientId} className="mb-3">
+                    <div className="flex justify-between items-baseline mb-[5px]">
+                      <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{n.displayName}</span>
+                      <span className={`font-mono text-[10px] tabular-nums ${valColor}`}>
+                        {formatVal(n.value)} / {formatVal(goal)}{unitSuffix}
+                      </span>
                     </div>
-                    <span className={`font-mono text-[10px] tabular-nums w-[80px] text-right shrink-0 ${valColor}`}>
-                      {Math.round(n.value * 10) / 10}{n.unit}{goal > 0 ? ` / ${Math.round(goal)}` : ""}
-                    </span>
+                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
+                      <div className={`h-full rounded-sm ${barColor}`} style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
                 );
               })}
