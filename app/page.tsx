@@ -216,7 +216,7 @@ export default function Home() {
               {belowMin.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {belowMin.map((n) => (
-                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] text-[var(--warning-text)] px-[10px] py-[5px]">
+                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] text-[var(--warning-text)] px-[10px] py-[5px] rounded-sm">
                       {n.displayName} below minimum
                     </span>
                   ))}
@@ -226,7 +226,7 @@ export default function Home() {
               <div className="mt-6">
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-3 py-[6px] no-underline hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+                  className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:underline"
                 >
                   View meal plan →
                 </Link>
