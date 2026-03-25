@@ -791,7 +791,16 @@ const MealPlansPage = () => {
                   return (
                     <button
                       key={p.id}
-                      onClick={() => { setViewMode('personal'); setSelectedPersonId(p.id); }}
+                      onClick={() => {
+                        const wasEveryone = viewMode === 'both';
+                        setViewMode('personal');
+                        if (wasEveryone && selectedPersonId === p.id) {
+                          // Same person — useEffect won't re-trigger, so reload plan manually
+                          if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
+                        } else {
+                          setSelectedPersonId(p.id);
+                        }
+                      }}
                       style={{ borderRadius: 0 }}
                       className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
                         isActive ? 'text-[var(--fg)] border-[var(--accent)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
@@ -1074,14 +1083,14 @@ const MealPlansPage = () => {
                         {keyNutrients.map(nutrient => {
                           const goal = nutrient.highGoal ?? nutrient.lowGoal;
                           const pct = goal ? Math.min(Math.round((nutrient.value / goal) * 100), 100) : 0;
-                          const isOver = goal ? nutrient.value > goal : false;
+                          const isOverMax = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
                           const isWarn = nutrient.status === 'warning';
-                          const barColor = isOver || nutrient.status === 'error'
+                          const barColor = isOverMax || nutrient.status === 'error'
                             ? 'bg-[var(--error)]'
                             : isWarn
                             ? 'bg-[var(--warning)]'
                             : 'bg-[var(--accent)]';
-                          const valueColor = isOver || nutrient.status === 'error'
+                          const valueColor = isOverMax || nutrient.status === 'error'
                             ? 'text-[var(--error)]'
                             : 'text-[var(--muted)]';
                           const unitSuffix = nutrient.displayName.toLowerCase() === 'calories' ? '' : ` ${nutrient.unit}`;

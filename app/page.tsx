@@ -197,9 +197,9 @@ export default function Home() {
               {macros.map((n) => {
                 const goal = n.highGoal ?? n.lowGoal ?? 0;
                 const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
-                const isOver = goal > 0 && n.value > goal;
+                const isOverMax = n.highGoal && n.highGoal > 0 && n.value > n.highGoal;
                 const isWarning = n.status === "warning";
-                const isError = n.status === "error" || isOver;
+                const isError = n.status === "error" || isOverMax;
                 const barColor = isError ? "bg-[var(--error)]" : isWarning ? "bg-[var(--warning)]" : "bg-[var(--accent)]";
                 const valColor = isError ? "text-[var(--error)]" : isWarning ? "text-[var(--warning)]" : "text-[var(--muted)]";
                 const unitSuffix = n.displayName.toLowerCase() === "calories" ? "" : ` ${n.unit}`;

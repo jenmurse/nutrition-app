@@ -36,14 +36,14 @@ const DailySummary: React.FC<DailySummaryProps> = ({
       {nutrients.map((nutrient) => {
         const target = nutrient.highGoal ?? nutrient.lowGoal ?? 0;
         const pct = target > 0 ? Math.min(Math.round((nutrient.value / target) * 100), 100) : 0;
-        const isOver = target > 0 && nutrient.value > target;
+        const isOverMax = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
         const isWarn = nutrient.status === 'warning';
-        const barColor = isOver || nutrient.status === 'error'
+        const barColor = isOverMax || nutrient.status === 'error'
           ? 'bg-[var(--error)]'
           : isWarn
           ? 'bg-[var(--warning)]'
           : 'bg-[var(--accent)]';
-        const valueColor = isOver || nutrient.status === 'error'
+        const valueColor = isOverMax || nutrient.status === 'error'
           ? 'text-[var(--error)]'
           : isWarn
           ? 'text-[var(--warning)]'
