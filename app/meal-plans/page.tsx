@@ -209,7 +209,7 @@ function BothView({
                               <div className="flex items-center gap-1 shrink-0">
                                 {isShared && (
                                   <span
-                                    className="font-mono text-[8px] uppercase tracking-[0.1em] px-1 py-[1px] bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)]"
+                                    className="font-mono text-[8px] uppercase tracking-[0.1em] px-1 py-[1px] bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)] rounded-sm"
                                     title="Shared meal"
                                   >
                                     shared

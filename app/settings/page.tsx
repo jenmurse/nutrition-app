@@ -141,7 +141,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
           />
           <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
           {role && (
-            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px]">
+            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px] rounded-sm">
               {role}
             </span>
           )}

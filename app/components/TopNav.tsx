@@ -102,7 +102,7 @@ export default function TopNav() {
 
               {open && (
                 <div
-                  className="dropdown-enter absolute right-0 top-full mt-1 min-w-[160px] bg-[var(--bg)] border border-[var(--rule)] z-50"
+                  className="dropdown-enter absolute right-0 top-full mt-1 min-w-[160px] bg-[var(--bg)] border border-[var(--rule)] rounded-md shadow-[var(--shadow-md)] z-50 overflow-hidden"
                   role="listbox"
                   aria-label="Select person"
                 >

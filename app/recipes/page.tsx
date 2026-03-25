@@ -375,7 +375,7 @@ function RecipesPage() {
                 onClick={() => toggleTag(tag)}
                 aria-label={`Filter by ${tag}`}
                 aria-pressed={selectedTags.includes(tag)}
-                className={`py-[2px] px-[6px] font-mono text-[8px] tracking-[0.1em] uppercase border cursor-pointer transition-colors ${
+                className={`py-[2px] px-[6px] font-mono text-[8px] tracking-[0.1em] uppercase border rounded-sm cursor-pointer transition-colors ${
                   selectedTags.includes(tag)
                     ? 'bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]'
                     : 'bg-transparent text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)]'
@@ -408,7 +408,7 @@ function RecipesPage() {
                   )}
                   <span className="font-sans text-[12px] font-normal text-[var(--fg)] truncate">{recipe.name}</span>
                   {recipe.isComplete === false && (
-                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warning)] border border-[var(--warning-border)] py-[1px] px-[4px] leading-none shrink-0">Incomplete</span>
+                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warning)] border border-[var(--warning-border)] py-[1px] px-[4px] leading-none shrink-0 rounded-sm">Incomplete</span>
                   )}
                 </div>
               </div>
@@ -442,7 +442,7 @@ function RecipesPage() {
           <div className="flex-1 overflow-y-auto p-6 px-7">
             {/* Import section */}
             {!createImportedRecipe && (
-              <div className="mb-6 p-4 border border-[var(--rule)]">
+              <div className="mb-6 p-4 border border-[var(--rule)] rounded-md">
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Import Recipe</div>
                 <div className="flex items-center gap-2 mb-3">
                   <input
@@ -592,7 +592,7 @@ function RecipesPage() {
                 {selectedRecipe.tags && (
                   <div className="flex flex-wrap gap-[4px] mt-2">
                     {selectedRecipe.tags.split(",").map((tag) => (
-                      <span key={tag} className="inline-block font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] border border-[var(--rule)] py-[2px] px-[5px]">
+                      <span key={tag} className="inline-block font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] border border-[var(--rule)] py-[2px] px-[5px] rounded-sm">
                         {tag.trim()}
                       </span>
                     ))}

@@ -80,7 +80,7 @@
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 143 22% 52%;
-    --radius: 0.5rem;
+    --radius: 8px;
   }
 
   *,
@@ -130,13 +130,15 @@
     text-wrap: pretty;
   }
 
-  input, textarea {
+  input:not([type="checkbox"]):not([type="radio"]), textarea, select {
     font-family: var(--sans);
     font-weight: 400;
+    border-radius: calc(var(--radius) - 2px);
   }
 
   button {
     font-family: var(--sans);
+    border-radius: calc(var(--radius) - 4px);
   }
 
   /* Tactile press feedback on all enabled buttons */
