@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    /* Core palette — neutral monochrome */
-    --fg: #111111;
-    --bg: #FAFAFA;
-    --bg-nav: #F5F5F5;
-    --bg-raised: #FFFFFF;
-    --bg-subtle: #F0F0F0;
-    --bg-selected: #E4E4E4;
-    --mid: #555555;
-    --muted: #888888;
-    --faint: #888888;
-    --placeholder: #BBBBBB;
-    --rule: #E5E5E5;
-    --rule-strong: #D0D0D0;
+    /* Core palette — rounded warm */
+    --fg: #1C1812;
+    --bg: #FAF8F5;
+    --bg-nav: #F5F2EE;
+    --bg-raised: #FFFEFB;
+    --bg-subtle: #F0ECE5;
+    --bg-selected: #E3F0E8;
+    --mid: #4A4035;
+    --muted: #8A7E72;
+    --faint: #8A7E72;
+    --placeholder: #BDB4A8;
+    --rule: #E5DDD0;
+    --rule-strong: #CFC3B2;
 
     /* Accent — soft sage green */
-    --accent: #6B9E7B;
-    --accent-hover: #5A8A6A;
-    --accent-light: #F0F7F2;
+    --accent: #5C9169;
+    --accent-hover: #4D7D5A;
+    --accent-light: #E8F0EA;
     --accent-text: #FFFFFF;
 
     /* Person colors — used in person switcher palette */
@@ -46,9 +46,19 @@
     --error-border: #EF4444;
 
     /* Typography */
-    --serif: 'DM Serif Display', serif;
+    --serif: 'DM Sans', sans-serif;
     --sans: 'DM Sans', sans-serif;
     --mono: 'DM Mono', monospace;
+
+    /* Display font — controls all font-serif usage globally */
+    --display-font: 'DM Sans', sans-serif;
+    --display-weight: 600;
+    --display-tracking: -0.025em;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 2px 6px rgba(0,0,0,0.07), 0 6px 16px rgba(92,145,105,0.05);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 12px 32px rgba(92,145,105,0.07);
 
     /* Tailwind compat */
     --background: 0 0% 98%;
@@ -70,7 +80,7 @@
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 143 22% 52%;
-    --radius: 0;
+    --radius: 0.5rem;
   }
 
   *,
@@ -83,8 +93,6 @@
 
   * {
     border-color: var(--rule);
-    box-shadow: none !important;
-    border-radius: 0 !important;
   }
 
   html {
@@ -188,6 +196,13 @@ input[type="number"]:focus {
 /* Tabular numbers on all mono text — prevents layout shift on live values */
 .font-mono {
   font-variant-numeric: tabular-nums;
+}
+
+/* Display font override — change --display-font/weight/tracking in :root to restyle all headings globally */
+.font-serif {
+  font-family: var(--display-font);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
 }
 
 /* Page container — prevents content from being uncomfortably wide */

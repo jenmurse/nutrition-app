@@ -140,7 +140,7 @@ export default function Home() {
               ))}
             </div>
           ) : !weekPlanId ? (
-            <div className="border border-[var(--rule)] max-w-[380px] px-7 py-8 space-y-4">
+            <div className="border border-[var(--rule)] shadow-[var(--shadow-md)] rounded-md max-w-[380px] px-7 py-8 space-y-4">
               <div className="font-serif text-[18px] text-[var(--fg)] leading-snug">
                 No plan for this week
               </div>
