@@ -1045,7 +1045,7 @@ function IngredientsPage() {
 
           {/* Context Panel — right pane with goals % bars */}
           {!editMode && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] border-l border-[var(--rule)]">
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)]">
               <IngredientContextPanel
                 nutrientValues={selectedIngredient.nutrientValues}
                 defaultUnit={selectedIngredient.defaultUnit}

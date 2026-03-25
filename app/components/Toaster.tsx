@@ -8,39 +8,84 @@ export default function Toaster() {
 
   useEffect(() => toast.subscribe(setToasts), []);
 
-  if (toasts.length === 0) return null;
+  // Separate success and error toasts
+  const successes = toasts.filter((t) => t.type === "success");
+  const errors = toasts.filter((t) => t.type === "error" || t.type === "info");
+  const active = toasts.length > 0;
+  const hasError = errors.length > 0;
+  const hasSuccess = successes.length > 0 && !hasError;
+
+  if (!active) return null;
 
   return (
-    <div
-      aria-live="polite"
-      aria-atomic="false"
-      className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"
-    >
-      {toasts.map((t) => (
+    <>
+      {/* Top bar sweep — green for success, red for error */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          top: 48,
+          left: 0,
+          right: 0,
+          height: 2,
+          zIndex: 9999,
+          pointerEvents: "none",
+          background: hasError ? "var(--error, #b94a48)" : "var(--accent)",
+          transformOrigin: "left",
+          animation: "toastSweep 400ms cubic-bezier(0.4,0,0.2,1) forwards",
+        }}
+      />
+
+      {/* Error text — bottom status bar, only shown for errors */}
+      {hasError && (
         <div
-          key={t.id}
-          role="status"
-          className={`pointer-events-auto flex items-center gap-3 px-4 py-3 border font-sans text-[13px] shadow-md animate-in fade-in slide-in-from-bottom-2 duration-200 ${
-            t.type === "error"
-              ? "bg-[var(--bg-raised)] border-[var(--error,#b94a48)] text-[var(--fg)]"
-              : t.type === "success"
-              ? "bg-[var(--bg-raised)] border-[var(--accent)] text-[var(--fg)]"
-              : "bg-[var(--bg-raised)] border-[var(--rule)] text-[var(--fg)]"
-          }`}
+          aria-live="assertive"
+          aria-atomic="true"
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            pointerEvents: "none",
+            borderTop: "1px solid var(--rule)",
+            background: "var(--bg)",
+            padding: "10px 24px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            animation: "toastFadeIn 250ms ease forwards",
+          }}
         >
           <span
-            className={`w-2 h-2 rounded-full shrink-0 ${
-              t.type === "error"
-                ? "bg-[var(--error,#b94a48)]"
-                : t.type === "success"
-                ? "bg-[var(--accent)]"
-                : "bg-[var(--muted)]"
-            }`}
             aria-hidden="true"
+            style={{
+              width: 5,
+              height: 5,
+              borderRadius: "50%",
+              background: "var(--error, #b94a48)",
+              flexShrink: 0,
+            }}
           />
-          {t.message}
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: 11,
+              letterSpacing: "0.05em",
+              color: "var(--muted)",
+            }}
+          >
+            {errors[errors.length - 1].message}
+          </span>
         </div>
-      ))}
-    </div>
+      )}
+
+      {/* Screen-reader announcement for successes */}
+      {hasSuccess && (
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {successes[successes.length - 1].message}
+        </div>
+      )}
+    </>
   );
 }

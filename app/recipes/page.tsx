@@ -647,7 +647,7 @@ function RecipesPage() {
           </div>
 
           {!selectedRecipeLoading && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] border-l border-[var(--rule)]" onClick={(e) => e.stopPropagation()}>
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)]" onClick={(e) => e.stopPropagation()}>
               <RecipeContextPanel
                 recipeId={selectedRecipe.id}
                 totals={selectedRecipe.totals || []}
