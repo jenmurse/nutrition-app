@@ -90,10 +90,10 @@ export default function CreateIngredientModal({
     setDuplicateWarning(null);
 
     try {
-      // Check for duplicate in parallel with fetching nutrition
-      const [dupRes, usdaRes] = await Promise.all([
+      // Check global ingredient cache + duplicate in parallel
+      const [dupRes, globalRes] = await Promise.all([
         fetch(`/api/ingredients/by-fdc-id/${result.fdcId}`).catch(() => null),
-        fetch(`/api/usda/fetch/${result.fdcId}`),
+        fetch(`/api/global-ingredients?fdcId=${result.fdcId}`),
       ]);
 
       if (dupRes?.ok) {
@@ -103,6 +103,21 @@ export default function CreateIngredientModal({
         }
       }
 
+      const globalData = globalRes.ok ? await globalRes.json() : null;
+
+      if (globalData) {
+        // Use global cache — no USDA API call needed
+        const updates = globalData.nutrients.map((gn: any) => ({
+          nutrientId: gn.nutrientId,
+          value: gn.value,
+        }));
+        setPending({ fdcId: result.fdcId, usdaDescription: result.description, nutrientUpdates: updates });
+        setConfirmedName(searchQuery.trim() || ingredientName);
+        return;
+      }
+
+      // Not in global cache — fall back to USDA API
+      const usdaRes = await fetch(`/api/usda/fetch/${result.fdcId}`);
       const data = await usdaRes.json();
       const foodNutrients = data.foodNutrients || [];
       const updates: { nutrientId: number; value: number }[] = [];

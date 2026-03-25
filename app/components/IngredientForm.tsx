@@ -148,58 +148,59 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
     setFdcId(String(id));
     setFetchingDetails(true);
     try {
+      // Check global ingredient cache first — skip USDA API call if we have it
+      const globalRes = await fetch(`/api/global-ingredients?fdcId=${id}`);
+      const globalData = globalRes.ok ? await globalRes.json() : null;
+
+      if (globalData) {
+        const newValues: Record<number, string> = {};
+        globalData.nutrients.forEach((gn: any) => {
+          newValues[gn.nutrientId] = String(gn.value);
+        });
+        setValues((s) => ({ ...s, ...newValues }));
+        if (globalData.name) setName(globalData.name);
+        return;
+      }
+
+      // Not in global cache — fall back to USDA API
       const res = await fetch(`/api/usda/fetch/${id}`);
       const data = await res.json();
-      
+
       if (!res.ok) {
         console.error('USDA fetch error:', data);
         toast.error(data.error || 'Failed to fetch food details');
         return;
       }
-      
-      console.log('USDA fetch response:', data);
-      
+
       // Map USDA nutrient IDs to our nutrient names
-      // USDA uses nested structure: foodNutrients[].nutrient.id
       const usdaToOurNutrients: Record<number, string> = {
-        1008: "calories",  // Energy (nutrient.id 1008, number "208")
-        1004: "fat",       // Total lipid (fat)
-        1258: "satFat",    // Fatty acids, total saturated
-        1093: "sodium",    // Sodium, Na  
-        1005: "carbs",     // Carbohydrate, by difference
-        2000: "sugar",     // Sugars, total including NLEA
-        1003: "protein",   // Protein
-        1079: "fiber",     // Fiber, total dietary
+        1008: "calories",
+        1004: "fat",
+        1258: "satFat",
+        1093: "sodium",
+        1005: "carbs",
+        2000: "sugar",
+        1003: "protein",
+        1079: "fiber",
       };
-      
-      // Create mapping from our nutrient names to IDs
+
       const ourNutrientMap: Record<string, number> = {};
       nutrients.forEach((n) => (ourNutrientMap[n.name] = n.id));
 
       const newValues: Record<number, string> = {};
       const nutrientsArray = data.foodNutrients || [];
-      
-      console.log('Processing nutrients, found:', nutrientsArray.length);
-      
+
       nutrientsArray.forEach((u: any) => {
-        // USDA API has nested structure: u.nutrient.id
         const usdaNutrientId = u.nutrient?.id || u.nutrientId;
         const amount = u.amount || u.value || 0;
-        
         if (usdaNutrientId && usdaToOurNutrients[usdaNutrientId]) {
           const ourNutrientName = usdaToOurNutrients[usdaNutrientId];
           const ourNutrientId = ourNutrientMap[ourNutrientName];
-          if (ourNutrientId) {
-            console.log(`Mapping USDA nutrient ${usdaNutrientId} (${u.nutrient?.name}) to ${ourNutrientName}: ${amount}`);
-            newValues[ourNutrientId] = String(amount);
-          }
+          if (ourNutrientId) newValues[ourNutrientId] = String(amount);
         }
       });
-      
-      console.log('Final mapped values:', newValues);
+
       setValues((s) => ({ ...s, ...newValues }));
-      
-      // try to fill name from data.description
       if (data.description) setName(data.description);
       else if (data.lowercaseDescription) setName(data.lowercaseDescription);
     } catch (e) {

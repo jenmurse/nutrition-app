@@ -19,9 +19,10 @@ model Nutrient {
   unit         String                // e.g., "kcal", "g", "mg"
   orderIndex   Int                   // for display order
 
-  ingredientNutrients  IngredientNutrient[]
-  nutritionGoals       NutritionGoal[]
-  globalNutritionGoals GlobalNutritionGoal[]
+  ingredientNutrients       IngredientNutrient[]
+  nutritionGoals            NutritionGoal[]
+  globalNutritionGoals      GlobalNutritionGoal[]
+  globalIngredientNutrients GlobalIngredientNutrient[]
 }
 
 // People (authenticated users + household members)
@@ -256,6 +257,36 @@ model ApiUsageLog {
   outputTokens Int      @default(0)
 
   household    Household? @relation(fields: [householdId], references: [id])
+}
+
+// Globally shared parsed USDA ingredient data (no household scope)
+// Created automatically when any user saves a USDA-sourced ingredient.
+// Used to pre-populate the creation form for subsequent users.
+model GlobalIngredient {
+  id               Int      @id @default(autoincrement())
+  fdcId            String   @unique
+  name             String
+  defaultUnit      String   @default("g") // "g" | "ml" | "other"
+  customUnitName   String?
+  customUnitAmount Float?
+  customUnitGrams  Float?
+  createdAt        DateTime @default(now())
+
+  nutrients GlobalIngredientNutrient[]
+}
+
+// Junction table: GlobalIngredient to Nutrients (per 100g)
+model GlobalIngredientNutrient {
+  id                 Int              @id @default(autoincrement())
+  globalIngredientId Int
+  nutrientId         Int
+  value              Float            // per 100g
+
+  globalIngredient GlobalIngredient @relation(fields: [globalIngredientId], references: [id], onDelete: Cascade)
+  nutrient         Nutrient         @relation(fields: [nutrientId], references: [id])
+
+  @@unique([globalIngredientId, nutrientId])
+  @@index([globalIngredientId])
 }
 
 // USDA search result cache (7-day TTL, shared across all households)

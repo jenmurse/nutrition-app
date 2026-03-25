@@ -74,6 +74,27 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       }
     }
 
+    // Upsert GlobalIngredient — only when fdcId is present and nutrients were updated
+    const updatedFdcId = fdcId !== undefined ? (fdcId || null) : existing.fdcId;
+    if (updatedFdcId && Array.isArray(nutrientValues) && nutrientValues.length > 0) {
+      const updatedName = name !== undefined ? name : existing.name;
+      prisma.globalIngredient.upsert({
+        where: { fdcId: updatedFdcId },
+        update: {},
+        create: {
+          fdcId: updatedFdcId,
+          name: updatedName,
+          defaultUnit: existing.defaultUnit,
+          nutrients: {
+            create: nutrientValues.map((nv: any) => ({
+              nutrientId: nv.nutrientId,
+              value: nv.value,
+            })),
+          },
+        },
+      }).catch((e) => console.error("GlobalIngredient upsert failed:", e));
+    }
+
     const result = await prisma.ingredient.findUnique({
       where: { id: numId },
       include: { nutrientValues: { include: { nutrient: true } } },

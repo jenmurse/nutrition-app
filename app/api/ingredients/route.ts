@@ -61,6 +61,28 @@ export async function POST(request: Request) {
       await prisma.ingredientNutrient.createMany({ data });
     }
 
+    // Upsert GlobalIngredient — first-writer wins, non-blocking
+    if (fdcId && Array.isArray(nutrientValues) && nutrientValues.length > 0) {
+      prisma.globalIngredient.upsert({
+        where: { fdcId },
+        update: {},
+        create: {
+          fdcId,
+          name,
+          defaultUnit: defaultUnit || "g",
+          customUnitName: isCustomUnit ? (customUnitName || null) : null,
+          customUnitAmount: isCustomUnit ? (customUnitAmount || null) : null,
+          customUnitGrams: isCustomUnit ? (customUnitGrams || null) : null,
+          nutrients: {
+            create: nutrientValues.map((nv: any) => ({
+              nutrientId: nv.nutrientId,
+              value: nv.value,
+            })),
+          },
+        },
+      }).catch((e) => console.error("GlobalIngredient upsert failed:", e));
+    }
+
     const created = await prisma.ingredient.findUnique({
       where: { id: ingredient.id },
       include: { nutrientValues: { include: { nutrient: true } } },

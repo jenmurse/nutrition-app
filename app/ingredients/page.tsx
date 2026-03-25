@@ -117,6 +117,10 @@ function IngredientsPage() {
   const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients?slim=true'));
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
+  const [listTab, setListTab] = useState<"mine" | "library">("mine");
+  const [globalIngredients, setGlobalIngredients] = useState<{ id: number; fdcId: string; name: string; defaultUnit: string }[]>([]);
+  const [globalLoading, setGlobalLoading] = useState(false);
+  const [addingFromLibrary, setAddingFromLibrary] = useState<string | null>(null); // fdcId being added
 
 
   const updateSearchParam = (key: string, value: string) => {
@@ -267,69 +271,141 @@ function IngredientsPage() {
     }, 500);
   };
 
+  const applyUsdaFoodDataToForm = async (
+    food: any,
+    setName: (v: string) => void,
+    setValues: (v: Record<number, number>) => void
+  ) => {
+    setUsdaSelectedFood(food);
+    setName(food.description);
+
+    // Check global ingredient cache first
+    const globalRes = await fetch(`/api/global-ingredients?fdcId=${food.fdcId}`);
+    const globalData = globalRes.ok ? await globalRes.json() : null;
+
+    if (globalData) {
+      let nutrientsList = nutrients;
+      if (!nutrientsList || nutrientsList.length === 0) {
+        const nutrRes = await fetch("/api/nutrients");
+        if (nutrRes.ok) nutrientsList = await nutrRes.json();
+      }
+      const newValues: Record<number, number> = {};
+      globalData.nutrients.forEach((gn: any) => {
+        newValues[gn.nutrientId] = gn.value;
+      });
+      setValues(newValues);
+      setUsdaLookupQuery("");
+      setUsdaLookupResults([]);
+      return;
+    }
+
+    // Fall back to USDA API
+    const res = await fetch(`/api/usda/fetch/${food.fdcId}`);
+    if (!res.ok) return;
+    const foodData = await res.json();
+
+    const nutrientMap: Record<string, number> = {};
+    if (foodData.foodNutrients && Array.isArray(foodData.foodNutrients)) {
+      foodData.foodNutrients.forEach((fn: any) => {
+        const lowerName = (fn.nutrient?.name || "").toLowerCase();
+        const value = fn.amount;
+        if (lowerName.includes("energy")) nutrientMap["calories"] = Math.round(value);
+        else if (lowerName.includes("total lipid") || lowerName.includes("total fat")) nutrientMap["fat"] = Math.round(value * 10) / 10;
+        else if (lowerName.includes("saturated")) nutrientMap["satFat"] = Math.round(value * 10) / 10;
+        else if (lowerName.includes("sodium")) nutrientMap["sodium"] = Math.round(value);
+        else if (lowerName.includes("carbohydrate")) nutrientMap["carbs"] = Math.round(value * 10) / 10;
+        else if (lowerName.includes("sugar")) nutrientMap["sugar"] = Math.round(value * 10) / 10;
+        else if (lowerName.includes("protein")) nutrientMap["protein"] = Math.round(value * 10) / 10;
+        else if (lowerName.includes("fiber")) nutrientMap["fiber"] = Math.round(value * 10) / 10;
+      });
+    }
+
+    let nutrientsList = nutrients;
+    if (!nutrientsList || nutrientsList.length === 0) {
+      const nutrRes = await fetch("/api/nutrients");
+      if (nutrRes.ok) nutrientsList = await nutrRes.json();
+    }
+
+    const newValues: Record<number, number> = {};
+    nutrientsList.forEach((n: any) => {
+      if (nutrientMap[n.name] !== undefined) newValues[n.id] = nutrientMap[n.name];
+    });
+    setValues(newValues);
+    setUsdaLookupQuery("");
+    setUsdaLookupResults([]);
+  };
+
   const handleUsdaSelect = async (food: any) => {
     try {
-      // Set the selected food and name
-      setUsdaSelectedFood(food);
-      setCreateName(food.description);
-
-      // Fetch full food details with nutrients
-      const res = await fetch(`/api/usda/fetch/${food.fdcId}`);
-      if (res.ok) {
-        const foodData = await res.json();
-
-        // Extract nutrient data from USDA
-        const nutrientMap: Record<string, number> = {};
-        if (foodData.foodNutrients && Array.isArray(foodData.foodNutrients)) {
-          foodData.foodNutrients.forEach((fn: any) => {
-            const nutrientName = fn.nutrient?.name || "";
-            const value = fn.amount; // USDA uses 'amount', not 'value'
-
-            // Map USDA nutrient names to our field names (case-insensitive, flexible matching)
-            const lowerName = nutrientName.toLowerCase();
-            if (lowerName.includes("energy")) {
-              nutrientMap["calories"] = Math.round(value);
-            } else if (lowerName.includes("total lipid") || lowerName.includes("total fat")) {
-              nutrientMap["fat"] = Math.round(value * 10) / 10;
-            } else if (lowerName.includes("saturated")) {
-              nutrientMap["satFat"] = Math.round(value * 10) / 10;
-            } else if (lowerName.includes("sodium")) {
-              nutrientMap["sodium"] = Math.round(value);
-            } else if (lowerName.includes("carbohydrate")) {
-              nutrientMap["carbs"] = Math.round(value * 10) / 10;
-            } else if (lowerName.includes("sugar")) {
-              nutrientMap["sugar"] = Math.round(value * 10) / 10;
-            } else if (lowerName.includes("protein")) {
-              nutrientMap["protein"] = Math.round(value * 10) / 10;
-            } else if (lowerName.includes("fiber")) {
-              nutrientMap["fiber"] = Math.round(value * 10) / 10;
-            }
-          });
-        }
-
-        // Ensure we have nutrients loaded, if not fetch them
-        let nutrientsList = nutrients;
-        if (!nutrientsList || nutrientsList.length === 0) {
-          const nutrRes = await fetch("/api/nutrients");
-          if (nutrRes.ok) {
-            nutrientsList = await nutrRes.json();
-          }
-        }
-
-        // Map nutrient names to IDs and set values
-        const newValues: Record<number, number> = {};
-        nutrientsList.forEach((n: any) => {
-          if (nutrientMap[n.name] !== undefined) {
-            newValues[n.id] = nutrientMap[n.name];
-          }
-        });
-        setCreateValues(newValues);
-        console.log("State updated, checking createValues:", newValues);
-        setUsdaLookupQuery("");
-        setUsdaLookupResults([]);
-      }
+      await applyUsdaFoodDataToForm(food, setCreateName, setCreateValues);
     } catch (err) {
       console.error("USDA fetch error:", err);
+    }
+  };
+
+  const loadGlobalIngredients = async () => {
+    if (globalIngredients.length > 0) return; // already loaded
+    setGlobalLoading(true);
+    try {
+      const res = await fetch("/api/global-ingredients");
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalIngredients(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.error("Failed to load global ingredients:", err);
+    } finally {
+      setGlobalLoading(false);
+    }
+  };
+
+  const handleAddFromLibrary = async (global: { id: number; fdcId: string; name: string; defaultUnit: string }) => {
+    if (addingFromLibrary) return;
+    setAddingFromLibrary(global.fdcId);
+    try {
+      // Fetch full global ingredient with nutrients
+      const res = await fetch(`/api/global-ingredients?fdcId=${global.fdcId}`);
+      if (!res.ok) throw new Error("Failed to fetch ingredient data");
+      const data = await res.json();
+
+      // Create household ingredient from global data
+      const body = {
+        name: data.name,
+        fdcId: data.fdcId,
+        defaultUnit: data.defaultUnit,
+        customUnitName: data.customUnitName ?? undefined,
+        customUnitAmount: data.customUnitAmount ?? undefined,
+        customUnitGrams: data.customUnitGrams ?? undefined,
+        isMealItem: false,
+        nutrientValues: data.nutrients.map((gn: any) => ({
+          nutrientId: gn.nutrientId,
+          value: gn.value,
+        })),
+      };
+
+      const createRes = await fetch("/api/ingredients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!createRes.ok) {
+        const err = await createRes.json();
+        throw new Error(err.error || "Create failed");
+      }
+
+      const newIng = await createRes.json();
+      clientCache.set(`/api/ingredients/${newIng.id}`, newIng);
+      const updatedList = [...ingredients, newIng].sort((a, b) => a.name.localeCompare(b.name));
+      clientCache.set("/api/ingredients?slim=true", updatedList);
+      setIngredients(updatedList);
+      setSelectedIngredient(newIng);
+      setListTab("mine");
+      toast.success(`${newIng.name} added to your ingredients`);
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to add: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setAddingFromLibrary(null);
     }
   };
 
@@ -573,57 +649,7 @@ function IngredientsPage() {
 
     const handleUsdaSelectForMode = async (food: any) => {
       try {
-        setUsdaSelectedFood(food);
-        setName(food.description);
-
-        const res = await fetch(`/api/usda/fetch/${food.fdcId}`);
-        if (res.ok) {
-          const foodData = await res.json();
-
-          const nutrientMap: Record<string, number> = {};
-          if (foodData.foodNutrients && Array.isArray(foodData.foodNutrients)) {
-            foodData.foodNutrients.forEach((fn: any) => {
-              const nutrientName = fn.nutrient?.name || "";
-              const value = fn.amount;
-              const lowerName = nutrientName.toLowerCase();
-              if (lowerName.includes("energy")) {
-                nutrientMap["calories"] = Math.round(value);
-              } else if (lowerName.includes("total lipid") || lowerName.includes("total fat")) {
-                nutrientMap["fat"] = Math.round(value * 10) / 10;
-              } else if (lowerName.includes("saturated")) {
-                nutrientMap["satFat"] = Math.round(value * 10) / 10;
-              } else if (lowerName.includes("sodium")) {
-                nutrientMap["sodium"] = Math.round(value);
-              } else if (lowerName.includes("carbohydrate")) {
-                nutrientMap["carbs"] = Math.round(value * 10) / 10;
-              } else if (lowerName.includes("sugar")) {
-                nutrientMap["sugar"] = Math.round(value * 10) / 10;
-              } else if (lowerName.includes("protein")) {
-                nutrientMap["protein"] = Math.round(value * 10) / 10;
-              } else if (lowerName.includes("fiber")) {
-                nutrientMap["fiber"] = Math.round(value * 10) / 10;
-              }
-            });
-          }
-
-          let nutrientsList = nutrients;
-          if (!nutrientsList || nutrientsList.length === 0) {
-            const nutrRes = await fetch("/api/nutrients");
-            if (nutrRes.ok) {
-              nutrientsList = await nutrRes.json();
-            }
-          }
-
-          const newValues: Record<number, number> = {};
-          nutrientsList.forEach((n: any) => {
-            if (nutrientMap[n.name] !== undefined) {
-              newValues[n.id] = nutrientMap[n.name];
-            }
-          });
-          setValues(newValues);
-          setUsdaLookupQuery("");
-          setUsdaLookupResults([]);
-        }
+        await applyUsdaFoodDataToForm(food, setName, (vals) => setValues(vals));
       } catch (err) {
         console.error("USDA fetch error:", err);
       }
@@ -954,61 +980,126 @@ function IngredientsPage() {
         <div className="px-[14px] pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Ingredients</h1>
-            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">{filteredIngredients.length}</span>
+            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">
+              {listTab === "mine" ? filteredIngredients.length : globalIngredients.length}
+            </span>
           </div>
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => updateSearchParam("search", e.target.value)}
-            aria-label="Search ingredients"
-            className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[5px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
-          />
+          {/* My / Library toggle */}
+          <div className="flex mb-[10px] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] overflow-hidden">
+            <button
+              onClick={() => setListTab("mine")}
+              aria-pressed={listTab === "mine"}
+              className={`flex-1 py-[4px] font-mono text-[8px] tracking-[0.08em] uppercase transition-colors border-0 cursor-pointer ${
+                listTab === "mine"
+                  ? "bg-[var(--fg)] text-[var(--bg)]"
+                  : "bg-transparent text-[var(--muted)] hover:text-[var(--fg)]"
+              }`}
+            >
+              Mine
+            </button>
+            <button
+              onClick={() => { setListTab("library"); loadGlobalIngredients(); }}
+              aria-pressed={listTab === "library"}
+              className={`flex-1 py-[4px] font-mono text-[8px] tracking-[0.08em] uppercase transition-colors border-0 border-l border-[var(--rule)] cursor-pointer ${
+                listTab === "library"
+                  ? "bg-[var(--fg)] text-[var(--bg)]"
+                  : "bg-transparent text-[var(--muted)] hover:text-[var(--fg)]"
+              }`}
+            >
+              Library
+            </button>
+          </div>
+          {listTab === "mine" && (
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => updateSearchParam("search", e.target.value)}
+              aria-label="Search ingredients"
+              className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[5px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
+            />
+          )}
         </div>
 
         {/* Scrollable list */}
         <div className="flex-1 overflow-y-auto">
-          {loading ? (
-            <div className="py-8 text-center text-[11px] text-[var(--muted)]">Loading...</div>
-          ) : filteredIngredients.length === 0 ? (
-            <div className="py-8 px-4 text-center text-[11px] text-[var(--muted)]">
-              {ingredients.length === 0 ? 'No ingredients yet' : 'No matches'}
-            </div>
+          {listTab === "mine" ? (
+            loading ? (
+              <div className="py-8 text-center text-[11px] text-[var(--muted)]">Loading...</div>
+            ) : filteredIngredients.length === 0 ? (
+              <div className="py-8 px-4 text-center text-[11px] text-[var(--muted)]">
+                {ingredients.length === 0 ? 'No ingredients yet' : 'No matches'}
+              </div>
+            ) : (
+              filteredIngredients.map((ing) => {
+                const isSelected = selectedIngredient?.id === ing.id;
+                return (
+                  <div
+                    key={ing.id}
+                    className={`flex items-center justify-between py-[10px] px-[14px] border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
+                      isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
+                    }`}
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedIngredient(null);
+                      } else {
+                        setEditMode(false);
+                        refreshSelectedIngredient(ing.id);
+                      }
+                    }}
+                  >
+                    <span className="text-[12px] font-medium text-[var(--fg)] truncate">
+                      {ing.name}
+                    </span>
+                  </div>
+                );
+              })
+            )
           ) : (
-            filteredIngredients.map((ing) => {
-              const isSelected = selectedIngredient?.id === ing.id;
-              return (
-                <div
-                  key={ing.id}
-                  className={`flex items-center justify-between py-[10px] px-[14px] border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
-                    isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
-                  }`}
-                  onClick={() => {
-                    if (isSelected) {
-                      setSelectedIngredient(null);
-                    } else {
-                      setEditMode(false);
-                      refreshSelectedIngredient(ing.id);
-                    }
-                  }}
-                >
-                  <span className="text-[12px] font-medium text-[var(--fg)] truncate">
-                    {ing.name}
-                  </span>
-                </div>
-              );
-            })
+            /* Library tab */
+            globalLoading ? (
+              <div className="py-8 text-center text-[11px] text-[var(--muted)]">Loading...</div>
+            ) : globalIngredients.length === 0 ? (
+              <div className="py-8 px-4 text-center text-[11px] text-[var(--muted)]">No shared ingredients yet</div>
+            ) : (
+              globalIngredients.map((g) => {
+                const alreadyOwned = ingredients.some((i) => i.fdcId === g.fdcId);
+                const isAdding = addingFromLibrary === g.fdcId;
+                return (
+                  <div
+                    key={g.id}
+                    className="flex items-center justify-between py-[8px] px-[14px] border-b border-[var(--rule)] gap-2"
+                  >
+                    <span className="text-[11px] text-[var(--fg)] truncate flex-1">{g.name}</span>
+                    {alreadyOwned ? (
+                      <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--accent)] shrink-0">Added</span>
+                    ) : (
+                      <button
+                        onClick={() => handleAddFromLibrary(g)}
+                        disabled={!!addingFromLibrary}
+                        aria-label={`Add ${g.name} to my ingredients`}
+                        className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--accent)] border border-[var(--accent)] px-[6px] py-[2px] shrink-0 bg-transparent cursor-pointer hover:bg-[var(--accent-light)] disabled:opacity-40 transition-colors"
+                      >
+                        {isAdding ? "…" : "Add"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })
+            )
           )}
         </div>
 
         {/* New ingredient button at bottom */}
-        <button
-          onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
-          aria-label="Create new ingredient"
-          className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left rounded-none"
-        >
-          + New Ingredient
-        </button>
+        {listTab === "mine" && (
+          <button
+            onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
+            aria-label="Create new ingredient"
+            className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 border-t border-[var(--rule)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors text-left rounded-none"
+          >
+            + New Ingredient
+          </button>
+        )}
       </div>
 
       {/* ── Center + Right: Detail + Context ── */}
