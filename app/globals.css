@@ -94,6 +94,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Hide scrollbar tracks app-wide — scroll still works, just no visible bar */
+  * {
+    scrollbar-width: none; /* Firefox */
+  }
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+
   html, body {
     background: var(--bg);
     color: var(--fg);
