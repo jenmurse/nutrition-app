@@ -596,7 +596,7 @@ const SettingsPage = () => {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Tab bar */}
-      <div className="flex gap-[2px] shrink-0 bg-[var(--bg)] px-8 pt-3 pb-1">
+      <div className="flex gap-[2px] shrink-0 bg-[var(--bg)] px-8 pt-5 pb-2">
         {settingsTabs.map((tab) => (
           <button
             key={tab.key}

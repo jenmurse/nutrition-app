@@ -774,7 +774,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
       <div className="border-t border-[var(--rule-faint)] pt-5">
         <h4 className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrient Totals per Serving</h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1 px-2">
           {nutrients.map((n) => (
             <div key={n.id} className="flex justify-between py-[5px] border-b border-[var(--rule-faint)] text-[12px]">
               <div>{n.displayName}</div>
