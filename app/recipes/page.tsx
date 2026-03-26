@@ -659,7 +659,7 @@ function RecipesPage() {
                     <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
                     {selectedRecipe.ingredients.map((ing, idx) => (
                       <div key={ing.id}
-                        className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}
+                        className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
                         <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
                         <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
                       </div>
