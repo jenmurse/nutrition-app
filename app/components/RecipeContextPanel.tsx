@@ -113,13 +113,13 @@ export default function RecipeContextPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Tab bar */}
-      <div className="flex border-b border-[var(--rule)] shrink-0">
-        {tabs.map((tab) => (
+      <div className="flex border-b border-[var(--rule)] shrink-0 pl-6">
+        {tabs.map((tab, i) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             style={{ borderRadius: 0 }}
-            className={`px-[14px] h-[40px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center ${
+            className={`${i === 0 ? "" : "ml-1"} px-[10px] h-[40px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center ${
               activeTab === tab.key
                 ? "text-[var(--fg)] border-[var(--accent)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"

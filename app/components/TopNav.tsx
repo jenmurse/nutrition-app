@@ -27,7 +27,7 @@ export default function TopNav() {
   };
 
   return (
-    <nav className="flex items-center h-[52px] border-b border-[var(--rule)] bg-[var(--bg-nav)] px-5 shrink-0" role="navigation" aria-label="Main navigation">
+    <nav className="flex items-center h-[52px] border-b border-[var(--rule)] bg-[var(--bg-nav)] px-6 shrink-0" role="navigation" aria-label="Main navigation">
       {/* Brand */}
       <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em]">
         Course
