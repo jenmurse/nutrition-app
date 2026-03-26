@@ -573,8 +573,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                             recipe.isComplete === false
                               ? 'cursor-not-allowed border-[var(--error)] opacity-50 text-[var(--muted)]'
                               : pendingRecipeId === recipe.id
-                              ? 'border-[var(--fg)] bg-[var(--bg-subtle)]'
-                              : 'border-[var(--rule-faint)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
+                              ? 'border-[var(--rule-strong)] bg-[var(--bg-subtle)]'
+                              : 'border-[var(--rule-faint)] hover:border-[var(--rule)] hover:bg-[var(--bg-subtle)]'
                           }`}
                           onClick={
                             addingMealLoading || !recipe.isComplete
@@ -690,8 +690,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           disabled={addingMealLoading}
                           className={`border rounded-[6px] px-3 py-2 text-left transition ${
                             pendingIngredientId === ingredient.id
-                              ? 'border-[var(--fg)] bg-[var(--bg-subtle)]'
-                              : 'border-[var(--rule-faint)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
+                              ? 'border-[var(--rule-strong)] bg-[var(--bg-subtle)]'
+                              : 'border-[var(--rule-faint)] hover:border-[var(--rule)] hover:bg-[var(--bg-subtle)]'
                           }`}
                         >
                           <div className="text-[12px] font-medium text-[var(--fg)]">

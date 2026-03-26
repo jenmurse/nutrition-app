@@ -639,7 +639,7 @@ function RecipesPage() {
                     });
                     return (
                       <div className="mb-5">
-                        <div className="grid grid-cols-4 gap-[1px] bg-[var(--rule)] rounded-[var(--radius,12px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-md)' }}>
+                        <div className="grid grid-cols-4 gap-[1px] bg-[var(--rule-faint)] rounded-[var(--radius,12px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-md)' }}>
                           {gridNutrients.map((n) => (
                             <div key={n.label} className="py-[14px] px-3 text-center bg-[var(--bg-raised)]">
                               <div className="font-serif text-[22px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>

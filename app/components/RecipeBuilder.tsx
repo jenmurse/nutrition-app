@@ -399,7 +399,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         <div>
           <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Recipe Name</label>
           <input
-            className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+            className="w-full border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
             placeholder="Recipe name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -426,7 +426,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             <div className="flex items-center gap-3">
               <input
                 type="url"
-                className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
+                className="flex-1 border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
                 placeholder="Paste image URL…"
                 onChange={(e) => setImage(e.target.value)}
               />
@@ -434,7 +434,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               <button
                 type="button"
                 onClick={() => imageFileRef.current?.click()}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+                className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
               >
                 Upload file
               </button>
@@ -451,7 +451,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <button
                   type="button"
                   onClick={() => { setImage(""); if (imageFileRef.current) imageFileRef.current.value = ""; }}
-                  className="font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] px-2 py-[3px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
+                  className="font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] px-2 py-[3px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
                   aria-label="Remove image"
                 >
                   Remove image
@@ -465,7 +465,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <div>
             <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Servings</label>
             <input
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               type="text"
               inputMode="decimal"
               value={servings === 0 ? "" : servings}
@@ -485,7 +485,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <div>
             <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Unit</label>
             <select
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               value={servingUnit}
               onChange={(e) => setServingUnit(e.target.value)}
             >
@@ -529,7 +529,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               type="number"
               min={0}
               step={1}
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               placeholder="--"
               value={prepTime}
               onChange={(e) => setPrepTime(e.target.value)}
@@ -541,7 +541,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               type="number"
               min={0}
               step={1}
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+              className="w-full border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
               placeholder="--"
               value={cookTime}
               onChange={(e) => setCookTime(e.target.value)}
@@ -549,7 +549,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           </div>
           <div>
             <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Total (min)</label>
-            <div className="w-full border-0 border-b border-dashed border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] text-[var(--muted)]">
+            <div className="w-full border-0 border-b border-dashed border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] text-[var(--muted)]">
               {(prepTime !== "" || cookTime !== "")
                 ? (Number(prepTime) || 0) + (Number(cookTime) || 0)
                 : "--"}
@@ -561,7 +561,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div>
         <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Instructions</label>
         <textarea
-          className="w-full border border-[var(--rule)] rounded-[var(--radius-sm,4px)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
+          className="w-full border border-[var(--rule-faint)] rounded-[var(--radius-sm,4px)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
           placeholder="Add recipe instructions..."
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
@@ -593,7 +593,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, row.id)}
                 onDragEnd={handleDragEnd}
-                className={`flex gap-2 items-start py-2 border-b border-[var(--rule)] transition ${
+                className={`flex gap-2 items-start py-2 border-b border-[var(--rule-faint)] transition ${
                   draggedId === row.id
                     ? "opacity-50"
                     : draggedId
@@ -612,7 +612,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <div className="flex-1 relative">
                   <input
                     type="text"
-                    className={`w-full border-0 border-b bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] ${!selectedIngredient && row.nameGuess && !currentSearch ? 'border-[var(--warning)] text-[var(--warning)]' : 'border-[var(--rule)]'}`}
+                    className={`w-full border-0 border-b bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] ${!selectedIngredient && row.nameGuess && !currentSearch ? 'border-[var(--warning)] text-[var(--warning)]' : 'border-[var(--rule-faint)]'}`}
                     placeholder="Type to search ingredients..."
                     value={selectedIngredient ? selectedIngredient.name : currentSearch}
                     onChange={(e) => {
@@ -690,7 +690,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 </div>
 
                 <input
-                  className="w-24 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+                  className="w-24 border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
                   type="text"
                   inputMode="decimal"
                   placeholder="qty"
@@ -724,7 +724,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   draggable={false}
                 />
                 <select
-                  className="w-32 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+                  className="w-32 border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
                   value={row.unit ?? defaultUnitForRow}
                   onChange={(e) => updateRow(row.id, { unit: e.target.value })}
                   draggable={false}
@@ -772,11 +772,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         </button>
       </div>
 
-      <div className="border-t border-[var(--rule)] pt-5">
+      <div className="border-t border-[var(--rule-faint)] pt-5">
         <h4 className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrient Totals per Serving</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1">
           {nutrients.map((n) => (
-            <div key={n.id} className="flex justify-between py-[5px] border-b border-[var(--rule)] text-[12px]">
+            <div key={n.id} className="flex justify-between py-[5px] border-b border-[var(--rule-faint)] text-[12px]">
               <div>{n.displayName}</div>
               <div className="font-mono text-[var(--muted)]">{Math.round((totals[n.id] || 0) * 100) / 100} {n.unit}</div>
             </div>
@@ -822,7 +822,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] rounded-[6px] border transition-colors cursor-pointer ${
                     guidedPersonId === p.id
                       ? "bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]"
-                      : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
+                      : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule-faint)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
                   }`}
                 >
                   {p.name}
@@ -851,7 +851,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] rounded-[6px] border transition-colors cursor-pointer ${
                     guidedFocus.includes(g.nutrientId)
                       ? "bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]"
-                      : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
+                      : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule-faint)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
                   }`}
                 >
                   {g.nutrient.displayName}
@@ -863,7 +863,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
         {/* Nutrition bars */}
         {guidedPersonId && personGoals.length > 0 && (
-          <div className="border-t border-[var(--rule)] pt-3 space-y-0">
+          <div className="border-t border-[var(--rule-faint)] pt-3 space-y-0">
             {personGoals
               .filter((g) => (g.highGoal ?? g.lowGoal ?? 0) > 0)
               .map((g) => {
@@ -882,7 +882,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 return (
                   <div
                     key={g.nutrientId}
-                    className={`py-[6px] border-b border-[var(--rule)] last:border-b-0 transition-opacity ${isFocused ? "opacity-100" : "opacity-40"}`}
+                    className={`py-[6px] border-b border-[var(--rule-faint)] last:border-b-0 transition-opacity ${isFocused ? "opacity-100" : "opacity-40"}`}
                   >
                     <div className="flex justify-between items-baseline mb-[4px]">
                       <span className={`font-mono text-[10px] ${isFocused ? "text-[var(--fg)]" : "text-[var(--muted)]"}`}>
@@ -907,7 +907,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           value={focusCaps[g.nutrientId] ?? ""}
                           onChange={(e) => setFocusCaps((prev) => ({ ...prev, [g.nutrientId]: e.target.value }))}
                           placeholder={String(Math.round(baseGoal))}
-                          className="w-14 font-mono text-[9px] rounded-[4px] border border-[var(--rule)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--accent)]"
+                          className="w-14 font-mono text-[9px] rounded-[4px] border border-[var(--rule-faint)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--accent)]"
                         />
                         <span className="font-mono text-[8px] text-[var(--muted)]">{g.nutrient.unit}</span>
                         {focusCaps[g.nutrientId] && (
@@ -925,7 +925,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                       const contributors = computeContributors(g.nutrientId);
                       if (contributors.length === 0) return null;
                       return (
-                        <div className="mt-[8px] pt-[6px] border-t border-[var(--rule)] space-y-[5px]">
+                        <div className="mt-[8px] pt-[6px] border-t border-[var(--rule-faint)] space-y-[5px]">
                           <div className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--error)]">Top contributors</div>
                           {contributors.map((c) => (
                             <div key={c.name} className="flex items-baseline justify-between gap-2">
