@@ -71,7 +71,7 @@ export default function IngredientContextPanel({
   if (!personId) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="text-[11px] text-[var(--muted)] tracking-[0.02em] leading-relaxed py-4">
             Select a person in the nav to see nutrition goals.
           </div>
@@ -83,7 +83,7 @@ export default function IngredientContextPanel({
   if (goalsLoading) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-3 pt-2">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="space-y-[5px]">
@@ -103,7 +103,7 @@ export default function IngredientContextPanel({
   if (goals.length === 0) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="text-[11px] text-[var(--muted)] tracking-[0.02em] leading-relaxed py-4">
             No nutrition goals set for {personName || "this person"}. Configure them in Nutrition Goals.
           </div>
@@ -119,7 +119,7 @@ export default function IngredientContextPanel({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-5 py-4">
+      <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.1em] mb-4 pb-3 border-b border-[var(--rule)]">
           {personName ? `${personName}'s goals` : "Daily goals"} · {servingLabel}
         </div>

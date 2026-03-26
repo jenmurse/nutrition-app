@@ -907,7 +907,7 @@ function IngredientsPage() {
       {/* ── Left: List pane with integrated header ── */}
       <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]">
         {/* List header */}
-        <div className="px-5 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
+        <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Ingredients</h1>
             <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">
@@ -938,7 +938,7 @@ function IngredientsPage() {
               return (
                 <div
                   key={ing.id}
-                  className={`flex items-center justify-between py-[10px] px-5 border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
+                  className={`flex items-center justify-between py-[10px] px-6 border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
                     isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
                   }`}
                   onClick={() => {
@@ -963,7 +963,7 @@ function IngredientsPage() {
         <button
           onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
           aria-label="Create new ingredient"
-          className="shrink-0 w-full py-[10px] px-[14px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 border-t border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-none"
+          className="shrink-0 w-full py-[10px] px-6 font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 border-t border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-none"
         >
           + New Ingredient
         </button>
