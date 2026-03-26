@@ -308,7 +308,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       <div className="overflow-x-auto">
         <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, minmax(0, 1fr))', minWidth: 660 }}>
           {/* Column headers */}
-          <div className="h-[46px]" />
+          <div className="h-[45px]" />
           {days.map((day, dayIdx) => {
             const todayFlag = isToday(new Date(day.date));
             const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
@@ -317,7 +317,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             return (
               <div
                 key={`header-${day.date.toISOString()}`}
-                className="h-[46px] flex flex-col items-center justify-center cursor-pointer transition-colors"
+                className="h-[45px] flex flex-col items-center justify-center cursor-pointer transition-colors"
                 onClick={() => onDayClick?.(new Date(day.date))}
                 role="button"
                 aria-label={day.dayOfWeek}
