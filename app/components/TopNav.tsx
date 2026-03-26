@@ -54,22 +54,6 @@ export default function TopNav() {
 
       {/* Right side: settings gear + person switcher + sign out */}
       <div className="ml-auto flex items-center gap-[10px]">
-        {/* Settings gear */}
-        <Link
-          href="/settings"
-          className={`w-[28px] h-[28px] rounded-[6px] flex items-center justify-center no-underline transition-[color,background] duration-[120ms] ease-in-out ${
-            pathname?.startsWith("/settings")
-              ? "text-[var(--fg)] bg-[var(--accent-light)]"
-              : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
-          }`}
-          aria-label="Settings"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-        </Link>
-
         {/* Person dots */}
         {persons.length > 0 && (
           <div className="flex items-center gap-[10px]">
@@ -96,6 +80,20 @@ export default function TopNav() {
           </div>
         )}
 
+        <Link
+          href="/settings"
+          className={`w-[26px] h-[26px] rounded-full flex items-center justify-center no-underline transition-[color,background] duration-[120ms] ease-in-out ${
+            pathname?.startsWith("/settings")
+              ? "text-[var(--fg)] bg-[var(--accent-light)]"
+              : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.05)]"
+          }`}
+          aria-label="Settings"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </Link>
         <button
           onClick={handleSignOut}
           className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer rounded-[6px] hover:bg-[rgba(0,0,0,0.03)]"

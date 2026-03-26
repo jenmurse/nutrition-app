@@ -961,7 +961,7 @@ function IngredientsPage() {
                 <div
                   key={ing.id}
                   className={`relative flex items-center justify-between mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
-                    isSelected ? "bg-[var(--bg-selected)] pl-[14px]" : "hover:bg-[var(--bg-subtle)]"
+                    isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
                   }`}
                   onClick={() => {
                     if (isSelected) {
@@ -972,9 +972,6 @@ function IngredientsPage() {
                     }
                   }}
                 >
-                  {isSelected && (
-                    <span className="absolute left-0 top-[25%] bottom-[25%] w-[3px] rounded-full bg-[var(--accent)]" />
-                  )}
                   <span className="text-[12px] font-medium text-[var(--fg)] truncate">
                     {ing.name}
                   </span>

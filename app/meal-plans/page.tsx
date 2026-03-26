@@ -168,7 +168,7 @@ function BothView({
         <div className="border-b border-[var(--rule-faint)] py-3" />
         {persons.map((p) => (
           <div key={p.id} className="flex items-center gap-2 px-3 py-3 border-b border-[var(--rule-faint)]">
-            <span className="w-[10px] h-[10px] rounded-full shrink-0 bg-[var(--accent)]" />
+            <span className="w-[10px] h-[10px] rounded-full shrink-0" style={{ background: p.color || 'var(--accent)' }} />
             <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)]">{p.name}</span>
             {!plansByPerson.get(p.id) && (
               <span className="font-mono text-[9px] text-[var(--muted)] ml-1">(no plan)</span>

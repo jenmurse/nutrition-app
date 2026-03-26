@@ -323,7 +323,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 aria-label={day.dayOfWeek}
               >
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{day.dayOfWeek.slice(0, 3)}</div>
-                <div className={`font-serif text-[18px] leading-none ${todayFlag || isSelected ? 'text-[var(--accent)]' : 'text-[var(--fg)]'}`}>{dayNum}</div>
+                <div className={`font-serif text-[18px] leading-none ${isSelected ? 'text-[var(--accent)]' : (todayFlag && !selectedDay) ? 'text-[var(--accent)]' : 'text-[var(--fg)]'}`}>{dayNum}</div>
               </div>
             );
           })}
@@ -348,7 +348,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
                     className={`p-[6px_4px] flex flex-col gap-[3px] min-h-[36px] ${
-                      isSelected || todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
+                      isSelected ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : (todayFlag && !selectedDay) ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
                     }`}
                     onClick={() => onDayClick?.(new Date(day.date))}
                   >
@@ -400,9 +400,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`add-${day.date.toISOString()}`}
-                    className={`flex items-center justify-center p-[6px] ${
-                      isSelected || todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
-                    }`}
+                    className="flex items-center justify-center p-[6px]"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddMealClick(new Date(day.date));
@@ -690,7 +688,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                             setPendingIngredientId(ingredient.id);
                           }}
                           disabled={addingMealLoading}
-                          className={`border px-3 py-2 text-left transition ${
+                          className={`border rounded-[6px] px-3 py-2 text-left transition ${
                             pendingIngredientId === ingredient.id
                               ? 'border-[var(--fg)] bg-[var(--bg-subtle)]'
                               : 'border-[var(--rule-faint)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
@@ -742,7 +740,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
               <div className="flex gap-3 justify-end">
                 <button
-                  className="text-[9px] font-mono uppercase tracking-[0.1em] border border-[var(--rule-faint)] px-5 py-[7px] text-[var(--muted)] hover:text-[var(--fg)] transition"
+                  className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] px-5 py-[7px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition"
                   onClick={() => {
                     setItemTypeTabOpen(null);
                     setSelectedDayMeal(null);

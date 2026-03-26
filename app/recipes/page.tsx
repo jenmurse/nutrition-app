@@ -397,12 +397,9 @@ function RecipesPage() {
             return (
               <div
                 key={recipe.id}
-                className={`relative mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)] pl-[14px]' : 'hover:bg-[var(--bg-subtle)]'}`}
+                className={`relative mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)]' : 'hover:bg-[var(--bg-subtle)]'}`}
                 onClick={() => { setEditMode(false); setEditRecipe(null); setCreateMode(false); handleSelectRecipe(recipe); }}
               >
-                {isSelected && (
-                  <span className="absolute left-0 top-[25%] bottom-[25%] w-[3px] rounded-full bg-[var(--accent)]" />
-                )}
                 <div className="text-[12px] font-medium text-[var(--fg)] leading-snug">{recipe.name}</div>
                 {recipe.isComplete === false && (
                   <div className="font-mono text-[9px] text-[var(--warning)] tracking-[0.04em] mt-[2px]">incomplete</div>
