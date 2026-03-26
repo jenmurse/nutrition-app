@@ -318,7 +318,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
                     className={`p-[6px_4px] flex flex-col gap-[3px] min-h-[36px] ${
-                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
+                      isSelected || todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
                     }`}
                     onClick={() => onDayClick?.(new Date(day.date))}
                   >
@@ -370,7 +370,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`add-${day.date.toISOString()}`}
-                    className="flex items-center justify-center p-[6px]"
+                    className={`flex items-center justify-center p-[6px] ${
+                      isSelected || todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
+                    }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddMealClick(new Date(day.date));
