@@ -709,15 +709,19 @@ const SettingsPage = () => {
                     <span className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{activeTheme?.label || 'Sage'}</span>
                     <span className="text-[var(--muted)] text-[9px] select-none" aria-hidden="true">{isThemeOpen ? '▾' : '▸'}</span>
                   </button>
-                  {role !== 'owner' && (
+                </div>
+                {/* Remove — separate row so theme selectors align across members */}
+                {role !== 'owner' && (
+                  <div className="pl-[40px] mt-[6px]">
                     <button
                       onClick={() => {/* remove handled by PersonRow */}}
-                      className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] rounded-[6px] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                      className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
+                      aria-label={`Remove ${person.name}`}
                     >
                       Remove
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
                 {/* Swatch strip — only visible when expanded */}
                 {isThemeOpen && (
                   <div className="flex flex-wrap gap-[6px] pl-[40px] mt-[10px] pt-[10px] border-t border-[var(--rule-faint)]">

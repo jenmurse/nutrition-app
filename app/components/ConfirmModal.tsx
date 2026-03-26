@@ -29,13 +29,13 @@ export default function ConfirmModal() {
           <button
             onClick={() => dialog._resolve(false)}
             autoFocus
-            className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent cursor-pointer transition-colors"
+            className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={() => dialog._resolve(true)}
-            className={`px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border cursor-pointer transition-colors ${
+            className={`px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border cursor-pointer transition-colors ${
               state.danger
                 ? "border-[var(--error,#b94a48)] bg-[var(--error,#b94a48)] text-white hover:opacity-90"
                 : "border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] hover:opacity-90"

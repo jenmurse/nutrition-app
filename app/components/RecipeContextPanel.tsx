@@ -311,7 +311,7 @@ function AnalysisTab({
         </span>
         <button
           onClick={onReanalyze}
-          className="font-mono text-[9px] border border-[var(--rule)] text-[var(--muted)] px-2 py-[2px] bg-transparent hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
+          className="font-mono text-[9px] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
           aria-label="Re-analyze recipe"
         >
           Re-analyze
@@ -404,7 +404,7 @@ function MealPrepTab({
         </span>
         <button
           onClick={onReanalyze}
-          className="font-mono text-[9px] border border-[var(--rule)] text-[var(--muted)] px-2 py-[2px] bg-transparent hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
+          className="font-mono text-[9px] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
           aria-label="Re-analyze recipe"
         >
           Re-analyze

@@ -161,7 +161,7 @@ export default function CreateRecipePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={importing}
-                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer disabled:opacity-40"
+                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer disabled:opacity-40"
                 aria-label="Choose markdown file to upload"
               >
                 Choose File

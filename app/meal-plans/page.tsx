@@ -1129,16 +1129,14 @@ const MealPlansPage = () => {
                       return (
                         <div
                           key={n.nutrientId}
-                          className="font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--fg)] mb-[6px] flex items-center gap-[6px]"
+                          className="font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--muted)] mb-[6px] flex items-center gap-[5px]"
                         >
-                          <span className={`text-[13px] leading-none ${isAboveMax ? 'text-[var(--error)]' : 'text-[var(--warning)]'}`} aria-hidden="true">{isAboveMax ? '▲' : '▽'}</span>
-                          <span className="text-[var(--muted)]">
+                          <span className="text-[13px] leading-none" aria-hidden="true">{isAboveMax ? '⚠︎' : '⊖'}</span>
                           {isBelowMin
                             ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
                             : isAboveMax
                             ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
                             : `${n.displayName} outside target`}
-                          </span>
                         </div>
                       );
                     })}

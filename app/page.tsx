@@ -162,7 +162,7 @@ export default function Home() {
               </p>
               <Link
                 href={`/meal-plans?planId=${weekPlanId}`}
-                className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
+                className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-4 py-2 no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
               >
                 Open meal plan →
               </Link>
@@ -234,7 +234,7 @@ export default function Home() {
               <div className="mt-6">
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
+                  className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-4 py-2 no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
                 >
                   View meal plan →
                 </Link>

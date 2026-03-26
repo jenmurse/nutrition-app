@@ -302,7 +302,7 @@ export default function BulkIngredientImport({
               </button>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className="px-4 py-2 border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] rounded-[var(--radius-sm,4px)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+                className="px-4 py-2 rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors cursor-pointer"
               >
                 Cancel
               </button>

@@ -457,7 +457,6 @@
   input:not([type="checkbox"]):not([type="radio"]), textarea, select {
     font-family: var(--sans);
     font-weight: 400;
-    border-radius: 7px;
     transition: border-color 120ms ease, box-shadow 120ms ease;
   }
 
@@ -469,7 +468,6 @@
 
   button {
     font-family: var(--sans);
-    border-radius: 7px;
   }
 
   /* Tactile press feedback on all enabled buttons */

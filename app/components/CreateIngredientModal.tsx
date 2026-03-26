@@ -269,7 +269,7 @@ export default function CreateIngredientModal({
               <div className="flex-1" />
               <button
                 onClick={onClose}
-                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent cursor-pointer transition-colors"
+                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
               >
                 Skip
               </button>
@@ -318,7 +318,7 @@ export default function CreateIngredientModal({
                   <button
                     onClick={handleUSDASearch}
                     disabled={searching}
-                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer disabled:opacity-40 transition-colors shrink-0"
+                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
                   >
                     {searching ? "Searching…" : "Search"}
                   </button>
@@ -388,7 +388,7 @@ export default function CreateIngredientModal({
             <div className="flex gap-2 mt-6 pt-4 border-t border-[var(--rule)]">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent cursor-pointer transition-colors"
+                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
               >
                 Skip for now
               </button>

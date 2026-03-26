@@ -103,7 +103,7 @@ function ContributorWithSwaps({
   return (
     <div className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <button
-        className={`w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors border-0 cursor-pointer bg-transparent ${expanded ? '' : 'rounded-[8px]'}`}
+        className="w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors border-0 cursor-pointer bg-transparent"
         onClick={() => setExpanded(!expanded)}
       >
         <span className="text-[11px] truncate text-[var(--fg)]">{c.name}</span>
@@ -215,8 +215,8 @@ export default function SmartSuggestionsPanel({
 
           {analysis.overBudget.length > 0 && (
             <div className="space-y-4 mt-6">
-              <div className="text-[12px] font-medium text-[var(--fg)] flex items-center gap-[6px]">
-                <span className="text-[var(--error)] text-[13px] leading-none" aria-hidden="true">▲</span> Over Allocation
+              <div className="text-[12px] font-medium text-[var(--fg)] flex items-center gap-[5px]">
+                <span className="text-[14px] leading-none" aria-hidden="true">⚠︎</span> Over Allocation
               </div>
 
               {analysis.overBudget.map((alert) => {
@@ -260,8 +260,8 @@ export default function SmartSuggestionsPanel({
           ---------------------------------------------------------------- */}
           {analysis.underBudget && analysis.underBudget.length > 0 && (
             <div className="space-y-4 mt-6">
-              <div className="text-[12px] font-medium text-[var(--fg)] flex items-center gap-[6px]">
-                <span className="text-[var(--warning)] text-[13px] leading-none" aria-hidden="true">▽</span> Below minimum
+              <div className="text-[12px] font-medium text-[var(--fg)] flex items-center gap-[5px]">
+                <span className="text-[14px] leading-none" aria-hidden="true">⊖</span> Below minimum
               </div>
 
               {analysis.underBudget.map((deficit) => {
