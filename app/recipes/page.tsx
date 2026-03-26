@@ -354,7 +354,7 @@ function RecipesPage() {
     <div className="h-full flex animate-fade-in" onClick={() => { if (!editMode && !createMode) setSelectedRecipe(null); }}>
 
       {/* ── Left: List pane ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]" onClick={(e) => e.stopPropagation()}>
+      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)] bg-[var(--bg-nav)]" onClick={(e) => e.stopPropagation()}>
         <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Recipes</h1>
@@ -686,7 +686,7 @@ function RecipesPage() {
           </div>
 
           {!selectedRecipeLoading && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)]" onClick={(e) => e.stopPropagation()}>
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)] bg-[var(--bg-nav)]" onClick={(e) => e.stopPropagation()}>
               <RecipeContextPanel
                 recipeId={selectedRecipe.id}
                 totals={selectedRecipe.totals || []}

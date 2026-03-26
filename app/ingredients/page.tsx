@@ -905,7 +905,7 @@ function IngredientsPage() {
   return (
     <div className="flex h-full">
       {/* ── Left: List pane with integrated header ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]">
+      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)] bg-[var(--bg-nav)]">
         {/* List header */}
         <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
@@ -1008,7 +1008,7 @@ function IngredientsPage() {
 
           {/* Context Panel — right pane with goals % bars */}
           {!editMode && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)]">
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)] bg-[var(--bg-nav)]">
               <IngredientContextPanel
                 nutrientValues={selectedIngredient.nutrientValues}
                 defaultUnit={selectedIngredient.defaultUnit}
