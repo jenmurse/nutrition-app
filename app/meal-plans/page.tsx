@@ -165,9 +165,9 @@ function BothView({
     <div className="flex-1 overflow-y-auto px-7 py-5">
       <div className="grid" style={{ gridTemplateColumns: `76px repeat(${persons.length}, 1fr)` }}>
         {/* Header row */}
-        <div className="border-b border-[var(--rule)] py-3" />
+        <div className="border-b border-[var(--rule-faint)] py-3" />
         {persons.map((p) => (
-          <div key={p.id} className="flex items-center gap-2 px-3 py-3 border-b border-l border-[var(--rule)]">
+          <div key={p.id} className="flex items-center gap-2 px-3 py-3 border-b border-[var(--rule-faint)]">
             <span className="w-[10px] h-[10px] rounded-full shrink-0 bg-[var(--accent)]" />
             <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)]">{p.name}</span>
             {!plansByPerson.get(p.id) && (
@@ -182,7 +182,7 @@ function BothView({
           return (
             <React.Fragment key={day.toISOString()}>
               {/* Day label */}
-              <div className={`py-3 pl-4 border-b border-[var(--rule)] ${isToday ? 'text-[var(--accent)]' : 'text-[var(--muted)]'}`}>
+              <div className={`py-3 pl-4 border-b border-[var(--rule-faint)] ${isToday ? 'text-[var(--accent)]' : 'text-[var(--muted)]'}`}>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em]">{dayNames[day.getDay()]}</div>
                 <div className="font-mono text-[9px] mt-[1px] uppercase">
                   {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -196,7 +196,7 @@ function BothView({
                   (m) => new Date(m.date).toDateString() === day.toDateString()
                 ) ?? [];
                 return (
-                  <div key={p.id} className="py-3 px-3 border-b border-l border-[var(--rule)] min-h-[48px]">
+                  <div key={p.id} className="py-3 px-3 border-b border-[var(--rule-faint)] min-h-[48px]">
                     {meals.length === 0 ? (
                       <span className="font-mono text-[9px] text-[var(--muted)]">—</span>
                     ) : (
@@ -205,12 +205,12 @@ function BothView({
                           const isShared = m.recipe ? sharedKeys.has(sharedKey(m.recipe.id, m.date)) : false;
                           const name = m.recipe?.name ?? m.ingredient?.name ?? '?';
                           return (
-                            <div key={m.id} className="flex items-center justify-between border border-[var(--rule)] bg-[var(--bg)] px-2 py-[5px] gap-2">
+                            <div key={m.id} className="flex items-center justify-between bg-[var(--bg-raised)] rounded-[6px] px-2 py-[5px] gap-2" style={{ boxShadow: 'var(--shadow-sm)' }}>
                               <span className="font-sans text-[11px] text-[var(--fg)] leading-snug truncate min-w-0">{name}</span>
                               <div className="flex items-center gap-1 shrink-0">
                                 {isShared && (
                                   <span
-                                    className="font-mono text-[8px] uppercase tracking-[0.1em] px-1 py-[1px] bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)] rounded-[var(--radius-sm,4px)]"
+                                    className="font-mono text-[8px] uppercase tracking-[0.1em] px-[6px] py-[1px] bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)] rounded-full"
                                     title="Shared meal"
                                   >
                                     shared
@@ -668,7 +668,7 @@ const MealPlansPage = () => {
   return (
     <div className="flex h-full flex-col">
       {/* Unified header bar — 46px */}
-      <div className="flex items-center h-[46px] px-6 border-b border-[var(--rule)] gap-2 shrink-0 overflow-hidden">
+      <div className="flex items-center h-[46px] px-6 border-b border-[var(--rule-faint)] gap-2 shrink-0 overflow-hidden">
         {/* Week title */}
         <h1 className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--muted)] mr-2 whitespace-nowrap shrink-0">
           {selectedPlan ? (() => {
@@ -684,7 +684,7 @@ const MealPlansPage = () => {
         {mealPlans.length > 1 && selectedPlan && viewMode === 'personal' && (
           <>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+              className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
               onClick={() => {
                 const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                 if (idx < mealPlans.length - 1) {
@@ -696,7 +696,7 @@ const MealPlansPage = () => {
               aria-label="Previous plan"
             >‹ Prev</button>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+              className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
               onClick={() => {
                 const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                 if (idx > 0) {
@@ -938,7 +938,7 @@ const MealPlansPage = () => {
             <button
               type="submit"
               disabled={creatingPlan}
-              className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-text)] px-3 py-[5px] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
+              className="font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] bg-[var(--accent)] text-[var(--accent-text)] px-3 py-[5px] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
             >
               {creatingPlan ? 'Creating...' : 'Create'}
             </button>
@@ -1055,7 +1055,7 @@ const MealPlansPage = () => {
                     }}
                   >
                   {/* Summary header — matches shared header height */}
-                  <div className="h-[46px] flex items-center justify-between px-5 border-b border-[var(--rule)] shrink-0 bg-[var(--bg)]">
+                  <div className="h-[46px] flex items-center justify-between px-5 border-b border-[var(--rule-faint)] shrink-0 bg-[var(--bg)]">
                     <h2 className="font-sans text-[13px] font-medium text-[var(--fg)]">
                       {activeDayData.dayOfWeek},{' '}
                       {activeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
