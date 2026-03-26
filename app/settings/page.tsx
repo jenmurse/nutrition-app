@@ -693,6 +693,15 @@ const SettingsPage = () => {
                     {role && (
                       <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">{role}</span>
                     )}
+                    {role !== 'owner' && (
+                      <button
+                        onClick={() => {/* remove handled by PersonRow */}}
+                        className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
+                        aria-label={`Remove ${person.name}`}
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                   {/* Theme swatch indicator — click to toggle palette */}
                   <button
@@ -709,15 +718,6 @@ const SettingsPage = () => {
                     <span className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{activeTheme?.label || 'Sage'}</span>
                     <span className="text-[var(--muted)] text-[9px] select-none" aria-hidden="true">{isThemeOpen ? '▾' : '▸'}</span>
                   </button>
-                  {role !== 'owner' && (
-                    <button
-                      onClick={() => {/* remove handled by PersonRow */}}
-                      className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors ml-1"
-                      aria-label={`Remove ${person.name}`}
-                    >
-                      Remove
-                    </button>
-                  )}
                 </div>
                 {/* Swatch strip — only visible when expanded */}
                 {isThemeOpen && (
@@ -1150,7 +1150,7 @@ const SettingsPage = () => {
               </p>
               <label
                 htmlFor="import-file"
-                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
                 aria-label="Select backup file"
               >
                 {importFile ? importFile.name : 'Choose backup file'}

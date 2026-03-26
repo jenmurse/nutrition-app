@@ -505,11 +505,11 @@ function RecipesPage() {
 
       ) : editMode ? (
         <div className="flex-1 flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-          <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
+          <div className="px-6 pt-5 pb-4 shrink-0 flex items-start justify-between">
             <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight">Edit Recipe</h2>
             <div className="flex items-center gap-3">
               <button
-                className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:bg-[var(--accent-hover)] cursor-pointer transition-colors"
+                className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 rounded-[6px] hover:bg-[var(--accent-hover)] cursor-pointer transition-colors"
                 onClick={() => editBuilderRef.current?.save()}
               >
                 Save
