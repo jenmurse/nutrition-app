@@ -42,12 +42,10 @@ interface PersonRowProps {
   onToggle: () => void;
   onSaved: () => void;
   canDelete: boolean;
-  isSelectedPerson: boolean;
 }
 
-function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete, isSelectedPerson }: PersonRowProps) {
+function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete }: PersonRowProps) {
   const [name, setName] = useState(person.name);
-  const [theme, setTheme] = useState(person.theme || 'sage');
   const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
   const [goalsLoaded, setGoalsLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -75,9 +73,8 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
   // Reset local state when person changes
   useEffect(() => {
     setName(person.name);
-    setTheme(person.theme || 'sage');
     setGoalsLoaded(false);
-  }, [person.id, person.name, person.theme]);
+  }, [person.id, person.name]);
 
   const handleGoalChange = (nutrientId: number, field: 'lowGoal' | 'highGoal', value: string) => {
     setGoals((prev) => ({
@@ -92,17 +89,12 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Update name/theme if changed
-      const nameChanged = name.trim() && name.trim() !== person.name;
-      const themeChanged = theme !== (person.theme || 'sage');
-      if (nameChanged || themeChanged) {
-        const body: Record<string, string> = {};
-        if (nameChanged) body.name = name.trim();
-        if (themeChanged) body.theme = theme;
+      // Update name if changed
+      if (name.trim() && name.trim() !== person.name) {
         await fetch(`/api/persons/${person.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ name: name.trim() }),
         });
       }
       // Save goals
@@ -163,48 +155,6 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
       {/* Expanded panel */}
       {isExpanded && (
         <div className="border-t border-[var(--rule)] bg-[var(--bg-subtle)]">
-
-          {/* Theme palette */}
-          <div className="px-7 py-[10px] border-b border-[var(--rule)]">
-            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[10px]">Palette</div>
-            <div className="flex flex-wrap gap-[10px]">
-              {THEMES.map((t) => {
-                const isActive = theme === t.name;
-                return (
-                  <button
-                    key={t.name}
-                    onClick={() => {
-                      setTheme(t.name);
-                      if (isSelectedPerson) {
-                        document.documentElement.dataset.theme = t.name;
-                      }
-                    }}
-                    className="flex flex-col items-center gap-[4px] bg-transparent border-0 cursor-pointer p-0"
-                    aria-label={`${t.label} theme${isActive ? ' (active)' : ''}`}
-                    aria-pressed={isActive}
-                  >
-                    <span
-                      className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
-                      style={{
-                        background: t.hex,
-                        outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
-                        outlineOffset: '2px',
-                      }}
-                    >
-                      {isActive && (
-                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-                          <path d="M1 3.5L4 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      )}
-                    </span>
-                    <span className="font-mono text-[7px] uppercase tracking-[0.06em] text-[var(--muted)]" style={{ lineHeight: 1 }}>
-                      {t.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Name + actions on one row */}
           <div className="px-7 py-[10px] flex items-center gap-4 border-b border-[var(--rule)]">
@@ -309,6 +259,8 @@ const SettingsPage = () => {
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
+  const [expandedPaletteId, setExpandedPaletteId] = useState<number | null>(null);
+  const [savingThemeId, setSavingThemeId] = useState<number | null>(null);
   const [settingsTab, setSettingsTab] = useState<'household' | 'ai' | 'mcp' | 'data'>('household');
 
   // Household info — seed from localStorage so name appears instantly
@@ -615,6 +567,26 @@ const SettingsPage = () => {
     setExpandedPersonId(null);
   };
 
+  const handleThemeSave = async (personId: number, themeName: string) => {
+    setSavingThemeId(personId);
+    // Apply live if this is the selected person
+    if (personId === selectedPersonId) {
+      document.documentElement.dataset.theme = themeName;
+      localStorage.setItem('theme', themeName);
+    }
+    try {
+      await fetch(`/api/persons/${personId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme: themeName }),
+      });
+      await refreshPersons();
+      setExpandedPaletteId(null);
+    } finally {
+      setSavingThemeId(null);
+    }
+  };
+
   const settingsTabs: { key: typeof settingsTab; label: string }[] = [
     { key: 'household', label: 'Household' },
     { key: 'ai', label: 'AI API' },
@@ -700,31 +672,76 @@ const SettingsPage = () => {
           </div>
 
           {/* Member rows with avatars */}
-          {persons.map((person, idx) => {
+          {persons.map((person) => {
             const initial = (person.name || '?').charAt(0).toUpperCase();
             const role = memberRoles[person.id];
+            const paletteOpen = expandedPaletteId === person.id;
             return (
-              <div key={person.id} className="flex items-center gap-3 py-[10px] border-b border-[var(--rule)]">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0"
-                  style={{ background: person.color || 'var(--accent)' }}
-                  aria-hidden="true"
-                >
-                  {initial}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-[var(--fg)] font-medium">{person.name}</div>
-                  <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{role || 'Member'}</div>
-                </div>
-                {role === 'owner' ? (
-                  <span className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)]">Owner</span>
-                ) : (
+              <div key={person.id} className="border-b border-[var(--rule)]">
+                <div className="flex items-center gap-3 py-[10px]">
+                  {/* Clickable avatar — toggles palette */}
                   <button
-                    onClick={() => {/* remove handled by PersonRow */}}
-                    className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                    onClick={() => setExpandedPaletteId(paletteOpen ? null : person.id)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0 cursor-pointer border-0 p-0 transition-opacity hover:opacity-80"
+                    style={{ background: person.color || 'var(--accent)', outline: paletteOpen ? `2px solid ${person.color || 'var(--accent)'}` : 'none', outlineOffset: '2px' }}
+                    aria-label={`Change ${person.name}'s color`}
+                    aria-expanded={paletteOpen}
                   >
-                    Remove
+                    {initial}
                   </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] text-[var(--fg)] font-medium">{person.name}</div>
+                    <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{role || 'Member'}</div>
+                  </div>
+                  {role === 'owner' ? (
+                    <span className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)]">Owner</span>
+                  ) : (
+                    <button
+                      onClick={() => {/* remove handled by PersonRow */}}
+                      className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {/* Inline palette picker */}
+                {paletteOpen && (
+                  <div className="pb-[14px] px-[44px]">
+                    <div className="flex flex-wrap gap-[10px]">
+                      {THEMES.map((t) => {
+                        const isActive = (person.theme || 'sage') === t.name;
+                        const isSaving = savingThemeId === person.id;
+                        return (
+                          <button
+                            key={t.name}
+                            onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
+                            disabled={isSaving}
+                            className="flex flex-col items-center gap-[4px] bg-transparent border-0 cursor-pointer p-0 disabled:opacity-50"
+                            aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
+                            aria-pressed={isActive}
+                          >
+                            <span
+                              className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
+                              style={{
+                                background: t.hex,
+                                outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
+                                outlineOffset: '2px',
+                              }}
+                            >
+                              {isActive && (
+                                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                                  <path d="M1 3.5L4 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </span>
+                            <span className="font-mono text-[7px] uppercase tracking-[0.06em] text-[var(--muted)]" style={{ lineHeight: 1 }}>
+                              {t.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
               </div>
             );
@@ -841,7 +858,6 @@ const SettingsPage = () => {
               onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
               onSaved={handlePersonSaved}
               canDelete={persons.length > 1}
-              isSelectedPerson={person.id === selectedPersonId}
             />
           ))}
         </div>
