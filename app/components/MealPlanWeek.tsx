@@ -275,10 +275,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <div style={{ display: 'grid', gridTemplateColumns: '90px repeat(7, minmax(0, 1fr))', minWidth: 660 }}>
+      <div className="overflow-x-auto rounded-[12px]" style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.03)' }}>
+        <div className="bg-[var(--bg-raised)] rounded-[12px] overflow-hidden" style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, minmax(0, 1fr))', minWidth: 660 }}>
           {/* Column headers */}
-          <div className="bg-[var(--bg-nav)] border-b border-[var(--rule-faint)] p-2" />
+          <div className="p-3" />
           {days.map((day, dayIdx) => {
             const todayFlag = isToday(new Date(day.date));
             const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
@@ -287,8 +287,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             return (
               <div
                 key={`header-${day.date.toISOString()}`}
-                className={`border-b border-[var(--rule-faint)] p-2 text-center cursor-pointer transition-colors ${
-                  isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_30%,var(--bg))]' : 'bg-[var(--bg-nav)]'
+                className={`p-3 text-center cursor-pointer transition-colors ${
+                  isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
                 }`}
                 onClick={() => onDayClick?.(new Date(day.date))}
                 role="button"
@@ -300,11 +300,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             );
           })}
 
+          {/* Header divider */}
+          <div className="col-span-full h-px bg-[var(--rule-faint)]" />
+
           {/* Meal type rows */}
           {availableMealTypes.map((mealType) => (
             <React.Fragment key={mealType}>
               {/* Row label */}
-              <div className="bg-[var(--bg-nav)] border-b border-[var(--rule-faint)] flex items-center px-[16px] py-1">
+              <div className="flex items-start px-[12px] pt-[10px] pb-1">
                 <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
               </div>
               {/* Day cells for this meal type */}
@@ -316,8 +319,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
-                    className={`border-b border-[var(--rule-faint)] p-1 flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[48px] ${
-                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_30%,var(--bg))]' : ''
+                    className={`p-[6px_4px] flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[36px] rounded-[6px] ${
+                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
                     } hover:bg-[var(--bg-subtle)]`}
                     onClick={() => onDayClick?.(new Date(day.date))}
                   >
@@ -360,6 +363,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {/* + ADD row at bottom */}
           {!editMode && (
             <>
+              <div className="col-span-full h-px bg-[var(--rule-faint)] mt-1" />
               <div />
               {days.map((day, dayIdx) => {
                 const todayFlag = isToday(new Date(day.date));
@@ -368,8 +372,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`add-${day.date.toISOString()}`}
-                    className={`flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] ${
-                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_30%,var(--bg))]' : ''
+                    className={`flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] rounded-[6px] ${
+                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
