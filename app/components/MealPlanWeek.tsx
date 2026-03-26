@@ -287,9 +287,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             return (
               <div
                 key={`header-${day.date.toISOString()}`}
-                className={`p-3 text-center cursor-pointer transition-colors ${
-                  isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
-                }`}
+                className="p-3 text-center cursor-pointer transition-colors"
                 onClick={() => onDayClick?.(new Date(day.date))}
                 role="button"
                 aria-label={day.dayOfWeek}
