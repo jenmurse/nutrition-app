@@ -73,8 +73,18 @@ export async function DELETE(
     return NextResponse.json({ error: "Person not found" }, { status: 404 });
   }
 
+  // Only owners can remove other members; members can only remove themselves
+  if (auth.personId !== personId && auth.role !== 'owner') {
+    return NextResponse.json(
+      { error: "Only household owners can remove other members" },
+      { status: 403 }
+    );
+  }
+
   // Prevent deleting the last person
-  const count = await prisma.person.count();
+  const count = await prisma.person.count({
+    where: { householdMembers: { some: { householdId: auth.householdId } } },
+  });
   if (count <= 1) {
     return NextResponse.json(
       { error: "Cannot remove the last person in the household" },

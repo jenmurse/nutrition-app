@@ -133,12 +133,12 @@
   input:not([type="checkbox"]):not([type="radio"]), textarea, select {
     font-family: var(--sans);
     font-weight: 400;
-    border-radius: calc(var(--radius) - 4px);
+    border-radius: 0;
   }
 
   button {
     font-family: var(--sans);
-    border-radius: calc(var(--radius) - 4px);
+    border-radius: 0;
   }
 
   /* Tactile press feedback on all enabled buttons */

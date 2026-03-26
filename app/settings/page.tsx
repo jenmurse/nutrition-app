@@ -135,7 +135,8 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
       >
         <div className="flex items-center gap-[10px]">
           <span
-            className="w-2 h-2 rounded-full shrink-0 bg-[var(--accent)]"
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ background: person.color || 'var(--accent)' }}
             aria-hidden="true"
           />
           <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
@@ -605,7 +606,7 @@ const SettingsPage = () => {
           {/* Household name row */}
           <div className="flex items-center justify-between py-[10px] border-b border-[var(--rule)]">
             <div>
-              <div className="text-[12px] text-[var(--fg)] font-medium">Household name</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Household name</div>
             </div>
             {editingHouseholdName ? (
               <div className="flex items-center gap-2">
@@ -637,7 +638,7 @@ const SettingsPage = () => {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="font-mono text-[11px] text-[var(--fg)]">{householdName || '…'}</span>
+                <span className="font-sans text-[13px] font-medium text-[var(--fg)]">{householdName || '…'}</span>
                 <button
                   onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
                   className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
@@ -733,6 +734,7 @@ const SettingsPage = () => {
 
         {/* ── PERSONS & GOALS ── */}
         <div className="mb-8">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrition Goals</div>
           {persons.map((person) => (
             <PersonRow
               key={person.id}
@@ -753,24 +755,24 @@ const SettingsPage = () => {
             {(
               <div className="border border-[var(--rule)]">
                 {/* Header */}
-                <div className="grid grid-cols-[1fr_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
-                  {['Invite URL', 'Status', 'Created', 'Redeemed'].map((h) => (
-                    <span key={h} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
+                <div className="grid grid-cols-[1fr_60px_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
+                  {['Invite URL', '', 'Status', 'Created', 'Redeemed'].map((h, i) => (
+                    <span key={i} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
                   ))}
                 </div>
                 {invites.map((inv) => {
                   const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
                   const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
                   return (
-                    <div key={inv.id} className="grid grid-cols-[1fr_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule)] last:border-b-0 items-center">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="font-mono text-[10px] text-[var(--fg)] truncate" title={inv.url}>
-                          {inv.url.replace(/^https?:\/\//, '')}
-                        </span>
+                    <div key={inv.id} className="grid grid-cols-[1fr_60px_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule)] last:border-b-0 items-center">
+                      <span className="font-mono text-[10px] text-[var(--fg)] truncate min-w-0" title={inv.url}>
+                        {inv.url.replace(/^https?:\/\//, '')}
+                      </span>
+                      <div>
                         {status === 'active' && (
                           <button
                             onClick={() => handleCopyInvite(inv.url, inv.token)}
-                            className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer shrink-0"
+                            className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule)] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer"
                             aria-label="Copy invite link"
                           >
                             {copiedToken === inv.token ? 'Copied!' : 'Copy'}
@@ -882,7 +884,7 @@ const SettingsPage = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={loadUsage}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                    className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule)] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer"
                     aria-label="Refresh usage stats"
                   >
                     Refresh
