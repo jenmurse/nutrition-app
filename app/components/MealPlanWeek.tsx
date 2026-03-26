@@ -275,8 +275,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-[12px]" style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.03)' }}>
-        <div className="bg-[var(--bg-raised)] rounded-[12px] overflow-hidden" style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, minmax(0, 1fr))', minWidth: 660 }}>
+      <div className="overflow-x-auto">
+        <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, minmax(0, 1fr))', minWidth: 660 }}>
           {/* Column headers */}
           <div className="p-3" />
           {days.map((day, dayIdx) => {
@@ -319,9 +319,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
-                    className={`p-[6px_4px] flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[36px] rounded-[6px] ${
+                    className={`p-[6px_4px] flex flex-col gap-[3px] min-h-[36px] ${
                       isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
-                    } hover:bg-[var(--bg-subtle)]`}
+                    }`}
                     onClick={() => onDayClick?.(new Date(day.date))}
                   >
                     {mealsOfType.map((meal) => (
@@ -372,9 +372,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`add-${day.date.toISOString()}`}
-                    className={`flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] rounded-[6px] ${
-                      isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]' : ''
-                    }`}
+                    className="flex items-center justify-center p-[6px]"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddMealClick(new Date(day.date));
