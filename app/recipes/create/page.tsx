@@ -136,7 +136,7 @@ export default function CreateRecipePage() {
                 onClick={handleUrlImport}
                 disabled={importing || !importUrl.trim()}
                 aria-label="Import from URL"
-                className="py-[5px] px-3 font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40"
+                className="py-[5px] px-3 font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40"
               >
                 {importing ? "Importing..." : "Import"}
               </button>

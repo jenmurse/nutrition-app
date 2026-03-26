@@ -451,7 +451,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <button
                   type="button"
                   onClick={() => { setImage(""); if (imageFileRef.current) imageFileRef.current.value = ""; }}
-                  className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-[3px] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
+                  className="font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] px-2 py-[3px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
                   aria-label="Remove image"
                 >
                   Remove image
@@ -819,10 +819,10 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <button
                   key={p.id}
                   onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] border transition-colors cursor-pointer ${
+                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] rounded-[6px] border transition-colors cursor-pointer ${
                     guidedPersonId === p.id
                       ? "bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]"
-                      : "text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)]"
+                      : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
                   }`}
                 >
                   {p.name}
@@ -848,10 +848,10 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                       setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
                     }
                   }}
-                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] border transition-colors cursor-pointer ${
+                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] rounded-[6px] border transition-colors cursor-pointer ${
                     guidedFocus.includes(g.nutrientId)
                       ? "bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]"
-                      : "text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)]"
+                      : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
                   }`}
                 >
                   {g.nutrient.displayName}
@@ -907,7 +907,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           value={focusCaps[g.nutrientId] ?? ""}
                           onChange={(e) => setFocusCaps((prev) => ({ ...prev, [g.nutrientId]: e.target.value }))}
                           placeholder={String(Math.round(baseGoal))}
-                          className="w-14 font-mono text-[9px] border border-[var(--rule)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--accent)]"
+                          className="w-14 font-mono text-[9px] rounded-[4px] border border-[var(--rule)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--accent)]"
                         />
                         <span className="font-mono text-[8px] text-[var(--muted)]">{g.nutrient.unit}</span>
                         {focusCaps[g.nutrientId] && (

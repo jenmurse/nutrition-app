@@ -103,7 +103,7 @@ function ContributorWithSwaps({
   return (
     <div className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <button
-        className="w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors border-0 cursor-pointer bg-transparent"
+        className="w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors border-0 cursor-pointer bg-transparent active:!scale-100"
         onClick={() => setExpanded(!expanded)}
       >
         <span className="text-[11px] truncate text-[var(--fg)]">{c.name}</span>
