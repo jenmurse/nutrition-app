@@ -38,16 +38,8 @@ const DailySummary: React.FC<DailySummaryProps> = ({
         const pct = target > 0 ? Math.min(Math.round((nutrient.value / target) * 100), 100) : 0;
         const isOverMax = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
         const isWarn = nutrient.status === 'warning';
-        const barColor = isOverMax || nutrient.status === 'error'
-          ? 'bg-[var(--error)]'
-          : isWarn
-          ? 'bg-[var(--warning)]'
-          : 'bg-[var(--accent)]';
-        const valueColor = isOverMax || nutrient.status === 'error'
-          ? 'text-[var(--error)]'
-          : isWarn
-          ? 'text-[var(--warning)]'
-          : 'text-[var(--muted)]';
+        const barColor = 'bg-[var(--accent)]';
+        const valueColor = 'text-[var(--muted)]';
         const unitSuffix = nutrient.displayName.toLowerCase() === 'calories' ? '' : ` ${nutrient.unit}`;
 
         return (

@@ -234,15 +234,13 @@ function GoalsTab({
           <div key={goal.nutrientId} className="mb-3">
             <div className="flex justify-between items-baseline mb-[5px]">
               <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{goal.nutrient.displayName}</span>
-              <span className={`font-mono text-[10px] tabular-nums ${isOver ? "text-[var(--error)]" : "text-[var(--muted)]"}`}>
+              <span className="font-mono text-[10px] tabular-nums text-[var(--muted)]">
                 {formatGoalVal(value)} / {formatGoalVal(target)}{unitSuffix}{overLabel}
               </span>
             </div>
             <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
               <div
-                className={`h-full rounded-[var(--radius-sm,4px)] ${
-                  isOver ? "bg-[var(--error)]" : isWarn ? "bg-[var(--warning)]" : "bg-[var(--accent)]"
-                }`}
+                className="h-full rounded-[var(--radius-sm,4px)] bg-[var(--accent)]"
                 style={{ width: `${Math.min(pct, 100)}%` }}
               />
             </div>

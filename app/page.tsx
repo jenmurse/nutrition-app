@@ -200,8 +200,8 @@ export default function Home() {
                 const isOverMax = n.highGoal && n.highGoal > 0 && n.value > n.highGoal;
                 const isWarning = n.status === "warning";
                 const isError = n.status === "error" || isOverMax;
-                const barColor = isError ? "bg-[var(--error)]" : isWarning ? "bg-[var(--warning)]" : "bg-[var(--accent)]";
-                const valColor = isError ? "text-[var(--error)]" : isWarning ? "text-[var(--warning)]" : "text-[var(--muted)]";
+                const barColor = "bg-[var(--accent)]";
+                const valColor = "text-[var(--muted)]";
                 const unitSuffix = n.displayName.toLowerCase() === "calories" ? "" : ` ${n.unit}`;
                 const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
 
@@ -224,8 +224,8 @@ export default function Home() {
               {belowMin.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {belowMin.map((n) => (
-                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] text-[var(--warning-text)] px-[10px] py-[5px] rounded-[var(--radius-sm,4px)]">
-                      {n.displayName} below minimum
+                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] flex items-center gap-[4px]">
+                      <span style={{ opacity: 0.55, fontSize: '0.85em' }}>⊖</span>{n.displayName} below min
                     </span>
                   ))}
                 </div>

@@ -215,8 +215,8 @@ export default function SmartSuggestionsPanel({
 
           {analysis.overBudget.length > 0 && (
             <div className="space-y-4 mt-6">
-              <div className="text-[11px] font-medium text-[var(--error)]">
-                Over Allocation
+              <div className="text-[11px] font-medium text-[var(--fg)] flex items-center gap-[5px]">
+                <span style={{ opacity: 0.5, fontSize: '0.8em' }}>⚠︎</span> Over Allocation
               </div>
 
               {analysis.overBudget.map((alert) => {
@@ -227,7 +227,7 @@ export default function SmartSuggestionsPanel({
                     {/* Alert row */}
                     <div className="flex items-baseline justify-between">
                       <span className="text-[11px] font-medium">{alert.displayName}</span>
-                      <span className="text-[10px] text-[var(--error)]">
+                      <span className="text-[10px] text-[var(--muted)]">
                         +{Math.round(alert.overBy)}{alert.unit} over ({alert.overByPct}%)
                       </span>
                     </div>
@@ -260,8 +260,8 @@ export default function SmartSuggestionsPanel({
           ---------------------------------------------------------------- */}
           {analysis.underBudget && analysis.underBudget.length > 0 && (
             <div className="space-y-4 mt-6">
-              <div className="text-[11px] font-medium text-[var(--warning)]">
-                Below minimum
+              <div className="text-[11px] font-medium text-[var(--fg)] flex items-center gap-[5px]">
+                <span style={{ opacity: 0.5, fontSize: '0.8em' }}>⊖</span> Below minimum
               </div>
 
               {analysis.underBudget.map((deficit) => {
@@ -270,7 +270,7 @@ export default function SmartSuggestionsPanel({
                   <div key={deficit.nutrientId} className="space-y-2">
                     <div className="flex items-baseline justify-between">
                       <span className="text-[11px] font-medium">{deficit.displayName}</span>
-                      <span className="text-[10px] text-[var(--warning)]">
+                      <span className="text-[10px] text-[var(--muted)]">
                         {deficit.shortBy}{deficit.unit} short ({deficit.shortByPct}%)
                       </span>
                     </div>

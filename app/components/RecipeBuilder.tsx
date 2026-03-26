@@ -875,18 +875,10 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 const isFocused = guidedFocus.length === 0 || guidedFocus.includes(g.nutrientId);
                 const isOver = goal > 0 && current > goal * 1.05;
                 const isNear = !isOver && goal > 0 && current >= goal * 0.8;
-                const barColor = isOver
-                  ? "bg-[var(--error)]"
-                  : isNear
-                  ? "bg-[var(--warning)]"
-                  : isFocused && guidedFocus.length > 0
+                const barColor = isFocused && guidedFocus.length > 0
                   ? "bg-[var(--accent)]"
                   : "bg-[var(--muted)]";
-                const valColor = isOver
-                  ? "text-[var(--error)]"
-                  : isNear
-                  ? "text-[var(--warning)]"
-                  : "text-[var(--muted)]";
+                const valColor = "text-[var(--muted)]";
                 return (
                   <div
                     key={g.nutrientId}

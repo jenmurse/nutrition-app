@@ -1101,14 +1101,8 @@ const MealPlansPage = () => {
                           const pct = goal ? Math.min(Math.round((nutrient.value / goal) * 100), 100) : 0;
                           const isOverMax = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
                           const isWarn = nutrient.status === 'warning';
-                          const barColor = isOverMax || nutrient.status === 'error'
-                            ? 'bg-[var(--error)]'
-                            : isWarn
-                            ? 'bg-[var(--warning)]'
-                            : 'bg-[var(--accent)]';
-                          const valueColor = isOverMax || nutrient.status === 'error'
-                            ? 'text-[var(--error)]'
-                            : 'text-[var(--muted)]';
+                          const barColor = 'bg-[var(--accent)]';
+                          const valueColor = 'text-[var(--muted)]';
                           const unitSuffix = nutrient.displayName.toLowerCase() === 'calories' ? '' : ` ${nutrient.unit}`;
                           const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
                           return (
@@ -1135,8 +1129,9 @@ const MealPlansPage = () => {
                       return (
                         <div
                           key={n.nutrientId}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] rounded-[var(--radius-sm,4px)] px-[10px] py-[5px] mb-2 text-[var(--warning-text)]"
+                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[4px] flex items-center gap-[5px]"
                         >
+                          <span style={{ opacity: 0.55, fontSize: '0.85em' }}>{isAboveMax ? '⚠︎' : '⊖'}</span>
                           {isBelowMin
                             ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
                             : isAboveMax
