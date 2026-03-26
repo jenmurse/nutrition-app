@@ -65,7 +65,7 @@ export default function PreviewPage() {
       <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0 relative z-10" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)' }}>
         <span className="font-serif text-[16px] text-[var(--fg)] mr-6 tracking-[0.02em]">Course</span>
         <div className="flex items-center flex-1 gap-[2px]">
-          {["Ingredients", "Recipes", "Meal Plans", "Settings"].map((item, i) => (
+          {["Meal Plans", "Recipes", "Pantry"].map((item, i) => (
             <span
               key={item}
               className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[12px] py-[5px] rounded-[6px] whitespace-nowrap ${

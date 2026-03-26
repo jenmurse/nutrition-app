@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
+import { clientCache } from '@/lib/clientCache';
 
 interface Recipe {
   id: number;
@@ -67,6 +68,7 @@ interface MealPlanWeekProps {
   onToggleMealSelect?: (id: number) => void;
   otherPersonPlans?: { personId: number; planId: number; name: string }[];
   recipeCaloriesMap?: Record<number, number>;
+  onRefreshIngredients?: () => void;
 }
 
 const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
@@ -88,6 +90,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   onToggleMealSelect,
   otherPersonPlans = [],
   recipeCaloriesMap = {},
+  onRefreshIngredients,
 }) => {
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
     date: Date;
@@ -105,11 +108,38 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [ingredientSearchTerm, setIngredientSearchTerm] = useState('');
   const [pendingRecipeId, setPendingRecipeId] = useState<number | null>(null);
   const [pendingIngredientId, setPendingIngredientId] = useState<number | null>(null);
+  const [newFoodName, setNewFoodName] = useState('');
+  const [creatingFood, setCreatingFood] = useState(false);
   const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
 
   const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage'];
+
+  const handleCreateQuickFood = async () => {
+    if (!newFoodName.trim()) return;
+    setCreatingFood(true);
+    try {
+      const res = await fetch('/api/ingredients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newFoodName.trim(), isMealItem: true, defaultUnit: 'g' }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to create food');
+        return;
+      }
+      toast.success(`${newFoodName.trim()} added`);
+      setNewFoodName('');
+      clientCache.delete('/api/ingredients?slim=true');
+      onRefreshIngredients?.();
+    } catch {
+      toast.error('Failed to create food');
+    } finally {
+      setCreatingFood(false);
+    }
+  };
 
   const handleAddMealClick = (date: Date) => {
     setSelectedDate(date);
@@ -450,7 +480,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
-                  Ingredients
+                  Foods
                 </button>
               </div>
               <button
@@ -576,6 +606,25 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </>
               ) : (
                 <>
+                  {/* Inline quick food creation */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <input
+                      type="text"
+                      placeholder="New food name..."
+                      value={newFoodName}
+                      onChange={(e) => setNewFoodName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreateQuickFood()}
+                      className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] rounded-[6px] px-3 py-[6px] font-mono text-[11px] placeholder:text-[var(--placeholder)]"
+                      aria-label="New food name"
+                    />
+                    <button
+                      onClick={handleCreateQuickFood}
+                      disabled={creatingFood || !newFoodName.trim()}
+                      className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--accent)] bg-[var(--accent)] text-white px-[9px] py-[5px] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 whitespace-nowrap"
+                    >
+                      {creatingFood ? 'Adding...' : '+ New Food'}
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-3 border border-[var(--rule-faint)] rounded-[8px] px-4 py-3 mb-4">
                     <div className="flex-1 flex items-center gap-2 min-w-max">
                       <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="ingredient-search">
@@ -584,7 +633,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       <input
                         id="ingredient-search"
                         type="text"
-                        placeholder="Find ingredient..."
+                        placeholder="Find food..."
                         className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
                         value={ingredientSearchTerm}
                         onChange={(e) => setIngredientSearchTerm(e.target.value)}
@@ -623,8 +672,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     {ingredients.filter(ing =>
                       ing.isMealItem && ing.name.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
                     ).length === 0 ? (
-                      <div className="col-span-full border border-dashed border-[var(--rule-faint)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
-                        {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No meal items available' : 'No meal items match your search'}
+                      <div className="col-span-full border border-dashed border-[var(--rule-faint)] rounded-[8px] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                        {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No foods available' : 'No foods match your search'}
                       </div>
                     ) : (
                       ingredients.filter(ing =>

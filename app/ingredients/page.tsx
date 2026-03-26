@@ -117,6 +117,7 @@ function IngredientsPage() {
   const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients?slim=true'));
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
+  const [foodFilter, setFoodFilter] = useState<'all' | 'foods' | 'ingredients'>('all');
 
 
   const updateSearchParam = (key: string, value: string) => {
@@ -507,9 +508,12 @@ function IngredientsPage() {
     }
   };
 
-  const filteredIngredients = ingredients.filter((ing) =>
-    searchQuery ? ing.name.toLowerCase().includes(searchQuery.toLowerCase()) : true
-  );
+  const filteredIngredients = ingredients.filter((ing) => {
+    if (searchQuery && !ing.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (foodFilter === 'foods' && !ing.isMealItem) return false;
+    if (foodFilter === 'ingredients' && ing.isMealItem) return false;
+    return true;
+  });
 
   const refreshSelectedIngredient = async (id: number) => {
     // Instant render from cache if available
@@ -743,8 +747,8 @@ function IngredientsPage() {
           </div>
         )}
 
-        {/* Meal Item Checkbox */}
-        <div className="border border-[var(--rule)] rounded-[var(--radius-sm,4px)] p-4">
+        {/* Quick Food Checkbox */}
+        <div className="border border-[var(--rule-faint)] rounded-[8px] p-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -752,10 +756,10 @@ function IngredientsPage() {
               onChange={(e) => setIsMealItem(e.target.checked)}
               className="w-3 h-3 cursor-pointer"
             />
-            <span className="text-[11px] text-[var(--fg)]">This is a meal item</span>
+            <span className="text-[11px] text-[var(--fg)]">Available as a quick food</span>
           </label>
           <p className="text-[10px] text-[var(--muted)] mt-1 ml-5">
-            Check this for foods you eat directly (fish, apple, chicken) but not for recipe ingredients (flour, salt, butter)
+            Shows in meal plans as a standalone food — things you eat as-is like fruit, yogurt, drinks
           </p>
         </div>
 
@@ -856,7 +860,7 @@ function IngredientsPage() {
             <h2 className="font-serif text-[26px] text-[var(--fg)] leading-[1.2] mb-1">{ing.name}</h2>
             <p className="font-mono text-[10px] text-[var(--muted)]">
               {unitDisplay}
-              {ing.isMealItem ? " · Meal item" : ""}
+              {ing.isMealItem ? " · Quick food" : ""}
             </p>
           </div>
           <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
@@ -909,7 +913,7 @@ function IngredientsPage() {
         {/* List header */}
         <div className="px-6 pt-3 pb-3 shrink-0">
           <div className="flex items-baseline justify-between mb-3">
-            <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Ingredients</h1>
+            <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Pantry</h1>
             <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">
               {filteredIngredients.length}
             </span>
@@ -922,6 +926,24 @@ function IngredientsPage() {
               aria-label="Search ingredients"
               className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
             />
+          {/* Food filter */}
+          <div className="flex gap-[4px] mt-2">
+            {(['all', 'foods', 'ingredients'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFoodFilter(f)}
+                className={`font-mono text-[8px] uppercase tracking-[0.08em] px-[8px] py-[3px] rounded-full border transition-colors cursor-pointer ${
+                  foodFilter === f
+                    ? 'bg-[var(--bg-pill)] border-[var(--rule-strong)] text-[var(--fg)]'
+                    : 'bg-transparent border-[var(--rule-faint)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule)]'
+                }`}
+                aria-label={`Filter: ${f}`}
+                aria-pressed={foodFilter === f}
+              >
+                {f === 'all' ? 'All' : f === 'foods' ? 'Foods' : 'Ingredients'}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Scrollable list */}
@@ -930,7 +952,7 @@ function IngredientsPage() {
             <div className="py-8 text-center text-[11px] text-[var(--muted)]">Loading...</div>
           ) : filteredIngredients.length === 0 ? (
             <div className="py-8 px-4 text-center text-[11px] text-[var(--muted)]">
-              {ingredients.length === 0 ? 'No ingredients yet' : 'No matches'}
+              {ingredients.length === 0 ? 'No items yet' : 'No matches'}
             </div>
           ) : (
             filteredIngredients.map((ing) => {

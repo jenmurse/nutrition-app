@@ -1008,6 +1008,7 @@ const MealPlansPage = () => {
                 onToggleMealSelect={toggleSelectMeal}
                 otherPersonPlans={otherPersonPlans}
                 recipeCaloriesMap={selectedPlan.recipeCaloriesMap}
+                onRefreshIngredients={fetchIngredients}
               />
             </div>
 
