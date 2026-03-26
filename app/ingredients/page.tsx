@@ -995,7 +995,7 @@ function IngredientsPage() {
             {ingredients.length === 0 && (
               <button
                 onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
-                className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
+                className="bg-[var(--accent)] text-[var(--accent-text)] rounded-[6px] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
                 aria-label="Add first ingredient"
               >
                 + New Ingredient

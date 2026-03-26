@@ -565,7 +565,7 @@ function RecipesPage() {
             {recipes.length === 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); setSelectedRecipe(null); setEditMode(false); setEditRecipe(null); setCreateMode(true); setCreateImportedRecipe(null); setCreateImportUrl(''); setCreateImportError(''); }}
-                className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
+                className="bg-[var(--accent)] text-[var(--accent-text)] rounded-[6px] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
                 aria-label="Create first recipe"
               >
                 + New Recipe
