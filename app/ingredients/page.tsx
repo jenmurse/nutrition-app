@@ -905,9 +905,9 @@ function IngredientsPage() {
   return (
     <div className="flex h-full">
       {/* ── Left: List pane with integrated header ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '2px 0 10px rgba(0,0,0,0.04)' }}>
+      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' }}>
         {/* List header */}
-        <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
+        <div className="px-6 pt-3 pb-3 shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Ingredients</h1>
             <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">
@@ -966,7 +966,7 @@ function IngredientsPage() {
         <button
           onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
           aria-label="Create new ingredient"
-          className="shrink-0 w-full py-[10px] px-6 font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 border-t border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-none"
+          className="shrink-0 mx-[6px] mb-[6px] mt-[2px] py-[9px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-[7px]"
         >
           + New Ingredient
         </button>
@@ -1011,7 +1011,7 @@ function IngredientsPage() {
 
           {/* Context Panel — right pane with goals % bars */}
           {!editMode && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-2px 0 10px rgba(0,0,0,0.04)' }}>
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' }}>
               <IngredientContextPanel
                 nutrientValues={selectedIngredient.nutrientValues}
                 defaultUnit={selectedIngredient.defaultUnit}

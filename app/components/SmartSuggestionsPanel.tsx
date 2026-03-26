@@ -101,9 +101,9 @@ function ContributorWithSwaps({
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <div className="border border-[var(--rule)]">
+    <div className="rounded-[8px] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <button
-        className="w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors"
+        className="w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors rounded-[8px]"
         onClick={() => setExpanded(!expanded)}
       >
         <span className="text-[11px] truncate text-[var(--fg)]">{c.name}</span>
@@ -113,7 +113,7 @@ function ContributorWithSwaps({
         </span>
       </button>
       {expanded && swaps.length > 0 && (
-        <div className="border-t border-[var(--rule)] bg-[var(--bg-subtle)]">
+        <div className="bg-[var(--bg-subtle)] rounded-b-[8px]">
           <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)]">Swap for:</div>
           {swaps.map((swap) => {
             const saving = swap.savingAmounts[alert.nutrientId];
@@ -122,7 +122,7 @@ function ContributorWithSwaps({
               : swap.calorieDiff > 0 ? `+${swap.calorieDiff} cal`
               : `${swap.calorieDiff} cal`;
             return (
-              <div key={swap.recipeId} className="flex items-center justify-between px-3 py-[5px] border-t border-[var(--rule)]">
+              <div key={swap.recipeId} className="flex items-center justify-between px-3 py-[5px]">
                 <div>
                   <div className="font-sans text-[11px] text-[var(--fg)]">{swap.name}</div>
                   <div className="font-sans text-[10px] text-[var(--muted)]">
@@ -144,7 +144,7 @@ function ContributorWithSwaps({
         </div>
       )}
       {expanded && swaps.length === 0 && (
-        <div className="border-t border-[var(--rule)] px-3 py-[4px] font-sans text-[11px] text-[var(--muted)]">
+        <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)]">
           No swap candidates found
         </div>
       )}
@@ -279,12 +279,12 @@ export default function SmartSuggestionsPanel({
                       <div className="space-y-1">
                         <p className="font-sans text-[11px] text-[var(--muted)]">Swap to increase {deficit.displayName.toLowerCase()}:</p>
                         {swapOptions.map((opt) => (
-                          <div key={opt.mealLogId} className="border border-[var(--rule)]">
-                            <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)]">
+                          <div key={opt.mealLogId} className="rounded-[8px] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                            <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)] rounded-t-[8px]">
                               Instead of {opt.mealName}:
                             </div>
                             {opt.swaps.map((swap) => (
-                              <div key={swap.recipeId} className="flex items-center justify-between px-3 py-[5px] border-t border-[var(--rule)]">
+                              <div key={swap.recipeId} className="flex items-center justify-between px-3 py-[5px]">
                                 <div>
                                   <div className="font-sans text-[11px] text-[var(--fg)]">{swap.name}</div>
                                   <div className="font-sans text-[10px] text-[var(--muted)]">
@@ -324,7 +324,8 @@ export default function SmartSuggestionsPanel({
                 {analysis.fillGapCandidates.map((c) => (
                   <div
                     key={c.id}
-                    className="border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 flex items-center justify-between gap-3"
+                    className="rounded-[8px] bg-[var(--bg-raised)] px-3 py-2 flex items-center justify-between gap-3"
+                    style={{ boxShadow: 'var(--shadow-sm)' }}
                   >
                     <div className="min-w-0">
                       <div className="font-sans text-[11px] font-medium truncate text-[var(--fg)]">{c.name}</div>

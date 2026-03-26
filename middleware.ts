@@ -30,6 +30,7 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
+    request.nextUrl.pathname.startsWith("/preview") ||
     request.nextUrl.pathname.startsWith("/api/households/invite/info");
 
   if (!user && !isAuthRoute) {

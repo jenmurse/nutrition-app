@@ -276,9 +276,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   return (
     <>
       <div className="overflow-x-auto">
-        <div style={{ display: 'grid', gridTemplateColumns: '90px repeat(7, minmax(0, 1fr))', minWidth: 660 }} className="border-b border-[var(--rule)]">
+        <div style={{ display: 'grid', gridTemplateColumns: '90px repeat(7, minmax(0, 1fr))', minWidth: 660 }}>
           {/* Column headers */}
-          <div className="bg-[var(--bg-nav)] border-b border-r border-[var(--rule)] p-2" />
+          <div className="bg-[var(--bg-nav)] border-b border-r border-[var(--rule-faint)] p-2" />
           {days.map((day, dayIdx) => {
             const todayFlag = isToday(new Date(day.date));
             const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
@@ -287,7 +287,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             return (
               <div
                 key={`header-${day.date.toISOString()}`}
-                className={`border-b border-[var(--rule)] ${isLastCol ? '' : 'border-r'} p-2 text-center cursor-pointer transition-colors ${
+                className={`border-b border-[var(--rule-faint)] ${isLastCol ? '' : 'border-r'} p-2 text-center cursor-pointer transition-colors ${
                   isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[var(--bg-selected)]' : 'bg-[var(--bg-nav)]'
                 }`}
                 onClick={() => onDayClick?.(new Date(day.date))}
@@ -304,7 +304,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {availableMealTypes.map((mealType) => (
             <React.Fragment key={mealType}>
               {/* Row label */}
-              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule)] flex items-center px-[16px] py-1">
+              <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule-faint)] flex items-center px-[16px] py-1">
                 <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
               </div>
               {/* Day cells for this meal type */}
@@ -316,7 +316,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`${mealType}-${day.date.toISOString()}`}
-                    className={`border-b border-[var(--rule)] ${isLastCol ? '' : 'border-r'} p-1 flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[36px] ${
+                    className={`border-b border-[var(--rule-faint)] ${isLastCol ? '' : 'border-r'} p-1 flex flex-col gap-[3px] cursor-pointer transition-colors min-h-[48px] ${
                       isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
                     } hover:bg-[var(--bg-subtle)]`}
                     onClick={() => onDayClick?.(new Date(day.date))}
@@ -324,8 +324,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     {mealsOfType.map((meal) => (
                       <div
                         key={meal.id}
-                        className={`bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] p-[4px_6px] transition-colors ${
-                          editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--error-light)] border-[var(--error)]' : ''
+                        className={`bg-[var(--bg-raised)] rounded-[6px] p-[4px_6px] transition-colors ${
+                          editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--error-light)]' : ''
                         }`}
                         style={{ boxShadow: 'var(--shadow-sm)' }}
                         onClick={(e) => {
@@ -360,7 +360,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {/* + ADD row at bottom */}
           {!editMode && (
             <>
-              <div className="bg-[var(--bg-nav)] border-r border-[var(--rule)]" />
+              <div className="bg-[var(--bg-nav)] border-r border-[var(--rule-faint)]" />
               {days.map((day, dayIdx) => {
                 const todayFlag = isToday(new Date(day.date));
                 const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
@@ -368,7 +368,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 return (
                   <div
                     key={`add-${day.date.toISOString()}`}
-                    className={`border-[var(--rule)] ${isLastCol ? '' : 'border-r'} flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] ${
+                    className={`border-[var(--rule-faint)] ${isLastCol ? '' : 'border-r'} flex items-center justify-center p-[6px] cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] ${
                       isSelected ? 'bg-[var(--accent-light)]' : todayFlag ? 'bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]' : ''
                     }`}
                     onClick={(e) => {
@@ -378,7 +378,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     role="button"
                     aria-label={`Add meal on ${day.dayOfWeek}`}
                   >
-                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] opacity-70 hover:opacity-100 transition-opacity">+ ADD</span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] bg-[var(--bg-subtle)] px-[8px] py-[3px] rounded-[6px] hover:text-[var(--fg)] transition-colors">+ ADD</span>
                   </div>
                 );
               })}
@@ -393,7 +393,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             className="w-full max-w-lg bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] p-6 my-4 animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[var(--rule)] pb-3 mb-4">
+            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] pb-3 mb-4">
               <h3 className="font-sans text-[14px] font-medium text-[var(--fg)]">Select meal type</h3>
               <button
                 className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition"
@@ -411,7 +411,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 <button
                   key={mealType}
                   type="button"
-                  className="border border-[var(--rule)] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition-colors duration-150 ease-out hover:bg-[var(--bg-subtle)]"
+                  className="border border-[var(--rule-faint)] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition-colors duration-150 ease-out hover:bg-[var(--bg-subtle)]"
                   onClick={() => handleSelectMealType(mealType)}
                 >
                   {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
@@ -428,7 +428,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             className="w-full max-w-2xl max-h-[90vh] bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] flex flex-col animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[var(--rule)] p-6 shrink-0">
+            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] p-6 shrink-0">
               <div className="flex gap-4">
                 <button
                   onClick={() => setItemTypeTabOpen('recipe')}
@@ -467,7 +467,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               {itemTypeTabOpen === 'recipe' ? (
                 <>
                   {/* Search + servings controls */}
-                  <div className="flex flex-wrap items-center gap-3 border border-[var(--rule)] px-4 py-3 mb-3">
+                  <div className="flex flex-wrap items-center gap-3 border border-[var(--rule-faint)] px-4 py-3 mb-3">
                     <div className="flex-1 flex items-center gap-2 min-w-[180px]">
                       <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="recipe-search">
                         Search
@@ -476,7 +476,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         id="recipe-search"
                         type="text"
                         placeholder="Find recipe..."
-                        className="flex-1 border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
                         value={recipeSearchTerm}
                         onChange={(e) => setRecipeSearchTerm(e.target.value)}
                         aria-label="Search recipes"
@@ -491,7 +491,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         type="number"
                         min={0.25}
                         step={0.25}
-                        className="w-20 border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="w-20 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
                         value={selectedServings}
                         onChange={(e) => setSelectedServings(e.target.value)}
                       />
@@ -507,7 +507,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         className={`text-[9px] font-mono uppercase tracking-[0.1em] px-[8px] py-[3px] border transition-colors ${
                           recipeFilterTags.includes(tag)
                             ? 'border-[var(--fg)] text-[var(--fg)] bg-[var(--bg-selected)]'
-                            : 'border-[var(--rule)] text-[var(--muted)] hover:border-[var(--rule-strong)]'
+                            : 'border-[var(--rule-faint)] text-[var(--muted)] hover:border-[var(--rule-strong)]'
                         }`}
                         onClick={() =>
                           setRecipeFilterTags((prev) =>
@@ -531,7 +531,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
                   <div className="grid gap-3 md:grid-cols-2">
                     {filteredRecipes.length === 0 ? (
-                      <div className="col-span-full border border-dashed border-[var(--rule)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                      <div className="col-span-full border border-dashed border-[var(--rule-faint)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
                         No recipes match this meal type
                       </div>
                     ) : (
@@ -544,7 +544,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                               ? 'cursor-not-allowed border-[var(--error)] opacity-50 text-[var(--muted)]'
                               : pendingRecipeId === recipe.id
                               ? 'border-[var(--fg)] bg-[var(--bg-subtle)]'
-                              : 'border-[var(--rule)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
+                              : 'border-[var(--rule-faint)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
                           }`}
                           onClick={
                             addingMealLoading || !recipe.isComplete
@@ -574,7 +574,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </>
               ) : (
                 <>
-                  <div className="flex flex-wrap gap-3 border border-[var(--rule)] px-4 py-3 mb-4">
+                  <div className="flex flex-wrap gap-3 border border-[var(--rule-faint)] px-4 py-3 mb-4">
                     <div className="flex-1 flex items-center gap-2 min-w-max">
                       <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="ingredient-search">
                         Search
@@ -583,7 +583,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         id="ingredient-search"
                         type="text"
                         placeholder="Find ingredient..."
-                        className="flex-1 border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
                         value={ingredientSearchTerm}
                         onChange={(e) => setIngredientSearchTerm(e.target.value)}
                       />
@@ -597,7 +597,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         type="number"
                         min={0.01}
                         step={0.1}
-                        className="w-20 border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="w-20 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
                         value={selectedQuantity}
                         onChange={(e) => setSelectedQuantity(e.target.value)}
                       />
@@ -609,7 +609,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       <input
                         id="ingredient-unit"
                         type="text"
-                        className="w-20 border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="w-20 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
                         value={selectedUnit}
                         onChange={(e) => setSelectedUnit(e.target.value)}
                         placeholder="g, ml, etc."
@@ -621,7 +621,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     {ingredients.filter(ing =>
                       ing.isMealItem && ing.name.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
                     ).length === 0 ? (
-                      <div className="col-span-full border border-dashed border-[var(--rule)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                      <div className="col-span-full border border-dashed border-[var(--rule-faint)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
                         {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No meal items available' : 'No meal items match your search'}
                       </div>
                     ) : (
@@ -642,7 +642,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           className={`border px-3 py-2 text-left transition ${
                             pendingIngredientId === ingredient.id
                               ? 'border-[var(--fg)] bg-[var(--bg-subtle)]'
-                              : 'border-[var(--rule)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
+                              : 'border-[var(--rule-faint)] hover:border-[var(--fg)] hover:bg-[var(--bg-subtle)]'
                           }`}
                         >
                           <div className="text-[12px] font-medium text-[var(--fg)]">
@@ -661,7 +661,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule)] p-6 shrink-0">
+            <div className="border-t border-[var(--rule-faint)] p-6 shrink-0">
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
                 <div className="mb-4">
@@ -691,7 +691,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
               <div className="flex gap-3 justify-end">
                 <button
-                  className="text-[9px] font-mono uppercase tracking-[0.1em] border border-[var(--rule)] px-5 py-[7px] text-[var(--muted)] hover:text-[var(--fg)] transition"
+                  className="text-[9px] font-mono uppercase tracking-[0.1em] border border-[var(--rule-faint)] px-5 py-[7px] text-[var(--muted)] hover:text-[var(--fg)] transition"
                   onClick={() => {
                     setItemTypeTabOpen(null);
                     setSelectedDayMeal(null);

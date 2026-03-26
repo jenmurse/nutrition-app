@@ -17,8 +17,8 @@ export default function TopNav() {
   const { persons, selectedPerson, setSelectedPersonId } = usePersonContext();
   const supabase = createClient();
 
-  // Hide nav on login page
-  if (pathname === "/login") return null;
+  // Hide nav on login and preview pages
+  if (pathname === "/login" || pathname === "/preview") return null;
 
   const handleSignOut = async () => {
     localStorage.removeItem("selectedPersonId");
@@ -27,24 +27,24 @@ export default function TopNav() {
   };
 
   return (
-    <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0" style={{ boxShadow: '0 1px 0 var(--rule), 0 2px 12px rgba(0,0,0,0.04)' }} role="navigation" aria-label="Main navigation">
+    <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0 relative z-10" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)' }} role="navigation" aria-label="Main navigation">
       {/* Brand */}
       <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em]">
         Course
       </Link>
 
       {/* Nav links */}
-      <div className="flex items-center flex-1">
+      <div className="flex items-center flex-1 gap-[2px]">
         {navItems.map((item) => {
           const isActive = pathname?.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[14px] h-[52px] flex items-center no-underline border-b-2 border-t-2 border-t-transparent box-border transition-[color,border-color] duration-[120ms] ease-in-out whitespace-nowrap ${
+              className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[12px] py-[5px] rounded-[6px] no-underline transition-[color,background] duration-[120ms] ease-in-out whitespace-nowrap ${
                 isActive
-                  ? "text-[var(--fg)] border-b-[var(--accent)]"
-                  : "text-[var(--muted)] border-b-transparent hover:text-[var(--fg)]"
+                  ? "text-[var(--fg)] bg-[var(--accent-light)]"
+                  : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
               }`}
             >
               {item.label}
@@ -83,7 +83,7 @@ export default function TopNav() {
 
         <button
           onClick={handleSignOut}
-          className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[52px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+          className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer rounded-[6px] hover:bg-[rgba(0,0,0,0.03)]"
           aria-label="Sign out"
         >
           Sign out

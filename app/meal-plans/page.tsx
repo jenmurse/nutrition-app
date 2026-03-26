@@ -778,10 +778,10 @@ const MealPlansPage = () => {
               onClick={() => setSummaryPanelOpen(o => !o)}
               aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
               aria-expanded={summaryPanelOpen}
-              className={`font-mono text-[8px] uppercase tracking-[0.1em] px-[9px] py-[3px] border transition-colors shrink-0 mr-2 ${
+              className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer shrink-0 mr-4 ${
                 summaryPanelOpen
-                  ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-light)]'
-                  : 'border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)]'
+                  ? 'text-[var(--accent)] bg-[var(--accent-light)]'
+                  : 'text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]'
               }`}
             >
               {summaryPanelOpen ? 'Nutrition ›' : '‹ Nutrition'}
@@ -819,10 +819,9 @@ const MealPlansPage = () => {
                         setSelectedPersonId(p.id);
                       }
                     }}
-                    className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
-                      isActive ? 'text-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                    className={`flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
+                      isActive ? 'text-[var(--fg)] bg-[var(--accent-light)]' : 'text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]'
                     }`}
-                    style={isActive ? { borderBottomColor: p.color || 'var(--accent)' } : undefined}
                     aria-pressed={isActive}
                   >
                     <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ background: p.color || 'var(--accent)' }} aria-hidden="true" />
@@ -832,8 +831,8 @@ const MealPlansPage = () => {
               })}
               <button
                 onClick={() => setViewMode('both')}
-                className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 h-[46px] transition-colors border-b-2 ${
-                  viewMode === 'both' ? 'text-[var(--fg)] border-[var(--fg)]' : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
+                  viewMode === 'both' ? 'text-[var(--fg)] bg-[var(--bg-subtle)]' : 'text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]'
                 }`}
                 aria-pressed={viewMode === 'both'}
               >Everyone</button>
@@ -1052,7 +1051,7 @@ const MealPlansPage = () => {
                     style={{
                       width: summaryPanelOpen ? 380 : 0,
                       minWidth: summaryPanelOpen ? 380 : 0,
-                      boxShadow: summaryPanelOpen ? '-2px 0 10px rgba(0,0,0,0.04)' : 'none',
+                      boxShadow: summaryPanelOpen ? '-1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' : 'none',
                     }}
                   >
                   {/* Summary header — matches shared header height */}

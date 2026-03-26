@@ -93,7 +93,7 @@ function LoginPage() {
 
         {/* Invite banner */}
         {inviteHousehold && (
-          <div className="mb-6 p-3 border border-[var(--accent)] bg-[var(--accent-light)] rounded-[var(--radius-sm,4px)]" role="status" aria-live="polite">
+          <div className="mb-6 p-3 bg-[var(--accent-light)] rounded-[8px]" style={{ boxShadow: 'var(--shadow-sm)' }} role="status" aria-live="polite">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--fg)]">
               You&apos;ve been invited to join <strong>{inviteHousehold}</strong>
             </p>
@@ -101,15 +101,14 @@ function LoginPage() {
         )}
 
         {/* Mode tabs */}
-        <div className="flex gap-0 mb-6 border-b border-[var(--rule)]">
+        <div className="flex gap-[2px] mb-6">
           <button
             type="button"
             onClick={() => setMode("signin")}
-            style={{ borderRadius: 0 }}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-[6px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
               mode === "signin"
-                ? "border-[var(--accent)] text-[var(--fg)]"
-                : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
+                ? "bg-[var(--accent-light)] text-[var(--fg)]"
+                : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
             }`}
             aria-label="Switch to sign in"
           >
@@ -118,11 +117,10 @@ function LoginPage() {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            style={{ borderRadius: 0 }}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-[6px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
               mode === "signup"
-                ? "border-[var(--accent)] text-[var(--fg)]"
-                : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
+                ? "bg-[var(--accent-light)] text-[var(--fg)]"
+                : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
             }`}
             aria-label="Switch to create account"
           >

@@ -354,8 +354,8 @@ function RecipesPage() {
     <div className="h-full flex animate-fade-in" onClick={() => { if (!editMode && !createMode) setSelectedRecipe(null); }}>
 
       {/* ── Left: List pane ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '2px 0 10px rgba(0,0,0,0.04)' }} onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
+      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 pt-3 pb-3 shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Recipes</h1>
             <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">{filteredRecipes.length}</span>
@@ -415,7 +415,7 @@ function RecipesPage() {
         <button
           onClick={() => { setSelectedRecipe(null); setEditMode(false); setEditRecipe(null); setCreateMode(true); setCreateImportedRecipe(null); setCreateImportUrl(""); setCreateImportError(""); }}
           aria-label="Create new recipe"
-          className="shrink-0 w-full py-[10px] px-6 font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 border-t border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-none"
+          className="shrink-0 mx-[6px] mb-[6px] mt-[2px] py-[9px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-[7px]"
         >+ New Recipe</button>
       </div>
 
@@ -642,11 +642,9 @@ function RecipesPage() {
                     });
                     return (
                       <div className="mb-5">
-                        <div className="grid grid-cols-4 bg-[var(--bg-raised)] rounded-[var(--radius,12px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-md)' }}>
-                          {gridNutrients.map((n, i) => (
-                            <div key={n.label} className={`py-[14px] px-3 text-center ${
-                              i % 4 !== 3 ? "border-r border-[var(--rule)]" : ""
-                            } ${i < 4 ? "border-b border-[var(--rule)]" : ""}`}>
+                        <div className="grid grid-cols-4 gap-[1px] bg-[var(--rule)] rounded-[var(--radius,12px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-md)' }}>
+                          {gridNutrients.map((n) => (
+                            <div key={n.label} className="py-[14px] px-3 text-center bg-[var(--bg-raised)]">
                               <div className="font-serif text-[22px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>
                               <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
                             </div>
@@ -661,7 +659,7 @@ function RecipesPage() {
                     <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
                     {selectedRecipe.ingredients.map((ing, idx) => (
                       <div key={ing.id}
-                        className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                        className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}
                         <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
                         <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
                       </div>
@@ -682,7 +680,7 @@ function RecipesPage() {
           </div>
 
           {!selectedRecipeLoading && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-2px 0 10px rgba(0,0,0,0.04)' }} onClick={(e) => e.stopPropagation()}>
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' }} onClick={(e) => e.stopPropagation()}>
               <RecipeContextPanel
                 recipeId={selectedRecipe.id}
                 totals={selectedRecipe.totals || []}
