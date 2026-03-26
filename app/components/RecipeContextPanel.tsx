@@ -120,7 +120,7 @@ export default function RecipeContextPanel({
             onClick={() => setActiveTab(tab.key)}
             className={`px-[10px] py-[5px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
               activeTab === tab.key
-                ? "text-[var(--fg)] bg-[var(--bg-subtle)]"
+                ? "text-[var(--fg)] bg-[var(--bg-pill)]"
                 : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
             }`}
             aria-label={`${tab.label} tab`}

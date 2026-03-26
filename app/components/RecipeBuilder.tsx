@@ -434,14 +434,14 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               <button
                 type="button"
                 onClick={() => imageFileRef.current?.click()}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+                className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
               >
                 Upload file
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="w-16 h-16 overflow-hidden border border-[var(--rule)] shrink-0">
+              <div className="w-16 h-16 overflow-hidden rounded-[6px] border border-[var(--rule-faint)] shrink-0">
                 <img src={image} alt="Recipe preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
               <div className="min-w-0">
@@ -631,11 +631,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     }}
                   />
                   {showDropdown[row.id] && currentSearch && (
-                    <div className="absolute z-10 w-full mt-1 border border-[var(--rule)] bg-[var(--bg)] max-h-48 overflow-auto">
+                    <div className="absolute z-10 w-full mt-1 rounded-[8px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] max-h-48 overflow-auto" style={{ boxShadow: 'var(--shadow-md)' }}>
                       {/* Show "Create new" option if search doesn't exactly match any ingredient */}
                       {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
                         <div
-                          className="px-3 py-2 hover:bg-[var(--rule)] cursor-pointer text-[12px] border-b border-[var(--rule)] text-[var(--fg)] font-medium"
+                          className="px-3 py-2 hover:bg-[var(--bg-subtle)] cursor-pointer text-[12px] border-b border-[var(--rule-faint)] text-[var(--fg)] font-medium first:rounded-t-[8px]"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             createIngredient(currentSearch, row.id);

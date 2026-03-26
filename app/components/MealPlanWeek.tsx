@@ -378,7 +378,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     role="button"
                     aria-label={`Add meal on ${day.dayOfWeek}`}
                   >
-                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] bg-[var(--bg-subtle)] px-[8px] py-[3px] rounded-[6px] hover:text-[var(--fg)] transition-colors">+ ADD</span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] bg-[var(--bg-raised)] border border-[var(--rule)] px-[8px] py-[3px] rounded-[6px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors">+ Add</span>
                   </div>
                 );
               })}

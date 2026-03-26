@@ -712,7 +712,7 @@ const MealPlansPage = () => {
 
         {/* This Week */}
         <button
-          className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+          className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
           onClick={() => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -739,7 +739,7 @@ const MealPlansPage = () => {
 
         {/* + New Plan */}
         <button
-          className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--accent)] bg-[var(--accent)] text-white px-[9px] py-[3px] hover:bg-[var(--accent-hover)] transition-colors shrink-0"
+          className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--accent)] bg-[var(--accent)] text-white px-[9px] py-[3px] hover:bg-[var(--accent-hover)] transition-colors shrink-0"
           onClick={() => {
             setPlanJustCreated(false);
             const params = new URLSearchParams(searchParams?.toString());
@@ -751,7 +751,7 @@ const MealPlansPage = () => {
         {/* Edit mode controls */}
         {selectedPlan && viewMode === 'personal' && !editMode && (
           <button
-            className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] transition-colors shrink-0"
+            className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
             onClick={() => setEditMode(true)}
           >Edit</button>
         )}
@@ -759,12 +759,12 @@ const MealPlansPage = () => {
           <>
             <span className="font-mono text-[9px] text-[var(--muted)] shrink-0">{selectedMealIds.size} sel</span>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--error)] text-[var(--error)] px-[9px] py-[3px] disabled:opacity-40 transition-colors shrink-0"
+              className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--error)] text-[var(--error)] px-[9px] py-[3px] disabled:opacity-40 hover:bg-[var(--error-light)] transition-colors shrink-0"
               disabled={selectedMealIds.size === 0}
               onClick={handleDeleteSelected}
             >Delete</button>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] transition-colors shrink-0"
+              className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] px-[9px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
               onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
             >Done</button>
           </>
@@ -780,7 +780,7 @@ const MealPlansPage = () => {
               aria-expanded={summaryPanelOpen}
               className={`font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer shrink-0 mr-4 ${
                 summaryPanelOpen
-                  ? 'text-[var(--accent)] bg-[var(--accent-light)]'
+                  ? 'text-[var(--fg)] bg-[var(--bg-pill)]'
                   : 'text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]'
               }`}
             >
@@ -1129,14 +1129,16 @@ const MealPlansPage = () => {
                       return (
                         <div
                           key={n.nutrientId}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[4px] flex items-center gap-[5px]"
+                          className="font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--fg)] mb-[6px] flex items-center gap-[6px]"
                         >
-                          <span style={{ opacity: 0.55, fontSize: '0.85em' }}>{isAboveMax ? '⚠︎' : '⊖'}</span>
+                          <span className={`text-[13px] leading-none ${isAboveMax ? 'text-[var(--error)]' : 'text-[var(--warning)]'}`} aria-hidden="true">{isAboveMax ? '▲' : '▽'}</span>
+                          <span className="text-[var(--muted)]">
                           {isBelowMin
                             ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
                             : isAboveMax
                             ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
                             : `${n.displayName} outside target`}
+                          </span>
                         </div>
                       );
                     })}
@@ -1194,7 +1196,7 @@ const MealPlansPage = () => {
               </div>
               {mealPlans.length === 0 && (
                 <button
-                  className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors"
+                  className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] border-0 hover:bg-[var(--accent-hover)] transition-colors cursor-pointer"
                   onClick={() => {
                     const params = new URLSearchParams(searchParams?.toString());
                     params.set("showForm", "true");

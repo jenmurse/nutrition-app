@@ -207,7 +207,7 @@ function LoginPage() {
         <button
           type="button"
           onClick={handleGoogle}
-          className="w-full border border-[var(--rule)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors rounded-[var(--radius-sm,4px)]"
+          className="w-full border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
         >
           Continue with Google
         </button>

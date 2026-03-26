@@ -422,10 +422,10 @@ function RecipesPage() {
       {/* ── Center + right ── */}
       {createMode ? (
         <div className="flex-1 flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-          <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
+          <div className="px-6 pt-5 pb-4 shrink-0 flex items-start justify-between">
             <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight">New Recipe</h2>
             <div className="flex items-center gap-3">
-              <button className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:bg-[var(--accent-hover)] cursor-pointer transition-colors"
+              <button className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 rounded-[6px] hover:bg-[var(--accent-hover)] cursor-pointer transition-colors"
                 onClick={() => createBuilderRef.current?.save()}>
                 Create
               </button>
@@ -592,7 +592,7 @@ function RecipesPage() {
                         Edit
                       </button>
                       <button onClick={() => handleDuplicate(selectedRecipe.id)}
-                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors rounded-[var(--radius-sm,4px)]"
+                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors rounded-[6px]"
                         aria-label="Duplicate recipe">
                         Duplicate
                       </button>

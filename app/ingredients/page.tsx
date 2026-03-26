@@ -588,11 +588,11 @@ function IngredientsPage() {
     return (
     <div className="flex-1 flex flex-col overflow-hidden animate-fade-in">
       {/* Sticky header with title + actions */}
-      <div className="px-6 pt-5 pb-4 border-b border-[var(--rule)] shrink-0 flex items-start justify-between">
+      <div className="px-6 pt-5 pb-4 shrink-0 flex items-start justify-between">
         <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight">{title}</h1>
         <div className="flex items-center gap-3">
           <button
-            className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 cursor-pointer disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+            className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 rounded-[6px] cursor-pointer disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
             onClick={onSave}
             disabled={saving}
             aria-label={saveLabel}

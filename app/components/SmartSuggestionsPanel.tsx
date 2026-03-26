@@ -101,9 +101,9 @@ function ContributorWithSwaps({
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <div className="rounded-[8px] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
+    <div className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <button
-        className="w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors rounded-[8px]"
+        className={`w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors border-0 cursor-pointer bg-transparent ${expanded ? '' : 'rounded-[8px]'}`}
         onClick={() => setExpanded(!expanded)}
       >
         <span className="text-[11px] truncate text-[var(--fg)]">{c.name}</span>
@@ -113,7 +113,7 @@ function ContributorWithSwaps({
         </span>
       </button>
       {expanded && swaps.length > 0 && (
-        <div className="bg-[var(--bg-subtle)] rounded-b-[8px]">
+        <div className="bg-[var(--bg-subtle)]">
           <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)]">Swap for:</div>
           {swaps.map((swap) => {
             const saving = swap.savingAmounts[alert.nutrientId];
@@ -131,7 +131,7 @@ function ContributorWithSwaps({
                 </div>
                 {onSwapMeal && (
                   <button
-                    className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--accent)] px-2 py-[2px] hover:bg-[var(--accent-light)] transition-colors shrink-0 ml-2"
+                    className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
                     onClick={(e) => { e.stopPropagation(); onSwapMeal(c.mealLogId, swap.recipeId); }}
                     aria-label={`Swap ${c.name} for ${swap.name}`}
                   >
@@ -215,8 +215,8 @@ export default function SmartSuggestionsPanel({
 
           {analysis.overBudget.length > 0 && (
             <div className="space-y-4 mt-6">
-              <div className="text-[11px] font-medium text-[var(--fg)] flex items-center gap-[5px]">
-                <span style={{ opacity: 0.5, fontSize: '0.8em' }}>⚠︎</span> Over Allocation
+              <div className="text-[12px] font-medium text-[var(--fg)] flex items-center gap-[6px]">
+                <span className="text-[var(--error)] text-[13px] leading-none" aria-hidden="true">▲</span> Over Allocation
               </div>
 
               {analysis.overBudget.map((alert) => {
@@ -260,8 +260,8 @@ export default function SmartSuggestionsPanel({
           ---------------------------------------------------------------- */}
           {analysis.underBudget && analysis.underBudget.length > 0 && (
             <div className="space-y-4 mt-6">
-              <div className="text-[11px] font-medium text-[var(--fg)] flex items-center gap-[5px]">
-                <span style={{ opacity: 0.5, fontSize: '0.8em' }}>⊖</span> Below minimum
+              <div className="text-[12px] font-medium text-[var(--fg)] flex items-center gap-[6px]">
+                <span className="text-[var(--warning)] text-[13px] leading-none" aria-hidden="true">▽</span> Below minimum
               </div>
 
               {analysis.underBudget.map((deficit) => {
@@ -279,8 +279,8 @@ export default function SmartSuggestionsPanel({
                       <div className="space-y-1">
                         <p className="font-sans text-[11px] text-[var(--muted)]">Swap to increase {deficit.displayName.toLowerCase()}:</p>
                         {swapOptions.map((opt) => (
-                          <div key={opt.mealLogId} className="rounded-[8px] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                            <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)] rounded-t-[8px]">
+                          <div key={opt.mealLogId} className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                            <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)]">
                               Instead of {opt.mealName}:
                             </div>
                             {opt.swaps.map((swap) => (
@@ -293,7 +293,7 @@ export default function SmartSuggestionsPanel({
                                 </div>
                                 {onSwapMeal && (
                                   <button
-                                    className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--accent)] px-2 py-[2px] hover:bg-[var(--accent-light)] transition-colors shrink-0 ml-2"
+                                    className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
                                     onClick={() => onSwapMeal(opt.mealLogId, swap.recipeId)}
                                     aria-label={`Swap ${opt.mealName} for ${swap.name}`}
                                   >
@@ -333,7 +333,7 @@ export default function SmartSuggestionsPanel({
                     </div>
                     {onAddMeal && (
                       <button
-                        className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--accent)] px-2 py-[3px] hover:bg-[var(--accent-light)] transition-colors shrink-0"
+                        className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[3px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
                         onClick={() => onAddMeal(c.id)}
                         aria-label={`Add ${c.name}`}
                       >

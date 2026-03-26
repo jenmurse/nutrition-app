@@ -10,6 +10,7 @@
     --bg-nav: #F5F2EE;
     --bg-raised: #FFFEFB;
     --bg-subtle: #F0ECE5;
+    --bg-pill: #E8E3DA;
     --bg-selected: #E3F0E8;
     --mid: #4A4035;
     --muted: #8A7E72;
@@ -88,6 +89,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #DDE8E0;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -103,6 +105,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #F5DCDE;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -119,6 +122,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #F3D4E0;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -135,6 +139,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #EDDCE0;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -151,6 +156,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #F2DDD7;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -167,6 +173,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #ECDCE8;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -182,6 +189,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #EDDCE2;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -197,6 +205,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #EDDCE9;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -212,6 +221,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #E8E8D5;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -227,6 +237,7 @@
     --bg-nav: #F3F0EC;
     --bg-raised: #FDFCFA;
     --bg-subtle: #EEEBE6;
+    --bg-pill: #E5E0D9;
     --bg-selected: #E4E0DC;
     --rule: #DDD6CC;
     --muted: #887A6E;
@@ -242,6 +253,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D8DDE8;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -257,6 +269,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D5E5DC;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -272,6 +285,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D5E5E5;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -287,6 +301,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #DED6EC;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -302,6 +317,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D8DEE6;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -317,6 +333,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #DCD8E6;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -332,6 +349,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D8DCE8;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -347,6 +365,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D5E2EA;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -362,6 +381,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #DCDDEA;
     --rule: #DCDCE0;
     --muted: #888892;
@@ -377,6 +397,7 @@
     --bg-nav: #F1F1F3;
     --bg-raised: #FBFBFC;
     --bg-subtle: #EAEAED;
+    --bg-pill: #E0E0E5;
     --bg-selected: #D8DEE3;
     --rule: #DCDCE0;
     --muted: #888892;
