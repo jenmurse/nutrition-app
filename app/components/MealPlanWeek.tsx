@@ -360,7 +360,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {/* + ADD row at bottom */}
           {!editMode && (
             <>
-              <div className="bg-[var(--bg-nav)]" />
+              <div />
               {days.map((day, dayIdx) => {
                 const todayFlag = isToday(new Date(day.date));
                 const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();

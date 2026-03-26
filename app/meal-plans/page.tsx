@@ -162,7 +162,7 @@ function BothView({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="flex-1 overflow-y-auto px-7 py-5">
+    <div className="flex-1 overflow-y-auto px-6 py-5">
       <div className="grid" style={{ gridTemplateColumns: `76px repeat(${persons.length}, 1fr)` }}>
         {/* Header row */}
         <div className="border-b border-[var(--rule-faint)] py-3" />
