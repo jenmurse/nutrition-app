@@ -377,8 +377,8 @@ function RecipesPage() {
                 aria-pressed={selectedTags.includes(tag)}
                 className={`py-[2px] px-[8px] font-mono text-[9px] tracking-[0.04em] uppercase rounded-full cursor-pointer transition-colors border-0 ${
                   selectedTags.includes(tag)
-                    ? 'bg-[var(--accent)] text-[var(--accent-text)]'
-                    : 'bg-[var(--bg-subtle)] text-[var(--muted)] hover:text-[var(--fg)]'
+                    ? 'bg-[var(--accent-light)] text-[var(--accent)]'
+                    : 'bg-[var(--bg-pill)] text-[var(--muted)] hover:text-[var(--fg)]'
                 }`}
               >{tag}</button>
             ))}

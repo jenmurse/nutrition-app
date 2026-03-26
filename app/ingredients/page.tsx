@@ -932,10 +932,10 @@ function IngredientsPage() {
               <button
                 key={f}
                 onClick={() => setFoodFilter(f)}
-                className={`font-mono text-[8px] uppercase tracking-[0.08em] px-[8px] py-[3px] rounded-full border transition-colors cursor-pointer ${
+                className={`font-mono text-[8px] uppercase tracking-[0.08em] px-[8px] py-[3px] rounded-full border-0 transition-colors cursor-pointer ${
                   foodFilter === f
-                    ? 'bg-[var(--bg-pill)] border-[var(--rule-strong)] text-[var(--fg)]'
-                    : 'bg-transparent border-[var(--rule-faint)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule)]'
+                    ? 'bg-[var(--accent-light)] text-[var(--accent)]'
+                    : 'bg-[var(--bg-pill)] text-[var(--muted)] hover:text-[var(--fg)]'
                 }`}
                 aria-label={`Filter: ${f}`}
                 aria-pressed={foodFilter === f}

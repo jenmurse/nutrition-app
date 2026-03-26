@@ -534,10 +534,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       <button
                         key={tag}
                         type="button"
-                        className={`text-[9px] font-mono uppercase tracking-[0.1em] px-[8px] py-[3px] border transition-colors ${
+                        className={`text-[9px] font-mono uppercase tracking-[0.1em] px-[8px] py-[3px] rounded-full border-0 transition-colors ${
                           recipeFilterTags.includes(tag)
-                            ? 'border-[var(--fg)] text-[var(--fg)] bg-[var(--bg-selected)]'
-                            : 'border-[var(--rule-faint)] text-[var(--muted)] hover:border-[var(--rule-strong)]'
+                            ? 'bg-[var(--accent-light)] text-[var(--accent)]'
+                            : 'bg-[var(--bg-pill)] text-[var(--muted)] hover:text-[var(--fg)]'
                         }`}
                         onClick={() =>
                           setRecipeFilterTags((prev) =>
