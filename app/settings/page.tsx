@@ -126,11 +126,11 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
   };
 
   return (
-    <div className="border-b border-[var(--rule)]">
+    <div className="border-b border-[var(--rule-faint)]">
       {/* Row header */}
       <button
         onClick={onToggle}
-        className={`w-full flex items-center justify-between px-7 py-[11px] transition-colors bg-transparent border-0 cursor-pointer text-left ${isExpanded ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}
+        className={`w-full flex items-center justify-between px-7 py-[11px] rounded-[8px] transition-colors bg-transparent border-0 cursor-pointer text-left ${isExpanded ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}
         aria-expanded={isExpanded}
         aria-label={`${person.name} — click to ${isExpanded ? 'collapse' : 'expand'}`}
       >
@@ -142,7 +142,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
           />
           <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
           {role && (
-            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px] rounded-[var(--radius-sm,4px)]">
+            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">
               {role}
             </span>
           )}
@@ -154,17 +154,17 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
 
       {/* Expanded panel */}
       {isExpanded && (
-        <div className="border-t border-[var(--rule)] bg-[var(--bg-subtle)]">
+        <div className="border-t border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-b-[8px]">
 
           {/* Name + actions on one row */}
-          <div className="px-7 py-[10px] flex items-center gap-4 border-b border-[var(--rule)]">
+          <div className="px-7 py-[10px] flex items-center gap-4 border-b border-[var(--rule-faint)]">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] shrink-0">Name</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-sans text-[13px] bg-transparent text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
+                className="border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-sans text-[13px] bg-transparent text-[var(--fg)] w-[160px] rounded-none focus:outline-none focus:border-[var(--accent)]"
                 aria-label="Member name"
               />
             </div>
@@ -172,7 +172,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
               <button
                 onClick={handleSave}
                 disabled={saving || !name.trim()}
-                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
                 aria-label="Save changes"
               >
                 {saving ? 'Saving…' : 'Save'}
@@ -211,7 +211,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
               nutrients.map((nutrient) => (
                 <div
                   key={nutrient.id}
-                  className="flex items-center gap-4 py-[7px] border-b border-[var(--rule)] last:border-0"
+                  className="flex items-center gap-4 py-[7px] border-b border-[var(--rule-faint)] last:border-0"
                 >
                   <div className="flex-1 min-w-0">
                     <span className="font-sans text-[12px] text-[var(--fg)]">{nutrient.displayName}</span>
@@ -225,7 +225,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
                       value={goals[nutrient.id]?.lowGoal ?? ''}
                       onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
                       step="0.1"
-                      className="w-[52px] border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                      className="w-[52px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
                       aria-label={`${nutrient.displayName} minimum`}
                     />
                   </div>
@@ -237,7 +237,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
                       value={goals[nutrient.id]?.highGoal ?? ''}
                       onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
                       step="0.1"
-                      className="w-[52px] border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                      className="w-[52px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
                       aria-label={`${nutrient.displayName} maximum`}
                     />
                   </div>
@@ -260,6 +260,7 @@ const SettingsPage = () => {
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
   const [savingThemeId, setSavingThemeId] = useState<number | null>(null);
+  const [themeOpenPersonId, setThemeOpenPersonId] = useState<number | null>(null);
   const [settingsTab, setSettingsTab] = useState<'household' | 'ai' | 'mcp' | 'data'>('household');
 
   // Household info — seed from localStorage so name appears instantly
@@ -625,7 +626,7 @@ const SettingsPage = () => {
         <div className="mb-8">
 
           {/* Household name row */}
-          <div className="py-[10px] border-b border-[var(--rule)]">
+          <div className="py-[10px] border-b border-[var(--rule-faint)]">
             <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household name</div>
             {editingHouseholdName ? (
               <div className="flex items-center gap-2">
@@ -638,13 +639,13 @@ const SettingsPage = () => {
                     if (e.key === 'Escape') setEditingHouseholdName(false);
                   }}
                   autoFocus
-                  className="bg-[var(--bg-subtle)] border border-[var(--rule)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] max-w-[240px] focus:outline-none focus:border-[var(--accent)]"
+                  className="bg-[var(--bg-subtle)] border border-[var(--rule-faint)] rounded-[6px] px-3 py-2 font-sans text-[13px] text-[var(--fg)] max-w-[240px] focus:outline-none focus:border-[var(--accent)]"
                   aria-label="Household name"
                 />
                 <button
                   onClick={handleSaveHouseholdName}
                   disabled={householdNameSaving || !householdNameDraft.trim()}
-                  className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                  className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
                 >
                   {householdNameSaving ? 'Saving…' : 'Save'}
                 </button>
@@ -660,7 +661,7 @@ const SettingsPage = () => {
                 <span className="font-sans text-[15px] font-medium text-[var(--fg)]">{householdName || '…'}</span>
                 <button
                   onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
-                  className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                  className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] rounded-[6px] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
                   aria-label="Edit household name"
                 >
                   Edit
@@ -669,15 +670,17 @@ const SettingsPage = () => {
             )}
           </div>
 
-          {/* Member rows with always-visible color swatches */}
+          {/* Member rows with collapsible color palette */}
           {persons.map((person) => {
             const initial = (person.name || '?').charAt(0).toUpperCase();
             const role = memberRoles[person.id];
             const isSaving = savingThemeId === person.id;
+            const activeTheme = THEMES.find((t) => t.name === (person.theme || 'sage'));
+            const isThemeOpen = themeOpenPersonId === person.id;
             return (
-              <div key={person.id} className="py-[12px] border-b border-[var(--rule)]">
-                {/* Top row: avatar + name + role badge */}
-                <div className="flex items-center gap-3 mb-[10px]">
+              <div key={person.id} className="py-[12px] border-b border-[var(--rule-faint)]">
+                {/* Top row: avatar + name + role badge + theme indicator */}
+                <div className="flex items-center gap-3">
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white shrink-0"
                     style={{ background: person.color || 'var(--accent)' }}
@@ -688,46 +691,63 @@ const SettingsPage = () => {
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-[12px] text-[var(--fg)] font-medium">{person.name}</span>
                     {role && (
-                      <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px]">{role}</span>
+                      <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">{role}</span>
                     )}
                   </div>
+                  {/* Theme swatch indicator — click to toggle palette */}
+                  <button
+                    onClick={() => setThemeOpenPersonId(isThemeOpen ? null : person.id)}
+                    className="flex items-center gap-[6px] px-[8px] py-[4px] rounded-[6px] border-0 bg-transparent hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                    aria-label={`${isThemeOpen ? 'Hide' : 'Show'} color palette for ${person.name}`}
+                    aria-expanded={isThemeOpen}
+                  >
+                    <span
+                      className="w-[14px] h-[14px] rounded-full shrink-0"
+                      style={{ background: activeTheme?.hex || 'var(--accent)' }}
+                      aria-hidden="true"
+                    />
+                    <span className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{activeTheme?.label || 'Sage'}</span>
+                    <span className="text-[var(--muted)] text-[9px] select-none" aria-hidden="true">{isThemeOpen ? '▾' : '▸'}</span>
+                  </button>
                   {role !== 'owner' && (
                     <button
                       onClick={() => {/* remove handled by PersonRow */}}
-                      className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
+                      className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] rounded-[6px] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
                     >
                       Remove
                     </button>
                   )}
                 </div>
-                {/* Swatch strip — always visible */}
-                <div className="flex flex-wrap gap-[6px] pl-[36px]">
-                  {THEMES.map((t) => {
-                    const isActive = (person.theme || 'sage') === t.name;
-                    return (
-                      <button
-                        key={t.name}
-                        onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
-                        disabled={isSaving}
-                        title={t.label}
-                        className="w-[18px] h-[18px] rounded-full flex items-center justify-center border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-110"
-                        style={{
-                          background: t.hex,
-                          outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
-                          outlineOffset: '2px',
-                        }}
-                        aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
-                        aria-pressed={isActive}
-                      >
-                        {isActive && (
-                          <svg width="8" height="6" viewBox="0 0 8 6" fill="none" aria-hidden="true">
-                            <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                {/* Swatch strip — only visible when expanded */}
+                {isThemeOpen && (
+                  <div className="flex flex-wrap gap-[6px] pl-[40px] mt-[10px] pt-[10px] border-t border-[var(--rule-faint)]">
+                    {THEMES.map((t) => {
+                      const isActive = (person.theme || 'sage') === t.name;
+                      return (
+                        <button
+                          key={t.name}
+                          onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
+                          disabled={isSaving}
+                          title={t.label}
+                          className="w-[18px] h-[18px] rounded-full flex items-center justify-center border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-110"
+                          style={{
+                            background: t.hex,
+                            outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
+                            outlineOffset: '2px',
+                          }}
+                          aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
+                          aria-pressed={isActive}
+                        >
+                          {isActive && (
+                            <svg width="8" height="6" viewBox="0 0 8 6" fill="none" aria-hidden="true">
+                              <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -737,7 +757,7 @@ const SettingsPage = () => {
             {!addingPerson ? (
               <button
                 onClick={() => setAddingPerson(true)}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule)] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors"
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule-faint)] rounded-[6px] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors"
                 aria-label="Add a household member"
               >
                 + Add member
@@ -754,13 +774,13 @@ const SettingsPage = () => {
                   }}
                   placeholder="Name"
                   autoFocus
-                  className="bg-[var(--bg-subtle)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
+                  className="bg-[var(--bg-subtle)] border border-[var(--rule-faint)] rounded-[6px] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
                   aria-label="New member name"
                 />
                 <button
                   onClick={handleAddPerson}
                   disabled={!newName.trim() || addSaving}
-                  className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                  className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
                 >
                   {addSaving ? 'Adding…' : 'Add'}
                 </button>
@@ -775,7 +795,7 @@ const SettingsPage = () => {
             <button
               onClick={handleInvite}
               disabled={inviting}
-              className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule)] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors disabled:opacity-40"
+              className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule-faint)] rounded-[6px] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors disabled:opacity-40"
               aria-label="Generate invite link"
             >
               {inviting ? 'Generating…' : 'Invite member'}
@@ -785,8 +805,8 @@ const SettingsPage = () => {
           {/* ── INVITES (directly under add/invite buttons) ── */}
           {invites.length > 0 && (
             <div className="mt-4">
-              <div className="border border-[var(--rule)]">
-                <div className="grid grid-cols-[1fr_60px_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
+              <div className="border border-[var(--rule-faint)] rounded-[8px] overflow-hidden">
+                <div className="grid grid-cols-[1fr_60px_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule-faint)]">
                   {['Invite URL', '', 'Status', 'Created', 'Redeemed'].map((h, i) => (
                     <span key={i} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
                   ))}
@@ -795,7 +815,7 @@ const SettingsPage = () => {
                   const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
                   const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
                   return (
-                    <div key={inv.id} className="grid grid-cols-[1fr_60px_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule)] last:border-b-0 items-center">
+                    <div key={inv.id} className="grid grid-cols-[1fr_60px_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule-faint)] last:border-b-0 items-center">
                       <span className="font-mono text-[10px] text-[var(--fg)] truncate min-w-0" title={inv.url}>
                         {inv.url.replace(/^https?:\/\//, '')}
                       </span>
@@ -803,7 +823,7 @@ const SettingsPage = () => {
                         {status === 'active' && (
                           <button
                             onClick={() => handleCopyInvite(inv.url, inv.token)}
-                            className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule)] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer"
+                            className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule-faint)] rounded-[5px] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer"
                             aria-label="Copy invite link"
                           >
                             {copiedToken === inv.token ? 'Copied!' : 'Copy'}
@@ -858,7 +878,7 @@ const SettingsPage = () => {
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">AI API Key</div>
               {!editingApiKey ? (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule)] bg-[var(--bg-subtle)] min-w-[220px]">
+                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule-faint)] rounded-[8px] bg-[var(--bg-subtle)] min-w-[220px]">
                     {hasApiKey ? (
                       <>
                         <span className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0" aria-hidden="true" />
@@ -874,7 +894,7 @@ const SettingsPage = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => { setEditingApiKey(true); setNewApiKeyValue(''); }}
-                      className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors"
+                      className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors"
                       aria-label={hasApiKey ? 'Change API key' : 'Add API key'}
                     >
                       {hasApiKey ? 'Change' : 'Add Key'}
@@ -902,14 +922,14 @@ const SettingsPage = () => {
                     }}
                     placeholder="sk-ant-…"
                     autoFocus
-                    className="bg-[var(--bg)] border border-[var(--rule)] px-3 py-[9px] font-mono text-[12px] text-[var(--fg)] w-full max-w-[400px] focus:outline-none focus:border-[var(--accent)]"
+                    className="bg-[var(--bg)] border border-[var(--rule-faint)] rounded-[6px] px-3 py-[9px] font-mono text-[12px] text-[var(--fg)] w-full max-w-[400px] focus:outline-none focus:border-[var(--accent)]"
                     aria-label="AI API key"
                   />
                   <div className="flex items-center gap-3">
                     <button
                       onClick={handleSaveApiKey}
                       disabled={!newApiKeyValue.trim() || apiSaving}
-                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
                     >
                       {apiSaving ? 'Saving…' : 'Save Key'}
                     </button>
@@ -932,7 +952,7 @@ const SettingsPage = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={loadUsage}
-                    className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule)] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer"
+                    className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule-faint)] rounded-[5px] hover:border-[var(--rule-strong)] transition-colors bg-transparent cursor-pointer"
                     aria-label="Refresh usage stats"
                   >
                     Refresh
@@ -954,7 +974,7 @@ const SettingsPage = () => {
               ) : !usage || usage.callCount === 0 ? (
                 <div className="text-[11px] text-[var(--muted)] italic">No usage recorded yet.</div>
               ) : (
-                <div className="grid grid-cols-2 gap-[1px] border border-[var(--rule)] bg-[var(--rule)] max-w-[380px]">
+                <div className="grid grid-cols-2 gap-[1px] border border-[var(--rule-faint)] bg-[var(--rule-faint)] rounded-[8px] overflow-hidden max-w-[380px]">
                   {[
                     { label: 'API calls', value: usage.callCount.toLocaleString() },
                     { label: 'Est. cost', value: `$${usage.estimatedCostUsd.toFixed(4)}` },
@@ -984,7 +1004,7 @@ const SettingsPage = () => {
               </p>
               {newMcpToken ? (
                 <div className="space-y-3">
-                  <div className="border border-[var(--accent)] bg-[var(--bg-subtle)] px-4 py-3">
+                  <div className="border border-[var(--accent)] bg-[var(--bg-subtle)] rounded-[8px] px-4 py-3">
                     <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] mb-2">
                       Copy this token now — it won't be shown again
                     </div>
@@ -1008,7 +1028,7 @@ const SettingsPage = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule)] bg-[var(--bg-subtle)] min-w-[220px]">
+                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule-faint)] rounded-[8px] bg-[var(--bg-subtle)] min-w-[220px]">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--accent)]' : 'bg-[var(--muted)]'}`} aria-hidden="true" />
                     <span className="font-mono text-[11px] text-[var(--muted)]">
                       {hasMcpToken ? 'Token active' : 'No token'}
@@ -1017,7 +1037,7 @@ const SettingsPage = () => {
                   <button
                     onClick={handleGenerateMcpToken}
                     disabled={mcpTokenLoading}
-                    className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                    className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
                     aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
                   >
                     {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate token'}
@@ -1047,7 +1067,7 @@ const SettingsPage = () => {
                     <p className="font-mono text-[11px] text-[var(--fg)]">
                       Build the MCP server from the <code className="bg-[var(--bg-subtle)] px-1">mcp/</code> folder:
                     </p>
-                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
+                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)]">cd mcp && npm install && npm run build</pre>
                     </div>
                   </div>
@@ -1062,7 +1082,7 @@ const SettingsPage = () => {
                       <div><span className="text-[var(--fg)]">Mac</span> — ~/Library/Application Support/Claude/claude_desktop_config.json</div>
                       <div><span className="text-[var(--fg)]">Win</span> — %APPDATA%\Claude\claude_desktop_config.json</div>
                     </div>
-                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
+                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
   "mcpServers": {
     "course": {
@@ -1087,7 +1107,7 @@ const SettingsPage = () => {
                     <p className="font-mono text-[11px] text-[var(--fg)]">
                       Restart your AI assistant and test it:
                     </p>
-                    <div className="border border-[var(--rule)] bg-[var(--bg-subtle)] px-3 py-2">
+                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
                       <p className="font-mono text-[10px] text-[var(--muted)] italic">"Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
                     </div>
                   </div>
@@ -1113,7 +1133,7 @@ const SettingsPage = () => {
               <button
                 onClick={handleExport}
                 disabled={exportLoading}
-                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
+                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] text-[var(--fg)] hover:border-[var(--rule-strong)] bg-transparent cursor-pointer transition-colors disabled:opacity-40"
                 aria-label="Export household data"
               >
                 {exportLoading ? 'Exporting…' : 'Export data'}
@@ -1129,7 +1149,7 @@ const SettingsPage = () => {
               </p>
               <label
                 htmlFor="import-file"
-                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
                 aria-label="Select backup file"
               >
                 {importFile ? importFile.name : 'Choose backup file'}
@@ -1150,7 +1170,7 @@ const SettingsPage = () => {
                   <button
                     onClick={handleImport}
                     disabled={importLoading}
-                    className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                    className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
                     aria-label="Restore from backup"
                   >
                     {importLoading ? 'Importing…' : 'Restore'}
@@ -1165,7 +1185,7 @@ const SettingsPage = () => {
               )}
               {importResult && (
                 <div
-                  className={`mt-4 px-4 py-3 font-sans text-[12px] border ${
+                  className={`mt-4 px-4 py-3 font-sans text-[12px] rounded-[8px] border ${
                     importResult.ok
                       ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
                       : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
