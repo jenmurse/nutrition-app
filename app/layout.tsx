@@ -38,8 +38,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className="antialiased" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${dmMono.variable} ${dmSerifDisplay.variable} font-sans h-screen overflow-hidden`}>
+        {/* FOUC prevention: apply stored theme synchronously before React hydration */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}` }} />
         <PersonProvider>
           <NumberInputHandler />
           <Toaster />

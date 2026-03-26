@@ -31,7 +31,8 @@ model Person {
   supabaseId   String?  @unique // Supabase auth UUID — null for legacy/migration
   email        String?
   name         String
-  color        String   @default("#6B9E7B")
+  color        String   @default("#5C9169")
+  theme        String   @default("sage")
   createdAt    DateTime @default(now())
 
   mealPlans            MealPlan[]

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
+import { THEMES, themeHex } from '@/lib/themes';
 
 interface Nutrient {
   id: number;
@@ -34,17 +35,19 @@ interface Invite {
 // ─── Household section ──────────────────────────────────────────────────────
 
 interface PersonRowProps {
-  person: { id: number; name: string; color: string };
+  person: { id: number; name: string; color: string; theme: string };
   role?: string;
   nutrients: Nutrient[];
   isExpanded: boolean;
   onToggle: () => void;
   onSaved: () => void;
   canDelete: boolean;
+  isSelectedPerson: boolean;
 }
 
-function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete }: PersonRowProps) {
+function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete, isSelectedPerson }: PersonRowProps) {
   const [name, setName] = useState(person.name);
+  const [theme, setTheme] = useState(person.theme || 'sage');
   const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
   const [goalsLoaded, setGoalsLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -72,8 +75,9 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
   // Reset local state when person changes
   useEffect(() => {
     setName(person.name);
+    setTheme(person.theme || 'sage');
     setGoalsLoaded(false);
-  }, [person.id, person.name]);
+  }, [person.id, person.name, person.theme]);
 
   const handleGoalChange = (nutrientId: number, field: 'lowGoal' | 'highGoal', value: string) => {
     setGoals((prev) => ({
@@ -88,12 +92,17 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Update name if changed
-      if (name.trim() && name.trim() !== person.name) {
+      // Update name/theme if changed
+      const nameChanged = name.trim() && name.trim() !== person.name;
+      const themeChanged = theme !== (person.theme || 'sage');
+      if (nameChanged || themeChanged) {
+        const body: Record<string, string> = {};
+        if (nameChanged) body.name = name.trim();
+        if (themeChanged) body.theme = theme;
         await fetch(`/api/persons/${person.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name.trim() }),
+          body: JSON.stringify(body),
         });
       }
       // Save goals
@@ -154,6 +163,48 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
       {/* Expanded panel */}
       {isExpanded && (
         <div className="border-t border-[var(--rule)] bg-[var(--bg-subtle)]">
+
+          {/* Theme palette */}
+          <div className="px-7 py-[10px] border-b border-[var(--rule)]">
+            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[10px]">Palette</div>
+            <div className="flex flex-wrap gap-[10px]">
+              {THEMES.map((t) => {
+                const isActive = theme === t.name;
+                return (
+                  <button
+                    key={t.name}
+                    onClick={() => {
+                      setTheme(t.name);
+                      if (isSelectedPerson) {
+                        document.documentElement.dataset.theme = t.name;
+                      }
+                    }}
+                    className="flex flex-col items-center gap-[4px] bg-transparent border-0 cursor-pointer p-0"
+                    aria-label={`${t.label} theme${isActive ? ' (active)' : ''}`}
+                    aria-pressed={isActive}
+                  >
+                    <span
+                      className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        background: t.hex,
+                        outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
+                        outlineOffset: '2px',
+                      }}
+                    >
+                      {isActive && (
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                          <path d="M1 3.5L4 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </span>
+                    <span className="font-mono text-[7px] uppercase tracking-[0.06em] text-[var(--muted)]" style={{ lineHeight: 1 }}>
+                      {t.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Name + actions on one row */}
           <div className="px-7 py-[10px] flex items-center gap-4 border-b border-[var(--rule)]">
@@ -254,7 +305,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
 // ─── Main page ───────────────────────────────────────────────────────────────
 
 const SettingsPage = () => {
-  const { persons, refreshPersons } = usePersonContext();
+  const { persons, selectedPersonId, refreshPersons } = usePersonContext();
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
@@ -790,6 +841,7 @@ const SettingsPage = () => {
               onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
               onSaved={handlePersonSaved}
               canDelete={persons.length > 1}
+              isSelectedPerson={person.id === selectedPersonId}
             />
           ))}
         </div>

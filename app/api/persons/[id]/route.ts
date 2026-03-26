@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAuthenticatedHousehold } from "@/lib/auth";
+import { themeHex } from "@/lib/themes";
 
 export async function PUT(
   request: Request,
@@ -35,6 +36,11 @@ export async function PUT(
 
   if (body.color !== undefined) {
     data.color = body.color;
+  }
+
+  if (body.theme !== undefined) {
+    data.theme = body.theme;
+    data.color = themeHex(body.theme);
   }
 
   if (Object.keys(data).length === 0) {

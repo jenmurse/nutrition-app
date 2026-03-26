@@ -6,6 +6,7 @@ export interface Person {
   id: number;
   name: string;
   color: string;
+  theme: string;
 }
 
 interface PersonContextValue {
@@ -28,6 +29,11 @@ export function usePersonContext() {
   return useContext(PersonContext);
 }
 
+function applyTheme(theme: string) {
+  document.documentElement.dataset.theme = theme || 'sage';
+  localStorage.setItem('theme', theme || 'sage');
+}
+
 export function PersonProvider({ children }: { children: ReactNode }) {
   const [persons, setPersons] = useState<Person[]>([]);
   const [selectedPersonId, setSelectedPersonIdState] = useState<number | null>(null);
@@ -43,12 +49,18 @@ export function PersonProvider({ children }: { children: ReactNode }) {
       // Restore saved person selection if valid, otherwise default to current user
       const saved = localStorage.getItem("selectedPersonId");
       const savedId = saved ? Number(saved) : null;
+      let resolvedId: number | null = null;
       if (savedId && data.some((p) => p.id === savedId)) {
-        setSelectedPersonIdState(savedId);
+        resolvedId = savedId;
       } else if (currentPersonId && data.some((p) => p.id === currentPersonId)) {
-        setSelectedPersonIdState(currentPersonId);
+        resolvedId = currentPersonId;
       } else if (data.length > 0) {
-        setSelectedPersonIdState(data[0].id);
+        resolvedId = data[0].id;
+      }
+      if (resolvedId !== null) {
+        setSelectedPersonIdState(resolvedId);
+        const person = data.find(p => p.id === resolvedId);
+        if (person) applyTheme(person.theme);
       }
     }
   };
@@ -60,6 +72,8 @@ export function PersonProvider({ children }: { children: ReactNode }) {
   const setSelectedPersonId = (id: number) => {
     setSelectedPersonIdState(id);
     localStorage.setItem("selectedPersonId", String(id));
+    const person = persons.find(p => p.id === id);
+    if (person) applyTheme(person.theme);
   };
 
   const selectedPerson = persons.find((p) => p.id === selectedPersonId) ?? null;
