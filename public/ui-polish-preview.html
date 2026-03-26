@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course — UI Polish Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design tokens (current / default) ──────────────────────────────── */
+    :root {
+      --fg: #1C1812;
+      --bg: #FAF8F5;
+      --bg-nav: #F5F2EE;
+      --bg-raised: #FFFEFB;
+      --bg-subtle: #F0ECE5;
+      --bg-selected: #E3F0E8;
+      --mid: #4A4035;
+      --muted: #8A7E72;
+      --placeholder: #BDB4A8;
+      --rule: #E5DDD0;
+      --rule-strong: #CFC3B2;
+      --accent: #5C9169;
+      --accent-hover: #4D7D5A;
+      --accent-light: #E8F0EA;
+      --accent-text: #FFFFFF;
+      --error: #DC2626;
+      --error-light: #FEE2E2;
+      --sans: 'DM Sans', sans-serif;
+      --mono: 'DM Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: #EFEDE9;
+      color: var(--fg);
+      padding: 40px 32px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .page-title {
+      font-family: var(--sans);
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      color: var(--fg);
+      margin-bottom: 6px;
+    }
+    .page-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 48px;
+    }
+
+    /* ── Section layout ──────────────────────────────────────────────────── */
+    .section {
+      margin-bottom: 64px;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .compare-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .compare-label.before { color: #C0B0A0; }
+    .compare-label.after  { color: var(--accent); }
+
+    /* ── Shared panel shell ──────────────────────────────────────────────── */
+    .panel {
+      background: var(--bg-nav);
+      overflow: hidden;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 1 — Border radius + shadows on cards
+    ════════════════════════════════════════════════════════════════════════ */
+
+    /* BEFORE card */
+    .card-before {
+      background: var(--bg-raised);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 20px 22px;
+    }
+    /* AFTER card */
+    .card-after {
+      background: var(--bg-raised);
+      border-radius: 14px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.05),
+        0 2px 8px rgba(0,0,0,0.08),
+        0 8px 20px rgba(92,145,105,0.07);
+      padding: 20px 22px;
+      transition: box-shadow 150ms ease-out;
+    }
+    .card-after:hover {
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.06),
+        0 4px 14px rgba(0,0,0,0.10),
+        0 12px 28px rgba(92,145,105,0.10);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 14px;
+    }
+    .macro-row { margin-bottom: 12px; }
+    .macro-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+    .macro-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .macro-value {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: var(--fg);
+    }
+    .bar-track {
+      height: 4px;
+      background: var(--bg-subtle);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: var(--accent);
+    }
+
+    /* Calorie hero — before */
+    .hero-before .hero-num {
+      font-size: 38px;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+      color: var(--fg);
+      line-height: 1;
+    }
+    /* Calorie hero — after */
+    .hero-after .hero-num {
+      font-size: 38px;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .hero-sub {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+      margin-bottom: 16px;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 2 — Inputs: 0px → 7px radius + focus ring
+    ════════════════════════════════════════════════════════════════════════ */
+    .input-before {
+      width: 100%;
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      background: var(--bg-subtle);
+      padding: 8px 10px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--fg);
+      outline: none;
+    }
+    .input-before:focus {
+      border-color: var(--accent);
+    }
+    .input-after {
+      width: 100%;
+      border: 1px solid var(--rule);
+      border-radius: 7px;
+      background: var(--bg-subtle);
+      padding: 8px 10px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--fg);
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .input-after:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(92,145,105,0.18);
+    }
+
+    /* Buttons — before */
+    .btn-before-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 0;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-before-outline {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    /* Buttons — after */
+    .btn-after-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 120ms ease, transform 150ms cubic-bezier(0.23,1,0.32,1), box-shadow 150ms ease;
+    }
+    .btn-after-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 2px 8px rgba(92,145,105,0.35);
+    }
+    .btn-after-primary:active { transform: scale(0.96); }
+
+    .btn-after-outline {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--rule);
+      border-radius: 7px;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    .btn-after-outline:hover {
+      color: var(--fg);
+      border-color: var(--rule-strong);
+      background: var(--bg-subtle);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 3 — List items: flush + dividers → inset pills + accent rail
+    ════════════════════════════════════════════════════════════════════════ */
+    .list-panel {
+      background: var(--bg-nav);
+      width: 200px;
+      border-radius: 10px;
+      overflow: hidden;
+      padding: 8px 0;
+    }
+    /* Before list */
+    .list-item-before {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .list-item-before.selected { background: var(--bg-selected); }
+    .list-item-before:hover:not(.selected) { background: var(--bg-subtle); }
+
+    /* After list */
+    .list-item-after {
+      margin: 1px 6px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      font-size: 13px;
+      cursor: pointer;
+      position: relative;
+      transition: background 80ms ease;
+    }
+    .list-item-after.selected {
+      background: var(--bg-selected);
+      padding-left: 14px;
+    }
+    .list-item-after.selected::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      bottom: 25%;
+      width: 3px;
+      border-radius: 100px;
+      background: var(--accent);
+    }
+    .list-item-after:hover:not(.selected) { background: var(--bg-subtle); }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 4 — Tab bar: underline → pill background
+    ════════════════════════════════════════════════════════════════════════ */
+    .tabs-panel {
+      background: var(--bg-nav);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* Before tabs */
+    .tab-bar-before {
+      display: flex;
+      border-bottom: 1px solid var(--rule);
+      padding: 0 16px;
+      gap: 4px;
+    }
+    .tab-before {
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab-before.active {
+      color: var(--fg);
+      border-bottom-color: var(--accent);
+    }
+
+    /* After tabs */
+    .tab-bar-after {
+      display: flex;
+      padding: 8px 10px 0;
+      gap: 2px;
+    }
+    .tab-after {
+      padding: 6px 12px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 120ms ease, color 120ms ease;
+    }
+    .tab-after.active {
+      background: var(--bg-subtle);
+      color: var(--fg);
+    }
+    .tab-after:hover:not(.active) {
+      color: var(--fg);
+      background: rgba(0,0,0,0.03);
+    }
+    .tab-content {
+      padding: 14px 16px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 5 — Tag pills: 2px → rounded-full
+    ════════════════════════════════════════════════════════════════════════ */
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag-before {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 2px 5px;
+      border-radius: 2px;
+    }
+    .tag-after {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 6 — TopNav: hard border → shadow fade
+    ════════════════════════════════════════════════════════════════════════ */
+    .nav-mock {
+      background: var(--bg-nav);
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 24px;
+      border-radius: 10px;
+    }
+    .nav-before { border-bottom: 1px solid var(--rule); border-radius: 10px 10px 0 0; }
+    .nav-after  {
+      box-shadow: 0 1px 0 var(--rule), 0 2px 12px rgba(0,0,0,0.04);
+      border-radius: 10px 10px 0 0;
+    }
+    .nav-brand {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: var(--fg);
+    }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+    }
+    .nav-link.active { color: var(--fg); border-bottom-color: var(--accent); }
+    .nav-dot {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-left: auto;
+      opacity: 0.9;
+    }
+    .nav-dot-after {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-left: auto;
+      opacity: 0.9;
+      box-shadow: 0 0 0 2px var(--bg-nav), 0 0 0 4px var(--accent);
+    }
+    .nav-sub { background: var(--bg-raised); height: 40px; padding: 0 20px; display: flex; align-items: center; border-radius: 0 0 10px 10px; }
+    .nav-sub span { font-size: 12px; color: var(--muted); }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 7 — Pane dividers: hard border → shadow
+    ════════════════════════════════════════════════════════════════════════ */
+    .three-pane {
+      display: grid;
+      grid-template-columns: 180px 1fr 140px;
+      height: 180px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .pane-left-before {
+      background: var(--bg-nav);
+      border-right: 1px solid var(--rule);
+      padding: 10px;
+    }
+    .pane-left-after {
+      background: var(--bg-nav);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      padding: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .pane-center {
+      background: var(--bg);
+      padding: 14px;
+    }
+    .pane-right-before {
+      background: var(--bg-nav);
+      border-left: 1px solid var(--rule);
+      padding: 10px;
+    }
+    .pane-right-after {
+      background: var(--bg-nav);
+      box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+      padding: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .pane-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CHANGE 8 — Full composite: three-pane app feel
+    ════════════════════════════════════════════════════════════════════════ */
+    .app-frame {
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .app-nav {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 20px;
+      background: var(--bg-nav);
+    }
+    .app-nav-before { border-bottom: 1px solid var(--rule); }
+    .app-nav-after  { box-shadow: 0 1px 0 var(--rule), 0 2px 12px rgba(0,0,0,0.04); }
+
+    .app-body {
+      display: grid;
+      grid-template-columns: 180px 1fr 160px;
+      height: 280px;
+    }
+
+    /* Before panes */
+    .app-left-before {
+      background: var(--bg-nav);
+      border-right: 1px solid var(--rule);
+      padding: 6px 0;
+    }
+    .app-right-before {
+      background: var(--bg-nav);
+      border-left: 1px solid var(--rule);
+      padding: 10px 12px;
+    }
+    /* After panes */
+    .app-left-after {
+      background: var(--bg-nav);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      padding: 6px 0;
+      position: relative;
+      z-index: 1;
+    }
+    .app-right-after {
+      background: var(--bg-nav);
+      box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+      padding: 10px 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-center { padding: 16px 20px; }
+
+    /* List items in composite */
+    .li-before {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .li-before.sel { background: var(--bg-selected); }
+
+    .li-after {
+      margin: 1px 5px;
+      padding: 8px 9px;
+      border-radius: 7px;
+      font-size: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 80ms ease;
+    }
+    .li-after.sel {
+      background: var(--bg-selected);
+      padding-left: 13px;
+    }
+    .li-after.sel::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 22%;
+      bottom: 22%;
+      width: 3px;
+      border-radius: 100px;
+      background: var(--accent);
+    }
+
+    /* Right panel tabs in composite */
+    .rp-tabs-before {
+      display: flex;
+      border-bottom: 1px solid var(--rule);
+      margin: -10px -12px 10px;
+      padding: 0 10px;
+    }
+    .rp-tab-before {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 8px;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .rp-tab-before.active { color: var(--fg); border-bottom-color: var(--accent); }
+
+    .rp-tabs-after {
+      display: flex;
+      gap: 2px;
+      margin: -10px -12px 8px;
+      padding: 6px 6px 0;
+    }
+    .rp-tab-after {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 7px;
+      color: var(--muted);
+      border-radius: 5px;
+      transition: background 100ms ease, color 100ms ease;
+    }
+    .rp-tab-after.active { background: var(--bg-subtle); color: var(--fg); }
+
+    /* Center card in composite */
+    .recipe-card-before {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      background: var(--bg-raised);
+    }
+    .recipe-card-after {
+      border-radius: 12px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.07), 0 6px 16px rgba(92,145,105,0.05);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      background: var(--bg-raised);
+      transition: box-shadow 150ms ease;
+    }
+    .recipe-card-after:hover {
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.09), 0 10px 24px rgba(92,145,105,0.08);
+    }
+
+    .recipe-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .recipe-tags-before { display: flex; gap: 4px; margin-bottom: 8px; }
+    .recipe-tags-after  { display: flex; gap: 4px; margin-bottom: 8px; }
+    .rt-before { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); padding: 1px 4px; border-radius: 2px; }
+    .rt-after  { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); padding: 2px 7px; border-radius: 100px; }
+
+    .recipe-meta { font-size: 11px; color: var(--muted); }
+
+    /* hero num in composite */
+    .hero-before-small { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--fg); line-height: 1; }
+    .hero-after-small  { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--accent); line-height: 1; }
+    .hero-label { font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 3px 0 10px; }
+
+    .bar-sm { height: 3px; background: var(--bg-subtle); border-radius: 100px; overflow: hidden; margin-bottom: 6px; }
+    .bar-sm-fill { height: 100%; border-radius: 100px; background: var(--accent); }
+
+    /* ── Misc ──────────────────────────────────────────────────────────────── */
+    .spacer { height: 12px; }
+    .flex { display: flex; gap: 10px; align-items: center; }
+    .input-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <p style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Course — UI Polish</p>
+  <p class="page-title">Before &amp; After Preview</p>
+  <p class="page-sub">Review each change below. All examples use the app's actual design tokens. Hover over cards and buttons to see interaction states.</p>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       1. Cards: hard border → floating shadow
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">1 — Cards: hard border → floating shadow + larger radius (hover to compare)</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border: 1px solid rule, radius 8px</p>
+        <div class="card-before">
+          <p class="card-title">Today's Nutrition</p>
+          <div class="hero-before">
+            <div class="hero-num">1,840</div>
+            <div class="hero-sub">Calories today</div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-label">Protein</span><span class="macro-value">142 / 180g</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:79%"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-label">Carbs</span><span class="macro-value">210 / 250g</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:84%"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-label">Fat</span><span class="macro-value">58 / 75g</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:77%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — box-shadow layered, radius 14px, calorie in accent</p>
+        <div class="card-after">
+          <p class="card-title">Today's Nutrition</p>
+          <div class="hero-after">
+            <div class="hero-num">1,840</div>
+            <div class="hero-sub">Calories today</div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-label">Protein</span><span class="macro-value">142 / 180g</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:79%"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-label">Carbs</span><span class="macro-value">210 / 250g</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:84%"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-label">Fat</span><span class="macro-value">58 / 75g</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:77%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       2. Inputs + Buttons
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">2 — Inputs &amp; Buttons: 0px radius → 7px radius + focus glow (click inputs to focus)</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border-radius: 0</p>
+        <p class="input-label">Search</p>
+        <input class="input-before" type="text" placeholder="Search recipes…">
+        <div class="spacer"></div>
+        <div class="flex">
+          <button class="btn-before-primary">Add Recipe</button>
+          <button class="btn-before-outline">Cancel</button>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — border-radius: 7px, focus ring glow, hover shadow on primary</p>
+        <p class="input-label">Search</p>
+        <input class="input-after" type="text" placeholder="Search recipes…">
+        <div class="spacer"></div>
+        <div class="flex">
+          <button class="btn-after-primary">Add Recipe</button>
+          <button class="btn-after-outline">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       3. List items
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">3 — List items: flush dividers → inset pills with accent left rail</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border-b dividers, full-width, no radius</p>
+        <div class="list-panel" style="padding:0">
+          <div class="list-item-before selected">Chicken Tikka Masala</div>
+          <div class="list-item-before">Lentil Soup</div>
+          <div class="list-item-before">Pasta Primavera</div>
+          <div class="list-item-before">Black Bean Tacos</div>
+          <div class="list-item-before" style="border-bottom:none">Green Smoothie</div>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — mx-6 inset, rounded-7px, accent left rail on selected</p>
+        <div class="list-panel">
+          <div class="list-item-after selected">Chicken Tikka Masala</div>
+          <div class="list-item-after">Lentil Soup</div>
+          <div class="list-item-after">Pasta Primavera</div>
+          <div class="list-item-after">Black Bean Tacos</div>
+          <div class="list-item-after">Green Smoothie</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       4. Tab bar
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">4 — Context panel tabs: underline → pill background</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border-bottom underline</p>
+        <div class="tabs-panel">
+          <div class="tab-bar-before">
+            <div class="tab-before active">Goals</div>
+            <div class="tab-before">Optimize</div>
+            <div class="tab-before">Meal Prep</div>
+          </div>
+          <div class="tab-content">Per-serving nutrition vs daily goals…</div>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — pill background, no border line</p>
+        <div class="tabs-panel">
+          <div class="tab-bar-after">
+            <div class="tab-after active">Goals</div>
+            <div class="tab-after">Optimize</div>
+            <div class="tab-after">Meal Prep</div>
+          </div>
+          <div class="tab-content">Per-serving nutrition vs daily goals…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       5. Tag pills
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">5 — Tag pills: 2px radius → fully rounded pill</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border-radius: 2px</p>
+        <div class="tags">
+          <span class="tag-before">Dinner</span>
+          <span class="tag-before">Vegetarian</span>
+          <span class="tag-before">High Protein</span>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — border-radius: 100px (pill)</p>
+        <div class="tags">
+          <span class="tag-after">Dinner</span>
+          <span class="tag-after">Vegetarian</span>
+          <span class="tag-after">High Protein</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       6. TopNav
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">6 — TopNav: hard border-b → shadow fade + active person ring</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border-bottom: 1px solid rule</p>
+        <div>
+          <div class="nav-mock nav-before">
+            <span class="nav-brand">Course</span>
+            <span class="nav-link active">Recipes</span>
+            <span class="nav-link">Ingredients</span>
+            <span class="nav-link">Meal Plans</span>
+            <div class="nav-dot"></div>
+          </div>
+          <div class="nav-sub"><span>Chicken Tikka Masala</span></div>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — box-shadow fade, accent ring on active person dot</p>
+        <div>
+          <div class="nav-mock nav-after">
+            <span class="nav-brand">Course</span>
+            <span class="nav-link active">Recipes</span>
+            <span class="nav-link">Ingredients</span>
+            <span class="nav-link">Meal Plans</span>
+            <div class="nav-dot-after"></div>
+          </div>
+          <div class="nav-sub"><span>Chicken Tikka Masala</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       7. Pane dividers
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">7 — Three-pane dividers: hard borders → shadow separation</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — border-r / border-l: 1px solid rule</p>
+        <div class="three-pane" style="border:1px solid var(--rule)">
+          <div class="pane-left-before">
+            <div class="pane-label">Recipes</div>
+            <div style="font-size:11px;padding:4px 0;border-bottom:1px solid var(--rule);color:var(--accent);background:var(--bg-selected)">Chicken Tikka</div>
+            <div style="font-size:11px;padding:4px 0;border-bottom:1px solid var(--rule);color:var(--muted)">Lentil Soup</div>
+            <div style="font-size:11px;padding:4px 0;color:var(--muted)">Pasta</div>
+          </div>
+          <div class="pane-center">
+            <div style="font-size:13px;font-weight:600;margin-bottom:6px">Chicken Tikka Masala</div>
+            <div style="font-size:11px;color:var(--muted)">4 servings · 35 min</div>
+          </div>
+          <div class="pane-right-before">
+            <div class="pane-label">Goals</div>
+            <div style="height:3px;background:var(--bg-subtle);border-radius:100px;margin-bottom:4px"><div style="height:100%;width:72%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="height:3px;background:var(--bg-subtle);border-radius:100px;margin-bottom:4px"><div style="height:100%;width:55%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="height:3px;background:var(--bg-subtle);border-radius:100px"><div style="height:100%;width:88%;background:var(--accent);border-radius:100px"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — box-shadow fade, no hard borders between panes</p>
+        <div class="three-pane" style="box-shadow:0 0 0 1px rgba(0,0,0,0.05),0 2px 8px rgba(0,0,0,0.06)">
+          <div class="pane-left-after">
+            <div class="pane-label" style="padding-left:8px">Recipes</div>
+            <div style="font-size:11px;margin:1px 4px;padding:4px 8px;border-radius:6px;background:var(--bg-selected);color:var(--accent);position:relative;padding-left:12px"><span style="position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:100px;background:var(--accent)"></span>Chicken Tikka</div>
+            <div style="font-size:11px;margin:1px 4px;padding:4px 8px;border-radius:6px;color:var(--muted)">Lentil Soup</div>
+            <div style="font-size:11px;margin:1px 4px;padding:4px 8px;border-radius:6px;color:var(--muted)">Pasta</div>
+          </div>
+          <div class="pane-center">
+            <div style="font-size:13px;font-weight:600;margin-bottom:6px">Chicken Tikka Masala</div>
+            <div style="font-size:11px;color:var(--muted)">4 servings · 35 min</div>
+          </div>
+          <div class="pane-right-after">
+            <div class="pane-label">Goals</div>
+            <div style="height:3px;background:var(--bg-subtle);border-radius:100px;margin-bottom:4px"><div style="height:100%;width:72%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="height:3px;background:var(--bg-subtle);border-radius:100px;margin-bottom:4px"><div style="height:100%;width:55%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="height:3px;background:var(--bg-subtle);border-radius:100px"><div style="height:100%;width:88%;background:var(--accent);border-radius:100px"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       8. Full composite
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">8 — Full composite: all changes together (hover recipe cards)</p>
+    <div class="compare">
+      <div>
+        <p class="compare-label before">Before — current state</p>
+        <div class="app-frame" style="border:1px solid var(--rule)">
+          <div class="app-nav app-nav-before">
+            <span class="nav-brand">Course</span>
+            <span class="nav-link active">Recipes</span>
+            <span class="nav-link">Ingredients</span>
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--accent);margin-left:auto"></div>
+          </div>
+          <div class="app-body">
+            <div class="app-left-before">
+              <div class="li-before sel">Chicken Tikka</div>
+              <div class="li-before">Lentil Soup</div>
+              <div class="li-before">Pasta</div>
+              <div class="li-before">Black Bean</div>
+              <div class="li-before" style="border-bottom:none">Smoothie</div>
+            </div>
+            <div class="app-center">
+              <div class="recipe-card-before">
+                <div class="recipe-name">Chicken Tikka Masala</div>
+                <div class="recipe-tags-before">
+                  <span class="rt-before">Dinner</span>
+                  <span class="rt-before">High Protein</span>
+                </div>
+                <div class="recipe-meta">4 servings · 35 min · 480 cal</div>
+              </div>
+            </div>
+            <div class="app-right-before">
+              <div class="rp-tabs-before">
+                <div class="rp-tab-before active">Goals</div>
+                <div class="rp-tab-before">Optimize</div>
+              </div>
+              <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Calories</div>
+              <div class="bar-sm"><div class="bar-sm-fill" style="width:72%"></div></div>
+              <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Protein</div>
+              <div class="bar-sm"><div class="bar-sm-fill" style="width:55%"></div></div>
+              <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Carbs</div>
+              <div class="bar-sm"><div class="bar-sm-fill" style="width:88%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="compare-label after">After — all changes applied</p>
+        <div class="app-frame" style="box-shadow:0 0 0 1px rgba(0,0,0,0.05),0 4px 20px rgba(0,0,0,0.08)">
+          <div class="app-nav app-nav-after">
+            <span class="nav-brand">Course</span>
+            <span class="nav-link active">Recipes</span>
+            <span class="nav-link">Ingredients</span>
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--accent);margin-left:auto;box-shadow:0 0 0 2px var(--bg-nav),0 0 0 4px var(--accent)"></div>
+          </div>
+          <div class="app-body">
+            <div class="app-left-after">
+              <div class="li-after sel">Chicken Tikka</div>
+              <div class="li-after">Lentil Soup</div>
+              <div class="li-after">Pasta</div>
+              <div class="li-after">Black Bean</div>
+              <div class="li-after">Smoothie</div>
+            </div>
+            <div class="app-center">
+              <div class="recipe-card-after">
+                <div class="recipe-name">Chicken Tikka Masala</div>
+                <div class="recipe-tags-after">
+                  <span class="rt-after">Dinner</span>
+                  <span class="rt-after">High Protein</span>
+                </div>
+                <div class="recipe-meta">4 servings · 35 min · 480 cal</div>
+              </div>
+            </div>
+            <div class="app-right-after">
+              <div class="rp-tabs-after">
+                <div class="rp-tab-after active">Goals</div>
+                <div class="rp-tab-after">Optimize</div>
+              </div>
+              <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Calories</div>
+              <div class="bar-sm"><div class="bar-sm-fill" style="width:72%"></div></div>
+              <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Protein</div>
+              <div class="bar-sm"><div class="bar-sm-fill" style="width:55%"></div></div>
+              <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Carbs</div>
+              <div class="bar-sm"><div class="bar-sm-fill" style="width:88%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

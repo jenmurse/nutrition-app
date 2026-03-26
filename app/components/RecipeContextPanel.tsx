@@ -113,16 +113,15 @@ export default function RecipeContextPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Tab bar */}
-      <div className="flex border-b border-[var(--rule)] shrink-0 pl-6">
-        {tabs.map((tab, i) => (
+      <div className="flex gap-[2px] shrink-0 px-4 pt-2 pb-1">
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            style={{ borderRadius: 0 }}
-            className={`${i === 0 ? "" : "ml-1"} px-[10px] h-[40px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center ${
+            className={`px-[10px] py-[5px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
               activeTab === tab.key
-                ? "text-[var(--fg)] border-[var(--accent)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+                ? "text-[var(--fg)] bg-[var(--bg-subtle)]"
+                : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
             }`}
             aria-label={`${tab.label} tab`}
             aria-selected={activeTab === tab.key}

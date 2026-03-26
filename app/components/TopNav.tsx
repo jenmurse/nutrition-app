@@ -27,7 +27,7 @@ export default function TopNav() {
   };
 
   return (
-    <nav className="flex items-center h-[52px] border-b border-[var(--rule)] bg-[var(--bg-nav)] px-6 shrink-0" role="navigation" aria-label="Main navigation">
+    <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0" style={{ boxShadow: '0 1px 0 var(--rule), 0 2px 12px rgba(0,0,0,0.04)' }} role="navigation" aria-label="Main navigation">
       {/* Brand */}
       <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em]">
         Course
@@ -69,6 +69,7 @@ export default function TopNav() {
                   style={{
                     background: p.color || "var(--accent)",
                     opacity: isSelected ? 1 : 0.4,
+                    boxShadow: isSelected ? `0 0 0 2px var(--bg-nav), 0 0 0 4px ${p.color || 'var(--accent)'}` : 'none',
                   }}
                   aria-label={`Switch to ${p.name}`}
                   aria-pressed={isSelected}

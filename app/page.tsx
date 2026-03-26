@@ -140,7 +140,7 @@ export default function Home() {
               ))}
             </div>
           ) : !weekPlanId ? (
-            <div className="border border-[var(--rule)] shadow-[var(--shadow-md)] rounded-[var(--radius,8px)] max-w-[380px] px-7 py-8 space-y-4">
+            <div className="rounded-[var(--radius,12px)] max-w-[380px] px-7 py-8 space-y-4 bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-md)' }}>
               <div className="font-serif text-[18px] text-[var(--fg)] leading-snug">
                 No plan for this week
               </div>
@@ -172,7 +172,7 @@ export default function Home() {
 
               {/* Calorie hero */}
               <div className="flex items-baseline gap-[6px] mb-[6px]">
-                <span className="font-serif text-[32px] text-[var(--fg)] leading-none tabular-nums">
+                <span className="font-serif text-[32px] text-[var(--accent)] leading-none tabular-nums">
                   {Math.round(calValue).toLocaleString()}
                 </span>
                 <span className="font-mono text-[10px] text-[var(--muted)]">kcal</span>

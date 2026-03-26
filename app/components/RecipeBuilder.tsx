@@ -807,7 +807,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
     {/* ── Goals Panel (guided mode only) ── */}
     {guidedMode && (
-      <div className="w-80 shrink-0 sticky top-4 border border-[var(--rule)] rounded-[var(--radius-md,8px)] bg-[var(--bg-raised)] p-5 space-y-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
+      <div className="w-80 shrink-0 sticky top-4 rounded-[var(--radius,12px)] bg-[var(--bg-raised)] p-5 space-y-4" style={{ boxShadow: 'var(--shadow-md)' }}>
         <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Nutrition Guidance</div>
 
         {/* Person picker */}

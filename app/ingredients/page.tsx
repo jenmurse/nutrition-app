@@ -905,12 +905,12 @@ function IngredientsPage() {
   return (
     <div className="flex h-full">
       {/* ── Left: List pane with integrated header ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)] bg-[var(--bg-nav)]">
+      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '2px 0 10px rgba(0,0,0,0.04)' }}>
         {/* List header */}
         <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Ingredients</h1>
-            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">
+            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">
               {filteredIngredients.length}
             </span>
           </div>
@@ -938,8 +938,8 @@ function IngredientsPage() {
               return (
                 <div
                   key={ing.id}
-                  className={`flex items-center justify-between py-[10px] px-6 border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
-                    isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
+                  className={`relative flex items-center justify-between mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
+                    isSelected ? "bg-[var(--bg-selected)] pl-[14px]" : "hover:bg-[var(--bg-subtle)]"
                   }`}
                   onClick={() => {
                     if (isSelected) {
@@ -950,6 +950,9 @@ function IngredientsPage() {
                     }
                   }}
                 >
+                  {isSelected && (
+                    <span className="absolute left-0 top-[25%] bottom-[25%] w-[3px] rounded-full bg-[var(--accent)]" />
+                  )}
                   <span className="text-[12px] font-medium text-[var(--fg)] truncate">
                     {ing.name}
                   </span>
@@ -1008,7 +1011,7 @@ function IngredientsPage() {
 
           {/* Context Panel — right pane with goals % bars */}
           {!editMode && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)] bg-[var(--bg-nav)]">
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-2px 0 10px rgba(0,0,0,0.04)' }}>
               <IngredientContextPanel
                 nutrientValues={selectedIngredient.nutrientValues}
                 defaultUnit={selectedIngredient.defaultUnit}

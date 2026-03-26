@@ -237,7 +237,7 @@ export default function BulkIngredientImport({
       {/* Preview Modal */}
       {showPreviewModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] max-w-6xl w-full max-h-[90vh] flex flex-col animate-fade-in">
+          <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] max-w-6xl w-full max-h-[90vh] flex flex-col animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--rule)]">
               <h3 className="font-sans text-[13px] font-medium text-[var(--fg)]">

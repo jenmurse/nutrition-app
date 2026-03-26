@@ -150,7 +150,7 @@ const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
 
       {/* Result */}
       {result && !loading && (
-        <div className="border border-[var(--rule)] bg-[var(--bg-raised)] p-4">
+        <div className="bg-[var(--bg-raised)] rounded-[var(--radius-sm,8px)] p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
           {renderMarkdown(result)}
         </div>
       )}

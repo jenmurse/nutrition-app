@@ -1048,10 +1048,11 @@ const MealPlansPage = () => {
                 <div className="relative flex shrink-0">
                   {/* Panel — collapses via width transition */}
                   <div
-                    className="flex flex-col overflow-hidden border-l border-[var(--rule)] bg-[var(--bg-nav)] transition-[width,min-width] duration-300 [transition-timing-function:var(--ease-drawer)]"
+                    className="flex flex-col overflow-hidden bg-[var(--bg-nav)] transition-[width,min-width] duration-300 [transition-timing-function:var(--ease-drawer)] relative z-[1]"
                     style={{
                       width: summaryPanelOpen ? 380 : 0,
                       minWidth: summaryPanelOpen ? 380 : 0,
+                      boxShadow: summaryPanelOpen ? '-2px 0 10px rgba(0,0,0,0.04)' : 'none',
                     }}
                   >
                   {/* Summary header — matches shared header height */}

@@ -43,10 +43,13 @@
     --display-weight: 600;
     --display-tracking: -0.025em;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    --shadow-md: 0 2px 6px rgba(0,0,0,0.07), 0 6px 16px rgba(92,145,105,0.05);
-    --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 12px 32px rgba(92,145,105,0.07);
+    /* Shadows — layered for natural depth; 1px ring replaces hard borders */
+    --shadow-sm: 0 0 0 1px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.08), 0 8px 20px rgba(92,145,105,0.06);
+    --shadow-lg: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.10), 0 16px 40px rgba(92,145,105,0.08);
+
+    /* Focus ring color (RGB for alpha compositing) */
+    --accent-rgb: 92, 145, 105;
 
     /* Tailwind compat */
     --background: 0 0% 98%;
@@ -68,7 +71,7 @@
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 143 22% 52%;
-    --radius: 8px;
+    --radius: 12px;
   }
 
   /* ─── Theme overrides ─────────────────────────────────────────────────── */
@@ -430,12 +433,19 @@
   input:not([type="checkbox"]):not([type="radio"]), textarea, select {
     font-family: var(--sans);
     font-weight: 400;
-    border-radius: 0;
+    border-radius: 7px;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  textarea:focus,
+  select:focus {
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
   }
 
   button {
     font-family: var(--sans);
-    border-radius: 0;
+    border-radius: 7px;
   }
 
   /* Tactile press feedback on all enabled buttons */

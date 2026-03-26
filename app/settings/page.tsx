@@ -595,15 +595,15 @@ const SettingsPage = () => {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Tab bar */}
-      <div className="flex border-b border-[var(--rule)] shrink-0 bg-[var(--bg)] px-8">
+      <div className="flex gap-[2px] shrink-0 bg-[var(--bg)] px-8 pt-3 pb-1">
         {settingsTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setSettingsTab(tab.key)}
-            className={`px-[14px] h-[46px] font-mono text-[9px] tracking-[0.1em] uppercase border-b-2 transition-colors flex items-center rounded-none ${
+            className={`px-[12px] py-[6px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
               settingsTab === tab.key
-                ? 'text-[var(--fg)] border-[var(--accent)]'
-                : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                ? 'text-[var(--fg)] bg-[var(--bg-subtle)]'
+                : 'text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]'
             }`}
             aria-label={`${tab.label} tab`}
             aria-selected={settingsTab === tab.key}

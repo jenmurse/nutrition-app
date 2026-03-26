@@ -18,7 +18,7 @@ export default function ConfirmModal() {
       className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40"
       onKeyDown={(e) => { if (e.key === "Escape") dialog._resolve(false); }}
     >
-      <div className="bg-[var(--bg-raised)] border border-[var(--rule)] shadow-[var(--shadow-lg)] rounded-[var(--radius-lg,12px)] max-w-sm w-full mx-4 p-6 animate-fade-in">
+      <div className="bg-[var(--bg-raised)] shadow-[var(--shadow-lg)] rounded-[var(--radius-lg,12px)] max-w-sm w-full mx-4 p-6 animate-fade-in">
         <p
           id="confirm-message"
           className="font-sans text-[13px] text-[var(--fg)] leading-relaxed mb-6"

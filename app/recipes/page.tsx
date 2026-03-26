@@ -354,11 +354,11 @@ function RecipesPage() {
     <div className="h-full flex animate-fade-in" onClick={() => { if (!editMode && !createMode) setSelectedRecipe(null); }}>
 
       {/* ── Left: List pane ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)] bg-[var(--bg-nav)]" onClick={(e) => e.stopPropagation()}>
+      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '2px 0 10px rgba(0,0,0,0.04)' }} onClick={(e) => e.stopPropagation()}>
         <div className="px-6 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Recipes</h1>
-            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">{filteredRecipes.length}</span>
+            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">{filteredRecipes.length}</span>
           </div>
           <input
             type="text"
@@ -375,7 +375,7 @@ function RecipesPage() {
                 onClick={() => toggleTag(tag)}
                 aria-label={`Filter by ${tag}`}
                 aria-pressed={selectedTags.includes(tag)}
-                className={`py-[2px] px-[6px] font-mono text-[9px] tracking-[0.04em] uppercase rounded-[var(--radius-xs,2px)] cursor-pointer transition-colors border-0 ${
+                className={`py-[2px] px-[8px] font-mono text-[9px] tracking-[0.04em] uppercase rounded-full cursor-pointer transition-colors border-0 ${
                   selectedTags.includes(tag)
                     ? 'bg-[var(--accent)] text-[var(--accent-text)]'
                     : 'bg-[var(--bg-subtle)] text-[var(--muted)] hover:text-[var(--fg)]'
@@ -394,23 +394,19 @@ function RecipesPage() {
         <div className="flex-1 overflow-y-auto">
           {filteredRecipes.map((recipe) => {
             const isSelected = !editMode && !createMode && selectedRecipe?.id === recipe.id;
-            const recipeTags = recipe.tags ? recipe.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
             return (
               <div
                 key={recipe.id}
-                className={`py-[10px] px-6 border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)]' : 'hover:bg-[var(--bg-subtle)]'}`}
+                className={`relative mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)] pl-[14px]' : 'hover:bg-[var(--bg-subtle)]'}`}
                 onClick={() => { setEditMode(false); setEditRecipe(null); setCreateMode(false); handleSelectRecipe(recipe); }}
               >
-                <div className="text-[12px] font-medium text-[var(--fg)] mb-[3px]">{recipe.name}</div>
-                <div className="flex items-center gap-[7px] font-mono text-[9px] text-[var(--muted)]">
-                  <span>{recipe.servingSize} servings</span>
-                  {recipeTags.map((tag) => (
-                    <span key={tag} className="text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[5px] rounded-[var(--radius-xs,2px)] tracking-[0.04em] uppercase">{tag}</span>
-                  ))}
-                  {recipe.isComplete === false && (
-                    <span className="text-[var(--warning)] tracking-[0.04em]">incomplete</span>
-                  )}
-                </div>
+                {isSelected && (
+                  <span className="absolute left-0 top-[25%] bottom-[25%] w-[3px] rounded-full bg-[var(--accent)]" />
+                )}
+                <div className="text-[12px] font-medium text-[var(--fg)] leading-snug">{recipe.name}</div>
+                {recipe.isComplete === false && (
+                  <div className="font-mono text-[9px] text-[var(--warning)] tracking-[0.04em] mt-[2px]">incomplete</div>
+                )}
               </div>
             );
           })}
@@ -442,7 +438,7 @@ function RecipesPage() {
           <div className="flex-1 overflow-y-auto p-6 px-7">
             {/* Import section */}
             {!createImportedRecipe && (
-              <div className="mb-6 p-4 border border-[var(--rule)] rounded-[var(--radius-md,8px)] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
+              <div className="mb-6 p-4 rounded-[var(--radius,12px)] bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-md)' }}>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Import Recipe</div>
                 <div className="flex items-center gap-2 mb-3">
                   <input
@@ -612,7 +608,7 @@ function RecipesPage() {
                     {selectedRecipe.prepTime != null && <><span className="w-[3px] h-[3px] rounded-full bg-[var(--rule-strong)] shrink-0" /><span className="font-mono text-[10px] text-[var(--muted)]">{selectedRecipe.prepTime} min prep</span></>}
                     {selectedRecipe.cookTime != null && <><span className="w-[3px] h-[3px] rounded-full bg-[var(--rule-strong)] shrink-0" /><span className="font-mono text-[10px] text-[var(--muted)]">{selectedRecipe.cookTime} min cook</span></>}
                     {selectedRecipe.tags && selectedRecipe.tags.split(",").map((tag) => (
-                      <span key={tag} className="inline-block font-mono text-[9px] tracking-[0.04em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[5px] rounded-[var(--radius-xs,2px)]">
+                      <span key={tag} className="inline-block font-mono text-[9px] tracking-[0.04em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[7px] rounded-full">
                         {tag.trim()}
                       </span>
                     ))}
@@ -646,7 +642,7 @@ function RecipesPage() {
                     });
                     return (
                       <div className="mb-5">
-                        <div className="grid grid-cols-4 bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-md,8px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                        <div className="grid grid-cols-4 bg-[var(--bg-raised)] rounded-[var(--radius,12px)] overflow-hidden" style={{ boxShadow: 'var(--shadow-md)' }}>
                           {gridNutrients.map((n, i) => (
                             <div key={n.label} className={`py-[14px] px-3 text-center ${
                               i % 4 !== 3 ? "border-r border-[var(--rule)]" : ""
@@ -686,7 +682,7 @@ function RecipesPage() {
           </div>
 
           {!selectedRecipeLoading && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full border-l border-[var(--rule)] bg-[var(--bg-nav)]" onClick={(e) => e.stopPropagation()}>
+            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-2px 0 10px rgba(0,0,0,0.04)' }} onClick={(e) => e.stopPropagation()}>
               <RecipeContextPanel
                 recipeId={selectedRecipe.id}
                 totals={selectedRecipe.totals || []}
