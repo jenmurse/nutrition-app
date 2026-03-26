@@ -355,7 +355,7 @@ function RecipesPage() {
 
       {/* ── Left: List pane ── */}
       <div className="w-[220px] min-w-[220px] flex flex-col border-r border-[var(--rule)]" onClick={(e) => e.stopPropagation()}>
-        <div className="px-[14px] pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
+        <div className="px-5 pt-3 pb-[10px] border-b border-[var(--rule)] shrink-0">
           <div className="flex items-baseline justify-between mb-3">
             <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Recipes</h1>
             <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-[var(--radius-xs,2px)]">{filteredRecipes.length}</span>
@@ -398,7 +398,7 @@ function RecipesPage() {
             return (
               <div
                 key={recipe.id}
-                className={`py-[10px] px-[14px] border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)]' : 'hover:bg-[var(--bg-subtle)]'}`}
+                className={`py-[10px] px-5 border-b border-[var(--rule)] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${isSelected ? 'bg-[var(--bg-selected)]' : 'hover:bg-[var(--bg-subtle)]'}`}
                 onClick={() => { setEditMode(false); setEditRecipe(null); setCreateMode(false); handleSelectRecipe(recipe); }}
               >
                 <div className="text-[12px] font-medium text-[var(--fg)] mb-[3px]">{recipe.name}</div>

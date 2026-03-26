@@ -134,7 +134,7 @@ export default function RecipeContextPanel({
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-5 py-4">
         {activeTab === "goals" && (
           <GoalsTab totals={totals} goals={goals} personId={personId} loading={goalsLoading} />
         )}
