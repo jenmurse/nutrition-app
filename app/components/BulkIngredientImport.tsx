@@ -214,20 +214,21 @@ export default function BulkIngredientImport({
     <>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">
             Paste your ingredient data (CSV or TSV):
           </label>
           <textarea
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
             placeholder="Item	Qty	Unit	Grams	Calories	Fat (g)	..."
-            className="w-full h-32 p-3 border rounded font-mono text-xs"
+            className="w-full h-32 p-3 border border-[var(--rule)] bg-[var(--bg)] font-mono text-[11px] text-[var(--fg)] rounded-[var(--radius-sm,4px)]"
+            aria-label="Ingredient CSV data"
           />
         </div>
-        {error && <div className="text-red-600 text-sm">{error}</div>}
+        {error && <div className="text-[var(--error)] text-[11px]">{error}</div>}
         <button
           onClick={handleParse}
-          className="w-full px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded hover:bg-[var(--accent-hover)] text-sm font-medium"
+          className="w-full px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-[var(--radius-sm,4px)] hover:bg-[var(--accent-hover)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
         >
           Parse & Preview
         </button>
@@ -235,54 +236,55 @@ export default function BulkIngredientImport({
 
       {/* Preview Modal */}
       {showPreviewModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-6xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] max-w-6xl w-full max-h-[90vh] flex flex-col animate-fade-in">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="font-semibold text-lg">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--rule)]">
+              <h3 className="font-sans text-[13px] font-medium text-[var(--fg)]">
                 Preview: {parsedData.length} ingredient{parsedData.length !== 1 ? "s" : ""}
               </h3>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
+                aria-label="Close preview"
               >
-                ✕
+                Close
               </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-auto p-4">
-              <table className="w-full text-sm border-collapse">
+            <div className="flex-1 overflow-auto px-5 py-4">
+              <table className="w-full text-[11px] border-collapse">
                 <thead>
-                  <tr className="bg-gray-100 sticky top-0">
-                    <th className="border p-2 text-left">Item</th>
-                    <th className="border p-2 text-left">Unit & Amount</th>
-                    <th className="border p-2 text-right">Cal</th>
-                    <th className="border p-2 text-right">Fat</th>
-                    <th className="border p-2 text-right">Sat</th>
-                    <th className="border p-2 text-right">Na</th>
-                    <th className="border p-2 text-right">Carb</th>
-                    <th className="border p-2 text-right">Sug</th>
-                    <th className="border p-2 text-right">Pro</th>
-                    <th className="border p-2 text-right">Fib</th>
+                  <tr className="bg-[var(--bg-subtle)] sticky top-0">
+                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Item</th>
+                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Unit & Amount</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Cal</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Fat</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Sat</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Na</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Carb</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Sug</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Pro</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Fib</th>
                   </tr>
                 </thead>
                 <tbody>
                   {parsedData.map((ing, i) => (
-                    <tr key={i} className="hover:bg-gray-50 border">
-                      <td className="border p-2 font-medium text-left">{ing.name}</td>
-                      <td className="border p-2 text-left text-gray-600">
+                    <tr key={i} className="hover:bg-[var(--bg-subtle)] border border-[var(--rule)]">
+                      <td className="border border-[var(--rule)] p-2 font-medium text-left text-[var(--fg)]">{ing.name}</td>
+                      <td className="border border-[var(--rule)] p-2 text-left text-[var(--muted)]">
                         {ing.customUnitAmountDisplay} {ing.customUnitName}
-                        <div className="text-xs text-gray-500">({ing.customUnitGrams}g)</div>
+                        <div className="text-[10px] text-[var(--muted)]">({ing.customUnitGrams}g)</div>
                       </td>
-                      <td className="border p-2 text-right">{ing.calories}</td>
-                      <td className="border p-2 text-right">{ing.fat}</td>
-                      <td className="border p-2 text-right">{ing.satFat}</td>
-                      <td className="border p-2 text-right">{ing.sodium}</td>
-                      <td className="border p-2 text-right">{ing.carbs}</td>
-                      <td className="border p-2 text-right">{ing.sugar}</td>
-                      <td className="border p-2 text-right">{ing.protein}</td>
-                      <td className="border p-2 text-right">{ing.fiber}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.calories}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.fat}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.satFat}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.sodium}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.carbs}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.sugar}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.protein}</td>
+                      <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.fiber}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -290,17 +292,17 @@ export default function BulkIngredientImport({
             </div>
 
             {/* Footer */}
-            <div className="flex gap-3 p-4 border-t bg-gray-50">
+            <div className="flex gap-3 px-5 py-4 border-t border-[var(--rule)]">
               <button
                 onClick={handleImport}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 font-medium"
+                className="flex-1 px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-[var(--radius-sm,4px)] hover:bg-[var(--accent-hover)] disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
               >
                 {loading ? "Importing..." : "Import All"}
               </button>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-medium"
+                className="px-4 py-2 border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--rule-strong)] rounded-[var(--radius-sm,4px)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
               >
                 Cancel
               </button>

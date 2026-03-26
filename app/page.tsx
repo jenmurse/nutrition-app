@@ -140,7 +140,7 @@ export default function Home() {
               ))}
             </div>
           ) : !weekPlanId ? (
-            <div className="border border-[var(--rule)] shadow-[var(--shadow-md)] rounded-md max-w-[380px] px-7 py-8 space-y-4">
+            <div className="border border-[var(--rule)] shadow-[var(--shadow-md)] rounded-[var(--radius,8px)] max-w-[380px] px-7 py-8 space-y-4">
               <div className="font-serif text-[18px] text-[var(--fg)] leading-snug">
                 No plan for this week
               </div>
@@ -162,7 +162,7 @@ export default function Home() {
               </p>
               <Link
                 href={`/meal-plans?planId=${weekPlanId}`}
-                className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-sm px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
+                className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
               >
                 Open meal plan →
               </Link>
@@ -213,8 +213,8 @@ export default function Home() {
                         {formatVal(n.value)} / {formatVal(goal)}{unitSuffix}
                       </span>
                     </div>
-                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
-                      <div className={`h-full rounded-sm ${barColor}`} style={{ width: `${pct}%` }} />
+                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
+                      <div className={`h-full rounded-[var(--radius-sm,4px)] ${barColor}`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -224,7 +224,7 @@ export default function Home() {
               {belowMin.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {belowMin.map((n) => (
-                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] text-[var(--warning-text)] px-[10px] py-[5px] rounded-sm">
+                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] text-[var(--warning-text)] px-[10px] py-[5px] rounded-[var(--radius-sm,4px)]">
                       {n.displayName} below minimum
                     </span>
                   ))}
@@ -234,7 +234,7 @@ export default function Home() {
               <div className="mt-6">
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-sm px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
+                  className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] px-4 py-2 no-underline hover:bg-[var(--accent-light)] transition-colors"
                 >
                   View meal plan →
                 </Link>

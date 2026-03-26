@@ -58,9 +58,9 @@ const DailySummary: React.FC<DailySummaryProps> = ({
                 {formatVal(nutrient.value)} / {formatVal(target)}{unitSuffix}
               </span>
             </div>
-            <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
+            <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
               <div
-                className={`h-full rounded-sm ${barColor}`}
+                className={`h-full rounded-[var(--radius-sm,4px)] ${barColor}`}
                 style={{ width: `${pct}%` }}
               />
             </div>

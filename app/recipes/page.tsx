@@ -591,17 +591,17 @@ function RecipesPage() {
                     <h2 className="font-serif text-[26px] text-[var(--fg)] leading-[1.2]">{selectedRecipe.name}</h2>
                     <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
                       <button onClick={() => handleEditClick(selectedRecipe.id)}
-                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors rounded-sm border-0"
+                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors rounded-[var(--radius-sm,4px)] border-0"
                         aria-label="Edit recipe">
                         Edit
                       </button>
                       <button onClick={() => handleDuplicate(selectedRecipe.id)}
-                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors rounded-sm"
+                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border border-[var(--rule)] cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors rounded-[var(--radius-sm,4px)]"
                         aria-label="Duplicate recipe">
                         Duplicate
                       </button>
                       <button onClick={() => handleDelete(selectedRecipe.id, selectedRecipe.name)}
-                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors rounded-sm border-0"
+                        className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors rounded-[var(--radius-sm,4px)] border-0"
                         aria-label="Delete recipe">
                         Delete
                       </button>
@@ -620,7 +620,7 @@ function RecipesPage() {
 
                   {/* Image — inset */}
                   {selectedRecipe.image && (
-                    <div className="mb-5 rounded-md overflow-hidden">
+                    <div className="mb-5 rounded-[var(--radius,8px)] overflow-hidden">
                       <img src={selectedRecipe.image} alt={selectedRecipe.name} className="w-full max-h-[300px] object-cover"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     </div>

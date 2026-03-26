@@ -390,7 +390,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 overflow-y-auto">
           <div
-            className="w-full max-w-lg border border-[var(--rule)] bg-[var(--bg-raised)] rounded-lg shadow-[var(--shadow-lg)] p-6 my-4 animate-fade-in"
+            className="w-full max-w-lg border border-[var(--rule)] bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] p-6 my-4 animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule)] pb-3 mb-4">
@@ -425,7 +425,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       {itemTypeTabOpen && selectedDayMeal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div
-            className="w-full max-w-2xl max-h-[90vh] border border-[var(--rule)] bg-[var(--bg-raised)] rounded-lg shadow-[var(--shadow-lg)] flex flex-col animate-fade-in"
+            className="w-full max-w-2xl max-h-[90vh] border border-[var(--rule)] bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] flex flex-col animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule)] p-6 shrink-0">

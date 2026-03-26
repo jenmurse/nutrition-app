@@ -195,8 +195,8 @@ function GoalsTab({
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="space-y-[5px]">
             <div className="flex justify-between">
-              <div className="h-[9px] w-16 bg-[var(--bg-subtle)] animate-loading rounded-sm" />
-              <div className="h-[9px] w-10 bg-[var(--bg-subtle)] animate-loading rounded-sm" />
+              <div className="h-[9px] w-16 bg-[var(--bg-subtle)] animate-loading rounded-[var(--radius-sm,4px)]" />
+              <div className="h-[9px] w-10 bg-[var(--bg-subtle)] animate-loading rounded-[var(--radius-sm,4px)]" />
             </div>
             <div className="h-[3px] w-full bg-[var(--rule)] animate-loading" />
           </div>
@@ -238,9 +238,9 @@ function GoalsTab({
                 {formatGoalVal(value)} / {formatGoalVal(target)}{unitSuffix}{overLabel}
               </span>
             </div>
-            <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
+            <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
               <div
-                className={`h-full rounded-sm ${
+                className={`h-full rounded-[var(--radius-sm,4px)] ${
                   isOver ? "bg-[var(--error)]" : isWarn ? "bg-[var(--warning)]" : "bg-[var(--accent)]"
                 }`}
                 style={{ width: `${Math.min(pct, 100)}%` }}

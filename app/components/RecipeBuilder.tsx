@@ -900,9 +900,9 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                         {Math.round(current * 10) / 10} / {Math.round(goal)} {g.nutrient.unit}
                       </span>
                     </div>
-                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
+                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
                       <div
-                        className={`h-full rounded-sm ${barColor}`}
+                        className={`h-full rounded-[var(--radius-sm,4px)] ${barColor}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>

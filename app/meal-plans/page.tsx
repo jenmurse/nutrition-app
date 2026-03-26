@@ -210,7 +210,7 @@ function BothView({
                               <div className="flex items-center gap-1 shrink-0">
                                 {isShared && (
                                   <span
-                                    className="font-mono text-[8px] uppercase tracking-[0.1em] px-1 py-[1px] bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)] rounded-sm"
+                                    className="font-mono text-[8px] uppercase tracking-[0.1em] px-1 py-[1px] bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)] rounded-[var(--radius-sm,4px)]"
                                     title="Shared meal"
                                   >
                                     shared
@@ -1084,9 +1084,9 @@ const MealPlansPage = () => {
                             of {calorieGoal.toLocaleString()} kcal daily goal · {Math.round(caloriePct)}%
                           </div>
                         )}
-                        <div className="h-[4px] bg-[var(--bg-subtle)] w-full rounded-sm overflow-hidden">
+                        <div className="h-[4px] bg-[var(--bg-subtle)] w-full rounded-[var(--radius-sm,4px)] overflow-hidden">
                           <div
-                            className="h-full bg-[var(--accent)] rounded-sm"
+                            className="h-full bg-[var(--accent)] rounded-[var(--radius-sm,4px)]"
                             style={{ width: `${caloriePct}%` }}
                           />
                         </div>
@@ -1119,8 +1119,8 @@ const MealPlansPage = () => {
                                   {formatVal(nutrient.value)} / {formatVal(goal ?? 0)}{unitSuffix}
                                 </span>
                               </div>
-                              <div className="h-[4px] bg-[var(--bg-subtle)] rounded-sm overflow-hidden">
-                                <div className={`h-full rounded-sm ${barColor}`} style={{ width: `${pct}%` }} />
+                              <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
+                                <div className={`h-full rounded-[var(--radius-sm,4px)] ${barColor}`} style={{ width: `${pct}%` }} />
                               </div>
                             </div>
                           );
@@ -1135,7 +1135,7 @@ const MealPlansPage = () => {
                       return (
                         <div
                           key={n.nutrientId}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] rounded-sm px-[10px] py-[5px] mb-2 text-[var(--warning-text)]"
+                          className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--warning-light)] rounded-[var(--radius-sm,4px)] px-[10px] py-[5px] mb-2 text-[var(--warning-text)]"
                         >
                           {isBelowMin
                             ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`

@@ -141,7 +141,7 @@ function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, can
           />
           <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
           {role && (
-            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px] rounded-sm">
+            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] px-[5px] py-[1px] rounded-[var(--radius-sm,4px)]">
               {role}
             </span>
           )}
@@ -604,10 +604,8 @@ const SettingsPage = () => {
         <div className="mb-8">
 
           {/* Household name row */}
-          <div className="flex items-center justify-between py-[10px] border-b border-[var(--rule)]">
-            <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Household name</div>
-            </div>
+          <div className="py-[10px] border-b border-[var(--rule)]">
+            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household name</div>
             {editingHouseholdName ? (
               <div className="flex items-center gap-2">
                 <input
@@ -619,7 +617,7 @@ const SettingsPage = () => {
                     if (e.key === 'Escape') setEditingHouseholdName(false);
                   }}
                   autoFocus
-                  className="bg-[var(--bg-subtle)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] max-w-[200px] focus:outline-none focus:border-[var(--accent)]"
+                  className="bg-[var(--bg-subtle)] border border-[var(--rule)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] max-w-[240px] focus:outline-none focus:border-[var(--accent)]"
                   aria-label="Household name"
                 />
                 <button
@@ -638,7 +636,7 @@ const SettingsPage = () => {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="font-sans text-[13px] font-medium text-[var(--fg)]">{householdName || '…'}</span>
+                <span className="font-sans text-[15px] font-medium text-[var(--fg)]">{householdName || '…'}</span>
                 <button
                   onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
                   className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
@@ -665,7 +663,7 @@ const SettingsPage = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[12px] text-[var(--fg)] font-medium">{person.name}</div>
-                  <div className="font-mono text-[10px] text-[var(--muted)] capitalize">{role || 'Member'}</div>
+                  <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{role || 'Member'}</div>
                 </div>
                 {role === 'owner' ? (
                   <span className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule)]">Owner</span>
@@ -730,31 +728,11 @@ const SettingsPage = () => {
               {inviting ? 'Generating…' : 'Invite member'}
             </button>
           </div>
-        </div>
 
-        {/* ── PERSONS & GOALS ── */}
-        <div className="mb-8">
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrition Goals</div>
-          {persons.map((person) => (
-            <PersonRow
-              key={person.id}
-              person={person}
-              role={memberRoles[person.id]}
-              nutrients={nutrients}
-              isExpanded={expandedPersonId === person.id}
-              onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
-              onSaved={handlePersonSaved}
-              canDelete={persons.length > 1}
-            />
-          ))}
-        </div>
-
-        {/* ── INVITES ── */}
-        {invites.length > 0 && (
-        <div className="mb-8">
-            {(
+          {/* ── INVITES (directly under add/invite buttons) ── */}
+          {invites.length > 0 && (
+            <div className="mt-4">
               <div className="border border-[var(--rule)]">
-                {/* Header */}
                 <div className="grid grid-cols-[1fr_60px_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule)]">
                   {['Invite URL', '', 'Status', 'Created', 'Redeemed'].map((h, i) => (
                     <span key={i} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
@@ -795,9 +773,26 @@ const SettingsPage = () => {
                   );
                 })}
               </div>
-            )}
+            </div>
+          )}
         </div>
-        )}
+
+        {/* ── PERSONS & GOALS ── */}
+        <div className="mb-8 mt-2">
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrition Goals</div>
+          {persons.map((person) => (
+            <PersonRow
+              key={person.id}
+              person={person}
+              role={memberRoles[person.id]}
+              nutrients={nutrients}
+              isExpanded={expandedPersonId === person.id}
+              onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
+              onSaved={handlePersonSaved}
+              canDelete={persons.length > 1}
+            />
+          ))}
+        </div>
 
         </>
         )}
