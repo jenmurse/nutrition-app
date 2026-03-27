@@ -113,13 +113,14 @@ export default function Home() {
   }, [selectedPersonId]);
 
   const allNutrients = todayData?.totalNutrients ?? [];
-  const nutrientsWithGoals = allNutrients.filter((n) => n.lowGoal != null || n.highGoal != null);
-  const onTrackCount = nutrientsWithGoals.filter((n) => {
-    const lo = n.lowGoal ?? 0;
+  // Only count nutrients with a lowGoal — these require hitting a minimum target.
+  // Nutrients with only a highGoal (sodium, fat, etc.) are limits, not targets.
+  const nutrientsWithMin = allNutrients.filter((n) => n.lowGoal != null);
+  const onTrackCount = nutrientsWithMin.filter((n) => {
     const hi = n.highGoal ?? Infinity;
-    return n.value >= lo && n.value <= hi;
+    return n.value >= n.lowGoal! && n.value <= hi;
   }).length;
-  const totalGoals = nutrientsWithGoals.length;
+  const totalGoals = nutrientsWithMin.length;
 
   const circum = 2 * Math.PI * 35;
   const ringPct = totalGoals > 0 ? onTrackCount / totalGoals : 0;
@@ -192,7 +193,7 @@ export default function Home() {
               className="absolute pointer-events-none"
               style={{
                 left: "50%",
-                top: "108px",
+                top: "112px",
                 bottom: "40px",
                 width: "1px",
                 background: "var(--rule-faint)",
@@ -201,7 +202,7 @@ export default function Home() {
             />
 
             {/* Row 1 left: ring hero */}
-            <div className="col-start-1 row-start-1 px-9 pb-5">
+            <div className="col-start-1 row-start-1 px-9 pt-1 pb-5">
               <div className="flex items-center gap-5">
                 <svg
                   width="88" height="88" viewBox="0 0 88 88"
