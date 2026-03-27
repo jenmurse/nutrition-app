@@ -199,8 +199,8 @@ export default function Home() {
               className="absolute pointer-events-none"
               style={{
                 left: "50%",
-                top: "100px",
-                bottom: "20px",
+                top: "94px",
+                bottom: "14px",
                 width: "1px",
                 background: "var(--rule-faint)",
                 transform: "translateX(-0.5px)",
