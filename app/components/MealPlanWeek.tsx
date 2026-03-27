@@ -68,6 +68,7 @@ interface MealPlanWeekProps {
   onToggleMealSelect?: (id: number) => void;
   otherPersonPlans?: { personId: number; planId: number; name: string }[];
   recipeCaloriesMap?: Record<number, number>;
+  mealLogCaloriesMap?: Record<number, number>;
   onRefreshIngredients?: () => void;
 }
 
@@ -90,6 +91,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   onToggleMealSelect,
   otherPersonPlans = [],
   recipeCaloriesMap = {},
+  mealLogCaloriesMap = {},
   onRefreshIngredients,
 }) => {
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
@@ -378,6 +380,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         {meal.recipe && recipeCaloriesMap[meal.recipe.id] != null && (
                           <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">
                             {Math.round(recipeCaloriesMap[meal.recipe.id] * (meal.servings ?? 1))} kcal
+                          </div>
+                        )}
+                        {meal.ingredient && mealLogCaloriesMap[meal.id] != null && (
+                          <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">
+                            {mealLogCaloriesMap[meal.id]} kcal
                           </div>
                         )}
                       </div>

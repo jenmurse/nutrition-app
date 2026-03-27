@@ -82,9 +82,10 @@ export default function Home() {
       if (!plan) { setPlanLoading(false); return; }
 
       setWeekPlanId(plan.id);
-      const cached = clientCache.get<{ weeklySummary?: { dailyNutritions: DayData[] }; mealLogs?: MealLog[] }>(`/api/meal-plans/${plan.id}`);
-      const detail = cached ?? await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
+      // Always fetch fresh so mealLogs reflect the current state, then update the cache for the meal plan page
+      const detail = await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
       if (!detail?.weeklySummary?.dailyNutritions) { setPlanLoading(false); return; }
+      clientCache.set(`/api/meal-plans/${plan.id}`, detail);
 
       const dayEntry = detail.weeklySummary.dailyNutritions.find(
         (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
