@@ -576,7 +576,7 @@ function IngredientsPage() {
     const volumeNote = isCreate ? createVolumeNote : editVolumeNote;
     const onSave = isCreate ? handleCreateSave : handleSave;
     const onCancel = isCreate ? () => setCreateMode(false) : () => setEditMode(false);
-    const title = isCreate ? "New Ingredient" : "Edit Ingredient";
+    const title = isCreate ? "New Pantry Item" : "Edit Pantry Item";
     const subtitle = "";
     const saveLabel = isCreate ? "Create" : "Save";
     const savingLabel = isCreate ? "Creating..." : "Saving...";
@@ -653,7 +653,7 @@ function IngredientsPage() {
 
         {/* Name */}
         <div>
-          <label className={labelClass}>Ingredient name</label>
+          <label className={labelClass}>Pantry item</label>
           <input
             type="text"
             className={inputClass}
@@ -923,7 +923,7 @@ function IngredientsPage() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => updateSearchParam("search", e.target.value)}
-              aria-label="Search ingredients"
+              aria-label="Search pantry items"
               className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
             />
           {/* Food filter */}
@@ -984,10 +984,10 @@ function IngredientsPage() {
         {/* New ingredient button at bottom */}
         <button
           onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
-          aria-label="Create new ingredient"
+          aria-label="Create new pantry item"
           className="shrink-0 mx-[6px] mb-[6px] mt-[2px] py-[9px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-[7px]"
         >
-          + New Ingredient
+          + New Pantry Item
         </button>
       </div>
 
@@ -998,26 +998,26 @@ function IngredientsPage() {
         </div>
       ) : loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading ingredients...</div>
+          <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading pantry items...</div>
         </div>
       ) : !selectedIngredient ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4 max-w-[280px]">
             <div className="font-serif text-[20px] text-[var(--fg)]">
-              {ingredients.length === 0 ? 'No ingredients yet' : 'Select an ingredient'}
+              {ingredients.length === 0 ? 'No pantry items yet' : 'Select a pantry item'}
             </div>
             <p className="text-[11px] text-[var(--muted)] leading-relaxed">
               {ingredients.length === 0
-                ? 'Add your first ingredient manually or look it up from the USDA database.'
-                : 'Click an ingredient from the list to view its details.'}
+                ? 'Add your first pantry item manually or look it up from the USDA database.'
+                : 'Click a pantry item from the list to view its details.'}
             </p>
             {ingredients.length === 0 && (
               <button
                 onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
                 className="bg-[var(--accent)] text-[var(--accent-text)] rounded-[6px] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
-                aria-label="Add first ingredient"
+                aria-label="Add first pantry item"
               >
-                + New Ingredient
+                + New Pantry Item
               </button>
             )}
           </div>
