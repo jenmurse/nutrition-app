@@ -173,7 +173,7 @@ export default function Home() {
             </Link>
           </div>
 
-        ) : !todayData ? (
+        ) : !todayData || todayMeals.length === 0 ? (
           <div className="px-9 pb-10">
             <p className="font-sans text-[13px] text-[var(--muted)] mb-4">No meals logged for today yet.</p>
             <Link
