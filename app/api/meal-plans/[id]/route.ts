@@ -42,10 +42,12 @@ export async function GET(
       );
     }
 
-    // Get weekly nutrition summary — pass prefetched goals to skip redundant DB query
+    // Get weekly nutrition summary — pass prefetched goals and personId to skip redundant DB query
+    // and ensure global goals are filtered to the correct person (not all household members).
     const weeklySummary = await getWeeklyNutritionSummary(mealPlanId, {
       weekStartDate: mealPlan.weekStartDate,
       nutritionGoals: mealPlan.nutritionGoals,
+      personId: mealPlan.personId,
     });
 
     // Compute calories-per-serving for each recipe and ingredient in this meal plan

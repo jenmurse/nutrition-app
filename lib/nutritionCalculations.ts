@@ -287,10 +287,10 @@ type PrefetchedGoal = { nutrientId: number; lowGoal: number | null; highGoal: nu
  */
 export async function getWeeklyNutritionSummary(
   mealPlanId: number,
-  prefetched?: { weekStartDate: Date | string; nutritionGoals: PrefetchedGoal[] }
+  prefetched?: { weekStartDate: Date | string; nutritionGoals: PrefetchedGoal[]; personId?: number | null }
 ) {
   // Fetch mealPlan (if not prefetched), allNutrients, and globalGoals in parallel
-  const [mealPlanData, allNutrients, globalGoals] = await Promise.all([
+  const [mealPlanData, allNutrients, allGlobalGoals] = await Promise.all([
     prefetched
       ? Promise.resolve(null)
       : prisma.mealPlan.findUnique({
@@ -302,6 +302,11 @@ export async function getWeeklyNutritionSummary(
     prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
     prisma.globalNutritionGoal.findMany(),
   ]);
+
+  // Filter global goals to only the person who owns this meal plan,
+  // so multi-person households don't bleed goals across people.
+  const personId = prefetched?.personId !== undefined ? prefetched.personId : mealPlanData?.personId;
+  const globalGoals = allGlobalGoals.filter((g) => g.personId === (personId ?? null));
 
   const weekStartRaw = prefetched?.weekStartDate ?? mealPlanData?.weekStartDate;
   if (!weekStartRaw) throw new Error(`Meal plan with id ${mealPlanId} not found`);
