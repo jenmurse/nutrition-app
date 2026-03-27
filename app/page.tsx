@@ -113,14 +113,15 @@ export default function Home() {
   }, [selectedPersonId]);
 
   const allNutrients = todayData?.totalNutrients ?? [];
-  // Only count nutrients with a lowGoal — these require hitting a minimum target.
-  // Nutrients with only a highGoal (sodium, fat, etc.) are limits, not targets.
-  const nutrientsWithMin = allNutrients.filter((n) => n.lowGoal != null);
-  const onTrackCount = nutrientsWithMin.filter((n) => {
-    const hi = n.highGoal ?? Infinity;
-    return n.value >= n.lowGoal! && n.value <= hi;
+  // Count all nutrients with any goal set (min, max, or range).
+  // On track = satisfies whichever bounds exist.
+  const nutrientsWithGoals = allNutrients.filter((n) => n.lowGoal != null || n.highGoal != null);
+  const onTrackCount = nutrientsWithGoals.filter((n) => {
+    const aboveMin = n.lowGoal == null || n.value >= n.lowGoal;
+    const belowMax = n.highGoal == null || n.value <= n.highGoal;
+    return aboveMin && belowMax;
   }).length;
-  const totalGoals = nutrientsWithMin.length;
+  const totalGoals = nutrientsWithGoals.length;
 
   const circum = 2 * Math.PI * 35;
   const ringPct = totalGoals > 0 ? onTrackCount / totalGoals : 0;
