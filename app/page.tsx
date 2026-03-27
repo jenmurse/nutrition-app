@@ -185,15 +185,15 @@ export default function Home() {
           </div>
 
         ) : (
-          /* Two-column layout — single row, hairline inset top+bottom */
-          <div className="relative grid grid-cols-2">
+          /* Two-column layout: row 1 = hero (left) + spacer (right), row 2 = nutrition (left) + meals (right) */
+          <div className="relative grid grid-cols-2" style={{ gridTemplateRows: "auto 1fr" }}>
 
-            {/* Vertical hairline */}
+            {/* Vertical hairline — spans only the row-2 content area */}
             <div
               className="absolute pointer-events-none"
               style={{
                 left: "50%",
-                top: "20px",
+                top: "calc(var(--hero-h, 104px) + 8px)",
                 bottom: "28px",
                 width: "1px",
                 background: "var(--rule-faint)",
@@ -201,11 +201,9 @@ export default function Home() {
               }}
             />
 
-            {/* Left: ring hero + nutrition */}
-            <div className="px-9 pb-7">
-
-              {/* Ring hero */}
-              <div className="flex items-center gap-5 mb-6">
+            {/* Row 1 left: ring hero */}
+            <div className="col-start-1 row-start-1 px-9 pt-1 pb-5">
+              <div className="flex items-center gap-5">
                 <svg
                   width="80" height="80" viewBox="0 0 88 88"
                   aria-label={`${onTrackCount} of ${totalGoals} nutrition goals on track`}
@@ -247,8 +245,13 @@ export default function Home() {
                   )}
                 </div>
               </div>
+            </div>
 
-              {/* Nutrition label + bars */}
+            {/* Row 1 right: spacer — matches hero height via grid row */}
+            <div className="col-start-2 row-start-1" />
+
+            {/* Row 2 left: Today's nutrition */}
+            <div className="col-start-1 row-start-2 px-9 pb-7">
               <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
                 Today&apos;s nutrition
               </div>
@@ -275,8 +278,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: meals */}
-            <div className="px-8 pb-7">
+            {/* Row 2 right: Today's meals — starts at same y as nutrition label */}
+            <div className="col-start-2 row-start-2 px-8 pb-7">
               <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
                 Today&apos;s meals
               </div>
