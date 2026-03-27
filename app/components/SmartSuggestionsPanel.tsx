@@ -84,75 +84,6 @@ interface SmartSuggestionsPanelProps {
 }
 
 // ---------------------------------------------------------------------------
-// Sub-component: a single contributor row with expandable swap options
-// ---------------------------------------------------------------------------
-
-function ContributorWithSwaps({
-  contributor: c,
-  alert,
-  swaps,
-  onSwapMeal,
-}: {
-  contributor: ContributorResult;
-  alert: OverBudgetAlert;
-  swaps: SwapCandidate[];
-  onSwapMeal?: (mealLogId: number, newRecipeId: number) => Promise<void>;
-}) {
-  const [expanded, setExpanded] = React.useState(false);
-
-  return (
-    <div className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
-      <button
-        className="no-press w-full flex items-center justify-between px-3 py-[6px] text-left hover:bg-[var(--bg-subtle)] transition-colors border-0 cursor-pointer bg-transparent"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <span className="text-[11px] truncate text-[var(--fg)]">{c.name}</span>
-        <span className="text-[10px] text-[var(--muted)] shrink-0 ml-2">
-          {Math.round(c.amount)}{alert.unit} · {c.pct}%
-          {swaps.length > 0 && <span className="ml-1">{expanded ? '▴' : '▾'}</span>}
-        </span>
-      </button>
-      {expanded && swaps.length > 0 && (
-        <div className="bg-[var(--bg-subtle)]">
-          <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)]">Swap for:</div>
-          {swaps.map((swap) => {
-            const saving = swap.savingAmounts[alert.nutrientId];
-            const calNote =
-              swap.calorieDiff === 0 ? 'same cal'
-              : swap.calorieDiff > 0 ? `+${swap.calorieDiff} cal`
-              : `${swap.calorieDiff} cal`;
-            return (
-              <div key={swap.recipeId} className="flex items-center justify-between px-3 py-[5px]">
-                <div>
-                  <div className="font-sans text-[11px] text-[var(--fg)]">{swap.name}</div>
-                  <div className="font-sans text-[10px] text-[var(--muted)]">
-                    Saves ~{Math.round(saving ?? 0)}{alert.unit} · {calNote}
-                  </div>
-                </div>
-                {onSwapMeal && (
-                  <button
-                    className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
-                    onClick={(e) => { e.stopPropagation(); onSwapMeal(c.mealLogId, swap.recipeId); }}
-                    aria-label={`Swap ${c.name} for ${swap.name}`}
-                  >
-                    Swap
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {expanded && swaps.length === 0 && (
-        <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)]">
-          No swap candidates found
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -221,10 +152,13 @@ export default function SmartSuggestionsPanel({
 
               {analysis.overBudget.map((alert) => {
                 const contributors = analysis.topContributors[String(alert.nutrientId)] ?? [];
+                // Collect contributors that have swap candidates
+                const contributorsWithSwaps = contributors.slice(0, 3)
+                  .map((c) => ({ ...c, swaps: analysis.swapCandidates[String(c.mealLogId)] ?? [] }))
+                  .filter((c) => c.swaps.length > 0);
 
                 return (
                   <div key={alert.nutrientId} className="space-y-2">
-                    {/* Alert row */}
                     <div className="flex items-baseline justify-between">
                       <span className="text-[11px] font-medium">{alert.displayName}</span>
                       <span className="text-[10px] text-[var(--muted)]">
@@ -232,21 +166,42 @@ export default function SmartSuggestionsPanel({
                       </span>
                     </div>
 
-                    {/* Each contributor with its own swap options */}
-                    {contributors.length > 0 && (
-                      <div className="space-y-2">
-                        {contributors.slice(0, 3).map((c) => {
-                          const swaps = analysis.swapCandidates[String(c.mealLogId)] ?? [];
-                          return (
-                            <ContributorWithSwaps
-                              key={c.mealLogId}
-                              contributor={c}
-                              alert={alert}
-                              swaps={swaps}
-                              onSwapMeal={onSwapMeal}
-                            />
-                          );
-                        })}
+                    {contributorsWithSwaps.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="font-sans text-[11px] text-[var(--muted)]">Swap to reduce {alert.displayName.toLowerCase()}:</p>
+                        {contributorsWithSwaps.map((c) => (
+                          <div key={c.mealLogId} className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                            <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)]">
+                              Instead of {c.name}:
+                            </div>
+                            {c.swaps.map((swap) => {
+                              const saving = swap.savingAmounts[alert.nutrientId];
+                              const calNote =
+                                swap.calorieDiff === 0 ? 'same cal'
+                                : swap.calorieDiff > 0 ? `+${swap.calorieDiff} cal`
+                                : `${swap.calorieDiff} cal`;
+                              return (
+                                <div key={swap.recipeId} className="flex items-center justify-between px-3 py-[5px]">
+                                  <div>
+                                    <div className="font-sans text-[11px] text-[var(--fg)]">{swap.name}</div>
+                                    <div className="font-sans text-[10px] text-[var(--muted)]">
+                                      Saves ~{Math.round(saving ?? 0)}{alert.unit} · {calNote}
+                                    </div>
+                                  </div>
+                                  {onSwapMeal && (
+                                    <button
+                                      className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
+                                      onClick={() => onSwapMeal(c.mealLogId, swap.recipeId)}
+                                      aria-label={`Swap ${c.name} for ${swap.name}`}
+                                    >
+                                      Swap
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

@@ -285,8 +285,8 @@ export async function GET(
             const rProblem = r.nutrients[alert.nutrientId] ?? 0;
             if (rProblem >= currentProblemValue) return false;
             if (r.id === (mealLog?.recipeId ?? -1)) return false;
-            // Require at least one category overlap
-            if (hasCategory && !r.tags.some(t => sourceTags.includes(t))) return false;
+            // Require category overlap — but tagless recipes are universal candidates
+            if (hasCategory && r.tags.length > 0 && !r.tags.some(t => sourceTags.includes(t))) return false;
 
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
@@ -377,8 +377,8 @@ export async function GET(
             const rDeficit = r.nutrients[deficit.nutrientId] ?? 0;
             if (rDeficit <= currentDeficitValue) return false;
             if (r.id === (mealLog?.recipeId ?? -1)) return false;
-            // Require at least one category overlap
-            if (hasCategory && !r.tags.some(t => sourceTags.includes(t))) return false;
+            // Require category overlap — but tagless recipes are universal candidates
+            if (hasCategory && r.tags.length > 0 && !r.tags.some(t => sourceTags.includes(t))) return false;
 
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
