@@ -68,7 +68,7 @@ export async function GET(
           where: { id: mealPlanId },
           include: { nutritionGoals: { select: { nutrientId: true, lowGoal: true, highGoal: true } } },
         }),
-        prisma.globalNutritionGoal.findMany(),
+        prisma.globalNutritionGoal.findMany(), // filtered to person below
         prisma.nutrient.findMany({ orderBy: { orderIndex: 'asc' } }),
       ]),
 
@@ -97,11 +97,15 @@ export async function GET(
       }),
     ]);
 
-    const [mealPlan, globalGoals, allNutrients] = goalsData;
+    const [mealPlan, allGlobalGoals, allNutrients] = goalsData;
 
     if (!mealPlan || mealPlan.householdId !== auth.householdId) {
       return NextResponse.json({ error: 'Meal plan not found' }, { status: 404 });
     }
+
+    // Filter global goals to the meal plan's person so multi-person households
+    // don't bleed goals across people (same fix as getWeeklyNutritionSummary).
+    const globalGoals = allGlobalGoals.filter((g) => g.personId === (mealPlan.personId ?? null));
 
     // -----------------------------------------------------------------------
     // 2. Build goals map
