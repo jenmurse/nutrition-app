@@ -288,14 +288,17 @@ export async function GET(
             // Require category overlap — but tagless recipes are universal candidates
             if (hasCategory && r.tags.length > 0 && !r.tags.some(t => sourceTags.includes(t))) return false;
 
+            // Allow swaps that don't severely break other goals (5% tolerance).
+            // Without tolerance, nearly all candidates get rejected when nutrients
+            // are close to their goal boundaries.
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
               const currentTotal = nutrientTotals[nId] ?? 0;
               const currentMealContrib = currentMealNutrients[nId] ?? 0;
               const swapContrib = r.nutrients[nId] ?? 0;
               const newTotal = currentTotal - currentMealContrib + swapContrib;
-              if (goal.highGoal && newTotal > goal.highGoal && currentTotal <= goal.highGoal) return false;
-              if (goal.lowGoal && newTotal < goal.lowGoal && currentTotal >= goal.lowGoal) return false;
+              if (goal.highGoal && newTotal > goal.highGoal * 1.05 && currentTotal <= goal.highGoal) return false;
+              if (goal.lowGoal && newTotal < goal.lowGoal * 0.95 && currentTotal >= goal.lowGoal) return false;
             }
             return true;
           })
@@ -380,14 +383,15 @@ export async function GET(
             // Require category overlap — but tagless recipes are universal candidates
             if (hasCategory && r.tags.length > 0 && !r.tags.some(t => sourceTags.includes(t))) return false;
 
+            // Allow swaps that don't severely break other goals (5% tolerance).
             for (const [nIdStr, goal] of Object.entries(goalsMap)) {
               const nId = Number(nIdStr);
               const curTotal = nutrientTotals[nId] ?? 0;
               const curContrib = currentMealNuts[nId] ?? 0;
               const swapContrib = r.nutrients[nId] ?? 0;
               const newTotal = curTotal - curContrib + swapContrib;
-              if (goal.highGoal && newTotal > goal.highGoal && curTotal <= goal.highGoal) return false;
-              if (goal.lowGoal && nId !== deficit.nutrientId && newTotal < goal.lowGoal && curTotal >= goal.lowGoal) return false;
+              if (goal.highGoal && newTotal > goal.highGoal * 1.05 && curTotal <= goal.highGoal) return false;
+              if (goal.lowGoal && nId !== deficit.nutrientId && newTotal < goal.lowGoal * 0.95 && curTotal >= goal.lowGoal) return false;
             }
             return true;
           })

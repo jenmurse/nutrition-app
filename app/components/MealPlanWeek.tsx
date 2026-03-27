@@ -153,6 +153,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     setSelectedDayMeal({ date: selectedDate, mealType });
     setMealTypeDropdownOpen(false);
     setItemTypeTabOpen('recipe');
+    // Pre-select the meal type tag so the list is filtered but the user can toggle it
+    setRecipeFilterTags([mealType.toLowerCase()]);
   };
 
   const handleSelectRecipe = async (recipeId: number) => {
@@ -268,21 +270,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const filteredRecipes = useMemo(() => {
     let result = recipes;
-    // Auto-filter by meal type — only show recipes tagged for this meal type
-    if (selectedDayMeal) {
-      const target = selectedDayMeal.mealType.toLowerCase();
-      result = result.filter((recipe) => {
-        if (!recipe.tags) return false;
-        const tags = recipe.tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
-        return tags.length === 0 ? false : tags.includes(target);
-      });
-    }
     // Search filter
     if (recipeSearchTerm) {
       const term = recipeSearchTerm.toLowerCase();
       result = result.filter((r) => r.name.toLowerCase().includes(term));
     }
-    // Tag filter
+    // Tag filter — initially set to the meal type when the modal opens,
+    // but the user can toggle tags freely (deselect to see all, or pick a different category)
     if (recipeFilterTags.length > 0) {
       result = result.filter((r) => {
         if (!r.tags) return false;
@@ -291,7 +285,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       });
     }
     return result;
-  }, [recipes, selectedDayMeal, recipeSearchTerm, recipeFilterTags]);
+  }, [recipes, recipeSearchTerm, recipeFilterTags]);
 
   const isToday = (date: Date) => {
     const today = new Date();
