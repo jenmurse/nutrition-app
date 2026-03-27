@@ -185,27 +185,29 @@ export default function Home() {
           </div>
 
         ) : (
-          /* Two-column layout */
-          <div className="relative grid grid-cols-2" style={{ gridTemplateRows: "auto 1fr" }}>
+          /* Two-column layout — single row, hairline inset top+bottom */
+          <div className="relative grid grid-cols-2">
 
-            {/* Vertical hairline — sits between nutrition + meals labels only */}
+            {/* Vertical hairline */}
             <div
               className="absolute pointer-events-none"
               style={{
                 left: "50%",
-                top: "112px",
-                bottom: "40px",
+                top: "20px",
+                bottom: "28px",
                 width: "1px",
                 background: "var(--rule-faint)",
                 transform: "translateX(-0.5px)",
               }}
             />
 
-            {/* Row 1 left: ring hero */}
-            <div className="col-start-1 row-start-1 px-9 pt-1 pb-5">
-              <div className="flex items-center gap-5">
+            {/* Left: ring hero + nutrition */}
+            <div className="px-9 pb-7">
+
+              {/* Ring hero */}
+              <div className="flex items-center gap-5 mb-6">
                 <svg
-                  width="88" height="88" viewBox="0 0 88 88"
+                  width="80" height="80" viewBox="0 0 88 88"
                   aria-label={`${onTrackCount} of ${totalGoals} nutrition goals on track`}
                   role="img"
                   style={{ flexShrink: 0 }}
@@ -245,17 +247,12 @@ export default function Home() {
                   )}
                 </div>
               </div>
-            </div>
 
-            {/* Row 1 right: spacer */}
-            <div className="col-start-2 row-start-1" />
-
-            {/* Row 2 left: Today's nutrition */}
-            <div className="col-start-1 row-start-2 px-9 pb-7">
+              {/* Nutrition label + bars */}
               <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
                 Today&apos;s nutrition
               </div>
-              <div className="flex flex-col gap-[10px] max-w-[340px]">
+              <div className="flex flex-col gap-[10px]">
                 {allNutrients.map((n) => {
                   const goal = n.highGoal ?? n.lowGoal ?? 0;
                   const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
@@ -278,8 +275,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Row 2 right: Today's meals */}
-            <div className="col-start-2 row-start-2 px-8 pb-7">
+            {/* Right: meals */}
+            <div className="px-8 pb-7">
               <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
                 Today&apos;s meals
               </div>
