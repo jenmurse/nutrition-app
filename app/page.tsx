@@ -177,10 +177,14 @@ export default function Home() {
 
         ) : !todayData || todayMeals.length === 0 ? (
           <div className="px-9 pb-10">
-            <p className="font-sans text-[13px] text-[var(--muted)] mb-4">No meals logged for today yet.</p>
+            <div className="text-[16px] font-medium text-[var(--fg)] mb-2">No meals logged for today.</div>
+            <p className="font-sans text-[13px] text-[var(--muted)] mb-6 whitespace-nowrap">
+              Open your meal plan to log breakfast, lunch, and dinner.
+            </p>
             <Link
               href={`/meal-plans?planId=${weekPlanId}`}
-              className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-4 py-2 no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
+              className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] hover:bg-[var(--accent-hover)] transition-colors no-underline"
+              aria-label="Open meal plan to log meals"
             >
               Open meal plan →
             </Link>
