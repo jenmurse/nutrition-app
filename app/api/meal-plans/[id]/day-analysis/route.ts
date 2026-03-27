@@ -276,9 +276,8 @@ export async function GET(
 
         const mealLog = mealLogs.find(m => m.id === meal.mealLogId);
         const mealType = mealLog?.mealType?.toLowerCase() ?? '';
-        // Use the source recipe's tags for category matching (not just the meal slot)
-        const sourceRecipe = mealLog?.recipeId ? recipePool.find(r => r.id === mealLog.recipeId) : null;
-        const sourceTags = sourceRecipe?.tags?.length ? sourceRecipe.tags : (mealType ? [mealType] : []);
+        // Match by meal type only — recipe-level tags are too narrow for a small household DB.
+        const sourceTags = mealType ? [mealType] : [];
         const hasCategory = sourceTags.length > 0;
 
         const swaps = recipePool
@@ -369,9 +368,8 @@ export async function GET(
         const currentCals = calorieNutrientId ? (currentMealNuts[calorieNutrientId] ?? 0) : 0;
         const mealLog = mealLogs.find(m => m.id === mc.mealLogId);
         const mealType = mealLog?.mealType?.toLowerCase() ?? '';
-        // Use the source recipe's tags for category matching
-        const sourceRecipe = mealLog?.recipeId ? recipePool.find(r => r.id === mealLog.recipeId) : null;
-        const sourceTags = sourceRecipe?.tags?.length ? sourceRecipe.tags : (mealType ? [mealType] : []);
+        // Match by meal type only — recipe-level tags are too narrow for a small household DB.
+        const sourceTags = mealType ? [mealType] : [];
         const hasCategory = sourceTags.length > 0;
 
         const swaps = recipePool
