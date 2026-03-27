@@ -37,7 +37,7 @@ export default function ConfirmModal() {
             onClick={() => dialog._resolve(true)}
             className={`px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border cursor-pointer transition-colors ${
               state.danger
-                ? "border-[var(--error,#b94a48)] bg-[var(--error,#b94a48)] text-white hover:opacity-90"
+                ? "border-0 bg-[var(--error-light)] text-[var(--error)] hover:bg-[var(--error)] hover:text-white"
                 : "border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] hover:opacity-90"
             }`}
           >

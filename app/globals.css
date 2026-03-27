@@ -113,7 +113,8 @@
     --accent-hover: #B82030;
     --accent-light: #F5DCDE;
     --accent-text: #ffffff;
-    --error: #7B1C12;
+    --error: #C0392B;
+    --error-light: #FDECEA;
   }
   /* HOT PINK — warm, clash with error */
   [data-theme="hotpink"] {
@@ -130,7 +131,8 @@
     --accent-hover: #9A1050;
     --accent-light: #F3D4E0;
     --accent-text: #ffffff;
-    --error: #7B1C12;
+    --error: #C0392B;
+    --error-light: #FDECEA;
   }
   /* BLUSH — warm */
   [data-theme="blush"] {
@@ -147,7 +149,8 @@
     --accent-hover: #823C4A;
     --accent-light: #EDDCE0;
     --accent-text: #ffffff;
-    --error: #7B1C12;
+    --error: #C0392B;
+    --error-light: #FDECEA;
   }
   /* TERRACOTTA — warm, clash with error */
   [data-theme="terracotta"] {
@@ -164,7 +167,8 @@
     --accent-hover: #8C2A0A;
     --accent-light: #F2DDD7;
     --accent-text: #ffffff;
-    --error: #7B1C12;
+    --error: #C0392B;
+    --error-light: #FDECEA;
   }
   /* MAUVE — warm */
   [data-theme="mauve"] {

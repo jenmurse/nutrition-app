@@ -760,7 +760,7 @@ const MealPlansPage = () => {
           <>
             <span className="font-mono text-[9px] text-[var(--muted)] shrink-0">{selectedMealIds.size} sel</span>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--error)] text-[var(--error)] px-[9px] py-[3px] disabled:opacity-40 hover:bg-[var(--error-light)] transition-colors shrink-0"
+              className="font-mono text-[8px] uppercase tracking-[0.1em] rounded-[6px] border-0 bg-[var(--error-light)] text-[var(--error)] px-[9px] py-[3px] disabled:opacity-40 hover:bg-[var(--error)] hover:text-white transition-colors shrink-0"
               disabled={selectedMealIds.size === 0}
               onClick={handleDeleteSelected}
             >Delete</button>
