@@ -5,15 +5,13 @@ import { useEffect, useState } from "react";
 import { usePersonContext } from "./components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
 
-/** Get the Sunday that starts the current week */
 function getCurrentWeekStart(): Date {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - d.getDay()); // roll back to Sunday
+  d.setDate(d.getDate() - d.getDay());
   return d;
 }
 
-/** Parse a UTC date string preserving the calendar date in local timezone */
 function parseUTCDate(dateStr: string | Date): Date {
   const d = dateStr instanceof Date ? dateStr : new Date(dateStr);
   return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
@@ -42,13 +40,22 @@ type DayData = {
   totalNutrients: DayNutrient[];
 };
 
-const MACRO_KEYS = ["protein", "carb", "fat", "fiber", "sugar"];
+type MealLog = {
+  id: number;
+  date: string;
+  mealType: string;
+  recipe?: { name: string } | null;
+  ingredient?: { name: string } | null;
+};
+
+const MEAL_TYPES = ["breakfast", "lunch", "snack", "dinner", "dessert"];
 
 export default function Home() {
   const { selectedPersonId, selectedPerson } = usePersonContext();
   const [weekPlanId, setWeekPlanId] = useState<number | null>(null);
   const [planChecked, setPlanChecked] = useState(false);
   const [todayData, setTodayData] = useState<DayData | null>(null);
+  const [todayMeals, setTodayMeals] = useState<MealLog[]>([]);
   const [planLoading, setPlanLoading] = useState(false);
 
   const now = new Date();
@@ -59,6 +66,7 @@ export default function Home() {
     if (selectedPersonId === null) return;
     setPlanChecked(false);
     setTodayData(null);
+    setTodayMeals([]);
     setWeekPlanId(null);
     setPlanLoading(true);
 
@@ -74,8 +82,7 @@ export default function Home() {
       if (!plan) { setPlanLoading(false); return; }
 
       setWeekPlanId(plan.id);
-      // Use cached detail if available
-      const cached = clientCache.get<{ weeklySummary?: { dailyNutritions: DayData[] } }>(`/api/meal-plans/${plan.id}`);
+      const cached = clientCache.get<{ weeklySummary?: { dailyNutritions: DayData[] }; mealLogs?: MealLog[] }>(`/api/meal-plans/${plan.id}`);
       const detail = cached ?? await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
       if (!detail?.weeklySummary?.dailyNutritions) { setPlanLoading(false); return; }
 
@@ -83,10 +90,17 @@ export default function Home() {
         (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
       );
       if (dayEntry) setTodayData(dayEntry);
+
+      if (detail.mealLogs) {
+        const todayLogs = (detail.mealLogs as MealLog[]).filter(
+          (m) => parseUTCDate(m.date).toDateString() === today.toDateString()
+        );
+        setTodayMeals(todayLogs);
+      }
+
       setPlanLoading(false);
     };
 
-    // Use cached plan list if available for instant render
     const cachedPlans = clientCache.get<{ id: number; weekStartDate: string }[]>(planListKey);
     if (cachedPlans) {
       runWithPlans(cachedPlans).catch(() => { setPlanChecked(true); setPlanLoading(false); });
@@ -98,150 +112,215 @@ export default function Home() {
     }
   }, [selectedPersonId]);
 
-  const calNutrient = todayData?.totalNutrients.find((n) =>
-    ["energy", "calorie"].some((k) => n.displayName.toLowerCase().includes(k))
-  );
-  const calValue = calNutrient?.value ?? 0;
-  const calGoal = calNutrient?.highGoal ?? calNutrient?.lowGoal ?? 0;
-  const calPct = calGoal > 0 ? Math.min(Math.round((calValue / calGoal) * 100), 100) : 0;
+  const allNutrients = todayData?.totalNutrients ?? [];
+  const nutrientsWithGoals = allNutrients.filter((n) => n.lowGoal != null || n.highGoal != null);
+  const onTrackCount = nutrientsWithGoals.filter((n) => {
+    const lo = n.lowGoal ?? 0;
+    const hi = n.highGoal ?? Infinity;
+    return n.value >= lo && n.value <= hi;
+  }).length;
+  const totalGoals = nutrientsWithGoals.length;
 
-  const macros = (todayData?.totalNutrients ?? []).filter((n) =>
-    MACRO_KEYS.some((k) => n.displayName.toLowerCase().includes(k))
-  );
+  const circum = 2 * Math.PI * 35;
+  const ringPct = totalGoals > 0 ? onTrackCount / totalGoals : 0;
+  const dashOffset = circum * (1 - ringPct);
 
-  const belowMin = (todayData?.totalNutrients ?? []).filter(
-    (n) => n.status === "warning" && n.lowGoal && n.value < n.lowGoal
-  );
+  const overLimit = allNutrients.filter((n) => n.highGoal != null && n.value > n.highGoal);
+  const belowMin = allNutrients.filter((n) => n.lowGoal != null && n.value < n.lowGoal);
 
-  const hasData = todayData && calValue > 0;
+  const formatVal = (v: number) => {
+    const r = Math.round(v);
+    return r >= 1000 ? r.toLocaleString() : String(r);
+  };
 
   return (
     <div className="flex flex-col h-full animate-fade-in">
       <div className="flex-1 overflow-y-auto">
 
-        {/* Greeting */}
-        <div className="px-8 pt-8 pb-6">
-          <div className="font-serif text-[28px] text-[var(--fg)] leading-tight">
+        {/* Greeting — full width, no bottom border */}
+        <div className="px-9 pt-7 pb-[22px]">
+          <div className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.15]">
             {getGreeting()}{selectedPerson ? `, ${selectedPerson.name}.` : "."}
           </div>
-          <div className="font-mono text-[10px] tracking-[0.08em] text-[var(--muted)] mt-[6px]">
-            {now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
+          <div className="font-mono text-[9px] tracking-[0.1em] text-[var(--muted)] uppercase mt-[5px]">
+            {now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </div>
         </div>
 
-        {/* Today's nutrition */}
-        <div className="px-8 pt-5 pb-7">
-          {!planChecked || planLoading ? (
-            <div className="space-y-[10px] max-w-[480px]">
-              <div className="h-8 w-28 bg-[var(--bg-subtle)] animate-loading" />
-              <div className="h-[3px] w-full bg-[var(--rule)]" />
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-[28px] w-full bg-[var(--bg-subtle)] animate-loading" />
-              ))}
-            </div>
-          ) : !weekPlanId ? (
-            <div className="rounded-[var(--radius,12px)] max-w-[380px] px-7 py-8 space-y-4 bg-[var(--bg-raised)]" style={{ boxShadow: 'var(--shadow-md)' }}>
-              <div className="font-serif text-[18px] text-[var(--fg)] leading-snug">
-                No plan for this week
+        {/* Body states */}
+        {!planChecked || planLoading ? (
+          <div className="px-9 space-y-[10px]">
+            <div className="h-8 w-28 bg-[var(--bg-subtle)] animate-loading" />
+            <div className="h-[3px] w-64 bg-[var(--bg-subtle)] animate-loading" />
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[28px] w-full max-w-[480px] bg-[var(--bg-subtle)] animate-loading" />
+            ))}
+          </div>
+
+        ) : !weekPlanId ? (
+          <div className="px-9 pb-10">
+            <div className="text-[16px] font-medium text-[var(--fg)] mb-2">No meal plan for this week.</div>
+            <p className="font-sans text-[13px] text-[var(--muted)] mb-6 whitespace-nowrap">
+              Create a plan to start logging meals and tracking your daily nutrition.
+            </p>
+            <Link
+              href="/meal-plans"
+              className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] hover:bg-[var(--accent-hover)] transition-colors no-underline"
+              aria-label="Create a meal plan for this week"
+            >
+              + Create this week's plan
+            </Link>
+          </div>
+
+        ) : !todayData ? (
+          <div className="px-9 pb-10">
+            <p className="font-sans text-[13px] text-[var(--muted)] mb-4">No meals logged for today yet.</p>
+            <Link
+              href={`/meal-plans?planId=${weekPlanId}`}
+              className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-4 py-2 no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
+            >
+              Open meal plan →
+            </Link>
+          </div>
+
+        ) : (
+          /* Two-column layout */
+          <div className="relative grid grid-cols-2" style={{ gridTemplateRows: "auto 1fr" }}>
+
+            {/* Vertical hairline — sits between nutrition + meals labels only */}
+            <div
+              className="absolute pointer-events-none"
+              style={{
+                left: "50%",
+                top: "108px",
+                bottom: "40px",
+                width: "1px",
+                background: "var(--rule-faint)",
+                transform: "translateX(-0.5px)",
+              }}
+            />
+
+            {/* Row 1 left: ring hero */}
+            <div className="col-start-1 row-start-1 px-9 pb-5">
+              <div className="flex items-center gap-5">
+                <svg
+                  width="88" height="88" viewBox="0 0 88 88"
+                  aria-label={`${onTrackCount} of ${totalGoals} nutrition goals on track`}
+                  role="img"
+                  style={{ flexShrink: 0 }}
+                >
+                  <circle cx="44" cy="44" r="35" fill="none" stroke="var(--bg-subtle)" strokeWidth="7" />
+                  <circle
+                    cx="44" cy="44" r="35"
+                    fill="none"
+                    stroke="var(--accent)"
+                    strokeWidth="7"
+                    strokeDasharray={circum}
+                    strokeDashoffset={dashOffset}
+                    strokeLinecap="round"
+                    transform="rotate(-90 44 44)"
+                  />
+                </svg>
+                <div>
+                  <div className="flex items-baseline gap-[6px] mb-[2px]">
+                    <span className="text-[36px] font-semibold tracking-[-0.03em] text-[var(--fg)] leading-none tabular-nums">
+                      {onTrackCount}
+                    </span>
+                    <span className="font-mono text-[10px] text-[var(--muted)]">of {totalGoals} goals on track</span>
+                  </div>
+                  {(overLimit.length > 0 || belowMin.length > 0) && (
+                    <div className="flex flex-col gap-[3px] mt-[6px]">
+                      {overLimit.map((n) => (
+                        <div key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] flex items-center gap-[5px]">
+                          <span>△</span> {n.displayName} +{formatVal(n.value - (n.highGoal ?? 0))}{n.unit} over limit
+                        </div>
+                      ))}
+                      {belowMin.map((n) => (
+                        <div key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] flex items-center gap-[5px]">
+                          <span>⊖</span> {n.displayName} −{formatVal((n.lowGoal ?? 0) - n.value)}{n.unit} below min
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="font-sans text-[12px] text-[var(--muted)] leading-relaxed">
-                Create a weekly meal plan to start logging meals and tracking your nutrition.
-              </p>
-              <Link
-                href="/meal-plans"
-                className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors no-underline"
-                aria-label="Create a meal plan for this week"
-              >
-                + Create this week's plan
-              </Link>
             </div>
-          ) : !hasData ? (
-            <div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                No meals logged for today yet.
-              </p>
+
+            {/* Row 1 right: spacer */}
+            <div className="col-start-2 row-start-1" />
+
+            {/* Row 2 left: Today's nutrition */}
+            <div className="col-start-1 row-start-2 px-9 pb-7">
+              <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
+                Today&apos;s nutrition
+              </div>
+              <div className="flex flex-col gap-[10px] max-w-[340px]">
+                {allNutrients.map((n) => {
+                  const goal = n.highGoal ?? n.lowGoal ?? 0;
+                  const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
+                  return (
+                    <div key={n.nutrientId}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg)]">
+                          {n.displayName}
+                        </span>
+                        <span className="font-mono text-[9px] tabular-nums text-[var(--muted)]">
+                          {formatVal(n.value)} / {formatVal(goal)} {n.unit}
+                        </span>
+                      </div>
+                      <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[4px] overflow-hidden">
+                        <div className="h-full rounded-[4px] bg-[var(--accent)]" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Row 2 right: Today's meals */}
+            <div className="col-start-2 row-start-2 px-8 pb-7">
+              <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
+                Today&apos;s meals
+              </div>
+              <div className="flex flex-col">
+                {MEAL_TYPES.map((type) => {
+                  const logs = todayMeals.filter((m) => m.mealType.toLowerCase() === type);
+                  const name = logs.length > 0
+                    ? logs.map((m) => m.recipe?.name ?? m.ingredient?.name ?? "").filter(Boolean).join(", ")
+                    : null;
+                  return (
+                    <div key={type} className="flex items-center py-[11px] border-b border-[var(--rule-faint)] last:border-b-0">
+                      <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] w-[72px] shrink-0">
+                        {type}
+                      </span>
+                      {name ? (
+                        <span className="font-sans text-[12px] text-[var(--fg)] flex-1">{name}</span>
+                      ) : (
+                        <>
+                          <span className="font-mono text-[9px] text-[var(--placeholder)] flex-1">Nothing logged yet</span>
+                          <Link
+                            href={`/meal-plans?planId=${weekPlanId}`}
+                            className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline opacity-70 hover:opacity-100 transition-opacity"
+                          >
+                            + add
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
               <Link
                 href={`/meal-plans?planId=${weekPlanId}`}
-                className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-4 py-2 no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
+                className="inline-block mt-5 font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-3 py-[6px] no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
+                style={{ boxShadow: "var(--shadow-sm)" }}
               >
-                Open meal plan →
+                View full meal plan →
               </Link>
             </div>
-          ) : (
-            <div className="max-w-[480px]">
 
-              {/* Calorie hero */}
-              <div className="flex items-baseline gap-[6px] mb-[6px]">
-                <span className="font-serif text-[32px] text-[var(--accent)] leading-none tabular-nums">
-                  {Math.round(calValue).toLocaleString()}
-                </span>
-                <span className="font-mono text-[10px] text-[var(--muted)]">kcal</span>
-                {calGoal > 0 && (
-                  <span className="font-mono text-[10px] text-[var(--muted)] ml-auto tabular-nums">
-                    of {Math.round(calGoal).toLocaleString()} · {calPct}%
-                  </span>
-                )}
-              </div>
-              {calGoal > 0 && (
-                <div className="h-[4px] bg-[var(--rule)] mb-5 relative rounded-full">
-                  <div
-                    className={`absolute top-0 left-0 h-full transition-[width] duration-500 rounded-full ${
-                      calPct >= 100 && calNutrient?.highGoal != null ? "bg-[var(--error)]" : "bg-[var(--accent)]"
-                    }`}
-                    style={{ width: `${calPct}%` }}
-                  />
-                </div>
-              )}
-
-              {/* Macro rows */}
-              {macros.map((n) => {
-                const goal = n.highGoal ?? n.lowGoal ?? 0;
-                const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
-                const isOverMax = n.highGoal && n.highGoal > 0 && n.value > n.highGoal;
-                const isWarning = n.status === "warning";
-                const isError = n.status === "error" || isOverMax;
-                const barColor = "bg-[var(--accent)]";
-                const valColor = "text-[var(--muted)]";
-                const unitSuffix = n.displayName.toLowerCase() === "calories" ? "" : ` ${n.unit}`;
-                const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
-
-                return (
-                  <div key={n.nutrientId} className="mb-3">
-                    <div className="flex justify-between items-baseline mb-[5px]">
-                      <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{n.displayName}</span>
-                      <span className={`font-mono text-[10px] tabular-nums ${valColor}`}>
-                        {formatVal(n.value)} / {formatVal(goal)}{unitSuffix}
-                      </span>
-                    </div>
-                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
-                      <div className={`h-full rounded-[var(--radius-sm,4px)] ${barColor}`} style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Below-minimum chips */}
-              {belowMin.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {belowMin.map((n) => (
-                    <span key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] flex items-center gap-[4px]">
-                      <span style={{ opacity: 0.55, fontSize: '0.85em' }}>⊖</span>{n.displayName} below min
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-6">
-                <Link
-                  href={`/meal-plans?planId=${weekPlanId}`}
-                  className="inline-block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-4 py-2 no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
-                >
-                  View meal plan →
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
       </div>
     </div>
