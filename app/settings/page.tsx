@@ -537,7 +537,7 @@ const SettingsPage = () => {
         setImportResult({ ok: false, message: err.error || 'Import failed.' });
       }
     } catch {
-      setImportResult({ ok: false, message: 'Could not read file — make sure it is a valid Course backup.' });
+      setImportResult({ ok: false, message: 'Could not read file — make sure it is a valid Set Course backup.' });
     } finally {
       setImportLoading(false);
     }
@@ -1109,7 +1109,7 @@ const SettingsPage = () => {
                       Restart your AI assistant and test it:
                     </p>
                     <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
-                      <p className="font-mono text-[10px] text-[var(--muted)] italic">"Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
+                      <p className="font-mono text-[10px] text-[var(--muted)] italic">"Save this recipe to Set Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
                     </div>
                   </div>
                 </div>

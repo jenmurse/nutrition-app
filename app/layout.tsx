@@ -28,7 +28,7 @@ const dmSerifDisplay = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Course",
+  title: "Set Course",
   description: "Plan meals, track nutrition, build better habits.",
 };
 
