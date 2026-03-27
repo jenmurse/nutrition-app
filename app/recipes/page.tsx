@@ -621,9 +621,9 @@ function RecipesPage() {
 
                   {/* Nutrition grid */}
                   {selectedRecipe.totals && selectedRecipe.totals.length > 0 && (() => {
-                    const GRID_KEYS = [
+                    const GRID_KEYS: { match: string[]; label: string; exact?: boolean }[] = [
                       { match: ["energy", "calorie"], label: "KCAL" },
-                      { match: ["total fat"], label: "FAT" },
+                      { match: ["fat"], label: "FAT", exact: true },  // exact so it doesn't match "Saturated Fat"
                       { match: ["saturated"], label: "SAT FAT" },
                       { match: ["sodium"], label: "SODIUM" },
                       { match: ["carbohydrate", "carb"], label: "CARBS" },
@@ -631,10 +631,13 @@ function RecipesPage() {
                       { match: ["protein"], label: "PROTEIN" },
                       { match: ["fiber"], label: "FIBER" },
                     ];
-                    const gridNutrients = GRID_KEYS.map(({ match, label }) => {
-                      const n = selectedRecipe.totals!.find((t) =>
-                        match.some((k) => t.displayName.toLowerCase().includes(k))
-                      );
+                    const gridNutrients = GRID_KEYS.map(({ match, label, exact }) => {
+                      const n = selectedRecipe.totals!.find((t) => {
+                        const name = t.displayName.toLowerCase();
+                        return exact
+                          ? match.some((k) => name === k)
+                          : match.some((k) => name.includes(k));
+                      });
                       return { label, value: n ? Math.round(n.value * 10) / 10 : 0, unit: n?.unit ?? "" };
                     });
                     return (
