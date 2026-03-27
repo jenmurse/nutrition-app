@@ -188,13 +188,13 @@ export default function Home() {
           /* Two-column layout: row 1 = hero (left) + spacer (right), row 2 = nutrition (left) + meals (right) */
           <div className="relative grid grid-cols-2" style={{ gridTemplateRows: "auto 1fr" }}>
 
-            {/* Vertical hairline — spans only the row-2 content area */}
+            {/* Vertical hairline — short, spans only the nutrition/meals content */}
             <div
               className="absolute pointer-events-none"
               style={{
                 left: "50%",
-                top: "calc(var(--hero-h, 104px) + 8px)",
-                bottom: "28px",
+                top: "118px",
+                bottom: "70px",
                 width: "1px",
                 background: "var(--rule-faint)",
                 transform: "translateX(-0.5px)",
@@ -203,48 +203,61 @@ export default function Home() {
 
             {/* Row 1 left: ring hero */}
             <div className="col-start-1 row-start-1 px-9 pt-1 pb-5">
-              <div className="flex items-center gap-5">
-                <svg
-                  width="80" height="80" viewBox="0 0 88 88"
-                  aria-label={`${onTrackCount} of ${totalGoals} nutrition goals on track`}
-                  role="img"
-                  style={{ flexShrink: 0 }}
-                >
-                  <circle cx="44" cy="44" r="35" fill="none" stroke="var(--bg-subtle)" strokeWidth="7" />
-                  <circle
-                    cx="44" cy="44" r="35"
-                    fill="none"
-                    stroke="var(--accent)"
-                    strokeWidth="7"
-                    strokeDasharray={circum}
-                    strokeDashoffset={dashOffset}
-                    strokeLinecap="round"
-                    transform="rotate(-90 44 44)"
-                  />
-                </svg>
-                <div>
-                  <div className="flex items-baseline gap-[6px] mb-[2px]">
-                    <span className="text-[36px] font-semibold tracking-[-0.03em] text-[var(--fg)] leading-none tabular-nums">
-                      {onTrackCount}
-                    </span>
-                    <span className="font-mono text-[10px] text-[var(--muted)]">of {totalGoals} goals on track</span>
-                  </div>
-                  {(overLimit.length > 0 || belowMin.length > 0) && (
-                    <div className="flex flex-col gap-[3px] mt-[6px]">
-                      {overLimit.map((n) => (
-                        <div key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] flex items-center gap-[5px]">
-                          <span>△</span> {n.displayName} +{formatVal(n.value - (n.highGoal ?? 0))}{n.unit} over limit
+              {(() => {
+                const warnings = [
+                  ...overLimit.map((n) => ({ id: n.nutrientId, icon: "⚠︎", text: `${n.displayName} +${formatVal(n.value - (n.highGoal ?? 0))}${n.unit} over limit` })),
+                  ...belowMin.map((n) => ({ id: n.nutrientId, icon: "⊖", text: `${n.displayName} −${formatVal((n.lowGoal ?? 0) - n.value)}${n.unit} below min` })),
+                ];
+                const count = warnings.length;
+                // ≤2 warnings: ring vertically centered with text; 3+: ring top-aligned
+                const align = count <= 2 ? "items-center" : "items-start";
+                // 6+ warnings: 2-col grid, smaller text
+                const manyWarnings = count >= 6;
+                const warnFontSize = manyWarnings ? "text-[8px]" : "text-[9px]";
+                const warnGap = manyWarnings ? "gap-[2px]" : count >= 3 ? "gap-[3px]" : "gap-[4px]";
+                const warnMt = manyWarnings ? "mt-[4px]" : "mt-[8px]";
+                const heroPb = count <= 1 ? "pb-4" : "";
+                return (
+                  <div className={`flex ${align} gap-5 ${heroPb}`}>
+                    <svg
+                      width="80" height="80" viewBox="0 0 88 88"
+                      aria-label={`${onTrackCount} of ${totalGoals} nutrition goals on track`}
+                      role="img"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <circle cx="44" cy="44" r="35" fill="none" stroke="var(--bg-subtle)" strokeWidth="7" />
+                      <circle
+                        cx="44" cy="44" r="35"
+                        fill="none"
+                        stroke="var(--accent)"
+                        strokeWidth="7"
+                        strokeDasharray={circum}
+                        strokeDashoffset={dashOffset}
+                        strokeLinecap="round"
+                        transform="rotate(-90 44 44)"
+                      />
+                    </svg>
+                    <div>
+                      <div className="flex items-baseline gap-[6px] mb-[2px]">
+                        <span className="text-[36px] font-semibold tracking-[-0.03em] text-[var(--fg)] leading-none tabular-nums">
+                          {onTrackCount}
+                        </span>
+                        <span className="font-mono text-[10px] text-[var(--muted)]">of {totalGoals} goals on track</span>
+                      </div>
+                      {count > 0 && (
+                        <div className={`${warnMt} ${manyWarnings ? "grid grid-cols-2 gap-x-[18px]" : "flex flex-col"} ${warnGap}`}>
+                          {warnings.map((w) => (
+                            <div key={w.id} className={`font-mono ${warnFontSize} uppercase tracking-[0.06em] text-[var(--muted)] flex items-center gap-[5px]`}>
+                              <span className={manyWarnings ? "text-[9px]" : "text-[10px]"} style={{ lineHeight: 1 }}>{w.icon}</span>
+                              {w.text}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                      {belowMin.map((n) => (
-                        <div key={n.nutrientId} className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] flex items-center gap-[5px]">
-                          <span>⊖</span> {n.displayName} −{formatVal((n.lowGoal ?? 0) - n.value)}{n.unit} below min
-                        </div>
-                      ))}
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Row 1 right: spacer — matches hero height via grid row */}
