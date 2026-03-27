@@ -200,7 +200,7 @@ export default function Home() {
               style={{
                 left: "50%",
                 top: "100px",
-                bottom: "50px",
+                bottom: "20px",
                 width: "1px",
                 background: "var(--rule-faint)",
                 transform: "translateX(-0.5px)",
