@@ -129,6 +129,29 @@ function RecipesPage() {
   const selectedTags = searchParams?.get("tags")?.split(",").filter(Boolean) || [];
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
 
+  // Render notes: handles both markdown strings and legacy JSON format
+  function renderNotesHtml(text: string): string {
+    try {
+      const parsed = JSON.parse(text);
+      // Optimization JSON: { sections: [{ label, suggestions: [] }] }
+      if (Array.isArray(parsed?.sections) && parsed.sections[0]?.suggestions) {
+        return parsed.sections.map((s: { label: string; suggestions: string[] }) =>
+          `<h3>${s.label}</h3><ul>${s.suggestions.map((t: string) => `<li>${t}</li>`).join('')}</ul>`
+        ).join('');
+      }
+      // Meal prep JSON: { score, scoreLabel, sections: [{ label, notes: [] }] }
+      if (Array.isArray(parsed?.sections) && parsed.sections[0]?.notes) {
+        const header = parsed.scoreLabel ? `<p><strong>${parsed.scoreLabel}</strong> (score: ${parsed.score}/5)</p>` : '';
+        return header + parsed.sections.map((s: { label: string; notes: string[] }) =>
+          `<h3>${s.label}</h3><ul>${s.notes.map((t: string) => `<li>${t}</li>`).join('')}</ul>`
+        ).join('');
+      }
+    } catch {
+      // Not JSON — fall through to markdown
+    }
+    return marked.parse(text) as string;
+  }
+
   // Sort
   const sortOptions = [
     { key: "name", label: "Name" },
@@ -883,7 +906,7 @@ function RecipesPage() {
                           </>
                         ) : notes ? (
                           <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
-                            dangerouslySetInnerHTML={{ __html: marked.parse(notes) as string }} />
+                            dangerouslySetInnerHTML={{ __html: renderNotesHtml(notes) }} />
                         ) : (
                           <div className="flex flex-col items-center justify-center py-16 gap-4">
                             <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--placeholder)]">No optimization notes yet</p>
@@ -934,7 +957,7 @@ function RecipesPage() {
                           </>
                         ) : notes ? (
                           <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
-                            dangerouslySetInnerHTML={{ __html: marked.parse(notes) as string }} />
+                            dangerouslySetInnerHTML={{ __html: renderNotesHtml(notes) }} />
                         ) : (
                           <div className="flex flex-col items-center justify-center py-16 gap-4">
                             <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--placeholder)]">No meal prep notes yet</p>

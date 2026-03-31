@@ -50,14 +50,6 @@ export default function RecipeContextPanel({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex gap-[2px] shrink-0 px-4 pt-2 pb-1">
-        <span className="px-[10px] py-[5px] font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--fg)] bg-[var(--bg-pill)] rounded-[6px]">
-          Goals
-        </span>
-      </div>
-
-      {/* Goals content */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <GoalsTab totals={totals} goals={goals} personId={personId} loading={goalsLoading} />
       </div>
@@ -117,6 +109,9 @@ function GoalsTab({
 
   return (
     <div>
+      <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.1em] mb-4 pb-3 border-b border-[var(--rule)]">
+        Per serving · vs goals
+      </div>
       {goals.map((goal) => {
         const total = totals.find((t) => t.nutrientId === goal.nutrientId);
         const value = total?.value || 0;
