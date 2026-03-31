@@ -258,7 +258,7 @@ function RecipesPage() {
         unit: item.unit || "",
         originalText: item.originalText || "",
         nameGuess: item.ingredient?.name || item.originalText || "",
-        section: null,
+        section: item.section ?? null,
         notes: item.notes || null,
       })),
     };
