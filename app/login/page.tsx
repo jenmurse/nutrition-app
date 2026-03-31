@@ -84,7 +84,7 @@ function LoginPage() {
         {/* Brand */}
         <div className="mb-10">
           <h1 className="font-serif text-[32px] text-[var(--fg)] leading-none tracking-[-0.01em]">
-            Set Course
+            Good Measure
           </h1>
           <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--muted)] mt-2">
             Plan meals. Track nutrition.

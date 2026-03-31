@@ -1,4 +1,4 @@
-# Set Course — Design Specification
+# Good Measure — Design Specification
 
 Visual design language and layout reference for the app.
 
@@ -50,7 +50,7 @@ Visual design language and layout reference for the app.
 
 #### Brand
 - Font: `--serif`, 16px, `--fg`, tracking 0.02em
-- Text: "Set Course"
+- Text: "Good Measure"
 
 #### Nav Links
 - Font: `--mono`, 9px, uppercase, tracking 0.08em

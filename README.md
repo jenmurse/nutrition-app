@@ -1,4 +1,4 @@
-# Set Course — Nutrition Tracking App
+# Good Measure — Nutrition Tracking App
 
 A household nutrition tracker for building ingredient libraries, creating recipes, and planning weekly meals against personal nutrition goals.
 

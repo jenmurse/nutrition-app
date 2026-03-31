@@ -1,4 +1,4 @@
-# Set Course — What's Left To Do
+# Good Measure — What's Left To Do
 
 ## Remaining work
 

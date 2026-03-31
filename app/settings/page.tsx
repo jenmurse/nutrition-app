@@ -537,7 +537,7 @@ const SettingsPage = () => {
         setImportResult({ ok: false, message: err.error || 'Import failed.' });
       }
     } catch {
-      setImportResult({ ok: false, message: 'Could not read file — make sure it is a valid Set Course backup.' });
+      setImportResult({ ok: false, message: 'Could not read file — make sure it is a valid Good Measure backup.' });
     } finally {
       setImportLoading(false);
     }
@@ -1066,18 +1066,7 @@ const SettingsPage = () => {
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
                   <div className="space-y-2">
                     <p className="font-mono text-[11px] text-[var(--fg)]">
-                      Build the MCP server from the <code className="bg-[var(--bg-subtle)] px-1">mcp/</code> folder:
-                    </p>
-                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
-                      <pre className="font-mono text-[10px] text-[var(--fg)]">cd mcp && npm install && npm run build</pre>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-[20px_1fr] gap-3">
-                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
-                  <div className="space-y-2">
-                    <p className="font-mono text-[11px] text-[var(--fg)]">
-                      Add to your AI assistant's MCP config (e.g. Claude Desktop):
+                      Add to your AI assistant&apos;s MCP config (e.g. Claude Desktop):
                     </p>
                     <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px]">
                       <div><span className="text-[var(--fg)]">Mac</span> — ~/Library/Application Support/Claude/claude_desktop_config.json</div>
@@ -1086,30 +1075,30 @@ const SettingsPage = () => {
                     <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
   "mcpServers": {
-    "course": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp/dist/index.js"],
+    "good-measure": {
+      "command": "npx",
+      "args": ["-y", "good-measure-mcp"],
       "env": {
-        "COURSE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
-        "COURSE_API_TOKEN": "<your token>"
+        "GOOD_MEASURE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
+        "GOOD_MEASURE_API_TOKEN": "<your token>"
       }
     }
   }
 }`}</pre>
                     </div>
                     <p className="font-mono text-[10px] text-[var(--muted)]">
-                      Replace <code className="bg-[var(--bg-subtle)] px-1">/absolute/path/to/mcp/dist/index.js</code> with the actual path and paste your token.
+                      Paste your token above. No installation needed — <code className="bg-[var(--bg-subtle)] px-1">npx</code> downloads the server automatically.
                     </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-[20px_1fr] gap-3">
-                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">3.</span>
+                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
                   <div className="space-y-2">
                     <p className="font-mono text-[11px] text-[var(--fg)]">
                       Restart your AI assistant and test it:
                     </p>
                     <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
-                      <p className="font-mono text-[10px] text-[var(--muted)] italic">"Save this recipe to Set Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings."</p>
+                      <p className="font-mono text-[10px] text-[var(--muted)] italic">&quot;Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings.&quot;</p>
                     </div>
                   </div>
                 </div>

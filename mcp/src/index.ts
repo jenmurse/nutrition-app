@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 /**
- * Course MCP Server
+ * Good Measure MCP Server
  *
  * Allows any MCP-compatible AI assistant (Claude, ChatGPT, Gemini, etc.)
- * to save recipes directly into your Course household.
+ * to save recipes directly into your Good Measure household.
  *
  * Required environment variables:
- *   COURSE_API_URL   — e.g. https://your-app.vercel.app
- *   COURSE_API_TOKEN — API token generated in Course → Settings → AI & API
+ *   GOOD_MEASURE_API_URL   — e.g. https://your-app.vercel.app
+ *   GOOD_MEASURE_API_TOKEN — API token generated in Good Measure → Settings → MCP
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 
-const BASE_URL = process.env.COURSE_API_URL?.replace(/\/$/, '');
-const TOKEN = process.env.COURSE_API_TOKEN;
+const BASE_URL = process.env.GOOD_MEASURE_API_URL?.replace(/\/$/, '');
+const TOKEN = process.env.GOOD_MEASURE_API_TOKEN;
 
 if (!BASE_URL || !TOKEN) {
   process.stderr.write(
-    'Error: COURSE_API_URL and COURSE_API_TOKEN environment variables are required.\n'
+    'Error: GOOD_MEASURE_API_URL and GOOD_MEASURE_API_TOKEN environment variables are required.\n'
   );
   process.exit(1);
 }
@@ -44,7 +44,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 // ── Server setup ─────────────────────────────────────────────────────────────
 
 const server = new McpServer({
-  name: 'course',
+  name: 'good-measure',
   version: '1.0.0',
 });
 
@@ -52,9 +52,9 @@ const server = new McpServer({
 
 server.tool(
   'save_recipe',
-  `Save a recipe to the user's Course recipe collection.
+  `Save a recipe to the user's Good Measure recipe collection.
 Use this tool whenever the user asks to save, store, add, or remember a recipe.
-Course will automatically match ingredients to existing entries or create new
+Good Measure will automatically match ingredients to existing entries or create new
 ingredient stubs that can be enriched with nutrition data later.`,
   {
     name: z.string().describe('Recipe name'),
