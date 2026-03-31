@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.3',
+  version: '1.0.4',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -330,7 +330,7 @@ The notes should be in markdown format and will be stored on the recipe for the 
   },
   async ({ recipe_id, notes }) => {
     try {
-      await apiFetch(`/api/recipes/${recipe_id}`, {
+      await apiFetch(`/api/mcp/recipes/${recipe_id}`, {
         method: 'PUT',
         body: JSON.stringify({ optimizeAnalysis: notes }),
       });
@@ -364,7 +364,7 @@ storage instructions, or reheating guidance. The notes should be in markdown for
   },
   async ({ recipe_id, notes }) => {
     try {
-      await apiFetch(`/api/recipes/${recipe_id}`, {
+      await apiFetch(`/api/mcp/recipes/${recipe_id}`, {
         method: 'PUT',
         body: JSON.stringify({ mealPrepAnalysis: notes }),
       });

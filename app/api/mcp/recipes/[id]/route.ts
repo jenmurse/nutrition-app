@@ -30,6 +30,7 @@ export async function GET(
           quantity: true,
           unit: true,
           notes: true,
+          section: true,
           conversionGrams: true,
           ingredient: {
             select: {
@@ -65,6 +66,7 @@ export async function GET(
       quantity: ri.quantity,
       unit: ri.unit,
       notes: ri.notes ?? undefined,
+      section: ri.section ?? undefined,
       gramsEquivalent: parseFloat(grams.toFixed(1)),
       nutrition,
     };
@@ -97,4 +99,35 @@ export async function GET(
     ingredients,
     nutrition: { totals },
   });
+}
+
+/** PUT — update recipe fields (optimization notes, meal prep notes, etc.) */
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await getMcpAuth(request);
+  if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  const { id } = await params;
+  const recipeId = parseInt(id, 10);
+  if (isNaN(recipeId)) return NextResponse.json({ error: 'Invalid recipe id' }, { status: 400 });
+
+  const recipe = await prisma.recipe.findFirst({
+    where: { id: recipeId, householdId: auth.householdId },
+  });
+  if (!recipe) return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
+
+  const body = await request.json();
+  const { optimizeAnalysis, mealPrepAnalysis } = body;
+
+  await prisma.recipe.update({
+    where: { id: recipeId },
+    data: {
+      ...(optimizeAnalysis !== undefined && { optimizeAnalysis }),
+      ...(mealPrepAnalysis !== undefined && { mealPrepAnalysis }),
+    },
+  });
+
+  return NextResponse.json({ ok: true });
 }
