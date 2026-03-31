@@ -857,7 +857,18 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 </select>
                 <button
                   className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] py-[6px]"
-                  onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}
+                  onClick={() => setRows((prev) => {
+                    const idx = prev.findIndex((r) => r.id === row.id);
+                    const removedSection = prev[idx]?.section;
+                    const prevSection = idx > 0 ? prev[idx - 1]?.section : null;
+                    const isLeader = removedSection && removedSection !== prevSection;
+                    const next = prev.filter((r) => r.id !== row.id);
+                    // Transfer section to next row if this row was the section leader
+                    if (isLeader && idx < next.length && (!next[idx].section || next[idx].section === removedSection)) {
+                      next[idx] = { ...next[idx], section: removedSection };
+                    }
+                    return next;
+                  })}
                 >
                   Remove
                 </button>
