@@ -912,7 +912,7 @@ function RecipesPage() {
                           const prompt = `You are a [cuisine] chef with a background in nutrition who works with clients to create great-tasting, healthy meals. List my recipes from Good Measure. Get the full recipe for ${selectedRecipe.name}. Analyze it for nutritional optimization — identify the top nutrient contributors, suggest substitutions to [meet your goals here], and preserve the original section headers in your analysis. Show me what you changed and why, including how each change could affect flavor, texture, and overall eating experience. Create a comparison table of the original vs. optimized nutrition numbers per serving.\n\nI may give you feedback and request tweaks before we finalize. Do not save anything until I explicitly tell you I'm happy with the changes.\n\nOnce approved, save the optimized recipe using save_recipe with section headers preserved, and save the analysis notes using save_optimization_notes. Always report any stub ingredient warnings before moving on.`;
                           return (
                             <div>
-                              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into Claude Desktop with Good Measure MCP connected. Notes will save automatically once you approve.</p>
+                              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
                               <p className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mb-2">Step 1 — Copy prompt</p>
                               <div className="text-[11px] leading-[1.6] text-[var(--mid)] bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[4px] p-3 mb-3 whitespace-pre-wrap select-all">{prompt}</div>
                               <div className="flex items-center gap-3 mb-6">
@@ -971,7 +971,7 @@ function RecipesPage() {
                           const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from Good Measure. Get the full recipe for ${selectedRecipe.name}. Analyze it for meal prep — how well does it store, can it be batch cooked, does it freeze well, what are the best portion sizes, and are there any tips for prepping ahead? Note anything that doesn't reheat well or degrades in texture.\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
                           return (
                             <div>
-                              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into Claude Desktop with Good Measure MCP connected. Notes will save automatically once you approve.</p>
+                              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
                               <p className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mb-2">Step 1 — Copy prompt</p>
                               <div className="text-[11px] leading-[1.6] text-[var(--mid)] bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[4px] p-3 mb-3 whitespace-pre-wrap select-all">{prompt}</div>
                               <div className="flex items-center gap-3 mb-6">
