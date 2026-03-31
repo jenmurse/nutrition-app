@@ -654,7 +654,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             // Use onMouseDown to prevent input blur from closing dropdown before click registers
                             e.preventDefault();
                             const defaultUnit = i.customUnitName || i.defaultUnit || "g";
-                            updateRow(row.id, { ingredientId: i.id, unit: defaultUnit });
+                            updateRow(row.id, { ingredientId: i.id, unit: row.unit || defaultUnit });
                             setSearchText({ ...searchText, [row.id]: "" });
                             setShowDropdown({ ...showDropdown, [row.id]: false });
                           }}

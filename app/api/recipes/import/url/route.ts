@@ -341,8 +341,9 @@ export async function POST(request: Request) {
       isComplete: false,
     };
 
-    // Match ingredients against existing database
+    // Match ingredients against existing database (household-scoped only)
     const existingIngredients = await prisma.ingredient.findMany({
+      where: { householdId: auth.householdId },
       select: { id: true, name: true },
     });
     const matched = matchIngredients(parsed, existingIngredients);

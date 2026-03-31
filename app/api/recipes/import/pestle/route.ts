@@ -201,7 +201,7 @@ export async function POST(request: Request) {
     if (!markdown.trim()) return NextResponse.json({ error: "Markdown required" }, { status: 400 });
 
     const parsed = parsePestleMarkdown(markdown);
-    const ingredients = await prisma.ingredient.findMany({ select: { id: true, name: true } });
+    const ingredients = await prisma.ingredient.findMany({ where: { householdId: auth.householdId }, select: { id: true, name: true } });
     const matched = matchIngredients(parsed, ingredients);
 
     return NextResponse.json(matched);
