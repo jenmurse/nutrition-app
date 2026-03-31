@@ -8,6 +8,7 @@ import { usePersonContext } from "../components/PersonContext";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import { clientCache } from "@/lib/clientCache";
+import { marked } from "marked";
 
 type RecipeSummary = {
   id: number;
@@ -21,6 +22,9 @@ type RecipeSummary = {
   prepTime?: number | null;
   cookTime?: number | null;
   image?: string | null;
+  optimizeAnalysis?: string | null;
+  mealPrepAnalysis?: string | null;
+  totals?: Array<{ nutrientId: number; displayName: string; value: number; unit: string }>;
   ingredients: Array<{
     id: number;
     ingredientId?: number | null;
@@ -114,10 +118,32 @@ function RecipesPage() {
   const [createImportedRecipe, setCreateImportedRecipe] = useState<RecipeDraft | null>(null);
   const createFileRef = useRef<HTMLInputElement>(null);
 
+  // Detail view tabs
+  const [detailTab, setDetailTab] = useState<'recipe' | 'optimization' | 'mealPrep'>('recipe');
+  const [editingNotes, setEditingNotes] = useState<'optimization' | 'mealPrep' | null>(null);
+  const [notesText, setNotesText] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+
   // Filters
   const searchQuery = searchParams?.get("search") || "";
   const selectedTags = searchParams?.get("tags")?.split(",").filter(Boolean) || [];
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
+
+  // Sort
+  const sortOptions = [
+    { key: "name", label: "Name" },
+    { key: "Calories", label: "Calories" },
+    { key: "Protein", label: "Protein" },
+    { key: "Fat", label: "Fat" },
+    { key: "Carbs", label: "Carbs" },
+    { key: "Sugar", label: "Sugar" },
+    { key: "Fiber", label: "Fiber" },
+  ] as const;
+  type SortKey = typeof sortOptions[number]["key"];
+  const sortBy = (searchParams?.get("sort") || "name") as SortKey;
+  const sortDir = (searchParams?.get("dir") || "asc") as "asc" | "desc";
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams?.toString());
@@ -199,6 +225,7 @@ function RecipesPage() {
 
   const handleSelectRecipe = async (recipe: RecipeSummary) => {
     if (selectedRecipe?.id === recipe.id) { setSelectedRecipe(null); return; }
+    setDetailTab('recipe'); setEditingNotes(null);
     // Instant render from cache if available
     const cached = clientCache.get<RecipeDetail>(`/api/recipes/${recipe.id}`);
     if (cached) { setSelectedRecipe(cached); return; }
@@ -278,6 +305,35 @@ function RecipesPage() {
     }
   };
 
+  const handleSaveNotes = async (field: 'optimization' | 'mealPrep') => {
+    if (!selectedRecipe) return;
+    setSavingNotes(true);
+    try {
+      const body = field === 'optimization'
+        ? { optimizeAnalysis: notesText }
+        : { mealPrepAnalysis: notesText };
+      const res = await fetch(`/api/recipes/${selectedRecipe.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const updatedRecipe = {
+        ...selectedRecipe,
+        ...(field === 'optimization' ? { optimizeAnalysis: notesText } : { mealPrepAnalysis: notesText }),
+      };
+      setSelectedRecipe(updatedRecipe);
+      clientCache.set(`/api/recipes/${selectedRecipe.id}`, updatedRecipe);
+      setEditingNotes(null);
+      toast.success("Notes saved");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save notes");
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
   const handleDuplicate = async (recipeId: number) => {
     try {
       const res = await fetch(`/api/recipes/${recipeId}/duplicate`, { method: "POST" });
@@ -341,6 +397,28 @@ function RecipesPage() {
 
   useEffect(() => { loadRecipes(); }, []);
 
+  // Close sort dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setSortOpen(false);
+    };
+    if (sortOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [sortOpen]);
+
+  const getNutrientValue = (recipe: RecipeSummary, nutrient: string): number => {
+    if (!recipe.totals) return 0;
+    const match = recipe.totals.find(t => t.displayName === nutrient);
+    return match?.value ?? 0;
+  };
+
+  const formatNutrientLabel = (recipe: RecipeSummary, key: string): string | null => {
+    if (key === "name" || !recipe.totals) return null;
+    const match = recipe.totals.find(t => t.displayName === key);
+    if (!match) return null;
+    return `${Math.round(match.value)} ${match.unit}`;
+  };
+
   const filteredRecipes = recipes.filter((recipe) => {
     if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (selectedTags.length > 0) {
@@ -348,6 +426,16 @@ function RecipesPage() {
       if (!selectedTags.some(tag => recipeTags.includes(tag))) return false;
     }
     return true;
+  });
+
+  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
+    let cmp: number;
+    if (sortBy === "name") {
+      cmp = a.name.localeCompare(b.name);
+    } else {
+      cmp = getNutrientValue(a, sortBy) - getNutrientValue(b, sortBy);
+    }
+    return sortDir === "desc" ? -cmp : cmp;
   });
 
   return (
@@ -389,11 +477,49 @@ function RecipesPage() {
               </button>
             )}
           </div>
+
+          {/* Sort control */}
+          <div className="flex items-center gap-[5px] mt-3 pt-3 border-t border-[var(--rule)]">
+            <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] shrink-0">Sort</span>
+            <div ref={sortRef} className="relative flex-1">
+              <button
+                onClick={() => setSortOpen(!sortOpen)}
+                aria-label="Sort recipes by"
+                aria-expanded={sortOpen}
+                aria-haspopup="listbox"
+                className="w-full flex items-center justify-between py-[3px] px-[8px] font-mono text-[9px] tracking-[0.04em] uppercase rounded-full cursor-pointer transition-colors border-0 bg-[var(--bg-pill)] text-[var(--muted)] hover:text-[var(--fg)]"
+              >
+                <span>{sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}</span>
+                <span className="ml-1 text-[8px]">▾</span>
+              </button>
+              {sortOpen && (
+                <div role="listbox" aria-label="Sort options" className="absolute left-0 top-full mt-1 w-full bg-[var(--bg-nav)] border border-[var(--rule)] rounded-[6px] shadow-md z-10 py-[3px]">
+                  {sortOptions.map((opt) => (
+                    <button
+                      key={opt.key}
+                      role="option"
+                      aria-selected={sortBy === opt.key}
+                      onClick={() => { updateSearchParam("sort", opt.key === "name" ? "" : opt.key); setSortOpen(false); }}
+                      className={`w-full text-left py-[4px] px-[8px] font-mono text-[9px] tracking-[0.04em] uppercase border-0 cursor-pointer transition-colors ${
+                        sortBy === opt.key ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)]'
+                      }`}
+                    >{opt.label}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => updateSearchParam("dir", sortDir === "asc" ? "desc" : "asc")}
+              aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}, click to toggle`}
+              className="py-[3px] px-[6px] font-mono text-[9px] rounded-full cursor-pointer transition-colors border-0 bg-[var(--bg-pill)] text-[var(--muted)] hover:text-[var(--fg)]"
+            >{sortDir === "asc" ? "↑" : "↓"}</button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {filteredRecipes.map((recipe) => {
+          {sortedRecipes.map((recipe) => {
             const isSelected = !editMode && !createMode && selectedRecipe?.id === recipe.id;
+            const nutrientLabel = formatNutrientLabel(recipe, sortBy);
             return (
               <div
                 key={recipe.id}
@@ -401,6 +527,9 @@ function RecipesPage() {
                 onClick={() => { setEditMode(false); setEditRecipe(null); setCreateMode(false); handleSelectRecipe(recipe); }}
               >
                 <div className="text-[12px] font-medium text-[var(--fg)] leading-snug">{recipe.name}</div>
+                {nutrientLabel && (
+                  <div className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] mt-[2px]">{nutrientLabel}</div>
+                )}
                 {recipe.isComplete === false && (
                   <div className="font-mono text-[9px] text-[var(--warning)] tracking-[0.04em] mt-[2px]">incomplete</div>
                 )}
@@ -611,96 +740,217 @@ function RecipesPage() {
                     ))}
                   </div>
 
-                  {/* Image — inset */}
-                  {selectedRecipe.image && (
-                    <div className="mb-5 rounded-[var(--radius,8px)] overflow-hidden">
-                      <img src={selectedRecipe.image} alt={selectedRecipe.name} className="w-full max-h-[300px] object-cover"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    </div>
+                  {/* Tabs */}
+                  <div className="flex gap-0 border-b border-[var(--rule-faint)] mb-5">
+                    {([
+                      { key: 'recipe' as const, label: 'Recipe' },
+                      { key: 'optimization' as const, label: 'Optimization' },
+                      { key: 'mealPrep' as const, label: 'Meal Prep' },
+                    ]).map(({ key, label }) => (
+                      <button
+                        key={key}
+                        onClick={() => { setDetailTab(key); setEditingNotes(null); }}
+                        className={`font-mono text-[9px] tracking-[0.12em] uppercase py-[8px] mr-5 bg-transparent border-0 border-b-2 cursor-pointer transition-colors -mb-[1px] ${
+                          detailTab === key
+                            ? 'text-[var(--fg)] border-[var(--fg)]'
+                            : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+                        }`}
+                        aria-label={`${label} tab`}
+                        aria-selected={detailTab === key}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* ── Recipe tab ── */}
+                  {detailTab === 'recipe' && (
+                    <>
+                      {selectedRecipe.image && (
+                        <div className="mb-5 rounded-[var(--radius,8px)] overflow-hidden">
+                          <img src={selectedRecipe.image} alt={selectedRecipe.name} className="w-full max-h-[300px] object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        </div>
+                      )}
+
+                      {selectedRecipe.totals && selectedRecipe.totals.length > 0 && (() => {
+                        const GRID_KEYS: { match: string[]; label: string; exact?: boolean }[] = [
+                          { match: ["energy", "calorie"], label: "KCAL" },
+                          { match: ["fat"], label: "FAT", exact: true },
+                          { match: ["saturated"], label: "SAT FAT" },
+                          { match: ["sodium"], label: "SODIUM" },
+                          { match: ["carbohydrate", "carb"], label: "CARBS" },
+                          { match: ["sugar"], label: "SUGAR" },
+                          { match: ["protein"], label: "PROTEIN" },
+                          { match: ["fiber"], label: "FIBER" },
+                        ];
+                        const gridNutrients = GRID_KEYS.map(({ match, label, exact }) => {
+                          const n = selectedRecipe.totals!.find((t) => {
+                            const name = t.displayName.toLowerCase();
+                            return exact
+                              ? match.some((k) => name === k)
+                              : match.some((k) => name.includes(k));
+                          });
+                          return { label, value: n ? Math.round(n.value * 10) / 10 : 0, unit: n?.unit ?? "" };
+                        });
+                        return (
+                          <div className="mb-5">
+                            <div className="rounded-[var(--radius,12px)] bg-[var(--bg-raised)] p-3" style={{ boxShadow: 'var(--shadow-md)' }}>
+                              <div className="grid grid-cols-4 gap-[1px] bg-[var(--rule-faint)] rounded-[8px] overflow-hidden">
+                                {gridNutrients.map((n) => (
+                                  <div key={n.label} className="py-[14px] px-3 text-center bg-[var(--bg-raised)]">
+                                    <div className="font-serif text-[22px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>
+                                    <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      <div className="mb-5">
+                        <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
+                        {selectedRecipe.ingredients.map((ing, idx) => {
+                          const prevSection = idx > 0 ? (selectedRecipe.ingredients[idx - 1] as any).section : null;
+                          const showSection = (ing as any).section && (ing as any).section !== prevSection;
+                          return (
+                            <div key={ing.id}>
+                              {showSection && (
+                                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-3 pb-1 border-b border-[var(--rule-faint)]">
+                                  {(ing as any).section}
+                                </div>
+                              )}
+                              <div className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
+                                <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
+                                <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {selectedRecipe.instructions && (
+                        <div className="mb-5">
+                          <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Instructions</p>
+                          <p className="text-[12px] text-[var(--mid)] whitespace-pre-wrap leading-[1.6]">{selectedRecipe.instructions}</p>
+                        </div>
+                      )}
+
+                      {selectedRecipe.sourceApp?.startsWith("http") && (
+                        <div className="mb-5">
+                          <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-1">Source</p>
+                          <a href={selectedRecipe.sourceApp} target="_blank" rel="noopener noreferrer"
+                            className="font-mono text-[10px] text-[var(--accent)] hover:underline break-all"
+                            aria-label="View original recipe source">
+                            {selectedRecipe.sourceApp}
+                          </a>
+                        </div>
+                      )}
+                    </>
                   )}
 
-                  {/* Nutrition grid */}
-                  {selectedRecipe.totals && selectedRecipe.totals.length > 0 && (() => {
-                    const GRID_KEYS: { match: string[]; label: string; exact?: boolean }[] = [
-                      { match: ["energy", "calorie"], label: "KCAL" },
-                      { match: ["fat"], label: "FAT", exact: true },  // exact so it doesn't match "Saturated Fat"
-                      { match: ["saturated"], label: "SAT FAT" },
-                      { match: ["sodium"], label: "SODIUM" },
-                      { match: ["carbohydrate", "carb"], label: "CARBS" },
-                      { match: ["sugar"], label: "SUGAR" },
-                      { match: ["protein"], label: "PROTEIN" },
-                      { match: ["fiber"], label: "FIBER" },
-                    ];
-                    const gridNutrients = GRID_KEYS.map(({ match, label, exact }) => {
-                      const n = selectedRecipe.totals!.find((t) => {
-                        const name = t.displayName.toLowerCase();
-                        return exact
-                          ? match.some((k) => name === k)
-                          : match.some((k) => name.includes(k));
-                      });
-                      return { label, value: n ? Math.round(n.value * 10) / 10 : 0, unit: n?.unit ?? "" };
-                    });
+                  {/* ── Optimization tab ── */}
+                  {detailTab === 'optimization' && (() => {
+                    const notes = selectedRecipe.optimizeAnalysis;
+                    const isEditing = editingNotes === 'optimization';
                     return (
-                      <div className="mb-5">
-                        <div className="rounded-[var(--radius,12px)] bg-[var(--bg-raised)] p-3" style={{ boxShadow: 'var(--shadow-md)' }}>
-                          <div className="grid grid-cols-4 gap-[1px] bg-[var(--rule-faint)] rounded-[8px] overflow-hidden">
-                            {gridNutrients.map((n) => (
-                              <div key={n.label} className="py-[14px] px-3 text-center bg-[var(--bg-raised)]">
-                                <div className="font-serif text-[22px] text-[var(--fg)] leading-none">{n.value}{n.unit}</div>
-                                <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
-                              </div>
-                            ))}
-                          </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Optimization Notes</span>
+                          {!isEditing && notes && (
+                            <button onClick={() => { setEditingNotes('optimization'); setNotesText(notes || ''); }}
+                              className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2 rounded-[var(--radius-sm,4px)] hover:bg-[var(--bg-subtle)]"
+                              aria-label="Edit optimization notes">Edit</button>
+                          )}
                         </div>
+                        {isEditing ? (
+                          <>
+                            <textarea
+                              className="w-full min-h-[400px] text-[12px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] p-[14px] outline-none resize-y font-sans"
+                              placeholder="Paste optimization notes here (markdown supported)..."
+                              value={notesText}
+                              onChange={(e) => setNotesText(e.target.value)}
+                              aria-label="Optimization notes editor"
+                            />
+                            <div className="flex justify-end gap-2 mt-3">
+                              <button onClick={() => setEditingNotes(null)}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-3">Cancel</button>
+                              <button onClick={() => handleSaveNotes('optimization')} disabled={savingNotes}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40">
+                                {savingNotes ? 'Saving...' : 'Save'}</button>
+                            </div>
+                          </>
+                        ) : notes ? (
+                          <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
+                            dangerouslySetInnerHTML={{ __html: marked.parse(notes) as string }} />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-16 gap-4">
+                            <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--placeholder)]">No optimization notes yet</p>
+                            <div className="flex gap-2">
+                              <button onClick={() => { setEditingNotes('optimization'); setNotesText(''); }}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer py-[6px] px-4 rounded-[var(--radius-sm,4px)] transition-colors"
+                                aria-label="Paste optimization notes">Paste Notes</button>
+                              <button className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--placeholder)] py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-not-allowed opacity-50"
+                                disabled title="Add an API key in Settings to enable" aria-label="Analyze with AI (requires API key)">Analyze with AI</button>
+                            </div>
+                            <p className="text-[10px] text-[var(--placeholder)] mt-1">Use MCP or paste analysis from Claude</p>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
 
-                  {/* Ingredients */}
-                  <div className="mb-5">
-                    <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
-                    {selectedRecipe.ingredients.map((ing, idx) => {
-                      const prevSection = idx > 0 ? (selectedRecipe.ingredients[idx - 1] as any).section : null;
-                      const showSection = (ing as any).section && (ing as any).section !== prevSection;
-                      return (
-                        <div key={ing.id}>
-                          {showSection && (
-                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-3 pb-1 border-b border-[var(--rule-faint)]">
-                              {(ing as any).section}
-                            </div>
+                  {/* ── Meal Prep tab ── */}
+                  {detailTab === 'mealPrep' && (() => {
+                    const notes = selectedRecipe.mealPrepAnalysis;
+                    const isEditing = editingNotes === 'mealPrep';
+                    return (
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Meal Prep Notes</span>
+                          {!isEditing && notes && (
+                            <button onClick={() => { setEditingNotes('mealPrep'); setNotesText(notes || ''); }}
+                              className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2 rounded-[var(--radius-sm,4px)] hover:bg-[var(--bg-subtle)]"
+                              aria-label="Edit meal prep notes">Edit</button>
                           )}
-                          <div className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
-                            <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
-                            <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
-                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Instructions */}
-                  {selectedRecipe.instructions && (
-                    <div className="mb-5">
-                      <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Instructions</p>
-                      <p className="text-[12px] text-[var(--mid)] whitespace-pre-wrap leading-[1.6]">{selectedRecipe.instructions}</p>
-                    </div>
-                  )}
-
-                  {/* Source URL */}
-                  {selectedRecipe.sourceApp?.startsWith("http") && (
-                    <div className="mb-5">
-                      <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-1">Source</p>
-                      <a
-                        href={selectedRecipe.sourceApp}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-mono text-[10px] text-[var(--accent)] hover:underline break-all"
-                        aria-label="View original recipe source"
-                      >
-                        {selectedRecipe.sourceApp}
-                      </a>
-                    </div>
-                  )}
+                        {isEditing ? (
+                          <>
+                            <textarea
+                              className="w-full min-h-[400px] text-[12px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] p-[14px] outline-none resize-y font-sans"
+                              placeholder="Paste meal prep analysis here (markdown supported)..."
+                              value={notesText}
+                              onChange={(e) => setNotesText(e.target.value)}
+                              aria-label="Meal prep notes editor"
+                            />
+                            <div className="flex justify-end gap-2 mt-3">
+                              <button onClick={() => setEditingNotes(null)}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-3">Cancel</button>
+                              <button onClick={() => handleSaveNotes('mealPrep')} disabled={savingNotes}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40">
+                                {savingNotes ? 'Saving...' : 'Save'}</button>
+                            </div>
+                          </>
+                        ) : notes ? (
+                          <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
+                            dangerouslySetInnerHTML={{ __html: marked.parse(notes) as string }} />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-16 gap-4">
+                            <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--placeholder)]">No meal prep notes yet</p>
+                            <div className="flex gap-2">
+                              <button onClick={() => { setEditingNotes('mealPrep'); setNotesText(''); }}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer py-[6px] px-4 rounded-[var(--radius-sm,4px)] transition-colors"
+                                aria-label="Paste meal prep notes">Paste Notes</button>
+                              <button className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--placeholder)] py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-not-allowed opacity-50"
+                                disabled title="Add an API key in Settings to enable" aria-label="Analyze with AI (requires API key)">Analyze with AI</button>
+                            </div>
+                            <p className="text-[10px] text-[var(--placeholder)] mt-1">Use MCP or paste analysis from Claude</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                 </>
               )}

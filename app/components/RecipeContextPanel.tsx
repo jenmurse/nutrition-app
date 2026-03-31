@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { clientCache } from "@/lib/clientCache";
 
 type NutrientTotal = {
@@ -17,45 +17,19 @@ type Goal = {
   nutrient: { displayName: string; unit: string };
 };
 
-type AnalysisSection = {
-  label: string;
-  suggestions?: string[];
-  notes?: string[];
-};
-
-type OptimizeData = {
-  sections: AnalysisSection[];
-};
-
-type MealPrepData = {
-  score: number;
-  scoreLabel: string;
-  sections: AnalysisSection[];
-};
-
 interface RecipeContextPanelProps {
   recipeId: number;
   totals: NutrientTotal[];
   personId?: number;
 }
 
-type Tab = "goals" | "optimize" | "mealprep";
-
 export default function RecipeContextPanel({
   recipeId,
   totals,
   personId,
 }: RecipeContextPanelProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("goals");
   const [goals, setGoals] = useState<Goal[]>([]);
   const [goalsLoading, setGoalsLoading] = useState(true);
-  const [optimize, setOptimize] = useState<OptimizeData | null>(null);
-  const [mealPrep, setMealPrep] = useState<MealPrepData | null>(null);
-  const [analyzedAt, setAnalyzedAt] = useState<string | null>(null);
-  const [analysisModel, setAnalysisModel] = useState<string | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [stale, setStale] = useState(false);
 
   // Fetch person's nutrition goals (with cache)
   useEffect(() => {
@@ -74,94 +48,18 @@ export default function RecipeContextPanel({
       .finally(() => setGoalsLoading(false));
   }, [personId]);
 
-  // Fetch cached analysis
-  const loadAnalysis = useCallback(async (force = false) => {
-    setAnalyzing(true);
-    setAnalysisError(null);
-    try {
-      const res = await fetch(`/api/recipes/${recipeId}/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Analysis failed");
-
-      setOptimize(data.optimize);
-      setMealPrep(data.mealPrep);
-      setAnalyzedAt(data.analyzedAt);
-      setAnalysisModel(data.model);
-      setStale(false);
-    } catch (err: any) {
-      setAnalysisError(err.message || "Analysis failed");
-    } finally {
-      setAnalyzing(false);
-    }
-  }, [recipeId]);
-
-  // Auto-load cached analysis on mount
-  useEffect(() => {
-    loadAnalysis(false);
-  }, [loadAnalysis]);
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "goals", label: "Goals" },
-    { key: "optimize", label: "Optimize" },
-    { key: "mealprep", label: "Meal Prep" },
-  ];
-
   return (
     <div className="flex flex-col h-full">
-      {/* Tab bar */}
+      {/* Header */}
       <div className="flex gap-[2px] shrink-0 px-4 pt-2 pb-1">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-[10px] py-[5px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
-              activeTab === tab.key
-                ? "text-[var(--fg)] bg-[var(--bg-pill)]"
-                : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
-            }`}
-            aria-label={`${tab.label} tab`}
-            aria-selected={activeTab === tab.key}
-            role="tab"
-          >
-            {tab.label}
-          </button>
-        ))}
+        <span className="px-[10px] py-[5px] font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--fg)] bg-[var(--bg-pill)] rounded-[6px]">
+          Goals
+        </span>
       </div>
 
-      {/* Tab content */}
+      {/* Goals content */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
-        {activeTab === "goals" && (
-          <GoalsTab totals={totals} goals={goals} personId={personId} loading={goalsLoading} />
-        )}
-
-        {activeTab === "optimize" && (
-          <AnalysisTab
-            data={optimize}
-            loading={analyzing}
-            error={analysisError}
-            analyzedAt={analyzedAt}
-            model={analysisModel}
-            stale={stale}
-            onReanalyze={() => loadAnalysis(true)}
-            emptyLabel="Run analysis to get optimization suggestions."
-          />
-        )}
-
-        {activeTab === "mealprep" && (
-          <MealPrepTab
-            data={mealPrep}
-            loading={analyzing}
-            error={analysisError}
-            analyzedAt={analyzedAt}
-            model={analysisModel}
-            stale={stale}
-            onReanalyze={() => loadAnalysis(true)}
-          />
-        )}
+        <GoalsTab totals={totals} goals={goals} personId={personId} loading={goalsLoading} />
       </div>
     </div>
   );
@@ -250,196 +148,3 @@ function GoalsTab({
   );
 }
 
-/* ── Analysis Tab (Optimize) ── */
-
-function AnalysisTab({
-  data,
-  loading,
-  error,
-  analyzedAt,
-  model,
-  stale,
-  onReanalyze,
-  emptyLabel,
-}: {
-  data: OptimizeData | null;
-  loading: boolean;
-  error: string | null;
-  analyzedAt: string | null;
-  model: string | null;
-  stale: boolean;
-  onReanalyze: () => void;
-  emptyLabel: string;
-}) {
-  if (loading) {
-    return (
-      <div className="text-center py-8">
-        <div className="font-mono text-[10px] text-[var(--muted)] animate-loading">Analyzing...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="py-3 px-3 border border-[var(--error-border)] bg-[var(--error-light)] text-[11px] text-[var(--error)]">
-        {error}
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-[11px] text-[var(--muted)] tracking-[0.02em] mb-3">{emptyLabel}</div>
-        <button
-          onClick={onReanalyze}
-          className="font-mono text-[9px] tracking-[0.1em] uppercase border border-[var(--accent)] text-[var(--accent)] px-4 py-2 bg-transparent hover:bg-[var(--accent)] hover:text-white transition-colors cursor-pointer"
-          aria-label="Run AI analysis"
-        >
-          Analyze
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {/* Header with date + re-analyze */}
-      <div className="flex justify-between items-center mb-3">
-        <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.1em]">
-          {stale ? "Recipe changed" : analyzedAt ? `Analyzed ${model === "mock" ? "(mock)" : ""}` : ""}
-        </span>
-        <button
-          onClick={onReanalyze}
-          className="font-mono text-[9px] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
-          aria-label="Re-analyze recipe"
-        >
-          Re-analyze
-        </button>
-      </div>
-
-      {/* Sections */}
-      {data.sections.map((section, i) => (
-        <div
-          key={i}
-          className={`mb-3 pb-3 ${i < data.sections.length - 1 ? "border-b border-[var(--rule)]" : ""}`}
-        >
-          <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[6px]">
-            {section.label}
-          </div>
-          {(section.suggestions || section.notes || []).map((item, j) => (
-            <div
-              key={j}
-              className="text-[11px] leading-[1.6] text-[var(--fg)] pl-3 relative mb-[6px]"
-            >
-              <span className="absolute left-0 text-[var(--accent)]">·</span>
-              {item}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ── Meal Prep Tab ── */
-
-function MealPrepTab({
-  data,
-  loading,
-  error,
-  analyzedAt,
-  model,
-  stale,
-  onReanalyze,
-}: {
-  data: MealPrepData | null;
-  loading: boolean;
-  error: string | null;
-  analyzedAt: string | null;
-  model: string | null;
-  stale: boolean;
-  onReanalyze: () => void;
-}) {
-  if (loading) {
-    return (
-      <div className="text-center py-8">
-        <div className="font-mono text-[10px] text-[var(--muted)] animate-loading">Analyzing...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="py-3 px-3 border border-[var(--error-border)] bg-[var(--error-light)] text-[11px] text-[var(--error)]">
-        {error}
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-[11px] text-[var(--muted)] mb-3">Run analysis to assess meal prep candidacy.</div>
-        <button
-          onClick={onReanalyze}
-          className="font-mono text-[9px] tracking-[0.1em] uppercase border border-[var(--accent)] text-[var(--accent)] px-4 py-2 bg-transparent hover:bg-[var(--accent)] hover:text-white transition-colors cursor-pointer"
-          aria-label="Run AI analysis"
-        >
-          Analyze
-        </button>
-      </div>
-    );
-  }
-
-  const filledStars = "★".repeat(data.score);
-  const emptyStars = "★".repeat(5 - data.score);
-
-  return (
-    <div>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-3">
-        <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.1em]">
-          {stale ? "Recipe changed" : analyzedAt ? `Analyzed ${model === "mock" ? "(mock)" : ""}` : ""}
-        </span>
-        <button
-          onClick={onReanalyze}
-          className="font-mono text-[9px] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
-          aria-label="Re-analyze recipe"
-        >
-          Re-analyze
-        </button>
-      </div>
-
-      {/* Score */}
-      <div className="flex items-baseline gap-[6px] mb-3">
-        <span className="text-[14px] text-[var(--accent)] tracking-[2px]">{filledStars}</span>
-        <span className="text-[14px] text-[var(--rule-strong)] tracking-[2px]">{emptyStars}</span>
-        <span className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.1em]">
-          {data.score} / 5 — {data.scoreLabel}
-        </span>
-      </div>
-
-      {/* Sections */}
-      {data.sections.map((section, i) => (
-        <div
-          key={i}
-          className={`mb-3 pb-3 ${i < data.sections.length - 1 ? "border-b border-[var(--rule)]" : ""}`}
-        >
-          <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[6px]">
-            {section.label}
-          </div>
-          {(section.notes || section.suggestions || []).map((item, j) => (
-            <div
-              key={j}
-              className="text-[11px] leading-[1.6] text-[var(--fg)] pl-3 relative mb-[6px]"
-            >
-              <span className="absolute left-0 text-[var(--accent)]">·</span>
-              {item}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}

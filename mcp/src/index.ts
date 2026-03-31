@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.0',
+  version: '1.0.3',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -311,6 +311,74 @@ as stubs without nutrition data.`,
       const message = err instanceof Error ? err.message : String(err);
       return {
         content: [{ type: 'text' as const, text: `Failed to search ingredients: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: save_optimization_notes ────────────────────────────────────────────
+
+server.tool(
+  'save_optimization_notes',
+  `Save optimization analysis notes to an existing recipe in Good Measure.
+Use this after analyzing a recipe for nutritional optimization opportunities.
+The notes should be in markdown format and will be stored on the recipe for the user to review.`,
+  {
+    recipe_id: z.number().int().positive().describe('Recipe id to save notes to'),
+    notes: z.string().describe('Optimization analysis notes in markdown format'),
+  },
+  async ({ recipe_id, notes }) => {
+    try {
+      await apiFetch(`/api/recipes/${recipe_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ optimizeAnalysis: notes }),
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `Optimization notes saved to recipe ${recipe_id}.`,
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to save optimization notes: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: save_meal_prep_notes ───────────────────────────────────────────────
+
+server.tool(
+  'save_meal_prep_notes',
+  `Save meal prep analysis notes to an existing recipe in Good Measure.
+Use this after analyzing a recipe for meal prep strategies, batch cooking tips,
+storage instructions, or reheating guidance. The notes should be in markdown format.`,
+  {
+    recipe_id: z.number().int().positive().describe('Recipe id to save notes to'),
+    notes: z.string().describe('Meal prep analysis notes in markdown format'),
+  },
+  async ({ recipe_id, notes }) => {
+    try {
+      await apiFetch(`/api/recipes/${recipe_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ mealPrepAnalysis: notes }),
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `Meal prep notes saved to recipe ${recipe_id}.`,
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to save meal prep notes: ${message}` }],
         isError: true,
       };
     }

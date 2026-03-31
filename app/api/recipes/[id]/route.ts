@@ -67,7 +67,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (!existingRecipe || existingRecipe.householdId !== auth.householdId) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const body = await request.json();
-    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags, prepTime, cookTime, image } = body;
+    const { name, servingSize, servingUnit, instructions, ingredients, isComplete, sourceApp, tags, prepTime, cookTime, image, optimizeAnalysis, mealPrepAnalysis } = body;
 
     const imageVal = image !== undefined
       ? (typeof image === "string" && image.trim() ? image.trim() : null)
@@ -82,6 +82,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         instructions,
         isComplete: Boolean(isComplete),
         sourceApp,
+        optimizeAnalysis: optimizeAnalysis !== undefined ? optimizeAnalysis : undefined,
+        mealPrepAnalysis: mealPrepAnalysis !== undefined ? mealPrepAnalysis : undefined,
         tags: typeof tags === "string" ? tags : undefined,
         prepTime: prepTime != null ? Number(prepTime) : null,
         cookTime: cookTime != null ? Number(cookTime) : null,

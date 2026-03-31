@@ -13,13 +13,34 @@ export async function GET() {
       include: {
         ingredients: {
           include: {
-            ingredient: { select: { id: true, name: true } },
+            ingredient: {
+              include: { nutrientValues: { include: { nutrient: true } } },
+            },
           },
         },
       },
       orderBy: { name: "asc" },
     });
-    return NextResponse.json(recipes);
+
+    // Compute per-serving nutrient totals for each recipe (for client-side sorting)
+    const recipesWithTotals = recipes.map((recipe) => {
+      const totals: Record<number, { nutrientId: number; displayName: string; value: number; unit: string }> = {};
+      for (const ri of recipe.ingredients) {
+        if (!ri.ingredient) continue;
+        const grams = ri.conversionGrams ?? 0;
+        for (const iv of ri.ingredient.nutrientValues) {
+          const nid = iv.nutrient.id;
+          const contribution = (iv.value * grams) / 100.0;
+          if (!totals[nid]) totals[nid] = { nutrientId: nid, displayName: iv.nutrient.displayName, value: 0, unit: iv.nutrient.unit };
+          totals[nid].value += contribution;
+        }
+      }
+      const servingSize = recipe.servingSize || 1;
+      for (const nid in totals) totals[nid].value /= servingSize;
+      return { ...recipe, totals: Object.values(totals) };
+    });
+
+    return NextResponse.json(recipesWithTotals);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch recipes" }, { status: 500 });
