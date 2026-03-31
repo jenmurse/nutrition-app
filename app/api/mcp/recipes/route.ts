@@ -105,7 +105,7 @@ export async function POST(request: Request) {
   });
 
   // Resolve + attach ingredients
-  const resolvedIngredients: { name: string; id: number; quantity: number; unit: string; notes?: string }[] = [];
+  const resolvedIngredients: { name: string; id: number; quantity: number; unit: string; notes?: string; section?: string }[] = [];
 
   for (const ing of ingredients) {
     if (!ing.name?.trim()) continue;
