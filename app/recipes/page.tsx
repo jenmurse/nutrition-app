@@ -310,7 +310,7 @@ function RecipesPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Import failed");
-      setCreateImportedRecipe(buildDraft(data, "URL Import"));
+      setCreateImportedRecipe(buildDraft(data, data.sourceApp || "URL Import"));
     } catch (error: any) {
       setCreateImportError(error.message || "Failed to import from URL");
     } finally {
@@ -673,6 +673,22 @@ function RecipesPage() {
                     <div className="mb-5">
                       <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Instructions</p>
                       <p className="text-[12px] text-[var(--mid)] whitespace-pre-wrap leading-[1.6]">{selectedRecipe.instructions}</p>
+                    </div>
+                  )}
+
+                  {/* Source URL */}
+                  {selectedRecipe.sourceApp?.startsWith("http") && (
+                    <div className="mb-5">
+                      <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-1">Source</p>
+                      <a
+                        href={selectedRecipe.sourceApp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-[10px] text-[var(--accent)] hover:underline break-all"
+                        aria-label="View original recipe source"
+                      >
+                        {selectedRecipe.sourceApp}
+                      </a>
                     </div>
                   )}
 

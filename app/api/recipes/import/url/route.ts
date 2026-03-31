@@ -93,14 +93,21 @@ function cleanIngredientName(name: string): string {
     .trim();
 }
 
-function parseIngredientString(text: string): ParsedIngredient {
-  // Clean HTML entities and tags
-  const cleaned = text
+function decodeHtmlEntities(text: string): string {
+  return text
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&nbsp;/g, " ")
-    .replace(/&#\d+;/g, " ")
-    .trim();
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
+}
+
+function parseIngredientString(text: string): ParsedIngredient {
+  const cleaned = decodeHtmlEntities(text).trim();
 
   const { quantity, rest } = parseLeadingQuantity(cleaned);
   const { unit, nameGuess: rawName } = parseUnitAndName(rest);
@@ -172,14 +179,14 @@ function extractInstructions(recipeData: any): string {
   if (!raw) return "";
 
   // Plain string
-  if (typeof raw === "string") return raw.trim();
+  if (typeof raw === "string") return decodeHtmlEntities(raw).trim();
 
   // Array of strings
   if (Array.isArray(raw)) {
     return raw.map((step: any, i: number) => {
-      if (typeof step === "string") return `${i + 1}. ${step.trim()}`;
+      if (typeof step === "string") return `${i + 1}. ${decodeHtmlEntities(step).trim()}`;
       // HowToStep or HowToSection objects
-      if (step.text) return `${i + 1}. ${step.text.trim()}`;
+      if (step.text) return `${i + 1}. ${decodeHtmlEntities(step.text).trim()}`;
       if (step.itemListElement && Array.isArray(step.itemListElement)) {
         // HowToSection with sub-steps
         const sectionName = step.name ? `**${step.name}**\n` : "";
@@ -290,9 +297,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse ingredients
+    // Parse ingredients — detect section headers (e.g. "For the crust:") and
+    // skip them as ingredients, attaching section name to following items' nameGuess
     const ingredientStrings: string[] = recipeData.recipeIngredient || [];
-    const ingredients: ParsedIngredient[] = ingredientStrings.map(parseIngredientString);
+    const ingredients: ParsedIngredient[] = [];
+    let currentSection: string | null = null;
+    for (const str of ingredientStrings) {
+      const decoded = decodeHtmlEntities(str).trim();
+      // Section header: short string ending with ":", no leading digit (not a quantity)
+      if (/^[^0-9\u00bc-\u00be\u2150-\u215e].{1,60}:$/.test(decoded)) {
+        currentSection = decoded.replace(/:$/, "").trim();
+        continue;
+      }
+      const parsed = parseIngredientString(str);
+      if (currentSection) {
+        parsed.section = currentSection;
+        parsed.nameGuess = parsed.nameGuess
+          ? `${parsed.nameGuess} (${currentSection})`
+          : parsed.nameGuess;
+      }
+      ingredients.push(parsed);
+    }
 
     // Parse servings
     const servings = parseServings(recipeData.recipeYield);
@@ -311,7 +336,7 @@ export async function POST(request: Request) {
       servingSize: servings.size,
       servingUnit: servings.unit,
       instructions: extractInstructions(recipeData),
-      sourceApp: "URL Import",
+      sourceApp: url,
       ingredients,
       isComplete: false,
     };
