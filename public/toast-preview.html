@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toast Options</title>
+<style>
+  :root {
+    --bg: #f5f4f1;
+    --fg: #1a1a18;
+    --accent: #6b8f6b;
+    --accent-hover: #5a7a5a;
+    --rule: #e0ddd7;
+    --muted: #8a8880;
+    --bg-raised: #ffffff;
+    --error: #b94a48;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); min-height: 100vh; }
+
+  nav {
+    display: flex; align-items: center; gap: 32px;
+    padding: 0 32px; height: 52px;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  nav .logo { font-family: Georgia, serif; font-size: 16px; letter-spacing: 0; text-transform: none; font-weight: normal; }
+  nav a { color: var(--muted); text-decoration: none; cursor: pointer; }
+
+  .section {
+    padding: 32px 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-label {
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .section-title { font-size: 18px; font-weight: normal; margin-bottom: 8px; }
+  .section-desc { font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .button-row { display: flex; gap: 8px; }
+  .trigger-btn {
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--accent); color: white; border: none; padding: 8px 20px; cursor: pointer;
+  }
+  .trigger-btn:hover { background: var(--accent-hover); }
+  .trigger-btn.error { background: var(--error); }
+
+  /* A: Top bar flash */
+  #option-a-bar {
+    position: fixed; top: 52px; left: 0; right: 0;
+    height: 2px; background: var(--accent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0ms;
+    pointer-events: none; z-index: 1000; opacity: 1;
+  }
+  #option-a-bar.active { transform: scaleX(1); transition: transform 400ms cubic-bezier(0.4,0,0.2,1); }
+  #option-a-bar.fading { opacity: 0; transition: opacity 500ms ease; }
+  #option-a-bar.error-bar { background: var(--error); }
+
+  /* B: Status line */
+  #option-b-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 32px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.05em;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg);
+    opacity: 0; pointer-events: none;
+    transition: opacity 300ms ease;
+    z-index: 1000;
+  }
+  #option-b-bar.active { opacity: 1; }
+  #option-b-bar .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  #option-b-bar.error-bar .dot { background: var(--error); }
+
+  /* C: Quiet corner chip */
+  #option-c-chip {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--bg-raised);
+    border-left: 2px solid var(--accent);
+    padding: 10px 16px;
+    font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.05em;
+    color: var(--fg);
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 250ms ease, transform 250ms ease;
+    pointer-events: none; z-index: 1000;
+  }
+  #option-c-chip.active { opacity: 1; transform: translateY(0); }
+  #option-c-chip.error-chip { border-left-color: var(--error); }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Course</span>
+  <a>Ingredients</a>
+  <a>Recipes</a>
+  <a>Meal Plans</a>
+</nav>
+
+<div class="section">
+  <div class="section-label">Option A</div>
+  <div class="section-title">Top bar flash</div>
+  <div class="section-desc">A 2px line sweeps across below the nav, then fades.<br>No text. Pure signal. Ultra-minimal.</div>
+  <div class="button-row">
+    <button class="trigger-btn" onclick="triggerA('success')">Trigger success</button>
+    <button class="trigger-btn error" onclick="triggerA('error')">Trigger error</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Option B</div>
+  <div class="section-title">Status line</div>
+  <div class="section-desc">Mono text fades in at the bottom of the screen inside a rule line.<br>Feels native to the app. Disappears after 2.5s.</div>
+  <div class="button-row">
+    <button class="trigger-btn" onclick="triggerB('Ingredient saved', 'success')">Trigger success</button>
+    <button class="trigger-btn error" onclick="triggerB('Search failed: USDA lookup failed', 'error')">Trigger error</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Option C</div>
+  <div class="section-title">Quiet corner chip</div>
+  <div class="section-desc">Bottom-right chip, no shadow, left accent bar only.<br>Slides up. Understated but clearly a notification.</div>
+  <div class="button-row">
+    <button class="trigger-btn" onclick="triggerC('Ingredient saved', 'success')">Trigger success</button>
+    <button class="trigger-btn error" onclick="triggerC('Search failed: USDA lookup failed', 'error')">Trigger error</button>
+  </div>
+</div>
+
+<div id="option-a-bar"></div>
+<div id="option-b-bar"><div class="dot"></div><span id="option-b-text">Ingredient saved</span></div>
+<div id="option-c-chip"><span id="option-c-text">Ingredient saved</span></div>
+
+<script>
+  let aTimer, bTimer, cTimer;
+
+  function triggerA(type) {
+    clearTimeout(aTimer);
+    const bar = document.getElementById('option-a-bar');
+    bar.className = type === 'error' ? 'error-bar' : '';
+    bar.style.opacity = '1';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      bar.classList.add('active');
+      aTimer = setTimeout(() => {
+        bar.classList.add('fading');
+        setTimeout(() => { bar.className = ''; bar.style.opacity = '1'; }, 500);
+      }, 1200);
+    }));
+  }
+
+  function triggerB(msg, type) {
+    clearTimeout(bTimer);
+    const bar = document.getElementById('option-b-bar');
+    document.getElementById('option-b-text').textContent = msg;
+    bar.className = 'active' + (type === 'error' ? ' error-bar' : '');
+    bTimer = setTimeout(() => { bar.className = ''; }, 2800);
+  }
+
+  function triggerC(msg, type) {
+    clearTimeout(cTimer);
+    const chip = document.getElementById('option-c-chip');
+    document.getElementById('option-c-text').textContent = msg;
+    chip.className = 'active' + (type === 'error' ? ' error-chip' : '');
+    cTimer = setTimeout(() => { chip.className = ''; }, 2800);
+  }
+</script>
+</body>
+</html>

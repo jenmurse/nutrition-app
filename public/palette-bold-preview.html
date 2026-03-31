@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course — Bold Palette Builder</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #1E1E1E;
+    padding: 48px 32px;
+    color: #1C1812;
+  }
+
+  h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #444;
+    margin-bottom: 32px;
+  }
+
+  .palettes {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .palette-card {
+    border-radius: 12px;
+    overflow: hidden;
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    transition: border-color 0.2s;
+  }
+
+  /* Color picker row */
+  .picker-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-nav);
+    border-bottom: 1px solid var(--rule);
+  }
+  .picker-row input[type="color"] {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+  }
+  .picker-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+  .picker-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+  .picker-row input[type="text"] {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--bg-subtle);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: var(--fg, #1C1812);
+    width: 90px;
+  }
+  .picker-row input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .palette-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .name-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px 8px;
+    background: var(--bg-nav);
+    border-bottom: 1px solid var(--rule);
+  }
+  .name-row input[type="text"] {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 2px 0;
+    color: var(--fg, #1C1812);
+    width: 100%;
+    outline: none;
+  }
+  .name-row input[type="text"]::placeholder { color: var(--muted); opacity: 0.6; }
+  .name-row input[type="text"]:focus { border-bottom-color: var(--accent); }
+
+  /* Nav */
+  .nav {
+    background: var(--bg-nav);
+    border-bottom: 1px solid var(--rule);
+    padding: 0 16px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 14px;
+    color: var(--fg, #1C1812);
+    margin-right: 4px;
+  }
+  .nav-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 2px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-tab.active {
+    color: var(--fg, #1C1812);
+    border-bottom-color: var(--accent);
+  }
+  .avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .buttons { display: flex; gap: 6px; }
+  .btn-primary {
+    background: var(--accent); color: white; border: none;
+    padding: 6px 12px; border-radius: 4px;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .btn-ghost {
+    background: transparent; color: var(--muted); border: 1px solid var(--rule);
+    padding: 6px 12px; border-radius: 4px;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .btn-delete {
+    background: transparent; color: #DC2626; border: 1px solid #EF4444;
+    padding: 6px 12px; border-radius: 4px;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .list-item { padding: 7px 10px; border-radius: 6px; font-size: 13px; }
+  .list-item.selected { background: var(--bg-selected); color: var(--fg, #1C1812); }
+  .list-item.unselected { color: var(--muted); }
+
+  .divider { height: 1px; background: var(--rule); margin: 0 -16px; }
+
+  .nutrient-row { display: flex; flex-direction: column; gap: 5px; }
+  .nutrient-meta { display: flex; justify-content: space-between; align-items: baseline; }
+  .nutrient-name { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .nutrient-value { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); }
+  .progress-track { height: 4px; background: var(--bg-subtle); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+
+  .state-badge { font-family: 'DM Mono', monospace; font-size: 8px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; margin-left: 5px; }
+  .state-badge.warn { background: #FEF3E0; color: #D97706; }
+  .state-badge.over { background: #FEE2E2; color: #991B1B; }
+
+  .context-block { background: var(--bg-nav); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .alert-chip { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: #92400E; }
+  .analysis-heading { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; margin-top: 2px; color: var(--fg, #1C1812); }
+  .analysis-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--fg, #1C1812); }
+  .analysis-value { font-size: 10px; color: var(--muted, #8A7E72); }
+  .analysis-icon { font-size: 9px; opacity: 0.55; margin-right: 4px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+<h1>Course — Palette Builder</h1>
+<p class="note">Enter any hex value → all tones derive automatically from that hue.</p>
+
+<div class="palettes" id="palettes"></div>
+
+<script>
+  // ── Color math ──────────────────────────────────────────────
+  function hexToHsl(hex) {
+    hex = hex.replace('#','');
+    if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+    const r = parseInt(hex.slice(0,2),16)/255;
+    const g = parseInt(hex.slice(2,4),16)/255;
+    const b = parseInt(hex.slice(4,6),16)/255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h, s, l = (max+min)/2;
+    if (max===min) { h=s=0; } else {
+      const d = max-min;
+      s = l>0.5 ? d/(2-max-min) : d/(max+min);
+      switch(max) {
+        case r: h=(g-b)/d+(g<b?6:0); break;
+        case g: h=(b-r)/d+2; break;
+        case b: h=(r-g)/d+4; break;
+      }
+      h/=6;
+    }
+    return [h*360, s*100, l*100];
+  }
+
+  function hslToHex(h,s,l) {
+    s=Math.max(0,Math.min(100,s))/100;
+    l=Math.max(0,Math.min(100,l))/100;
+    const a = s*Math.min(l,1-l);
+    const f = n => {
+      const k=(n+h/30)%12;
+      const color = l-a*Math.max(Math.min(k-3,9-k,1),-1);
+      return Math.round(255*color).toString(16).padStart(2,'0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  }
+
+  function derivePalette(hex) {
+    const [h, s, l] = hexToHsl(hex);
+    // Scale saturation down for bg tints — keeps them subtle
+    const bgS = Math.min(s * 0.38, 28);
+    const mutedS = Math.min(s * 0.45, 30);
+    return {
+      '--fg':          hslToHex(h, Math.min(s*0.3, 35), 10),
+      '--bg':          hslToHex(h, bgS, 94),
+      '--bg-nav':      hslToHex(h, bgS * 1.1, 89),
+      '--bg-raised':   hslToHex(h, bgS * 0.5, 97),
+      '--bg-subtle':   hslToHex(h, bgS * 1.2, 83),
+      '--bg-selected': hslToHex(h, bgS * 1.4, 78),
+      '--rule':        hslToHex(h, bgS * 1.3, 74),
+      '--muted':       hslToHex(h, mutedS, 50),
+      '--accent':      hex,
+      '--accent-hover':hslToHex(h, s, Math.max(l-12,10)),
+      '--accent-light':hslToHex(h, bgS * 1.5, 80),
+    };
+  }
+
+  function applyPalette(card, hex) {
+    const palette = derivePalette(hex);
+    Object.entries(palette).forEach(([k,v]) => card.style.setProperty(k,v));
+  }
+
+  function isValidHex(hex) {
+    return /^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(hex.trim());
+  }
+
+  // ── Initial palette seeds ────────────────────────────────────
+  const seeds = [
+    { label: 'Sage',        hex: '#7E9A92', name: 'Sage' },
+    { label: 'Periwinkle',  hex: '#9899F0', name: 'Periwinkle' },
+    { label: 'Hot Pink',    hex: '#F13787', name: 'Hot Pink' },
+    { label: 'Terracotta',  hex: '#E06142', name: 'Terracotta' },
+    { label: 'Peach',       hex: '#E98D77', name: 'Peach' },
+    { label: 'Slot 6',      hex: '#7B9EB8', name: '' },
+    { label: 'Slot 7',      hex: '#A89060', name: '' },
+    { label: 'Slot 8',      hex: '#8E7B9E', name: '' },
+    { label: 'Slot 9',      hex: '#6B9E8E', name: '' },
+    { label: 'Slot 10',     hex: '#C07870', name: '' },
+  ];
+
+  // ── Card template ────────────────────────────────────────────
+  function createCard({ label, hex, name }) {
+    const card = document.createElement('div');
+    card.className = 'palette-card';
+
+    card.innerHTML = `
+      <div class="picker-row">
+        <input type="color" value="${hex}" title="Pick a color">
+        <input type="text" class="hex-input" value="${hex}" maxlength="7" spellcheck="false">
+        <span class="palette-label">${label}</span>
+      </div>
+      <div class="name-row">
+        <input type="text" class="name-input" value="${name}" placeholder="name this palette…" maxlength="30" spellcheck="false">
+      </div>
+      <div class="nav">
+        <span class="nav-logo">Course</span>
+        <span class="nav-tab active">Ingredients</span>
+        <span class="nav-tab">Recipes</span>
+        <div class="avatar">J</div>
+      </div>
+      <div class="card-body">
+        <div class="buttons">
+          <button class="btn-primary">Save</button>
+          <button class="btn-ghost">Edit</button>
+          <button class="btn-delete">Delete</button>
+        </div>
+        <div>
+          <div class="list-item selected">Almond butter</div>
+          <div class="list-item unselected">Apple</div>
+        </div>
+        <div class="divider"></div>
+        <div class="nutrient-row">
+          <div class="nutrient-meta"><span class="nutrient-name">Calories</span><span class="nutrient-value">1,340 / 2,000</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:67%"></div></div>
+        </div>
+        <div class="nutrient-row">
+          <div class="nutrient-meta"><span class="nutrient-name">Protein</span><span class="nutrient-value">18 / 95 g ⊖ <span class="state-badge warn">low</span></span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:19%"></div></div>
+        </div>
+        <div class="nutrient-row">
+          <div class="nutrient-meta"><span class="nutrient-name">Sodium</span><span class="nutrient-value">2,680 / 2,300 mg ⚠︎ <span class="state-badge over">over</span></span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="context-block">
+          <div class="alert-chip">PROTEIN -77G BELOW MIN</div>
+          <div class="alert-chip">SODIUM +380MG OVER LIMIT</div>
+          <div class="analysis-heading"><span class="analysis-icon">⚠︎</span>Over Allocation</div>
+          <div class="analysis-row"><span>Sodium</span><span class="analysis-value">+380mg (17%)</span></div>
+          <div class="analysis-heading"><span class="analysis-icon">⊖</span>Below Minimum</div>
+          <div class="analysis-row"><span>Protein</span><span class="analysis-value">77g short (81%)</span></div>
+        </div>
+      </div>
+    `;
+
+    applyPalette(card, hex);
+
+    const colorPicker = card.querySelector('input[type="color"]');
+    const textInput   = card.querySelector('.hex-input');
+
+    colorPicker.addEventListener('input', () => {
+      const h = colorPicker.value;
+      textInput.value = h.toUpperCase();
+      applyPalette(card, h);
+    });
+
+    textInput.addEventListener('input', () => {
+      let val = textInput.value.trim();
+      if (!val.startsWith('#')) val = '#' + val;
+      if (isValidHex(val)) {
+        const full = val.length === 4
+          ? '#' + val[1]+val[1]+val[2]+val[2]+val[3]+val[3]
+          : val;
+        colorPicker.value = full;
+        applyPalette(card, full);
+      }
+    });
+
+    textInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') textInput.blur();
+    });
+
+    return card;
+  }
+
+  // ── Render ───────────────────────────────────────────────────
+  const container = document.getElementById('palettes');
+  seeds.forEach(seed => container.appendChild(createCard(seed)));
+</script>
+</body>
+</html>

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Filter & Notes Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f3ef;
+    --bg-nav: #eeece8;
+    --bg-raised: #f8f7f4;
+    --bg-subtle: rgba(0,0,0,0.04);
+    --bg-selected: rgba(0,0,0,0.07);
+    --bg-pill: rgba(0,0,0,0.06);
+    --fg: #1a1917;
+    --muted: #888580;
+    --rule-faint: rgba(0,0,0,0.07);
+    --rule: rgba(0,0,0,0.12);
+    --accent: #5c6b3a;
+    --accent-light: rgba(92,107,58,0.1);
+    --accent-text: #fff;
+    --accent-hover: #4a5730;
+    --placeholder: #b0ada8;
+    --radius: 12px;
+    --radius-sm: 4px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Left sidebar ── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-nav);
+    box-shadow: 1px 0 4px rgba(0,0,0,0.07);
+  }
+  .sidebar-header {
+    padding: 12px 24px 10px;
+    border-bottom: 1px solid var(--rule-faint);
+  }
+  .sidebar-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .sidebar-title {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg);
+  }
+  .count-badge {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    background: var(--bg-subtle);
+    padding: 2px 6px;
+    border-radius: 99px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--bg-subtle);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+    font-size: 11px;
+    color: var(--fg);
+    outline: none;
+    margin-bottom: 8px;
+  }
+  .tags-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .tag-pill {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 99px;
+    cursor: pointer;
+    border: none;
+    background: var(--bg-pill);
+    color: var(--muted);
+  }
+  .tag-pill.active {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  /* ── NEW: Sort control ── */
+  .sort-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--rule-faint);
+    margin-top: 4px;
+  }
+  .sort-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--placeholder);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .sort-select {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    color: var(--fg);
+    padding: 2px 0;
+    outline: none;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .sort-select:focus { border-bottom-color: var(--fg); }
+  .sort-dir-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .sort-dir-btn:hover { color: var(--fg); background: var(--bg-subtle); }
+  .sort-dir-btn.active { color: var(--accent); }
+
+  /* Recipe list */
+  .recipe-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .recipe-item {
+    margin: 1px 6px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 80ms;
+  }
+  .recipe-item:hover { background: var(--bg-subtle); }
+  .recipe-item.selected { background: var(--bg-selected); }
+  .recipe-name { font-size: 12px; font-weight: 500; color: var(--fg); line-height: 1.3; }
+  .recipe-meta { font-family: 'Courier New', monospace; font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .new-recipe-btn {
+    margin: 2px 6px 6px;
+    padding: 9px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    cursor: pointer;
+    border-radius: 7px;
+    text-align: left;
+  }
+  .new-recipe-btn:hover { color: var(--fg); background: var(--bg-subtle); }
+
+  /* ── Center pane ── */
+  .center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .detail-header {
+    padding: 20px 28px 0;
+    flex-shrink: 0;
+  }
+  .detail-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 26px;
+    color: var(--fg);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .detail-meta span {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); }
+
+  /* ── NEW: Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--rule-faint);
+    padding: 0 28px;
+    flex-shrink: 0;
+  }
+  .tab-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 0;
+    margin-right: 20px;
+    margin-bottom: -1px;
+    cursor: pointer;
+    transition: color 120ms;
+  }
+  .tab-btn:hover { color: var(--fg); }
+  .tab-btn.active {
+    color: var(--fg);
+    border-bottom-color: var(--fg);
+  }
+
+  .detail-body { flex: 1; overflow-y: auto; padding: 20px 28px; }
+
+  /* Recipe tab content */
+  .section-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+  .section-label:first-child { margin-top: 0; }
+  .ingredient-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rule-faint);
+    font-size: 12px;
+  }
+  .ing-qty { font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); min-width: 70px; }
+  .ing-name { color: var(--fg); }
+
+  /* Notes tab content */
+  .notes-panel { display: none; }
+  .notes-panel.active { display: block; }
+  .recipe-panel { display: none; }
+  .recipe-panel.active { display: block; }
+
+  .notes-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .notes-toolbar-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .notes-edit-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+  }
+  .notes-edit-btn:hover { color: var(--fg); background: var(--bg-subtle); }
+
+  .notes-content {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--fg);
+  }
+  .notes-content h2 {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    font-weight: normal;
+    color: var(--fg);
+    margin: 20px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule-faint);
+  }
+  .notes-content h2:first-child { margin-top: 0; }
+  .notes-content h3 {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 16px 0 6px;
+    font-weight: normal;
+  }
+  .notes-content p { margin-bottom: 10px; color: #444; }
+  .notes-content strong { color: var(--fg); font-weight: 600; }
+  .notes-content ul { padding-left: 16px; margin-bottom: 10px; }
+  .notes-content li { margin-bottom: 4px; color: #444; }
+
+  .notes-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    margin: 12px 0;
+  }
+  .notes-table th {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: left;
+    padding: 4px 12px 4px 0;
+    border-bottom: 1px solid var(--rule);
+    font-weight: normal;
+  }
+  .notes-table td {
+    padding: 6px 12px 6px 0;
+    border-bottom: 1px solid var(--rule-faint);
+    color: var(--fg);
+  }
+  .notes-table td.positive { color: #5c6b3a; }
+  .notes-table td.negative { color: #c0392b; }
+
+  .notes-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    gap: 12px;
+    text-align: center;
+  }
+  .notes-empty-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--placeholder);
+  }
+  .notes-paste-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+  }
+  .notes-paste-btn:hover { color: var(--fg); border-color: var(--fg); }
+
+  .notes-textarea {
+    width: 100%;
+    min-height: 400px;
+    font-size: 12px;
+    font-family: -apple-system, sans-serif;
+    line-height: 1.6;
+    color: var(--fg);
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    outline: none;
+    resize: vertical;
+    display: none;
+  }
+  .notes-textarea.visible { display: block; }
+  .notes-save-row {
+    display: none;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+  }
+  .notes-save-row.visible { display: flex; }
+  .btn-save {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    padding: 6px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .btn-cancel {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  /* ── Right panel ── */
+  .right-panel {
+    width: 300px;
+    min-width: 300px;
+    background: var(--bg-nav);
+    box-shadow: -1px 0 4px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px;
+    overflow-y: auto;
+    gap: 6px;
+  }
+  .panel-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    margin-top: 6px;
+  }
+  .nutrient-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--rule-faint);
+  }
+  .nutrient-name { font-size: 11px; color: var(--fg); }
+  .nutrient-val { font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); }
+  .nutrient-unit { font-family: 'Courier New', monospace; font-size: 9px; color: var(--placeholder); margin-left: 2px; }
+
+  /* Annotations */
+  .annotation {
+    background: #e8f0e0;
+    border-left: 2px solid var(--accent);
+    padding: 4px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    border-radius: 0 3px 3px 0;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- LEFT SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title-row">
+      <span class="sidebar-title">Recipes</span>
+      <span class="count-badge">4</span>
+    </div>
+    <input class="search-input" type="text" placeholder="Search..." />
+    <div class="tags-row">
+      <button class="tag-pill active" onclick="toggleTag(this)">dessert</button>
+      <button class="tag-pill" onclick="toggleTag(this)">breakfast</button>
+      <button class="tag-pill" onclick="toggleTag(this)">snack</button>
+      <button class="tag-pill" onclick="toggleTag(this)">dinner</button>
+      <button class="tag-pill" onclick="toggleTag(this)">side</button>
+    </div>
+    <!-- SORT CONTROL -->
+    <div class="sort-row">
+      <span class="sort-label">Sort</span>
+      <select class="sort-select" onchange="updateSort(this)">
+        <option value="">— name —</option>
+        <option value="Calories">Calories</option>
+        <option value="Protein">Protein</option>
+        <option value="Fat">Fat</option>
+        <option value="Carbohydrates">Carbs</option>
+        <option value="Sugar">Sugar</option>
+        <option value="Fiber">Fiber</option>
+      </select>
+      <button class="sort-dir-btn active" id="sort-dir-btn" onclick="toggleDir()" title="Toggle sort direction">↓</button>
+    </div>
+  </div>
+
+  <div class="recipe-list">
+    <div class="recipe-item selected">
+      <div class="recipe-name">Almond Croissant Bars</div>
+      <div class="recipe-meta">604 kcal · 20.6g protein</div>
+    </div>
+    <div class="recipe-item">
+      <div class="recipe-name">Chocolate Tahini Brownies</div>
+      <div class="recipe-meta">380 kcal · 8g protein</div>
+    </div>
+    <div class="recipe-item">
+      <div class="recipe-name">Lemon Poppyseed Muffins</div>
+      <div class="recipe-meta">290 kcal · 6g protein</div>
+    </div>
+    <div class="recipe-item">
+      <div class="recipe-name">Oat Fudge Bars</div>
+      <div class="recipe-meta">510 kcal · 12g protein</div>
+    </div>
+  </div>
+  <button class="new-recipe-btn">+ New Recipe</button>
+</div>
+
+<!-- CENTER PANE -->
+<div class="center">
+  <div class="detail-header">
+    <div class="detail-title">Almond Croissant Bars</div>
+    <div class="detail-meta">
+      <span>9 servings</span>
+      <div class="dot"></div>
+      <span>20 min prep</span>
+      <div class="dot"></div>
+      <span>35 min cook</span>
+      <div class="dot"></div>
+      <span style="background:var(--accent-light);color:var(--accent);padding:1px 7px;border-radius:99px;">dessert</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-recipe" onclick="switchTab('recipe')">Recipe</button>
+    <button class="tab-btn" id="tab-notes" onclick="switchTab('notes')">Notes</button>
+  </div>
+
+  <div class="detail-body">
+    <!-- RECIPE TAB -->
+    <div class="recipe-panel active" id="panel-recipe">
+      <p class="section-label">Ingredients</p>
+      <div class="ingredient-row"><span class="ing-qty">1 cup</span><span class="ing-name">Almond flour</span></div>
+      <div class="ingredient-row"><span class="ing-qty">2.33 cup</span><span class="ing-name">Oats, raw</span></div>
+      <div class="ingredient-row"><span class="ing-qty">1.33 cup</span><span class="ing-name">Cashew milk</span></div>
+      <div class="ingredient-row"><span class="ing-qty">3 tbsp</span><span class="ing-name">Maple syrup</span></div>
+      <div class="ingredient-row"><span class="ing-qty">1 tsp</span><span class="ing-name">Almond extract</span></div>
+      <p class="section-label" style="margin-top:16px;">Almond Paste Topping</p>
+      <div class="ingredient-row"><span class="ing-qty">1 cup</span><span class="ing-name">Almond flour</span></div>
+      <div class="ingredient-row"><span class="ing-qty">1 tsp</span><span class="ing-name">Almond extract</span></div>
+      <div class="ingredient-row"><span class="ing-qty">3 tbsp</span><span class="ing-name">Maple syrup</span></div>
+      <div class="ingredient-row"><span class="ing-qty">4 tbsp</span><span class="ing-name">Butter</span></div>
+      <p class="section-label" style="margin-top:16px;">To Sprinkle on Top</p>
+      <div class="ingredient-row"><span class="ing-qty">0.75 cup</span><span class="ing-name">Almonds, sliced</span></div>
+      <div class="ingredient-row"><span class="ing-qty">1 dust</span><span class="ing-name">Powdered sugar</span></div>
+    </div>
+
+    <!-- NOTES TAB -->
+    <div class="notes-panel" id="panel-notes">
+      <div class="notes-toolbar">
+        <span class="notes-toolbar-label">Optimization Notes</span>
+        <button class="notes-edit-btn" onclick="toggleEdit()">Edit</button>
+      </div>
+      <div id="notes-rendered" class="notes-content">
+        <h2>Almond Croissant Bars — Optimization Analysis</h2>
+        <p><strong>Current per serving:</strong> 604 kcal · 31g fat · 5.3g sat fat · 62g carbs · 13g sugar · 20.6g protein · 13g fiber</p>
+        <p>The bones of this recipe are genuinely excellent — the protein and fiber are remarkable for a snack bar. The areas to work on are calories (604 is high for a snack), fat (mainly from butter and almonds), and sugar (double hit of maple syrup in both layers).</p>
+
+        <h3>Proposed Changes</h3>
+        <ul>
+          <li><strong>Replace butter (4 tbsp) → 2 tbsp butter + 2 tbsp applesauce</strong> — cuts ~200 kcal, ~16g fat across the batch</li>
+          <li><strong>Reduce base maple syrup ¼ cup → 3 tbsp</strong> — saves ~54 kcal, ~12g sugar</li>
+          <li><strong>Reduce topping maple syrup 3 tbsp → 2 tbsp</strong> — saves ~55 kcal, ~12g sugar</li>
+          <li><strong>Reduce slivered almonds ¾ cup → ½ cup</strong> — saves ~37 kcal/serving, ~8g fat</li>
+          <li><strong>Skip powdered sugar dusting</strong> — swap for toasted almond flour or skip</li>
+        </ul>
+
+        <h3>Estimated Optimized Nutrition</h3>
+        <table class="notes-table">
+          <thead>
+            <tr><th></th><th>Original</th><th>Optimized</th><th>Change</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Calories</td><td>604</td><td>~540</td><td class="positive">−64</td></tr>
+            <tr><td>Fat</td><td>31g</td><td>~24g</td><td class="positive">−7g</td></tr>
+            <tr><td>Sat Fat</td><td>5.3g</td><td>~3.5g</td><td class="positive">−1.8g</td></tr>
+            <tr><td>Sugar</td><td>13g</td><td>~10g</td><td class="positive">−3g</td></tr>
+            <tr><td>Protein</td><td>20.6g</td><td>~20g</td><td>~same</td></tr>
+            <tr><td>Fiber</td><td>13g</td><td>~13g</td><td>~same</td></tr>
+          </tbody>
+        </table>
+        <p>The flavor profile stays almost identical — you're not touching the almond extract, oats, or almond flour ratios, which are the soul of the recipe.</p>
+      </div>
+      <textarea class="notes-textarea" id="notes-textarea" placeholder="Paste optimization notes, meal prep analysis, or any recipe notes here..."></textarea>
+      <div class="notes-save-row" id="notes-save-row">
+        <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+        <button class="btn-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="panel-label">Per Serving</div>
+  <div class="nutrient-row"><span class="nutrient-name">Calories</span><span><span class="nutrient-val">604</span><span class="nutrient-unit">kcal</span></span></div>
+  <div class="nutrient-row"><span class="nutrient-name">Protein</span><span><span class="nutrient-val">20.6</span><span class="nutrient-unit">g</span></span></div>
+  <div class="nutrient-row"><span class="nutrient-name">Fat</span><span><span class="nutrient-val">31</span><span class="nutrient-unit">g</span></span></div>
+  <div class="nutrient-row"><span class="nutrient-name">Carbohydrates</span><span><span class="nutrient-val">62</span><span class="nutrient-unit">g</span></span></div>
+  <div class="nutrient-row"><span class="nutrient-name">Fiber</span><span><span class="nutrient-val">13</span><span class="nutrient-unit">g</span></span></div>
+  <div class="nutrient-row"><span class="nutrient-name">Sugar</span><span><span class="nutrient-val">13</span><span class="nutrient-unit">g</span></span></div>
+  <div class="nutrient-row"><span class="nutrient-name">Saturated Fat</span><span><span class="nutrient-val">5.3</span><span class="nutrient-unit">g</span></span></div>
+</div>
+
+<script>
+  let sortDir = 'desc';
+
+  function toggleTag(btn) {
+    btn.classList.toggle('active');
+  }
+
+  function updateSort(sel) {
+    const btn = document.getElementById('sort-dir-btn');
+    btn.classList.toggle('active', sel.value !== '');
+  }
+
+  function toggleDir() {
+    sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+    document.getElementById('sort-dir-btn').textContent = sortDir === 'desc' ? '↓' : '↑';
+  }
+
+  function switchTab(tab) {
+    document.getElementById('tab-recipe').classList.toggle('active', tab === 'recipe');
+    document.getElementById('tab-notes').classList.toggle('active', tab === 'notes');
+    document.getElementById('panel-recipe').classList.toggle('active', tab === 'recipe');
+    document.getElementById('panel-notes').classList.toggle('active', tab === 'notes');
+  }
+
+  let editing = false;
+  function toggleEdit() {
+    editing = !editing;
+    const rendered = document.getElementById('notes-rendered');
+    const textarea = document.getElementById('notes-textarea');
+    const saveRow = document.getElementById('notes-save-row');
+    const btn = document.querySelector('.notes-edit-btn');
+    rendered.style.display = editing ? 'none' : 'block';
+    textarea.classList.toggle('visible', editing);
+    saveRow.classList.toggle('visible', editing);
+    btn.textContent = editing ? 'Cancel' : 'Edit';
+    if (editing) {
+      textarea.focus();
+    }
+  }
+
+  function cancelEdit() {
+    editing = false;
+    document.getElementById('notes-rendered').style.display = 'block';
+    document.getElementById('notes-textarea').classList.remove('visible');
+    document.getElementById('notes-save-row').classList.remove('visible');
+    document.querySelector('.notes-edit-btn').textContent = 'Edit';
+  }
+</script>
+</body>
+</html>
