@@ -593,11 +593,18 @@ input[type="number"]:focus {
   animation: loading-breathe 1.8s ease-in-out infinite;
 }
 
-/* Markdown notes styling */
+/* Markdown notes styling — uses app font stack (DM Sans / DM Mono) */
+.prose-notes {
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--mid);
+}
 .prose-notes h1, .prose-notes h2 {
-  font-family: Georgia, serif;
-  font-size: 15px;
-  font-weight: normal;
+  font-family: var(--display-font);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: 14px;
   color: var(--fg);
   margin: 20px 0 8px;
   padding-bottom: 6px;
@@ -605,22 +612,24 @@ input[type="number"]:focus {
 }
 .prose-notes h1:first-child, .prose-notes h2:first-child { margin-top: 0; }
 .prose-notes h3 {
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 16px 0 6px;
-  font-weight: normal;
+  font-weight: 400;
 }
-.prose-notes p { margin-bottom: 10px; color: var(--mid, #555); }
+.prose-notes p { margin-bottom: 10px; }
 .prose-notes strong { color: var(--fg); font-weight: 600; }
+.prose-notes em { color: var(--muted); font-style: italic; }
 .prose-notes ul, .prose-notes ol { padding-left: 16px; margin-bottom: 10px; }
-.prose-notes li { margin-bottom: 4px; color: var(--mid, #555); }
+.prose-notes li { margin-bottom: 4px; }
+.prose-notes li::marker { color: var(--muted); }
 .prose-notes table {
   width: 100%;
   border-collapse: collapse;
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
   font-size: 10px;
   margin: 12px 0;
 }
@@ -631,12 +640,13 @@ input[type="number"]:focus {
   text-align: left;
   padding: 4px 12px 4px 0;
   border-bottom: 1px solid var(--rule);
-  font-weight: normal;
+  font-weight: 500;
 }
 .prose-notes td {
   padding: 6px 12px 6px 0;
   border-bottom: 1px solid var(--rule-faint);
   color: var(--fg);
+  font-variant-numeric: tabular-nums;
 }
 .prose-notes hr {
   border: none;
@@ -644,7 +654,7 @@ input[type="number"]:focus {
   margin: 16px 0;
 }
 .prose-notes code {
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
   font-size: 11px;
   background: var(--bg-subtle);
   padding: 1px 4px;
@@ -654,7 +664,7 @@ input[type="number"]:focus {
   border-left: 2px solid var(--accent);
   padding: 4px 12px;
   margin: 10px 0;
-  color: var(--mid, #555);
+  color: var(--mid);
   background: var(--accent-light);
   border-radius: 0 4px 4px 0;
 }
