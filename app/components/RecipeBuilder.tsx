@@ -84,6 +84,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newIngredientId, setNewIngredientId] = useState<number | null>(null);
   const [sourceRowId, setSourceRowId] = useState<string | null>(null);
+  const [editingSectionRowId, setEditingSectionRowId] = useState<string | null>(null);
+  const [editingSectionText, setEditingSectionText] = useState("");
 
   const availableTags = ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"];
 
@@ -173,6 +175,53 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
   function updateRow(id: string, patch: Partial<Row>) {
     setRows((s) => s.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+
+  function commitSection(rowId: string) {
+    const trimmed = editingSectionText.trim();
+    setRows((prev) => {
+      const idx = prev.findIndex((r) => r.id === rowId);
+      if (idx === -1) return prev;
+      const updated = [...prev];
+      if (trimmed) {
+        // Set section on this row; subsequent rows with same old section follow
+        const oldSection = updated[idx].section;
+        for (let i = idx; i < updated.length; i++) {
+          if (i === idx || updated[i].section === oldSection) {
+            updated[i] = { ...updated[i], section: trimmed };
+          } else break;
+        }
+      } else {
+        // Empty = remove: merge into previous section
+        const prevSection = idx > 0 ? updated[idx - 1].section : null;
+        const oldSection = updated[idx].section;
+        for (let i = idx; i < updated.length; i++) {
+          if (i === idx || updated[i].section === oldSection) {
+            updated[i] = { ...updated[i], section: prevSection };
+          } else break;
+        }
+      }
+      return updated;
+    });
+    setEditingSectionRowId(null);
+    setEditingSectionText("");
+  }
+
+  function removeSectionFromRow(rowId: string) {
+    setRows((prev) => {
+      const idx = prev.findIndex((r) => r.id === rowId);
+      if (idx === -1) return prev;
+      const prevSection = idx > 0 ? prev[idx - 1].section : null;
+      const oldSection = prev[idx].section;
+      const updated = [...prev];
+      for (let i = idx; i < updated.length; i++) {
+        if (i === idx || updated[i].section === oldSection) {
+          updated[i] = { ...updated[i], section: prevSection };
+        } else break;
+      }
+      return updated;
+    });
+    setEditingSectionRowId(null);
   }
 
   async function createIngredient(name: string, rowId: string) {
@@ -593,9 +642,53 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
             return (
               <div key={row.id}>
+              {/* Section header: new section input */}
+              {editingSectionRowId === row.id && !showSectionHeader && (
+                <div className="flex items-center gap-2 pt-4 pb-1 border-b border-[var(--rule-faint)]">
+                  <input
+                    autoFocus
+                    className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none placeholder:text-[var(--placeholder)]"
+                    placeholder="Section name..."
+                    value={editingSectionText}
+                    onChange={(e) => setEditingSectionText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
+                    onBlur={() => commitSection(row.id)}
+                    aria-label="Section name"
+                  />
+                </div>
+              )}
+              {/* Section header: existing */}
               {showSectionHeader && (
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-4 pb-1 border-b border-[var(--rule-faint)]">
-                  {row.section}
+                <div className="flex items-center gap-2 pt-4 pb-1 border-b border-[var(--rule-faint)]">
+                  {editingSectionRowId === row.id ? (
+                    <input
+                      autoFocus
+                      className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none placeholder:text-[var(--placeholder)]"
+                      placeholder="Section name..."
+                      value={editingSectionText}
+                      onChange={(e) => setEditingSectionText(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
+                      onBlur={() => commitSection(row.id)}
+                      aria-label="Edit section name"
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      className="flex-1 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer bg-transparent border-0 p-0"
+                      onClick={() => { setEditingSectionRowId(row.id); setEditingSectionText(row.section || ""); }}
+                      aria-label={`Edit section: ${row.section}`}
+                    >
+                      {row.section}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 p-0 cursor-pointer"
+                    onClick={() => removeSectionFromRow(row.id)}
+                    aria-label="Remove section header"
+                  >
+                    ×
+                  </button>
                 </div>
               )}
               <div
@@ -762,6 +855,16 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     </optgroup>
                   )}
                 </select>
+                {!showSectionHeader && (
+                  <button
+                    type="button"
+                    className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] py-[6px]"
+                    onClick={() => { setEditingSectionRowId(row.id); setEditingSectionText(""); }}
+                    aria-label="Add section header above this ingredient"
+                  >
+                    + Section
+                  </button>
+                )}
                 <button
                   className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] py-[6px]"
                   onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}
