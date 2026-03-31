@@ -855,16 +855,6 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     </optgroup>
                   )}
                 </select>
-                {!showSectionHeader && (
-                  <button
-                    type="button"
-                    className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] py-[6px]"
-                    onClick={() => { setEditingSectionRowId(row.id); setEditingSectionText(""); }}
-                    aria-label="Add section header above this ingredient"
-                  >
-                    + Section
-                  </button>
-                )}
                 <button
                   className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] py-[6px]"
                   onClick={() => setRows((s) => s.filter((r) => r.id !== row.id))}
@@ -878,12 +868,24 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         </div>
       </div>
 
-      <div>
+      <div className="flex gap-4">
         <button
           className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)]"
           onClick={addRow}
         >
           + Add ingredient
+        </button>
+        <button
+          className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)]"
+          onClick={() => {
+            const newId = `r${Date.now()}`;
+            setRows((s) => [...s, { id: newId }]);
+            setEditingSectionRowId(newId);
+            setEditingSectionText("");
+          }}
+          aria-label="Add section header"
+        >
+          + Section header
         </button>
       </div>
 
