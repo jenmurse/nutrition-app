@@ -101,6 +101,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             unit: typeof ri.unit === "string" ? ri.unit : "",
             conversionGrams: ri.conversionGrams ?? null,
             notes: ri.notes ?? null,
+            section: ri.section ?? null,
           },
         });
       }
