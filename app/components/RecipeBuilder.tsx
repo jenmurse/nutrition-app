@@ -295,6 +295,9 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       const draggedRow = newRows[draggedIndex];
       newRows.splice(draggedIndex, 1);
       newRows.splice(targetIndex, 0, draggedRow);
+      // Inherit section from the row above, or null if dropped at top
+      const neighborSection = targetIndex > 0 ? newRows[targetIndex - 1].section : null;
+      newRows[targetIndex] = { ...newRows[targetIndex], section: neighborSection };
       return newRows;
     });
 
