@@ -124,6 +124,7 @@ function RecipesPage() {
   const [notesText, setNotesText] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<'optimization' | 'mealPrep' | null>(null);
+  const [scale, setScale] = useState(1);
 
   // Filters
   const searchQuery = searchParams?.get("search") || "";
@@ -249,7 +250,7 @@ function RecipesPage() {
 
   const handleSelectRecipe = async (recipe: RecipeSummary) => {
     if (selectedRecipe?.id === recipe.id) { setSelectedRecipe(null); return; }
-    setDetailTab('recipe'); setEditingNotes(null);
+    setDetailTab('recipe'); setEditingNotes(null); setScale(1);
     // Instant render from cache if available
     const cached = clientCache.get<RecipeDetail>(`/api/recipes/${recipe.id}`);
     if (cached) { setSelectedRecipe(cached); return; }
@@ -834,7 +835,17 @@ function RecipesPage() {
                       })()}
 
                       <div className="mb-5">
-                        <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
+                        <div className="flex items-center justify-between mt-5 mb-2">
+                          <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)]">Ingredients</p>
+                          <div className="flex items-center gap-1" role="group" aria-label="Scale recipe">
+                            {[1, 2, 3, 4].map((n) => (
+                              <button key={n} onClick={() => setScale(n)}
+                                className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[3px] rounded-[3px] border transition-colors ${scale === n ? 'bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]' : 'bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]'}`}
+                                aria-pressed={scale === n}
+                                aria-label={`Scale ${n}×`}>{n}×</button>
+                            ))}
+                          </div>
+                        </div>
                         {selectedRecipe.ingredients.map((ing, idx) => {
                           const prevSection = idx > 0 ? (selectedRecipe.ingredients[idx - 1] as any).section : null;
                           const showSection = (ing as any).section && (ing as any).section !== prevSection;
@@ -846,7 +857,7 @@ function RecipesPage() {
                                 </div>
                               )}
                               <div className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
-                                <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
+                                <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity * scale).toFixed(2))} {ing.unit}</span>
                                 <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
                               </div>
                             </div>
@@ -968,7 +979,7 @@ function RecipesPage() {
                           <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
                             dangerouslySetInnerHTML={{ __html: renderNotesHtml(notes) }} />
                         ) : (() => {
-                          const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from Good Measure. Get the full recipe for ${selectedRecipe.name}. Analyze it for meal prep — how well does it store, can it be batch cooked, does it freeze well, what are the best portion sizes, and are there any tips for prepping ahead? Note anything that doesn't reheat well or degrades in texture.\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
+                          const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from Good Measure. Get the full recipe for ${selectedRecipe.name}. Analyze it for meal prep — how well does it store, can it be batch cooked, does it freeze well, what are the best portion sizes, and are there any tips for prepping ahead? Note anything that doesn't reheat well or degrades in texture. If batch cooking makes sense, suggest an optimal batch size with scaled quantities for each component.\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
                           return (
                             <div>
                               <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
