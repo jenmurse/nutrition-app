@@ -16,7 +16,7 @@ type Ingredient = {
   nutrientValues: { id: number; value: number; nutrient: Nutrient }[]
 };
 
-type Row = { id: string; ingredientId?: number; quantity?: number; unit?: string; notes?: string; nameGuess?: string };
+type Row = { id: string; ingredientId?: number; quantity?: number; unit?: string; notes?: string; nameGuess?: string; section?: string | null };
 
 type InitialRecipe = {
   id?: number;
