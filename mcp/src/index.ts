@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.5',
+  version: '1.0.6',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -155,6 +155,7 @@ Get the recipe id from list_recipes first.`,
           quantity: number;
           unit: string;
           notes?: string;
+          section?: string;
           gramsEquivalent: number;
           nutrition: { nutrient: string; unit: string; total: number; per100g: number }[];
         }[];
@@ -163,14 +164,18 @@ Get the recipe id from list_recipes first.`,
         };
       };
 
-      const ingLines = recipe.ingredients.map((i) => {
+      const ingLines: string[] = [];
+      for (const i of recipe.ingredients) {
+        if (i.section) {
+          ingLines.push(`  [${i.section}]`);
+        }
         const notes = i.notes ? ` (${i.notes})` : '';
         const cal = i.nutrition.find((n) => n.nutrient.toLowerCase().includes('calor') || n.nutrient.toLowerCase().includes('energy'));
         const protein = i.nutrition.find((n) => n.nutrient.toLowerCase().includes('protein'));
         const macros = [cal && `${Math.round(cal.total)} kcal`, protein && `${protein.total.toFixed(1)}g protein`]
           .filter(Boolean).join(', ');
-        return `  • ${i.quantity} ${i.unit} ${i.name}${notes}${macros ? ` — ${macros}` : ''}`;
-      });
+        ingLines.push(`  • ${i.quantity} ${i.unit} ${i.name}${notes}${macros ? ` — ${macros}` : ''}`);
+      }
 
       const nutLines = recipe.nutrition.totals
         .filter((n) => n.perServing > 0)
