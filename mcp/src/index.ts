@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.6',
+  version: '1.0.7',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -165,9 +165,11 @@ Get the recipe id from list_recipes first.`,
       };
 
       const ingLines: string[] = [];
+      let lastSection: string | undefined;
       for (const i of recipe.ingredients) {
-        if (i.section) {
+        if (i.section && i.section !== lastSection) {
           ingLines.push(`  [${i.section}]`);
+          lastSection = i.section;
         }
         const notes = i.notes ? ` (${i.notes})` : '';
         const cal = i.nutrition.find((n) => n.nutrient.toLowerCase().includes('calor') || n.nutrient.toLowerCase().includes('energy'));
