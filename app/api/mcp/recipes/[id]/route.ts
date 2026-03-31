@@ -38,7 +38,7 @@ export async function GET(
               defaultUnit: true,
               nutrientValues: {
                 select: {
-                  valuePer100g: true,
+                  value: true,
                   nutrient: { select: { displayName: true, unit: true } },
                 },
               },
@@ -57,8 +57,8 @@ export async function GET(
     const nutrition = ri.ingredient.nutrientValues.map((nv) => ({
       nutrient: nv.nutrient.displayName,
       unit: nv.nutrient.unit,
-      total: parseFloat(((nv.valuePer100g * grams) / 100).toFixed(2)),
-      per100g: nv.valuePer100g,
+      total: parseFloat(((nv.value * grams) / 100).toFixed(2)),
+      per100g: nv.value,
     }));
     return {
       name: ri.ingredient.name,
