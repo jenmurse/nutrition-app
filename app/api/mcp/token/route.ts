@@ -20,7 +20,7 @@ export async function POST() {
   const auth = await getAuthenticatedHousehold();
   if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-  const token = `course_${randomBytes(24).toString('hex')}`;
+  const token = `gm_${randomBytes(24).toString('hex')}`;
 
   await prisma.systemSetting.upsert({
     where: { key_householdId: { key: 'mcpApiToken', householdId: auth.householdId } },
