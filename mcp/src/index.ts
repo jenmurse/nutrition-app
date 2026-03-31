@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.7',
+  version: '1.0.8',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -103,6 +103,7 @@ ingredient stubs that can be enriched with nutrition data later.`,
         servingSize: number;
         servingUnit: string;
         ingredients: { name: string; quantity: number; unit: string }[];
+        stubIngredients: string[];
         url: string;
       };
 
@@ -111,11 +112,17 @@ ingredient stubs that can be enriched with nutrition data later.`,
           recipe.ingredients.map((i) => `  • ${i.quantity} ${i.unit} ${i.name}`).join('\n')
         : '';
 
+      const stubWarning = recipe.stubIngredients?.length > 0
+        ? `\n\n⚠️ ${recipe.stubIngredients.length} ingredient(s) were not found in the database and saved without nutrition data:\n` +
+          recipe.stubIngredients.map((s) => `  • ${s}`).join('\n') +
+          `\n\nThese will show $0 nutrition until you add data via the ingredient editor in Good Measure.`
+        : '';
+
       return {
         content: [
           {
             type: 'text' as const,
-            text: `✓ Recipe "${recipe.name}" saved to Good Measure (${recipe.servingSize} ${recipe.servingUnit}).${ingredientSummary}\n\nView it at: ${recipe.url}`,
+            text: `✓ Recipe "${recipe.name}" saved to Good Measure (${recipe.servingSize} ${recipe.servingUnit}).${ingredientSummary}${stubWarning}\n\nView it at: ${recipe.url}`,
           },
         ],
       };

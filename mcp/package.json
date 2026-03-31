@@ -1,6 +1,6 @@
 {
   "name": "good-measure-mcp",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "MCP server for Good Measure — save recipes from any AI assistant",
   "type": "module",
   "main": "dist/index.js",

@@ -106,6 +106,7 @@ export async function POST(request: Request) {
 
   // Resolve + attach ingredients
   const resolvedIngredients: { name: string; id: number; quantity: number; unit: string; notes?: string; section?: string }[] = [];
+  const stubIngredients: string[] = [];
 
   for (const ing of ingredients) {
     if (!ing.name?.trim()) continue;
@@ -140,6 +141,7 @@ export async function POST(request: Request) {
           householdId: auth.householdId,
         },
       });
+      stubIngredients.push(ing.name.trim());
     }
 
     const density = getIngredientDensity(ingredient.name);
@@ -170,6 +172,7 @@ export async function POST(request: Request) {
     cookTime: recipe.cookTime,
     instructions: recipe.instructions,
     ingredients: resolvedIngredients,
+    stubIngredients,
     url: `${new URL(request.url).origin}/recipes`,
   }, { status: 201 });
 }
