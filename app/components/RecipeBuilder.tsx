@@ -35,6 +35,7 @@ type InitialRecipe = {
     unit?: string;
     notes?: string | null;
     nameGuess?: string;
+    section?: string | null;
   }>;
   sourceApp?: string | null;
   isComplete?: boolean;
@@ -134,6 +135,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       unit: item.unit ?? undefined,
       notes: item.notes ?? undefined,
       nameGuess: item.nameGuess ?? undefined,
+      section: item.section ?? null,
     }));
 
     setRows(nextRows.length > 0 ? nextRows : [{ id: "r1" }]);
