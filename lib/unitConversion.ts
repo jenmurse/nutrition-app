@@ -122,12 +122,43 @@ export function formatUnitWithGrams(
 export function getIngredientDensity(name?: string): number {
   if (!name) return 1;
   const n = name.toLowerCase();
+
+  // Liquids
   if (n.includes("water")) return 1;
   if (n.includes("milk")) return 1.03;
+  if (n.includes("sesame oil")) return 0.92;
   if (n.includes("olive") || n.includes("oil")) return 0.92;
   if (n.includes("honey")) return 1.42;
-  if (n.includes("flour")) return 0.53; // approx (1 cup ~125g)
-  if (n.includes("sugar")) return 0.85; // granulated sugar ~200g per cup -> 200/240=0.83
+
+  // Dairy / cheese
   if (n.includes("butter")) return 0.96;
+  if (n.includes("parmesan")) return 0.34; // grated: 1 tbsp ≈ 5g
+
+  // Baking
+  if (n.includes("flour")) return 0.53;       // 1 cup ≈ 125g
+  if (n.includes("powdered sugar")) return 0.50; // 1 cup ≈ 120g
+  if (n.includes("sugar")) return 0.85;          // granulated: 1 cup ≈ 200g
+
+  // Grains
+  if (n.includes("oat")) return 0.33;            // rolled oats: 1 cup ≈ 80g
+
+  // Ground spices
+  if (n.includes("cinnamon")) return 0.53;       // 1 tsp ≈ 2.6g
+  if (n.includes("turmeric")) return 0.61;       // 1 tsp ≈ 3g
+  if (n.includes("red pepper flake")) return 0.37; // 1 tsp ≈ 1.8g
+  if (n.includes("thyme")) return 0.20;          // dried: 1 tsp ≈ 1g
+  if (n.includes("rosemary")) return 0.20;       // dried: 1 tsp ≈ 1g
+  if (n.includes("ginger")) return 0.41;         // ground/fresh grated: 1 tsp ≈ 2g
+
+  // Fresh herbs (cup measurements — loosely packed)
+  if (n.includes("cilantro")) return 0.17;       // 1 cup ≈ 40g
+  if (n.includes("parsley")) return 0.17;
+  if (n.includes("mint")) return 0.17;
+  if (n.includes("chard")) return 0.25;          // chopped: 1 cup ≈ 60g
+  if (n.includes("romaine")) return 0.20;        // shredded: 1 cup ≈ 47g
+
+  // Vegetables (cup measurements)
+  if (n.includes("corn")) return 0.71;           // kernels: 1 cup ≈ 170g
+
   return 1; // default
 }
