@@ -123,6 +123,7 @@ function RecipesPage() {
   const [editingNotes, setEditingNotes] = useState<'optimization' | 'mealPrep' | null>(null);
   const [notesText, setNotesText] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState<'optimization' | 'mealPrep' | null>(null);
 
   // Filters
   const searchQuery = searchParams?.get("search") || "";
@@ -907,19 +908,27 @@ function RecipesPage() {
                         ) : notes ? (
                           <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
                             dangerouslySetInnerHTML={{ __html: renderNotesHtml(notes) }} />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center py-16 gap-4">
-                            <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--placeholder)]">No optimization notes yet</p>
-                            <div className="flex gap-2">
-                              <button onClick={() => { setEditingNotes('optimization'); setNotesText(''); }}
-                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer py-[6px] px-4 rounded-[var(--radius-sm,4px)] transition-colors"
-                                aria-label="Paste optimization notes">Paste Notes</button>
-                              <button className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--placeholder)] py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-not-allowed opacity-50"
-                                disabled title="Add an API key in Settings to enable" aria-label="Analyze with AI (requires API key)">Analyze with AI</button>
+                        ) : (() => {
+                          const prompt = `You are a [cuisine] chef with a background in nutrition who works with clients to create great-tasting, healthy meals. List my recipes from Good Measure. Get the full recipe for ${selectedRecipe.name}. Analyze it for nutritional optimization — identify the top nutrient contributors, suggest substitutions to [meet your goals here], and preserve the original section headers in your analysis. Show me what you changed and why, including how each change could affect flavor, texture, and overall eating experience. Create a comparison table of the original vs. optimized nutrition numbers per serving.\n\nI may give you feedback and request tweaks before we finalize. Do not save anything until I explicitly tell you I'm happy with the changes.\n\nOnce approved, save the optimized recipe using save_recipe with section headers preserved, and save the analysis notes using save_optimization_notes. Always report any stub ingredient warnings before moving on.`;
+                          return (
+                            <div>
+                              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into Claude Desktop with Good Measure MCP connected. Notes will save automatically once you approve.</p>
+                              <p className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mb-2">Step 1 — Copy prompt</p>
+                              <div className="text-[11px] leading-[1.6] text-[var(--mid)] bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[4px] p-3 mb-3 whitespace-pre-wrap select-all">{prompt}</div>
+                              <div className="flex items-center gap-3 mb-6">
+                                <button
+                                  onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt('optimization'); setTimeout(() => setCopiedPrompt(null), 2000); }}
+                                  className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 py-[6px] px-4 rounded-[4px] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors"
+                                  aria-label="Copy optimization prompt">
+                                  {copiedPrompt === 'optimization' ? 'Copied ✓' : 'Copy prompt →'}
+                                </button>
+                                <button onClick={() => { setEditingNotes('optimization'); setNotesText(''); }}
+                                  className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-2"
+                                  aria-label="Paste notes manually">Paste notes instead</button>
+                              </div>
                             </div>
-                            <p className="text-[10px] text-[var(--placeholder)] mt-1">Use MCP or paste analysis from Claude</p>
-                          </div>
-                        )}
+                          );
+                        })()}
                       </div>
                     );
                   })()}
@@ -958,19 +967,27 @@ function RecipesPage() {
                         ) : notes ? (
                           <div className="prose-notes text-[12px] leading-[1.65] text-[var(--fg)]"
                             dangerouslySetInnerHTML={{ __html: renderNotesHtml(notes) }} />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center py-16 gap-4">
-                            <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--placeholder)]">No meal prep notes yet</p>
-                            <div className="flex gap-2">
-                              <button onClick={() => { setEditingNotes('mealPrep'); setNotesText(''); }}
-                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer py-[6px] px-4 rounded-[var(--radius-sm,4px)] transition-colors"
-                                aria-label="Paste meal prep notes">Paste Notes</button>
-                              <button className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--bg-raised)] border border-[var(--rule)] text-[var(--placeholder)] py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-not-allowed opacity-50"
-                                disabled title="Add an API key in Settings to enable" aria-label="Analyze with AI (requires API key)">Analyze with AI</button>
+                        ) : (() => {
+                          const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from Good Measure. Get the full recipe for ${selectedRecipe.name}. Analyze it for meal prep — how well does it store, can it be batch cooked, does it freeze well, what are the best portion sizes, and are there any tips for prepping ahead? Note anything that doesn't reheat well or degrades in texture.\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
+                          return (
+                            <div>
+                              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into Claude Desktop with Good Measure MCP connected. Notes will save automatically once you approve.</p>
+                              <p className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mb-2">Step 1 — Copy prompt</p>
+                              <div className="text-[11px] leading-[1.6] text-[var(--mid)] bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[4px] p-3 mb-3 whitespace-pre-wrap select-all">{prompt}</div>
+                              <div className="flex items-center gap-3 mb-6">
+                                <button
+                                  onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt('mealPrep'); setTimeout(() => setCopiedPrompt(null), 2000); }}
+                                  className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 py-[6px] px-4 rounded-[4px] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors"
+                                  aria-label="Copy meal prep prompt">
+                                  {copiedPrompt === 'mealPrep' ? 'Copied ✓' : 'Copy prompt →'}
+                                </button>
+                                <button onClick={() => { setEditingNotes('mealPrep'); setNotesText(''); }}
+                                  className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-2"
+                                  aria-label="Paste notes manually">Paste notes instead</button>
+                              </div>
                             </div>
-                            <p className="text-[10px] text-[var(--placeholder)] mt-1">Use MCP or paste analysis from Claude</p>
-                          </div>
-                        )}
+                          );
+                        })()}
                       </div>
                     );
                   })()}
