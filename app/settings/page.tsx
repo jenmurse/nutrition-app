@@ -261,7 +261,7 @@ const SettingsPage = () => {
   const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
   const [savingThemeId, setSavingThemeId] = useState<number | null>(null);
   const [themeOpenPersonId, setThemeOpenPersonId] = useState<number | null>(null);
-  const [settingsTab, setSettingsTab] = useState<'household' | 'ai' | 'mcp' | 'data'>('household');
+  const [settingsTab, setSettingsTab] = useState<'household' | 'mcp' | 'data'>('household');
 
   // Household info — seed from localStorage so name appears instantly
   const [householdName, setHouseholdName] = useState(
@@ -588,7 +588,6 @@ const SettingsPage = () => {
 
   const settingsTabs: { key: typeof settingsTab; label: string }[] = [
     { key: 'household', label: 'Household' },
-    { key: 'ai', label: 'AI API' },
     { key: 'mcp', label: 'MCP' },
     { key: 'data', label: 'Data' },
   ];
@@ -871,8 +870,8 @@ const SettingsPage = () => {
         </>
         )}
 
-        {/* ── AI API TAB ── */}
-        {settingsTab === 'ai' && (
+        {/* ── AI API TAB (removed) ── */}
+        {false && (
         <div className="mb-8">
           <div className="space-y-6">
             <div>
