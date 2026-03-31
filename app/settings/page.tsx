@@ -1066,7 +1066,7 @@ const SettingsPage = () => {
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
                   <div className="space-y-2">
                     <p className="font-mono text-[11px] text-[var(--fg)]">
-                      Open your AI assistant&apos;s config file and add the <code className="bg-[var(--bg-subtle)] px-1">mcpServers</code> block. If the file already has content, add it alongside the existing keys at the top level.
+                      Open your AI assistant&apos;s config file. If the file is empty, paste the block below as-is. If it already has content (e.g. a <code className="bg-[var(--bg-subtle)] px-1">&quot;preferences&quot;</code> key), add a comma after the last closing brace and paste just the <code className="bg-[var(--bg-subtle)] px-1">&quot;mcpServers&quot;</code> section inside the existing outer braces — not as a second separate block.
                     </p>
                     <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px] mb-1">
                       <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Claude Desktop</div>
