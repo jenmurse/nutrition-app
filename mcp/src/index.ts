@@ -241,14 +241,14 @@ the user asks what recipes they have.`,
           .filter(Boolean)
           .join(', ');
         const tags = r.tags ? ` [${r.tags}]` : '';
-        return `• ${r.name}${tags}${time ? ` — ${time}` : ''} (${r.servingSize} ${r.servingUnit})`;
+        return `• [id:${r.id}] ${r.name}${tags}${time ? ` — ${time}` : ''} (${r.servingSize} ${r.servingUnit})`;
       });
 
       return {
         content: [
           {
             type: 'text' as const,
-            text: `${filtered.length} recipe${filtered.length === 1 ? '' : 's'} in Course:\n\n${lines.join('\n')}`,
+            text: `${filtered.length} recipe${filtered.length === 1 ? '' : 's'} in Good Measure:\n\n${lines.join('\n')}`,
           },
         ],
       };
