@@ -74,7 +74,7 @@ export default function CreateRecipePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Import failed");
-      setImportedRecipe(buildDraft(data, data.sourceApp || "Pestle"));
+      setImportedRecipe(buildDraft(data, data.sourceApp || "Markdown Import"));
     } catch (error: any) {
       console.error(error);
       setImportError(error.message || "Failed to import recipe");
@@ -155,7 +155,7 @@ export default function CreateRecipePage() {
                 }}
                 disabled={importing}
                 className="sr-only"
-                aria-label="Upload Pestle markdown file"
+                aria-label="Upload markdown file"
               />
               <button
                 type="button"

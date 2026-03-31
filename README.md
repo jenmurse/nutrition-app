@@ -41,7 +41,7 @@ A household nutrition tracker for building ingredient libraries, creating recipe
 - Create/edit/delete recipes with ingredient amounts
 - AI nutrition analysis (OpenAI) per recipe
 - Duplicate recipe
-- Import from Pestle markdown format — smart token-based ingredient matching
+- Import from markdown (.md) format — smart token-based ingredient matching
 - Real-time nutrient total calculation per serving
 - Tag-based categorization (breakfast, lunch, dinner, snack, side, dessert, beverage)
 - Incomplete recipe handling (unresolved ingredients)
@@ -132,7 +132,7 @@ nutrition-app/
 ├── app/
 │   ├── api/
 │   │   ├── ingredients/          # CRUD + slim list endpoint
-│   │   ├── recipes/              # CRUD + import/pestle, AI analyze
+│   │   ├── recipes/              # CRUD + import/url + import/md, AI analyze
 │   │   ├── meal-plans/           # CRUD + meals, weekly recalc
 │   │   │   └── [id]/
 │   │   │       └── day-analysis/ # Smart swap suggestions per day
@@ -213,7 +213,7 @@ npm run dev          # http://localhost:3000
 - `POST /api/recipes` — create
 - `PUT /api/recipes/[id]` — update
 - `DELETE /api/recipes/[id]` — delete
-- `POST /api/recipes/import/pestle` — import from Pestle markdown
+- `POST /api/recipes/import/pestle` — import from markdown (.md) file
 - `POST /api/recipes/[id]/analyze` — AI nutrition analysis
 
 ### Meal Plans

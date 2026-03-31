@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Good Measure — Onboarding Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F4F2EF;
+      --card: #FFFFFF;
+      --fg: #1A1A1A;
+      --fg-sub: #333333;
+      --muted: #888888;
+      --accent: #5C9169;
+      --accent-hover: #4A7A56;
+      --accent-light: #EEF4F0;
+      --accent-text: #FFFFFF;
+      --rule: #E5E5E5;
+      --rule-strong: #D0D0D0;
+      --warning: #D97706;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --mono: 'DM Mono', 'Courier New', monospace;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --radius: 12px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      color: var(--fg);
+    }
+
+    /* ─── Page Layout ─── */
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .onboarding-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px 40px;
+      position: relative;
+    }
+
+    .notes-sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--rule);
+      background: white;
+      padding: 48px 28px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (max-width: 900px) {
+      .notes-sidebar { display: none; }
+    }
+
+    /* ─── Progress Indicator ─── */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .pdot {
+      height: 5px;
+      border-radius: 3px;
+      background: var(--rule);
+      transition: width 350ms var(--ease-out), background 350ms var(--ease-out), opacity 350ms;
+      width: 5px;
+      cursor: pointer;
+    }
+    .pdot.done { background: var(--accent); opacity: 0.35; width: 5px; }
+    .pdot.active { background: var(--accent); width: 22px; }
+
+    .step-counter {
+      position: absolute;
+      top: 38px;
+      right: 40px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ─── Step Container ─── */
+    .steps-wrap {
+      width: 100%;
+      max-width: 468px;
+      display: grid;
+    }
+
+    /* All steps occupy the same grid cell so wrapper height = tallest step height.
+       No height jog on transition. Inactive steps are invisible but still in flow. */
+    .step {
+      grid-area: 1 / 1;
+      visibility: hidden;
+      pointer-events: none;
+      width: 100%;
+    }
+    .step.active {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* ─── Card ─── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 44px 44px 36px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.04),
+        0 2px 4px rgba(0,0,0,0.04),
+        0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    /* ─── Stagger Animations ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .step.animating .s1 { animation: fadeUp 380ms var(--ease-out) 0ms   both; }
+    .step.animating .s2 { animation: fadeUp 380ms var(--ease-out) 70ms  both; }
+    .step.animating .s3 { animation: fadeUp 380ms var(--ease-out) 140ms both; }
+    .step.animating .s4 { animation: fadeUp 380ms var(--ease-out) 210ms both; }
+    .step.animating .s5 { animation: fadeUp 380ms var(--ease-out) 280ms both; }
+
+    /* Step slide transitions */
+    @keyframes slideInRight  { from { opacity:0; transform: translateX(28px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes slideInLeft   { from { opacity:0; transform: translateX(-28px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes slideOutLeft  { from { opacity:1; transform: translateX(0); } to { opacity:0; transform: translateX(-20px); } }
+    @keyframes slideOutRight { from { opacity:1; transform: translateX(0); } to { opacity:0; transform: translateX(20px); } }
+
+    .anim-in-right  { animation: slideInRight  320ms var(--ease-out) both; }
+    .anim-in-left   { animation: slideInLeft   320ms var(--ease-out) both; }
+    .anim-out-left  { animation: slideOutLeft  220ms var(--ease-out) both; }
+    .anim-out-right { animation: slideOutRight 220ms var(--ease-out) both; }
+
+    /* ─── Typography ─── */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .headline {
+      font-family: var(--serif);
+      font-size: 30px;
+      line-height: 1.2;
+      color: var(--fg);
+      text-wrap: balance;
+      margin-bottom: 10px;
+    }
+
+    .subhead {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      text-wrap: pretty;
+      margin-bottom: 28px;
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: calc(var(--radius) - 4px);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      padding: 11px 22px;
+      transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 140ms ease-out;
+      text-decoration: none;
+      width: 100%;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--rule);
+      width: auto;
+    }
+    .btn-ghost:hover { color: var(--fg); border-color: var(--rule-strong); }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .btn-row .btn-ghost { flex-shrink: 0; }
+    .btn-row .btn-primary { flex: 1; }
+
+    .skip {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 140ms ease;
+      background: none;
+      border: none;
+      width: 100%;
+    }
+    .skip:hover { color: var(--fg); }
+
+    /* ─── Form ─── */
+    .label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid var(--rule);
+      border-radius: calc(var(--radius) - 4px);
+      padding: 10px 14px;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--fg);
+      background: white;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+    .input:focus { border-color: var(--accent); }
+
+    /* ─── Theme Picker ─── */
+    .theme-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-bottom: 4px;
+    }
+
+    .tdot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 200ms var(--ease-out);
+      outline: 2px solid transparent;
+      outline-offset: 0px;
+      flex-shrink: 0;
+    }
+    .tdot:hover { transform: scale(1.18); }
+    .tdot.selected {
+      outline-color: currentColor;
+      outline-offset: 3px;
+    }
+
+    .tip {
+      background: var(--accent-light);
+      border-radius: calc(var(--radius) - 4px);
+      padding: 11px 14px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      margin-top: 18px;
+    }
+
+    /* ─── Person Cards ─── */
+    .person-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--rule);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      transition: border-color 200ms ease;
+    }
+    .person-row.you { border-color: var(--accent); background: var(--accent-light); }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 14px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .person-info { flex: 1; }
+    .person-name { font-size: 13px; font-weight: 500; color: var(--fg); }
+    .person-sub  { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1;
+      padding: 4px;
+      transition: color 140ms ease;
+    }
+    .remove-btn:hover { color: #DC2626; }
+
+    .add-person-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 0 2px;
+      transition: color 140ms ease;
+    }
+    .add-person-btn:hover { color: var(--accent-hover); }
+    .add-person-btn svg { flex-shrink: 0; }
+
+    /* ─── Goal Cards ─── */
+    .goal-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .goal-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--rule);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 200ms ease, background 200ms ease, transform 140ms ease-out;
+    }
+    .goal-card:hover { border-color: var(--accent); background: var(--accent-light); }
+    .goal-card:active { transform: scale(0.99); }
+    .goal-card.selected { border-color: var(--accent); background: var(--accent-light); }
+
+    .goal-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      flex-shrink: 0;
+      transition: background 200ms ease;
+    }
+    .goal-card.selected .goal-icon { background: var(--accent); }
+
+    .goal-info { flex: 1; min-width: 0; }
+    .goal-name { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); margin-bottom: 2px; }
+    .goal-desc { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; }
+
+    .goal-num { text-align: right; }
+    .goal-cal { font-family: var(--serif); font-size: 21px; color: var(--fg); line-height: 1; }
+    .goal-unit { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+    /* ─── Recipe Import ─── */
+    .import-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .import-row .input { flex: 1; margin: 0; }
+
+    .import-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: calc(var(--radius) - 4px);
+      padding: 0 18px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 140ms ease, transform 140ms ease-out;
+    }
+    .import-btn:hover { background: var(--accent-hover); }
+    .import-btn:active { transform: scale(0.97); }
+
+    .import-status {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed var(--rule);
+      border-radius: calc(var(--radius) - 4px);
+      margin-bottom: 18px;
+      padding: 12px;
+      transition: border-color 300ms ease, background 300ms ease;
+    }
+    .import-status .idle-text {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .import-status.loading { border-style: solid; border-color: var(--accent); }
+    .import-status.success { border-style: solid; border-color: var(--accent); background: var(--accent-light); }
+
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.9s linear infinite; display: inline-block; font-size: 14px; }
+
+    .success-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .success-check { font-size: 14px; }
+
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .or-divider::before, .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ─── Completion ─── */
+    .check-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-bottom: 28px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    @keyframes checkIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .check-item.in { animation: checkIn 320ms var(--ease-out) both; }
+
+    .check-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .check-circle.pending { background: var(--rule); }
+
+    .check-label { font-size: 13px; color: var(--fg); line-height: 1.4; }
+    .check-label .note { color: var(--muted); }
+
+    /* ─── Welcome accent ─── */
+    .welcome-bar {
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 22px;
+      border-radius: 2px;
+    }
+
+    /* ─── Separator ─── */
+    .sep { height: 1px; background: var(--rule); margin: 20px 0; }
+
+    /* ─── Notes Sidebar ─── */
+    .notes-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .note-block {
+      display: none;
+    }
+    .note-block.visible { display: block; }
+
+    .note-section { margin-bottom: 24px; }
+    .note-section-title {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .note-section ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .note-section ul li {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--fg-sub);
+      letter-spacing: 0.02em;
+      padding-left: 14px;
+      position: relative;
+    }
+    .note-section ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .note-code {
+      font-family: var(--mono);
+      font-size: 10px;
+      background: #F0F0F0;
+      border-radius: 4px;
+      padding: 2px 5px;
+      color: var(--fg);
+    }
+
+    .note-step-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      color: var(--fg);
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    /* ─── Mockup header ─── */
+    .mockup-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 36px;
+      background: #1A1A1A;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .mockup-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .mockup-badge strong { color: white; font-weight: 400; }
+
+    .mockup-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.2); }
+
+    .anim-toggle {
+      display: flex;
+      gap: 2px;
+      margin-left: auto;
+    }
+
+    .anim-opt {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      padding: 4px 9px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 140ms, background 140ms;
+      border: none;
+      background: transparent;
+    }
+    .anim-opt.active { color: white; background: rgba(255,255,255,0.12); }
+
+    .page { padding-top: 36px; }
+
+    /* Animation variant B: crossfade only */
+    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+    @keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+    .variant-fade .anim-in-right,
+    .variant-fade .anim-in-left   { animation: fadeIn  280ms ease both; }
+    .variant-fade .anim-out-left,
+    .variant-fade .anim-out-right { animation: fadeOut 180ms ease both; }
+
+    /* Animation variant C: reveal from bottom */
+    @keyframes riseIn  { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes sinkOut { from { opacity:1; transform: translateY(0); } to { opacity:0; transform: translateY(-8px); } }
+    .variant-rise .anim-in-right,
+    .variant-rise .anim-in-left   { animation: riseIn  320ms var(--ease-out) both; }
+    .variant-rise .anim-out-left,
+    .variant-rise .anim-out-right { animation: sinkOut 200ms ease-in both; }
+
+  </style>
+</head>
+<body>
+
+<!-- Mockup toolbar -->
+<div class="mockup-header">
+  <span class="mockup-badge"><strong>Good Measure</strong></span>
+  <div class="mockup-sep"></div>
+  <span class="mockup-badge">Onboarding Mockup · Click through to explore</span>
+  <div class="anim-toggle">
+    <button class="anim-opt active" onclick="setAnim('slide',this)">Slide</button>
+    <button class="anim-opt" onclick="setAnim('fade',this)">Fade</button>
+    <button class="anim-opt" onclick="setAnim('rise',this)">Rise</button>
+  </div>
+</div>
+
+<div class="page" id="page">
+  <!-- ─── Onboarding flow ─── -->
+  <div class="onboarding-area">
+    <!-- Progress -->
+    <div class="progress-bar" id="progress-bar">
+      <div class="pdot active" id="pd0" onclick="jumpTo(0)"></div>
+      <div class="pdot"        id="pd1" onclick="jumpTo(1)"></div>
+      <div class="pdot"        id="pd2" onclick="jumpTo(2)"></div>
+      <div class="pdot"        id="pd3" onclick="jumpTo(3)"></div>
+      <div class="pdot"        id="pd4" onclick="jumpTo(4)"></div>
+      <div class="pdot"        id="pd5" onclick="jumpTo(5)"></div>
+    </div>
+    <div class="step-counter" id="step-counter">Step 1 of 6</div>
+
+    <!-- Steps -->
+    <div class="steps-wrap" id="steps-wrap">
+
+      <!-- ── Step 0: Welcome ── -->
+      <div class="step active animating" id="step-0">
+        <div class="card">
+          <div class="s1"><div class="welcome-bar"></div></div>
+          <div class="eyebrow s1">Good Measure</div>
+          <h1 class="headline s2">Nutrition planning<br>that thinks with you.</h1>
+          <p class="subhead s3">Track what matters, plan your week, and make choices you feel good about — without obsessing over every number.</p>
+          <div class="s4">
+            <button class="btn btn-primary" onclick="nav(1,'fwd')">Get started</button>
+          </div>
+          <button class="skip s5" onclick="nav(5,'fwd')">Skip setup — I'll explore on my own</button>
+        </div>
+      </div>
+
+      <!-- ── Step 1: Profile ── -->
+      <div class="step" id="step-1">
+        <div class="card">
+          <span class="eyebrow s1">Your Profile</span>
+          <h2 class="headline s2">What should we<br>call you?</h2>
+          <p class="subhead s3">Your name comes from your sign-up — edit it here if you'd like. Choose a theme that'll color your whole app.</p>
+          <div class="s4">
+            <label class="label">Your name</label>
+            <input class="input" type="text" value="Jen" id="user-name" style="margin-bottom: 22px;">
+            <label class="label" style="margin-bottom: 11px;">Accent theme</label>
+            <div class="theme-grid" id="theme-grid"></div>
+            <div class="tip" id="theme-tip">Your theme colors accent buttons, progress bars, and your avatar dot in the nav — and switches when you switch people.</div>
+          </div>
+          <div class="btn-row s5">
+            <button class="btn btn-ghost" onclick="nav(0,'back')">Back</button>
+            <button class="btn btn-primary" onclick="nav(2,'fwd')">Continue</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Household ── -->
+      <div class="step" id="step-2">
+        <div class="card">
+          <span class="eyebrow s1">Your Household</span>
+          <h2 class="headline s2">Planning for anyone else?</h2>
+          <p class="subhead s3">Add household members to track their goals side-by-side. Recipes and ingredients are shared — goals and meal plans are per-person.</p>
+          <div class="s4">
+            <div class="person-row you">
+              <div class="avatar" id="you-avatar" style="background: var(--accent);">J</div>
+              <div class="person-info">
+                <div class="person-name" id="you-name">Jen</div>
+                <div class="person-sub">That's you</div>
+              </div>
+            </div>
+            <div id="added-members"></div>
+            <button class="add-person-btn" id="add-btn" onclick="addMember()">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Add a household member
+            </button>
+          </div>
+          <div class="btn-row s5">
+            <button class="btn btn-ghost" onclick="nav(1,'back')">Back</button>
+            <button class="btn btn-primary" onclick="nav(3,'fwd')">Continue</button>
+          </div>
+          <button class="skip" onclick="nav(3,'fwd')">Just me for now</button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Goals ── -->
+      <div class="step" id="step-3">
+        <div class="card">
+          <span class="eyebrow s1">Nutrition Goals</span>
+          <h2 class="headline s2">What are you<br>optimizing for?</h2>
+          <p class="subhead s3">Pick a starting point. Every nutrient target can be fine-tuned individually in Settings later.</p>
+          <div class="goal-grid s4" id="goal-grid">
+            <div class="goal-card" onclick="pickGoal(this,'balanced')">
+              <div class="goal-icon">⚖️</div>
+              <div class="goal-info">
+                <div class="goal-name">Balanced</div>
+                <div class="goal-desc">General health, maintenance</div>
+              </div>
+              <div class="goal-num">
+                <div class="goal-cal">2000</div>
+                <div class="goal-unit">kcal/day</div>
+              </div>
+            </div>
+            <div class="goal-card selected" onclick="pickGoal(this,'active')">
+              <div class="goal-icon">🏃</div>
+              <div class="goal-info">
+                <div class="goal-name">Active</div>
+                <div class="goal-desc">Higher protein, more fuel</div>
+              </div>
+              <div class="goal-num">
+                <div class="goal-cal">2500</div>
+                <div class="goal-unit">kcal/day</div>
+              </div>
+            </div>
+            <div class="goal-card" onclick="pickGoal(this,'mindful')">
+              <div class="goal-icon">🌿</div>
+              <div class="goal-info">
+                <div class="goal-name">Mindful</div>
+                <div class="goal-desc">Lighter, focused portions</div>
+              </div>
+              <div class="goal-num">
+                <div class="goal-cal">1600</div>
+                <div class="goal-unit">kcal/day</div>
+              </div>
+            </div>
+            <div class="goal-card" onclick="pickGoal(this,'custom')">
+              <div class="goal-icon">✏️</div>
+              <div class="goal-info">
+                <div class="goal-name">Custom</div>
+                <div class="goal-desc">I'll set my own targets</div>
+              </div>
+              <div class="goal-num" style="font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: right;">
+                In Settings
+              </div>
+            </div>
+          </div>
+          <div class="btn-row s5">
+            <button class="btn btn-ghost" onclick="nav(2,'back')">Back</button>
+            <button class="btn btn-primary" onclick="nav(4,'fwd')">Continue</button>
+          </div>
+          <button class="skip" onclick="nav(4,'fwd')">Set goals later</button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: First Recipe ── -->
+      <div class="step" id="step-4">
+        <div class="card">
+          <span class="eyebrow s1">First Recipe</span>
+          <h2 class="headline s2">Import a recipe<br>you love.</h2>
+          <p class="subhead s3">Paste any recipe blog URL and we'll extract the ingredients. Any ingredients not yet in your pantry will be flagged — you can add them before saving.</p>
+          <div class="s4">
+            <label class="label">Recipe URL</label>
+            <div class="import-row">
+              <input class="input" type="url" placeholder="https://..." id="recipe-url">
+              <button class="import-btn" onclick="mockImport()">Import</button>
+            </div>
+            <div class="import-status" id="import-status">
+              <span class="idle-text">Paste a recipe URL and click Import</span>
+            </div>
+          </div>
+          <div class="btn-row s5">
+            <button class="btn btn-ghost" onclick="nav(3,'back')">Back</button>
+            <button class="btn btn-primary" onclick="nav(5,'fwd')">Continue</button>
+          </div>
+          <button class="skip" onclick="nav(5,'fwd')">I'll add recipes later</button>
+        </div>
+      </div>
+
+      <!-- ── Step 5: Done ── -->
+      <div class="step" id="step-5">
+        <div class="card">
+          <span class="eyebrow s1">Setup Complete</span>
+          <h2 class="headline s2">You're all set.</h2>
+          <p class="subhead s3">Here's what we've configured. Everything lives in Settings whenever you want to adjust it.</p>
+          <ul class="check-list s4" id="check-list">
+            <li class="check-item">
+              <div class="check-circle">
+                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                  <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="check-label">Profile <span class="note">— Jen · Sage theme</span></div>
+            </li>
+            <li class="check-item">
+              <div class="check-circle">
+                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                  <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="check-label">Household <span class="note">— Jen + Garth</span></div>
+            </li>
+            <li class="check-item">
+              <div class="check-circle">
+                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                  <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="check-label">Nutrition goals <span class="note">— Active · 2,500 kcal target</span></div>
+            </li>
+            <li class="check-item">
+              <div class="check-circle">
+                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                  <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="check-label">Recipe imported <span class="note">— Chicken Tikka Masala · 18 ingredients</span></div>
+            </li>
+            <li class="check-item">
+              <div class="check-circle pending">
+                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                  <path d="M1 4.5L4 7.5L10 1" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="check-label" style="color: var(--muted);">Create your first week's plan <span class="note">— do this from the dashboard</span></div>
+            </li>
+          </ul>
+          <div class="s5">
+            <button class="btn btn-primary" onclick="alert('→ Would open the app dashboard')">Open Good Measure</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps-wrap -->
+  </div><!-- /onboarding-area -->
+
+  <!-- ─── Design Notes Sidebar ─── -->
+  <div class="notes-sidebar" id="notes-sidebar">
+    <div class="notes-label">Design notes</div>
+
+    <!-- Notes for each step -->
+    <div class="note-block visible" id="note-block-0">
+      <div class="note-step-title">Welcome</div>
+      <div class="note-section">
+        <div class="note-section-title">Animation rationale</div>
+        <ul>
+          <li>Full stagger warranted — this screen is seen exactly once, Emil's framework says "rare/first-time events can add delight"</li>
+          <li>5 layers stagger at 70ms intervals: bar → eyebrow → headline → body → CTA</li>
+          <li>Entry uses strong ease-out <span class="note-code">cubic-bezier(0.23, 1, 0.32, 1)</span> — feels immediate</li>
+        </ul>
+      </div>
+      <div class="note-section">
+        <div class="note-section-title">UX decisions</div>
+        <ul>
+          <li>Single CTA — no decision paralysis on entry</li>
+          <li>"Skip" is below the fold visually but not hidden — power users who'll explore on their own should find it</li>
+          <li>No illustration or hero image — lean on typography and brand. The serif headline is the hero.</li>
+          <li>The 28px accent bar anchors the brand before the text appears — creates anticipation</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-block" id="note-block-1">
+      <div class="note-step-title">Profile</div>
+      <div class="note-section">
+        <div class="note-section-title">Theme picker</div>
+        <ul>
+          <li>22px dots with 3px outline-offset ring on selection — concentric radius preserved (dot is circle, ring is circle)</li>
+          <li>Live CSS variable update on click — makes the choice feel personal immediately, not hypothetical</li>
+          <li>Warm vs cool themes naturally separate in the grid (warm top, cool bottom) — matches <span class="note-code">lib/themes.ts</span> order</li>
+          <li>Hover scale: <span class="note-code">1.18</span> — slightly playful, within tasteful range</li>
+        </ul>
+      </div>
+      <div class="note-section">
+        <div class="note-section-title">UX decisions</div>
+        <ul>
+          <li>Name pre-filled from signup — confirms rather than asks, reduces friction</li>
+          <li>Tip box explains what the theme does — avoids "what does this do?" confusion</li>
+          <li>No "skip" on this step — it's so quick there's no reason to skip</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-block" id="note-block-2">
+      <div class="note-step-title">Household</div>
+      <div class="note-section">
+        <div class="note-section-title">UX decisions</div>
+        <ul>
+          <li>"You" card is always shown with accent border — establishes who they are, not an option they can remove here</li>
+          <li>Added members animate in — <span class="note-code">fadeUp</span> on entry so the list doesn't jar</li>
+          <li>Mock auto-assigns a contrasting theme to each added person — shows the visual distinctiveness</li>
+          <li>"Just me for now" skip is prominent — household is optional, don't block progress</li>
+          <li>Copy: "Recipes and ingredients are shared — goals and plans are per-person" — this answers the #1 question new users have about the data model</li>
+        </ul>
+      </div>
+      <div class="note-section">
+        <div class="note-section-title">Future consideration</div>
+        <ul>
+          <li>Could let the user set the added person's name + theme here inline instead of after onboarding</li>
+          <li>Invite link flow (for remote household members) should live in Settings, not onboarding</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-block" id="note-block-3">
+      <div class="note-step-title">Nutrition Goals</div>
+      <div class="note-section">
+        <div class="note-section-title">This is the most important step</div>
+        <ul>
+          <li>The entire app is less useful without goals set — progress bars and dashboard are empty shells without targets</li>
+          <li>Presets lower the cognitive load of "what should my protein goal be?" — most users don't know</li>
+          <li>"Active" is pre-selected: slightly aspirational, but realistic. Anchors the default higher so users feel they have room to customize down</li>
+          <li>Calorie number in <span class="note-code">DM Serif Display</span> — visually weighted, feels like a real number not a label</li>
+        </ul>
+      </div>
+      <div class="note-section">
+        <div class="note-section-title">Goal card animation</div>
+        <ul>
+          <li>Cards use <span class="note-code">scale(0.99)</span> on press — subtle tactility</li>
+          <li>Icon bg transitions: empty → filled accent on selection. The icon itself doesn't change color (emoji), which actually works — the filled bg provides enough contrast signal</li>
+          <li>"Custom → In Settings" defers complexity without blocking progress</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-block" id="note-block-4">
+      <div class="note-step-title">First Recipe</div>
+      <div class="note-section">
+        <div class="note-section-title">The "magic moment"</div>
+        <ul>
+          <li>URL import is the killer feature reveal — paste a URL, get structured nutritional data back. This is what makes the app worth using.</li>
+          <li>Three-state import flow: idle → loading (spinner) → success with recipe name + count — each state is meaningful, not just a spinner</li>
+          <li>Loading state shows "Extracting ingredients…" not "Loading…" — specific language shows what's happening</li>
+          <li>Success state shows the recipe name — concrete, confirms it worked</li>
+        </ul>
+      </div>
+      <div class="note-section">
+        <div class="note-section-title">UX decisions</div>
+        <ul>
+          <li>.md file import removed from this step — too confusing for first-time users. It lives in the full recipe create flow.</li>
+          <li>Copy now sets expectations about pantry matching — "flagged ingredients" language prevents surprise when unmatched items appear</li>
+          <li>"I'll add recipes later" skip is clearly visible — don't block progress</li>
+          <li>Consider: auto-populate the URL field with a sample recipe so users see the magic even without their own link ready</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-block" id="note-block-5">
+      <div class="note-step-title">Completion</div>
+      <div class="note-section">
+        <div class="note-section-title">Stagger animation</div>
+        <ul>
+          <li>Checkmarks cascade in at 120ms intervals — creates a sense of accomplishment, like things being "checked off"</li>
+          <li>The last item (create meal plan) uses a grey/pending circle — signals "here's what to do next" without making them feel incomplete</li>
+          <li>No confetti — too casual for this app's editorial aesthetic</li>
+          <li>Each check item fades up from 6px below — subtle, not showy</li>
+        </ul>
+      </div>
+      <div class="note-section">
+        <div class="note-section-title">UX decisions</div>
+        <ul>
+          <li>"You're all set." is the entire heading — short, confident, final</li>
+          <li>Summary shows what was actually configured (name, theme, goal preset, recipe name) — concrete reinforcement</li>
+          <li>Single CTA — no secondary actions to dilute the moment</li>
+          <li>After clicking "Open Good Measure": land on dashboard, which should show goals populated and a CTA to "Create this week's plan"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sep" style="margin-top: 8px;"></div>
+    <div class="note-section" style="margin-top: 16px;">
+      <div class="note-section-title">Step transitions (try the 3 variants above)</div>
+      <ul>
+        <li><strong>Slide:</strong> <span class="note-code">translateX(28px)</span> + opacity, 320ms strong ease-out. Spatial — feels like moving through a sequence.</li>
+        <li><strong>Fade:</strong> Opacity only, 280ms. Neutral — good if slides feel too "wizard-y"</li>
+        <li><strong>Rise:</strong> <span class="note-code">translateY(16px)</span> + opacity, 320ms. Upward movement suggests progression. Elegant for a refined aesthetic.</li>
+      </ul>
+    </div>
+    <div class="note-section">
+      <div class="note-section-title">Implementation notes</div>
+      <ul>
+        <li>Onboarding lives at <span class="note-code">/onboarding</span> — separate route, not a modal overlay</li>
+        <li>State persists in server session — if user closes mid-flow, they resume where they left off</li>
+        <li>Re-visiting onboarding after completion → redirect to dashboard</li>
+        <li><span class="note-code">onboardingCompleted: boolean</span> on Household model — set on step 5 CTA click</li>
+        <li>Auth callback should check this flag → redirect to <span class="note-code">/onboarding</span> if false</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Theme data (from lib/themes.ts) ───
+  const THEMES = [
+    { name:'sage',       label:'Sage',       hex:'#5C9169', warm:true  },
+    { name:'coral',      label:'Coral',      hex:'#EE636E', warm:true  },
+    { name:'hotpink',    label:'Hot Pink',   hex:'#D43875', warm:true  },
+    { name:'blush',      label:'Blush',      hex:'#B87880', warm:true  },
+    { name:'terracotta', label:'Terracotta', hex:'#CB4D1B', warm:true  },
+    { name:'mauve',      label:'Mauve',      hex:'#907080', warm:true  },
+    { name:'burgundy',   label:'Burgundy',   hex:'#8A3050', warm:true  },
+    { name:'plum',       label:'Plum',       hex:'#7A3068', warm:true  },
+    { name:'olive',      label:'Olive',      hex:'#808838', warm:true  },
+    { name:'charcoal',   label:'Charcoal',   hex:'#504840', warm:true  },
+    { name:'cobalt',     label:'Cobalt',     hex:'#2858C0', warm:false },
+    { name:'emerald',    label:'Emerald',    hex:'#1E8C58', warm:false },
+    { name:'teal',       label:'Teal',       hex:'#1E8A84', warm:false },
+    { name:'violet',     label:'Violet',     hex:'#6848D0', warm:false },
+    { name:'slate',      label:'Slate',      hex:'#5878A0', warm:false },
+    { name:'lavender',   label:'Lavender',   hex:'#7868A0', warm:false },
+    { name:'cornflower', label:'Cornflower', hex:'#5C78C8', warm:false },
+    { name:'cerulean',   label:'Cerulean',   hex:'#3890C0', warm:false },
+    { name:'periwinkle', label:'Periwinkle', hex:'#8890D0', warm:false },
+    { name:'steel',      label:'Steel',      hex:'#607888', warm:false },
+  ];
+
+  // Pre-assigned themes for mock household members
+  const MEMBER_THEMES = [
+    { name:'Garth', theme:'terracotta', hex:'#CB4D1B' },
+    { name:'Alex',  theme:'cobalt',     hex:'#2858C0' },
+    { name:'Sam',   theme:'plum',       hex:'#7A3068' },
+  ];
+
+  let currentStep  = 0;
+  let selectedTheme = 'sage';
+  let memberCount  = 0;
+  let importState  = 'idle';
+  let animVariant  = 'slide'; // slide | fade | rise
+  const TOTAL = 6;
+
+  // ─── Build theme picker ───
+  const grid = document.getElementById('theme-grid');
+  THEMES.forEach(t => {
+    const dot = document.createElement('div');
+    dot.className = 'tdot' + (t.name === selectedTheme ? ' selected' : '');
+    dot.style.backgroundColor = t.hex;
+    dot.style.color = t.hex;
+    dot.title = t.label;
+    dot.onclick = () => {
+      document.querySelectorAll('.tdot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+      selectedTheme = t.name;
+      document.documentElement.style.setProperty('--accent', t.hex);
+      // Update accent-hover (darken slightly)
+      document.documentElement.style.setProperty('--accent-hover', darken(t.hex, 12));
+      document.documentElement.style.setProperty('--accent-light', lighten(t.hex));
+      // Update "you" avatar
+      document.getElementById('you-avatar').style.background = t.hex;
+      document.getElementById('theme-tip').textContent =
+        `${t.label} theme selected. This colors your accent buttons, progress bars, and nav avatar.`;
+    };
+    grid.appendChild(dot);
+  });
+
+  function darken(hex, amt) {
+    const r = Math.max(0, parseInt(hex.slice(1,3),16) - amt);
+    const g = Math.max(0, parseInt(hex.slice(3,5),16) - amt);
+    const b = Math.max(0, parseInt(hex.slice(5,7),16) - amt);
+    return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+  function lighten(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    const lr = Math.min(255, Math.round(r + (255-r)*0.88));
+    const lg = Math.min(255, Math.round(g + (255-g)*0.88));
+    const lb = Math.min(255, Math.round(b + (255-b)*0.88));
+    return '#' + [lr,lg,lb].map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+
+  // ─── Navigation ───
+  function nav(next, dir) {
+    if (next < 0 || next >= TOTAL) return;
+    const from = document.getElementById('step-' + currentStep);
+    const to   = document.getElementById('step-' + next);
+
+    // Update progress dots
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.getElementById('pd' + i);
+      d.className = 'pdot';
+      if (i < next)  d.classList.add('done');
+      if (i === next) d.classList.add('active');
+    }
+    document.getElementById('step-counter').textContent = `Step ${next+1} of ${TOTAL}`;
+
+    // Update sidebar notes
+    document.querySelectorAll('.note-block').forEach(b => b.classList.remove('visible'));
+    const nb = document.getElementById('note-block-' + next);
+    if (nb) nb.classList.add('visible');
+    document.getElementById('notes-sidebar').scrollTop = 0;
+
+    // Animate out
+    const outClass = dir === 'fwd' ? 'anim-out-left' : 'anim-out-right';
+    from.classList.add(outClass);
+    from.style.position = 'absolute';
+    from.style.top = '0';
+    from.style.left = '0';
+    from.style.width = '100%';
+
+    setTimeout(() => {
+      from.classList.remove('active', outClass, 'animating');
+      from.style.position = '';
+      from.style.top = '';
+      from.style.left = '';
+      from.style.width = '';
+    }, 280);
+
+    // Animate in
+    const inClass = dir === 'fwd' ? 'anim-in-right' : 'anim-in-left';
+    to.classList.add('active', inClass, 'animating');
+
+    currentStep = next;
+
+    // Special: trigger check animation on completion step
+    if (next === 5) {
+      setTimeout(() => {
+        document.querySelectorAll('.check-item').forEach((item, i) => {
+          setTimeout(() => item.classList.add('in'), i * 110);
+        });
+      }, 300);
+    } else {
+      // Reset check items if navigating back
+      document.querySelectorAll('.check-item').forEach(item => item.classList.remove('in'));
+    }
+
+    // Sync name from step 1
+    if (next >= 2) {
+      const nameVal = document.getElementById('user-name').value || 'You';
+      document.getElementById('you-name').textContent = nameVal;
+      document.getElementById('you-avatar').textContent = nameVal[0].toUpperCase();
+    }
+  }
+
+  function jumpTo(n) { nav(n, n > currentStep ? 'fwd' : 'back'); }
+
+  // ─── Add household member ───
+  function addMember() {
+    if (memberCount >= MEMBER_THEMES.length) return;
+    const m = MEMBER_THEMES[memberCount++];
+    const container = document.getElementById('added-members');
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.style.animation = 'fadeUp 280ms var(--ease-out) both';
+    div.innerHTML = `
+      <div class="avatar" style="background:${m.hex}">${m.name[0]}</div>
+      <div class="person-info">
+        <div class="person-name">${m.name}</div>
+        <div class="person-sub">Household member · ${m.theme.charAt(0).toUpperCase() + m.theme.slice(1)} theme</div>
+      </div>
+      <button class="remove-btn" onclick="removeMember(this)">×</button>
+    `;
+    container.appendChild(div);
+    if (memberCount >= MEMBER_THEMES.length) {
+      document.getElementById('add-btn').style.opacity = '0.4';
+      document.getElementById('add-btn').style.pointerEvents = 'none';
+    }
+  }
+
+  function removeMember(btn) {
+    btn.parentElement.remove();
+    memberCount--;
+    document.getElementById('add-btn').style.opacity = '';
+    document.getElementById('add-btn').style.pointerEvents = '';
+  }
+
+  // ─── Goal selection ───
+  function pickGoal(el, type) {
+    document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // ─── Mock URL import ───
+  function mockImport() {
+    if (importState !== 'idle') return;
+    const url = document.getElementById('recipe-url');
+    const status = document.getElementById('import-status');
+    if (!url.value) url.value = 'https://www.seriouseats.com/tikka-masala-recipe';
+
+    importState = 'loading';
+    status.className = 'import-status loading';
+    status.innerHTML = `<div class="loading-indicator"><span class="spinner">◌</span> Extracting ingredients…</div>`;
+
+    setTimeout(() => {
+      importState = 'success';
+      status.className = 'import-status success';
+      status.innerHTML = `<div class="success-indicator"><span class="success-check">✓</span> Chicken Tikka Masala · 4 servings · 18 ingredients matched</div>`;
+    }, 1900);
+  }
+
+  // ─── Animation variant switcher ───
+  function setAnim(variant, btn) {
+    animVariant = variant;
+    document.querySelectorAll('.anim-opt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const page = document.getElementById('page');
+    page.classList.remove('variant-fade', 'variant-rise');
+    if (variant === 'fade') page.classList.add('variant-fade');
+    if (variant === 'rise') page.classList.add('variant-rise');
+  }
+
+  // Trigger initial stagger animation
+  setTimeout(() => document.getElementById('step-0').classList.add('animating'), 80);
+</script>
+</body>
+</html>

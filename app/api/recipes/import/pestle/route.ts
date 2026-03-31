@@ -185,7 +185,7 @@ function parsePestleMarkdown(markdown: string): ParsedRecipe {
     servingSize,
     servingUnit,
     instructions,
-    sourceApp: "Pestle",
+    sourceApp: "Markdown Import",
     ingredients,
     isComplete: false,
   };
@@ -207,6 +207,6 @@ export async function POST(request: Request) {
     return NextResponse.json(matched);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to parse Pestle markdown" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to parse markdown" }, { status: 500 });
   }
 }

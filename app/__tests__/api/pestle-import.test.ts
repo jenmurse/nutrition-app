@@ -354,6 +354,6 @@ Just mix things together`
     const data = await response.json()
 
     expect(response.status).toBe(500)
-    expect(data).toEqual({ error: 'Failed to parse Pestle markdown' })
+    expect(data).toEqual({ error: 'Failed to parse markdown' })
   })
 })

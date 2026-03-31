@@ -156,13 +156,15 @@ function RecipesPage() {
 
   // Sort
   const sortOptions = [
-    { key: "name", label: "Name" },
-    { key: "Calories", label: "Calories" },
-    { key: "Protein", label: "Protein" },
-    { key: "Fat", label: "Fat" },
-    { key: "Carbs", label: "Carbs" },
-    { key: "Sugar", label: "Sugar" },
-    { key: "Fiber", label: "Fiber" },
+    { key: "name",          label: "Name" },
+    { key: "Calories",      label: "Calories" },
+    { key: "Fat",           label: "Fat" },
+    { key: "Saturated Fat", label: "Sat Fat" },
+    { key: "Sodium",        label: "Sodium" },
+    { key: "Carbs",         label: "Carbs" },
+    { key: "Sugar",         label: "Sugar" },
+    { key: "Protein",       label: "Protein" },
+    { key: "Fiber",         label: "Fiber" },
   ] as const;
   type SortKey = typeof sortOptions[number]["key"];
   const sortBy = (searchParams?.get("sort") || "name") as SortKey;
@@ -412,7 +414,7 @@ function RecipesPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Import failed");
-      setCreateImportedRecipe(buildDraft(data, data.sourceApp || "Pestle"));
+      setCreateImportedRecipe(buildDraft(data, data.sourceApp || "Markdown Import"));
     } catch (error: any) {
       setCreateImportError(error.message || "Failed to import file");
     } finally {
@@ -617,7 +619,7 @@ function RecipesPage() {
                     type="file"
                     accept=".md,text/markdown"
                     className="sr-only"
-                    aria-label="Upload Pestle markdown file"
+                    aria-label="Upload markdown file"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCreateFileImport(f); }}
                     disabled={createImporting}
                   />
