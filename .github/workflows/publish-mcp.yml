@@ -1,0 +1,36 @@
+name: Publish MCP to npm
+
+on:
+  push:
+    tags:
+      - 'mcp-v*'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        working-directory: mcp
+        run: npm ci
+
+      - name: Build
+        working-directory: mcp
+        run: npm run build
+
+      - name: Publish
+        working-directory: mcp
+        run: npm publish --access public --provenance

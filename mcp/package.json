@@ -2,6 +2,10 @@
   "name": "good-measure-mcp",
   "version": "1.0.8",
   "description": "MCP server for Good Measure — save recipes from any AI assistant",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jenmurse/nutrition-app"
+  },
   "type": "module",
   "main": "dist/index.js",
   "bin": {
