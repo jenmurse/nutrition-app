@@ -340,6 +340,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       prepTime: prepTime !== "" ? Number(prepTime) : null,
       cookTime: cookTime !== "" ? Number(cookTime) : null,
       image: image.trim() || null,
+      sourceApp: initialRecipe?.sourceApp ?? null,
       isComplete: initialRecipe?.isComplete ?? true,
       ingredients: validRows.map((r) => ({
         ingredientId: r.ingredientId,
