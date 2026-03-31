@@ -656,16 +656,26 @@ function RecipesPage() {
                     );
                   })()}
 
-                  {/* Ingredients — 3-column */}
+                  {/* Ingredients */}
                   <div className="mb-5">
                     <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
-                    {selectedRecipe.ingredients.map((ing, idx) => (
-                      <div key={ing.id}
-                        className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
-                        <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
-                        <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
-                      </div>
-                    ))}
+                    {selectedRecipe.ingredients.map((ing, idx) => {
+                      const prevSection = idx > 0 ? (selectedRecipe.ingredients[idx - 1] as any).section : null;
+                      const showSection = (ing as any).section && (ing as any).section !== prevSection;
+                      return (
+                        <div key={ing.id}>
+                          {showSection && (
+                            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-3 pb-1 border-b border-[var(--rule-faint)]">
+                              {(ing as any).section}
+                            </div>
+                          )}
+                          <div className={`flex items-center py-[8px] gap-[14px] ${idx < selectedRecipe.ingredients.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
+                            <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{parseFloat((ing.quantity).toFixed(2))} {ing.unit}</span>
+                            <span className="text-[12px] text-[var(--fg)] flex-1">{ing.ingredient?.name || "Unknown"}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Instructions */}

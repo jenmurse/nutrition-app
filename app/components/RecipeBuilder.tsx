@@ -344,6 +344,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         quantity: r.quantity,
         unit: r.unit,
         notes: r.notes,
+        section: r.section ?? null,
         conversionGrams: rowConversionGrams[r.id] ?? null,
       })),
     };
@@ -572,6 +573,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         <label className="block font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Ingredients</label>
         <div className="space-y-0">
           {rows.map((row, index) => {
+            const prevSection = index > 0 ? rows[index - 1].section : null;
+            const showSectionHeader = row.section && row.section !== prevSection;
             const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
             const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
             const rawSearch = searchText[row.id] || "";
@@ -586,8 +589,13 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               : ingredients;
 
             return (
+              <div key={row.id}>
+              {showSectionHeader && (
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-4 pb-1 border-b border-[var(--rule-faint)]">
+                  {row.section}
+                </div>
+              )}
               <div
-                key={row.id}
                 draggable
                 onDragStart={(e) => handleDragStart(e, row.id)}
                 onDragOver={handleDragOver}
@@ -757,6 +765,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 >
                   Remove
                 </button>
+              </div>
               </div>
             );
           })}

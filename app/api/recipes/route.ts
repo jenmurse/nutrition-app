@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       });
       const ingredientMap = new Map(fetchedIngredients.map((i) => [i.id, i]));
 
-      const recipeIngredientData = ingredients.map((ri: { ingredientId: string | number; quantity?: number; unit?: string; notes?: string }) => {
+      const recipeIngredientData = ingredients.map((ri: { ingredientId: string | number; quantity?: number; unit?: string; notes?: string; section?: string | null }) => {
         const ingredientId = Number(ri.ingredientId);
         const quantity = Number(ri.quantity) || 0;
         const unit = ri.unit || "g";
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         if (!ingredient) throw new Error(`Ingredient not found: ${ingredientId}`);
         const density = getIngredientDensity(ingredient.name);
         const grams = convertToGrams(quantity, unit, density, ingredient);
-        return { recipeId: recipe.id, ingredientId, quantity, unit, conversionGrams: grams, notes: ri.notes || null };
+        return { recipeId: recipe.id, ingredientId, quantity, unit, conversionGrams: grams, notes: ri.notes || null, section: ri.section || null };
       });
 
       await prisma.recipeIngredient.createMany({ data: recipeIngredientData });

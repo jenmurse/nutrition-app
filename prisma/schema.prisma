@@ -168,6 +168,7 @@ model RecipeIngredient {
   unit              String    // e.g., "cup", "tsp", "g", "ml"
   conversionGrams   Float?    // cached gram equivalent for quick lookup
   notes             String?   // optional notes for this ingredient
+  section           String?   // ingredient group label (e.g. "Almond Paste Topping")
 
   recipe            Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)

@@ -310,12 +310,7 @@ export async function POST(request: Request) {
         continue;
       }
       const parsed = parseIngredientString(str);
-      if (currentSection) {
-        parsed.section = currentSection;
-        parsed.nameGuess = parsed.nameGuess
-          ? `${parsed.nameGuess} (${currentSection})`
-          : parsed.nameGuess;
-      }
+      if (currentSection) parsed.section = currentSection;
       ingredients.push(parsed);
     }
 
