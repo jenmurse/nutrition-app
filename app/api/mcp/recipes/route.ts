@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     prepTime?: number;
     cookTime?: number;
     sourceApp?: string;
-    ingredients?: { name: string; quantity: number; unit: string; notes?: string }[];
+    ingredients?: { name: string; quantity: number; unit: string; notes?: string; section?: string }[];
   };
 
   try {
@@ -153,10 +153,11 @@ export async function POST(request: Request) {
         unit: ing.unit,
         conversionGrams: grams,
         notes: ing.notes || null,
+        section: ing.section || null,
       },
     });
 
-    resolvedIngredients.push({ name: ingredient.name, id: ingredient.id, quantity: ing.quantity, unit: ing.unit, notes: ing.notes });
+    resolvedIngredients.push({ name: ingredient.name, id: ingredient.id, quantity: ing.quantity, unit: ing.unit, notes: ing.notes, section: ing.section });
   }
 
   return NextResponse.json({

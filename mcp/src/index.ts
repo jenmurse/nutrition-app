@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.4',
+  version: '1.0.5',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -75,6 +75,7 @@ ingredient stubs that can be enriched with nutrition data later.`,
           quantity: z.number().positive().describe('Amount used'),
           unit: z.string().describe('Unit, e.g. "g", "ml", "cup", "tbsp", "oz", "piece"'),
           notes: z.string().optional().describe('Optional preparation note, e.g. "diced", "room temperature"'),
+          section: z.string().optional().describe('Section header this ingredient belongs to, e.g. "Base layer", "Topping", "Sauce". Only set on the FIRST ingredient in each section.'),
         })
       )
       .optional()
