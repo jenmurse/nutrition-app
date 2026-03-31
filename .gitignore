@@ -69,3 +69,4 @@ settings.json
 # Migration artifacts
 migration_data.sql
 tsconfig.tsbuildinfo
+npm_recovery_codes.txt
