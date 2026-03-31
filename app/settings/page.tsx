@@ -1066,13 +1066,22 @@ const SettingsPage = () => {
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
                   <div className="space-y-2">
                     <p className="font-mono text-[11px] text-[var(--fg)]">
-                      Add to your AI assistant&apos;s MCP config (e.g. Claude Desktop):
+                      Open your AI assistant&apos;s config file and add the <code className="bg-[var(--bg-subtle)] px-1">mcpServers</code> block. If the file already has content, add it alongside the existing keys at the top level.
                     </p>
-                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px]">
+                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px] mb-1">
+                      <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Claude Desktop</div>
                       <div><span className="text-[var(--fg)]">Mac</span> — ~/Library/Application Support/Claude/claude_desktop_config.json</div>
                       <div><span className="text-[var(--fg)]">Win</span> — %APPDATA%\Claude\claude_desktop_config.json</div>
                     </div>
-                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
+                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px] mb-1">
+                      <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Cursor</div>
+                      <div><span className="text-[var(--fg)]">Mac/Win</span> — ~/.cursor/mcp.json</div>
+                    </div>
+                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px]">
+                      <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Windsurf</div>
+                      <div><span className="text-[var(--fg)]">Mac/Win</span> — ~/.codeium/windsurf/mcp_config.json</div>
+                    </div>
+                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2 mt-2">
                       <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
   "mcpServers": {
     "good-measure": {
@@ -1098,12 +1107,12 @@ const SettingsPage = () => {
                       Restart your AI assistant and test it:
                     </p>
                     <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
-                      <p className="font-mono text-[10px] text-[var(--muted)] italic">&quot;Save this recipe to Course: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings.&quot;</p>
+                      <p className="font-mono text-[10px] text-[var(--muted)] italic">&quot;Save this recipe to Good Measure: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings.&quot;</p>
                     </div>
                   </div>
                 </div>
                 <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed pl-[32px]">
-                  Works with any MCP-compatible assistant — Claude, Cursor, Windsurf, and others.
+                  Works with Claude Desktop, Cursor, Windsurf, and any other MCP-compatible assistant.
                 </p>
               </div>
             </div>
