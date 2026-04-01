@@ -172,5 +172,24 @@ async function provisionUser(
       data: { usedAt: new Date(), usedBy: person.id },
     });
   }
-  // Existing user without invite — nothing to do, they already have a household
+  // Existing user without invite — check they still have an active household
+  if (!invite && person.householdMembers.length === 0) {
+    const displayName = person.name || user.email?.split("@")[0] || "User";
+    const household = await prisma.household.create({
+      data: { name: `${displayName}\u2019s Kitchen` },
+    });
+    await prisma.householdMember.create({
+      data: {
+        personId: person.id,
+        householdId: household.id,
+        active: true,
+        role: "owner",
+      },
+    });
+    // Reset onboarding so they go through setup again
+    await prisma.person.update({
+      where: { id: person.id },
+      data: { onboardingComplete: false },
+    });
+  }
 }

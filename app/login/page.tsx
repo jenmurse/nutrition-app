@@ -18,6 +18,11 @@ function LoginPage() {
   const supabase = createClient();
   const searchParams = useSearchParams();
 
+  // Force default theme on auth screens so it doesn't inherit a previous user's color
+  useEffect(() => {
+    document.documentElement.dataset.theme = "sage";
+  }, []);
+
   useEffect(() => {
     const invite = searchParams.get("invite");
     if (invite) {
@@ -97,7 +102,7 @@ function LoginPage() {
         {inviteHousehold && (
           <div className="mb-6 p-3 bg-[var(--accent-light)] rounded-[8px]" style={{ boxShadow: 'var(--shadow-sm)' }} role="status" aria-live="polite">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--fg)]">
-              You&apos;ve been invited to join <strong>{inviteHousehold}</strong>
+              You{"\u2019"}ve been invited to join <strong>{inviteHousehold}</strong>
             </p>
           </div>
         )}
