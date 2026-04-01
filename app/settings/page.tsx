@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { APP_NAME } from '@/lib/brand';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
@@ -298,6 +299,7 @@ const SettingsPage = () => {
   const [mcpTokenLoading, setMcpTokenLoading] = useState(false);
   const [revokingMcpToken, setRevokingMcpToken] = useState(false);
   const [mcpCopied, setMcpCopied] = useState(false);
+  const [configBlockCopied, setConfigBlockCopied] = useState(false);
 
   // Data export / import
   const [exportLoading, setExportLoading] = useState(false);
@@ -537,7 +539,7 @@ const SettingsPage = () => {
         setImportResult({ ok: false, message: err.error || 'Import failed.' });
       }
     } catch {
-      setImportResult({ ok: false, message: 'Could not read file — make sure it is a valid Good Measure backup.' });
+      setImportResult({ ok: false, message: `Could not read file. Make sure it is a valid ${APP_NAME} backup.` });
     } finally {
       setImportLoading(false);
     }
@@ -1000,7 +1002,7 @@ const SettingsPage = () => {
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
               <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
-                Connect any MCP-compatible AI assistant to your recipe collection. Ask your AI to save, search, or list recipes directly.
+                Generate a secure token to let your favorite AI assistant list, analyze, and save recipes directly to this app.
               </p>
               {newMcpToken ? (
                 <div className="space-y-3">
@@ -1060,59 +1062,104 @@ const SettingsPage = () => {
 
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
-              <div className="space-y-5">
+              <div className="space-y-7">
+
+                {/* Step 1 */}
                 <div className="grid grid-cols-[20px_1fr] gap-3">
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
-                  <div className="space-y-2">
-                    <p className="font-mono text-[11px] text-[var(--fg)]">
-                      Open your AI assistant&apos;s config file. If the file is empty, paste the block below as-is. If it already has content (e.g. a <code className="bg-[var(--bg-subtle)] px-1">&quot;preferences&quot;</code> key), add a comma after the last closing brace and paste just the <code className="bg-[var(--bg-subtle)] px-1">&quot;mcpServers&quot;</code> section inside the existing outer braces — not as a second separate block.
+                  <div className="space-y-3">
+                    <p className="font-mono text-[10px] text-[var(--fg)] font-medium tracking-[0.02em]">Configure your Assistant</p>
+                    <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed">
+                      Choose your preferred AI host and update its configuration file. We recommend <span className="text-[var(--fg)]">Claude Desktop</span> for complex meal planning or <span className="text-[var(--fg)]">Roo Code/Windsurf</span> for an integrated development experience.
                     </p>
-                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px] mb-1">
-                      <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Claude Desktop</div>
-                      <div><span className="text-[var(--fg)]">Mac</span> — ~/Library/Application Support/Claude/claude_desktop_config.json</div>
-                      <div><span className="text-[var(--fg)]">Win</span> — %APPDATA%\Claude\claude_desktop_config.json</div>
+                    <div className="border border-[var(--rule-faint)] rounded-[6px] overflow-hidden">
+                      <div className="grid grid-cols-2 border-b border-[var(--rule-faint)] bg-[var(--bg-subtle)] px-3 py-[6px]">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Assistant</span>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Config File Path</span>
+                      </div>
+                      <div className="grid grid-cols-2 px-3 py-[8px] border-b border-[var(--rule-faint)]">
+                        <span className="font-mono text-[10px] text-[var(--fg)]">Claude Desktop</span>
+                        <span className="font-mono text-[9px] text-[var(--muted)] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</span>
+                      </div>
+                      <div className="grid grid-cols-2 px-3 py-[8px] border-b border-[var(--rule-faint)]">
+                        <span className="font-mono text-[10px] text-[var(--fg)]">Cursor</span>
+                        <span className="font-mono text-[9px] text-[var(--muted)]">~/.cursor/mcp.json</span>
+                      </div>
+                      <div className="grid grid-cols-2 px-3 py-[8px]">
+                        <span className="font-mono text-[10px] text-[var(--fg)]">Windsurf / Roo Code</span>
+                        <span className="font-mono text-[9px] text-[var(--muted)]">~/.codeium/windsurf/mcp_config.json</span>
+                      </div>
                     </div>
-                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px] mb-1">
-                      <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Cursor</div>
-                      <div><span className="text-[var(--fg)]">Mac/Win</span> — ~/.cursor/mcp.json</div>
-                    </div>
-                    <div className="font-mono text-[10px] text-[var(--muted)] space-y-[2px]">
-                      <div className="font-mono text-[10px] text-[var(--fg)] mb-[2px]">Windsurf</div>
-                      <div><span className="text-[var(--fg)]">Mac/Win</span> — ~/.codeium/windsurf/mcp_config.json</div>
-                    </div>
-                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2 mt-2">
-                      <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
+
+                    {/* Config block */}
+                    <div className="mt-1">
+                      <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed mb-2">
+                        Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="bg-[var(--bg-subtle)] px-1">good-measure</code> object to your existing <code className="bg-[var(--bg-subtle)] px-1">mcpServers</code> list.
+                      </p>
+                      <div className="border border-[var(--rule-faint)] rounded-[6px] overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-[6px] bg-[var(--bg-subtle)] border-b border-[var(--rule-faint)]">
+                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">JSON</span>
+                          <button
+                            onClick={() => {
+                              const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                              navigator.clipboard.writeText(`{\n  "mcpServers": {\n    "good-measure": {\n      "command": "npx",\n      "args": ["-y", "good-measure-mcp"],\n      "env": {\n        "GOOD_MEASURE_API_URL": "${origin}",\n        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"\n      }\n    }\n  }\n}`);
+                              setConfigBlockCopied(true);
+                              setTimeout(() => setConfigBlockCopied(false), 2000);
+                            }}
+                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+                            aria-label="Copy configuration block"
+                          >
+                            {configBlockCopied ? 'Copied ✓' : 'Copy'}
+                          </button>
+                        </div>
+                        <div className="bg-[var(--bg-subtle)] px-3 py-3">
+                          <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
   "mcpServers": {
     "good-measure": {
       "command": "npx",
       "args": ["-y", "good-measure-mcp"],
       "env": {
         "GOOD_MEASURE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
-        "GOOD_MEASURE_API_TOKEN": "<your token>"
+        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"
       }
     }
   }
 }`}</pre>
+                        </div>
+                      </div>
+                      <div className="mt-2 border-l-2 border-[var(--rule-faint)] pl-3">
+                        <p className="font-mono text-[9px] text-[var(--muted)] leading-relaxed">
+                          <span className="text-[var(--fg)]">Pro Tip:</span> No manual installation is required. <code className="bg-[var(--bg-subtle)] px-1">npx</code> will automatically fetch the latest version of the {APP_NAME} server each time your assistant starts.
+                        </p>
+                      </div>
                     </div>
-                    <p className="font-mono text-[10px] text-[var(--muted)]">
-                      Paste your token above. No installation needed — <code className="bg-[var(--bg-subtle)] px-1">npx</code> downloads the server automatically.
-                    </p>
                   </div>
                 </div>
+
+                {/* Step 2 */}
                 <div className="grid grid-cols-[20px_1fr] gap-3">
                   <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
-                  <div className="space-y-2">
-                    <p className="font-mono text-[11px] text-[var(--fg)]">
-                      Restart your AI assistant and test it:
+                  <div className="space-y-3">
+                    <p className="font-mono text-[10px] text-[var(--fg)] font-medium tracking-[0.02em]">Activate &amp; Test</p>
+                    <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed">
+                      Restart your AI assistant to initialize the connection.
                     </p>
-                    <div className="border border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-[6px] px-3 py-2">
-                      <p className="font-mono text-[10px] text-[var(--muted)] italic">&quot;Save this recipe to Good Measure: Avocado Toast — 2 slices sourdough, 1 avocado, salt, red pepper flakes. 2 servings.&quot;</p>
+                    <div>
+                      <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Try this prompt to test the link:</p>
+                      <div className="border-l-2 border-[var(--rule-faint)] pl-3">
+                        <p className="font-mono text-[10px] text-[var(--fg)] italic">&ldquo;List my recipes from {APP_NAME} and tell me which ones are high in protein.&rdquo;</p>
+                      </div>
+                    </div>
+                    <div className="pt-1">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Optimization Workflow <span className="normal-case tracking-normal">(Advanced)</span></p>
+                      <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed mb-2">To use the full power of the Chef Agent for meal prep, try a prompt like this:</p>
+                      <div className="border-l-2 border-[var(--rule-faint)] pl-3">
+                        <p className="font-mono text-[10px] text-[var(--fg)] italic">&ldquo;Get the recipe for Black Bean Avocado Brownies. Analyze it for nutritional optimization—check my database for substitutions using search_ingredients and show me a comparison table before saving.&rdquo;</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed pl-[32px]">
-                  Works with Claude Desktop, Cursor, Windsurf, and any other MCP-compatible assistant.
-                </p>
+
               </div>
             </div>
           </div>
