@@ -747,7 +747,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     type="text"
                     className={`w-full border-0 border-b bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)] ${!selectedIngredient && row.nameGuess && !currentSearch ? 'border-[var(--warning)] text-[var(--warning)]' : 'border-[var(--rule-faint)]'}`}
                     placeholder="Type to search ingredients..."
-                    value={selectedIngredient ? selectedIngredient.name : currentSearch}
+                    value={selectedIngredient ? selectedIngredient.name : rawSearch}
                     onChange={(e) => {
                       setSearchText({ ...searchText, [row.id]: e.target.value });
                       setShowDropdown({ ...showDropdown, [row.id]: true });
