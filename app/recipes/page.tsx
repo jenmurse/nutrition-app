@@ -152,7 +152,13 @@ function RecipesPage() {
     } catch {
       // Not JSON — fall through to markdown
     }
-    return marked.parse(text) as string;
+    const normalized = text
+      .replace(/¼/g, '1/4')
+      .replace(/½/g, '1/2')
+      .replace(/¾/g, '3/4')
+      .replace(/⅓/g, '1/3')
+      .replace(/⅔/g, '2/3');
+    return marked.parse(normalized) as string;
   }
 
   // Sort
