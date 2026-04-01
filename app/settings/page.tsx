@@ -597,15 +597,15 @@ const SettingsPage = () => {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Tab bar */}
-      <div className="flex gap-[2px] shrink-0 bg-[var(--bg)] px-8 pt-5 pb-2">
+      <div className="flex gap-[2px] shrink-0 bg-[var(--bg)] px-8 pt-4 border-b border-[var(--rule-faint)]">
         {settingsTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setSettingsTab(tab.key)}
-            className={`px-[12px] py-[6px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
+            className={`px-[12px] pt-[6px] pb-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent transition-[color,border-color] duration-[120ms] border-0 border-b-2 cursor-pointer mb-[-1px] ${
               settingsTab === tab.key
-                ? 'text-[var(--fg)] bg-[var(--bg-pill)]'
-                : 'text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]'
+                ? 'text-[var(--fg)] border-[var(--fg)]'
+                : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
             }`}
             aria-label={`${tab.label} tab`}
             aria-selected={settingsTab === tab.key}
@@ -618,13 +618,14 @@ const SettingsPage = () => {
 
       {/* Scrollable tab content */}
       <div className="flex-1 overflow-y-auto bg-[var(--bg)]">
-        <div style={{ maxWidth: 640, padding: '28px 32px' }}>
+        <div style={{ maxWidth: 720, padding: '28px 32px' }}>
 
         {/* ── HOUSEHOLD TAB ── */}
         {settingsTab === 'household' && (
-        <>
+        <div className="flex flex-col gap-5">
         {/* Household name + members */}
-        <div className="mb-8">
+        <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
+          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">Household</div>
 
           {/* Household name row */}
           <div className="py-[10px] border-b border-[var(--rule-faint)]">
@@ -853,7 +854,7 @@ const SettingsPage = () => {
         </div>
 
         {/* ── PERSONS & GOALS ── */}
-        <div className="mb-8 mt-2">
+        <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrition Goals</div>
           {persons.map((person) => (
             <PersonRow
@@ -869,7 +870,7 @@ const SettingsPage = () => {
           ))}
         </div>
 
-        </>
+        </div>
         )}
 
         {/* ── AI API TAB (removed) ── */}
@@ -997,9 +998,8 @@ const SettingsPage = () => {
 
         {/* ── MCP TAB ── */}
         {settingsTab === 'mcp' && (
-        <div className="mb-8">
-          <div className="space-y-6">
-            <div>
+        <div className="flex flex-col gap-5">
+          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
               <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
                 Generate a secure token to let your favorite AI assistant list, analyze, and save recipes directly to this app.
@@ -1056,11 +1056,9 @@ const SettingsPage = () => {
                   )}
                 </div>
               )}
-            </div>
+          </div>
 
-            <div className="h-2" />
-
-            <div>
+          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
               <div className="space-y-7">
 
@@ -1161,16 +1159,14 @@ const SettingsPage = () => {
                 </div>
 
               </div>
-            </div>
           </div>
         </div>
         )}
 
         {/* ── DATA TAB ── */}
         {settingsTab === 'data' && (
-        <div className="mb-8">
-          <div className="space-y-6">
-            <div>
+        <div className="flex flex-col gap-5">
+          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
               <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
                 Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
@@ -1183,11 +1179,9 @@ const SettingsPage = () => {
               >
                 {exportLoading ? 'Exporting…' : 'Export data'}
               </button>
-            </div>
+          </div>
 
-            <div className="h-2" />
-
-            <div>
+          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
               <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
                 Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
@@ -1240,7 +1234,6 @@ const SettingsPage = () => {
                   {importResult.message}
                 </div>
               )}
-            </div>
           </div>
         </div>
         )}
