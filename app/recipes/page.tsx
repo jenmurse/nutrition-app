@@ -124,6 +124,9 @@ function RecipesPage() {
   const [editingNotes, setEditingNotes] = useState<'optimization' | 'mealPrep' | null>(null);
   const [notesText, setNotesText] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [editingSource, setEditingSource] = useState(false);
+  const [sourceText, setSourceText] = useState("");
+  const [savingSource, setSavingSource] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<'optimization' | 'mealPrep' | null>(null);
   const [scale, setScale] = useState(1);
 
@@ -365,6 +368,28 @@ function RecipesPage() {
       toast.error("Failed to save notes");
     } finally {
       setSavingNotes(false);
+    }
+  };
+
+  const handleSaveSource = async () => {
+    if (!selectedRecipe) return;
+    setSavingSource(true);
+    try {
+      const res = await fetch(`/api/recipes/${selectedRecipe.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sourceApp: sourceText.trim() }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const updated = { ...selectedRecipe, sourceApp: sourceText.trim() };
+      setSelectedRecipe(updated);
+      clientCache.set(`/api/recipes/${selectedRecipe.id}`, updated);
+      setEditingSource(false);
+      toast.success("Source saved");
+    } catch {
+      toast.error("Failed to save source");
+    } finally {
+      setSavingSource(false);
     }
   };
 
@@ -881,16 +906,47 @@ function RecipesPage() {
                         </div>
                       )}
 
-                      {selectedRecipe.sourceApp?.startsWith("http") && (
-                        <div className="mb-5">
-                          <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-1">Source</p>
+                      <div className="mb-5">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)]">Source</p>
+                          {!editingSource && (
+                            <button
+                              onClick={() => { setSourceText(selectedRecipe.sourceApp || ''); setEditingSource(true); }}
+                              className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2 rounded-[var(--radius-sm,4px)] hover:bg-[var(--bg-subtle)]"
+                              aria-label={selectedRecipe.sourceApp ? "Edit source URL" : "Add source URL"}>
+                              {selectedRecipe.sourceApp ? 'Edit' : '+ Add'}
+                            </button>
+                          )}
+                        </div>
+                        {editingSource ? (
+                          <>
+                            <input
+                              type="url"
+                              className="w-full text-[12px] text-[var(--fg)] bg-[var(--bg-raised)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] px-3 py-2 outline-none font-mono"
+                              placeholder="https://..."
+                              value={sourceText}
+                              onChange={(e) => setSourceText(e.target.value)}
+                              aria-label="Source URL"
+                            />
+                            <div className="flex justify-end gap-2 mt-2">
+                              <button onClick={() => setEditingSource(false)}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-3">Cancel</button>
+                              <button onClick={handleSaveSource} disabled={savingSource}
+                                className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-text)] border-0 py-[6px] px-4 rounded-[var(--radius-sm,4px)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40">
+                                {savingSource ? 'Saving...' : 'Save'}
+                              </button>
+                            </div>
+                          </>
+                        ) : selectedRecipe.sourceApp?.startsWith("http") ? (
                           <a href={selectedRecipe.sourceApp} target="_blank" rel="noopener noreferrer"
                             className="font-mono text-[10px] text-[var(--accent)] hover:underline break-all"
                             aria-label="View original recipe source">
                             {selectedRecipe.sourceApp}
                           </a>
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-[11px] text-[var(--muted)]">No source URL added.</p>
+                        )}
+                      </div>
                     </>
                   )}
 
