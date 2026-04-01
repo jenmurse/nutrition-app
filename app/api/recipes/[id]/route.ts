@@ -80,7 +80,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         servingSize,
         servingUnit,
         instructions,
-        isComplete: Boolean(isComplete),
+        isComplete: isComplete !== undefined ? Boolean(isComplete) : undefined,
         sourceApp,
         optimizeAnalysis: optimizeAnalysis !== undefined ? optimizeAnalysis : undefined,
         mealPrepAnalysis: mealPrepAnalysis !== undefined ? mealPrepAnalysis : undefined,
