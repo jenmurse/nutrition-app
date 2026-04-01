@@ -20,7 +20,7 @@ export async function GET() {
         where: { householdId: auth.householdId, personId: auth.personId },
       }),
       prisma.systemSetting.findFirst({
-        where: { householdId: auth.householdId, key: "apiKey" },
+        where: { householdId: auth.householdId, key: "mcpApiToken" },
         select: { value: true },
       }),
     ]);

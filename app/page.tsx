@@ -161,11 +161,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Getting started checklist */}
-        <div className="px-9 pb-4">
-          <GettingStartedCard />
-        </div>
-
         {/* Household switching tip — shown when 2+ members */}
         {persons.length > 1 && (
           <div className="px-9 pb-4">
@@ -174,6 +169,11 @@ export default function Home() {
             </ContextualTip>
           </div>
         )}
+
+        {/* Getting started checklist */}
+        <div className="px-9 pb-4">
+          <GettingStartedCard />
+        </div>
 
         {/* Body states */}
         {!planChecked || planLoading ? (
