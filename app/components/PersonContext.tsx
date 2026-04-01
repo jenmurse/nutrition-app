@@ -7,6 +7,7 @@ export interface Person {
   name: string;
   color: string;
   theme: string;
+  onboardingComplete?: boolean;
 }
 
 interface PersonContextValue {
@@ -15,6 +16,7 @@ interface PersonContextValue {
   selectedPersonId: number | null;
   setSelectedPersonId: (id: number) => void;
   refreshPersons: () => Promise<void>;
+  onboardingComplete: boolean;
 }
 
 const PersonContext = createContext<PersonContextValue>({
@@ -23,6 +25,7 @@ const PersonContext = createContext<PersonContextValue>({
   selectedPersonId: null,
   setSelectedPersonId: () => {},
   refreshPersons: async () => {},
+  onboardingComplete: true,
 });
 
 export function usePersonContext() {
@@ -37,14 +40,17 @@ function applyTheme(theme: string) {
 export function PersonProvider({ children }: { children: ReactNode }) {
   const [persons, setPersons] = useState<Person[]>([]);
   const [selectedPersonId, setSelectedPersonIdState] = useState<number | null>(null);
+  const [onboardingComplete, setOnboardingComplete] = useState(true);
 
   const refreshPersons = async () => {
     const res = await fetch("/api/persons");
     if (res.ok) {
-      const { persons: data, currentPersonId } = await res.json() as {
+      const { persons: data, currentPersonId, onboardingComplete: onboarded } = await res.json() as {
         persons: Person[];
         currentPersonId: number | null;
+        onboardingComplete?: boolean;
       };
+      setOnboardingComplete(onboarded ?? true);
       setPersons(data);
       // Restore saved person selection if valid, otherwise default to current user
       const saved = localStorage.getItem("selectedPersonId");
@@ -80,7 +86,7 @@ export function PersonProvider({ children }: { children: ReactNode }) {
 
   return (
     <PersonContext.Provider
-      value={{ persons, selectedPerson, selectedPersonId, setSelectedPersonId, refreshPersons }}
+      value={{ persons, selectedPerson, selectedPersonId, setSelectedPersonId, refreshPersons, onboardingComplete }}
     >
       {children}
     </PersonContext.Provider>

@@ -8,6 +8,7 @@ import { usePersonContext } from "../components/PersonContext";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import { clientCache } from "@/lib/clientCache";
+import ContextualTip from "../components/ContextualTip";
 
 
 type NutrientValue = {
@@ -626,6 +627,11 @@ function IngredientsPage() {
             onChange={(e) => handleUsdaSearch(e.target.value)}
           />
         </div>
+
+        {/* USDA contextual tip */}
+        <ContextualTip tipId="usda-search" label="About the USDA database">
+          Search 300,000+ foods from the USDA national database. Results include branded products and generic entries. Selecting one fills in the nutrition values automatically — you can still edit them.
+        </ContextualTip>
 
         {/* USDA Results */}
         {usdaLookupLoading && (

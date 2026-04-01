@@ -3,6 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { BrandName } from "@/app/components/BrandName";
+import { APP_TAGLINE } from "@/lib/brand";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -84,10 +86,10 @@ function LoginPage() {
         {/* Brand */}
         <div className="mb-10">
           <h1 className="font-serif text-[32px] text-[var(--fg)] leading-none tracking-[-0.01em]">
-            Good Measure
+            <BrandName />
           </h1>
           <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--muted)] mt-2">
-            Plan meals. Track nutrition.
+            {APP_TAGLINE}
           </p>
         </div>
 

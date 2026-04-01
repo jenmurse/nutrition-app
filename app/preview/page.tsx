@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react";
+import { BrandName } from "@/app/components/BrandName";
 
 const mockRecipes = [
   { id: 1, name: "Almond Croissant Bars" },
@@ -63,7 +64,7 @@ export default function PreviewPage() {
     <div className="min-h-screen bg-[var(--bg)]">
       {/* ═══ TopNav ═══ */}
       <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0 relative z-10" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)' }}>
-        <span className="font-serif text-[16px] text-[var(--fg)] mr-6 tracking-[0.02em]">Good Measure</span>
+        <BrandName className="font-serif text-[16px] text-[var(--fg)] mr-6 tracking-[0.02em]" />
         <div className="flex items-center flex-1 gap-[2px]">
           {["Meal Plans", "Recipes", "Pantry"].map((item, i) => (
             <span

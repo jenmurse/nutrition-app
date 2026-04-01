@@ -27,6 +27,23 @@ export async function GET(request: Request) {
     // Don't block login on provisioning errors
   }
 
+  // Check if user needs onboarding
+  try {
+    const supabase = await createClient();
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) {
+      const person = await prisma.person.findUnique({
+        where: { supabaseId: currentUser.id },
+        select: { onboardingComplete: true },
+      });
+      if (person && !person.onboardingComplete) {
+        return NextResponse.redirect(`${origin}/onboarding`);
+      }
+    }
+  } catch {
+    // Don't block on onboarding check failures
+  }
+
   return NextResponse.redirect(`${origin}/`);
 }
 
@@ -83,6 +100,7 @@ async function provisionUser(
         supabaseId: user.id,
         email: user.email || null,
         name: displayName,
+        onboardingComplete: false,
       },
       include: { householdMembers: { where: { active: true } } },
     });

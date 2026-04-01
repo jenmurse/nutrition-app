@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { APP_NAME, APP_TAGLINE } from "@/lib/brand";
 import { DM_Sans, DM_Mono, DM_Serif_Display } from "next/font/google";
 
 import "./globals.css";
@@ -28,8 +29,8 @@ const dmSerifDisplay = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Good Measure",
-  description: "Plan meals, track nutrition, build better habits.",
+  title: APP_NAME,
+  description: `${APP_TAGLINE} Build better habits.`,
 };
 
 export default function RootLayout({

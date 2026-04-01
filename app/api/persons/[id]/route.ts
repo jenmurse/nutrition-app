@@ -43,6 +43,10 @@ export async function PUT(
     data.color = themeHex(body.theme);
   }
 
+  if (body.onboardingComplete !== undefined) {
+    data.onboardingComplete = Boolean(body.onboardingComplete);
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }

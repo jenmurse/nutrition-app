@@ -6,7 +6,8 @@
   <title>Good Measure — Onboarding Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -49,26 +50,27 @@
     .onboarding-area {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 80px 24px 40px;
-      position: relative;
+      padding: 40px 24px;
     }
 
-    .notes-sidebar {
-      width: 300px;
-      flex-shrink: 0;
-      border-left: 1px solid var(--rule);
-      background: white;
-      padding: 48px 28px;
-      overflow-y: auto;
+    /* ─── Card top — brand + progress inside the card ─── */
+    .card-top {
+      margin: 0 -44px;
+      padding: 36px 44px 24px;
       display: flex;
       flex-direction: column;
+      gap: 8px;
+      margin-bottom: 32px;
     }
 
-    @media (max-width: 900px) {
-      .notes-sidebar { display: none; }
+    .card-brand {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--fg);
     }
 
     /* ─── Progress Indicator ─── */
@@ -76,10 +78,6 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      position: absolute;
-      top: 40px;
-      left: 50%;
-      transform: translateX(-50%);
     }
 
     .pdot {
@@ -94,14 +92,12 @@
     .pdot.active { background: var(--accent); width: 22px; }
 
     .step-counter {
-      position: absolute;
-      top: 38px;
-      right: 40px;
       font-family: var(--mono);
       font-size: 9px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
+      margin-top: 2px;
     }
 
     /* ─── Step Container ─── */
@@ -128,7 +124,7 @@
     .card {
       background: var(--card);
       border-radius: var(--radius);
-      padding: 44px 44px 36px;
+      padding: 0 44px 36px;
       box-shadow:
         0 0 0 1px rgba(0,0,0,0.04),
         0 2px 4px rgba(0,0,0,0.04),
@@ -170,19 +166,20 @@
     }
 
     .headline {
-      font-family: var(--serif);
-      font-size: 30px;
+      font-family: var(--sans);
+      font-size: 26px;
+      font-weight: 700;
       line-height: 1.2;
       color: var(--fg);
       text-wrap: balance;
       margin-bottom: 10px;
+      letter-spacing: -0.02em;
     }
 
     .subhead {
       font-size: 13px;
-      line-height: 1.65;
+      line-height: 1.6;
       color: var(--muted);
-      letter-spacing: 0.02em;
       text-wrap: pretty;
       margin-bottom: 28px;
     }
@@ -365,6 +362,56 @@
     .add-person-btn:hover { color: var(--accent-hover); }
     .add-person-btn svg { flex-shrink: 0; }
 
+    /* ─── Household switch preview ─── */
+    .switch-preview {
+      margin-top: 16px;
+      border: 1px solid var(--rule);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 14px 16px;
+      background: var(--bg);
+      display: none;
+    }
+    .switch-preview.visible {
+      display: block;
+      animation: fadeUp 300ms var(--ease-out) both;
+    }
+    .switch-nav-strip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .switch-nav-label {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg);
+      flex: 1;
+    }
+    .switch-nav-dots { display: flex; gap: 8px; }
+    .switch-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 0;
+      transition: box-shadow 200ms ease;
+    }
+    .switch-dot.active { box-shadow: 0 0 0 2px white, 0 0 0 4px var(--dot-color, #5C9169); }
+    .switch-preview-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .switch-preview-text strong { color: var(--fg); font-weight: 500; }
+
     /* ─── Goal Cards ─── */
     .goal-grid {
       display: flex;
@@ -405,7 +452,7 @@
     .goal-desc { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; }
 
     .goal-num { text-align: right; }
-    .goal-cal { font-family: var(--serif); font-size: 21px; color: var(--fg); line-height: 1; }
+    .goal-cal { font-family: var(--sans); font-size: 21px; font-weight: 600; color: var(--fg); line-height: 1; letter-spacing: -0.01em; }
     .goal-unit { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
     /* ─── Recipe Import ─── */
@@ -547,78 +594,6 @@
     /* ─── Separator ─── */
     .sep { height: 1px; background: var(--rule); margin: 20px 0; }
 
-    /* ─── Notes Sidebar ─── */
-    .notes-label {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .notes-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--rule);
-    }
-
-    .note-block {
-      display: none;
-    }
-    .note-block.visible { display: block; }
-
-    .note-section { margin-bottom: 24px; }
-    .note-section-title {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .note-section ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-    .note-section ul li {
-      font-size: 12px;
-      line-height: 1.55;
-      color: var(--fg-sub);
-      letter-spacing: 0.02em;
-      padding-left: 14px;
-      position: relative;
-    }
-    .note-section ul li::before {
-      content: '→';
-      position: absolute;
-      left: 0;
-      color: var(--muted);
-      font-size: 10px;
-    }
-
-    .note-code {
-      font-family: var(--mono);
-      font-size: 10px;
-      background: #F0F0F0;
-      border-radius: 4px;
-      padding: 2px 5px;
-      color: var(--fg);
-    }
-
-    .note-step-title {
-      font-family: var(--serif);
-      font-size: 17px;
-      color: var(--fg);
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-
     /* ─── Mockup header ─── */
     .mockup-header {
       position: fixed;
@@ -685,65 +660,88 @@
     .variant-rise .anim-out-left,
     .variant-rise .anim-out-right { animation: sinkOut 200ms ease-in both; }
 
+
+    /* ─── Lucide icons in goal cards ─── */
+    .goal-icon lucide-icon,
+    .goal-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.75;
+      color: var(--muted);
+      transition: color 200ms ease;
+    }
+    .goal-card.selected .goal-icon svg { color: white; }
   </style>
 </head>
 <body>
 
 <!-- Mockup toolbar -->
 <div class="mockup-header">
-  <span class="mockup-badge"><strong>Good Measure</strong></span>
+  <span class="mockup-badge"><strong data-brand></strong></span>
   <div class="mockup-sep"></div>
   <span class="mockup-badge">Onboarding Mockup · Click through to explore</span>
   <div class="anim-toggle">
-    <button class="anim-opt active" onclick="setAnim('slide',this)">Slide</button>
+    <button class="anim-opt" onclick="setAnim('slide',this)">Slide</button>
     <button class="anim-opt" onclick="setAnim('fade',this)">Fade</button>
-    <button class="anim-opt" onclick="setAnim('rise',this)">Rise</button>
+    <button class="anim-opt active" onclick="setAnim('rise',this)">Rise</button>
   </div>
 </div>
 
 <div class="page" id="page">
   <!-- ─── Onboarding flow ─── -->
   <div class="onboarding-area">
-    <!-- Progress -->
-    <div class="progress-bar" id="progress-bar">
-      <div class="pdot active" id="pd0" onclick="jumpTo(0)"></div>
-      <div class="pdot"        id="pd1" onclick="jumpTo(1)"></div>
-      <div class="pdot"        id="pd2" onclick="jumpTo(2)"></div>
-      <div class="pdot"        id="pd3" onclick="jumpTo(3)"></div>
-      <div class="pdot"        id="pd4" onclick="jumpTo(4)"></div>
-      <div class="pdot"        id="pd5" onclick="jumpTo(5)"></div>
-    </div>
-    <div class="step-counter" id="step-counter">Step 1 of 6</div>
 
-    <!-- Steps -->
+    <!-- Steps — logo, progress, and step counter live inside each card -->
     <div class="steps-wrap" id="steps-wrap">
 
       <!-- ── Step 0: Welcome ── -->
       <div class="step active animating" id="step-0">
         <div class="card">
-          <div class="s1"><div class="welcome-bar"></div></div>
-          <div class="eyebrow s1">Good Measure</div>
-          <h1 class="headline s2">Nutrition planning<br>that thinks with you.</h1>
-          <p class="subhead s3">Track what matters, plan your week, and make choices you feel good about — without obsessing over every number.</p>
-          <div class="s4">
-            <button class="btn btn-primary" onclick="nav(1,'fwd')">Get started</button>
+          <div class="card-top">
+          <span class="card-brand" data-brand></span>
+          <div class="progress-bar">
+            <div class="pdot active"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
           </div>
-          <button class="skip s5" onclick="nav(5,'fwd')">Skip setup — I'll explore on my own</button>
+          <span class="step-counter">Step 1 of 6</span>
+        </div>
+          <h1 class="headline s2" style="font-size: 30px;">Know what’s in your week.</h1>
+          <p class="subhead s3">Build recipes, plan your meals, and track your nutrition against your goals. Your dashboard updates in real time. Setup takes about two minutes.</p>
+          <div class="s4">
+            <button class="btn btn-primary" onclick="nav(1,'fwd')">Let's get set up</button>
+          </div>
+          <button class="skip s5" onclick="nav(5,'fwd')">Skip and explore on my own</button>
         </div>
       </div>
 
       <!-- ── Step 1: Profile ── -->
       <div class="step" id="step-1">
         <div class="card">
+          <div class="card-top">
+          <span class="card-brand" data-brand></span>
+          <div class="progress-bar">
+            <div class="pdot done"></div>
+            <div class="pdot active"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+          </div>
+          <span class="step-counter">Step 2 of 6</span>
+        </div>
           <span class="eyebrow s1">Your Profile</span>
-          <h2 class="headline s2">What should we<br>call you?</h2>
-          <p class="subhead s3">Your name comes from your sign-up — edit it here if you'd like. Choose a theme that'll color your whole app.</p>
+          <h2 class="headline s2">Make it yours.</h2>
+          <p class="subhead s3">Your name came from sign-up. Edit it here if you’d like. Your theme colors the whole app: buttons, progress bars, and your avatar in the nav.</p>
           <div class="s4">
             <label class="label">Your name</label>
             <input class="input" type="text" value="Jen" id="user-name" style="margin-bottom: 22px;">
             <label class="label" style="margin-bottom: 11px;">Accent theme</label>
             <div class="theme-grid" id="theme-grid"></div>
-            <div class="tip" id="theme-tip">Your theme colors accent buttons, progress bars, and your avatar dot in the nav — and switches when you switch people.</div>
+            <div class="tip" id="theme-tip">Your theme colors accent buttons, progress bars, and your avatar dot in the nav. It switches when you switch people.</div>
           </div>
           <div class="btn-row s5">
             <button class="btn btn-ghost" onclick="nav(0,'back')">Back</button>
@@ -755,15 +753,27 @@
       <!-- ── Step 2: Household ── -->
       <div class="step" id="step-2">
         <div class="card">
+          <div class="card-top">
+          <span class="card-brand" data-brand></span>
+          <div class="progress-bar">
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot active"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+          </div>
+          <span class="step-counter">Step 3 of 6</span>
+        </div>
           <span class="eyebrow s1">Your Household</span>
-          <h2 class="headline s2">Planning for anyone else?</h2>
-          <p class="subhead s3">Add household members to track their goals side-by-side. Recipes and ingredients are shared — goals and meal plans are per-person.</p>
+          <h2 class="headline s2">Who’s eating with you?</h2>
+          <p class="subhead s3">Recipes and ingredients are shared. Meal plans and nutrition goals are personal. Add household members now or any time from Settings.</p>
           <div class="s4">
             <div class="person-row you">
               <div class="avatar" id="you-avatar" style="background: var(--accent);">J</div>
               <div class="person-info">
                 <div class="person-name" id="you-name">Jen</div>
-                <div class="person-sub">That's you</div>
+                <div class="person-sub">That’s you</div>
               </div>
             </div>
             <div id="added-members"></div>
@@ -773,6 +783,18 @@
               </svg>
               Add a household member
             </button>
+
+            <!-- Appears after first member added -->
+            <div class="switch-preview" id="switch-preview">
+              <div class="switch-nav-strip">
+                <span class="switch-nav-label">Good Measure</span>
+                <div class="switch-nav-dots">
+                  <div class="switch-dot active" id="preview-dot-you" style="background: var(--accent); --dot-color: var(--accent);">J</div>
+                  <div class="switch-dot" id="preview-dot-member" style="background: #CB4D1B;">G</div>
+                </div>
+              </div>
+              <p class="switch-preview-text">Tap an avatar in the nav to switch whose plan you're viewing. <strong>Recipes and pantry are shared</strong> — meal plans and nutrition goals are personal to each person.</p>
+            </div>
           </div>
           <div class="btn-row s5">
             <button class="btn btn-ghost" onclick="nav(1,'back')">Back</button>
@@ -785,12 +807,24 @@
       <!-- ── Step 3: Goals ── -->
       <div class="step" id="step-3">
         <div class="card">
+          <div class="card-top">
+          <span class="card-brand" data-brand></span>
+          <div class="progress-bar">
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot active"></div>
+            <div class="pdot"></div>
+            <div class="pdot"></div>
+          </div>
+          <span class="step-counter">Step 4 of 6</span>
+        </div>
           <span class="eyebrow s1">Nutrition Goals</span>
-          <h2 class="headline s2">What are you<br>optimizing for?</h2>
-          <p class="subhead s3">Pick a starting point. Every nutrient target can be fine-tuned individually in Settings later.</p>
+          <h2 class="headline s2">Set a direction.</h2>
+          <p class="subhead s3">Pick a starting point. Good Measure will show how each recipe and meal measures up against it. You can fine-tune any number in Settings.</p>
           <div class="goal-grid s4" id="goal-grid">
             <div class="goal-card" onclick="pickGoal(this,'balanced')">
-              <div class="goal-icon">⚖️</div>
+              <div class="goal-icon"><i data-lucide="gauge"></i></div>
               <div class="goal-info">
                 <div class="goal-name">Balanced</div>
                 <div class="goal-desc">General health, maintenance</div>
@@ -801,7 +835,7 @@
               </div>
             </div>
             <div class="goal-card selected" onclick="pickGoal(this,'active')">
-              <div class="goal-icon">🏃</div>
+              <div class="goal-icon"><i data-lucide="zap"></i></div>
               <div class="goal-info">
                 <div class="goal-name">Active</div>
                 <div class="goal-desc">Higher protein, more fuel</div>
@@ -812,7 +846,7 @@
               </div>
             </div>
             <div class="goal-card" onclick="pickGoal(this,'mindful')">
-              <div class="goal-icon">🌿</div>
+              <div class="goal-icon"><i data-lucide="leaf"></i></div>
               <div class="goal-info">
                 <div class="goal-name">Mindful</div>
                 <div class="goal-desc">Lighter, focused portions</div>
@@ -823,10 +857,10 @@
               </div>
             </div>
             <div class="goal-card" onclick="pickGoal(this,'custom')">
-              <div class="goal-icon">✏️</div>
+              <div class="goal-icon"><i data-lucide="sliders-horizontal"></i></div>
               <div class="goal-info">
                 <div class="goal-name">Custom</div>
-                <div class="goal-desc">I'll set my own targets</div>
+                <div class="goal-desc">I’ll set my own targets</div>
               </div>
               <div class="goal-num" style="font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: right;">
                 In Settings
@@ -844,9 +878,21 @@
       <!-- ── Step 4: First Recipe ── -->
       <div class="step" id="step-4">
         <div class="card">
+          <div class="card-top">
+          <span class="card-brand" data-brand></span>
+          <div class="progress-bar">
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot active"></div>
+            <div class="pdot"></div>
+          </div>
+          <span class="step-counter">Step 5 of 6</span>
+        </div>
           <span class="eyebrow s1">First Recipe</span>
-          <h2 class="headline s2">Import a recipe<br>you love.</h2>
-          <p class="subhead s3">Paste any recipe blog URL and we'll extract the ingredients. Any ingredients not yet in your pantry will be flagged — you can add them before saving.</p>
+          <h2 class="headline s2">Import a recipe you already love.</h2>
+          <p class="subhead s3">Paste any recipe blog URL and we'll pull the ingredients automatically. Anything not yet in your pantry will be flagged so you can add it before saving.</p>
           <div class="s4">
             <label class="label">Recipe URL</label>
             <div class="import-row">
@@ -861,16 +907,28 @@
             <button class="btn btn-ghost" onclick="nav(3,'back')">Back</button>
             <button class="btn btn-primary" onclick="nav(5,'fwd')">Continue</button>
           </div>
-          <button class="skip" onclick="nav(5,'fwd')">I'll add recipes later</button>
+          <button class="skip" onclick="nav(5,'fwd')">I’ll add recipes later</button>
         </div>
       </div>
 
       <!-- ── Step 5: Done ── -->
       <div class="step" id="step-5">
         <div class="card">
+          <div class="card-top">
+          <span class="card-brand" data-brand></span>
+          <div class="progress-bar">
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot done"></div>
+            <div class="pdot active"></div>
+          </div>
+          <span class="step-counter">Step 6 of 6</span>
+        </div>
           <span class="eyebrow s1">Setup Complete</span>
-          <h2 class="headline s2">You're all set.</h2>
-          <p class="subhead s3">Here's what we've configured. Everything lives in Settings whenever you want to adjust it.</p>
+          <h2 class="headline s2">You’re set.</h2>
+          <p class="subhead s3">Here’s what we’ve got so far. Everything lives in Settings whenever you want to adjust it.</p>
           <ul class="check-list s4" id="check-list">
             <li class="check-item">
               <div class="check-circle">
@@ -878,7 +936,7 @@
                   <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <div class="check-label">Profile <span class="note">— Jen · Sage theme</span></div>
+              <div class="check-label">Profile <span class="note">· Jen · Sage theme</span></div>
             </li>
             <li class="check-item">
               <div class="check-circle">
@@ -886,7 +944,7 @@
                   <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <div class="check-label">Household <span class="note">— Jen + Garth</span></div>
+              <div class="check-label">Household <span class="note">· Jen + Garth</span></div>
             </li>
             <li class="check-item">
               <div class="check-circle">
@@ -894,7 +952,7 @@
                   <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <div class="check-label">Nutrition goals <span class="note">— Active · 2,500 kcal target</span></div>
+              <div class="check-label">Nutrition goals <span class="note">· Active · 2,500 kcal target</span></div>
             </li>
             <li class="check-item">
               <div class="check-circle">
@@ -902,7 +960,7 @@
                   <path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <div class="check-label">Recipe imported <span class="note">— Chicken Tikka Masala · 18 ingredients</span></div>
+              <div class="check-label">Recipe imported <span class="note">· Chicken Tikka Masala · 18 ingredients</span></div>
             </li>
             <li class="check-item">
               <div class="check-circle pending">
@@ -910,174 +968,29 @@
                   <path d="M1 4.5L4 7.5L10 1" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <div class="check-label" style="color: var(--muted);">Create your first week's plan <span class="note">— do this from the dashboard</span></div>
+              <div class="check-label" style="color: var(--muted);">Create your first week's plan from the dashboard</div>
             </li>
           </ul>
           <div class="s5">
-            <button class="btn btn-primary" onclick="alert('→ Would open the app dashboard')">Open Good Measure</button>
+            <button class="btn btn-primary" onclick="alert('→ Would open the app dashboard')">Open <span data-brand></span></button>
           </div>
         </div>
       </div>
 
     </div><!-- /steps-wrap -->
+
   </div><!-- /onboarding-area -->
 
-  <!-- ─── Design Notes Sidebar ─── -->
-  <div class="notes-sidebar" id="notes-sidebar">
-    <div class="notes-label">Design notes</div>
 
-    <!-- Notes for each step -->
-    <div class="note-block visible" id="note-block-0">
-      <div class="note-step-title">Welcome</div>
-      <div class="note-section">
-        <div class="note-section-title">Animation rationale</div>
-        <ul>
-          <li>Full stagger warranted — this screen is seen exactly once, Emil's framework says "rare/first-time events can add delight"</li>
-          <li>5 layers stagger at 70ms intervals: bar → eyebrow → headline → body → CTA</li>
-          <li>Entry uses strong ease-out <span class="note-code">cubic-bezier(0.23, 1, 0.32, 1)</span> — feels immediate</li>
-        </ul>
-      </div>
-      <div class="note-section">
-        <div class="note-section-title">UX decisions</div>
-        <ul>
-          <li>Single CTA — no decision paralysis on entry</li>
-          <li>"Skip" is below the fold visually but not hidden — power users who'll explore on their own should find it</li>
-          <li>No illustration or hero image — lean on typography and brand. The serif headline is the hero.</li>
-          <li>The 28px accent bar anchors the brand before the text appears — creates anticipation</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="note-block" id="note-block-1">
-      <div class="note-step-title">Profile</div>
-      <div class="note-section">
-        <div class="note-section-title">Theme picker</div>
-        <ul>
-          <li>22px dots with 3px outline-offset ring on selection — concentric radius preserved (dot is circle, ring is circle)</li>
-          <li>Live CSS variable update on click — makes the choice feel personal immediately, not hypothetical</li>
-          <li>Warm vs cool themes naturally separate in the grid (warm top, cool bottom) — matches <span class="note-code">lib/themes.ts</span> order</li>
-          <li>Hover scale: <span class="note-code">1.18</span> — slightly playful, within tasteful range</li>
-        </ul>
-      </div>
-      <div class="note-section">
-        <div class="note-section-title">UX decisions</div>
-        <ul>
-          <li>Name pre-filled from signup — confirms rather than asks, reduces friction</li>
-          <li>Tip box explains what the theme does — avoids "what does this do?" confusion</li>
-          <li>No "skip" on this step — it's so quick there's no reason to skip</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="note-block" id="note-block-2">
-      <div class="note-step-title">Household</div>
-      <div class="note-section">
-        <div class="note-section-title">UX decisions</div>
-        <ul>
-          <li>"You" card is always shown with accent border — establishes who they are, not an option they can remove here</li>
-          <li>Added members animate in — <span class="note-code">fadeUp</span> on entry so the list doesn't jar</li>
-          <li>Mock auto-assigns a contrasting theme to each added person — shows the visual distinctiveness</li>
-          <li>"Just me for now" skip is prominent — household is optional, don't block progress</li>
-          <li>Copy: "Recipes and ingredients are shared — goals and plans are per-person" — this answers the #1 question new users have about the data model</li>
-        </ul>
-      </div>
-      <div class="note-section">
-        <div class="note-section-title">Future consideration</div>
-        <ul>
-          <li>Could let the user set the added person's name + theme here inline instead of after onboarding</li>
-          <li>Invite link flow (for remote household members) should live in Settings, not onboarding</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="note-block" id="note-block-3">
-      <div class="note-step-title">Nutrition Goals</div>
-      <div class="note-section">
-        <div class="note-section-title">This is the most important step</div>
-        <ul>
-          <li>The entire app is less useful without goals set — progress bars and dashboard are empty shells without targets</li>
-          <li>Presets lower the cognitive load of "what should my protein goal be?" — most users don't know</li>
-          <li>"Active" is pre-selected: slightly aspirational, but realistic. Anchors the default higher so users feel they have room to customize down</li>
-          <li>Calorie number in <span class="note-code">DM Serif Display</span> — visually weighted, feels like a real number not a label</li>
-        </ul>
-      </div>
-      <div class="note-section">
-        <div class="note-section-title">Goal card animation</div>
-        <ul>
-          <li>Cards use <span class="note-code">scale(0.99)</span> on press — subtle tactility</li>
-          <li>Icon bg transitions: empty → filled accent on selection. The icon itself doesn't change color (emoji), which actually works — the filled bg provides enough contrast signal</li>
-          <li>"Custom → In Settings" defers complexity without blocking progress</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="note-block" id="note-block-4">
-      <div class="note-step-title">First Recipe</div>
-      <div class="note-section">
-        <div class="note-section-title">The "magic moment"</div>
-        <ul>
-          <li>URL import is the killer feature reveal — paste a URL, get structured nutritional data back. This is what makes the app worth using.</li>
-          <li>Three-state import flow: idle → loading (spinner) → success with recipe name + count — each state is meaningful, not just a spinner</li>
-          <li>Loading state shows "Extracting ingredients…" not "Loading…" — specific language shows what's happening</li>
-          <li>Success state shows the recipe name — concrete, confirms it worked</li>
-        </ul>
-      </div>
-      <div class="note-section">
-        <div class="note-section-title">UX decisions</div>
-        <ul>
-          <li>.md file import removed from this step — too confusing for first-time users. It lives in the full recipe create flow.</li>
-          <li>Copy now sets expectations about pantry matching — "flagged ingredients" language prevents surprise when unmatched items appear</li>
-          <li>"I'll add recipes later" skip is clearly visible — don't block progress</li>
-          <li>Consider: auto-populate the URL field with a sample recipe so users see the magic even without their own link ready</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="note-block" id="note-block-5">
-      <div class="note-step-title">Completion</div>
-      <div class="note-section">
-        <div class="note-section-title">Stagger animation</div>
-        <ul>
-          <li>Checkmarks cascade in at 120ms intervals — creates a sense of accomplishment, like things being "checked off"</li>
-          <li>The last item (create meal plan) uses a grey/pending circle — signals "here's what to do next" without making them feel incomplete</li>
-          <li>No confetti — too casual for this app's editorial aesthetic</li>
-          <li>Each check item fades up from 6px below — subtle, not showy</li>
-        </ul>
-      </div>
-      <div class="note-section">
-        <div class="note-section-title">UX decisions</div>
-        <ul>
-          <li>"You're all set." is the entire heading — short, confident, final</li>
-          <li>Summary shows what was actually configured (name, theme, goal preset, recipe name) — concrete reinforcement</li>
-          <li>Single CTA — no secondary actions to dilute the moment</li>
-          <li>After clicking "Open Good Measure": land on dashboard, which should show goals populated and a CTA to "Create this week's plan"</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="sep" style="margin-top: 8px;"></div>
-    <div class="note-section" style="margin-top: 16px;">
-      <div class="note-section-title">Step transitions (try the 3 variants above)</div>
-      <ul>
-        <li><strong>Slide:</strong> <span class="note-code">translateX(28px)</span> + opacity, 320ms strong ease-out. Spatial — feels like moving through a sequence.</li>
-        <li><strong>Fade:</strong> Opacity only, 280ms. Neutral — good if slides feel too "wizard-y"</li>
-        <li><strong>Rise:</strong> <span class="note-code">translateY(16px)</span> + opacity, 320ms. Upward movement suggests progression. Elegant for a refined aesthetic.</li>
-      </ul>
-    </div>
-    <div class="note-section">
-      <div class="note-section-title">Implementation notes</div>
-      <ul>
-        <li>Onboarding lives at <span class="note-code">/onboarding</span> — separate route, not a modal overlay</li>
-        <li>State persists in server session — if user closes mid-flow, they resume where they left off</li>
-        <li>Re-visiting onboarding after completion → redirect to dashboard</li>
-        <li><span class="note-code">onboardingCompleted: boolean</span> on Household model — set on step 5 CTA click</li>
-        <li>Auth callback should check this flag → redirect to <span class="note-code">/onboarding</span> if false</li>
-      </ul>
-    </div>
-  </div>
 </div>
 
 <script>
+  // ─── Brand constants — change here to rename everywhere ───
+  const APP_NAME = 'Good Measure';
+  const APP_TAGLINE = 'Plan meals. Track nutrition.';
+  document.title = APP_NAME + ' — Onboarding Mockup';
+  document.querySelectorAll('[data-brand]').forEach(el => el.textContent = APP_NAME);
+
   // ─── Theme data (from lib/themes.ts) ───
   const THEMES = [
     { name:'sage',       label:'Sage',       hex:'#5C9169', warm:true  },
@@ -1113,7 +1026,7 @@
   let selectedTheme = 'sage';
   let memberCount  = 0;
   let importState  = 'idle';
-  let animVariant  = 'slide'; // slide | fade | rise
+  let animVariant  = 'rise'; // slide | fade | rise
   const TOTAL = 6;
 
   // ─── Build theme picker ───
@@ -1162,20 +1075,7 @@
     const from = document.getElementById('step-' + currentStep);
     const to   = document.getElementById('step-' + next);
 
-    // Update progress dots
-    for (let i = 0; i < TOTAL; i++) {
-      const d = document.getElementById('pd' + i);
-      d.className = 'pdot';
-      if (i < next)  d.classList.add('done');
-      if (i === next) d.classList.add('active');
-    }
-    document.getElementById('step-counter').textContent = `Step ${next+1} of ${TOTAL}`;
 
-    // Update sidebar notes
-    document.querySelectorAll('.note-block').forEach(b => b.classList.remove('visible'));
-    const nb = document.getElementById('note-block-' + next);
-    if (nb) nb.classList.add('visible');
-    document.getElementById('notes-sidebar').scrollTop = 0;
 
     // Animate out
     const outClass = dir === 'fwd' ? 'anim-out-left' : 'anim-out-right';
@@ -1225,22 +1125,56 @@
   function addMember() {
     if (memberCount >= MEMBER_THEMES.length) return;
     const m = MEMBER_THEMES[memberCount++];
+    let selectedHex = m.hex;
+    let selectedThemeName = m.theme.charAt(0).toUpperCase() + m.theme.slice(1);
     const container = document.getElementById('added-members');
     const div = document.createElement('div');
     div.className = 'person-row';
-    div.style.animation = 'fadeUp 280ms var(--ease-out) both';
+    div.style.cssText = 'animation: fadeUp 280ms var(--ease-out) both; flex-direction: column; align-items: stretch; gap: 10px;';
+
+    // Build mini theme dots (subset of THEMES)
+    const miniThemes = THEMES.slice(0, 10);
+    const dotsHtml = miniThemes.map(t =>
+      `<div class="tdot member-tdot${t.name === m.theme ? ' selected' : ''}"
+            style="background:${t.hex};color:${t.hex};width:18px;height:18px;"
+            title="${t.label}"
+            onclick="pickMemberTheme(this,'${t.hex}','${t.label}',${memberCount - 1})"></div>`
+    ).join('');
+
     div.innerHTML = `
-      <div class="avatar" style="background:${m.hex}">${m.name[0]}</div>
-      <div class="person-info">
-        <div class="person-name">${m.name}</div>
-        <div class="person-sub">Household member · ${m.theme.charAt(0).toUpperCase() + m.theme.slice(1)} theme</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="avatar member-avatar-${memberCount-1}" style="background:${m.hex}">${m.name[0]}</div>
+        <div class="person-info">
+          <div class="person-name">${m.name}</div>
+          <div class="person-sub member-sub-${memberCount-1}">Household member · ${selectedThemeName} theme</div>
+        </div>
+        <button class="remove-btn" onclick="removeMember(this)">×</button>
       </div>
-      <button class="remove-btn" onclick="removeMember(this)">×</button>
+      <div style="display:flex;align-items:center;gap:10px;padding-left:44px;">
+        <span style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Theme</span>
+        ${dotsHtml}
+      </div>
     `;
     container.appendChild(div);
     if (memberCount >= MEMBER_THEMES.length) {
       document.getElementById('add-btn').style.opacity = '0.4';
       document.getElementById('add-btn').style.pointerEvents = 'none';
+    }
+    // Show switch preview after first member added
+    if (memberCount === 1) {
+      document.getElementById('switch-preview').classList.add('visible');
+      document.getElementById('preview-dot-member').style.background = m.hex;
+      document.getElementById('preview-dot-member').textContent = m.name[0];
+    }
+  }
+
+  function pickMemberTheme(dot, hex, label, idx) {
+    dot.closest('[style*="flex-direction"]').querySelectorAll('.member-tdot').forEach(d => d.classList.remove('selected'));
+    dot.classList.add('selected');
+    document.querySelector(`.member-avatar-${idx}`).style.background = hex;
+    document.querySelector(`.member-sub-${idx}`).textContent = `Household member · ${label} theme`;
+    if (idx === 0) {
+      document.getElementById('preview-dot-member').style.background = hex;
     }
   }
 
@@ -1249,6 +1183,9 @@
     memberCount--;
     document.getElementById('add-btn').style.opacity = '';
     document.getElementById('add-btn').style.pointerEvents = '';
+    if (memberCount === 0) {
+      document.getElementById('switch-preview').classList.remove('visible');
+    }
   }
 
   // ─── Goal selection ───
@@ -1285,6 +1222,12 @@
     if (variant === 'fade') page.classList.add('variant-fade');
     if (variant === 'rise') page.classList.add('variant-rise');
   }
+
+  // Set default animation variant
+  document.getElementById('page').classList.add('variant-rise');
+
+  // Initialize Lucide icons
+  lucide.createIcons();
 
   // Trigger initial stagger animation
   setTimeout(() => document.getElementById('step-0').classList.add('animating'), 80);

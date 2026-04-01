@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { marked } from 'marked';
+import ContextualTip from './ContextualTip';
 
 interface AIAnalysisPanelProps {
   mealPlanId?: number;
@@ -87,6 +88,13 @@ const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
     <div className="border-t border-[var(--rule)] pt-4 mt-4">
       <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">
         AI Analysis
+      </div>
+
+      {/* AI optimization contextual tip */}
+      <div className="mb-3">
+        <ContextualTip tipId="ai-optimize" label="How AI optimization works">
+          Copy the prompt below into any MCP-connected AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve.
+        </ContextualTip>
       </div>
 
       {/* Analysis type buttons — API call */}

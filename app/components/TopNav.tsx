@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePersonContext } from "./PersonContext";
 import { createClient } from "@/lib/supabase/client";
+import { BrandName } from "./BrandName";
 
 const navItems = [
   { href: "/meal-plans", label: "Meal Plans" },
@@ -16,8 +17,8 @@ export default function TopNav() {
   const { persons, selectedPerson, setSelectedPersonId } = usePersonContext();
   const supabase = createClient();
 
-  // Hide nav on login and preview pages
-  if (pathname === "/login" || pathname === "/preview") return null;
+  // Hide nav on login, preview, and onboarding pages
+  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding") return null;
 
   const handleSignOut = async () => {
     localStorage.removeItem("selectedPersonId");
@@ -29,7 +30,7 @@ export default function TopNav() {
     <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0 relative z-10" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)' }} role="navigation" aria-label="Main navigation">
       {/* Brand */}
       <Link href="/" className="font-serif text-[16px] text-[var(--fg)] no-underline mr-6 tracking-[0.02em]">
-        Good Measure
+        <BrandName />
       </Link>
 
       {/* Nav links */}

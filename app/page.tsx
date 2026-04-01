@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { usePersonContext } from "./components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
+import GettingStartedCard from "./components/GettingStartedCard";
+import ContextualTip from "./components/ContextualTip";
 
 function getCurrentWeekStart(): Date {
   const d = new Date();
@@ -51,7 +54,15 @@ type MealLog = {
 const MEAL_TYPES = ["breakfast", "lunch", "snack", "dinner", "dessert"];
 
 export default function Home() {
-  const { selectedPersonId, selectedPerson } = usePersonContext();
+  const router = useRouter();
+  const { selectedPersonId, selectedPerson, persons, onboardingComplete } = usePersonContext();
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (!onboardingComplete) {
+      router.push("/onboarding");
+    }
+  }, [onboardingComplete, router]);
   const [weekPlanId, setWeekPlanId] = useState<number | null>(null);
   const [planChecked, setPlanChecked] = useState(false);
   const [todayData, setTodayData] = useState<DayData | null>(null);
@@ -149,6 +160,20 @@ export default function Home() {
             {now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </div>
         </div>
+
+        {/* Getting started checklist */}
+        <div className="px-9 pb-4">
+          <GettingStartedCard />
+        </div>
+
+        {/* Household switching tip — shown when 2+ members */}
+        {persons.length > 1 && (
+          <div className="px-9 pb-4">
+            <ContextualTip tipId="household-switch" label="Switching between people">
+              Use the colored dots in the top bar to switch views. Recipes and pantry are shared across the household — meal plans and nutrition goals are personal to each person.
+            </ContextualTip>
+          </div>
+        )}
 
         {/* Body states */}
         {!planChecked || planLoading ? (

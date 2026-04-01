@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState }
 import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
 import CreateIngredientModal from "./CreateIngredientModal";
 import { toast } from "@/lib/toast";
+import ContextualTip from "./ContextualTip";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
 type Ingredient = {
@@ -966,6 +967,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
     {guidedMode && (
       <div className="w-80 shrink-0 sticky top-4 rounded-[var(--radius,12px)] bg-[var(--bg-raised)] p-5 space-y-4" style={{ boxShadow: 'var(--shadow-md)' }}>
         <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Nutrition Guidance</div>
+
+        {/* Nutrition guidance contextual tip */}
+        <ContextualTip tipId="nutrition-guidance" label="What is Nutrition Guidance?">
+          When on, this panel shows your nutrition targets while you build or edit a recipe — so you can see how each ingredient affects your goals in real time. Pick who you&apos;re cooking for and which nutrients to focus on.
+        </ContextualTip>
 
         {/* Person picker */}
         {persons.length > 0 && (
