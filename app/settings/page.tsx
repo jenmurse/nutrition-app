@@ -697,7 +697,16 @@ const SettingsPage = () => {
                     )}
                     {role !== 'owner' && (
                       <button
-                        onClick={() => {/* remove handled by PersonRow */}}
+                        onClick={async () => {
+                          if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
+                          const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
+                          if (res.ok) {
+                            await refreshPersons();
+                          } else {
+                            const data = await res.json();
+                            toast.error(data.error || 'Failed to remove person');
+                          }
+                        }}
                         className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
                         aria-label={`Remove ${person.name}`}
                       >
