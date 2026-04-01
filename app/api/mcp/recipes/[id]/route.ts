@@ -25,6 +25,7 @@ export async function GET(
       prepTime: true,
       cookTime: true,
       instructions: true,
+      sourceApp: true,
       ingredients: {
         select: {
           quantity: true,
@@ -96,6 +97,7 @@ export async function GET(
     prepTime: recipe.prepTime,
     cookTime: recipe.cookTime,
     instructions: recipe.instructions,
+    sourceApp: recipe.sourceApp ?? null,
     ingredients,
     nutrition: { totals },
   });

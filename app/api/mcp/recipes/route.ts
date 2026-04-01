@@ -73,6 +73,7 @@ export async function POST(request: Request) {
     prepTime?: number;
     cookTime?: number;
     sourceApp?: string;
+    copyImageFromRecipeId?: number;
     ingredients?: { name: string; quantity: number; unit: string; notes?: string; section?: string }[];
   };
 
@@ -82,9 +83,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const { name, servings = 1, servingUnit = 'servings', instructions = '', tags, prepTime, cookTime, sourceApp, ingredients = [] } = body;
+  const { name, servings = 1, servingUnit = 'servings', instructions = '', tags, prepTime, cookTime, sourceApp, copyImageFromRecipeId, ingredients = [] } = body;
 
   if (!name?.trim()) return NextResponse.json({ error: 'Recipe name is required' }, { status: 400 });
+
+  // If copyImageFromRecipeId is provided, fetch the image from that recipe
+  let copiedImage: string | null = null;
+  if (copyImageFromRecipeId) {
+    const source = await prisma.recipe.findFirst({
+      where: { id: Number(copyImageFromRecipeId), householdId: auth.householdId },
+      select: { image: true },
+    });
+    copiedImage = source?.image ?? null;
+  }
 
   // Normalise tags: accept string or array
   const tagsStr = Array.isArray(tags) ? tags.join(',') : (tags ?? '');
@@ -100,6 +111,7 @@ export async function POST(request: Request) {
       prepTime: prepTime != null ? Number(prepTime) : null,
       cookTime: cookTime != null ? Number(cookTime) : null,
       sourceApp: sourceApp || null,
+      image: copiedImage,
       householdId: auth.householdId,
     },
   });
