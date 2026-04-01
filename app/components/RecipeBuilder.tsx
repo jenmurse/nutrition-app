@@ -64,6 +64,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [instructions, setInstructions] = useState("");
   const [prepTime, setPrepTime] = useState("");
   const [cookTime, setCookTime] = useState("");
+  const [sourceApp, setSourceApp] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [rows, setRows] = useState<Row[]>([{ id: "r1" }]);
@@ -121,6 +122,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
     setInstructions(initialRecipe.instructions || "");
     setPrepTime(initialRecipe.prepTime != null ? String(initialRecipe.prepTime) : "");
     setCookTime(initialRecipe.cookTime != null ? String(initialRecipe.cookTime) : "");
+    setSourceApp(initialRecipe.sourceApp ?? "");
     setImage(initialRecipe.image ?? "");
 
     const nextTags = Array.isArray(initialRecipe.tags)
@@ -392,7 +394,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       prepTime: prepTime !== "" ? Number(prepTime) : null,
       cookTime: cookTime !== "" ? Number(cookTime) : null,
       image: image.trim() || null,
-      sourceApp: initialRecipe?.sourceApp ?? null,
+      sourceApp: sourceApp.trim() || null,
       isComplete: initialRecipe?.isComplete ?? true,
       ingredients: validRows.map((r) => ({
         ingredientId: r.ingredientId,
@@ -612,6 +614,17 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             </div>
           </div>
         </div>
+      </div>
+
+      <div>
+        <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Source URL</label>
+        <input
+          type="url"
+          className="w-full border-0 border-b border-[var(--rule-faint)] bg-transparent px-0 py-[6px] text-[12px] rounded-none focus:outline-none focus:border-[var(--fg)]"
+          placeholder="https://..."
+          value={sourceApp}
+          onChange={(e) => setSourceApp(e.target.value)}
+        />
       </div>
 
       <div>
