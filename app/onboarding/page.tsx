@@ -329,6 +329,9 @@ export default function OnboardingPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ onboardingComplete: true }),
     });
+    // Refresh context so onboardingComplete is true before navigating,
+    // otherwise the home page redirect check fires with the stale false value.
+    await refreshPersons();
     router.push("/");
   };
 
