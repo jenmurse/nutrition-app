@@ -9,13 +9,6 @@ import { APP_TAGLINE } from "@/lib/brand";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
-type Member = {
-  id?: number;
-  name: string;
-  theme: string;
-  color: string;
-};
-
 type GoalPreset = {
   id: string;
   label: string;
@@ -68,7 +61,7 @@ const GOAL_PRESETS: GoalPreset[] = [
   {
     id: "custom",
     label: "Custom",
-    desc: "I'll set my own targets",
+    desc: "I\u2019ll set my own targets",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="4" x2="4" y1="21" y2="14" /><line x1="4" x2="4" y1="10" y2="3" />
@@ -130,10 +123,9 @@ export default function OnboardingPage() {
   const [selectedTheme, setSelectedTheme] = useState("sage");
 
   /* ── Step 2: Household ──────────────────────────────────────────────── */
-  const [members, setMembers] = useState<Member[]>([]);
-  const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberTheme, setNewMemberTheme] = useState("terracotta");
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState("");
+  const [inviteCopied, setInviteCopied] = useState(false);
+  const [inviteGenerating, setInviteGenerating] = useState(false);
 
   /* ── Step 3: Goals ──────────────────────────────────────────────────── */
   const [selectedGoal, setSelectedGoal] = useState("active");
@@ -202,38 +194,25 @@ export default function OnboardingPage() {
     await refreshPersons();
   };
 
-  /* ── Step 2: Add household member ───────────────────────────────────── */
-  const addMember = async () => {
-    if (!newMemberName.trim()) return;
-    const hex = themeHex(newMemberTheme);
-    const res = await fetch("/api/persons", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newMemberName.trim(), theme: newMemberTheme }),
-    });
-    if (res.ok) {
-      const person = await res.json();
-      // Update color after creation
-      await fetch(`/api/persons/${person.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ color: hex }),
-      });
-      setMembers((prev) => [...prev, { id: person.id, name: newMemberName.trim(), theme: newMemberTheme, color: hex }]);
-      setNewMemberName("");
-      setNewMemberTheme("terracotta");
-      setShowAddForm(false);
-      await refreshPersons();
+  /* ── Step 2: Generate invite link ────────────────────────────────────── */
+  const generateInvite = async () => {
+    setInviteGenerating(true);
+    try {
+      const res = await fetch("/api/households/invite", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setInviteUrl(data.url);
+      }
+    } finally {
+      setInviteGenerating(false);
     }
   };
 
-  const removeMember = async (index: number) => {
-    const member = members[index];
-    if (member.id) {
-      await fetch(`/api/persons/${member.id}`, { method: "DELETE" });
-      await refreshPersons();
-    }
-    setMembers((prev) => prev.filter((_, i) => i !== index));
+  const copyInvite = async () => {
+    if (!inviteUrl) return;
+    await navigator.clipboard.writeText(inviteUrl);
+    setInviteCopied(true);
+    setTimeout(() => setInviteCopied(false), 3000);
   };
 
   /* ── Step 3: Save nutrition goals ───────────────────────────────────── */
@@ -345,7 +324,7 @@ export default function OnboardingPage() {
       },
       {
         text: "Household",
-        note: members.length > 0 ? `${userName}${members.map((m) => ` + ${m.name}`).join("")}` : `Just ${userName}`,
+        note: inviteUrl ? "Invite link created \u2014 check Settings to manage" : `Just ${userName} for now`,
         done: true,
       },
       {
@@ -362,7 +341,7 @@ export default function OnboardingPage() {
         done: !!importResult,
       },
       {
-        text: "Create your first week's plan",
+        text: "Create your first week\u2019s plan",
         note: "From the dashboard",
         done: false,
       },
@@ -418,7 +397,7 @@ export default function OnboardingPage() {
         >
           {/* Card top: brand + progress + step counter */}
           <div className="flex items-center justify-between mb-8">
-            <span className="font-sans text-[15px] font-medium text-[var(--fg)] tracking-[0.02em]">
+            <span className="font-serif text-[16px] text-[var(--fg)] tracking-[0.02em]">
               <BrandName />
             </span>
             <div className="flex items-center gap-3">
@@ -436,9 +415,9 @@ export default function OnboardingPage() {
             {step === 0 && (
               <div>
                 <h1 className="text-[30px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
-                  Know what&apos;s in your week.
+                  Know what{"\u2019"}s in your week.
                 </h1>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-8" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Build recipes, plan your meals, and track your nutrition against your goals. Your dashboard updates in real time. Setup takes about two minutes.
                 </p>
                 <button
@@ -446,7 +425,7 @@ export default function OnboardingPage() {
                   className="w-full py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
                   aria-label="Begin setup"
                 >
-                  Let&apos;s get set up
+                  Let{"\u2019"}s get set up
                 </button>
                 <button
                   onClick={() => nav(5, "fwd")}
@@ -536,14 +515,14 @@ export default function OnboardingPage() {
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Household</div>
                 <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  Who&apos;s eating with you?
+                  Does anyone else cook with you?
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Recipes and pantry are shared. Meal plans and nutrition goals are personal — each person gets their own view.
+                  Recipes and pantry are shared across the household. Meal plans and nutrition goals are personal to each person.
                 </p>
 
                 {/* Current user card */}
-                <div className="flex items-center gap-3 px-4 py-3 rounded-[8px] mb-2" style={{ background: "var(--accent-light)" }}>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-[8px] mb-4" style={{ background: "var(--accent-light)" }}>
                   <div
                     className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0"
                     style={{ background: themeHex(selectedTheme) }}
@@ -553,142 +532,54 @@ export default function OnboardingPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-sans text-[13px] font-medium text-[var(--fg)]">{userName || "You"}</div>
-                    <div className="font-sans text-[11px] text-[var(--muted)]">That&apos;s you</div>
+                    <div className="font-sans text-[11px] text-[var(--muted)]">That{"\u2019"}s you</div>
                   </div>
                 </div>
 
-                {/* Added members */}
-                {members.map((m, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-[8px] mb-2 border border-[var(--rule-faint)]">
-                    <div
-                      className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0"
-                      style={{ background: m.color }}
-                      aria-hidden="true"
-                    >
-                      {m.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-sans text-[13px] font-medium text-[var(--fg)]">{m.name}</div>
-                      <div className="font-sans text-[11px] text-[var(--muted)]">
-                        Household member · {THEMES.find((t) => t.name === m.theme)?.label}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeMember(i)}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
-                      aria-label={`Remove ${m.name}`}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-
-                {/* Add member form */}
-                {showAddForm ? (
-                  <div className="border border-[var(--rule)] rounded-[8px] p-4 mb-4">
-                    <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] block mb-2">Name</label>
-                    <input
-                      type="text"
-                      value={newMemberName}
-                      onChange={(e) => setNewMemberName(e.target.value)}
-                      placeholder="Their name"
-                      className="w-full border border-[var(--rule)] rounded-[8px] px-[14px] py-[10px] font-sans text-[14px] text-[var(--fg)] bg-white focus:outline-none focus:border-[var(--accent)] transition-colors mb-3 placeholder:text-[var(--placeholder)]"
-                      aria-label="Member name"
-                      autoFocus
-                    />
-
-                    <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] block mb-2">Their color</label>
-                    <div className="flex flex-wrap gap-[10px] mb-4">
-                      {THEMES.map((t) => {
-                        const isActive = newMemberTheme === t.name;
-                        return (
-                          <button
-                            key={t.name}
-                            onClick={() => setNewMemberTheme(t.name)}
-                            className="w-[18px] h-[18px] rounded-full border-0 cursor-pointer p-0 transition-transform duration-[140ms] hover:scale-110"
-                            style={{
-                              background: t.hex,
-                              color: t.hex,
-                              outline: isActive ? "2px solid currentColor" : "none",
-                              outlineOffset: isActive ? "2px" : undefined,
-                            }}
-                            aria-label={t.label}
-                            aria-pressed={isActive}
-                          />
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex gap-2">
+                {/* Invite link section */}
+                {inviteUrl ? (
+                  <div
+                    className="border border-[var(--rule)] rounded-[8px] p-4 mb-4"
+                    style={{ animation: "fadeUp 300ms cubic-bezier(0.23, 1, 0.32, 1)" }}
+                  >
+                    <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Invite link</div>
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        readOnly
+                        value={inviteUrl}
+                        className="flex-1 border border-[var(--rule)] rounded-[6px] px-3 py-[8px] font-mono text-[11px] text-[var(--fg)] bg-[var(--bg-subtle)] focus:outline-none"
+                        aria-label="Invite link"
+                        onClick={(e) => (e.target as HTMLInputElement).select()}
+                      />
                       <button
-                        onClick={addMember}
-                        disabled={!newMemberName.trim()}
-                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40"
-                        aria-label="Add member"
+                        onClick={copyInvite}
+                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors shrink-0"
+                        aria-label="Copy invite link"
                       >
-                        Add
-                      </button>
-                      <button
-                        onClick={() => { setShowAddForm(false); setNewMemberName(""); }}
-                        className="px-4 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] bg-transparent border-0 cursor-pointer hover:text-[var(--fg)] transition-colors"
-                        aria-label="Cancel adding member"
-                      >
-                        Cancel
+                        {inviteCopied ? "Copied" : "Copy"}
                       </button>
                     </div>
+                    <p className="font-sans text-[11px] text-[var(--muted)] leading-[1.5]">
+                      Send this to the person you want to invite. The link expires in 7 days. You can always find it again in Settings.
+                    </p>
                   </div>
-                ) : members.length < 3 ? (
+                ) : (
                   <button
-                    onClick={() => setShowAddForm(true)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-[8px] border border-dashed border-[var(--rule)] bg-transparent cursor-pointer hover:border-[var(--rule-strong)] hover:bg-[rgba(0,0,0,0.01)] transition-colors mb-4"
-                    aria-label="Add a household member"
+                    onClick={generateInvite}
+                    disabled={inviteGenerating}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-[8px] border border-dashed border-[var(--rule)] bg-transparent cursor-pointer hover:border-[var(--rule-strong)] hover:bg-[rgba(0,0,0,0.01)] transition-colors mb-4 disabled:opacity-50"
+                    aria-label="Generate invite link for a household member"
                   >
                     <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center bg-[var(--bg-subtle)]">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                       </svg>
                     </div>
-                    <span className="font-sans text-[13px] text-[var(--muted)]">Add a household member</span>
+                    <span className="font-sans text-[13px] text-[var(--muted)]">
+                      {inviteGenerating ? "Generating link\u2026" : "Invite someone to your household"}
+                    </span>
                   </button>
-                ) : null}
-
-                {/* Switch preview — shows when members exist */}
-                {members.length > 0 && (
-                  <div
-                    className="border border-[var(--rule-faint)] rounded-[8px] p-4 mb-4"
-                    style={{ animation: "fadeUp 300ms cubic-bezier(0.23, 1, 0.32, 1)" }}
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="font-sans text-[12px] font-medium text-[var(--fg)] tracking-[0.02em] flex-1">
-                        <BrandName />
-                      </span>
-                      <div className="flex items-center gap-[8px]">
-                        <button
-                          className="w-[26px] h-[26px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white shrink-0 border-0 cursor-default"
-                          style={{
-                            background: themeHex(selectedTheme),
-                            boxShadow: `0 0 0 2px white, 0 0 0 4px ${themeHex(selectedTheme)}`,
-                          }}
-                          aria-label={userName}
-                        >
-                          {(userName || "?").charAt(0).toUpperCase()}
-                        </button>
-                        {members.map((m, i) => (
-                          <button
-                            key={i}
-                            className="w-[26px] h-[26px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white shrink-0 border-0 cursor-default opacity-40"
-                            style={{ background: m.color }}
-                            aria-label={m.name}
-                          >
-                            {m.name.charAt(0).toUpperCase()}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="font-sans text-[11px] text-[var(--muted)] leading-[1.5]">
-                      Switch between people using the dots in the top bar. Recipes and pantry are shared — meal plans and nutrition goals change per person.
-                    </p>
-                  </div>
                 )}
 
                 {/* Nav buttons */}
@@ -882,10 +773,10 @@ export default function OnboardingPage() {
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Setup Complete</div>
                 <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  You&apos;re set.
+                  You{"\u2019"}re set.
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Here&apos;s what we set up. You can change any of this in Settings.
+                  Here{"\u2019"}s what we set up. You can change any of this in Settings.
                 </p>
 
                 {/* Checklist */}
