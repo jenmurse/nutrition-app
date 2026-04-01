@@ -10,6 +10,7 @@ import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import { clientCache } from "@/lib/clientCache";
 import { marked } from "marked";
+import ContextualTip from "../components/ContextualTip";
 
 type RecipeSummary = {
   id: number;
@@ -901,6 +902,12 @@ function RecipesPage() {
                     const isEditing = editingNotes === 'optimization';
                     return (
                       <div>
+                        {/* AI optimization contextual tip */}
+                        <div className="mb-4">
+                          <ContextualTip tipId="ai-optimize" label="How AI optimization works">
+                            Copy the prompt below into any MCP-connected AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve.
+                          </ContextualTip>
+                        </div>
                         <div className="flex items-center justify-between mb-4">
                           <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Optimization Notes</span>
                           {!isEditing && notes && (
