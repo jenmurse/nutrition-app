@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
 import DailySummary from '@/app/components/DailySummary';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
-import AIAnalysisPanel from '@/app/components/AIAnalysisPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
 import { toast } from '@/lib/toast';
