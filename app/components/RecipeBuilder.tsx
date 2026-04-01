@@ -752,7 +752,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     onChange={(e) => {
                       setSearchText({ ...searchText, [row.id]: e.target.value });
                       setShowDropdown({ ...showDropdown, [row.id]: true });
-                      if (!e.target.value && row.ingredientId) {
+                      if (row.ingredientId) {
                         updateRow(row.id, { ingredientId: undefined });
                       }
                     }}

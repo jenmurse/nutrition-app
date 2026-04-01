@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
@@ -25,6 +25,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
   const [specifiedAmount, setSpecifiedAmount] = useState("100");
   const [specifiedUnit, setSpecifiedUnit] = useState("g");
   const [duplicateIngredient, setDuplicateIngredient] = useState<{ id: number; name: string } | null>(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetch("/api/nutrients")
@@ -221,7 +222,14 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
             className="border p-2 flex-1"
             placeholder="Ingredient name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setName(val);
+              if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+              if (val.trim().length >= 3) {
+                searchDebounceRef.current = setTimeout(() => handleSearch(val.trim()), 600);
+              }
+            }}
           />
 
           <div className="flex gap-2">
