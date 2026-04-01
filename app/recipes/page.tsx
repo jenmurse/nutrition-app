@@ -11,6 +11,7 @@ import { dialog } from "@/lib/dialog";
 import { clientCache } from "@/lib/clientCache";
 import { marked } from "marked";
 import ContextualTip from "../components/ContextualTip";
+import Link from "next/link";
 
 type RecipeSummary = {
   id: number;
@@ -127,6 +128,7 @@ function RecipesPage() {
   const [savingNotes, setSavingNotes] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<'optimization' | 'mealPrep' | null>(null);
   const [scale, setScale] = useState(1);
+  const [hasMcp, setHasMcp] = useState(true); // assume true until checked
 
   // Filters
   const searchQuery = searchParams?.get("search") || "";
@@ -432,6 +434,13 @@ function RecipesPage() {
   };
 
   useEffect(() => { loadRecipes(); }, []);
+
+  // Check MCP setup status for contextual tips
+  useEffect(() => {
+    fetch("/api/onboarding").then(r => r.json()).then(d => {
+      if (typeof d.hasMcp === "boolean") setHasMcp(d.hasMcp);
+    }).catch(() => {});
+  }, []);
 
   // Close sort dropdown on outside click
   useEffect(() => {
@@ -906,6 +915,13 @@ function RecipesPage() {
                         <div className="mb-4">
                           <ContextualTip tipId="ai-optimize" label="How AI optimization works">
                             Copy the prompt below into any MCP-connected AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve.
+                            {!hasMcp && (
+                              <div className="mt-2">
+                                <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors no-underline">
+                                  Set up MCP in Settings →
+                                </Link>
+                              </div>
+                            )}
                           </ContextualTip>
                         </div>
                         <div className="flex items-center justify-between mb-4">
@@ -967,6 +983,19 @@ function RecipesPage() {
                     const isEditing = editingNotes === 'mealPrep';
                     return (
                       <div>
+                        {/* Meal prep contextual tip */}
+                        <div className="mb-4">
+                          <ContextualTip tipId="ai-meal-prep" label="How meal prep analysis works">
+                            Copy the prompt below into any MCP-connected AI assistant. It analyzes your recipe for batch cooking, storage, and reheating — then saves the notes back to Good Measure automatically.
+                            {!hasMcp && (
+                              <div className="mt-2">
+                                <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors no-underline">
+                                  Set up MCP in Settings →
+                                </Link>
+                              </div>
+                            )}
+                          </ContextualTip>
+                        </div>
                         <div className="flex items-center justify-between mb-4">
                           <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Meal Prep Notes</span>
                           {!isEditing && notes && (

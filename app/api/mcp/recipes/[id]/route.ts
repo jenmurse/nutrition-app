@@ -19,6 +19,7 @@ export async function GET(
     select: {
       id: true,
       name: true,
+      image: true,
       servingSize: true,
       servingUnit: true,
       tags: true,
@@ -98,6 +99,7 @@ export async function GET(
     cookTime: recipe.cookTime,
     instructions: recipe.instructions,
     sourceApp: recipe.sourceApp ?? null,
+    image: recipe.image ?? null,
     ingredients,
     nutrition: { totals },
   });

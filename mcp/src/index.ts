@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.8',
+  version: '1.0.9',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -55,7 +55,9 @@ server.tool(
   `Save a recipe to the user's Good Measure recipe collection.
 Use this tool whenever the user asks to save, store, add, or remember a recipe.
 Good Measure will automatically match ingredients to existing entries or create new
-ingredient stubs that can be enriched with nutrition data later.`,
+ingredient stubs that can be enriched with nutrition data later.
+When saving an optimized version of an existing recipe, set copyImageFromRecipeId
+to the original recipe's id so the image carries over.`,
   {
     name: z.string().describe('Recipe name'),
     servings: z.number().positive().optional().default(1).describe('Number of servings this recipe makes'),
@@ -68,6 +70,7 @@ ingredient stubs that can be enriched with nutrition data later.`,
       .describe('Meal type tags'),
     prepTime: z.number().int().positive().optional().describe('Prep time in minutes'),
     cookTime: z.number().int().positive().optional().describe('Cook time in minutes'),
+    copyImageFromRecipeId: z.number().int().positive().optional().describe('Recipe id to copy the image from (use when saving an optimized version of an existing recipe)'),
     ingredients: z
       .array(
         z.object({
@@ -82,7 +85,7 @@ ingredient stubs that can be enriched with nutrition data later.`,
       .default([])
       .describe('List of ingredients'),
   },
-  async ({ name, servings, servingUnit, instructions, tags, prepTime, cookTime, ingredients }) => {
+  async ({ name, servings, servingUnit, instructions, tags, prepTime, cookTime, copyImageFromRecipeId, ingredients }) => {
     try {
       const recipe = await apiFetch('/api/mcp/recipes', {
         method: 'POST',
@@ -95,6 +98,7 @@ ingredient stubs that can be enriched with nutrition data later.`,
           prepTime,
           cookTime,
           sourceApp: 'MCP',
+          copyImageFromRecipeId,
           ingredients,
         }),
       }) as {
@@ -142,7 +146,8 @@ server.tool(
   'get_recipe',
   `Get the full details of a single recipe including all ingredients, quantities, and nutrition data.
 Use this before optimizing a recipe so you have the complete ingredient list and nutrition breakdown.
-Get the recipe id from list_recipes first.`,
+Get the recipe id from list_recipes first.
+When saving an optimized version of this recipe, pass copyImageFromRecipeId with this recipe's id to preserve the image.`,
   {
     id: z.number().int().positive().describe('Recipe id from list_recipes'),
   },
@@ -151,6 +156,7 @@ Get the recipe id from list_recipes first.`,
       const recipe = await apiFetch(`/api/mcp/recipes/${id}`) as {
         id: number;
         name: string;
+        image: string | null;
         servings: number;
         servingUnit: string;
         tags: string;
@@ -194,7 +200,8 @@ Get the recipe id from list_recipes first.`,
         content: [{
           type: 'text' as const,
           text: [
-            `Recipe: ${recipe.name}`,
+            `Recipe #${recipe.id}: ${recipe.name}`,
+            recipe.image ? `Image: yes (use copyImageFromRecipeId: ${recipe.id} when saving optimized version)` : 'Image: none',
             `Servings: ${recipe.servings} ${recipe.servingUnit}`,
             recipe.prepTime ? `Prep: ${recipe.prepTime}m` : '',
             recipe.cookTime ? `Cook: ${recipe.cookTime}m` : '',
