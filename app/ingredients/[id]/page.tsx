@@ -574,7 +574,7 @@ export default function IngredientDetailPage() {
         {/* ── Jump Nav (fixed left) ── */}
         <nav
           className="fixed z-50 flex flex-col"
-          style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
+          style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 40px)", width: 140 }}
           aria-label="Pantry form navigation"
         >
           {editSections.map((s, i) => (
@@ -607,8 +607,8 @@ export default function IngredientDetailPage() {
             {/* ── 01 Lookup ── */}
             <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
               <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
-                <span className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)]">Lookup</span>
+                <span className="font-sans text-[11px] font-bold text-[var(--rule)]">01</span>
+                <span className="font-sans text-[20px] font-bold tracking-[-0.01em]">Lookup</span>
                 <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
@@ -622,13 +622,13 @@ export default function IngredientDetailPage() {
                     aria-label="USDA search"
                   />
                 </div>
-                <button className="ed-btn" onClick={() => { if (usdaLookupQuery.trim()) handleUsdaSearch(usdaLookupQuery); }} aria-label="Lookup">Lookup</button>
+                <button className="ed-btn" onClick={() => { if (usdaLookupQuery.trim()) handleUsdaSearch(usdaLookupQuery); }} aria-label="USDA Lookup">USDA Lookup</button>
               </div>
 
               <ContextualTip tipId="usda-search" label="About the USDA database">
                 Search 300,000+ foods from the USDA national database. Results include
                 branded products and generic entries. Selecting one fills in the nutrition
-                values automatically -- you can still edit them.
+                values automatically. You can always edit them at any time.
               </ContextualTip>
 
               {usdaLookupLoading && (
@@ -657,8 +657,8 @@ export default function IngredientDetailPage() {
             {/* ── 02 Details ── */}
             <div id="pf-sec-details" style={{ marginTop: 64 }}>
               <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
-                <span className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)]">Details</span>
+                <span className="font-sans text-[11px] font-bold text-[var(--rule)]">02</span>
+                <span className="font-sans text-[20px] font-bold tracking-[-0.01em]">Details</span>
                 <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
@@ -717,8 +717,8 @@ export default function IngredientDetailPage() {
               <div className="flex items-center gap-[10px] py-[12px]" style={{ marginBottom: 20 }}>
                 <input type="checkbox" checked={editIsMealItem} onChange={(e) => setEditIsMealItem(e.target.checked)} className="cursor-pointer" id="pf-meal-check" aria-label="Meal item" />
                 <label htmlFor="pf-meal-check" className="cursor-pointer">
-                  <span className="text-[13px] text-[var(--fg)]">This is a meal item</span>
-                  <span className="text-[13px] text-[var(--muted)]"> — eaten directly (fish, apple), not an ingredient (flour, salt)</span>
+                  <span className="text-[13px] text-[var(--fg)]">This is a food item</span>
+                  <span className="text-[13px] text-[var(--muted)]"> — something eaten directly such as an apple or a granola bar, not an ingredient such as flour or salt</span>
                 </label>
               </div>
             </div>
@@ -726,8 +726,8 @@ export default function IngredientDetailPage() {
             {/* ── 03 Nutrition ── */}
             <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
               <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
-                <span className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)]">Nutrition</span>
+                <span className="font-sans text-[11px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-sans text-[20px] font-bold tracking-[-0.01em]">Nutrition</span>
                 <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
@@ -814,7 +814,7 @@ export default function IngredientDetailPage() {
       {/* ── Jump Nav (fixed left) ── */}
       <nav
         className="fixed z-50 flex flex-col"
-        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
+        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 40px)", width: 140 }}
         aria-label="Jump to section"
       >
         {JUMP_SECTIONS.map((s, i) => (
