@@ -330,7 +330,7 @@ export default function RecipeDetailPage() {
           <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight">Edit Recipe</h2>
           <div className="flex items-center gap-3">
             <button
-              className="bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border border-[var(--accent)] hover:opacity-90 cursor-pointer transition-opacity active:scale-[0.97]"
+              className="ed-btn primary"
               onClick={() => builderRef.current?.save()}
               aria-label="Save recipe"
             >Save</button>
@@ -431,15 +431,15 @@ export default function RecipeDetailPage() {
                 </div>
               )}
               {/* Actions */}
-              <div className="flex gap-2 mt-6">
+              <div className="flex gap-[10px] mt-6">
                 <button onClick={handleEditClick} disabled={editLoading}
-                  className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] active:scale-[0.97] disabled:opacity-50"
+                  className="ed-btn disabled:opacity-50"
                   aria-label="Edit recipe">{editLoading ? "Loading…" : "Edit"}</button>
                 <button onClick={handleDuplicate}
-                  className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] active:scale-[0.97]"
+                  className="ed-btn"
                   aria-label="Duplicate recipe">Duplicate</button>
                 <button onClick={handleDelete}
-                  className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--err)] py-[6px] px-[14px] cursor-pointer transition-colors hover:border-[var(--err)] hover:bg-[var(--err-l)] active:scale-[0.97]"
+                  className="ed-btn danger"
                   aria-label="Delete recipe">Delete</button>
               </div>
             </div>
@@ -493,7 +493,7 @@ export default function RecipeDetailPage() {
                         {showSection && (
                           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-4 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
                         )}
-                        <div className={`flex gap-[18px] py-3 items-baseline ${idx < recipe.ingredients.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
+                        <div className="flex gap-[18px] py-3 items-baseline border-b border-[var(--rule)]">
                           <span className="font-mono text-[10px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">
                             {parseFloat((ing.quantity * scale).toFixed(2))} {ing.unit}
                           </span>
@@ -599,10 +599,10 @@ export default function RecipeDetailPage() {
                     onChange={(e) => setNotesText(e.target.value)}
                     aria-label="Optimization notes editor"
                   />
-                  <div className="flex justify-end gap-2 mt-3">
-                    <button onClick={() => setEditingNotes(null)} className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-3" aria-label="Cancel editing notes">Cancel</button>
+                  <div className="flex justify-end gap-[10px] mt-3">
+                    <button onClick={() => setEditingNotes(null)} className="ed-btn ghost" aria-label="Cancel editing notes">Cancel</button>
                     <button onClick={() => handleSaveNotes("optimization")} disabled={savingNotes}
-                      className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[6px] px-4 cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-40"
+                      className="ed-btn primary disabled:opacity-40"
                       aria-label="Save optimization notes">
                       {savingNotes ? "Saving…" : "Save"}</button>
                   </div>
@@ -621,16 +621,15 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a [cuisine] chef with a background in nutrition who works with clients to create great-tasting, healthy meals. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for nutritional optimization — identify the top nutrient contributors, suggest substitutions to [meet your goals here], and preserve the original section headers in your analysis. Show me what you changed and why, including how each change could affect flavor, texture, and overall eating experience. Create a comparison table of the original vs. optimized nutrition numbers per serving.\n\nBefore suggesting any ingredient substitutions, use search_ingredients to check what's already in the database. Prefer substitutions that use existing ingredients — they'll have accurate nutrition data. You can still suggest new ingredients when no good match exists, but flag those clearly.\n\nI may give you feedback and request tweaks before we finalize. Do not save anything until I explicitly tell you I'm happy with the changes.\n\nFormatting rules — follow exactly:\n- Title the document with ## Optimization Notes (H2, not H1)\n- The nutrition comparison section must be headed ### Nutrition comparison (per serving)\n\nOnce approved, save the optimized recipe using save_recipe with section headers preserved. When saving, include the original recipe's sourceApp URL (if it has one) and pass copyImageFromRecipeId set to the original recipe's id so the image is copied automatically. Then save the analysis notes using save_optimization_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
-                    <p className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mb-2">Step 1 — Copy prompt</p>
-                    <div className="text-[11px] leading-[1.6] text-[var(--fg-2)] bg-[var(--bg-3)] border border-[var(--rule)] p-3 mb-3 whitespace-pre-wrap select-all">{prompt}</div>
-                    <div className="flex items-center gap-3 mb-6">
+                    <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
+                    <div className="text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-4 whitespace-pre-wrap select-all">{prompt}</div>
+                    <div className="flex items-center gap-[10px] mb-6">
                       <button
                         onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("optimization"); setTimeout(() => setCopiedPrompt(null), 2000); }}
-                        className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[6px] px-4 cursor-pointer hover:opacity-90 transition-opacity active:scale-[0.97]"
+                        className="ed-btn primary"
                         aria-label="Copy optimization prompt">{copiedPrompt === "optimization" ? "Copied ✓" : "Copy prompt →"}</button>
                       <button onClick={() => { setEditingNotes("optimization"); setNotesText(""); }}
-                        className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-2"
+                        className="ed-btn ghost"
                         aria-label="Paste notes manually">Paste notes instead</button>
                     </div>
                   </div>
@@ -664,10 +663,10 @@ export default function RecipeDetailPage() {
                     onChange={(e) => setNotesText(e.target.value)}
                     aria-label="Meal prep notes editor"
                   />
-                  <div className="flex justify-end gap-2 mt-3">
-                    <button onClick={() => setEditingNotes(null)} className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-3" aria-label="Cancel editing notes">Cancel</button>
+                  <div className="flex justify-end gap-[10px] mt-3">
+                    <button onClick={() => setEditingNotes(null)} className="ed-btn ghost" aria-label="Cancel editing notes">Cancel</button>
                     <button onClick={() => handleSaveNotes("mealPrep")} disabled={savingNotes}
-                      className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[6px] px-4 cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-40"
+                      className="ed-btn primary disabled:opacity-40"
                       aria-label="Save meal prep notes">
                       {savingNotes ? "Saving…" : "Save"}</button>
                   </div>
@@ -686,16 +685,15 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for meal prep with the following sections:\n\n1. Component-by-component breakdown — how each part stores, reheats, and holds up over time. Note anything that degrades in texture or flavor.\n2. Reheating instructions — for each component, give specific method, temperature, and time.\n3. Batch cooking recommendation — if it makes sense, suggest an optimal batch size with a scaled quantities table.\n4. This week vs. freeze for later — what to eat within the next 3–5 days and what to freeze now for future weeks.\n5. Day-by-day plan — a practical daily guide for the week assuming a Sunday prep session (e.g. Monday: reheat rice + cook salmon fresh, etc.).\n6. Storage summary table — fridge and freezer life per component.\n\nFormatting rules — follow exactly:\n- Title the document with ## Meal Prep Notes (H2, not H1)\n- Use ### (H3) for each section heading — no section numbers\n- Section headings must match exactly: Component-by-component breakdown / Reheating instructions / Batch cooking recommendation / This week vs. freeze for later / Day-by-day plan / Storage summary\n- Scaling line format: **Scaled quantities — [total] servings ([N]×)** (e.g. "8 servings (2×)") — no trailing colon, always use × symbol\n- Batch table columns: Base ([n] srv) and Batch ([N]×)\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
-                    <p className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mb-2">Step 1 — Copy prompt</p>
-                    <div className="text-[11px] leading-[1.6] text-[var(--fg-2)] bg-[var(--bg-3)] border border-[var(--rule)] p-3 mb-3 whitespace-pre-wrap select-all">{prompt}</div>
-                    <div className="flex items-center gap-3 mb-6">
+                    <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
+                    <div className="text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-4 whitespace-pre-wrap select-all">{prompt}</div>
+                    <div className="flex items-center gap-[10px] mb-6">
                       <button
                         onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("mealPrep"); setTimeout(() => setCopiedPrompt(null), 2000); }}
-                        className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[6px] px-4 cursor-pointer hover:opacity-90 transition-opacity active:scale-[0.97]"
+                        className="ed-btn primary"
                         aria-label="Copy meal prep prompt">{copiedPrompt === "mealPrep" ? "Copied ✓" : "Copy prompt →"}</button>
                       <button onClick={() => { setEditingNotes("mealPrep"); setNotesText(""); }}
-                        className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-[6px] px-2"
+                        className="ed-btn ghost"
                         aria-label="Paste notes manually">Paste notes instead</button>
                     </div>
                   </div>
