@@ -532,11 +532,11 @@ input[type="number"]:focus {
 }
 .notif-bar-dismiss:hover { opacity: 1; }
 
-.notif-success { background: var(--ok-l);   color: var(--ok);   border-bottom-color: rgba(90,155,106,0.18); }
+.notif-success { background: color-mix(in srgb, var(--ok) 14%, var(--bg));   color: var(--ok);    border-bottom-color: rgba(90,155,106,0.25); }
 .notif-success .notif-bar-dot { background: var(--ok); }
-.notif-error   { background: var(--err-l);  color: var(--err);  border-bottom-color: rgba(176,32,32,0.14); }
+.notif-error   { background: color-mix(in srgb, var(--err) 12%, var(--bg));  color: var(--err);   border-bottom-color: rgba(176,32,32,0.20); }
 .notif-error   .notif-bar-dot { background: var(--err); }
-.notif-warn    { background: var(--warn-l); color: var(--warn); border-bottom-color: rgba(192,112,24,0.14); }
+.notif-warn    { background: color-mix(in srgb, var(--warn) 12%, var(--bg)); color: var(--warn);  border-bottom-color: rgba(192,112,24,0.20); }
 .notif-warn    .notif-bar-dot { background: var(--warn); }
 .notif-info    { background: var(--bg-2);   color: var(--muted); border-bottom-color: var(--rule); }
 .notif-info    .notif-bar-dot { background: var(--muted); }
