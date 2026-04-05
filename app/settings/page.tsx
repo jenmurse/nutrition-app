@@ -550,6 +550,22 @@ const SettingsPage = () => {
                       {role && (
                         <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px]">{role}</span>
                       )}
+                      {role !== 'owner' && (
+                        <button
+                          onClick={async () => {
+                            if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
+                            const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
+                            if (res.ok) { await refreshPersons(); } else {
+                              const data = await res.json();
+                              toast.error(data.error || 'Failed to remove person');
+                            }
+                          }}
+                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
+                          aria-label={`Remove ${person.name}`}
+                        >
+                          Remove
+                        </button>
+                      )}
                       <div className="flex items-center gap-[6px] ml-auto" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
                         {THEMES.map((t) => {
                           const isActive = (person.theme || 'sage') === t.name;
@@ -577,22 +593,6 @@ const SettingsPage = () => {
                           );
                         })}
                       </div>
-                      {role !== 'owner' && (
-                        <button
-                          onClick={async () => {
-                            if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
-                            const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-                            if (res.ok) { await refreshPersons(); } else {
-                              const data = await res.json();
-                              toast.error(data.error || 'Failed to remove person');
-                            }
-                          }}
-                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
-                          aria-label={`Remove ${person.name}`}
-                        >
-                          Remove
-                        </button>
-                      )}
                     </div>
                   );
                 })}
@@ -601,7 +601,7 @@ const SettingsPage = () => {
                   {!addingPerson ? (
                     <button
                       onClick={() => setAddingPerson(true)}
-                      className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors"
+                      className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors"
                       aria-label="Add a household member"
                     >+ Add Member</button>
                   ) : (
@@ -620,7 +620,7 @@ const SettingsPage = () => {
                     </div>
                   )}
                   <button onClick={handleInvite} disabled={inviting}
-                    className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                    className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
                     aria-label="Generate invite link">
                     {inviting ? 'Generating…' : '+ Invite Link'}
                   </button>
@@ -638,14 +638,14 @@ const SettingsPage = () => {
                       onChange={(e) => { if (!editingHouseholdName) { setHouseholdNameDraft(e.target.value); setEditingHouseholdName(true); } else { setHouseholdNameDraft(e.target.value); } }}
                       onFocus={() => { if (!editingHouseholdName) { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); } }}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHouseholdName(); if (e.key === 'Escape') setEditingHouseholdName(false); }}
-                      className="w-full bg-[var(--bg-2)] border border-[var(--rule)] px-3 py-[8px] font-sans text-[13px] text-[var(--fg)] focus:outline-none focus:border-[var(--accent)]"
+                      className="w-full bg-transparent border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--accent)]"
                       aria-label="Household name"
                     />
                   </div>
                   <button
                     onClick={handleSaveHouseholdName}
                     disabled={householdNameSaving}
-                    className="px-4 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
+                    className="px-[16px] py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
                   >{householdNameSaving ? 'Saving…' : 'Save'}</button>
                 </div>
               </div>
@@ -706,7 +706,7 @@ const SettingsPage = () => {
 
             <div>
               {/* Person tabs */}
-              <div className="flex items-center gap-2 mb-5" role="tablist" aria-label="Select person for goals">
+              <div className="flex items-center gap-[8px] mb-[16px]" role="tablist" aria-label="Select person for goals">
                 {persons.map((person) => {
                   const isActive = goalsPersonId === person.id;
                   return (
@@ -715,10 +715,10 @@ const SettingsPage = () => {
                       onClick={() => setGoalsPersonId(person.id)}
                       role="tab"
                       aria-selected={isActive}
-                      className="px-4 py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
+                      className="px-[16px] py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
                       style={{
-                        background: isActive ? (person.color || 'var(--accent)') : 'var(--bg-subtle)',
-                        color: isActive ? '#fff' : 'var(--muted)',
+                        background: isActive ? 'var(--accent)' : 'var(--bg-2)',
+                        color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
                       }}
                       aria-label={`Goals for ${person.name}`}
                     >
@@ -733,7 +733,7 @@ const SettingsPage = () => {
                 <div className="text-[11px] text-[var(--muted)] py-4">Loading goals...</div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-0">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 56px' }}>
                     {GOALS_LAYOUT.map((column, colIdx) => (
                       <div key={colIdx}>
                         {column.map(({ nutrientName }) => {
@@ -742,36 +742,35 @@ const SettingsPage = () => {
                           return (
                             <div
                               key={nutrient.id}
-                              className="flex items-center gap-3 py-[9px] border-b border-[var(--rule-faint)]"
+                              className="flex items-center gap-[12px]"
+                              style={{ padding: '8px 0' }}
                             >
-                              <span className="text-[13px] text-[var(--fg)] min-w-[90px]" style={{ flex: 1 }}>
+                              <span className="text-[13px] text-[var(--fg)]" style={{ flex: 1 }}>
                                 {nutrient.displayName}
                               </span>
-                              <div className="flex items-baseline gap-[4px]">
-                                <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">Min</span>
-                                <input
-                                  type="number"
-                                  placeholder="—"
-                                  value={goals[nutrient.id]?.lowGoal ?? ''}
-                                  onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
-                                  step="0.1"
-                                  className="w-[56px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
-                                  aria-label={`${nutrient.displayName} minimum`}
-                                />
-                              </div>
-                              <div className="flex items-baseline gap-[4px]">
-                                <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">Max</span>
-                                <input
-                                  type="number"
-                                  placeholder="—"
-                                  value={goals[nutrient.id]?.highGoal ?? ''}
-                                  onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
-                                  step="0.1"
-                                  className="w-[56px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
-                                  aria-label={`${nutrient.displayName} maximum`}
-                                />
-                              </div>
-                              <span className="font-mono text-[8px] text-[var(--muted)]">{nutrient.unit}</span>
+                              <span className="font-mono text-[8px] text-[var(--muted)]" style={{ width: 24 }}>Min</span>
+                              <input
+                                type="number"
+                                placeholder="—"
+                                value={goals[nutrient.id]?.lowGoal ?? ''}
+                                onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
+                                step="0.1"
+                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                style={{ width: 56, fontSize: 13 }}
+                                aria-label={`${nutrient.displayName} minimum`}
+                              />
+                              <span className="font-mono text-[8px] text-[var(--muted)]" style={{ width: 24 }}>Max</span>
+                              <input
+                                type="number"
+                                placeholder="—"
+                                value={goals[nutrient.id]?.highGoal ?? ''}
+                                onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
+                                step="0.1"
+                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                style={{ width: 56, fontSize: 13 }}
+                                aria-label={`${nutrient.displayName} maximum`}
+                              />
+                              <span className="font-mono text-[9px] text-[var(--muted)]" style={{ width: 28 }}>{nutrient.unit}</span>
                             </div>
                           );
                         })}
@@ -791,7 +790,7 @@ const SettingsPage = () => {
                     <button
                       onClick={handleSaveGoals}
                       disabled={goalsSaving}
-                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
+                      className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
                       aria-label="Save goals"
                     >
                       {goalsSaving ? 'Saving...' : 'Save Goals'}
@@ -877,7 +876,7 @@ const SettingsPage = () => {
                 <button
                   onClick={handleGenerateMcpToken}
                   disabled={mcpTokenLoading}
-                  className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                  className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
                   aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
                 >
                   {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate Token'}
@@ -886,7 +885,7 @@ const SettingsPage = () => {
                   <button
                     onClick={handleRevokeMcpToken}
                     disabled={revokingMcpToken}
-                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--err)] border border-[var(--err)] bg-transparent cursor-pointer hover:bg-[var(--err-l)] transition-colors disabled:opacity-40"
+                    className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--err)] border border-[var(--err)] bg-transparent cursor-pointer hover:bg-[var(--err-l)] transition-colors disabled:opacity-40"
                     aria-label="Revoke MCP token"
                   >
                     {revokingMcpToken ? 'Revoking…' : 'Revoke'}
@@ -958,10 +957,14 @@ const SettingsPage = () => {
                       setConfigBlockCopied(true);
                       setTimeout(() => setConfigBlockCopied(false), 2000);
                     }}
-                    className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                    className="text-[var(--accent)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
                     aria-label="Copy configuration block"
                   >
-                    {configBlockCopied ? 'Copied ✓' : 'Copy'}
+                    {configBlockCopied ? (
+                      <span className="font-mono text-[8px] uppercase tracking-[0.1em]">Copied ✓</span>
+                    ) : (
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
+                    )}
                   </button>
                   <pre className="font-mono text-[10px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`{
   "mcpServers": {
@@ -1015,7 +1018,7 @@ const SettingsPage = () => {
               <button
                 onClick={handleExport}
                 disabled={exportLoading}
-                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                className="px-[16px] py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
                 aria-label="Export household data"
               >
                 {exportLoading ? 'Exporting…' : 'Export Data'}

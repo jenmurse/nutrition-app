@@ -7,9 +7,9 @@ import { createClient } from "@/lib/supabase/client";
 import { BrandName } from "./BrandName";
 
 const navItems = [
-  { href: "/meal-plans", label: "Meal Plans" },
   { href: "/recipes", label: "Recipes" },
   { href: "/ingredients", label: "Pantry" },
+  { href: "/meal-plans", label: "Planner" },
 ];
 
 export default function TopNav() {
