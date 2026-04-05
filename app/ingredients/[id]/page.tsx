@@ -197,7 +197,7 @@ export default function IngredientDetailPage() {
         vals[nv.nutrient.id] = nv.value;
       });
       setEditValues(vals);
-      setUsdaLookupQuery(ingredient.name);
+      setUsdaLookupQuery("");
     }
   }, [ingredient]);
 
@@ -258,7 +258,7 @@ export default function IngredientDetailPage() {
       vals[nv.nutrient.id] = nv.value;
     });
     setEditValues(vals);
-    setUsdaLookupQuery(ingredient.name);
+    setUsdaLookupQuery("");
     setUsdaLookupResults([]);
     setUsdaSelectedFood(null);
   };
@@ -298,31 +298,38 @@ export default function IngredientDetailPage() {
   };
 
   /* ── USDA Search ── */
+  const executeUsdaSearch = async (query: string) => {
+    if (!query.trim()) { setUsdaLookupResults([]); setUsdaLookupLoading(false); return; }
+    setUsdaLookupLoading(true);
+    try {
+      const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUsdaLookupResults(data.foods || []);
+      } else {
+        setUsdaLookupResults([]);
+      }
+    } catch (err) {
+      console.error("USDA search error:", err);
+      setUsdaLookupResults([]);
+    } finally {
+      setUsdaLookupLoading(false);
+    }
+  };
+
+  // Debounced search (for typing)
   const handleUsdaSearch = (query: string) => {
     setUsdaLookupQuery(query);
     if (usdaSearchTimerRef.current) clearTimeout(usdaSearchTimerRef.current);
-    if (!query.trim()) {
-      setUsdaLookupResults([]);
-      setUsdaLookupLoading(false);
-      return;
-    }
+    if (!query.trim()) { setUsdaLookupResults([]); setUsdaLookupLoading(false); return; }
     setUsdaLookupLoading(true);
-    usdaSearchTimerRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setUsdaLookupResults(data.foods || []);
-        } else {
-          setUsdaLookupResults([]);
-        }
-      } catch (err) {
-        console.error("USDA search error:", err);
-        setUsdaLookupResults([]);
-      } finally {
-        setUsdaLookupLoading(false);
-      }
-    }, 500);
+    usdaSearchTimerRef.current = setTimeout(() => executeUsdaSearch(query), 500);
+  };
+
+  // Immediate search (for button click)
+  const handleUsdaLookupClick = () => {
+    if (usdaSearchTimerRef.current) clearTimeout(usdaSearchTimerRef.current);
+    if (usdaLookupQuery.trim()) executeUsdaSearch(usdaLookupQuery);
   };
 
   const applyUsdaFoodDataToForm = async (food: any) => {
@@ -574,7 +581,7 @@ export default function IngredientDetailPage() {
                   aria-label="USDA search"
                 />
               </div>
-              <button className="ed-btn" onClick={() => { if (usdaLookupQuery.trim()) handleUsdaSearch(usdaLookupQuery); }} aria-label="USDA Lookup">USDA Lookup</button>
+              <button className="ed-btn" onClick={handleUsdaLookupClick} aria-label="USDA Lookup">USDA Lookup</button>
             </div>
 
             <ContextualTip tipId="usda-search" label="About the USDA database">

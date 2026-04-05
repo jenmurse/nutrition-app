@@ -139,21 +139,30 @@ export default function CreateIngredientPage() {
   };
 
   /* ── USDA Search ── */
+  const executeUsdaSearch = async (query: string) => {
+    if (!query.trim()) { setUsdaResults([]); setUsdaLoading(false); return; }
+    setUsdaLoading(true);
+    try {
+      const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUsdaResults(data.foods || []);
+      } else { setUsdaResults([]); }
+    } catch { setUsdaResults([]); }
+    finally { setUsdaLoading(false); }
+  };
+
   const handleUsdaSearch = (query: string) => {
     setUsdaQuery(query);
     if (usdaTimerRef.current) clearTimeout(usdaTimerRef.current);
     if (!query.trim()) { setUsdaResults([]); setUsdaLoading(false); return; }
     setUsdaLoading(true);
-    usdaTimerRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setUsdaResults(data.foods || []);
-        } else { setUsdaResults([]); }
-      } catch { setUsdaResults([]); }
-      finally { setUsdaLoading(false); }
-    }, 500);
+    usdaTimerRef.current = setTimeout(() => executeUsdaSearch(query), 500);
+  };
+
+  const handleUsdaLookupClick = () => {
+    if (usdaTimerRef.current) clearTimeout(usdaTimerRef.current);
+    if (usdaQuery.trim()) executeUsdaSearch(usdaQuery);
   };
 
   const handleUsdaSelect = async (food: any) => {
@@ -313,7 +322,7 @@ export default function CreateIngredientPage() {
                   aria-label="USDA search"
                 />
               </div>
-              <button className="ed-btn" onClick={() => { if (usdaQuery.trim()) handleUsdaSearch(usdaQuery); }} aria-label="USDA Lookup">USDA Lookup</button>
+              <button className="ed-btn" onClick={handleUsdaLookupClick} aria-label="USDA Lookup">USDA Lookup</button>
             </div>
 
             <ContextualTip tipId="usda-search" label="About the USDA database">
