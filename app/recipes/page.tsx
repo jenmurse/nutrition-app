@@ -169,7 +169,7 @@ function RecipesPage() {
   };
 
   return (
-    <div className="h-full flex flex-col animate-fade-in">
+    <div className="h-full flex flex-col">
       {/* ── Filter Bar ── */}
       <div
         className="flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"

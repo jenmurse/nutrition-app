@@ -601,7 +601,7 @@ const SettingsPage = () => {
                   {!addingPerson ? (
                     <button
                       onClick={() => setAddingPerson(true)}
-                      className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors"
+                      className="ed-btn"
                       aria-label="Add a household member"
                     >+ Add Member</button>
                   ) : (
@@ -612,15 +612,15 @@ const SettingsPage = () => {
                         className="bg-[var(--bg-2)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
                         aria-label="New member name" />
                       <button onClick={handleAddPerson} disabled={!newName.trim() || addSaving}
-                        className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors">
+                        className="ed-btn primary disabled:opacity-40">
                         {addSaving ? 'Adding…' : 'Add'}
                       </button>
                       <button onClick={() => { setAddingPerson(false); setNewName(''); }}
-                        className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors">Cancel</button>
+                        className="ed-btn ghost">Cancel</button>
                     </div>
                   )}
                   <button onClick={handleInvite} disabled={inviting}
-                    className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                    className="ed-btn disabled:opacity-40"
                     aria-label="Generate invite link">
                     {inviting ? 'Generating…' : '+ Invite Link'}
                   </button>
@@ -629,7 +629,7 @@ const SettingsPage = () => {
 
               {/* Right column: Household name */}
               <div>
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Household Name</div>
+                <div className="ed-label mb-[8px]">Household Name</div>
                 <div className="flex gap-[8px] items-end">
                   <div className="flex-1">
                     <input
@@ -645,7 +645,7 @@ const SettingsPage = () => {
                   <button
                     onClick={handleSaveHouseholdName}
                     disabled={householdNameSaving}
-                    className="px-[16px] py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
+                    className="ed-btn primary disabled:opacity-40"
                   >{householdNameSaving ? 'Saving…' : 'Save'}</button>
                 </div>
               </div>
@@ -654,12 +654,12 @@ const SettingsPage = () => {
             {/* ── Invite Links table ── */}
             {invites.length > 0 && (
               <div className="mt-[32px]">
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[10px]">Invite Links</div>
+                <div className="ed-label mb-[10px]">Invite Links</div>
                 <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
                     <tr>
                       {['URL', 'Status', 'Created', 'Redeemed', ''].map((h, i) => (
-                        <th key={i} className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] text-left font-normal py-[8px] border-b border-[var(--rule)]"
+                        <th key={i} className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]"
                           style={i === 4 ? { width: 80 } : i >= 1 && i <= 3 ? { width: 80 } : undefined}>{h}</th>
                       ))}
                     </tr>
@@ -683,10 +683,9 @@ const SettingsPage = () => {
                           </td>
                           <td className="text-right py-[8px]">
                             {status === 'active' ? (
-                              <button className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--err)] border border-[var(--err)] bg-transparent cursor-pointer hover:bg-[var(--err-l)] transition-colors"
-                                aria-label="Revoke invite">Revoke</button>
+                              <button className="ed-btn danger" aria-label="Revoke invite">Revoke</button>
                             ) : (
-                              <button className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent opacity-[0.35] cursor-default" disabled aria-disabled="true">Revoke</button>
+                              <button className="ed-btn ghost opacity-[0.35] cursor-default" disabled aria-disabled="true">Revoke</button>
                             )}
                           </td>
                         </tr>
@@ -782,7 +781,7 @@ const SettingsPage = () => {
                   <div className="flex items-center justify-end gap-4 mt-5">
                     <button
                       onClick={handleResetGoals}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                      className="ed-btn ghost"
                       aria-label="Reset goals to defaults"
                     >
                       Reset to defaults
@@ -790,7 +789,7 @@ const SettingsPage = () => {
                     <button
                       onClick={handleSaveGoals}
                       disabled={goalsSaving}
-                      className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
+                      className="ed-btn primary disabled:opacity-40"
                       aria-label="Save goals"
                     >
                       {goalsSaving ? 'Saving...' : 'Save Goals'}
@@ -809,7 +808,7 @@ const SettingsPage = () => {
 
             <div>
               {/* Home Stats */}
-              <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Home Stats</div>
+              <div className="ed-label mb-[8px]">Home Stats</div>
               <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
                 Choose which stats appear on your home screen. Up to 3 recommended.
               </p>
@@ -835,7 +834,7 @@ const SettingsPage = () => {
 
               {/* Greeting */}
               <div className="mt-[40px]">
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Greeting</div>
+                <div className="ed-label mb-[8px]">Greeting</div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
                   Show a personalized greeting on your home screen.
                 </p>
@@ -876,7 +875,7 @@ const SettingsPage = () => {
                 <button
                   onClick={handleGenerateMcpToken}
                   disabled={mcpTokenLoading}
-                  className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                  className="ed-btn disabled:opacity-40"
                   aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
                 >
                   {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate Token'}
@@ -885,7 +884,7 @@ const SettingsPage = () => {
                   <button
                     onClick={handleRevokeMcpToken}
                     disabled={revokingMcpToken}
-                    className="px-[16px] py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--err)] border border-[var(--err)] bg-transparent cursor-pointer hover:bg-[var(--err-l)] transition-colors disabled:opacity-40"
+                    className="ed-btn danger disabled:opacity-40"
                     aria-label="Revoke MCP token"
                   >
                     {revokingMcpToken ? 'Revoking…' : 'Revoke'}
@@ -914,7 +913,7 @@ const SettingsPage = () => {
 
               {/* ── Configuration ── */}
               <div className="mt-[40px]">
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Configuration</div>
+                <div className="ed-label mb-[8px]">Configuration</div>
                 <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
                   Add the {APP_NAME} MCP server to your assistant&apos;s configuration file.
                 </p>
@@ -923,8 +922,8 @@ const SettingsPage = () => {
                 <table className="w-full mb-[12px]" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
                     <tr>
-                      <th className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] text-left font-normal py-[8px] border-b border-[var(--rule)]">Assistant</th>
-                      <th className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] text-left font-normal py-[8px] border-b border-[var(--rule)]">Config File Path</th>
+                      <th className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]">Assistant</th>
+                      <th className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]">Config File Path</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -988,7 +987,7 @@ const SettingsPage = () => {
 
               {/* ── Test Connection ── */}
               <div className="mt-[40px]">
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Test Connection</div>
+                <div className="ed-label mb-[8px]">Test Connection</div>
                 <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
                   Restart your assistant after saving the config file, then try:
                 </p>
@@ -996,7 +995,7 @@ const SettingsPage = () => {
                   &ldquo;List my recipes from {APP_NAME} and tell me which ones are highest in protein.&rdquo;
                 </div>
 
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mt-[20px] mb-[8px]">Advanced — Full Optimization Workflow</div>
+                <div className="ed-label mt-[20px] mb-[8px]">Advanced — Full Optimization Workflow</div>
                 <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
                   &ldquo;You are a chef with a background in nutrition. Get my recipe for Almond Croissant Bars. Optimize it to reduce fat and sugar while preserving flavor. Show a comparison table, then save the optimized version.&rdquo;
                 </div>
@@ -1011,21 +1010,21 @@ const SettingsPage = () => {
             <SectionHeader number="05" title="Data" />
 
             <div>
-              <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Export</div>
+              <div className="ed-label mb-[8px]">Export</div>
               <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
                 Download a complete backup of your household data — recipes, ingredients, meal plans, and goals — as a single JSON file.
               </p>
               <button
                 onClick={handleExport}
                 disabled={exportLoading}
-                className="px-[16px] py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                className="ed-btn disabled:opacity-40"
                 aria-label="Export household data"
               >
                 {exportLoading ? 'Exporting…' : 'Export Data'}
               </button>
 
               <div className="mt-[40px]">
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Import</div>
+                <div className="ed-label mb-[8px]">Import</div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
                   Restore from a backup file. <strong className="text-[var(--fg)]">This will overwrite all existing household data.</strong>
                 </p>
