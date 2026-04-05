@@ -153,7 +153,7 @@ function IngredientsPage() {
 
   useEffect(() => { loadIngredients(); }, []);
 
-  // Extract macros for list view
+  // Extract macros for list view — all nutrients
   const getCardMacros = (ingredient: Ingredient) => {
     if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
     const find = (keys: string[]) => {
@@ -167,7 +167,11 @@ function IngredientsPage() {
       kcal: find(["energy", "calorie"]),
       protein: find(["protein"]),
       carbs: find(["carbohydrate", "carb"]),
-      fat: find(["fat"]),
+      fat: find(["total fat", "fat"]),
+      satFat: find(["saturated"]),
+      sodium: find(["sodium"]),
+      sugar: find(["sugar"]),
+      fiber: find(["fiber"]),
     };
   };
 
@@ -429,13 +433,17 @@ function IngredientsPage() {
                     <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{ingredient.name}</span>
                     <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                   </div>
-                  {/* Macros */}
+                  {/* Macros — all nutrients, right-aligned */}
                   {macros && (
-                    <div className="flex gap-[16px] items-baseline shrink-0">
+                    <div className="flex gap-[16px] items-baseline shrink-0 ml-auto">
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.satFat}g</strong> <span className="text-[var(--muted)]">sat</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sodium}mg</strong> <span className="text-[var(--muted)]">sod</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sugar}g</strong> <span className="text-[var(--muted)]">sugar</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fiber}g</strong> <span className="text-[var(--muted)]">fiber</span></span>
                     </div>
                   )}
                   {/* Hover action buttons */}

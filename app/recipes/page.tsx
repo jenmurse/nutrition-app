@@ -68,8 +68,6 @@ function RecipesPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Search expand
-  const [searchOpen, setSearchOpen] = useState(!!searchQuery);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
@@ -165,6 +163,10 @@ function RecipesPage() {
       protein: find(["protein"]),
       carbs: find(["carbohydrate", "carb"]),
       fat: find(["fat"], true),
+      saturatedFat: find(["saturated"]),
+      sodium: find(["sodium"]),
+      sugar: find(["sugar"]),
+      fiber: find(["fiber"]),
     };
   };
 
@@ -268,24 +270,17 @@ function RecipesPage() {
             >List</button>
           </div>
 
-          {/* Search */}
+          {/* Search — always visible */}
           <input
             ref={searchRef}
             type="text"
-            placeholder="Search…"
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search recipes"
             className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
-            style={{ width: searchOpen ? 180 : 0, opacity: searchOpen ? 1 : 0, pointerEvents: searchOpen ? "auto" : "none" }}
+            style={{ width: 180 }}
           />
-          {!searchOpen && (
-            <button
-              onClick={() => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }}
-              className="font-mono text-[9px] tracking-[0.06em] bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[3px] px-[9px] cursor-pointer transition-colors whitespace-nowrap hover:text-[var(--fg)] hover:border-[var(--accent)] active:scale-[0.97]"
-              aria-label="Open search"
-            >Search</button>
-          )}
 
           {/* + New */}
           <button
@@ -322,7 +317,7 @@ function RecipesPage() {
           </div>
         ) : viewMode === "grid" ? (
           /* ── Card Grid ── */
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
+          <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
             <div className="grid gap-6 grid-cols-2 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
               {sortedRecipes.map((recipe, idx) => {
                 const macros = getCardMacros(recipe);
@@ -337,7 +332,7 @@ function RecipesPage() {
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
                     aria-label={recipe.name}
                     className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group transition-transform duration-200"
-                    style={{ "--card-i": idx } as React.CSSProperties}
+                    style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                   >
                     {/* Image */}
                     <div className="overflow-hidden" style={{ aspectRatio: "4/3" }}>
@@ -350,9 +345,9 @@ function RecipesPage() {
                           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                         />
                       ) : (
-                        <div className="w-full h-full bg-[var(--bg-3)] flex items-end p-4">
-                          <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.18]">
-                            {recipe.name}
+                        <div className="w-full h-full bg-[var(--bg-3)] flex items-end overflow-hidden" style={{ padding: '14px 16px 16px' }}>
+                          <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.18] block overflow-hidden">
+                            {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
                           </span>
                         </div>
                       )}
@@ -367,12 +362,10 @@ function RecipesPage() {
                       </div>
                       {macros && (
                         <div className="flex gap-2 items-baseline flex-wrap">
-                          <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{macros.kcal} kcal</span>
-                          <span className="flex gap-2">
-                            <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {macros.protein}g</span>
-                            <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {macros.carbs}g</span>
-                            <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {macros.fat}g</span>
-                          </span>
+                          <span className="font-mono text-[10px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                          <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
+                          <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                          <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
                         </div>
                       )}
                       {recipe.isComplete === false && (
@@ -388,8 +381,8 @@ function RecipesPage() {
           </div>
         ) : (
           /* ── List View ── */
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
-            {sortedRecipes.map((recipe) => {
+          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+            {sortedRecipes.map((recipe, idx) => {
               const macros = getCardMacros(recipe);
               const category = recipe.tags?.split(",")[0]?.trim();
               return (
@@ -401,11 +394,11 @@ function RecipesPage() {
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={recipe.name}
-                  className="flex items-center gap-5 py-4 border-b border-[var(--rule)] cursor-pointer group transition-colors hover:bg-[var(--bg-2)]"
-                  style={{ padding: "16px 12px" }}
+                  className="flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group transition-colors hover:bg-[var(--bg-2)]"
+                  style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both` }}
                 >
                   {/* Thumbnail */}
-                  <div className="w-[80px] h-[60px] overflow-hidden shrink-0 bg-[var(--bg-3)]">
+                  <div className="w-[48px] h-[48px] overflow-hidden shrink-0 bg-[var(--bg-3)]" style={{ aspectRatio: '1' }}>
                     {recipe.image ? (
                       <img src={recipe.image} alt="" className="w-full h-full object-cover block" />
                     ) : (
@@ -418,14 +411,14 @@ function RecipesPage() {
                     {category && (
                       <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-1">{category}</div>
                     )}
-                    <div className="font-serif text-[15px] font-semibold tracking-[-0.01em] leading-[1.2] truncate">{recipe.name}</div>
+                    <div className="font-serif text-[13px] font-semibold tracking-[-0.01em] leading-[1.2] truncate">{recipe.name}</div>
                   </div>
                   {macros && (
-                    <div className="flex gap-3 items-baseline shrink-0">
-                      <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{macros.kcal} kcal</span>
-                      <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {macros.protein}g</span>
-                      <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {macros.carbs}g</span>
-                      <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {macros.fat}g</span>
+                    <div className="flex gap-[16px] items-baseline shrink-0 ml-auto">
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
                     </div>
                   )}
                   {recipe.isComplete === false && (

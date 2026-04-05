@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { APP_NAME } from '@/lib/brand';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { toast } from '@/lib/toast';
@@ -166,33 +166,57 @@ const SettingsPage = () => {
       .catch(() => {});
   }, []);
 
-  // Intersection observer for active section tracking
+  // Scroll-based active section tracking (handles near-bottom edge case)
+  const jumpNavLocked = useRef(false);
+  const jumpNavTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     const scrollEl = document.getElementById('settings-scroll-container');
     if (!scrollEl) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+
+    const update = () => {
+      if (jumpNavLocked.current) return;
+      const paneRect = scrollEl.getBoundingClientRect();
+      const nearBottom = scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < 60;
+      const sectionIds = JUMP_SECTIONS.map((s) => s.id);
+      let activeId = sectionIds[0];
+
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - paneRect.top <= 100) activeId = id;
+      }
+
+      // Near bottom: pick last section in upper 60% of viewport
+      if (nearBottom) {
+        for (const id of sectionIds) {
+          const el = document.getElementById(id);
+          if (!el) continue;
+          if (el.getBoundingClientRect().top - paneRect.top < scrollEl.clientHeight * 0.6) activeId = id;
         }
-      },
-      { root: scrollEl, rootMargin: '-20% 0px -60% 0px', threshold: 0 }
-    );
-    JUMP_SECTIONS.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+      }
+
+      setActiveSection(activeId);
+    };
+
+    scrollEl.addEventListener('scroll', update, { passive: true });
+    setTimeout(update, 50);
+    return () => scrollEl.removeEventListener('scroll', update);
   }, []);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     const container = document.getElementById('settings-scroll-container');
     if (el && container) {
-      const top = el.offsetTop - container.offsetTop - 32;
-      container.scrollTo({ top, behavior: 'smooth' });
+      const paneRect = container.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const offset = container.scrollTop + (elRect.top - paneRect.top) - 64;
+      container.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+      // Immediately set active, lock scroll tracking for 800ms
+      setActiveSection(id);
+      jumpNavLocked.current = true;
+      if (jumpNavTimeout.current) clearTimeout(jumpNavTimeout.current);
+      jumpNavTimeout.current = setTimeout(() => { jumpNavLocked.current = false; }, 800);
     }
   };
 
@@ -532,9 +556,31 @@ const SettingsPage = () => {
           <div id="set-sec-people" style={{ paddingTop: 48, paddingBottom: 56 }}>
             <SectionHeader number="01" title="People" />
 
-            {/* 2-column grid: members left, household name right */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
-              <div>
+            {/* Household name — full width above members */}
+            <div className="mb-[32px]">
+              <div className="ed-label mb-[8px]">Household Name</div>
+              <div className="flex gap-[8px] items-end" style={{ maxWidth: 400 }}>
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={editingHouseholdName ? householdNameDraft : householdName}
+                    onChange={(e) => { if (!editingHouseholdName) { setHouseholdNameDraft(e.target.value); setEditingHouseholdName(true); } else { setHouseholdNameDraft(e.target.value); } }}
+                    onFocus={() => { if (!editingHouseholdName) { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); } }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHouseholdName(); if (e.key === 'Escape') setEditingHouseholdName(false); }}
+                    className="w-full bg-transparent border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--accent)]"
+                    aria-label="Household name"
+                  />
+                </div>
+                <button
+                  onClick={handleSaveHouseholdName}
+                  disabled={householdNameSaving}
+                  className="ed-btn primary disabled:opacity-40"
+                >{householdNameSaving ? 'Saving…' : 'Save'}</button>
+              </div>
+            </div>
+
+            {/* Member list — full width */}
+            <div>
                 {/* Member rows */}
                 {persons.map((person) => {
                   const role = memberRoles[person.id];
@@ -627,30 +673,6 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              {/* Right column: Household name */}
-              <div>
-                <div className="ed-label mb-[8px]">Household Name</div>
-                <div className="flex gap-[8px] items-end">
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={editingHouseholdName ? householdNameDraft : householdName}
-                      onChange={(e) => { if (!editingHouseholdName) { setHouseholdNameDraft(e.target.value); setEditingHouseholdName(true); } else { setHouseholdNameDraft(e.target.value); } }}
-                      onFocus={() => { if (!editingHouseholdName) { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); } }}
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHouseholdName(); if (e.key === 'Escape') setEditingHouseholdName(false); }}
-                      className="w-full bg-transparent border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--accent)]"
-                      aria-label="Household name"
-                    />
-                  </div>
-                  <button
-                    onClick={handleSaveHouseholdName}
-                    disabled={householdNameSaving}
-                    className="ed-btn primary disabled:opacity-40"
-                  >{householdNameSaving ? 'Saving…' : 'Save'}</button>
-                </div>
-              </div>
-            </div>
-
             {/* ── Invite Links table ── */}
             {invites.length > 0 && (
               <div className="mt-[32px]">
@@ -683,9 +705,26 @@ const SettingsPage = () => {
                           </td>
                           <td className="text-right py-[8px]">
                             {status === 'active' ? (
-                              <button className="ed-btn danger" aria-label="Revoke invite">Revoke</button>
+                              <button
+                                className="ed-btn danger"
+                                aria-label="Revoke invite"
+                                onClick={async () => {
+                                  if (!await dialog.confirm('Revoke this invite link?', { confirmLabel: 'Revoke', danger: true })) return;
+                                  const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
+                                  if (res.ok) await loadInvites();
+                                  else toast.error('Failed to revoke invite');
+                                }}
+                              >Revoke</button>
                             ) : (
-                              <button className="ed-btn ghost opacity-[0.35] cursor-default" disabled aria-disabled="true">Revoke</button>
+                              <button
+                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto"
+                                aria-label="Remove expired invite"
+                                onClick={async () => {
+                                  const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
+                                  if (res.ok) await loadInvites();
+                                  else toast.error('Failed to remove invite');
+                                }}
+                              >×</button>
                             )}
                           </td>
                         </tr>
