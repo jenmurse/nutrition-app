@@ -20,7 +20,7 @@ export default function ConfirmModal() {
       onKeyDown={(e) => { if (e.key === "Escape") dialog._resolve(false); }}
     >
       <div
-        className="bg-[var(--bg-raised)] shadow-[var(--shadow-lg)] max-w-sm w-full mx-4 p-6 animate-fade-in"
+        className="bg-[var(--bg)] border border-[var(--rule)] max-w-sm w-full mx-4 p-6 animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         <p

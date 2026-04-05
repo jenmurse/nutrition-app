@@ -170,7 +170,7 @@ export default function SmartSuggestionsPanel({
                       <div className="space-y-1">
                         <p className="font-sans text-[11px] text-[var(--muted)]">Swap to reduce {alert.displayName.toLowerCase()}:</p>
                         {contributorsWithSwaps.map((c) => (
-                          <div key={c.mealLogId} className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                          <div key={c.mealLogId} className="bg-[var(--bg-raised)] overflow-hidden" style={{ border: '1px solid var(--rule)' }}>
                             <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)]">
                               Instead of {c.name}:
                             </div>
@@ -190,7 +190,7 @@ export default function SmartSuggestionsPanel({
                                   </div>
                                   {onSwapMeal && (
                                     <button
-                                      className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
+                                      className="text-[9px] font-mono uppercase tracking-[0.1em] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
                                       onClick={() => onSwapMeal(c.mealLogId, swap.recipeId)}
                                       aria-label={`Swap ${c.name} for ${swap.name}`}
                                     >
@@ -234,7 +234,7 @@ export default function SmartSuggestionsPanel({
                       <div className="space-y-1">
                         <p className="font-sans text-[11px] text-[var(--muted)]">Swap to increase {deficit.displayName.toLowerCase()}:</p>
                         {swapOptions.map((opt) => (
-                          <div key={opt.mealLogId} className="rounded-[8px] bg-[var(--bg-raised)] overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                          <div key={opt.mealLogId} className="bg-[var(--bg-raised)] overflow-hidden" style={{ border: '1px solid var(--rule)' }}>
                             <div className="px-3 py-[4px] font-sans text-[11px] text-[var(--muted)] bg-[var(--bg-subtle)]">
                               Instead of {opt.mealName}:
                             </div>
@@ -248,7 +248,7 @@ export default function SmartSuggestionsPanel({
                                 </div>
                                 {onSwapMeal && (
                                   <button
-                                    className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
+                                    className="text-[9px] font-mono uppercase tracking-[0.1em] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[2px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0 ml-2"
                                     onClick={() => onSwapMeal(opt.mealLogId, swap.recipeId)}
                                     aria-label={`Swap ${opt.mealName} for ${swap.name}`}
                                   >
@@ -279,8 +279,8 @@ export default function SmartSuggestionsPanel({
                 {analysis.fillGapCandidates.map((c) => (
                   <div
                     key={c.id}
-                    className="rounded-[8px] bg-[var(--bg-raised)] px-3 py-2 flex items-center justify-between gap-3"
-                    style={{ boxShadow: 'var(--shadow-sm)' }}
+                    className="bg-[var(--bg-raised)] px-3 py-2 flex items-center justify-between gap-3"
+                    style={{ border: '1px solid var(--rule)' }}
                   >
                     <div className="min-w-0">
                       <div className="font-sans text-[11px] font-medium truncate text-[var(--fg)]">{c.name}</div>
@@ -288,7 +288,7 @@ export default function SmartSuggestionsPanel({
                     </div>
                     {onAddMeal && (
                       <button
-                        className="text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[3px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+                        className="text-[9px] font-mono uppercase tracking-[0.1em] bg-[var(--bg-raised)] text-[var(--muted)] border border-[var(--rule)] px-2 py-[3px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
                         onClick={() => onAddMeal(c.id)}
                         aria-label={`Add ${c.name}`}
                       >

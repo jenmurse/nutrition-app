@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { BrandName } from "@/app/components/BrandName";
-import { APP_TAGLINE } from "@/lib/brand";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -86,21 +85,18 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
-      <div className="w-full max-w-[360px] px-6">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-5">
+      <div className="w-full max-w-[360px]">
         {/* Brand */}
-        <div className="mb-10">
-          <h1 className="font-serif text-[32px] text-[var(--fg)] leading-none tracking-[-0.01em]">
+        <div className="mb-10 text-center">
+          <h1 className="font-serif text-[18px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em]">
             <BrandName />
           </h1>
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--muted)] mt-2">
-            {APP_TAGLINE}
-          </p>
         </div>
 
         {/* Invite banner */}
         {inviteHousehold && (
-          <div className="mb-6 p-3 bg-[var(--accent-light)] rounded-[8px]" style={{ boxShadow: 'var(--shadow-sm)' }} role="status" aria-live="polite">
+          <div className="mb-6 p-3 bg-[var(--accent-l)]" role="status" aria-live="polite">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--fg)]">
               You{"\u2019"}ve been invited to join <strong>{inviteHousehold}</strong>
             </p>
@@ -108,14 +104,14 @@ function LoginPage() {
         )}
 
         {/* Mode tabs */}
-        <div className="flex gap-[2px] mb-6">
+        <div className="flex border border-[var(--rule)] mb-8">
           <button
             type="button"
             onClick={() => setMode("signin")}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-[6px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
+            className={`flex-1 font-mono text-[9px] uppercase tracking-[0.1em] py-2 text-center transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
               mode === "signin"
-                ? "bg-[var(--accent-light)] text-[var(--fg)]"
-                : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
+                ? "bg-[var(--bg-2)] text-[var(--fg)]"
+                : "bg-transparent text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             aria-label="Switch to sign in"
           >
@@ -124,10 +120,10 @@ function LoginPage() {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className={`font-mono text-[9px] uppercase tracking-[0.1em] px-4 py-[6px] rounded-[6px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
+            className={`flex-1 font-mono text-[9px] uppercase tracking-[0.1em] py-2 text-center transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
               mode === "signup"
-                ? "bg-[var(--accent-light)] text-[var(--fg)]"
-                : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
+                ? "bg-[var(--bg-2)] text-[var(--fg)]"
+                : "bg-transparent text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             aria-label="Switch to create account"
           >
@@ -136,11 +132,11 @@ function LoginPage() {
         </div>
 
         {/* Email/password form */}
-        <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-4">
+        <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-5">
           {mode === "signup" && (
-            <div className="space-y-1">
-              <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="firstName">
-                First name
+            <div>
+              <label className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="firstName">
+                Name
               </label>
               <input
                 id="firstName"
@@ -149,13 +145,13 @@ function LoginPage() {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 autoComplete="given-name"
-                className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors rounded-[var(--radius-sm,4px)]"
-                placeholder=""
+                className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+                placeholder="Your name"
               />
             </div>
           )}
-          <div className="space-y-1">
-            <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="email">
+          <div>
+            <label className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="email">
               Email
             </label>
             <input
@@ -165,13 +161,13 @@ function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors rounded-[var(--radius-sm,4px)]"
-              placeholder=""
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+              placeholder="you@example.com"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="password">
+          <div>
+            <label className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="password">
               Password
             </label>
             <input
@@ -181,8 +177,8 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              className="w-full border border-[var(--rule)] bg-[var(--bg)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors rounded-[var(--radius-sm,4px)]"
-              placeholder=""
+              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
+              placeholder={mode === "signin" ? "••••••••" : "Choose a password"}
             />
           </div>
 
@@ -195,7 +191,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--accent)] text-[var(--accent-text)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 rounded-[var(--radius-sm,4px)]"
+            className="w-full bg-[var(--accent)] text-[var(--accent-fg)] border border-[var(--accent)] py-[8px] px-5 font-mono text-[9px] uppercase tracking-[0.1em] hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-150 disabled:opacity-50"
           >
             {loading
               ? mode === "signin" ? "Signing in…" : "Creating account…"
@@ -204,9 +200,9 @@ function LoginPage() {
         </form>
 
         {/* Divider */}
-        <div className="flex items-center gap-3 my-5">
+        <div className="flex items-center gap-3 my-6">
           <div className="flex-1 border-t border-[var(--rule)]" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">or</span>
+          <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">or</span>
           <div className="flex-1 border-t border-[var(--rule)]" />
         </div>
 
@@ -214,7 +210,7 @@ function LoginPage() {
         <button
           type="button"
           onClick={handleGoogle}
-          className="w-full border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] py-[10px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
+          className="w-full border border-[var(--rule)] bg-transparent py-[10px] px-[10px] font-sans text-[13px] text-[var(--fg)] hover:border-[var(--fg)] active:scale-[0.97] transition-[border-color,transform] duration-150 cursor-pointer text-center"
         >
           Continue with Google
         </button>

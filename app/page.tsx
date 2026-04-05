@@ -22,9 +22,9 @@ function parseUTCDate(dateStr: string | Date): Date {
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "Good morning,";
+  if (hour < 17) return "Good afternoon,";
+  return "Good evening,";
 }
 
 type DayNutrient = {
@@ -47,11 +47,23 @@ type MealLog = {
   id: number;
   date: string;
   mealType: string;
-  recipe?: { name: string } | null;
+  servings?: number;
+  quantity?: number;
+  recipe?: { id: number; name: string } | null;
   ingredient?: { name: string } | null;
 };
 
-const MEAL_TYPES = ["breakfast", "lunch", "snack", "dinner", "dessert"];
+type PlanDetail = {
+  id: number;
+  weekStartDate: string;
+  mealLogs: MealLog[];
+  weeklySummary?: { dailyNutritions: DayData[] };
+  recipeCaloriesMap?: Record<number, number>;
+  mealLogCaloriesMap?: Record<number, number>;
+};
+
+const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Home() {
   const router = useRouter();
@@ -68,6 +80,10 @@ export default function Home() {
   const [todayData, setTodayData] = useState<DayData | null>(null);
   const [todayMeals, setTodayMeals] = useState<MealLog[]>([]);
   const [planLoading, setPlanLoading] = useState(false);
+  const [weekDays, setWeekDays] = useState<DayData[]>([]);
+  const [allMealLogs, setAllMealLogs] = useState<MealLog[]>([]);
+  const [recipeCaloriesMap, setRecipeCaloriesMap] = useState<Record<number, number>>({});
+  const [mealLogCaloriesMap, setMealLogCaloriesMap] = useState<Record<number, number>>({});
 
   const now = new Date();
   const today = new Date(now);
@@ -80,6 +96,10 @@ export default function Home() {
     setTodayMeals([]);
     setWeekPlanId(null);
     setPlanLoading(true);
+    setWeekDays([]);
+    setAllMealLogs([]);
+    setRecipeCaloriesMap({});
+    setMealLogCaloriesMap({});
 
     const weekStart = getCurrentWeekStart();
     const planListKey = `/api/meal-plans?personId=${selectedPersonId}`;
@@ -93,10 +113,15 @@ export default function Home() {
       if (!plan) { setPlanLoading(false); return; }
 
       setWeekPlanId(plan.id);
-      // Always fetch fresh so mealLogs reflect the current state, then update the cache for the meal plan page
-      const detail = await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
+      const detail: PlanDetail | null = await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
       if (!detail?.weeklySummary?.dailyNutritions) { setPlanLoading(false); return; }
       clientCache.set(`/api/meal-plans/${plan.id}`, detail);
+
+      // Store week-level data
+      setWeekDays(detail.weeklySummary.dailyNutritions);
+      setAllMealLogs(detail.mealLogs ?? []);
+      setRecipeCaloriesMap(detail.recipeCaloriesMap ?? {});
+      setMealLogCaloriesMap(detail.mealLogCaloriesMap ?? {});
 
       const dayEntry = detail.weeklySummary.dailyNutritions.find(
         (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
@@ -104,7 +129,7 @@ export default function Home() {
       if (dayEntry) setTodayData(dayEntry);
 
       if (detail.mealLogs) {
-        const todayLogs = (detail.mealLogs as MealLog[]).filter(
+        const todayLogs = detail.mealLogs.filter(
           (m) => parseUTCDate(m.date).toDateString() === today.toDateString()
         );
         setTodayMeals(todayLogs);
@@ -125,8 +150,6 @@ export default function Home() {
   }, [selectedPersonId]);
 
   const allNutrients = todayData?.totalNutrients ?? [];
-  // Count all nutrients with any goal set (min, max, or range).
-  // On track = satisfies whichever bounds exist.
   const nutrientsWithGoals = allNutrients.filter((n) => n.lowGoal != null || n.highGoal != null);
   const onTrackCount = nutrientsWithGoals.filter((n) => {
     const aboveMin = n.lowGoal == null || n.value >= n.lowGoal;
@@ -135,35 +158,46 @@ export default function Home() {
   }).length;
   const totalGoals = nutrientsWithGoals.length;
 
-  const circum = 2 * Math.PI * 35;
-  const ringPct = totalGoals > 0 ? onTrackCount / totalGoals : 0;
-  const dashOffset = circum * (1 - ringPct);
-
-  const overLimit = allNutrients.filter((n) => n.highGoal != null && n.value > n.highGoal);
-  const belowMin = allNutrients.filter((n) => n.lowGoal != null && n.value < n.lowGoal);
-
   const formatVal = (v: number) => {
     const r = Math.round(v);
     return r >= 1000 ? r.toLocaleString() : String(r);
   };
 
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+  // Key stats for the strip
+  const calories = allNutrients.find(n => n.displayName?.toLowerCase().includes("calor"));
+  const protein = allNutrients.find(n => n.displayName?.toLowerCase() === "protein");
+  const calGoal = calories?.highGoal ?? calories?.lowGoal ?? 0;
+  const calPct = calGoal > 0 ? Math.min(Math.round(((calories?.value ?? 0) / calGoal) * 100), 100) : 0;
+  const proGoal = protein?.highGoal ?? protein?.lowGoal ?? 0;
+  const proPct = proGoal > 0 ? Math.min(Math.round(((protein?.value ?? 0) / proGoal) * 100), 100) : 0;
+  const mealsPlanned = todayMeals.length;
+
+  /** Get kcal for a meal log */
+  const getMealKcal = (m: MealLog): number | null => {
+    if (m.recipe?.id && recipeCaloriesMap[m.recipe.id] != null) {
+      return Math.round(recipeCaloriesMap[m.recipe.id] * (m.servings ?? 1));
+    }
+    if (mealLogCaloriesMap[m.id] != null) {
+      return mealLogCaloriesMap[m.id];
+    }
+    return null;
+  };
+
+  /** Group today's meals by type for the editorial numbered columns */
+  const mealColumns = MEAL_TYPES.map((type, i) => {
+    const logs = todayMeals.filter((m) => m.mealType.toLowerCase() === type);
+    return { type, number: String(i + 1).padStart(2, "0"), logs };
+  }).filter((col) => col.logs.length > 0);
+
   return (
-    <div className="flex flex-col h-full animate-fade-in">
+    <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
 
-        {/* Greeting — full width, no bottom border */}
-        <div className="px-9 pt-7 pb-[22px]">
-          <div className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.15]">
-            {getGreeting()}{selectedPerson ? `, ${selectedPerson.name}.` : "."}
-          </div>
-          <div className="font-mono text-[9px] tracking-[0.1em] text-[var(--muted)] uppercase mt-[5px]">
-            {now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-          </div>
-        </div>
-
-        {/* Household switching tip — shown when 2+ members */}
+        {/* Household switching tip */}
         {persons.length > 1 && (
-          <div className="px-9 pb-4">
+          <div style={{ padding: `20px var(--pad) 0` }}>
             <ContextualTip tipId="household-switch" label="Switching between people">
               Use the colored dots in the top bar to switch views. Recipes and pantry are shared across the household — meal plans and nutrition goals are personal to each person.
             </ContextualTip>
@@ -171,135 +205,214 @@ export default function Home() {
         )}
 
         {/* Getting started checklist */}
-        <div className="px-9 pb-4">
+        <div style={{ padding: `16px var(--pad) 0` }}>
           <GettingStartedCard />
+        </div>
+
+        {/* Hero — full-viewport greeting */}
+        <div style={{ minHeight: `calc(100vh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 48px` }}>
+            <div>
+              {/* Eyebrow: date */}
+              <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '2px' }}>
+                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
+                <span className="inline-block h-[1px] w-[32px] bg-[var(--rule)]" />
+              </div>
+              {/* Greeting */}
+              <div className="font-serif" style={{ fontSize: '11.5vw', fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
+                <span className="block">{getGreeting()}</span>
+                <span className="block text-[var(--accent)]">{selectedPerson?.name ?? ""}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats strip */}
+          {(planChecked && !planLoading && weekPlanId) ? (
+            <div className="border-t border-[var(--rule)]">
+              <div className="flex" style={{ padding: `0 var(--pad)` }}>
+                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)' }}>
+                  <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Calories today</div>
+                  <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                    {formatVal(calories?.value ?? 0)}
+                  </div>
+                  <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(calGoal)}</div>
+                  <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${calPct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                  </div>
+                </div>
+                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)' }}>
+                  <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Protein</div>
+                  <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                    {formatVal(protein?.value ?? 0)}<span className="text-[14px] text-[var(--muted)] ml-1">g</span>
+                  </div>
+                  <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(proGoal)}g</div>
+                  <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${proPct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                  </div>
+                </div>
+                <div className="flex-1 py-[18px]">
+                  <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Meals today</div>
+                  <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                    {mealsPlanned}
+                  </div>
+                  <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">logged</div>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Body states */}
         {!planChecked || planLoading ? (
-          <div className="px-9 space-y-[10px]">
-            <div className="h-8 w-28 bg-[var(--bg-subtle)] animate-loading" />
-            <div className="h-[3px] w-64 bg-[var(--bg-subtle)] animate-loading" />
+          <div style={{ padding: `40px var(--pad)` }} className="space-y-3">
+            <div className="h-8 w-28 bg-[var(--bg-3)] animate-loading" />
+            <div className="h-[3px] w-64 bg-[var(--bg-3)] animate-loading" />
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-[28px] w-full max-w-[480px] bg-[var(--bg-subtle)] animate-loading" />
+              <div key={i} className="h-[28px] w-full max-w-[480px] bg-[var(--bg-3)] animate-loading" />
             ))}
           </div>
 
         ) : !weekPlanId ? (
-          <div className="px-9 pb-10">
-            <div className="text-[16px] font-medium text-[var(--fg)] mb-2">No meal plan for this week.</div>
-            <p className="font-sans text-[13px] text-[var(--muted)] mb-6 whitespace-nowrap">
+          <div style={{ padding: `56px var(--pad) 72px` }}>
+            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">This week</div>
+            <div className="font-serif text-[clamp(18px,1.8vw,26px)] font-semibold tracking-[-0.02em] text-[var(--fg)] mb-3">No meal plan yet.</div>
+            <p className="text-[13px] text-[var(--fg-2)] mb-8 max-w-[400px]">
               Create a plan to start logging meals and tracking your daily nutrition.
             </p>
             <Link
               href="/meal-plans"
-              className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] hover:bg-[var(--accent-hover)] transition-colors no-underline"
+              className="inline-block bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] hover:opacity-90 transition-opacity no-underline"
               aria-label="Create a meal plan for this week"
             >
-              + Create this week's plan
+              + Create this week&apos;s plan
             </Link>
           </div>
 
         ) : !todayData || todayMeals.length === 0 ? (
-          <div className="px-9 pb-10">
-            <div className="text-[16px] font-medium text-[var(--fg)] mb-2">No meals logged for today.</div>
-            <p className="font-sans text-[13px] text-[var(--muted)] mb-6 whitespace-nowrap">
-              Open your meal plan to log breakfast, lunch, and dinner.
-            </p>
-            <Link
-              href={`/meal-plans?planId=${weekPlanId}`}
-              className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] rounded-[6px] hover:bg-[var(--accent-hover)] transition-colors no-underline"
-              aria-label="Open meal plan to log meals"
-            >
-              Open meal plan →
-            </Link>
-          </div>
-
-        ) : (
-          /* Two-column layout: row 1 = hero (left) + spacer (right), row 2 = nutrition (left) + meals (right) */
-          <div className="relative grid grid-cols-2" style={{ gridTemplateRows: "auto 1fr" }}>
-
-            {/* Vertical hairline — short, spans only the nutrition/meals content */}
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                left: "50%",
-                top: "94px",
-                bottom: "14px",
-                width: "1px",
-                background: "var(--rule-faint)",
-                transform: "translateX(-0.5px)",
-              }}
-            />
-
-            {/* Row 1 left: ring hero */}
-            <div className="col-start-1 row-start-1 px-9 pt-1 pb-5">
-              {(() => {
-                const warnings = [
-                  ...overLimit.map((n) => ({ id: n.nutrientId, icon: "⚠︎", text: `${n.displayName} +${formatVal(n.value - (n.highGoal ?? 0))}${n.unit} over limit` })),
-                  ...belowMin.map((n) => ({ id: n.nutrientId, icon: "⊖", text: `${n.displayName} −${formatVal((n.lowGoal ?? 0) - n.value)}${n.unit} below min` })),
-                ];
-                const count = warnings.length;
-                // ≤2 warnings: ring vertically centered with text; 3+: ring top-aligned
-                const align = count <= 2 ? "items-center" : "items-start";
-                // 6+ warnings: 2-col grid, smaller text
-                const manyWarnings = count >= 6;
-                const warnFontSize = manyWarnings ? "text-[8px]" : "text-[9px]";
-                const warnGap = manyWarnings ? "gap-[2px]" : count >= 3 ? "gap-[3px]" : "gap-[4px]";
-                const warnMt = manyWarnings ? "mt-[4px]" : "mt-[8px]";
-                const heroPb = count <= 1 ? "pb-4" : "";
-                return (
-                  <div className={`flex ${align} gap-5 ${heroPb}`}>
-                    <svg
-                      width="80" height="80" viewBox="0 0 88 88"
-                      aria-label={`${onTrackCount} of ${totalGoals} nutrition goals on track`}
-                      role="img"
-                      style={{ flexShrink: 0 }}
-                    >
-                      <circle cx="44" cy="44" r="35" fill="none" stroke="var(--bg-subtle)" strokeWidth="7" />
-                      <circle
-                        cx="44" cy="44" r="35"
-                        fill="none"
-                        stroke="var(--accent)"
-                        strokeWidth="7"
-                        strokeDasharray={circum}
-                        strokeDashoffset={dashOffset}
-                        strokeLinecap="round"
-                        transform="rotate(-90 44 44)"
-                      />
-                    </svg>
-                    <div>
-                      <div className="flex items-baseline gap-[6px] mb-[2px]">
-                        <span className="text-[36px] font-semibold tracking-[-0.03em] text-[var(--fg)] leading-none tabular-nums">
-                          {onTrackCount}
-                        </span>
-                        <span className="font-mono text-[10px] text-[var(--muted)]">of {totalGoals} goals on track</span>
-                      </div>
-                      {count > 0 && (
-                        <div className={`${warnMt} ${manyWarnings ? "grid grid-cols-2 gap-x-[18px]" : "flex flex-col"} ${warnGap}`}>
-                          {warnings.map((w) => (
-                            <div key={w.id} className={`font-mono ${warnFontSize} uppercase tracking-[0.06em] text-[var(--muted)] flex items-center gap-[5px]`}>
-                              <span className={manyWarnings ? "text-[9px]" : "text-[10px]"} style={{ lineHeight: 1 }}>{w.icon}</span>
-                              {w.text}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
+          <>
+            <div style={{ padding: `56px var(--pad) 72px` }}>
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">Today</div>
+              <div className="font-serif text-[clamp(18px,1.8vw,26px)] font-semibold tracking-[-0.02em] text-[var(--fg)] mb-3">No meals logged yet.</div>
+              <p className="text-[13px] text-[var(--fg-2)] mb-8 max-w-[400px]">
+                Open your meal plan to log breakfast, lunch, and dinner.
+              </p>
+              <Link
+                href={`/meal-plans?planId=${weekPlanId}`}
+                className="inline-block bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] hover:opacity-90 transition-opacity no-underline"
+                aria-label="Open meal plan to log meals"
+              >
+                Open meal plan →
+              </Link>
             </div>
 
-            {/* Row 1 right: spacer — matches hero height via grid row */}
-            <div className="col-start-2 row-start-1" />
-
-            {/* Row 2 left: Today's nutrition */}
-            <div className="col-start-1 row-start-2 px-9 pb-7">
-              <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
-                Today&apos;s nutrition
+            {/* This Week — show even when no meals today */}
+            {weekDays.length > 0 && (
+              <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
+                <div className="flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
+                  <Link
+                    href={`/meal-plans?planId=${weekPlanId}`}
+                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                  >
+                    Full planner →
+                  </Link>
+                </div>
+                <WeekOverview
+                  weekDays={weekDays}
+                  allMealLogs={allMealLogs}
+                  recipeCaloriesMap={recipeCaloriesMap}
+                  mealLogCaloriesMap={mealLogCaloriesMap}
+                  weekPlanId={weekPlanId}
+                />
               </div>
-              <div className="flex flex-col gap-[10px]">
+            )}
+          </>
+
+        ) : (
+          <>
+            {/* Today's Meals — editorial numbered columns */}
+            <div style={{ padding: `0 var(--pad) 72px` }}>
+              <div className="flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
+                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s meals</span>
+                <Link
+                  href={`/meal-plans?planId=${weekPlanId}`}
+                  className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                >
+                  Open planner →
+                </Link>
+              </div>
+
+              {mealColumns.length > 0 ? (
+                <div className="flex">
+                  {mealColumns.map((col, idx) => (
+                    <div
+                      key={col.type}
+                      className="flex-1"
+                      style={{
+                        paddingLeft: idx === 0 ? 0 : 36,
+                        paddingRight: idx === mealColumns.length - 1 ? 0 : 36,
+                      }}
+                    >
+                      {col.logs.map((m, mi) => {
+                        const name = m.recipe?.name ?? m.ingredient?.name ?? "";
+                        const kcal = getMealKcal(m);
+                        return (
+                          <div key={m.id}>
+                            {/* Number · Type header */}
+                            <div
+                              className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-3 pb-[10px] border-b border-[var(--rule)]"
+                            >
+                              {col.number} · {col.type}
+                              {mi > 0 ? ` (${mi + 1})` : ""}
+                            </div>
+                            {/* Meal name */}
+                            <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
+                              {name}
+                            </div>
+                            {/* Macro rows */}
+                            {kcal != null && (
+                              <div className="flex justify-between py-[6px] border-b border-[var(--rule)]">
+                                <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Calories</span>
+                                <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] tabular-nums">{kcal}</span>
+                              </div>
+                            )}
+                            {/* Link to recipe */}
+                            {m.recipe?.id && (
+                              <Link
+                                href={`/recipes/${m.recipe.id}`}
+                                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
+                              >
+                                See recipe →
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="border border-dashed border-[var(--rule)] py-12 flex flex-col items-center gap-[10px]">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)]">No meals logged today</span>
+                  <Link
+                    href={`/meal-plans?planId=${weekPlanId}`}
+                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                  >
+                    + Add meals →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Nutrition detail section */}
+            <div style={{ padding: `0 var(--pad) 72px` }}>
+              <div className="flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
+                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Nutrition</span>
+                <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)]">
+                  {onTrackCount} of {totalGoals} on track
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-12 gap-y-4 max-w-[640px]">
                 {allNutrients.map((n) => {
                   const goal = n.highGoal ?? n.lowGoal ?? 0;
                   const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
@@ -313,8 +426,8 @@ export default function Home() {
                           {formatVal(n.value)} / {formatVal(goal)} {n.unit}
                         </span>
                       </div>
-                      <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[4px] overflow-hidden">
-                        <div className="h-full rounded-[4px] bg-[var(--accent)]" style={{ width: `${pct}%` }} />
+                      <div className="h-[3px] bg-[var(--bg-3)] overflow-hidden">
+                        <div className="h-full bg-[var(--accent)]" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -322,52 +435,138 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Row 2 right: Today's meals — starts at same y as nutrition label */}
-            <div className="col-start-2 row-start-2 px-8 pb-7">
-              <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mb-[14px]">
-                Today&apos;s meals
+            {/* This Week — 7-day overview */}
+            {weekDays.length > 0 && (
+              <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
+                <div className="flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
+                  <Link
+                    href={`/meal-plans?planId=${weekPlanId}`}
+                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                  >
+                    Full planner →
+                  </Link>
+                </div>
+                <WeekOverview
+                  weekDays={weekDays}
+                  allMealLogs={allMealLogs}
+                  recipeCaloriesMap={recipeCaloriesMap}
+                  mealLogCaloriesMap={mealLogCaloriesMap}
+                  weekPlanId={weekPlanId}
+                />
               </div>
-              <div className="flex flex-col">
-                {MEAL_TYPES.map((type) => {
-                  const logs = todayMeals.filter((m) => m.mealType.toLowerCase() === type);
-                  const name = logs.length > 0
-                    ? logs.map((m) => m.recipe?.name ?? m.ingredient?.name ?? "").filter(Boolean).join(", ")
-                    : null;
-                  return (
-                    <div key={type} className="flex items-center py-[11px] border-b border-[var(--rule-faint)] last:border-b-0">
-                      <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] w-[72px] shrink-0">
-                        {type}
-                      </span>
-                      {name ? (
-                        <span className="font-sans text-[12px] text-[var(--fg)] flex-1">{name}</span>
-                      ) : (
-                        <>
-                          <span className="font-mono text-[9px] text-[var(--placeholder)] flex-1">Nothing logged yet</span>
-                          <Link
-                            href={`/meal-plans?planId=${weekPlanId}`}
-                            className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline opacity-70 hover:opacity-100 transition-opacity"
-                          >
-                            + add
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <Link
-                href={`/meal-plans?planId=${weekPlanId}`}
-                className="inline-block mt-5 font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[6px] bg-[var(--bg-raised)] px-3 py-[6px] no-underline hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors"
-                style={{ boxShadow: "var(--shadow-sm)" }}
-              >
-                View full meal plan →
-              </Link>
-            </div>
-
-          </div>
+            )}
+          </>
         )}
 
       </div>
+    </div>
+  );
+}
+
+/* ── This Week overview component ─────────────────────────────────── */
+
+function WeekOverview({
+  weekDays,
+  allMealLogs,
+  recipeCaloriesMap,
+  mealLogCaloriesMap,
+  weekPlanId,
+}: {
+  weekDays: DayData[];
+  allMealLogs: MealLog[];
+  recipeCaloriesMap: Record<number, number>;
+  mealLogCaloriesMap: Record<number, number>;
+  weekPlanId: number;
+}) {
+  const todayStr = new Date().toDateString();
+
+  return (
+    <div className="flex" style={{ minHeight: '55vh', alignItems: 'stretch' }}>
+      {weekDays.map((day) => {
+        const date = parseUTCDate(day.date);
+        const isToday = date.toDateString() === todayStr;
+        const dayMeals = allMealLogs.filter(
+          (m) => parseUTCDate(m.date).toDateString() === date.toDateString()
+        );
+
+        // Calories for this day
+        const calNutrient = day.totalNutrients.find(
+          (n) => n.displayName?.toLowerCase().includes("calor")
+        );
+        const calVal = calNutrient ? Math.round(calNutrient.value) : 0;
+        const calGoal = calNutrient?.highGoal ?? calNutrient?.lowGoal ?? 0;
+        const calPct = calGoal > 0 ? Math.min(Math.round((calVal / calGoal) * 100), 100) : 0;
+
+        return (
+          <div
+            key={day.date}
+            className="flex-1 min-w-0 flex flex-col"
+            style={{ background: isToday ? 'var(--accent-l)' : undefined }}
+          >
+            {/* Day header */}
+            <div style={{ padding: '12px 14px 14px' }}>
+              <div
+                className="font-mono text-[8px] uppercase tracking-[0.1em]"
+                style={{ color: isToday ? 'var(--accent)' : 'var(--muted)' }}
+              >
+                {DAY_NAMES[date.getDay()]}
+              </div>
+              <div
+                className="font-serif text-[28px] font-bold tracking-[-0.02em] leading-none mt-[2px] tabular-nums"
+                style={{ color: isToday ? 'var(--fg)' : 'var(--fg-2)' }}
+              >
+                {date.getDate()}
+              </div>
+              <div className="font-mono text-[8px] tracking-[0.04em] text-[var(--muted)] mt-1">
+                {calVal > 0 ? `${calVal.toLocaleString()} kcal` : "\u00A0"}
+              </div>
+              <div className="h-[2px] bg-[var(--rule)] mt-[6px] relative overflow-hidden">
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: isToday ? 'var(--accent)' : 'var(--ok)',
+                    width: `${calPct}%`,
+                    transition: 'width 0.5s var(--ease-out)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Meals */}
+            <div style={{ padding: '8px 14px 72px' }}>
+              {dayMeals.map((m) => {
+                const name = m.recipe?.name ?? m.ingredient?.name ?? "";
+                let kcal: number | null = null;
+                if (m.recipe?.id && recipeCaloriesMap[m.recipe.id] != null) {
+                  kcal = Math.round(recipeCaloriesMap[m.recipe.id] * (m.servings ?? 1));
+                } else if (mealLogCaloriesMap[m.id] != null) {
+                  kcal = mealLogCaloriesMap[m.id];
+                }
+                return (
+                  <div key={m.id} style={{ padding: '6px 0' }}>
+                    <div className="font-mono text-[7px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[2px]">
+                      {m.mealType}
+                    </div>
+                    <div className="font-sans text-[11px] text-[var(--fg)] leading-[1.35]">{name}</div>
+                    {kcal != null && (
+                      <div className="font-mono text-[8px] text-[var(--muted)] mt-[1px]">{kcal} kcal</div>
+                    )}
+                  </div>
+                );
+              })}
+              {dayMeals.length === 0 && (
+                <Link
+                  href={`/meal-plans?planId=${weekPlanId}`}
+                  className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] no-underline hover:text-[var(--accent)] transition-colors block py-[6px]"
+                >
+                  + Add
+                </Link>
+              )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

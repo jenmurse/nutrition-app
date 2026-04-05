@@ -506,14 +506,14 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               <button
                 type="button"
                 onClick={() => imageFileRef.current?.click()}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
+                className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors shrink-0"
               >
                 Upload file
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="w-16 h-16 overflow-hidden rounded-[6px] border border-[var(--rule-faint)] shrink-0">
+              <div className="w-16 h-16 overflow-hidden border border-[var(--rule-faint)] shrink-0">
                 <img src={image} alt="Recipe preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
               <div className="min-w-0">
@@ -523,7 +523,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <button
                   type="button"
                   onClick={() => { setImage(""); if (imageFileRef.current) imageFileRef.current.value = ""; }}
-                  className="font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] px-2 py-[3px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
+                  className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-[3px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--error)] hover:border-[var(--error-border)] transition-colors"
                   aria-label="Remove image"
                 >
                   Remove image
@@ -644,7 +644,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div>
         <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-1">Instructions</label>
         <textarea
-          className="w-full border border-[var(--rule-faint)] rounded-[var(--radius-sm,4px)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
+          className="w-full border border-[var(--rule-faint)] bg-transparent px-3 py-2 text-[12px] focus:outline-none focus:border-[var(--fg)] min-h-[120px]"
           placeholder="Add recipe instructions..."
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
@@ -765,11 +765,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     }}
                   />
                   {showDropdown[row.id] && currentSearch && (
-                    <div className="absolute z-10 w-full mt-1 rounded-[8px] border border-[var(--rule-faint)] bg-[var(--bg-raised)] max-h-48 overflow-auto" style={{ boxShadow: 'var(--shadow-md)' }}>
+                    <div className="absolute z-10 w-full mt-1 border border-[var(--rule)] bg-[var(--bg)] max-h-48 overflow-auto" style={{ boxShadow: 'var(--float-shadow)' }}>
                       {/* Show "Create new" option if search doesn't exactly match any ingredient */}
                       {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
                         <div
-                          className="px-3 py-2 hover:bg-[var(--bg-subtle)] cursor-pointer text-[12px] border-b border-[var(--rule-faint)] text-[var(--fg)] font-medium first:rounded-t-[8px]"
+                          className="px-3 py-2 hover:bg-[var(--bg-subtle)] cursor-pointer text-[12px] border-b border-[var(--rule-faint)] text-[var(--fg)] font-medium"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             createIngredient(currentSearch, row.id);
@@ -945,7 +945,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {!hideFooterButtons && (
         <div className="flex gap-3 pt-4">
           <button
-            className="bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[7px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
+            className="bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[7px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
             onClick={handleSave}
             disabled={saving}
           >
@@ -965,7 +965,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
     {/* ── Goals Panel (guided mode only) ── */}
     {guidedMode && (
-      <div className="w-80 shrink-0 sticky top-4 rounded-[var(--radius,12px)] bg-[var(--bg-raised)] p-5 space-y-4" style={{ boxShadow: 'var(--shadow-md)' }}>
+      <div className="w-80 shrink-0 sticky top-4 bg-[var(--bg-raised)] border border-[var(--rule)] p-5 space-y-4">
         <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Nutrition Guidance</div>
 
         {/* Nutrition guidance contextual tip */}
@@ -982,9 +982,9 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <button
                   key={p.id}
                   onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] rounded-[6px] border transition-colors cursor-pointer ${
+                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] border transition-colors cursor-pointer ${
                     guidedPersonId === p.id
-                      ? "bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]"
+                      ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]"
                       : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule-faint)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
                   }`}
                 >
@@ -1011,9 +1011,9 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                       setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
                     }
                   }}
-                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] rounded-[6px] border transition-colors cursor-pointer ${
+                  className={`font-mono text-[9px] uppercase tracking-[0.1em] py-[4px] px-[8px] border transition-colors cursor-pointer ${
                     guidedFocus.includes(g.nutrientId)
-                      ? "bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]"
+                      ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]"
                       : "bg-[var(--bg-raised)] text-[var(--muted)] border-[var(--rule-faint)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)]"
                   }`}
                 >
@@ -1055,9 +1055,9 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                         {Math.round(current * 10) / 10} / {Math.round(goal)} {g.nutrient.unit}
                       </span>
                     </div>
-                    <div className="h-[4px] bg-[var(--bg-subtle)] rounded-[var(--radius-sm,4px)] overflow-hidden">
+                    <div className="h-[4px] bg-[var(--bg-subtle)] overflow-hidden">
                       <div
-                        className={`h-full rounded-[var(--radius-sm,4px)] ${barColor}`}
+                        className={`h-full ${barColor}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>

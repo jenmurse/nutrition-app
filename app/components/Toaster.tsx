@@ -24,7 +24,7 @@ export default function Toaster() {
         aria-hidden="true"
         style={{
           position: "fixed",
-          top: 48,
+          top: "var(--nav-h)",
           left: 0,
           right: 0,
           height: 2,
