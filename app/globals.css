@@ -705,12 +705,10 @@ input[type="number"]:focus {
   padding:0 var(--pad); flex:1;
 }
 
-.wk-day-col { padding:0 6px; }
-.wk-day-col:first-child { padding-left:0; }
-.wk-day-col:last-child { padding-right:0; }
+.wk-day-col { padding:0 8px; }
 .wk-day-col.today { background:var(--accent-l); }
 
-.wk-day-header { padding:24px 6px 16px; }
+.wk-day-header { padding:16px 6px 12px; }
 
 .wk-day-name { font-family:'DM Mono',monospace; font-size:7px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
 
