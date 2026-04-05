@@ -108,6 +108,12 @@ const JUMP_SECTIONS = [
   { id: "ing-sec-nutrition", n: "02", label: "Nutrition" },
 ];
 
+const EDIT_JUMP_SECTIONS = [
+  { id: "pf-sec-lookup", n: "01", label: "Lookup" },
+  { id: "pf-sec-details", n: "02", label: "Details" },
+  { id: "pf-sec-nutrition", n: "03", label: "Nutrition" },
+];
+
 /* ── Page Component ── */
 
 export default function IngredientDetailPage() {
@@ -127,6 +133,7 @@ export default function IngredientDetailPage() {
 
   // Jump nav
   const [activeSection, setActiveSection] = useState(JUMP_SECTIONS[0].id);
+  const jumpNavLocked = useRef(false);
 
   // Edit form state
   const [editName, setEditName] = useState("");
@@ -223,32 +230,38 @@ export default function IngredientDetailPage() {
       .catch(() => {});
   }, [selectedPerson?.id]);
 
-  /* ── Intersection observer for jump nav ── */
+  /* ── Scroll-position jump nav ── */
   useEffect(() => {
-    const scrollEl = document.getElementById("ing-scroll-container");
-    if (!scrollEl || editMode) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        }
-      },
-      { root: scrollEl, rootMargin: "-20% 0px -60% 0px", threshold: 0 }
-    );
-    JUMP_SECTIONS.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    const containerId = editMode ? "pf-scroll-container" : "ing-scroll-container";
+    const scrollEl = document.getElementById(containerId);
+    if (!scrollEl) return;
+    const sections = editMode ? EDIT_JUMP_SECTIONS : JUMP_SECTIONS;
+    const sectionIds = sections.map((s) => s.id);
+    const update = () => {
+      if (jumpNavLocked.current) return;
+      const paneRect = scrollEl.getBoundingClientRect();
+      let activeId = sectionIds[0];
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - paneRect.top <= 100) activeId = id;
+      }
+      setActiveSection(activeId);
+    };
+    scrollEl.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => scrollEl.removeEventListener("scroll", update);
   }, [ingredient, editMode]);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    const container = document.getElementById("ing-scroll-container");
+    const containerId = editMode ? "pf-scroll-container" : "ing-scroll-container";
+    const container = document.getElementById(containerId);
     if (el && container) {
-      container.scrollTo({ top: el.offsetTop - 40, behavior: "smooth" });
+      setActiveSection(id);
+      jumpNavLocked.current = true;
+      container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
+      setTimeout(() => { jumpNavLocked.current = false; }, 800);
     }
   };
 
@@ -507,25 +520,6 @@ export default function IngredientDetailPage() {
     }
   };
 
-  /* ── Style helpers ── */
-  const inputBase =
-    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[13px] font-sans text-[var(--fg)] focus:outline-none focus:border-[var(--accent)] transition-colors rounded-none";
-  const inputClass = inputBase + " w-full";
-  const inputNarrow = inputBase + " w-[120px]";
-  const selectClass =
-    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[13px] font-sans text-[var(--fg)] focus:outline-none focus:border-[var(--accent)] appearance-none transition-colors w-full rounded-none";
-  const labelClass =
-    "block text-[8px] font-mono tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]";
-  const sectionLabelClass =
-    "font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mt-4 mb-[10px]";
-  const selectBgStyle = {
-    backgroundImage:
-      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' opacity='0.5' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E\")",
-    backgroundRepeat: "no-repeat" as const,
-    backgroundPosition: "right 0px center",
-    backgroundSize: "12px",
-  };
-
   /* ── Loading ── */
   if (loading) {
     return (
@@ -574,53 +568,61 @@ export default function IngredientDetailPage() {
      EDIT MODE
      ═══════════════════════════════════════════ */
   if (editMode) {
+    const editSections = EDIT_JUMP_SECTIONS;
     return (
-      <div className="h-full flex flex-col animate-fade-in">
-        {/* Header bar */}
-        <div className="px-[var(--pad)] py-4 shrink-0 flex items-center justify-between border-b border-[var(--rule)]">
-          <h2
-            className="font-serif font-bold text-[var(--fg)] leading-tight"
-            style={{ fontSize: "clamp(22px, 2.4vw, 32px)", letterSpacing: "-0.02em" }}
-          >
-            Edit Pantry Item
-          </h2>
-          <div className="flex items-center gap-3">
+      <div className="h-full relative animate-page-enter">
+        {/* ── Jump Nav (fixed left) ── */}
+        <nav
+          className="fixed z-50 flex flex-col"
+          style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
+          aria-label="Pantry form navigation"
+        >
+          {editSections.map((s, i) => (
             <button
-              className="font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-[20px] border border-[var(--accent)] cursor-pointer hover:opacity-90 transition-opacity active:scale-[0.97] disabled:opacity-50"
-              onClick={handleSave}
-              disabled={saving}
-              aria-label="Save ingredient"
+              key={s.id}
+              onClick={() => scrollToSection(s.id)}
+              className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+                activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--accent)]"
+              }`}
+              style={i === 0 ? { paddingTop: 0 } : undefined}
+              aria-label={`Jump to ${s.label}`}
             >
-              {saving ? "Saving..." : "Save"}
+              <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
+                activeSection === s.id ? "text-[var(--accent)]" : "text-[var(--rule)]"
+              }`}>{s.n}</span>
+              {s.label}
             </button>
-            <button
-              className="font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] py-[6px] px-0 border-0 hover:text-[var(--fg)] cursor-pointer transition-colors"
-              onClick={() => setEditMode(false)}
-              disabled={saving}
-              aria-label="Cancel editing"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+          ))}
+        </nav>
 
-        {/* Scroll area */}
-        <div className="flex-1 overflow-y-auto">
-          <div
-            className="max-w-[1100px] mx-auto"
-            style={{ padding: "32px 64px 60px 196px" }}
-          >
-            <div className="space-y-5 max-w-[720px]">
-              {/* USDA Lookup */}
-              <div>
-                <label className={labelClass}>Search USDA (Optional)</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="e.g., 'almonds raw' or 'banana'"
-                  value={usdaLookupQuery}
-                  onChange={(e) => handleUsdaSearch(e.target.value)}
-                />
+        {/* ── Main Scroll ── */}
+        <div id="pf-scroll-container" className="h-full overflow-y-auto">
+          <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
+            {/* Header */}
+            <div style={{ marginBottom: 32 }}>
+              <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Pantry / Edit</div>
+              <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>Edit Pantry Item</h1>
+            </div>
+
+            {/* ── 01 Lookup ── */}
+            <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
+              <div className="flex items-baseline gap-3 mb-6">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+                <span className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)]">Lookup</span>
+                <div className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+
+              <div className="flex gap-[10px] items-end" style={{ marginBottom: 10 }}>
+                <div className="ed-field flex-1" style={{ marginBottom: 0 }}>
+                  <input
+                    className="ed-input"
+                    placeholder="Search USDA database…"
+                    value={usdaLookupQuery}
+                    onChange={(e) => handleUsdaSearch(e.target.value)}
+                    aria-label="USDA search"
+                  />
+                </div>
+                <button className="ed-btn" onClick={() => { if (usdaLookupQuery.trim()) handleUsdaSearch(usdaLookupQuery); }} aria-label="Lookup">Lookup</button>
               </div>
 
               <ContextualTip tipId="usda-search" label="About the USDA database">
@@ -629,229 +631,174 @@ export default function IngredientDetailPage() {
                 values automatically -- you can still edit them.
               </ContextualTip>
 
-              {/* USDA Results */}
               {usdaLookupLoading && (
-                <p className="text-[11px] text-[var(--muted)]">Searching USDA...</p>
+                <p className="text-[11px] text-[var(--muted)] mt-2">Searching USDA...</p>
               )}
               {usdaLookupResults.length > 0 && (
-                <div className="border border-[var(--rule)] max-h-48 overflow-y-auto">
+                <div className="max-h-[200px] overflow-y-auto mt-[10px]">
                   {usdaLookupResults.map((food: any) => (
                     <button
                       key={food.fdcId}
                       onClick={() => handleUsdaSelect(food)}
-                      className="block w-full text-left py-[8px] px-[12px] text-[11px] text-[var(--fg)] hover:bg-[var(--bg-2)] border-b border-[var(--rule)] last:border-b-0 cursor-pointer bg-transparent transition-colors"
+                      className="block w-full text-left py-[10px] px-[12px] border-b border-[var(--rule)] cursor-pointer bg-transparent hover:bg-[var(--bg-3)] transition-colors"
                     >
-                      <div className="font-sans text-[11px]">
-                        {food.description.slice(0, 60)}
-                      </div>
-                      <div className="text-[10px] text-[var(--muted)]">
-                        {food.dataType}
-                      </div>
+                      <div className="font-sans text-[13px] font-medium">{food.description}</div>
+                      <div className="font-mono text-[8px] text-[var(--muted)] mt-[2px]">{food.dataType}</div>
                     </button>
                   ))}
                 </div>
               )}
 
               {usdaSelectedFood && (
-                <p className="text-[11px] text-[var(--accent)]">
-                  Data imported from USDA FDC
-                </p>
+                <p className="text-[11px] text-[var(--accent)] mt-2">Data imported from USDA FDC</p>
               )}
+            </div>
 
-              {/* Name */}
-              <div>
-                <label className={labelClass}>Pantry item</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                />
+            {/* ── 02 Details ── */}
+            <div id="pf-sec-details" style={{ marginTop: 64 }}>
+              <div className="flex items-baseline gap-3 mb-6">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                <span className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)]">Details</span>
+                <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
-              {/* Default Unit */}
-              <div>
-                <label className={labelClass}>Default Unit</label>
-                <select
-                  className={selectClass}
-                  style={selectBgStyle}
-                  value={editUnit}
-                  onChange={(e) => {
-                    const nextUnit = e.target.value;
-                    setEditUnit(nextUnit);
-                    if (["g", "ml", "tsp", "tbsp", "cup"].includes(nextUnit)) {
-                      setEditSpecifiedUnit(nextUnit);
-                    }
-                    if (["tsp", "tbsp", "cup"].includes(nextUnit)) {
-                      setEditCustomUnitName(nextUnit);
-                    }
-                  }}
-                >
-                  <option value="g">g (grams)</option>
-                  <option value="ml">ml (milliliters)</option>
-                  <option value="tsp">tsp (teaspoon)</option>
-                  <option value="tbsp">tbsp (tablespoon)</option>
-                  <option value="cup">cup</option>
-                  <option value="other">other (custom unit)</option>
-                </select>
+              <div className="ed-row" style={{ marginBottom: 20 }}>
+                <div className="ed-field" style={{ flex: 2 }}>
+                  <label className="ed-label">Item Name</label>
+                  <input className="ed-input" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="e.g. Cottage Cheese 2%" aria-label="Item name" />
+                </div>
+                <div className="ed-field" style={{ flex: 1 }}>
+                  <label className="ed-label">Default Unit</label>
+                  <select
+                    className="ed-select"
+                    value={editUnit}
+                    onChange={(e) => {
+                      const nextUnit = e.target.value;
+                      setEditUnit(nextUnit);
+                      if (["g", "ml", "tsp", "tbsp", "cup"].includes(nextUnit)) setEditSpecifiedUnit(nextUnit);
+                      if (["tsp", "tbsp", "cup"].includes(nextUnit)) setEditCustomUnitName(nextUnit);
+                    }}
+                    aria-label="Default unit"
+                  >
+                    <option value="g">g (grams)</option>
+                    <option value="ml">ml (milliliters)</option>
+                    <option value="other">other (custom unit)</option>
+                  </select>
+                </div>
               </div>
 
               {/* Custom Unit Settings */}
               {["other", "tsp", "tbsp", "cup"].includes(editUnit) && (
-                <div className="border border-[var(--rule)] p-4 space-y-4">
-                  <div className={sectionLabelClass}>Custom Unit Settings</div>
-                  <div>
-                    <label className={labelClass}>Unit name</label>
-                    {editUnit === "other" ? (
-                      <input
-                        type="text"
-                        className={inputClass}
-                        placeholder="e.g., banana, scoop, cup"
-                        value={editCustomUnitName}
-                        onChange={(e) => setEditCustomUnitName(e.target.value)}
-                      />
-                    ) : (
-                      <div className="py-[6px] font-mono text-[12px] font-light text-[var(--fg)]">
-                        {editUnit}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className={labelClass}>Amount per unit</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        step="any"
-                        className={inputNarrow}
-                        value={editCustomUnitAmount}
-                        onChange={(e) => setEditCustomUnitAmount(e.target.value)}
-                      />
-                      <span className="text-[11px] text-[var(--muted)]">
-                        {editCustomUnitName || "unit"}
-                      </span>
+                <div style={{ marginBottom: 20 }}>
+                  <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Custom Unit Settings</div>
+                  <div className="ed-row">
+                    <div className="ed-field">
+                      <label className="ed-label">Unit Name</label>
+                      {editUnit === "other" ? (
+                        <input className="ed-input" placeholder="e.g. banana, scoop, cup" value={editCustomUnitName} onChange={(e) => setEditCustomUnitName(e.target.value)} aria-label="Custom unit name" />
+                      ) : (
+                        <div className="py-[6px] font-mono text-[12px] font-light text-[var(--fg)]">{editUnit}</div>
+                      )}
                     </div>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Grams per unit</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        step="any"
-                        className={inputNarrow}
-                        placeholder="e.g., 120 for an average banana"
-                        value={editCustomUnitGrams}
-                        onChange={(e) => setEditCustomUnitGrams(e.target.value)}
-                      />
-                      <span className="text-[11px] text-[var(--muted)]">g</span>
+                    <div className="ed-field">
+                      <label className="ed-label">Amount Per Unit</label>
+                      <input className="ed-input" type="number" step="any" value={editCustomUnitAmount} onChange={(e) => setEditCustomUnitAmount(e.target.value)} aria-label="Amount per unit" />
+                    </div>
+                    <div className="ed-field">
+                      <label className="ed-label">Grams Per Unit</label>
+                      <input className="ed-input" type="number" step="any" placeholder="e.g. 120" value={editCustomUnitGrams} onChange={(e) => setEditCustomUnitGrams(e.target.value)} aria-label="Grams per unit" />
+                      <div className="font-mono text-[8px] text-[var(--muted)] mt-[4px]">e.g. 120 for an average banana</div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Quick Food Checkbox */}
-              <div className="border border-[var(--rule)] p-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editIsMealItem}
-                    onChange={(e) => setEditIsMealItem(e.target.checked)}
-                    className="w-[14px] h-[14px] min-w-[14px] cursor-pointer"
-                  />
-                  <span className="text-[11px] text-[var(--fg)]">
-                    Available as a quick food
-                  </span>
+              {/* Meal Item Checkbox */}
+              <div className="flex items-center gap-[10px] py-[12px]" style={{ marginBottom: 20 }}>
+                <input type="checkbox" checked={editIsMealItem} onChange={(e) => setEditIsMealItem(e.target.checked)} className="cursor-pointer" id="pf-meal-check" aria-label="Meal item" />
+                <label htmlFor="pf-meal-check" className="cursor-pointer">
+                  <span className="text-[13px] text-[var(--fg)]">This is a meal item</span>
+                  <span className="text-[13px] text-[var(--muted)]"> — eaten directly (fish, apple), not an ingredient (flour, salt)</span>
                 </label>
-                <p className="text-[10px] text-[var(--muted)] mt-1 ml-5">
-                  Shows in meal plans as a standalone food -- things you eat as-is like
-                  fruit, yogurt, drinks
-                </p>
+              </div>
+            </div>
+
+            {/* ── 03 Nutrition ── */}
+            <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
+              <div className="flex items-baseline gap-3 mb-6">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)]">Nutrition</span>
+                <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
-              {/* Specified amount for nutrient entry */}
-              <div>
-                <div className={sectionLabelClass}>Nutrient Basis</div>
-                <label className={labelClass}>
-                  What amount are these nutrients for?
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="number"
-                    step="any"
-                    className={inputNarrow}
-                    placeholder="100"
-                    value={editSpecifiedAmount}
-                    onChange={(e) => setEditSpecifiedAmount(e.target.value)}
-                  />
-                  <select
-                    className={selectClass.replace("w-full", "w-[140px]")}
-                    style={selectBgStyle}
-                    value={editSpecifiedUnit}
-                    onChange={(e) => setEditSpecifiedUnit(e.target.value)}
-                  >
-                    <option value="g">g (grams)</option>
-                    <option value="ml">ml (milliliters)</option>
-                    <option value="tsp">tsp (teaspoon)</option>
-                    <option value="tbsp">tbsp (tablespoon)</option>
-                    <option value="cup">cup</option>
-                  </select>
-                  <div className="text-[10px] text-[var(--muted)] whitespace-nowrap">
-                    {editSpecifiedAmount &&
-                    editSpecifiedUnit &&
-                    editSpecifiedAmount !== "100"
-                      ? `Will convert to per 100${editBaseUnit}`
-                      : `Per 100${editBaseUnit}`}
-                    {editVolumeNote ? ` (${editVolumeNote})` : ""}
-                  </div>
-                </div>
-              </div>
-
-              {/* Nutrient Values */}
-              <div>
-                <div className={sectionLabelClass}>
-                  Nutrient Values (per 100{editBaseUnit})
-                  <span className="ml-2 normal-case tracking-normal">
-                    {Object.keys(editValues).length} filled
-                  </span>
-                </div>
-                {nutrients.length === 0 ? (
-                  <p className="text-[11px] text-[var(--muted)]">
-                    Loading nutrients...
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {nutrients.map((n) => {
-                      const inputValue = editValues[n.id];
-                      return (
-                        <div key={n.id}>
-                          <label className={labelClass}>
-                            {n.displayName} ({n.unit})
-                          </label>
-                          <input
-                            type="number"
-                            step="any"
-                            className={inputClass}
-                            value={
-                              inputValue != null ? String(inputValue) : ""
-                            }
-                            onChange={(e) =>
-                              setEditValues((prev) => {
-                                if (e.target.value === "") {
-                                  const { [n.id]: _, ...rest } = prev;
-                                  return rest;
-                                }
-                                return {
-                                  ...prev,
-                                  [n.id]: Number(e.target.value),
-                                };
-                              })
-                            }
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+              {/* Basis row */}
+              <div className="flex items-center gap-[10px]" style={{ marginBottom: 24 }}>
+                <span className="font-mono text-[8px] text-[var(--muted)]">Values are per</span>
+                <input
+                  className="ed-input"
+                  type="number"
+                  step="any"
+                  value={editSpecifiedAmount}
+                  onChange={(e) => setEditSpecifiedAmount(e.target.value)}
+                  style={{ width: 80 }}
+                  aria-label="Reference amount"
+                />
+                <select
+                  className="ed-select"
+                  style={{ width: "auto" }}
+                  value={editSpecifiedUnit}
+                  onChange={(e) => setEditSpecifiedUnit(e.target.value)}
+                  aria-label="Reference unit"
+                >
+                  <option value="g">g (grams)</option>
+                  <option value="ml">ml (milliliters)</option>
+                </select>
+                {editVolumeNote && (
+                  <span className="font-mono text-[8px] text-[var(--muted)]">({editVolumeNote})</span>
                 )}
               </div>
+
+              {/* Nutrient grid */}
+              {nutrients.length === 0 ? (
+                <p className="text-[11px] text-[var(--muted)]">Loading nutrients...</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-[40px]" style={{ marginBottom: 24 }}>
+                  {nutrients.map((n) => {
+                    const inputValue = editValues[n.id];
+                    return (
+                      <div key={n.id} className="flex items-center gap-[12px] py-[10px]">
+                        <span className="text-[13px] w-[120px] shrink-0">{n.displayName}</span>
+                        <input
+                          className="ed-input flex-1 text-right"
+                          type="number"
+                          step="any"
+                          placeholder="0"
+                          value={inputValue != null ? String(inputValue) : ""}
+                          onChange={(e) =>
+                            setEditValues((prev) => {
+                              if (e.target.value === "") {
+                                const { [n.id]: _, ...rest } = prev;
+                                return rest;
+                              }
+                              return { ...prev, [n.id]: Number(e.target.value) };
+                            })
+                          }
+                          aria-label={n.displayName}
+                        />
+                        <span className="font-mono text-[9px] text-[var(--muted)] w-[32px] shrink-0">{n.unit}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ── Button Row ── */}
+            <div className="flex justify-end gap-[10px]" style={{ marginTop: 64 }}>
+              <button className="ed-btn ghost" onClick={() => setEditMode(false)} disabled={saving} aria-label="Cancel editing">Cancel</button>
+              <button className="ed-btn primary" onClick={handleSave} disabled={saving} aria-label="Save ingredient">
+                {saving ? "Saving…" : "Save"}
+              </button>
             </div>
           </div>
         </div>
@@ -863,7 +810,7 @@ export default function IngredientDetailPage() {
      VIEW MODE
      ═══════════════════════════════════════════ */
   return (
-    <div className="h-full relative animate-fade-in">
+    <div className="h-full relative animate-page-enter">
       {/* ── Jump Nav (fixed left) ── */}
       <nav
         className="fixed z-50 flex flex-col"

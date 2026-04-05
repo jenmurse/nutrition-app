@@ -155,7 +155,7 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="h-full relative animate-fade-in">
+    <div className="h-full relative animate-page-enter">
       {/* ── Jump Nav (fixed left) ── */}
       <nav
         className="fixed z-50 flex flex-col"

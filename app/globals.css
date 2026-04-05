@@ -384,6 +384,11 @@ input[type="number"]:focus {
   animation: fadeIn 260ms var(--ease-out) both;
 }
 
+/* Page entrance — subtle slide-up + fade for page transitions */
+.animate-page-enter {
+  animation: contentEnter 400ms var(--ease-out) both;
+}
+
 /* Tabular numbers on all mono text — prevents layout shift on live values */
 .font-mono {
   font-variant-numeric: tabular-nums;

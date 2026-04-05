@@ -344,7 +344,7 @@ export default function RecipeDetailPage() {
       { id: "rf-sec-nutrition", n: "05", label: "Nutrition" },
     ];
     return (
-      <div className="h-full relative animate-fade-in">
+      <div className="h-full relative animate-page-enter">
         {/* Jump Nav */}
         <nav className="fixed z-50 flex flex-col" style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
           {EDIT_SECTIONS.map((s, i) => (
@@ -367,21 +367,14 @@ export default function RecipeDetailPage() {
         <div id="rf-edit-scroll" className="h-full overflow-y-auto">
           <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
-            <div className="flex items-baseline justify-between" style={{ marginBottom: 32 }}>
-              <div>
-                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / Edit</div>
-                <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)" }}>Edit Recipe</h1>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <button className="ed-btn ghost" onClick={() => { setEditMode(false); setEditDraft(null); }} aria-label="Cancel editing">Cancel</button>
-                <button className="ed-btn primary" onClick={() => builderRef.current?.save()} aria-label="Save recipe">Save</button>
-              </div>
+            <div style={{ marginBottom: 32 }}>
+              <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / Edit</div>
+              <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)" }}>Edit Recipe</h1>
             </div>
 
             <RecipeBuilder
               ref={builderRef}
               initialRecipe={editDraft}
-              hideFooterButtons
               onSaved={() => {
                 clientCache.delete(`/api/recipes/${recipeId}`);
                 clientCache.delete("/api/recipes");
@@ -410,7 +403,7 @@ export default function RecipeDetailPage() {
   const prepNotes = recipe.mealPrepAnalysis;
 
   return (
-    <div className="h-full relative animate-fade-in">
+    <div className="h-full relative animate-page-enter">
       {/* ── Jump Nav (fixed left) ── */}
       <nav
         className="fixed z-50 flex flex-col"
