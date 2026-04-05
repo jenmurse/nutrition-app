@@ -246,7 +246,7 @@ function RecipesPage() {
             <button
               onClick={() => updateSearchParam("dir", sortDir === "asc" ? "desc" : "asc")}
               aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
-              className="font-mono text-[11px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[9px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
+              className="font-mono text-[10px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
             >{sortDir === "asc" ? "↑" : "↓"}</button>
           </div>
 
@@ -394,25 +394,24 @@ function RecipesPage() {
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={recipe.name}
-                  className="flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group transition-colors hover:bg-[var(--bg-2)]"
+                  className="flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group relative"
                   style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both` }}
                 >
-                  {/* Thumbnail */}
-                  <div className="w-[48px] h-[48px] overflow-hidden shrink-0 bg-[var(--bg-3)]" style={{ aspectRatio: '1' }}>
+                  {/* Thumbnail — 4:3 */}
+                  <div className="overflow-hidden shrink-0 bg-[var(--bg-3)]" style={{ width: 64, aspectRatio: '4/3' }}>
                     {recipe.image ? (
                       <img src={recipe.image} alt="" className="w-full h-full object-cover block" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="font-serif text-[11px] font-bold text-[var(--fg)] opacity-[0.15] text-center leading-tight px-1">{recipe.name}</span>
-                      </div>
-                    )}
+                    ) : null}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  {/* Name + category inline */}
+                  <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
+                    <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{recipe.name}</span>
                     {category && (
-                      <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-1">{category}</div>
+                      <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                     )}
-                    <div className="font-serif text-[13px] font-semibold tracking-[-0.01em] leading-[1.2] truncate">{recipe.name}</div>
                   </div>
+                  {/* Accent bar on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
                   {macros && (
                     <div className="flex gap-[16px] items-baseline shrink-0 ml-auto">
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>

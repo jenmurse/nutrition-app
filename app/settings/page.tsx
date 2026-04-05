@@ -547,7 +547,7 @@ const SettingsPage = () => {
       </nav>
 
       {/* ─── Scrollable content ─── */}
-      <div id="settings-scroll-container" className="h-full overflow-y-auto">
+      <div id="settings-scroll-container" className="h-full overflow-y-auto" style={{ opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}>
         <div className="max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
