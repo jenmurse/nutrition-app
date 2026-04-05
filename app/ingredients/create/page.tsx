@@ -261,8 +261,8 @@ export default function CreateIngredientPage() {
   };
 
   return (
-    <div className="h-full relative animate-page-enter">
-      {/* ── Jump Nav (fixed left) ── */}
+    <div className="h-full relative">
+      {/* ── Jump Nav (fixed left — outside animated wrapper to avoid transform containment) ── */}
       <nav
         className="fixed z-50 flex flex-col"
         style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
@@ -287,7 +287,7 @@ export default function CreateIngredientPage() {
       </nav>
 
       {/* ── Main Scroll ── */}
-      <div id="pf-scroll-container" className="h-full overflow-y-auto">
+      <div id="pf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
         <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>

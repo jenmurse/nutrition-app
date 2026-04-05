@@ -155,8 +155,8 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="h-full relative animate-page-enter">
-      {/* ── Jump Nav (fixed left) ── */}
+    <div className="h-full relative">
+      {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
         className="fixed z-50 flex flex-col"
         style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
@@ -181,7 +181,7 @@ export default function CreateRecipePage() {
       </nav>
 
       {/* ── Main Scroll ── */}
-      <div id="rf-scroll-container" className="h-full overflow-y-auto">
+      <div id="rf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
         <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>

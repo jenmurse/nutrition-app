@@ -344,8 +344,8 @@ export default function RecipeDetailPage() {
       { id: "rf-sec-nutrition", n: "05", label: "Nutrition" },
     ];
     return (
-      <div className="h-full relative animate-page-enter">
-        {/* Jump Nav */}
+      <div className="h-full relative">
+        {/* Jump Nav — outside animated wrapper */}
         <nav className="fixed z-50 flex flex-col" style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
           {EDIT_SECTIONS.map((s, i) => (
             <button key={s.id}
@@ -364,7 +364,7 @@ export default function RecipeDetailPage() {
           ))}
         </nav>
 
-        <div id="rf-edit-scroll" className="h-full overflow-y-auto">
+        <div id="rf-edit-scroll" className="h-full overflow-y-auto animate-page-enter">
           <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
@@ -403,8 +403,8 @@ export default function RecipeDetailPage() {
   const prepNotes = recipe.mealPrepAnalysis;
 
   return (
-    <div className="h-full relative animate-page-enter">
-      {/* ── Jump Nav (fixed left) ── */}
+    <div className="h-full relative">
+      {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
         className="fixed z-50 flex flex-col"
         style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
@@ -429,7 +429,7 @@ export default function RecipeDetailPage() {
       </nav>
 
       {/* ── Main Scroll ── */}
-      <div id="rd-scroll-container" className="h-full overflow-y-auto">
+      <div id="rd-scroll-container" className="h-full overflow-y-auto animate-page-enter">
         <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
 
           {/* ── Hero ── */}

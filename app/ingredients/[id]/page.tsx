@@ -570,8 +570,8 @@ export default function IngredientDetailPage() {
   if (editMode) {
     const editSections = EDIT_JUMP_SECTIONS;
     return (
-      <div className="h-full relative animate-page-enter">
-        {/* ── Jump Nav (fixed left) ── */}
+      <div className="h-full relative">
+        {/* ── Jump Nav (fixed left — outside animated wrapper to avoid transform containment) ── */}
         <nav
           className="fixed z-50 flex flex-col"
           style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
@@ -596,7 +596,7 @@ export default function IngredientDetailPage() {
         </nav>
 
         {/* ── Main Scroll ── */}
-        <div id="pf-scroll-container" className="h-full overflow-y-auto">
+        <div id="pf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
           <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
@@ -811,8 +811,8 @@ export default function IngredientDetailPage() {
      VIEW MODE
      ═══════════════════════════════════════════ */
   return (
-    <div className="h-full relative animate-page-enter">
-      {/* ── Jump Nav (fixed left) ── */}
+    <div className="h-full relative">
+      {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
         className="fixed z-50 flex flex-col"
         style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
@@ -845,7 +845,7 @@ export default function IngredientDetailPage() {
       </nav>
 
       {/* ── Main Scroll ── */}
-      <div id="ing-scroll-container" className="h-full overflow-y-auto">
+      <div id="ing-scroll-container" className="h-full overflow-y-auto animate-page-enter">
         <div
           className="max-w-[1100px] mx-auto"
           style={{ padding: "0 64px 120px 196px" }}
