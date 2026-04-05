@@ -265,7 +265,7 @@ export default function CreateIngredientPage() {
       {/* ── Jump Nav (fixed left) ── */}
       <nav
         className="fixed z-50 flex flex-col"
-        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 40px)", width: 140 }}
+        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
         aria-label="Pantry form navigation"
       >
         {JUMP_SECTIONS.map((s, i) => (
@@ -298,8 +298,8 @@ export default function CreateIngredientPage() {
           {/* ── 01 Lookup ── */}
           <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="font-sans text-[11px] font-bold text-[var(--rule)]">01</span>
-              <span className="font-sans text-[20px] font-bold tracking-[-0.01em]">Lookup</span>
+              <span className="font-serif text-[11px] font-bold text-[var(--rule)]">01</span>
+              <span className="font-serif text-[20px] font-bold tracking-[-0.01em]">Lookup</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
 
@@ -348,8 +348,8 @@ export default function CreateIngredientPage() {
           {/* ── 02 Details ── */}
           <div id="pf-sec-details" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="font-sans text-[11px] font-bold text-[var(--rule)]">02</span>
-              <span className="font-sans text-[20px] font-bold tracking-[-0.01em]">Details</span>
+              <span className="font-serif text-[11px] font-bold text-[var(--rule)]">02</span>
+              <span className="font-serif text-[20px] font-bold tracking-[-0.01em]">Details</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
 
@@ -417,8 +417,8 @@ export default function CreateIngredientPage() {
           {/* ── 03 Nutrition ── */}
           <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="font-sans text-[11px] font-bold text-[var(--rule)]">03</span>
-              <span className="font-sans text-[20px] font-bold tracking-[-0.01em]">Nutrition</span>
+              <span className="font-serif text-[11px] font-bold text-[var(--rule)]">03</span>
+              <span className="font-serif text-[20px] font-bold tracking-[-0.01em]">Nutrition</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
 
