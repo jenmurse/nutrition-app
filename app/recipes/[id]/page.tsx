@@ -157,25 +157,34 @@ export default function RecipeDetailPage() {
     }).catch(() => {});
   }, []);
 
-  // Intersection observer for jump nav
+  // Scroll-position tracking for jump nav
+  const jumpNavLocked = useRef(false);
   useEffect(() => {
     const scrollEl = document.getElementById("rd-scroll-container");
     if (!scrollEl || editMode) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+    const sectionIds = JUMP_SECTIONS.map(s => s.id);
+    const update = () => {
+      if (jumpNavLocked.current) return;
+      const paneRect = scrollEl.getBoundingClientRect();
+      const nearBottom = scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < 60;
+      let activeId = sectionIds[0];
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - paneRect.top <= 100) activeId = id;
+      }
+      if (nearBottom) {
+        const threshold = paneRect.top + paneRect.height * 0.6;
+        for (const id of sectionIds) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top < threshold) activeId = id;
         }
-      },
-      { root: scrollEl, rootMargin: "-20% 0px -60% 0px", threshold: 0 }
-    );
-    JUMP_SECTIONS.forEach(s => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+      }
+      setActiveSection(activeId);
+    };
+    scrollEl.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => scrollEl.removeEventListener("scroll", update);
   }, [recipe, editMode]);
 
   // Render notes
@@ -279,7 +288,10 @@ export default function RecipeDetailPage() {
     const el = document.getElementById(id);
     const container = document.getElementById("rd-scroll-container");
     if (el && container) {
+      setActiveSection(id);
+      jumpNavLocked.current = true;
       container.scrollTo({ top: el.offsetTop - 40, behavior: "smooth" });
+      setTimeout(() => { jumpNavLocked.current = false; }, 800);
     }
   };
 
@@ -484,14 +496,14 @@ export default function RecipeDetailPage() {
                   </div>
                 </div>
                 {/* List */}
-                <ul className="list-none">
+                <ul className="list-none p-0 m-0">
                   {recipe.ingredients.map((ing, idx) => {
                     const prevSection = idx > 0 ? recipe.ingredients[idx - 1].section : null;
                     const showSection = ing.section && ing.section !== prevSection;
                     return (
                       <li key={ing.id}>
                         {showSection && (
-                          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-4 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
+                          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-8 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
                         )}
                         <div className="flex gap-[18px] py-3 items-baseline border-b border-[var(--rule)]">
                           <span className="font-mono text-[10px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">
@@ -582,12 +594,13 @@ export default function RecipeDetailPage() {
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
             <ContextualTip tipId="ai-optimize" label="AI Optimization">
-              Copy the prompt below into any MCP-connected AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve.
-              {!hasMcp && (
-                <div className="mt-2">
-                  <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
-                </div>
-              )}
+              {hasMcp
+                ? "Copy the prompt below into any MCP-connected AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve."
+                : <>To use this feature, connect an MCP-enabled AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve.
+                  <div className="mt-2">
+                    <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
+                  </div>
+                </>}
             </ContextualTip>
             <div className="mt-4">
               {editingNotes === "optimization" ? (
@@ -621,8 +634,8 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a [cuisine] chef with a background in nutrition who works with clients to create great-tasting, healthy meals. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for nutritional optimization — identify the top nutrient contributors, suggest substitutions to [meet your goals here], and preserve the original section headers in your analysis. Show me what you changed and why, including how each change could affect flavor, texture, and overall eating experience. Create a comparison table of the original vs. optimized nutrition numbers per serving.\n\nBefore suggesting any ingredient substitutions, use search_ingredients to check what's already in the database. Prefer substitutions that use existing ingredients — they'll have accurate nutrition data. You can still suggest new ingredients when no good match exists, but flag those clearly.\n\nI may give you feedback and request tweaks before we finalize. Do not save anything until I explicitly tell you I'm happy with the changes.\n\nFormatting rules — follow exactly:\n- Title the document with ## Optimization Notes (H2, not H1)\n- The nutrition comparison section must be headed ### Nutrition comparison (per serving)\n\nOnce approved, save the optimized recipe using save_recipe with section headers preserved. When saving, include the original recipe's sourceApp URL (if it has one) and pass copyImageFromRecipeId set to the original recipe's id so the image is copied automatically. Then save the analysis notes using save_optimization_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
-                    <div className="text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-4 whitespace-pre-wrap select-all">{prompt}</div>
+                    <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
+                    <div className="text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
                     <div className="flex items-center gap-[10px] mb-6">
                       <button
                         onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("optimization"); setTimeout(() => setCopiedPrompt(null), 2000); }}
@@ -646,12 +659,13 @@ export default function RecipeDetailPage() {
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
             <ContextualTip tipId="ai-meal-prep" label="AI Meal Prep">
-              Copy the prompt below into any MCP-connected AI assistant. It analyzes your recipe for batch cooking, storage, and reheating — then saves the notes back to Good Measure automatically.
-              {!hasMcp && (
-                <div className="mt-2">
-                  <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
-                </div>
-              )}
+              {hasMcp
+                ? "Copy the prompt below into any MCP-connected AI assistant. It analyzes your recipe for batch cooking, storage, and reheating — then saves the notes back to Good Measure automatically."
+                : <>To use this feature, connect an MCP-enabled AI assistant. It analyzes your recipe for batch cooking, storage, and reheating — then saves the notes back to Good Measure automatically.
+                  <div className="mt-2">
+                    <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
+                  </div>
+                </>}
             </ContextualTip>
             <div className="mt-4">
               {editingNotes === "mealPrep" ? (
@@ -686,7 +700,7 @@ export default function RecipeDetailPage() {
                 return (
                   <div>
                     <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
-                    <div className="text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-4 whitespace-pre-wrap select-all">{prompt}</div>
+                    <div className="text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
                     <div className="flex items-center gap-[10px] mb-6">
                       <button
                         onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("mealPrep"); setTimeout(() => setCopiedPrompt(null), 2000); }}
