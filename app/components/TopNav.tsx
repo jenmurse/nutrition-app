@@ -41,8 +41,8 @@ export default function TopNav() {
         <BrandName />
       </Link>
 
-      {/* Nav links */}
-      <div className="flex items-center flex-1 gap-6">
+      {/* Nav links — hidden on mobile (bottom nav in Phase 2) */}
+      <div className="nav-links-group flex items-center flex-1 gap-6">
         {navItems.map((item) => {
           const isActive = pathname?.startsWith(item.href);
           return (
@@ -74,7 +74,7 @@ export default function TopNav() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPersonId(p.id)}
-                  className="w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[7px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
+                  className="nav-person-dot w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[7px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
                   style={{
                     background: p.color || "var(--accent)",
                     boxShadow: isSelected ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${p.color || 'var(--accent)'}` : 'none',
@@ -91,7 +91,7 @@ export default function TopNav() {
 
         <Link
           href="/settings"
-          className={`flex items-center justify-center no-underline transition-all duration-150 hover:rotate-[30deg] ${
+          className={`nav-settings flex items-center justify-center no-underline transition-all duration-150 hover:rotate-[30deg] ${
             pathname?.startsWith("/settings")
               ? "text-[var(--accent)]"
               : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -106,7 +106,7 @@ export default function TopNav() {
         </Link>
         <button
           onClick={handleSignOut}
-          className="font-mono text-[9px] uppercase tracking-[0.12em] px-0 py-[5px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors duration-150 bg-transparent border-0 cursor-pointer"
+          className="nav-signout font-mono text-[9px] uppercase tracking-[0.12em] px-0 py-[5px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors duration-150 bg-transparent border-0 cursor-pointer"
           aria-label="Sign out"
         >
           Sign out

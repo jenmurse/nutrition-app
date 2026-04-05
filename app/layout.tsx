@@ -6,6 +6,7 @@ import { DM_Sans, DM_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
 import TopNav from "./components/TopNav";
+import BottomNav from "./components/BottomNav";
 import Toaster from "./components/Toaster";
 import ConfirmModal from "./components/ConfirmModal";
 import CustomCursor from "./components/CustomCursor";
@@ -57,6 +58,10 @@ export default function RootLayout({
             <main className="flex-1 overflow-hidden">
               {children}
             </main>
+
+            <Suspense>
+              <BottomNav />
+            </Suspense>
           </div>
         </PersonProvider>
         <CustomCursor />
