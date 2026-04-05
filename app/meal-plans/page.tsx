@@ -1162,27 +1162,30 @@ const MealPlansPage = () => {
           </>
         ) : (
           <div className="pl-main" style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ textAlign: 'center', maxWidth: 280 }}>
-              <div className="font-serif" style={{ fontSize: 20, color: 'var(--fg)', marginBottom: 12 }}>
-                {mealPlans.length === 0
-                  ? selectedPerson ? `No plans for ${selectedPerson.name} yet` : 'No meal plans yet'
-                  : 'Select a meal plan'}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
-                {mealPlans.length === 0
-                  ? 'Create a weekly meal plan to start tracking your nutrition.'
-                  : 'Use the controls above to navigate between plans.'}
-              </div>
-              {mealPlans.length === 0 && (
-                <button
-                  className="pl-new-btn"
-                  onClick={() => {
-                    const params = new URLSearchParams(searchParams?.toString());
-                    params.set("showForm", "true");
-                    router.push(`/meal-plans?${params.toString()}`);
-                  }}
-                  aria-label="Create a new plan"
-                >+ Create Plan</button>
+            <div className="empty-state empty-state-pane">
+              {mealPlans.length === 0 ? (
+                <>
+                  <div className="empty-state-glyph" aria-hidden="true">—</div>
+                  <div className="empty-state-label">
+                    {selectedPerson ? `No plans for ${selectedPerson.name}` : 'No meal plans yet'}
+                  </div>
+                  <div className="empty-state-context">Create a weekly meal plan to start tracking your nutrition.</div>
+                  <button
+                    className="empty-state-action"
+                    onClick={() => {
+                      const params = new URLSearchParams(searchParams?.toString());
+                      params.set("showForm", "true");
+                      router.push(`/meal-plans?${params.toString()}`);
+                    }}
+                    aria-label="Create a new plan"
+                  >+ Create plan →</button>
+                </>
+              ) : (
+                <>
+                  <div className="empty-state-glyph" aria-hidden="true">·</div>
+                  <div className="empty-state-label">Select a plan</div>
+                  <div className="empty-state-context">Use the controls above to navigate between plans.</div>
+                </>
               )}
             </div>
           </div>

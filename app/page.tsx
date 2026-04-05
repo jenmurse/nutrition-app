@@ -360,14 +360,15 @@ export default function Home() {
         ) : !weekPlanId ? (
           <div style={{ padding: `56px var(--pad) 72px` }}>
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">This week</div>
-            <div className="border border-dashed border-[var(--rule)] flex flex-col items-center gap-[10px]" style={{ padding: '48px 0' }}>
-              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)]">No meal plan yet</span>
+            <div className="empty-state">
+              <div className="empty-state-glyph" aria-hidden="true">—</div>
+              <div className="empty-state-label">No plan this week</div>
               <Link
                 href="/meal-plans"
-                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                className="empty-state-action"
                 aria-label="Create a meal plan for this week"
               >
-                + Create this week&apos;s plan →
+                + Create plan →
               </Link>
             </div>
           </div>
@@ -376,14 +377,15 @@ export default function Home() {
           <>
             <div style={{ padding: `56px var(--pad) 72px` }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">Today</div>
-              <div className="border border-dashed border-[var(--rule)] flex flex-col items-center gap-[10px]" style={{ padding: '48px 0' }}>
-                <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)]">No meals logged today</span>
+              <div className="empty-state">
+                <div className="empty-state-glyph" aria-hidden="true">·</div>
+                <div className="empty-state-label">Nothing logged today</div>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                  className="empty-state-action"
                   aria-label="Open meal plan to log meals"
                 >
-                  Open meal plan →
+                  Open planner →
                 </Link>
               </div>
             </div>
@@ -478,11 +480,12 @@ export default function Home() {
                   ))}
                 </div>
               ) : (
-                <div className="border border-dashed border-[var(--rule)] py-12 flex flex-col items-center gap-[10px]">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)]">No meals logged today</span>
+                <div className="empty-state">
+                  <div className="empty-state-glyph" aria-hidden="true">·</div>
+                  <div className="empty-state-label">Nothing logged today</div>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
-                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                    className="empty-state-action"
                   >
                     + Add meals →
                   </Link>

@@ -299,19 +299,22 @@ function RecipesPage() {
           </div>
         ) : sortedRecipes.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-4 max-w-[280px]">
-              <div className="font-serif text-[20px] text-[var(--fg)]">
+            <div className="empty-state empty-state-pane">
+              <div className="empty-state-glyph" aria-hidden="true">
+                {recipes.length === 0 ? "∅" : "—"}
+              </div>
+              <div className="empty-state-label">
                 {recipes.length === 0 ? "No recipes yet" : "No matches"}
               </div>
-              <p className="text-[11px] text-[var(--muted)] leading-relaxed">
+              <div className="empty-state-context">
                 {recipes.length === 0 ? "Create a recipe from scratch or import one." : "Try adjusting your filters."}
-              </p>
+              </div>
               {recipes.length === 0 && (
                 <button
                   onClick={() => router.push("/recipes/create")}
-                  className="bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:opacity-[0.88] transition-opacity border-0 cursor-pointer active:scale-[0.97]"
+                  className="empty-state-action"
                   aria-label="Create first recipe"
-                >+ New Recipe</button>
+                >+ New recipe →</button>
               )}
             </div>
           </div>

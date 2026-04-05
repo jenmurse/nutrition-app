@@ -475,7 +475,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
-                  Foods
+                  Items
                 </button>
               </div>
               <button
@@ -634,7 +634,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       ing.isMealItem && ing.name.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
                     ).length === 0 ? (
                       <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
-                        {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No foods available' : 'No foods match your search'}
+                        {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No items available' : 'No items match your search'}
                       </div>
                     ) : (
                       ingredients.filter(ing =>

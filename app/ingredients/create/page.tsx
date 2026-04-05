@@ -417,8 +417,8 @@ export default function CreateIngredientPage() {
             <div className="flex items-center gap-[10px] py-[12px]" style={{ marginBottom: 20 }}>
               <input type="checkbox" checked={isMealItem} onChange={(e) => setIsMealItem(e.target.checked)} className="cursor-pointer" id="pf-meal-check" aria-label="Meal item" />
               <label htmlFor="pf-meal-check" className="cursor-pointer">
-                <span className="text-[13px] text-[var(--fg)]">This is a food item</span>
-                <span className="text-[13px] text-[var(--muted)]"> — something eaten directly such as an apple or a granola bar, not an ingredient such as flour or salt</span>
+                <span className="text-[13px] text-[var(--fg)]">This is a standalone item</span>
+                <span className="text-[13px] text-[var(--muted)]"> — something eaten directly (apple, glass of wine, granola bar), not a recipe ingredient (flour, salt, butter)</span>
               </label>
             </div>
           </div>

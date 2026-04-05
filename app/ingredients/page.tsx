@@ -247,9 +247,9 @@ function IngredientsPage() {
               ? "text-[var(--fg)] border-[var(--rule)]"
               : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
           }`}
-          aria-label="Show only foods"
+          aria-label="Show only items"
           aria-pressed={foodFilter === 'foods'}
-        >Foods</button>
+        >Items</button>
         <button
           onClick={() => setFoodFilter('ingredients')}
           className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
@@ -342,7 +342,7 @@ function IngredientsPage() {
           >
             {sortedIngredients.map((ingredient, idx) => {
               const nutrition = getFullNutrition(ingredient);
-              const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";
+              const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";
               const unitContext = ingredient.customUnitName
                 ? `${ingredient.customUnitAmount || 1} ${ingredient.customUnitName}${ingredient.customUnitGrams ? ` (${ingredient.customUnitGrams}g)` : ""}`
                 : "per 100g";
@@ -428,7 +428,7 @@ function IngredientsPage() {
           <div key={`list-${viewMode}-${foodFilter}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
-              const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";
+              const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";
               return (
                 <div
                   key={ingredient.id}

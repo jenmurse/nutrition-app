@@ -453,11 +453,15 @@ export default function RecipeDetailPage() {
                 {recipe.name}
               </h1>
               {/* Source */}
-              {recipe.sourceApp?.startsWith("http") && (
-                <div className="font-mono text-[9px] text-[var(--muted)] mt-3">
-                  Source: <a href={recipe.sourceApp} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] no-underline border-b border-transparent hover:border-[var(--accent)] transition-colors">{recipe.sourceApp}</a>
-                </div>
-              )}
+              {recipe.sourceApp?.startsWith("http") && (() => {
+                let domain = recipe.sourceApp;
+                try { domain = new URL(recipe.sourceApp).hostname.replace(/^www\./, ''); } catch {}
+                return (
+                  <div className="font-mono text-[9px] text-[var(--muted)] mt-3">
+                    Source: <a href={recipe.sourceApp} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] no-underline border-b border-transparent hover:border-[var(--accent)] transition-colors">{domain} →</a>
+                  </div>
+                );
+              })()}
               {/* Actions */}
               <div className="flex gap-[10px] mt-6">
                 <button onClick={handleEditClick} disabled={editLoading}
