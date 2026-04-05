@@ -278,10 +278,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-full">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto hm-bottom-pad">
 
-        {/* Hero — full-viewport greeting */}
-        <div key={`hero-${selectedPersonId}`} style={{ minHeight: `calc(100vh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
+        {/* Hero — full-viewport greeting (compact on mobile via .hm-hero) */}
+        <div key={`hero-${selectedPersonId}`} className="hm-hero" style={{ minHeight: `calc(100dvh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
           {/* Household switching tip */}
           {persons.length > 1 && (
             <div style={{ padding: `20px var(--pad) 0` }}>
@@ -312,19 +312,14 @@ export default function Home() {
 
           {/* Stats strip */}
           <div className="border-t border-[var(--rule)]">
-            <div className="flex" style={{ padding: `0 var(--pad)` }}>
+            <div className="hm-stats-strip" style={{ padding: `0 var(--pad)` }}>
               {statEntries.map((stat, idx) => {
-                const isLast = idx === statEntries.length - 1;
                 const delay = 350 + idx * 80;
                 return (
                   <div
                     key={stat.key}
-                    className="flex-1"
+                    className="hm-stat-item"
                     style={{
-                      padding: '18px 0 20px',
-                      paddingRight: isLast ? 0 : 32,
-                      marginRight: isLast ? 0 : 32,
-                      borderRight: isLast ? 'none' : '1px solid var(--rule)',
                       opacity: 0,
                       animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
                     }}
@@ -428,16 +423,12 @@ export default function Home() {
               </div>
 
               {mealColumns.length > 0 ? (
-                <div className="flex">
+                <div className="hm-meal-cols">
                   {mealColumns.map((col, idx) => (
                     <div
                       key={col.type}
-                      className="flex-1 hm-reveal"
-                      style={{
-                        transitionDelay: `${idx * 70}ms`,
-                        paddingLeft: idx === 0 ? 0 : 36,
-                        paddingRight: idx === mealColumns.length - 1 ? 0 : 36,
-                      }}
+                      className="hm-meal-col hm-reveal"
+                      style={{ transitionDelay: `${idx * 70}ms` }}
                     >
                       {col.logs.map((m, mi) => {
                         const name = m.recipe?.name ?? m.ingredient?.name ?? "";
@@ -540,7 +531,8 @@ function WeekOverview({
   const todayStr = new Date().toDateString();
 
   return (
-    <div className="flex" style={{ minHeight: '55vh', alignItems: 'stretch' }}>
+    <div className="hm-week-grid">
+      <div className="hm-week-inner" style={{ minHeight: '55vh', alignItems: 'stretch' }}>
       {weekDays.map((day, dayIdx) => {
         const date = parseUTCDate(day.date);
         const isToday = date.toDateString() === todayStr;
@@ -559,7 +551,7 @@ function WeekOverview({
         return (
           <div
             key={day.date}
-            className="flex-1 min-w-0 flex flex-col hm-reveal"
+            className="hm-week-day hm-reveal"
             style={{ background: isToday ? 'var(--accent-l)' : undefined, transitionDelay: `${dayIdx * 40}ms` }}
           >
             {/* Day header */}
@@ -625,6 +617,7 @@ function WeekOverview({
           </div>
         );
       })}
+      </div>
     </div>
   );
 }
