@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Layout Options v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F4F2EF;
+  --fg: #1A1A1A;
+  --muted: #8A8A8A;
+  --accent: #5C9169;
+  --rule: #E2DFDA;
+  --bg-nav: #EFEDE9;
+  --bg-subtle: #E8E5E0;
+  --bg-raised: #FAFAF8;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+html, body {
+  font-family: var(--sans);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Switcher ── */
+.switcher {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999;
+  display: flex; gap: 2px; background: rgba(26,26,26,0.92); backdrop-filter: blur(12px);
+  padding: 5px; border-radius: 10px; white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.switcher button {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.09em; text-transform: uppercase;
+  background: transparent; border: none; color: rgba(255,255,255,0.5);
+  padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: color 150ms, background 150ms;
+}
+.switcher button:hover { color: rgba(255,255,255,0.8); }
+.switcher button.active { background: rgba(255,255,255,0.18); color: white; }
+
+.option { display: none; }
+.option.visible { display: block; }
+
+/* ── Shared buttons ── */
+.btn-primary {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--fg); color: white; border: none; padding: 11px 20px; border-radius: 6px;
+  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  transition: transform 150ms cubic-bezier(0.23,1,0.32,1);
+}
+.btn-primary:active { transform: scale(0.97); }
+.btn-ghost {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color 150ms;
+}
+.btn-ghost:hover { color: var(--fg); }
+
+/* ══════════════════════════════════════════
+   APP FRAME — shared elevation treatment
+══════════════════════════════════════════ */
+.app-elevated {
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 4px 16px rgba(0,0,0,0.06),
+    0 16px 40px rgba(0,0,0,0.04);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ══════════════════════════════════════════
+   APP MOCKUP COMPONENTS (accurate to real app)
+══════════════════════════════════════════ */
+.app-frame { display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg); }
+
+.app-topnav {
+  height: 38px; min-height: 38px; background: var(--bg-nav);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; padding: 0 14px; gap: 10px; flex-shrink: 0;
+}
+.app-nav-brand { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg); white-space: nowrap; margin-right: 4px; }
+.app-nav-links { display: flex; flex: 1; gap: 0; overflow: hidden; }
+.app-nav-link {
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--muted); padding: 4px 9px; border-radius: 4px; white-space: nowrap;
+}
+.app-nav-link.active { color: var(--fg); background: rgba(0,0,0,0.05); }
+.app-nav-persons { display: flex; align-items: center; }
+.app-nav-person {
+  width: 18px; height: 18px; border-radius: 50%; background: #D4594A;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 7px; color: white; font-weight: 500; flex-shrink: 0;
+  border: 1.5px solid #D4594A;
+}
+.app-nav-person + .app-nav-person { background: #6B9E7B; border-color: #6B9E7B; margin-left: -5px; }
+.app-nav-gear { font-size: 11px; color: var(--muted); margin-left: 4px; cursor: pointer; }
+.app-nav-signout { font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-left: 4px; }
+
+.app-body { flex: 1; display: flex; overflow: hidden; }
+
+/* Recipe list sidebar (220px) */
+.app-sidebar {
+  width: 220px; min-width: 220px; background: var(--bg-nav);
+  border-right: 1px solid var(--rule); display: flex; flex-direction: column; overflow: hidden;
+}
+.app-sidebar-hd {
+  padding: 10px 12px 8px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.app-sidebar-label { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.app-sidebar-count { font-family: var(--mono); font-size: 7.5px; color: var(--muted); margin-left: 4px; }
+.app-sidebar-new { font-family: var(--mono); font-size: 8px; color: var(--accent); }
+.app-sidebar-filters { display: flex; flex-wrap: wrap; gap: 3px; padding: 6px 10px 4px; }
+.app-filter-tag {
+  font-family: var(--mono); font-size: 6.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 5px; border-radius: 3px; border: 1px solid var(--rule); color: var(--muted);
+}
+.app-filter-tag.active { background: var(--accent); color: white; border-color: var(--accent); }
+.app-sidebar-sort {
+  display: flex; align-items: center; gap: 4px; padding: 4px 12px;
+  font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+.app-sidebar-bottom { padding: 8px 12px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 7.5px; color: var(--accent); }
+.app-search {
+  margin: 8px 10px 4px; padding: 5px 8px; border: 1px solid var(--rule); border-radius: 4px;
+  font-family: var(--sans); font-size: 10px; color: var(--muted); background: var(--bg);
+  outline: none;
+}
+.app-sidebar-items { flex: 1; overflow: hidden; padding: 4px 0; }
+.app-item { padding: 7px 12px; cursor: pointer; }
+.app-item.active { background: var(--bg-subtle); }
+.app-item-name { font-size: 11px; font-weight: 500; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 1px; }
+.app-item-meta { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+
+/* Recipe detail (flex-1, accurate structure) */
+.app-detail { flex: 1; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.app-detail-hd { padding: 18px 28px 14px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.app-detail-title { font-family: var(--sans); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--fg); margin-bottom: 6px; line-height: 1.2; }
+.app-detail-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.app-tag { font-family: var(--mono); font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); padding: 2px 6px; border-radius: 3px; }
+.app-tag.colored { background: #F0D4D0; color: #8B3A30; border-color: transparent; }
+.app-btn-edit { font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; background: var(--accent); color: white; border: none; }
+.app-btn-dup { font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; background: transparent; color: var(--fg); border: 1px solid var(--rule); }
+.app-btn-del { font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; background: transparent; color: #D4594A; border: 1px solid #D4594A; }
+.app-detail-stat { font-family: var(--mono); font-size: 7.5px; color: var(--muted); }
+.app-tabs { display: flex; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.app-tab { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 14px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.app-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+.app-detail-body { flex: 1; overflow: hidden; padding: 0; }
+
+/* Nutrition summary grid (4-col, matches real app) */
+.nutr-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--rule); border-bottom: 1px solid var(--rule);
+}
+.nutr-cell { background: var(--bg); padding: 12px 8px; text-align: center; }
+.nutr-val { font-family: var(--sans); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--fg); }
+.nutr-label { font-family: var(--mono); font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+
+/* Ingredients area */
+.ingr-area { padding: 14px 28px; }
+.ingr-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ingr-title { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); }
+.scale-btns { display: flex; gap: 3px; }
+.scale-btn {
+  font-family: var(--mono); font-size: 7.5px; padding: 2px 6px; border-radius: 3px;
+  border: 1px solid var(--rule); color: var(--muted); background: transparent;
+}
+.scale-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.section-hd {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); padding: 8px 0 4px; border-bottom: 1px solid var(--rule); margin-top: 8px;
+}
+.section-hd:first-child { margin-top: 0; }
+.ingr-row { display: flex; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.04); gap: 14px; }
+.ingr-qty { font-family: var(--mono); font-size: 10px; color: var(--muted); min-width: 52px; font-variant-numeric: tabular-nums; }
+.ingr-name { font-size: 11px; color: var(--fg); flex: 1; }
+
+/* Context panel (300px, matches real app) */
+.app-context {
+  width: 260px; min-width: 260px; background: var(--bg-nav);
+  border-left: 1px solid var(--rule); display: flex; flex-direction: column; overflow: hidden;
+}
+.app-context-body { flex: 1; padding: 14px 20px; overflow: hidden; }
+.ctx-section { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.ctx-nutrient { margin-bottom: 10px; }
+.ctx-nutrient-hd { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.ctx-nutrient-name { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg); }
+.ctx-nutrient-val { font-family: var(--mono); font-size: 8px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ctx-bar { height: 4px; background: var(--bg-subtle); border-radius: 4px; overflow: hidden; }
+.ctx-bar-fill { height: 100%; border-radius: 4px; background: #D4594A; }
+.ctx-bar-fill.ok { background: var(--accent); }
+
+/* Meal plan grid (accurate: 80px + 7×1fr) */
+.mp-frame { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.mp-header { display: flex; align-items: center; padding: 12px 20px; gap: 12px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.mp-week-title { font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--fg); letter-spacing: -0.01em; }
+.mp-person-tabs { display: flex; gap: 6px; margin-left: auto; }
+.mp-person-tab {
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px; color: var(--muted);
+}
+.mp-person-tab.active { background: rgba(92,145,105,0.1); color: var(--accent); }
+.mp-grid {
+  flex: 1; overflow: hidden;
+  display: grid;
+  grid-template-columns: 80px repeat(7, minmax(0, 1fr));
+  grid-template-rows: 44px repeat(4, 1fr);
+}
+.mp-corner { background: var(--bg); border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); }
+.mp-day-hd {
+  background: var(--bg); border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;
+}
+.mp-day-hd:last-child { border-right: none; }
+.mp-day-abbr { font-family: var(--mono); font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.mp-day-num { font-size: 14px; font-weight: 600; color: var(--fg); margin-top: 1px; }
+.mp-day-hd.today .mp-day-num { color: var(--accent); }
+.mp-row-label {
+  font-family: var(--sans); font-size: 10px; font-weight: 500; color: var(--fg); text-transform: capitalize;
+  border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  display: flex; align-items: flex-start; padding: 8px 10px;
+}
+.mp-cell {
+  border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 5px 4px; display: flex; flex-direction: column; gap: 3px; min-height: 0;
+}
+.mp-cell:nth-child(8n) { border-right: none; }
+.mp-meal-card {
+  background: var(--bg-raised); border-radius: 5px; padding: 4px 6px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.mp-meal-name { font-size: 9px; font-weight: 600; color: var(--fg); line-height: 1.3; }
+.mp-meal-kcal { font-family: var(--mono); font-size: 7px; color: var(--muted); margin-top: 1px; }
+.mp-empty { font-family: var(--mono); font-size: 8px; color: rgba(0,0,0,0.15); padding: 4px; }
+.mp-controls { display: flex; align-items: center; gap: 6px; padding: 8px 20px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.mp-ctrl-btn {
+  font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); background: transparent;
+}
+.mp-ctrl-btn.green { background: var(--accent); color: white; border-color: var(--accent); }
+.mp-right-controls { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.mp-person-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 2px; }
+.mp-add-row { font-family: var(--mono); font-size: 7px; color: var(--muted); text-align: center; padding: 4px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.mp-add-row:last-child { border-right: none; }
+
+/* Pantry nutrition table rows */
+.pantry-nutr-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--rule);
+}
+.pantry-nutr-name { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg); }
+.pantry-nutr-val { font-family: var(--mono); font-size: 10px; color: var(--fg); font-variant-numeric: tabular-nums; }
+.pantry-nutr-label { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+/* Dashboard warning callouts */
+.dash-warning { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #D4594A; margin-top: 2px; }
+.dash-ring-area { display: flex; flex-direction: column; gap: 2px; }
+
+/* Dashboard (accurate) */
+.dash-frame { display: flex; flex-direction: column; height: 100%; }
+.dash-content { flex: 1; overflow: hidden; }
+.dash-greeting-area { padding: 18px 28px 14px; }
+.dash-greeting { font-size: 20px; font-weight: 600; color: var(--fg); letter-spacing: -0.02em; margin-bottom: 3px; }
+.dash-date { font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; flex: 1; }
+.dash-left { padding: 4px 28px 16px; border-right: 1px solid rgba(0,0,0,0.04); }
+.dash-right { padding: 4px 24px 16px; }
+.dash-ring-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.dash-ring-num { font-size: 30px; font-weight: 600; color: var(--fg); letter-spacing: -0.03em; line-height: 1; }
+.dash-ring-label { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+.dash-section-label { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.dash-meal-row { display: flex; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.dash-meal-type { font-family: var(--sans); font-size: 10px; font-weight: 500; color: var(--fg); width: 64px; flex-shrink: 0; text-transform: capitalize; }
+.dash-meal-name { font-size: 11px; color: var(--fg); }
+
+/* Optimization tab */
+.opt-body { padding: 16px 28px; display: flex; flex-direction: column; gap: 14px; }
+.opt-section-hd { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.opt-note { font-size: 11px; color: var(--fg); line-height: 1.6; }
+.opt-swap {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background: rgba(92,145,105,0.08); border-radius: 5px; border: 1px solid rgba(92,145,105,0.15);
+}
+.opt-swap-from { font-size: 10px; color: var(--muted); text-decoration: line-through; }
+.opt-swap-arrow { font-size: 9px; color: var(--accent); }
+.opt-swap-to { font-size: 10px; color: var(--fg); font-weight: 500; }
+.opt-swap-why { font-family: var(--mono); font-size: 7.5px; color: var(--muted); margin-left: auto; }
+
+
+/* ══════════════════════════════════════════
+   OPTION D — BELOW THE FOLD
+   No nav bar. Brand near headline.
+══════════════════════════════════════════ */
+#optD { min-height: 100vh; }
+
+.d-hero { padding: 72px 56px 64px; max-width: 800px; }
+.d-brand {
+  font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--fg); margin-bottom: 36px; display: block;
+}
+.d-eyebrow {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 20px;
+}
+.d-headline {
+  font-family: var(--sans); font-size: 64px; font-weight: 400; line-height: 0.96;
+  letter-spacing: -0.02em; color: var(--fg); margin-bottom: 24px; text-wrap: balance;
+}
+.d-sub { font-size: 15px; line-height: 1.65; color: var(--muted); max-width: 460px; margin-bottom: 36px; }
+.d-ctas { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.d-legal { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.07em; color: var(--muted); }
+
+.d-app-section {
+  padding: 0 40px 56px;
+}
+.d-app-container {
+  height: 480px;
+}
+
+.d-features {
+  padding: 48px 56px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0; max-width: 960px;
+}
+.d-feature { padding: 24px 36px 24px 0; border-top: 1px solid var(--rule); }
+.d-feature:nth-child(2n) { padding-right: 0; padding-left: 36px; border-left: 1px solid var(--rule); }
+.d-feature-num { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.d-feature-title { font-size: 14px; font-weight: 600; color: var(--fg); margin-bottom: 6px; letter-spacing: -0.01em; }
+.d-feature-body { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+.d-closing {
+  border-top: 1px solid var(--rule);
+  padding: 56px 56px 80px;
+  display: flex; flex-direction: column; gap: 20px; max-width: 560px;
+}
+.d-closing-line { font-size: 17px; font-weight: 400; color: var(--fg); line-height: 1.5; letter-spacing: -0.01em; }
+
+
+/* ══════════════════════════════════════════
+   OPTION E — CYCLING SCREENS (revised layout)
+   Full-width hero → split: features + cycling app
+══════════════════════════════════════════ */
+#optE { display: none; min-height: 100vh; }
+#optE.visible { display: block; }
+
+/* Hero section — full width */
+.e-hero {
+  padding: 48px 56px 0;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 40px;
+}
+.e-hero-left { max-width: 680px; }
+.e-brand {
+  font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--fg); margin-bottom: 20px; display: block;
+}
+.e-headline {
+  font-family: var(--sans); font-size: 84px; font-weight: 400; line-height: 0.93;
+  letter-spacing: -0.03em; color: var(--fg); margin-bottom: 28px;
+}
+.e-sub {
+  font-size: 15px; line-height: 1.7; color: var(--muted); max-width: 420px; margin-bottom: 32px;
+  letter-spacing: 0.01em;
+}
+.e-ctas { display: flex; align-items: center; gap: 16px; }
+
+/* Divider */
+.e-divider { border: none; border-top: 1px solid var(--rule); margin: 36px 56px 0; }
+
+/* Split: features left + app right */
+.e-split {
+  display: grid; grid-template-columns: 280px 1fr; min-height: 520px;
+}
+.e-features-col {
+  padding: 28px 0 28px 56px;
+  display: flex; flex-direction: column; justify-content: center;
+  border-right: 1px solid var(--rule);
+}
+.e-features { display: flex; flex-direction: column; gap: 0; }
+.e-feature {
+  display: flex; gap: 12px; padding: 14px 24px 14px 0;
+  border-bottom: 1px solid var(--rule);
+  transition: opacity 400ms ease; opacity: 0.28; cursor: pointer;
+}
+.e-feature:first-child { border-top: 1px solid var(--rule); }
+.e-feature.active { opacity: 1; }
+.e-feature-num { font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em; color: var(--muted); padding-top: 2px; min-width: 20px; }
+.e-feature-title { font-size: 12px; font-weight: 600; color: var(--fg); letter-spacing: -0.01em; }
+.e-feature-sub { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+
+.e-app-col {
+  position: relative; overflow: hidden;
+  padding: 20px 28px 20px 24px;
+}
+.e-screen-wrap {
+  position: relative; width: 100%; height: 100%;
+}
+.e-screen {
+  position: absolute; inset: 0; opacity: 0;
+  transition: opacity 600ms cubic-bezier(0.23,1,0.32,1);
+}
+.e-screen.active { opacity: 1; z-index: 1; }
+.e-screen .app-elevated { height: 100%; }
+
+/* Footer */
+.e-footer {
+  padding: 28px 56px 36px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-top: 1px solid var(--rule);
+  gap: 40px;
+}
+.e-footer-close {
+  font-size: 14px; font-weight: 400; color: var(--fg); line-height: 1.5;
+  letter-spacing: -0.01em; white-space: nowrap;
+}
+.e-legal { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+
+
+/* ══════════════════════════════════════════
+   OPTION G — MAGAZINE: full-width headline, grid below
+   No nav bar. Brand above headline.
+══════════════════════════════════════════ */
+#optG { min-height: 100vh; display: none; }
+#optG.visible { display: block; }
+
+.g-brand-row {
+  padding: 28px 52px 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.g-brand { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg); }
+
+.g-headline-section {
+  padding: 32px 52px 28px;
+}
+.g-headline {
+  font-family: var(--sans); font-size: 76px; font-weight: 400; line-height: 0.95;
+  letter-spacing: -0.02em; color: var(--fg); text-wrap: balance;
+}
+
+.g-sub-row {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 40px;
+  padding: 0 52px 32px; border-bottom: 1px solid var(--rule);
+}
+.g-sub { font-size: 14px; line-height: 1.65; color: var(--muted); max-width: 420px; }
+.g-cta-group { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; flex-shrink: 0; }
+.g-legal { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.07em; color: var(--muted); }
+
+.g-content { display: grid; grid-template-columns: 62% 38%; }
+.g-app-col { border-right: 1px solid var(--rule); padding: 28px 0 28px 28px; }
+.g-app-container { height: 480px; }
+
+.g-features-col { padding: 28px 36px; display: flex; flex-direction: column; }
+.g-features-label {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 20px;
+}
+.g-feature { padding: 16px 0; border-top: 1px solid var(--rule); }
+.g-feature-num { font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 5px; }
+.g-feature-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: 4px; letter-spacing: -0.01em; }
+.g-feature-sub { font-size: 12px; color: var(--muted); line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     OPTION D — BELOW THE FOLD
+══════════════════════════════════════════ -->
+<div id="optD" class="option visible">
+  <div class="d-hero">
+    <span class="d-brand">Good Measure</span>
+    <div class="d-eyebrow">Recipe-based nutrition tracking</div>
+    <h1 class="d-headline">Measure<br>what matters.</h1>
+    <p class="d-sub">A meal planner built around how you actually cook — your recipes, your household, and the numbers that matter. Not estimates. Real USDA data.</p>
+    <div class="d-ctas">
+      <a href="#" class="btn-primary">Get started →</a>
+      <a href="#" class="btn-ghost">Sign in →</a>
+    </div>
+    <div class="d-legal">© 2026 Made by Jen Furfaro · Free to use</div>
+  </div>
+
+  <div class="d-app-section">
+    <div class="d-app-container app-elevated">
+      <div class="app-frame">
+        <div class="app-topnav">
+          <span class="app-nav-brand">Good Measure</span>
+          <div class="app-nav-links">
+            <div class="app-nav-link">Dashboard</div>
+            <div class="app-nav-link active">Recipes</div>
+            <div class="app-nav-link">Ingredients</div>
+            <div class="app-nav-link">Meal Plans</div>
+            <div class="app-nav-link">Settings</div>
+          </div>
+          <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+        </div>
+        <div class="app-body">
+          <div class="app-sidebar">
+            <div class="app-sidebar-hd"><span class="app-sidebar-label">Recipes</span><span class="app-sidebar-new">+ New</span></div>
+            <input class="app-search" placeholder="Search recipes..." disabled>
+            <div class="app-sidebar-items">
+              <div class="app-item active"><div class="app-item-name">Chicken Tikka Masala</div><div class="app-item-meta">456 kcal · 6 servings</div></div>
+              <div class="app-item"><div class="app-item-name">Lentil Soup</div><div class="app-item-meta">312 kcal · 8 servings</div></div>
+              <div class="app-item"><div class="app-item-name">Roasted Salmon</div><div class="app-item-meta">380 kcal · 2 servings</div></div>
+              <div class="app-item"><div class="app-item-name">Greek Salad</div><div class="app-item-meta">220 kcal · 4 servings</div></div>
+              <div class="app-item"><div class="app-item-name">Overnight Oats</div><div class="app-item-meta">340 kcal · 1 serving</div></div>
+              <div class="app-item"><div class="app-item-name">Beef Stir Fry</div><div class="app-item-meta">410 kcal · 4 servings</div></div>
+            </div>
+          </div>
+          <div class="app-detail">
+            <div class="app-detail-hd">
+              <div class="app-detail-title">Chicken Tikka Masala</div>
+              <div class="app-detail-meta"><span class="app-tag">Dinner</span><span class="app-tag">Indian</span><span class="app-detail-stat">6 servings · 45 min</span></div>
+            </div>
+            <div class="app-tabs"><div class="app-tab active">Recipe</div><div class="app-tab">Optimization</div><div class="app-tab">Meal Prep</div></div>
+            <div class="app-detail-body">
+              <div class="nutr-grid">
+                <div class="nutr-cell"><div class="nutr-val">456</div><div class="nutr-label">Kcal</div></div>
+                <div class="nutr-cell"><div class="nutr-val">24g</div><div class="nutr-label">Fat</div></div>
+                <div class="nutr-cell"><div class="nutr-val">38g</div><div class="nutr-label">Protein</div></div>
+                <div class="nutr-cell"><div class="nutr-val">18g</div><div class="nutr-label">Carbs</div></div>
+                <div class="nutr-cell"><div class="nutr-val">8g</div><div class="nutr-label">Sat Fat</div></div>
+                <div class="nutr-cell"><div class="nutr-val">680mg</div><div class="nutr-label">Sodium</div></div>
+                <div class="nutr-cell"><div class="nutr-val">4g</div><div class="nutr-label">Fiber</div></div>
+                <div class="nutr-cell"><div class="nutr-val">6g</div><div class="nutr-label">Sugar</div></div>
+              </div>
+              <div class="ingr-area">
+                <div class="ingr-header">
+                  <span class="ingr-title">Ingredients</span>
+                  <div class="scale-btns">
+                    <div class="scale-btn active">1x</div>
+                    <div class="scale-btn">2x</div>
+                    <div class="scale-btn">3x</div>
+                    <div class="scale-btn">4x</div>
+                  </div>
+                </div>
+                <div class="section-hd">Marinade</div>
+                <div class="ingr-row"><span class="ingr-qty">700 g</span><span class="ingr-name">Chicken breast, boneless</span></div>
+                <div class="ingr-row"><span class="ingr-qty">¾ cup</span><span class="ingr-name">Plain yogurt, full-fat</span></div>
+                <div class="ingr-row"><span class="ingr-qty">2 tbsp</span><span class="ingr-name">Lemon juice</span></div>
+                <div class="ingr-row"><span class="ingr-qty">2 tsp</span><span class="ingr-name">Garam masala</span></div>
+                <div class="section-hd">Sauce</div>
+                <div class="ingr-row"><span class="ingr-qty">1 can</span><span class="ingr-name">Crushed tomatoes (400g)</span></div>
+                <div class="ingr-row"><span class="ingr-qty">½ cup</span><span class="ingr-name">Heavy cream</span></div>
+                <div class="ingr-row"><span class="ingr-qty">2 tbsp</span><span class="ingr-name">Butter, unsalted</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="app-context">
+            <div class="app-tabs" style="background:var(--bg-nav);"><div class="app-tab active">Goals</div></div>
+            <div class="app-context-body">
+              <div class="ctx-section">Per serving vs. daily goal</div>
+              <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Calories</span><span class="ctx-nutrient-val">456 / 2,000</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:23%"></div></div></div>
+              <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Protein</span><span class="ctx-nutrient-val">38g / 120g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:32%"></div></div></div>
+              <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Total Fat</span><span class="ctx-nutrient-val">24g / 65g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:37%"></div></div></div>
+              <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fiber</span><span class="ctx-nutrient-val">4g / 30g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:13%"></div></div></div>
+              <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Carbs</span><span class="ctx-nutrient-val">18g / 250g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:7%"></div></div></div>
+              <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sodium</span><span class="ctx-nutrient-val">680mg / 2,300mg</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:30%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-features">
+    <div class="d-feature"><div class="d-feature-num">01</div><div class="d-feature-title">Real USDA nutrition data</div><div class="d-feature-body">300,000+ foods matched to your ingredients. Every recipe backed by real numbers, not estimates.</div></div>
+    <div class="d-feature"><div class="d-feature-num">02</div><div class="d-feature-title">Import any recipe URL</div><div class="d-feature-body">Paste a link. Ingredients come with it, matched and nutritionally mapped automatically.</div></div>
+    <div class="d-feature"><div class="d-feature-num">03</div><div class="d-feature-title">AI recipe optimization</div><div class="d-feature-body">Connect Claude via MCP. It reads the recipe, suggests ingredient swaps, and saves changes directly back.</div></div>
+    <div class="d-feature"><div class="d-feature-num">04</div><div class="d-feature-title">Household nutrition tracking</div><div class="d-feature-body">One kitchen. Separate goals and meal plans for each person in your household.</div></div>
+  </div>
+
+  <div class="d-closing">
+    <div class="d-closing-line">For the people who cook because they care what goes in.</div>
+    <div class="d-ctas"><a href="#" class="btn-primary">Get started →</a><a href="#" class="btn-ghost">Sign in →</a></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     OPTION E — CYCLING SCREENS
+══════════════════════════════════════════ -->
+<div id="optE" class="option">
+  <!-- Hero: full width -->
+  <div class="e-hero">
+    <div class="e-hero-left">
+      <span class="e-brand">Good Measure</span>
+      <h1 class="e-headline">Measure what<br>matters.</h1>
+      <p class="e-sub">A meal planner built around how you actually cook — your recipes, your household, and the numbers that matter. Not estimates. Real USDA data.</p>
+      <div class="e-ctas"><a href="#" class="btn-primary">Get started →</a><a href="#" class="btn-ghost">Sign in →</a></div>
+    </div>
+  </div>
+
+  <hr class="e-divider">
+
+  <!-- Split: features + cycling app -->
+  <div class="e-split">
+    <div class="e-features-col">
+      <div class="e-features" id="eFeatures">
+        <div class="e-feature active" data-screen="0">
+          <span class="e-feature-num">01</span>
+          <div><div class="e-feature-title">Your recipes, with real data</div><div class="e-feature-sub">Import any URL. Nutrition from 300,000+ USDA foods.</div></div>
+        </div>
+        <div class="e-feature" data-screen="1">
+          <span class="e-feature-num">02</span>
+          <div><div class="e-feature-title">Plan your whole week</div><div class="e-feature-sub">Drag meals into a week grid. Totals update as you go.</div></div>
+        </div>
+        <div class="e-feature" data-screen="2">
+          <span class="e-feature-num">03</span>
+          <div><div class="e-feature-title">AI recipe optimization</div><div class="e-feature-sub">Claude reads the recipe, suggests swaps, saves them back.</div></div>
+        </div>
+        <div class="e-feature" data-screen="3">
+          <span class="e-feature-num">04</span>
+          <div><div class="e-feature-title">An ingredient library you control</div><div class="e-feature-sub">Every ingredient backed by real USDA data. Add your own.</div></div>
+        </div>
+        <div class="e-feature" data-screen="4">
+          <span class="e-feature-num">05</span>
+          <div><div class="e-feature-title">Nutrition goals, at a glance</div><div class="e-feature-sub">Morning dashboard. Each person tracks their own targets.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="e-app-col">
+      <div class="e-screen-wrap">
+      <!-- Screen 0: Recipe detail (accurate) -->
+      <div class="e-screen active" id="eScreen0">
+        <div class="app-elevated" style="height:100%;">
+          <div class="app-frame">
+            <div class="app-topnav">
+              <span class="app-nav-brand">Good Measure</span>
+              <div class="app-nav-links"><div class="app-nav-link">Meal Plans</div><div class="app-nav-link active">Recipes</div><div class="app-nav-link">Pantry</div></div>
+              <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+              <span class="app-nav-gear">&#9881;</span>
+              <span class="app-nav-signout">Sign out</span>
+            </div>
+            <div class="app-body">
+              <div class="app-sidebar">
+                <div class="app-sidebar-hd"><span class="app-sidebar-label">Recipes <span class="app-sidebar-count">43</span></span></div>
+                <input class="app-search" placeholder="Search recipes..." disabled>
+                <div style="display:flex;gap:4px;padding:4px 12px;flex-wrap:wrap;">
+                  <span class="app-filter-tag">Breakfast</span>
+                  <span class="app-filter-tag">Lunch</span>
+                  <span class="app-filter-tag">Dinner</span>
+                  <span class="app-filter-tag">Snack</span>
+                  <span class="app-filter-tag">Side</span>
+                  <span class="app-filter-tag">Dessert</span>
+                </div>
+                <div class="app-sidebar-sort">Sort Name &#8595;</div>
+                <div class="app-sidebar-items">
+                  <div class="app-item"><div class="app-item-name">Almond Croissant Bars</div></div>
+                  <div class="app-item active"><div class="app-item-name">Black Bean Avocado Brownies</div></div>
+                  <div class="app-item"><div class="app-item-name">Black Bean Cherry Brownies</div></div>
+                  <div class="app-item"><div class="app-item-name">Cauliflower Salad w/ Dates</div></div>
+                  <div class="app-item"><div class="app-item-name">Cottage Cheese Breakfast</div></div>
+                  <div class="app-item"><div class="app-item-name">Crispy Salmon w/ Coconut Rice</div></div>
+                  <div class="app-item"><div class="app-item-name">Curried Red Lentils</div></div>
+                </div>
+                <div class="app-sidebar-bottom">+ New Recipe</div>
+              </div>
+              <div class="app-detail" style="border-left:1px solid var(--rule);">
+                <div class="app-detail-hd">
+                  <div class="app-detail-title">Black Bean Avocado Brownies</div>
+                  <div style="display:flex;gap:6px;margin-top:4px;">
+                    <span class="app-btn-edit">Edit</span><span class="app-btn-dup">Duplicate</span><span class="app-btn-del">Delete</span>
+                  </div>
+                  <div class="app-detail-meta" style="margin-top:6px;">
+                    <span class="app-detail-stat">16 servings &middot; 10 min prep &middot; 25 min cook</span>
+                  </div>
+                  <div style="margin-top:4px;"><span class="app-tag colored">Dessert</span><span class="app-tag colored">Snack</span></div>
+                </div>
+                <div class="app-tabs"><div class="app-tab active">Recipe</div><div class="app-tab">Optimization</div><div class="app-tab">Meal Prep</div></div>
+                <div class="app-detail-body">
+                  <div class="nutr-grid">
+                    <div class="nutr-cell"><div class="nutr-val">94.6</div><div class="nutr-label">Kcal</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">3.7g</div><div class="nutr-label">Fat</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">1.1g</div><div class="nutr-label">Sat Fat</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">61.9mg</div><div class="nutr-label">Sodium</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">12.7g</div><div class="nutr-label">Carbs</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">7.3g</div><div class="nutr-label">Sugar</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">3.3g</div><div class="nutr-label">Protein</div></div>
+                    <div class="nutr-cell"><div class="nutr-val">2.9g</div><div class="nutr-label">Fiber</div></div>
+                  </div>
+                  <div class="ingr-area">
+                    <div class="ingr-header"><span class="ingr-title">Ingredients</span><div class="scale-btns"><div class="scale-btn active" style="background:var(--accent);color:white;">1&times;</div><div class="scale-btn">2&times;</div><div class="scale-btn">3&times;</div></div></div>
+                    <div class="ingr-row"><span class="ingr-qty">250 g</span><span class="ingr-name">Black beans</span></div>
+                    <div class="ingr-row"><span class="ingr-qty">2 egg</span><span class="ingr-name">Eggs</span></div>
+                    <div class="ingr-row"><span class="ingr-qty">0.5</span><span class="ingr-name">Avocado</span></div>
+                    <div class="ingr-row"><span class="ingr-qty">1 Tbsp</span><span class="ingr-name">Olive oil</span></div>
+                    <div class="ingr-row"><span class="ingr-qty">40 g</span><span class="ingr-name">Cocoa powder</span></div>
+                    <div class="ingr-row"><span class="ingr-qty">16 g</span><span class="ingr-name">PB Powder</span></div>
+                    <div class="ingr-row"><span class="ingr-qty">120 g</span><span class="ingr-name">Maple syrup</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="app-context">
+                <div class="app-context-body" style="padding-top:10px;">
+                  <div class="ctx-section">Per serving &middot; vs goals</div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Calories</span><span class="ctx-nutrient-val">95 / 2,000</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:5%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fat</span><span class="ctx-nutrient-val">4 / 75g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:5%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Saturated Fat</span><span class="ctx-nutrient-val">1 / 18g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:6%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sodium</span><span class="ctx-nutrient-val">62 / 2,300mg</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:3%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Carbs</span><span class="ctx-nutrient-val">13 / 225g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:6%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sugar</span><span class="ctx-nutrient-val">7 / 25g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:28%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Protein</span><span class="ctx-nutrient-val">3 / 95g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:3%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fiber</span><span class="ctx-nutrient-val">3 / 22g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:14%"></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 1: Meal plan -->
+      <div class="e-screen" id="eScreen1">
+        <div class="app-elevated" style="height:100%;">
+          <div class="app-frame">
+            <div class="app-topnav">
+              <span class="app-nav-brand">Good Measure</span>
+              <div class="app-nav-links"><div class="app-nav-link active">Meal Plans</div><div class="app-nav-link">Recipes</div><div class="app-nav-link">Pantry</div></div>
+              <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+              <span class="app-nav-gear">&#9881;</span>
+              <span class="app-nav-signout">Sign out</span>
+            </div>
+            <div class="mp-frame">
+              <div class="mp-controls">
+                <span class="mp-week-title">Mar 29 &ndash; Apr 4</span>
+                <span class="mp-ctrl-btn">&lsaquo; Prev</span>
+                <span class="mp-ctrl-btn">Next &rsaquo;</span>
+                <span class="mp-ctrl-btn">This Week</span>
+                <span class="mp-ctrl-btn green">+ New Plan</span>
+                <span class="mp-ctrl-btn">Edit</span>
+                <div class="mp-right-controls">
+                  <span class="mp-ctrl-btn">&lsaquo; Nutrition</span>
+                  <span class="mp-ctrl-btn" style="background:rgba(212,89,74,0.1);color:#D4594A;border-color:#D4594A;"><span class="mp-person-dot" style="background:#D4594A;"></span> Jen</span>
+                  <span class="mp-ctrl-btn"><span class="mp-person-dot" style="background:#6B9E7B;"></span> Garth</span>
+                  <span class="mp-ctrl-btn">Everyone</span>
+                </div>
+              </div>
+              <div class="mp-grid" style="grid-template-rows: 44px repeat(6, 1fr);">
+                <div class="mp-corner"></div>
+                <div class="mp-day-hd"><span class="mp-day-abbr">Sun</span><span class="mp-day-num">29</span></div>
+                <div class="mp-day-hd"><span class="mp-day-abbr">Mon</span><span class="mp-day-num">30</span></div>
+                <div class="mp-day-hd"><span class="mp-day-abbr">Tue</span><span class="mp-day-num">31</span></div>
+                <div class="mp-day-hd today"><span class="mp-day-abbr">Wed</span><span class="mp-day-num">1</span></div>
+                <div class="mp-day-hd"><span class="mp-day-abbr">Thu</span><span class="mp-day-num">2</span></div>
+                <div class="mp-day-hd"><span class="mp-day-abbr">Fri</span><span class="mp-day-num">3</span></div>
+                <div class="mp-day-hd"><span class="mp-day-abbr">Sat</span><span class="mp-day-num">4</span></div>
+
+                <div class="mp-row-label">Breakfast</div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><div class="mp-meal-card"><div class="mp-meal-name">Cottage Ch. B...</div><div class="mp-meal-kcal">298</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell" style="background:rgba(212,89,74,0.03);"><div class="mp-meal-card"><div class="mp-meal-name">Overnight Oats PB...</div><div class="mp-meal-kcal">305</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+
+                <div class="mp-row-label">Lunch</div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell" style="background:rgba(212,89,74,0.03);"><div class="mp-meal-card"><div class="mp-meal-name">Lunch Salad w/Sa...</div><div class="mp-meal-kcal">412</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+
+                <div class="mp-row-label">Dinner</div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell" style="background:rgba(212,89,74,0.03);"><div class="mp-meal-card"><div class="mp-meal-name">Noodle Bowl w/ Im...</div><div class="mp-meal-kcal">529</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+
+                <div class="mp-row-label">Snack</div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell" style="background:rgba(212,89,74,0.03);"><div class="mp-meal-card"><div class="mp-meal-name">PB Protein Balls</div><div class="mp-meal-kcal">155</div></div><div class="mp-meal-card"><div class="mp-meal-name">Lesser Evil</div><div class="mp-meal-kcal">150</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+
+                <div class="mp-row-label">Dessert</div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><div class="mp-meal-card"><div class="mp-meal-name">Black Bean Avoca...</div><div class="mp-meal-kcal">95</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell" style="background:rgba(212,89,74,0.03);"><div class="mp-meal-card"><div class="mp-meal-name">Beyond Good &ndash; Ha...</div><div class="mp-meal-kcal">150</div></div></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+
+                <div class="mp-row-label">Beverage</div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell" style="background:rgba(212,89,74,0.03);"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+                <div class="mp-cell"><span class="mp-empty">&mdash;</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 2: Optimization tab -->
+      <div class="e-screen" id="eScreen2">
+        <div class="app-elevated" style="height:100%;">
+          <div class="app-frame">
+            <div class="app-topnav">
+              <span class="app-nav-brand">Good Measure</span>
+              <div class="app-nav-links"><div class="app-nav-link">Meal Plans</div><div class="app-nav-link active">Recipes</div><div class="app-nav-link">Pantry</div></div>
+              <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+              <span class="app-nav-gear">&#9881;</span>
+              <span class="app-nav-signout">Sign out</span>
+            </div>
+            <div class="app-body">
+              <div class="app-detail" style="border-left:none;">
+                <div class="app-detail-hd">
+                  <div class="app-detail-title" style="font-size:18px;">Black Bean Avocado Brownies (Optimized)</div>
+                  <div style="display:flex;gap:6px;margin-top:4px;">
+                    <span class="app-btn-edit">Edit</span><span class="app-btn-dup">Duplicate</span><span class="app-btn-del">Delete</span>
+                  </div>
+                  <div class="app-detail-meta" style="margin-top:6px;">
+                    <span class="app-detail-stat">16 servings &middot; 10 min prep &middot; 25 min cook</span>
+                  </div>
+                  <div style="margin-top:4px;"><span class="app-tag colored">Dessert</span><span class="app-tag colored">Snack</span></div>
+                </div>
+                <div class="app-tabs"><div class="app-tab">Recipe</div><div class="app-tab active">Optimization</div><div class="app-tab">Meal Prep</div></div>
+                <div class="opt-body">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="opt-section-hd" style="margin-bottom:0;">Optimization notes</div>
+                    <span style="font-family:var(--mono);font-size:7.5px;color:var(--accent);cursor:pointer;">Edit</span>
+                  </div>
+                  <h3 style="font-family:var(--sans);font-size:11px;font-weight:600;margin:10px 0 6px;">Optimization Notes</h3>
+                  <div style="margin-bottom:12px;">
+                    <div class="opt-section-hd">Top nutrient contributors</div>
+                    <div class="opt-note" style="font-size:10px;">
+                      <strong>Sugar:</strong> Maple syrup is the primary sugar source.<br>
+                      <strong>Fat:</strong> Avocado and olive oil contribute most fat.<br>
+                      <strong>Fiber:</strong> Black beans provide the bulk of fiber.
+                    </div>
+                  </div>
+                  <div>
+                    <div class="opt-section-hd">Changes from original</div>
+                    <div style="display:grid;grid-template-columns:1fr 60px 60px 1fr;gap:2px 8px;font-family:var(--mono);font-size:8px;margin-top:6px;">
+                      <div style="font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-size:7px;">Change</div>
+                      <div style="font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-size:7px;">Orig</div>
+                      <div style="font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-size:7px;">Opt</div>
+                      <div style="font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-size:7px;">Reason</div>
+                      <div>Maple syrup</div><div>120g</div><div>80g</div><div>Reduce sugar</div>
+                      <div>Almond butter</div><div>&mdash;</div><div>1 Tbsp</div><div>Add healthy fat + protein</div>
+                      <div>PB Powder</div><div>16g</div><div>24g</div><div>Boost protein</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="app-context">
+                <div class="app-context-body" style="padding-top:10px;">
+                  <div class="ctx-section">Per serving &middot; vs goals</div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Calories</span><span class="ctx-nutrient-val">87 / 2,000</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:4%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fat</span><span class="ctx-nutrient-val">4 / 75g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:5%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Saturated Fat</span><span class="ctx-nutrient-val">1 / 18g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:6%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sodium</span><span class="ctx-nutrient-val">58 / 2,300mg</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:3%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Carbs</span><span class="ctx-nutrient-val">11 / 225g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:5%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sugar</span><span class="ctx-nutrient-val">5 / 25g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:20%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Protein</span><span class="ctx-nutrient-val">4 / 95g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:4%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fiber</span><span class="ctx-nutrient-val">3 / 22g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:14%"></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 3: Pantry -->
+      <div class="e-screen" id="eScreen3">
+        <div class="app-elevated" style="height:100%;">
+          <div class="app-frame">
+            <div class="app-topnav">
+              <span class="app-nav-brand">Good Measure</span>
+              <div class="app-nav-links"><div class="app-nav-link">Meal Plans</div><div class="app-nav-link">Recipes</div><div class="app-nav-link active">Pantry</div></div>
+              <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+              <span class="app-nav-gear">&#9881;</span>
+              <span class="app-nav-signout">Sign out</span>
+            </div>
+            <div class="app-body">
+              <div class="app-sidebar">
+                <div class="app-sidebar-hd"><span class="app-sidebar-label">Pantry <span class="app-sidebar-count">196</span></span></div>
+                <input class="app-search" placeholder="Search pantry..." disabled>
+                <div style="display:flex;gap:4px;padding:4px 12px;flex-wrap:wrap;">
+                  <span class="app-filter-tag active">All</span>
+                  <span class="app-filter-tag">Foods</span>
+                  <span class="app-filter-tag">Ingredients</span>
+                </div>
+                <div class="app-sidebar-items">
+                  <div class="app-item active"><div class="app-item-name">Almond butter</div></div>
+                  <div class="app-item"><div class="app-item-name">Almond extract</div></div>
+                  <div class="app-item"><div class="app-item-name">Almond flour</div></div>
+                  <div class="app-item"><div class="app-item-name">Almond milk unsweetened</div></div>
+                  <div class="app-item"><div class="app-item-name">Almonds</div></div>
+                  <div class="app-item"><div class="app-item-name">Almonds Slivered</div></div>
+                  <div class="app-item"><div class="app-item-name">Apple</div></div>
+                  <div class="app-item"><div class="app-item-name">Apple cider vinegar</div></div>
+                </div>
+                <div class="app-sidebar-bottom">+ New Pantry Item</div>
+              </div>
+              <div class="app-detail" style="border-left:1px solid var(--rule);">
+                <div class="app-detail-hd">
+                  <div class="app-detail-title">Almond butter</div>
+                  <div style="display:flex;gap:6px;margin-top:4px;">
+                    <span class="app-btn-edit">Edit</span><span class="app-btn-del">Delete</span>
+                  </div>
+                  <div class="app-detail-meta" style="margin-top:6px;">
+                    <span class="app-detail-stat">2 Tbsp = 32g</span>
+                  </div>
+                </div>
+                <div class="app-detail-body">
+                  <div class="pantry-nutr-label">Nutrition per 100g</div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Calories</span><span class="pantry-nutr-val">656.3 kcal</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Fat</span><span class="pantry-nutr-val">53.1g</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Saturated Fat</span><span class="pantry-nutr-val">4.7g</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Sodium</span><span class="pantry-nutr-val">0mg</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Carbs</span><span class="pantry-nutr-val">18.8g</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Sugar</span><span class="pantry-nutr-val">3.1g</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Protein</span><span class="pantry-nutr-val">18.8g</span></div>
+                  <div class="pantry-nutr-row"><span class="pantry-nutr-name">Fiber</span><span class="pantry-nutr-val">6.3g</span></div>
+                </div>
+              </div>
+              <div class="app-context">
+                <div class="app-context-body" style="padding-top:10px;">
+                  <div class="ctx-section">Jen's goals &middot; per 2 Tbsp (32g)</div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Calories</span><span class="ctx-nutrient-val">210 / 2,000</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:11%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fat</span><span class="ctx-nutrient-val">17 / 75g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:23%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Saturated Fat</span><span class="ctx-nutrient-val">2 / 18g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:8%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sodium</span><span class="ctx-nutrient-val">0 / 2,300mg</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:0%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Carbs</span><span class="ctx-nutrient-val">6 / 225g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:3%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Sugar</span><span class="ctx-nutrient-val">1 / 25g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:4%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Protein</span><span class="ctx-nutrient-val">6 / 95g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:6%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fiber</span><span class="ctx-nutrient-val">2 / 22g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:9%"></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 4: Dashboard -->
+      <div class="e-screen" id="eScreen4">
+        <div class="app-elevated" style="height:100%;">
+          <div class="app-frame">
+            <div class="app-topnav">
+              <span class="app-nav-brand">Good Measure</span>
+              <div class="app-nav-links"><div class="app-nav-link">Meal Plans</div><div class="app-nav-link">Recipes</div><div class="app-nav-link">Pantry</div></div>
+              <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+              <span class="app-nav-gear">&#9881;</span>
+              <span class="app-nav-signout">Sign out</span>
+            </div>
+            <div class="dash-frame">
+              <div class="dash-greeting-area">
+                <div class="dash-greeting">Good morning, Jen.</div>
+                <div class="dash-date">Wednesday, April 1</div>
+              </div>
+              <div class="dash-grid">
+                <div class="dash-left">
+                  <div class="dash-ring-row">
+                    <svg width="60" height="60" viewBox="0 0 88 88"><circle cx="44" cy="44" r="35" fill="none" stroke="var(--bg-subtle)" stroke-width="7"/><circle cx="44" cy="44" r="35" fill="none" stroke="#D4594A" stroke-width="7" stroke-dasharray="219.9" stroke-dashoffset="54.9" stroke-linecap="round" transform="rotate(-90 44 44)"/></svg>
+                    <div><div class="dash-ring-num">6</div><div class="dash-ring-label">of 8 goals on track</div></div>
+                  </div>
+                  <div class="dash-warning">&#9650; Fat +9g over limit</div>
+                  <div class="dash-warning">&#9650; Saturated fat +3g over limit</div>
+                  <div class="dash-section-label">Today's nutrition</div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Calories</span><span class="ctx-nutrient-val">1,801 / 2,000</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:90%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fat</span><span class="ctx-nutrient-val">84 / 75g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:100%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Saturated Fat</span><span class="ctx-nutrient-val">21 / 18g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:100%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Protein</span><span class="ctx-nutrient-val">101 / 95g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:100%"></div></div></div>
+                  <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fiber</span><span class="ctx-nutrient-val">31 / 22g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:100%"></div></div></div>
+                </div>
+                <div class="dash-right">
+                  <div class="dash-section-label">Today's meals</div>
+                  <div class="dash-meal-row"><span class="dash-meal-type">Breakfast</span><span class="dash-meal-name">Overnight Oats PB &ndash; Jen</span></div>
+                  <div class="dash-meal-row"><span class="dash-meal-type">Lunch</span><span class="dash-meal-name">Lunch Salad w/Salmon</span></div>
+                  <div class="dash-meal-row"><span class="dash-meal-type">Snack</span><span class="dash-meal-name">PB Protein Balls, Lesser Evil</span></div>
+                  <div class="dash-meal-row"><span class="dash-meal-type">Dinner</span><span class="dash-meal-name">Noodle Bowl w/ Impossible Meat</span></div>
+                  <div class="dash-meal-row"><span class="dash-meal-type">Dessert</span><span class="dash-meal-name">Beyond Good &ndash; Hazelnut 73%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="e-footer">
+    <div class="e-footer-close">For the people who cook because they care what goes in.</div>
+    <div class="e-legal">© 2026 Made by Jen Furfaro · Free to use</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     OPTION G — MAGAZINE: FULL-WIDTH HEADLINE + GRID
+══════════════════════════════════════════ -->
+<div id="optG" class="option">
+  <div class="g-brand-row">
+    <span class="g-brand">Good Measure</span>
+  </div>
+
+  <div class="g-headline-section">
+    <h1 class="g-headline">Measure<br>what matters.</h1>
+  </div>
+
+  <div class="g-sub-row">
+    <p class="g-sub">A meal planner built around how you actually cook — your recipes, your household, and the numbers that matter. Not estimates. Real USDA data, AI optimization, and a week you can see at once.</p>
+    <div class="g-cta-group">
+      <div style="display:flex;gap:14px;align-items:center;">
+        <a href="#" class="btn-primary">Get started →</a>
+        <a href="#" class="btn-ghost">Sign in →</a>
+      </div>
+      <div class="g-legal">© 2026 Made by Jen Furfaro</div>
+    </div>
+  </div>
+
+  <div class="g-content">
+    <div class="g-app-col">
+      <div class="g-app-container app-elevated">
+        <div class="app-frame">
+          <div class="app-topnav">
+            <span class="app-nav-brand">Good Measure</span>
+            <div class="app-nav-links"><div class="app-nav-link active">Recipes</div><div class="app-nav-link">Ingredients</div><div class="app-nav-link">Meal Plans</div></div>
+            <div class="app-nav-persons"><div class="app-nav-person">J</div><div class="app-nav-person">G</div></div>
+          </div>
+          <div class="app-body">
+            <div class="app-detail" style="border-left:none;">
+              <div class="app-detail-hd"><div class="app-detail-title">Chicken Tikka Masala</div><div class="app-detail-meta"><span class="app-tag">Dinner</span><span class="app-tag">Indian</span><span class="app-detail-stat">6 servings · 45 min</span></div></div>
+              <div class="app-tabs"><div class="app-tab active">Recipe</div><div class="app-tab">Optimization</div><div class="app-tab">Meal Prep</div></div>
+              <div class="app-detail-body">
+                <div class="nutr-grid">
+                  <div class="nutr-cell"><div class="nutr-val">456</div><div class="nutr-label">Kcal</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">24g</div><div class="nutr-label">Fat</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">38g</div><div class="nutr-label">Protein</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">18g</div><div class="nutr-label">Carbs</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">8g</div><div class="nutr-label">Sat Fat</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">680mg</div><div class="nutr-label">Sodium</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">4g</div><div class="nutr-label">Fiber</div></div>
+                  <div class="nutr-cell"><div class="nutr-val">6g</div><div class="nutr-label">Sugar</div></div>
+                </div>
+                <div class="ingr-area">
+                  <div class="ingr-header"><span class="ingr-title">Ingredients</span><div class="scale-btns"><div class="scale-btn active">1x</div><div class="scale-btn">2x</div><div class="scale-btn">3x</div></div></div>
+                  <div class="section-hd">Marinade</div>
+                  <div class="ingr-row"><span class="ingr-qty">700 g</span><span class="ingr-name">Chicken breast, boneless</span></div>
+                  <div class="ingr-row"><span class="ingr-qty">¾ cup</span><span class="ingr-name">Plain yogurt, full-fat</span></div>
+                  <div class="ingr-row"><span class="ingr-qty">2 tbsp</span><span class="ingr-name">Lemon juice</span></div>
+                  <div class="ingr-row"><span class="ingr-qty">2 tsp</span><span class="ingr-name">Garam masala</span></div>
+                  <div class="section-hd">Sauce</div>
+                  <div class="ingr-row"><span class="ingr-qty">1 can</span><span class="ingr-name">Crushed tomatoes</span></div>
+                  <div class="ingr-row"><span class="ingr-qty">½ cup</span><span class="ingr-name">Heavy cream</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="app-context">
+              <div class="app-tabs" style="background:var(--bg-nav);"><div class="app-tab active">Goals</div></div>
+              <div class="app-context-body">
+                <div class="ctx-section">Per serving vs. daily goal</div>
+                <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Calories</span><span class="ctx-nutrient-val">456 / 2,000</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:23%"></div></div></div>
+                <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Protein</span><span class="ctx-nutrient-val">38g / 120g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:32%"></div></div></div>
+                <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Total Fat</span><span class="ctx-nutrient-val">24g / 65g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:37%"></div></div></div>
+                <div class="ctx-nutrient"><div class="ctx-nutrient-hd"><span class="ctx-nutrient-name">Fiber</span><span class="ctx-nutrient-val">4g / 30g</span></div><div class="ctx-bar"><div class="ctx-bar-fill" style="width:13%"></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g-features-col">
+      <div class="g-features-label">What it does</div>
+      <div class="g-feature"><div class="g-feature-num">01</div><div class="g-feature-title">Real USDA nutrition data</div><div class="g-feature-sub">300,000+ foods matched to your recipes. Not estimates — actual numbers.</div></div>
+      <div class="g-feature"><div class="g-feature-num">02</div><div class="g-feature-title">Import any recipe URL</div><div class="g-feature-sub">Paste a link. Ingredients come with it, matched and mapped automatically.</div></div>
+      <div class="g-feature"><div class="g-feature-num">03</div><div class="g-feature-title">AI recipe optimization</div><div class="g-feature-sub">Connect Claude. Reads your recipe, suggests swaps, saves back directly.</div></div>
+      <div class="g-feature"><div class="g-feature-num">04</div><div class="g-feature-title">Household tracking</div><div class="g-feature-sub">One kitchen. Separate goals and meal plans per person.</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Switcher -->
+<div class="switcher">
+  <button class="active" onclick="show(this,'D')">D — Below fold</button>
+  <button onclick="show(this,'E')">E — Cycling screens</button>
+  <button onclick="show(this,'G')">G — Magazine grid</button>
+</div>
+
+<script>
+let currentScreen = 0;
+let cycleInterval = null;
+const SCREENS = 5;
+const DELAY = 4500;
+
+function goToScreen(n) {
+  currentScreen = n;
+  document.querySelectorAll('.e-screen').forEach((s, i) => s.classList.toggle('active', i === n));
+  document.querySelectorAll('.e-feature').forEach((f, i) => f.classList.toggle('active', i === n));
+}
+
+function startCycle() {
+  if (cycleInterval) clearInterval(cycleInterval);
+  cycleInterval = setInterval(() => {
+    currentScreen = (currentScreen + 1) % SCREENS;
+    goToScreen(currentScreen);
+  }, DELAY);
+}
+
+function stopCycle() { if (cycleInterval) { clearInterval(cycleInterval); cycleInterval = null; } }
+
+function show(btn, opt) {
+  document.querySelectorAll('.option').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.switcher button').forEach(el => el.classList.remove('active'));
+  document.getElementById('opt' + opt).classList.add('visible');
+  btn.classList.add('active');
+  if (opt === 'E') { goToScreen(0); startCycle(); } else { stopCycle(); }
+}
+</script>
+</body>
+</html>

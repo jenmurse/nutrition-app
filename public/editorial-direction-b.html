@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Direction B: Scattered Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #EDEAE2;
+  --bg-lt:  #F5F2EB;
+  --fg:     #0C0A07;
+  --mid:    #3A3326;
+  --muted:  #7A6E5E;
+  --faint:  #B5A898;
+  --rule:   #D2C8BA;
+  --accent: #3D7A4F;
+  --acc-lt: #DAE9DE;
+  --sans:  'DM Sans', sans-serif;
+  --mono:  'DM Mono', monospace;
+  --disp:  'Fraunces', Georgia, serif;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 14px;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* Grain */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9000; pointer-events: none; opacity: .03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* Cursor */
+#cur  { position:fixed; width:5px; height:5px; background:var(--fg); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+#ring { position:fixed; width:32px; height:32px; border:1px solid rgba(12,10,7,.22); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition: width .25s, height .25s, border-color .25s; }
+#ring.hov { width:54px; height:54px; border-color:rgba(61,122,79,.5); }
+#ring.link { width:44px; height:44px; background: rgba(61,122,79,.08); border-color:rgba(61,122,79,.4); }
+
+/* Nav */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; height: 50px;
+  padding: 0 40px; background: var(--bg); border-bottom: 1px solid var(--rule);
+}
+.brand { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--fg); text-decoration: none; }
+.nav-c { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; }
+.nvb { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: none; border: none; padding: 5px 13px; border-radius: 4px; cursor: none; transition: color .14s, background .14s; }
+.nvb:hover { color: var(--fg); background: rgba(0,0,0,.05); }
+.nvb.on { color: var(--accent); background: var(--acc-lt); }
+.nav-r { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.pdot { width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; color: white; font-weight: 500; cursor: none; flex-shrink: 0; }
+.nav-meta { font-family: var(--mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+/* Views */
+.view { display: none; }
+.view.on { display: block; animation: vIn .4s cubic-bezier(.25,.1,.25,1) both; }
+@keyframes vIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+/* ════════════════════════════════════
+   GALLERY VIEW
+════════════════════════════════════ */
+.gal-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 44px 56px 36px;
+}
+.gal-hed-l {}
+.gal-crumb { font-family: var(--mono); font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
+.gal-title { font-family: var(--disp); font-size: 58px; font-weight: 300; font-optical-sizing: auto; line-height: 1; letter-spacing: -.025em; }
+.gal-title em { font-style: italic; font-weight: 300; }
+.gal-subtitle { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 14px; }
+.gal-hed-r { font-family: var(--mono); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: right; line-height: 2; }
+
+/* Scattered grid */
+.scatter {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 64px;
+  padding: 0 48px 100px;
+  position: relative;
+  /* parallax container */
+}
+
+/* Cards */
+.sc-card {
+  position: relative; overflow: hidden; cursor: none;
+  /* transition handles parallax smoothly */
+  will-change: transform;
+}
+.sc-card img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .6s cubic-bezier(.25,.1,.25,1);
+}
+.sc-card:hover img { transform: scale(1.04); }
+
+/* Reveal overlay */
+.sc-over {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(12,10,7,.88) 35%, rgba(12,10,7,.08) 70%, transparent 100%);
+  opacity: 0; transition: opacity .38s cubic-bezier(.25,.1,.25,1);
+}
+.sc-card:hover .sc-over { opacity: 1; }
+
+/* Reveal card content */
+.sc-reveal {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 18px 20px 20px;
+  transform: translateY(14px); opacity: 0;
+  transition: transform .38s cubic-bezier(.25,.1,.25,1), opacity .38s;
+}
+.sc-card:hover .sc-reveal { transform: translateY(0); opacity: 1; }
+
+.rc-crumb { font-family: var(--mono); font-size: 7px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 5px; }
+.rc-name { font-family: var(--disp); font-size: 18px; font-weight: 400; font-style: italic; font-optical-sizing: auto; line-height: 1.2; color: white; margin-bottom: 11px; }
+.rc-macros { display: flex; gap: 0; border-top: 1px solid rgba(255,255,255,.15); padding-top: 10px; margin-bottom: 12px; }
+.rc-mac { flex: 1; }
+.rc-mac-v { font-family: var(--mono); font-size: 12px; font-weight: 500; color: white; display: block; }
+.rc-mac-k { font-family: var(--mono); font-size: 7px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); display: block; margin-top: 1px; }
+.rc-open { font-family: var(--mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--acc-lt); display: inline-flex; align-items: center; gap: 6px; }
+.rc-open::after { content: '→'; }
+
+/* Grid placements */
+.sc-1 { grid-column: 1 / 5;  grid-row: 2 / 10; } /* big landscape */
+.sc-2 { grid-column: 8 / 12; grid-row: 1 / 8;  } /* portrait tall */
+.sc-3 { grid-column: 5 / 8;  grid-row: 4 / 11; } /* square medium */
+.sc-4 { grid-column: 9 / 13; grid-row: 8 / 13; } /* landscape med */
+.sc-5 { grid-column: 1 / 5;  grid-row: 11 / 16;} /* landscape med */
+.sc-6 { grid-column: 5 / 9;  grid-row: 12 / 16;} /* landscape med */
+
+/* Editorial labels in negative space */
+.sc-label {
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 0 10px 4px;
+  pointer-events: none;
+}
+.sc-lbl-num { font-family: var(--disp); font-size: 10px; font-weight: 300; font-style: italic; letter-spacing: .02em; color: var(--faint); margin-bottom: 3px; }
+.sc-lbl-name { font-family: var(--mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+/* Large decorative numbers in negative space */
+.sc-deco {
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.sc-deco-num {
+  font-family: var(--disp); font-optical-sizing: auto; font-weight: 200;
+  color: rgba(12,10,7,.06); line-height: 1; letter-spacing: -.04em;
+  user-select: none;
+}
+
+/* Floating statement */
+.sc-stmt {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 12px;
+  pointer-events: none;
+}
+.sc-stmt-text {
+  font-family: var(--disp); font-size: 15px; font-weight: 300; font-style: italic;
+  font-optical-sizing: auto; color: var(--muted); line-height: 1.4;
+  letter-spacing: -.01em;
+}
+.sc-stmt-attr {
+  font-family: var(--mono); font-size: 7px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--faint); margin-top: 8px;
+}
+
+/* Label positions */
+.sl-1 { grid-column: 5 / 8;  grid-row: 1 / 4;  }
+.sl-2 { grid-column: 1 / 5;  grid-row: 1 / 2;  }
+.sl-3 { grid-column: 8 / 12; grid-row: 8 / 10; }
+.sl-4 { grid-column: 5 / 9;  grid-row: 11 / 12;}
+.sl-5 { grid-column: 9 / 13; grid-row: 1 / 5;  }
+
+/* Big deco number */
+.sd-1 { grid-column: 5 / 8; grid-row: 1 / 4; }
+
+/* Statement */
+.ss-1 { grid-column: 1 / 5; grid-row: 10 / 11; }
+
+/* ════════════════════════════════════
+   RECIPE DETAIL VIEW
+════════════════════════════════════ */
+.detail-hero {
+  position: relative; width: 100%; height: 52vh; overflow: hidden;
+}
+.detail-hero img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: brightness(.75);
+}
+.detail-hero-content {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 44px 56px;
+}
+.detail-crumb { font-family: var(--mono); font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 12px; }
+.detail-name { font-family: var(--disp); font-size: 62px; font-weight: 300; font-optical-sizing: auto; line-height: 1; letter-spacing: -.025em; color: white; }
+.detail-attrs {
+  display: flex; align-items: center; gap: 20px; margin-top: 14px;
+}
+.detail-attr { font-family: var(--mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.detail-complexity {
+  margin-left: auto; font-family: var(--disp); font-size: 18px; font-weight: 300; font-style: italic; font-optical-sizing: auto; color: rgba(255,255,255,.7); text-align: right;
+}
+.detail-complexity small { font-family: var(--mono); font-size: 7px; letter-spacing: .12em; text-transform: uppercase; display: block; margin-bottom: 3px; color: rgba(255,255,255,.4); font-style: normal; }
+
+/* Detail body */
+.detail-body {
+  display: grid; grid-template-columns: 280px 1fr 260px;
+  border-top: 1px solid var(--rule);
+}
+.detail-col { padding: 40px 36px; border-right: 1px solid var(--rule); }
+.detail-col:last-child { border-right: none; }
+
+.detail-col-label {
+  font-family: var(--mono); font-size: 8px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--faint); margin-bottom: 22px;
+}
+
+/* Ingredients */
+.ing-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,.06);
+  gap: 12px;
+}
+.ing-row:last-child { border-bottom: none; }
+.ing-row-name { font-family: var(--sans); font-size: 13px; color: var(--fg); flex: 1; line-height: 1.3; }
+.ing-row-code { font-family: var(--mono); font-size: 7px; color: var(--faint); margin-left: 4px; }
+.ing-row-qty { font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+.grocery-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin-top: 22px; padding: 10px 14px;
+  border: 1px solid var(--rule); background: var(--bg-lt);
+  font-family: var(--mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); cursor: none;
+  transition: color .14s, border-color .14s, background .14s;
+}
+.grocery-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--acc-lt); }
+.grocery-btn::after { content: '→'; font-family: var(--mono); }
+
+/* Prep steps */
+.prep-step { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+.prep-step:last-child { border-bottom: none; }
+.prep-num { font-family: var(--disp); font-size: 28px; font-weight: 200; font-optical-sizing: auto; color: var(--faint); line-height: 1; flex-shrink: 0; width: 32px; }
+.prep-content {}
+.prep-title { font-family: var(--disp); font-size: 20px; font-weight: 400; font-style: italic; font-optical-sizing: auto; color: var(--fg); margin-bottom: 7px; line-height: 1.2; }
+.prep-text { font-family: var(--sans); font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+/* Nutrition panel */
+.nut-row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+.nut-row:last-child { border-bottom: none; }
+.nut-k { font-family: var(--mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.nut-v { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--mid); }
+
+.nut-big { padding: 0 0 16px; margin-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.nut-big-n { font-family: var(--disp); font-size: 52px; font-weight: 600; font-optical-sizing: auto; color: var(--fg); line-height: 1; letter-spacing: -.03em; }
+.nut-big-u { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-top: 2px; }
+
+.mcp-note {
+  margin-top: 20px; padding: 14px 16px;
+  background: var(--acc-lt); border-left: 2px solid var(--accent);
+}
+.mcp-note-label { font-family: var(--mono); font-size: 7px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.mcp-note-text { font-family: var(--disp); font-size: 12px; font-style: italic; font-optical-sizing: auto; color: var(--mid); line-height: 1.55; }
+
+/* Direction badge */
+.dir { position:fixed; bottom:26px; right:30px; font-family:var(--mono); font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); border:1px solid var(--rule); padding:5px 12px; border-radius:20px; background:var(--bg); pointer-events:none; z-index:500; }
+
+/* Reveal anim */
+.rv { opacity:0; transform:translateY(14px); transition: opacity .55s, transform .55s cubic-bezier(.25,.1,.25,1); }
+.rv.vis { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="ring"></div>
+
+<nav>
+  <a href="#" class="brand">Good Measure</a>
+  <div class="nav-c">
+    <button class="nvb on"  data-v="gallery">Recipes</button>
+    <button class="nvb"     data-v="detail">Recipe Detail</button>
+  </div>
+  <div class="nav-r">
+    <span class="nav-meta">Week 13 — Apr 2026</span>
+    <div class="pdot" style="background:#3D7A4F">J</div>
+    <div class="pdot" style="background:#7B6FA0;opacity:.35">G</div>
+  </div>
+</nav>
+
+
+<!-- ══ GALLERY ═══════════════════════════════════════════════ -->
+<div class="view on" id="v-gallery">
+
+  <div class="gal-header rv">
+    <div class="gal-hed-l">
+      <div class="gal-crumb">Archive / All Recipes</div>
+      <div class="gal-title">The Recipe <em>Collection</em></div>
+      <div class="gal-subtitle">8 recipes &nbsp;·&nbsp; 3 optimized &nbsp;·&nbsp; April 2026</div>
+    </div>
+    <div class="gal-hed-r">
+      Week 13 of 52<br>
+      Sage · Personal<br>
+      Last import: 2 days ago
+    </div>
+  </div>
+
+  <div class="scatter" id="scatter-grid">
+
+    <!-- ─ Big deco number ─ -->
+    <div class="sc-deco" style="grid-column:5/8; grid-row:1/5;" data-depth="0.2">
+      <span class="sc-deco-num" style="font-size: 200px;">13</span>
+    </div>
+
+    <!-- ─ Floating statement ─ -->
+    <div class="sc-stmt" style="grid-column:8/12; grid-row:8/11;" data-depth="0.3">
+      <div class="sc-stmt-text">"Every recipe is a decision<br>about what matters."</div>
+      <div class="sc-stmt-attr">Good Measure — Apr 2026</div>
+    </div>
+
+    <!-- ─ Label: card 1 ─ -->
+    <div class="sc-label" style="grid-column:1/5; grid-row:1/2;" data-depth="0.4">
+      <span class="sc-lbl-num">Nº 001</span>
+      <span class="sc-lbl-name">Produce / Savoury</span>
+    </div>
+
+    <!-- ─ Label: card 2 ─ -->
+    <div class="sc-label" style="grid-column:12/13; grid-row:1/4; writing-mode:vertical-rl;" data-depth="0.4">
+      <span class="sc-lbl-name" style="letter-spacing:.14em;">Protein · Omega-3</span>
+    </div>
+
+    <!-- ─ Label: card 3 ─ -->
+    <div class="sc-label" style="grid-column:5/8; grid-row:11/12;" data-depth="0.4">
+      <span class="sc-lbl-num">Nº 003</span>
+      <span class="sc-lbl-name">Greens / 10 Min</span>
+    </div>
+
+    <!-- ─ Label: card 5 ─ -->
+    <div class="sc-label" style="grid-column:5/8; grid-row:15/16;" data-depth="0.4">
+      <span class="sc-lbl-num">Nº 005</span>
+      <span class="sc-lbl-name">Breakfast / 23 Min</span>
+    </div>
+
+    <!-- ─ Card 1: Tomato Galette ─ -->
+    <div class="sc-card sc-1 rv" data-depth="1.1">
+      <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&h=700&fit=crop&auto=format" alt="Roasted Tomato Galette" loading="lazy">
+      <div class="sc-over"></div>
+      <div class="sc-reveal">
+        <div class="rc-crumb">Pantry / Produce</div>
+        <div class="rc-name">Roasted Tomato Galette</div>
+        <div class="rc-macros">
+          <div class="rc-mac"><span class="rc-mac-v">520</span><span class="rc-mac-k">kcal</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">12g</span><span class="rc-mac-k">prot</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">58g</span><span class="rc-mac-k">carbs</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">28g</span><span class="rc-mac-k">fat</span></div>
+        </div>
+        <div class="rc-open">Open recipe</div>
+      </div>
+    </div>
+
+    <!-- ─ Card 2: Salmon ─ -->
+    <div class="sc-card sc-2 rv" style="transition-delay:.06s" data-depth="0.85">
+      <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&h=700&fit=crop&auto=format" alt="Cedar Plank Salmon" loading="lazy">
+      <div class="sc-over"></div>
+      <div class="sc-reveal">
+        <div class="rc-crumb">Archive / Protein</div>
+        <div class="rc-name">Cedar Plank Salmon</div>
+        <div class="rc-macros">
+          <div class="rc-mac"><span class="rc-mac-v">380</span><span class="rc-mac-k">kcal</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">46g</span><span class="rc-mac-k">prot</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">4g</span><span class="rc-mac-k">carbs</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">20g</span><span class="rc-mac-k">fat</span></div>
+        </div>
+        <div class="rc-open">Open recipe</div>
+      </div>
+    </div>
+
+    <!-- ─ Card 3: Kale & Quinoa ─ -->
+    <div class="sc-card sc-3 rv" style="transition-delay:.12s" data-depth="1.0">
+      <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=600&fit=crop&auto=format" alt="Kale & Quinoa" loading="lazy">
+      <div class="sc-over"></div>
+      <div class="sc-reveal">
+        <div class="rc-crumb">Pantry / Greens</div>
+        <div class="rc-name">Kale & Quinoa Harvest</div>
+        <div class="rc-macros">
+          <div class="rc-mac"><span class="rc-mac-v">420</span><span class="rc-mac-k">kcal</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">22g</span><span class="rc-mac-k">prot</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">48g</span><span class="rc-mac-k">carbs</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">14g</span><span class="rc-mac-k">fat</span></div>
+        </div>
+        <div class="rc-open">Open recipe</div>
+      </div>
+    </div>
+
+    <!-- ─ Card 4: Lentil Dahl ─ -->
+    <div class="sc-card sc-4 rv" style="transition-delay:.08s" data-depth="0.9">
+      <img src="https://images.unsplash.com/photo-1604908177522-5f4dffd30e88?w=700&h=500&fit=crop&auto=format" alt="Lentil Dahl" loading="lazy">
+      <div class="sc-over"></div>
+      <div class="sc-reveal">
+        <div class="rc-crumb">Archive / Legumes</div>
+        <div class="rc-name">Lentil Dahl w/ Turmeric</div>
+        <div class="rc-macros">
+          <div class="rc-mac"><span class="rc-mac-v">490</span><span class="rc-mac-k">kcal</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">24g</span><span class="rc-mac-k">prot</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">68g</span><span class="rc-mac-k">carbs</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">12g</span><span class="rc-mac-k">fat</span></div>
+        </div>
+        <div class="rc-open">Open recipe</div>
+      </div>
+    </div>
+
+    <!-- ─ Card 5: Pancakes ─ -->
+    <div class="sc-card sc-5 rv" style="transition-delay:.1s" data-depth="1.15">
+      <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=700&h=500&fit=crop&auto=format" alt="Buckwheat Pancakes" loading="lazy">
+      <div class="sc-over"></div>
+      <div class="sc-reveal">
+        <div class="rc-crumb">Archive / Breakfast</div>
+        <div class="rc-name">Buckwheat Pancakes</div>
+        <div class="rc-macros">
+          <div class="rc-mac"><span class="rc-mac-v">360</span><span class="rc-mac-k">kcal</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">11g</span><span class="rc-mac-k">prot</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">52g</span><span class="rc-mac-k">carbs</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">14g</span><span class="rc-mac-k">fat</span></div>
+        </div>
+        <div class="rc-open">Open recipe</div>
+      </div>
+    </div>
+
+    <!-- ─ Card 6: Pasta ─ -->
+    <div class="sc-card sc-6 rv" style="transition-delay:.14s" data-depth="1.0">
+      <img src="https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=700&h=500&fit=crop&auto=format" alt="Lemon Pasta" loading="lazy">
+      <div class="sc-over"></div>
+      <div class="sc-reveal">
+        <div class="rc-crumb">Archive / Grains</div>
+        <div class="rc-name">Lemon Pasta w/ Roasted Veg</div>
+        <div class="rc-macros">
+          <div class="rc-mac"><span class="rc-mac-v">610</span><span class="rc-mac-k">kcal</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">18g</span><span class="rc-mac-k">prot</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">82g</span><span class="rc-mac-k">carbs</span></div>
+          <div class="rc-mac"><span class="rc-mac-v">22g</span><span class="rc-mac-k">fat</span></div>
+        </div>
+        <div class="rc-open">Open recipe</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══ RECIPE DETAIL ═════════════════════════════════════════ -->
+<div class="view" id="v-detail">
+
+  <div class="detail-hero">
+    <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=1600&h=800&fit=crop&auto=format" alt="Cedar Plank Salmon">
+    <div class="detail-hero-content">
+      <div class="detail-crumb">Recipe Index / No. 002 &nbsp;·&nbsp; Protein</div>
+      <div class="detail-name">Cedar Plank Salmon</div>
+      <div class="detail-attrs">
+        <span class="detail-attr">25 Min Prep</span>
+        <span class="detail-attr" style="color:rgba(255,255,255,.25)">·</span>
+        <span class="detail-attr">Anti-Inflammatory</span>
+        <span class="detail-attr" style="color:rgba(255,255,255,.25)">·</span>
+        <span class="detail-attr">High Omega-3</span>
+        <div class="detail-complexity">
+          <small>Complexity</small>
+          moderate / architectural
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-body">
+
+    <!-- Ingredients -->
+    <div class="detail-col">
+      <div class="detail-col-label">Ingredients & USDA Profiling</div>
+
+      <div class="ing-row">
+        <span class="ing-row-name">Wild Alaskan King Salmon <span class="ing-row-code">#173690</span></span>
+        <span class="ing-row-qty">180g / 36g P / 22g F</span>
+      </div>
+      <div class="ing-row">
+        <span class="ing-row-name">Organic Meyer Lemon</span>
+        <span class="ing-row-qty">2 Slices / 1g C</span>
+      </div>
+      <div class="ing-row">
+        <span class="ing-row-name">Fresh Sprig Rosemary <span class="ing-row-code">#170944</span></span>
+        <span class="ing-row-qty">2g / 0g Macro</span>
+      </div>
+      <div class="ing-row">
+        <span class="ing-row-name">Himalayan Sea Salt</span>
+        <span class="ing-row-qty">Pinch / trace</span>
+      </div>
+      <div class="ing-row">
+        <span class="ing-row-name">Cold Pressed Olive Oil</span>
+        <span class="ing-row-qty">15ml / 14g F</span>
+      </div>
+      <div class="ing-row">
+        <span class="ing-row-name">Black Garlic Cloves</span>
+        <span class="ing-row-qty">2 units / 4g C</span>
+      </div>
+
+      <button class="grocery-btn">Generate Grocery List</button>
+    </div>
+
+    <!-- Preparation steps -->
+    <div class="detail-col">
+      <div class="detail-col-label">Preparation Sequence</div>
+
+      <div class="prep-step">
+        <div class="prep-num">01</div>
+        <div class="prep-content">
+          <div class="prep-title">Submerge the cedar</div>
+          <div class="prep-text">Soak your untreated cedar plank in filtered water for at least 60 minutes. This prevents combustion and ensures the essential oils of the wood permeate the tissue of the salmon.</div>
+        </div>
+      </div>
+      <div class="prep-step">
+        <div class="prep-num">02</div>
+        <div class="prep-content">
+          <div class="prep-title">Surface preparation</div>
+          <div class="prep-text">Pat the wild salmon dry. Apply a thin veil of cold-pressed olive oil. This acts as a conductor for heat and a carrier for the rosemary and black garlic infusion.</div>
+        </div>
+      </div>
+      <div class="prep-step">
+        <div class="prep-num">03</div>
+        <div class="prep-content">
+          <div class="prep-title">Thermal equilibrium</div>
+          <div class="prep-text">Preheat your oven or grill to 200°C. Place the salmon onto the damp wood. Arrange lemon slices and rosemary sprigs along the spine of the fillet.</div>
+        </div>
+      </div>
+      <div class="prep-step">
+        <div class="prep-num">04</div>
+        <div class="prep-content">
+          <div class="prep-title">The infusion</div>
+          <div class="prep-text">Roast for 12–15 minutes. The goal is an internal temperature of 52°C for medium-rare, preserving the delicate omega-3 fatty acids from oxidation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nutrition + MCP -->
+    <div class="detail-col">
+      <div class="detail-col-label">Nutritional Profile</div>
+
+      <div class="nut-big">
+        <div class="nut-big-n">380</div>
+        <div class="nut-big-u">Kilocalories per serving</div>
+      </div>
+
+      <div class="nut-row"><span class="nut-k">Protein</span><span class="nut-v">46g</span></div>
+      <div class="nut-row"><span class="nut-k">Fat</span><span class="nut-v">20g</span></div>
+      <div class="nut-row"><span class="nut-k">Saturated</span><span class="nut-v">4g</span></div>
+      <div class="nut-row"><span class="nut-k">Omega-3</span><span class="nut-v">2.8g</span></div>
+      <div class="nut-row"><span class="nut-k">Carbs</span><span class="nut-v">4g</span></div>
+      <div class="nut-row"><span class="nut-k">Sodium</span><span class="nut-v">210mg</span></div>
+      <div class="nut-row"><span class="nut-k">Fiber</span><span class="nut-v">0.4g</span></div>
+
+      <div class="mcp-note">
+        <div class="mcp-note-label">MCP Optimization Note</div>
+        <div class="mcp-note-text">"Adding 20g of hemp seeds before serving would increase omega-3 by 40% without altering the thermal sequence."</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="dir">Direction B — Scattered Editorial</div>
+
+
+<script>
+/* ── Cursor ──────────────────────────── */
+const cur = document.getElementById('cur');
+const ring = document.getElementById('ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+});
+(function l() {
+  rx += (mx - rx) * .1; ry += (my - ry) * .1;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(l);
+})();
+
+document.querySelectorAll('.sc-card, .nvb, a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hov'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hov'));
+});
+
+/* ── Parallax on scatter grid ─────────── */
+let ticking = false;
+document.addEventListener('mousemove', e => {
+  if (!document.getElementById('v-gallery').classList.contains('on')) return;
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (e.clientX - cx) / cx;
+    const dy = (e.clientY - cy) / cy;
+    document.querySelectorAll('[data-depth]').forEach(el => {
+      const d = parseFloat(el.dataset.depth);
+      const x = dx * d * 10;
+      const y = dy * d * 6;
+      el.style.transform = `translate(${x}px, ${y}px)`;
+    });
+    ticking = false;
+  });
+});
+
+/* ── View switching ───────────────────── */
+document.querySelectorAll('[data-v]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.v;
+    document.querySelectorAll('[data-v]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+    document.getElementById('v-' + id).classList.add('on');
+    window.scrollTo(0, 0);
+    setTimeout(triggerReveals, 50);
+  });
+});
+
+/* ── Reveals ──────────────────────────── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.06 });
+
+function triggerReveals() {
+  document.querySelectorAll('.view.on .rv').forEach((el, i) => {
+    el.classList.remove('vis');
+    const delay = parseFloat(el.style.transitionDelay || '0') * 1000;
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight * 1.2) {
+      setTimeout(() => el.classList.add('vis'), delay + 50 + i * 12);
+    } else {
+      io.observe(el);
+    }
+  });
+}
+triggerReveals();
+</script>
+</body>
+</html>

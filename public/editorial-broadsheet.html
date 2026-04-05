@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — The Kitchen Broadsheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: #F5F4EF;
+  --bg-2: #EEEAE3;
+  --bg-3: #E6E2D8;
+  --fg: #1A1916;
+  --fg-2: #36342F;
+  --muted: #6B6860;
+  --rule: #D0CCC2;
+  --accent: #E84828;
+  --accent-l: rgba(232,72,40,0.07);
+  --accent-fg: #fff;
+  --ok: #5A9B6A;
+  --grain-op: 0.022;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+[data-theme="dark"] {
+  --bg: #141311;
+  --bg-2: #1C1B18;
+  --bg-3: #242220;
+  --fg: #F0ECE4;
+  --fg-2: #C0BDB4;
+  --muted: #686560;
+  --rule: #2A2825;
+  --accent: #F05A30;
+  --accent-l: rgba(240,90,48,0.12);
+  --grain-op: 0.04;
+}
+
+html, body {
+  background: var(--bg); color: var(--fg);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s, color 0.3s;
+  min-height: 100%;
+}
+
+/* ── GRAIN ── */
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px; opacity: var(--grain-op); mix-blend-mode: overlay;
+}
+
+
+/* ── LAYOUT ── */
+.bs-wrap { max-width: 1100px; margin: 0 auto; padding: 0 40px 80px; }
+
+/* ── UTILITY ROW ── */
+.bs-utility {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.bs-util-meta {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.bs-util-actions { display: flex; gap: 8px; align-items: center; }
+.bs-util-btn {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: none; border: 1px solid var(--rule); color: var(--muted);
+  padding: 4px 10px; transition: color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
+}
+.bs-util-btn:hover { color: var(--fg); border-color: var(--muted); }
+.bs-util-btn:active { transform: scale(0.97); }
+.bs-util-btn.primary {
+  background: var(--fg); color: var(--bg); border-color: var(--fg);
+}
+.bs-util-btn.primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── MASTHEAD ── */
+.bs-masthead {
+  text-align: center; padding: 32px 0 28px;
+  border-bottom: 1px solid var(--fg);
+}
+.bs-masthead-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.bs-masthead-meta-text {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+}
+.bs-nameplate {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(56px, 8.5vw, 92px);
+  font-weight: 800; letter-spacing: -0.025em; line-height: 1;
+  color: var(--fg);
+  transition: color 0.3s;
+}
+.bs-tagline {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--muted); margin-top: 10px;
+}
+.bs-masthead-rule-wrap {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 28px;
+}
+.bs-masthead-rule-thick { height: 3px; background: var(--fg); }
+.bs-masthead-rule-thin  { height: 1px; background: var(--fg); }
+
+/* ── SECTION NAV ── */
+.bs-secnav {
+  display: flex; align-items: center;
+  border-bottom: 1px solid var(--rule);
+}
+.bs-secnav-item {
+  font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); padding: 11px 18px; border-right: 1px solid var(--rule);
+  cursor: pointer; transition: color 0.15s, background 0.15s;
+  position: relative;
+}
+.bs-secnav-item:first-child { padding-left: 0; }
+.bs-secnav-item:hover { color: var(--fg); }
+.bs-secnav-item.active { color: var(--fg); }
+.bs-secnav-item.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+  background: var(--accent);
+}
+.bs-secnav-right { margin-left: auto; padding-left: 18px; }
+
+/* ── PREVIEW BANNER ── */
+.bs-preview-banner {
+  background: var(--accent-l); border-bottom: 1px solid rgba(232,72,40,0.15);
+  padding: 9px 0; text-align: center;
+  font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+  transition: opacity 0.3s, max-height 0.4s;
+}
+.bs-preview-banner a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+.bs-preview-banner.hidden { display: none; }
+
+/* ── MAIN CONTENT ── */
+.bs-content {
+  display: flex; gap: 0; padding-top: 32px; align-items: flex-start;
+}
+
+/* Lead (3 units) · Stats (1.1 units) · Week (2 units) */
+.bs-col-lead  { flex: 3;   padding-right: 32px; border-right: 1px solid var(--rule); }
+.bs-col-stats { flex: 1.1; padding: 0 28px;     border-right: 1px solid var(--rule); }
+.bs-col-week  { flex: 2;   padding-left: 32px; }
+
+/* ── FLAGS ── */
+.bs-flag {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--rule); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.bs-flag-diamond { color: var(--accent); font-size: 6px; }
+
+/* ── HEADLINES ── */
+.bs-headline-xl {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 40px; font-weight: 700; line-height: 1.05; letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.bs-headline-lg {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 22px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.bs-headline-md {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 16px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.bs-deck {
+  font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--fg-2);
+  line-height: 1.55; margin-top: 9px;
+}
+.bs-byline {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-top: 8px;
+}
+
+/* ── RECIPE IMAGE ── */
+.bs-img {
+  width: 100%; aspect-ratio: 4/3; background: var(--bg-2);
+  overflow: hidden; margin: 18px 0; position: relative;
+  border: 1px solid var(--bg-3);
+}
+.bs-img-placeholder {
+  position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center; padding: 24px;
+}
+.bs-img-placeholder span {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 48px;
+  font-weight: 800; color: var(--fg); opacity: 0.08; text-align: center;
+  line-height: 1.1; word-break: break-word;
+  text-wrap: balance;
+}
+
+/* ── BODY TEXT ── */
+.bs-body-text {
+  font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.7;
+  color: var(--fg-2);
+}
+.bs-body-text::first-letter {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 50px; font-weight: 800;
+  float: left; line-height: 0.82; margin-right: 5px; margin-top: 4px; color: var(--fg);
+}
+
+/* ── PULL QUOTE ── */
+.bs-pull {
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 14px 0; margin: 18px 0;
+  display: flex; align-items: baseline; gap: 12px;
+}
+.bs-pull-num {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 56px; font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1; color: var(--accent);
+}
+.bs-pull-info { display: flex; flex-direction: column; gap: 3px; }
+.bs-pull-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+}
+.bs-pull-sub {
+  font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--fg-2);
+}
+
+/* ── STORY LINK ── */
+.bs-story-link {
+  font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-top: 14px;
+  cursor: pointer; display: inline-block;
+  transition: opacity 0.15s;
+}
+.bs-story-link:hover { opacity: 0.7; }
+
+/* ── STATS COLUMN ── */
+.bs-cal-big {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 68px; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+  margin-top: 2px;
+}
+.bs-cal-unit {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-top: 2px;
+}
+.bs-cal-track {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.05em;
+  color: var(--ok); margin-top: 1px;
+}
+.bs-cal-bar {
+  height: 2px; background: var(--rule); margin: 12px 0 20px; position: relative;
+}
+.bs-cal-bar-fill {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 89.5%;
+  background: var(--accent); transition: width 0.6s var(--ease-out);
+}
+
+.bs-macros { display: flex; flex-direction: column; }
+.bs-macro {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.bs-macro-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.bs-macro-right { display: flex; align-items: baseline; gap: 3px; }
+.bs-macro-val {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px;
+  font-weight: 700; letter-spacing: -0.02em;
+}
+.bs-macro-target {
+  font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted);
+}
+
+.bs-person-row {
+  display: flex; gap: 8px; margin-top: 20px; align-items: center;
+}
+.bs-person-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border: 1px solid var(--rule);
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; cursor: pointer; color: var(--muted);
+  transition: color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
+}
+.bs-person-pill.active { color: var(--fg); border-color: var(--fg); }
+.bs-person-pill:active { transform: scale(0.97); }
+.bs-person-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+
+.bs-stats-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rule); }
+.bs-stats-section-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+}
+.bs-mini-stat { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--rule); }
+.bs-mini-stat-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.bs-mini-stat-val { font-family: 'Bricolage Grotesque', sans-serif; font-size: 13px; font-weight: 600; }
+
+/* ── WEEK GRID ── */
+.bs-week-grid { width: 100%; }
+.bs-week-days {
+  display: grid; grid-template-columns: 36px repeat(7, 1fr);
+  border-bottom: 1px solid var(--rule); margin-bottom: 0;
+}
+.bs-week-day-label {
+  font-family: 'DM Mono', monospace; font-size: 7.5px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); text-align: center;
+  padding: 0 2px 8px;
+}
+.bs-week-day-label.today { color: var(--accent); font-weight: 500; }
+.bs-week-row {
+  display: grid; grid-template-columns: 36px repeat(7, 1fr);
+  border-bottom: 1px solid var(--rule);
+}
+.bs-week-row-label {
+  font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); padding: 7px 4px 7px 0;
+  align-self: center; writing-mode: horizontal-tb;
+}
+.bs-week-cell {
+  padding: 6px 3px; font-family: 'DM Sans', sans-serif; font-size: 9.5px;
+  color: var(--fg-2); text-align: center; line-height: 1.3;
+  border-left: 1px solid var(--rule);
+  transition: background 0.15s;
+}
+.bs-week-cell.today-col { background: var(--accent-l); }
+.bs-week-cell.empty { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; }
+.bs-week-cell.has-meal { cursor: pointer; }
+.bs-week-cell.has-meal:hover { color: var(--accent); }
+
+.bs-week-footer {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); padding-top: 10px;
+  display: flex; justify-content: space-between;
+}
+.bs-week-cta {
+  color: var(--accent); cursor: pointer;
+  transition: opacity 0.15s;
+}
+.bs-week-cta:hover { opacity: 0.7; }
+
+/* ── DIVIDER ── */
+.bs-divider { height: 1px; background: var(--rule); margin: 36px 0; }
+
+/* ── BOTTOM ROW ── */
+.bs-bottom { display: flex; gap: 0; }
+.bs-bot-col {
+  flex: 1; padding-right: 32px; border-right: 1px solid var(--rule);
+}
+.bs-bot-col:last-child { padding-right: 0; padding-left: 32px; border-right: none; }
+.bs-bot-col:nth-child(2) { padding: 0 32px; }
+
+/* ── RECENT RECIPES ── */
+.bs-recipe-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--rule);
+  cursor: pointer; transition: opacity 0.15s;
+}
+.bs-recipe-row:hover { opacity: 0.7; }
+.bs-recipe-row:first-child { padding-top: 0; }
+.bs-recipe-thumb {
+  width: 44px; height: 33px; background: var(--bg-2); flex-shrink: 0;
+  position: relative; overflow: hidden; border: 1px solid var(--bg-3);
+}
+.bs-recipe-thumb span {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 9px; font-weight: 700;
+  color: var(--fg); opacity: 0.1; text-align: center; padding: 3px;
+}
+.bs-recipe-meta { flex: 1; min-width: 0; }
+.bs-recipe-name {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bs-recipe-stats {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); margin-top: 2px;
+}
+
+/* ── HOUSEHOLD ── */
+.bs-household-person {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--rule);
+}
+.bs-hh-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: #fff;
+}
+.bs-hh-info { flex: 1; }
+.bs-hh-name {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 14px; font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.bs-hh-cal {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-top: 3px;
+}
+.bs-hh-bar { height: 2px; background: var(--rule); margin-top: 6px; position: relative; }
+.bs-hh-bar-fill { position: absolute; inset: 0; transition: width 0.5s var(--ease-out); }
+
+/* ── MEAL PREP SNIPPET ── */
+.bs-mealprep-text {
+  font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.7;
+  color: var(--fg-2); margin-bottom: 14px;
+}
+.bs-mealprep-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.bs-mealprep-tag {
+  font-family: 'DM Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); padding: 3px 8px;
+  border: 1px solid var(--rule);
+}
+
+/* ── FOOTER ── */
+.bs-footer {
+  border-top: 1px solid var(--rule); margin-top: 40px; padding: 20px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.bs-footer-text {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* ── UTILITY ── */
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="bs-wrap">
+
+  <!-- ── UTILITY ROW ── -->
+  <div class="bs-utility">
+    <span class="bs-util-meta" id="util-meta">Vol. 1, No. 247 &nbsp;·&nbsp; Household Edition &nbsp;·&nbsp; Preview</span>
+    <div class="bs-util-actions">
+      <button class="bs-util-btn" id="toggle-auth-btn" onclick="toggleAuth()">View Logged In</button>
+      <button class="bs-util-btn" onclick="toggleTheme()">Dark Mode</button>
+      <button class="bs-util-btn primary" id="signin-btn">Sign In</button>
+    </div>
+  </div>
+
+  <!-- ── MASTHEAD ── -->
+  <div class="bs-masthead">
+    <div class="bs-masthead-meta">
+      <span class="bs-masthead-meta-text">Good Measure &nbsp;·&nbsp; The Kitchen Broadsheet</span>
+      <span class="bs-masthead-meta-text" id="masthead-date">Friday, April 3, 2026</span>
+      <span class="bs-masthead-meta-text" id="masthead-household">Demo Household</span>
+    </div>
+    <div class="bs-nameplate">Good Measure</div>
+    <div class="bs-tagline">Your kitchen, measured</div>
+    <div class="bs-masthead-rule-wrap">
+      <div class="bs-masthead-rule-thick"></div>
+      <div class="bs-masthead-rule-thin"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION NAV ── -->
+  <nav class="bs-secnav">
+    <span class="bs-secnav-item active">Home</span>
+    <span class="bs-secnav-item">Recipes</span>
+    <span class="bs-secnav-item">Planner</span>
+    <span class="bs-secnav-item">Pantry</span>
+    <span class="bs-secnav-item">Settings</span>
+    <span class="bs-secnav-item bs-secnav-right" id="secnav-right" style="border-left:1px solid var(--rule); border-right:none; margin-left:auto;">
+      Sign In →
+    </span>
+  </nav>
+
+  <!-- ── PREVIEW BANNER ── -->
+  <div class="bs-preview-banner" id="preview-banner">
+    You're previewing a demo household &nbsp;·&nbsp; <a onclick="toggleAuth()">Sign in to see your plan →</a>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="bs-content">
+
+    <!-- ── LEAD STORY ── -->
+    <div class="bs-col-lead">
+      <div class="bs-flag">
+        <span class="bs-flag-diamond">◆</span>
+        Tonight's Dinner
+      </div>
+      <h1 class="bs-headline-xl">Roasted Chicken Thighs With Herb Butter And Crispy Skin</h1>
+      <div class="bs-deck">A weeknight staple delivering 42g of protein per serving. Compound butter of thyme, rosemary, and lemon zest — applied under and over the skin for maximum flavor.</div>
+      <div class="bs-byline">Planned by Jen &nbsp;·&nbsp; 45 min &nbsp;·&nbsp; 4 servings &nbsp;·&nbsp; Added Mar 28</div>
+
+      <div class="bs-img">
+        <div class="bs-img-placeholder">
+          <span>Roasted Chicken Thighs</span>
+        </div>
+      </div>
+
+      <p class="bs-body-text">Begin by patting the chicken thighs completely dry — this is the single most important step for achieving crispy skin. Combine softened butter with finely minced thyme, rosemary, lemon zest, and a generous amount of cracked black pepper. Work half the butter under the skin directly onto the meat, and rub the remainder over the exterior.</p>
+
+      <div class="bs-pull mt-16">
+        <div class="bs-pull-num">42g</div>
+        <div class="bs-pull-info">
+          <div class="bs-pull-label">Protein per serving</div>
+          <div class="bs-pull-sub">380 kcal · 28g fat · 4g carbs</div>
+        </div>
+      </div>
+
+      <div class="bs-story-link">Read full recipe →</div>
+    </div>
+
+    <!-- ── STATS COLUMN ── -->
+    <div class="bs-col-stats">
+      <div class="bs-flag" id="stats-flag">
+        <span class="bs-flag-diamond">◆</span>
+        <span id="stats-flag-label">Jen · Today</span>
+      </div>
+
+      <div class="bs-cal-big" id="cal-big">2,148</div>
+      <div class="bs-cal-unit">calories</div>
+      <div class="bs-cal-track" id="cal-track">252 remaining · on track</div>
+      <div class="bs-cal-bar">
+        <div class="bs-cal-bar-fill" id="cal-bar-fill" style="width:89.5%"></div>
+      </div>
+
+      <div class="bs-macros">
+        <div class="bs-macro">
+          <span class="bs-macro-label">Protein</span>
+          <div class="bs-macro-right">
+            <span class="bs-macro-val" id="macro-p">142g</span>
+            <span class="bs-macro-target">/180</span>
+          </div>
+        </div>
+        <div class="bs-macro">
+          <span class="bs-macro-label">Carbs</span>
+          <div class="bs-macro-right">
+            <span class="bs-macro-val" id="macro-c">210g</span>
+            <span class="bs-macro-target">/250</span>
+          </div>
+        </div>
+        <div class="bs-macro">
+          <span class="bs-macro-label">Fat</span>
+          <div class="bs-macro-right">
+            <span class="bs-macro-val" id="macro-f">68g</span>
+            <span class="bs-macro-target">/80</span>
+          </div>
+        </div>
+        <div class="bs-macro">
+          <span class="bs-macro-label">Fiber</span>
+          <div class="bs-macro-right">
+            <span class="bs-macro-val" id="macro-fb">22g</span>
+            <span class="bs-macro-target">/30</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-person-row">
+        <div class="bs-person-pill active" onclick="switchPerson('jen')">
+          <div class="bs-person-dot" style="background:#E84828"></div>
+          Jen
+        </div>
+        <div class="bs-person-pill" onclick="switchPerson('garth')">
+          <div class="bs-person-dot" style="background:#5A9B8A"></div>
+          Garth
+        </div>
+      </div>
+
+      <div class="bs-stats-section">
+        <div class="bs-stats-section-label">This Week</div>
+        <div class="bs-mini-stat">
+          <span class="bs-mini-stat-label">Meals planned</span>
+          <span class="bs-mini-stat-val">14 / 21</span>
+        </div>
+        <div class="bs-mini-stat">
+          <span class="bs-mini-stat-label">Avg calories</span>
+          <span class="bs-mini-stat-val">2,210</span>
+        </div>
+        <div class="bs-mini-stat">
+          <span class="bs-mini-stat-label">Avg protein</span>
+          <span class="bs-mini-stat-val">138g</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── WEEK GRID ── -->
+    <div class="bs-col-week">
+      <div class="bs-flag">
+        <span class="bs-flag-diamond">◆</span>
+        This Week
+      </div>
+
+      <div class="bs-week-grid">
+        <div class="bs-week-days">
+          <div class="bs-week-day-label"></div>
+          <div class="bs-week-day-label">Mon</div>
+          <div class="bs-week-day-label">Tue</div>
+          <div class="bs-week-day-label">Wed</div>
+          <div class="bs-week-day-label">Thu</div>
+          <div class="bs-week-day-label today">Fri</div>
+          <div class="bs-week-day-label">Sat</div>
+          <div class="bs-week-day-label">Sun</div>
+        </div>
+
+        <!-- Breakfast row -->
+        <div class="bs-week-row">
+          <div class="bs-week-row-label">Brkf</div>
+          <div class="bs-week-cell has-meal">Avocado Toast</div>
+          <div class="bs-week-cell has-meal">Greek Yogurt Bowl</div>
+          <div class="bs-week-cell has-meal">Overnight Oats</div>
+          <div class="bs-week-cell has-meal">Egg & Veggie Scramble</div>
+          <div class="bs-week-cell has-meal today-col">Soft Boiled Eggs</div>
+          <div class="bs-week-cell empty">—</div>
+          <div class="bs-week-cell empty">—</div>
+        </div>
+
+        <!-- Lunch row -->
+        <div class="bs-week-row">
+          <div class="bs-week-row-label">Lnch</div>
+          <div class="bs-week-cell has-meal">Kale Caesar</div>
+          <div class="bs-week-cell has-meal">Lentil Soup</div>
+          <div class="bs-week-cell has-meal">Turkey Wrap</div>
+          <div class="bs-week-cell has-meal">Leftover Soup</div>
+          <div class="bs-week-cell has-meal today-col">Grain Bowl</div>
+          <div class="bs-week-cell empty">—</div>
+          <div class="bs-week-cell empty">—</div>
+        </div>
+
+        <!-- Dinner row -->
+        <div class="bs-week-row">
+          <div class="bs-week-row-label">Dinr</div>
+          <div class="bs-week-cell has-meal">Pasta Pomodoro</div>
+          <div class="bs-week-cell has-meal">Thai Green Curry</div>
+          <div class="bs-week-cell has-meal">Fish Tacos</div>
+          <div class="bs-week-cell has-meal">Tomato Soup</div>
+          <div class="bs-week-cell has-meal today-col">Roasted Chicken</div>
+          <div class="bs-week-cell empty">—</div>
+          <div class="bs-week-cell empty">—</div>
+        </div>
+      </div>
+
+      <div class="bs-week-footer">
+        <span>14 of 21 meals planned</span>
+        <span class="bs-week-cta">Plan next week →</span>
+      </div>
+
+      <!-- Upcoming recipe note -->
+      <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--rule);">
+        <div class="bs-flag">
+          <span class="bs-flag-diamond">◆</span>
+          This Weekend
+        </div>
+        <div class="bs-headline-md">No meals planned yet</div>
+        <div class="bs-deck" style="font-size:12px; margin-top:6px;">Saturday and Sunday are open. Based on your pantry, you have enough for 3 meals — consider batch cooking for next week.</div>
+        <div class="bs-story-link mt-12">Add to planner →</div>
+      </div>
+    </div>
+
+  </div><!-- end bs-content -->
+
+  <div class="bs-divider"></div>
+
+  <!-- ── BOTTOM ROW ── -->
+  <div class="bs-bottom">
+
+    <!-- MEAL PREP INTELLIGENCE -->
+    <div class="bs-bot-col">
+      <div class="bs-flag">
+        <span class="bs-flag-diamond">◆</span>
+        Meal Prep Intelligence
+      </div>
+      <div class="bs-headline-lg">Chicken Thighs: Batch for Three Days</div>
+      <div class="bs-byline" style="margin-top:6px; margin-bottom:12px;">AI analysis · Updated 2 days ago</div>
+      <div class="bs-mealprep-text">
+        Double the batch and store two portions unsauced. Thighs reheat best in a 375° oven for 12 minutes — avoiding the microwave preserves the crispy skin. Pair with different grains each day: farro on Saturday, roasted sweet potato on Sunday.
+      </div>
+      <div class="bs-mealprep-text">
+        Compound butter freezes well in a log — slice discs directly onto reheated chicken for the same effect with no prep time.
+      </div>
+      <div class="bs-mealprep-tags">
+        <span class="bs-mealprep-tag">High Protein</span>
+        <span class="bs-mealprep-tag">Batch Friendly</span>
+        <span class="bs-mealprep-tag">45 min</span>
+        <span class="bs-mealprep-tag">Freezes Well</span>
+      </div>
+      <div class="bs-story-link mt-12">Full meal prep notes →</div>
+    </div>
+
+    <!-- IN YOUR KITCHEN -->
+    <div class="bs-bot-col">
+      <div class="bs-flag">
+        <span class="bs-flag-diamond">◆</span>
+        In Your Kitchen
+      </div>
+      <div class="bs-headline-lg">Recently Added Recipes</div>
+
+      <div style="margin-top:14px;">
+        <div class="bs-recipe-row">
+          <div class="bs-recipe-thumb"><span>Thai Curry</span></div>
+          <div class="bs-recipe-meta">
+            <div class="bs-recipe-name">Thai Green Curry with Tofu</div>
+            <div class="bs-recipe-stats">320 kcal · 18g protein · 28g carbs</div>
+          </div>
+        </div>
+        <div class="bs-recipe-row">
+          <div class="bs-recipe-thumb"><span>Lentil Soup</span></div>
+          <div class="bs-recipe-meta">
+            <div class="bs-recipe-name">Red Lentil & Coconut Soup</div>
+            <div class="bs-recipe-stats">290 kcal · 14g protein · 38g carbs</div>
+          </div>
+        </div>
+        <div class="bs-recipe-row">
+          <div class="bs-recipe-thumb"><span>Pasta Pomodoro</span></div>
+          <div class="bs-recipe-meta">
+            <div class="bs-recipe-name">Pasta Pomodoro, San Marzano</div>
+            <div class="bs-recipe-stats">410 kcal · 12g protein · 72g carbs</div>
+          </div>
+        </div>
+        <div class="bs-recipe-row" style="border-bottom:none;">
+          <div class="bs-recipe-thumb"><span>Grain Bowl</span></div>
+          <div class="bs-recipe-meta">
+            <div class="bs-recipe-name">Farro Grain Bowl with Tahini</div>
+            <div class="bs-recipe-stats">480 kcal · 16g protein · 62g carbs</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-story-link">Browse all 24 recipes →</div>
+    </div>
+
+    <!-- HOUSEHOLD -->
+    <div class="bs-bot-col">
+      <div class="bs-flag">
+        <span class="bs-flag-diamond">◆</span>
+        Household
+      </div>
+      <div class="bs-headline-lg">Today's Progress</div>
+
+      <div style="margin-top:14px;">
+        <div class="bs-household-person">
+          <div class="bs-hh-avatar" style="background:#E84828">J</div>
+          <div class="bs-hh-info">
+            <div class="bs-hh-name">Jen</div>
+            <div class="bs-hh-cal">2,148 / 2,400 cal &nbsp;·&nbsp; on track</div>
+            <div class="bs-hh-bar">
+              <div class="bs-hh-bar-fill" style="width:89.5%; background:#E84828;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="bs-household-person">
+          <div class="bs-hh-avatar" style="background:#5A9B8A">G</div>
+          <div class="bs-hh-info">
+            <div class="bs-hh-name">Garth</div>
+            <div class="bs-hh-cal">1,820 / 2,800 cal &nbsp;·&nbsp; 980 remaining</div>
+            <div class="bs-hh-bar">
+              <div class="bs-hh-bar-fill" style="width:65%; background:#5A9B8A;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--rule);">
+        <div class="bs-stats-section-label" style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">Pantry Status</div>
+        <div class="bs-mini-stat">
+          <span class="bs-mini-stat-label" style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);">Total ingredients</span>
+          <span class="bs-mini-stat-val" style="font-family:'Bricolage Grotesque',sans-serif; font-size:13px; font-weight:600;">47</span>
+        </div>
+        <div class="bs-mini-stat">
+          <span class="bs-mini-stat-label" style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);">Added this week</span>
+          <span class="bs-mini-stat-val" style="font-family:'Bricolage Grotesque',sans-serif; font-size:13px; font-weight:600;">3</span>
+        </div>
+        <div class="bs-mini-stat" style="border-bottom:none;">
+          <span class="bs-mini-stat-label" style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);">Used in recipes</span>
+          <span class="bs-mini-stat-val" style="font-family:'Bricolage Grotesque',sans-serif; font-size:13px; font-weight:600;">31</span>
+        </div>
+      </div>
+
+      <div class="bs-story-link">Manage pantry →</div>
+    </div>
+
+  </div><!-- end bs-bottom -->
+
+  <!-- ── FOOTER ── -->
+  <div class="bs-footer">
+    <span class="bs-footer-text">Good Measure &nbsp;·&nbsp; Your kitchen, measured &nbsp;·&nbsp; Vol. 1, No. 247</span>
+    <span class="bs-footer-text">Friday, April 3, 2026</span>
+  </div>
+
+</div><!-- end bs-wrap -->
+
+<script>
+
+/* ── THEME ── */
+function toggleTheme() {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+
+/* ── AUTH TOGGLE ── */
+let isLoggedIn = false;
+const personData = {
+  jen:   { cal: '2,148', goal: '2,400', bar: '89.5', track: '252 remaining · on track', p:'142', c:'210', f:'68', fb:'22' },
+  garth: { cal: '1,820', goal: '2,800', bar: '65',   track: '980 remaining · add dinner', p:'118', c:'195', f:'52', fb:'18' },
+};
+let activePerson = 'jen';
+
+function switchPerson(p) {
+  activePerson = p;
+  document.querySelectorAll('.bs-person-pill').forEach((el, i) => {
+    el.classList.toggle('active', (i===0 && p==='jen') || (i===1 && p==='garth'));
+  });
+  const d = personData[p];
+  document.getElementById('cal-big').textContent = d.cal;
+  document.getElementById('cal-track').textContent = d.track;
+  document.getElementById('cal-bar-fill').style.width = d.bar + '%';
+  document.getElementById('macro-p').textContent = d.p + 'g';
+  document.getElementById('macro-c').textContent = d.c + 'g';
+  document.getElementById('macro-f').textContent = d.f + 'g';
+  document.getElementById('macro-fb').textContent = d.fb + 'g';
+  const label = p === 'jen' ? 'Jen · Today' : 'Garth · Today';
+  document.getElementById('stats-flag-label').textContent = label;
+}
+
+function toggleAuth() {
+  isLoggedIn = !isLoggedIn;
+  const banner = document.getElementById('preview-banner');
+  const btn = document.getElementById('toggle-auth-btn');
+  const signinBtn = document.getElementById('signin-btn');
+  const utilMeta = document.getElementById('util-meta');
+  const mastHousehold = document.getElementById('masthead-household');
+  const secnavRight = document.getElementById('secnav-right');
+
+  if (isLoggedIn) {
+    banner.classList.add('hidden');
+    btn.textContent = 'View Logged Out';
+    signinBtn.style.display = 'none';
+    utilMeta.textContent = 'Vol. 1, No. 247 · Jen & Garth's Household';
+    mastHousehold.textContent = 'Jen & Garth';
+    secnavRight.textContent = 'Sign Out';
+  } else {
+    banner.classList.remove('hidden');
+    btn.textContent = 'View Logged In';
+    signinBtn.style.display = '';
+    utilMeta.textContent = 'Vol. 1, No. 247 · Household Edition · Preview';
+    mastHousehold.textContent = 'Demo Household';
+    secnavRight.textContent = 'Sign In →';
+  }
+}
+</script>
+</body>
+</html>

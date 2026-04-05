@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Good Measure — Editorial Concept v3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: #F5F4EF;
+  --bg-2: #EEEAE3;
+  --bg-3: #E6E2D8;
+  --fg: #1A1916;
+  --fg-2: #3C3A36;
+  --muted: #8C8A82;
+  --rule: #DDDAD2;
+  --accent: #E84828;
+  --accent-l: rgba(232,72,40,0.09);
+  --accent-fg: #fff;
+  --ok: #5A9B6A;
+  --ok-l: rgba(90,155,106,0.12);
+  --err: #B02020;
+  --err-l: rgba(176,32,32,0.10);
+  --warn: #C07018;
+  --warn-l: rgba(192,112,24,0.10);
+  --warn-fg: #7A4010;
+  --nav-h: 50px;
+  --grain-op: 0.022;
+}
+[data-theme="dark"] {
+  --bg: #141311;
+  --bg-2: #1C1B18;
+  --bg-3: #242220;
+  --fg: #F0ECE4;
+  --fg-2: #C0BDB4;
+  --muted: #686560;
+  --rule: #2A2825;
+  --accent: #F05A30;
+  --accent-l: rgba(240,90,48,0.14);
+  --accent-fg: #fff;
+  --ok: #6AAF7A;
+  --err: #E06060;
+  --err-l: rgba(224,96,96,0.12);
+  --warn: #D08030;
+  --warn-l: rgba(208,128,48,0.12);
+  --warn-fg: #F5D090;
+  --grain-op: 0.04;
+}
+
+/* Section bg shifts */
+html[data-section="pantry"]  body { background: #F0ECE2; }
+html[data-section="planner"] body { background: #EFF0EA; }
+[data-theme="dark"] html[data-section="pantry"]  body { background: #161411; }
+[data-theme="dark"] html[data-section="planner"] body { background: #131411; }
+
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--fg); font-family: 'DM Sans', sans-serif; font-size: 13px; transition: background 0.5s, color 0.35s; -webkit-font-smoothing: antialiased; }
+
+.grain { position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px; opacity: var(--grain-op); mix-blend-mode: overlay; }
+
+/* ── NAV ── */
+#nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); display: flex; align-items: center; padding: 0 28px; z-index: 200; background: var(--bg); border-bottom: none; opacity: 0; pointer-events: none; transition: opacity 0.4s, background 0.5s; }
+#nav.show { opacity: 1; pointer-events: auto; }
+.nav-logo { font-family: 'Bricolage Grotesque', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: -0.02em; cursor: pointer; color: var(--fg); margin-right: 36px; flex-shrink: 0; }
+.nav-links { display: flex; gap: 28px; flex: 1; }
+.nav-link { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); cursor: pointer; padding: 2px 0; transition: color 0.2s; }
+.nav-link:hover { color: var(--fg); }
+.nav-link.active { color: var(--fg); }
+.nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.p-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; flex-shrink: 0; }
+.p-dot:hover { transform: scale(1.15); }
+.p-dot.ring { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px currentColor; }
+.theme-btn { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: 1px solid var(--rule); padding: 5px 10px; cursor: pointer; border-radius: 2px; transition: color 0.2s, border-color 0.2s; }
+.theme-btn:hover { color: var(--fg); border-color: var(--muted); }
+
+/* ── SCATTER ── */
+#scatter { position: fixed; inset: 0; overflow: hidden; }
+.sc-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; z-index: 10; pointer-events: none;
+  background: radial-gradient(ellipse 42% 20% at center, var(--bg) 60%, transparent 100%);
+  padding: 32px 64px; }
+.sc-wm { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(20px, 2.4vw, 36px); font-weight: 700; letter-spacing: -0.02em; color: var(--fg); opacity: 0; transition: opacity 1.8s cubic-bezier(0.23,1,0.32,1); pointer-events: auto; cursor: default; }
+.sc-wm.in { opacity: 1; }
+#sc-field { position: absolute; inset: -60px; /* extra bleed room for parallax */ }
+.sc-card { position: absolute; overflow: hidden; cursor: pointer; border-radius: 0; opacity: 0; transform: scale(0.96); transition: opacity 500ms cubic-bezier(0.23,1,0.32,1), transform 360ms cubic-bezier(0.23,1,0.32,1); }
+.sc-card.in { opacity: 1; transform: scale(1); }
+/* Hover: scale up, NO shadow */
+.sc-card:hover { z-index: 20; transform: scale(1.04); transition: transform 200ms cubic-bezier(0.23,1,0.32,1); }
+.sc-card img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(100%) brightness(0.88); transition: filter 0.5s ease; }
+.sc-card:hover img { filter: grayscale(0%) brightness(1.02); }
+.sc-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px 14px 14px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: #fff; opacity: 0; transition: opacity 0.25s; }
+.sc-card:hover .sc-card-info { opacity: 1; }
+.sc-card-cat { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.65; margin-bottom: 3px; }
+.sc-card-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 13px; font-weight: 600; line-height: 1.25; }
+.sc-card-kcal { font-family: 'DM Mono', monospace; font-size: 9px; opacity: 0.6; margin-top: 2px; }
+
+/* Float keyframes removed — canvas parallax replaces individual card movement */
+
+/* ── CUSTOM CURSOR ── */
+body { cursor: none; }
+.cursor-dot { position: fixed; width: 5px; height: 5px; background: var(--fg); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: background 0.2s, width 0.2s, height 0.2s; }
+.cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid var(--fg); border-radius: 50%; pointer-events: none; z-index: 9997; transform: translate(-50%,-50%); transition: width 0.35s cubic-bezier(0.4,0,0.2,1), height 0.35s cubic-bezier(0.4,0,0.2,1), border-color 0.2s, opacity 0.2s; }
+.cursor-label { position: fixed; pointer-events: none; z-index: 9997; transform: translate(-50%,-50%); font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+body.cur-card .cursor-ring { width: 56px; height: 56px; border-color: var(--accent); }
+body.cur-card .cursor-dot { background: var(--accent); }
+body.cur-card .cursor-label { opacity: 1; }
+body.cur-btn .cursor-ring { width: 40px; height: 40px; }
+/* hide cursor when over text inputs */
+input, button { cursor: none; }
+
+
+/* ── APP ── */
+#app { position: fixed; inset: 0; top: var(--nav-h); opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+#app.show { opacity: 1; pointer-events: auto; }
+.app-pane { position: absolute; inset: 0; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s; background: inherit; }
+.app-pane.active { opacity: 1; pointer-events: auto; }
+
+/* ── TOOLBAR (shared) ── */
+.toolbar { display: flex; align-items: center; gap: 12px; padding: 16px 28px; border-bottom: 1px solid var(--rule); background: var(--bg); position: sticky; top: 0; z-index: 10; transition: background 0.5s; }
+.toolbar-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.toolbar-search { flex: 0 0 220px; background: var(--bg-2); border: 1px solid var(--rule); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--fg); padding: 7px 12px; border-radius: 2px; outline: none; transition: border-color 0.2s; margin-left: 20px; }
+.toolbar-search::placeholder { color: var(--muted); }
+.toolbar-search:focus { border-color: var(--accent); }
+.toolbar-right { display: flex; gap: 8px; margin-left: auto; }
+.tbtn { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: 1px solid var(--rule); color: var(--muted); padding: 6px 12px; cursor: pointer; border-radius: 2px; transition: all 0.15s; }
+.tbtn:hover, .tbtn.on { color: var(--fg); border-color: var(--fg); }
+.tbtn.accent { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.tbtn.accent:hover { opacity: 0.88; }
+.col-grp { display: flex; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.col-grp button { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.06em; background: none; border: none; border-right: 1px solid var(--rule); color: var(--muted); padding: 6px 10px; cursor: pointer; transition: all 0.15s; }
+.col-grp button:last-child { border-right: none; }
+.col-grp button:hover, .col-grp button.on { background: var(--bg-3); color: var(--fg); }
+
+/* ── RECIPES ── */
+.rg-wrap { padding: 0; }
+.rg { display: grid; gap: 1px; background: var(--rule); transition: all 0.3s; }
+.rg.c2 { grid-template-columns: repeat(2,1fr); }
+.rg.c3 { grid-template-columns: repeat(3,1fr); }
+.rg.c4 { grid-template-columns: repeat(4,1fr); }
+.rg-card { background: var(--bg); cursor: pointer; overflow: hidden; position: relative; }
+.rg-card:hover .rg-img { transform: scale(1.04); }
+.rg-img-box { overflow: hidden; aspect-ratio: 4/3; }
+.rg-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; }
+.rg-info { padding: 14px 18px 18px; }
+.rg-cat { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.rg-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(14px,1.4vw,18px); font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 8px; }
+.rg-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.rg-kcal { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--fg); }
+.rg-macros { display: flex; gap: 8px; }
+.rg-m { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); }
+.rg-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+.rg-card:hover .rg-bar { transform: scaleX(1); }
+/* list mode */
+.rg.list { display: block; background: transparent; }
+.rg.list .rg-card { display: flex; align-items: center; gap: 16px; padding: 12px 28px; border-bottom: 1px solid var(--rule); }
+.rg.list .rg-img-box { width: 52px; height: 52px; flex-shrink: 0; border-radius: 2px; aspect-ratio: 1; }
+.rg.list .rg-info { padding: 0; flex: 1; }
+.rg.list .rg-name { font-size: 14px; margin-bottom: 2px; }
+.rg.list .rg-cat { margin-bottom: 0; display: inline; margin-right: 8px; }
+.rg.list .rg-meta { margin-left: auto; flex-shrink: 0; }
+.rg.list .rg-bar { height: 1px; }
+
+/* ── RECIPE DETAIL — single long editorial scroll ── */
+.rd-scroll { max-width: 1100px; margin: 0 auto; padding: 0 64px 0 200px; }
+
+/* Jump links — Parsons-style fixed sidebar */
+.rd-jump-nav { position: fixed; left: 28px; top: calc(var(--nav-h) + 40px); z-index: 50; display: flex; flex-direction: column; gap: 0; width: 140px; }
+.rd-jump-link { display: flex; align-items: baseline; gap: 10px; font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-decoration: none; cursor: pointer; padding: 8px 0; border-bottom: 1px solid var(--rule); transition: color 0.25s; }
+.rd-jump-link:last-child { border-bottom: none; }
+.rd-jump-link:hover { color: var(--accent); }
+.rd-jump-n { font-family: 'Bricolage Grotesque', sans-serif; font-size: 9px; font-weight: 700; color: var(--rule); letter-spacing: -0.01em; min-width: 16px; }
+
+/* Hero area: two-column, name left + image right */
+.rd-hero-area { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; padding: 48px 0 72px; align-items: start; min-height: 50vh; }
+.rd-hero-left { padding-top: 20px; }
+.rd-hero-right { }
+
+/* Back + edit bar — minimal, inside content flow */
+.rd-back-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 0; margin-bottom: 12px; }
+.rd-back-btn { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px 0; transition: color 0.2s; }
+.rd-back-btn:hover { color: var(--fg); }
+.rd-edit-btn { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: 1px solid var(--rule); color: var(--muted); padding: 6px 14px; cursor: pointer; border-radius: 2px; transition: color 0.15s, border-color 0.15s; }
+.rd-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Content sections — full width, stacked vertically */
+.rd-section { padding: 56px 0; border-top: 1px solid var(--rule); }
+.rd-section:first-of-type { border-top: none; }
+.rd-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+.rd-narrow { max-width: 600px; }
+
+/* Stagger entrance animations */
+@keyframes rd-in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.rd-s1 { animation: rd-in 380ms cubic-bezier(0.23,1,0.32,1) 60ms both; }
+.rd-s2 { animation: rd-in 380ms cubic-bezier(0.23,1,0.32,1) 130ms both; }
+.rd-s3 { animation: rd-in 380ms cubic-bezier(0.23,1,0.32,1) 210ms both; }
+
+/* Recipe title block — Parsons-style type hierarchy */
+.rd-recipe-meta { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+.rd-recipe-name { font-family:'Bricolage Grotesque',sans-serif; font-size:clamp(30px,3.4vw,48px); font-weight:700; letter-spacing:-0.03em; line-height:1.05; margin-bottom:48px; color:var(--fg); text-wrap:balance; }
+
+/* Inset image (Parsons-style — sharp edges, framed by column padding) */
+.rd-image-inset { width:100%; aspect-ratio:4/3; overflow:hidden; margin-bottom:32px; border-radius:0; }
+.rd-image-inset img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Editorial section headers — Parsons-style: number + title, no rule */
+.rd-sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 32px; }
+.rd-sec-n { font-family: 'Bricolage Grotesque', sans-serif; font-size: 12px; font-weight: 700; color: var(--rule); letter-spacing: -0.01em; }
+.rd-sec-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(18px, 1.8vw, 26px); font-weight: 600; letter-spacing: -0.02em; color: var(--fg); }
+.rd-sec-rule { flex: 1; height: 1px; background: var(--rule); }
+/* keep old label for compat */
+.rd-sec-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+.rd-ing-list { list-style: none; }
+.rd-ing { display: flex; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.rd-ing:last-child { border-bottom: none; }
+.rd-ing-amt { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); min-width: 70px; text-align: right; flex-shrink: 0; }
+.rd-ing-name { font-size: 14px; line-height: 1.4; }
+.rd-steps { display: flex; flex-direction: column; gap: 0; margin-top: 0; }
+.rd-step { display: flex; gap: 24px; align-items: flex-start; padding: 20px 0; border-bottom: 1px solid var(--rule); }
+.rd-step:last-child { border-bottom: none; }
+.rd-step-n { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: 700; color: var(--rule); min-width: 40px; line-height: 1; flex-shrink: 0; padding-top: 2px; }
+.rd-step-text { font-size: 13px; line-height: 1.7; color: var(--fg-2); padding-top: 6px; }
+
+/* Nutrition aside */
+.rd-nut-hero { margin-bottom: 0; }
+.rd-nut-num { font-family: 'Bricolage Grotesque', sans-serif; font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+.rd-nut-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 6px; }
+.nut-rows { display: flex; flex-direction: column; gap: 10px; }
+.nut-row { }
+.nut-row-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.nut-name { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.nut-val { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--fg); }
+.nut-pct { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); }
+.nut-track { height: 3px; background: var(--rule); border-radius: 99px; overflow: hidden; }
+.nut-fill { height: 100%; border-radius: 99px; transition: width 0.7s ease; }
+.fill-ok  { background: var(--ok); }
+.fill-err { background: var(--err); }
+.fill-warn { background: var(--warn); }
+
+/* Optimize tab */
+.opt-wrap { padding: 32px 40px; max-width: 800px; }
+.opt-intro { font-size: 13px; color: var(--fg-2); line-height: 1.6; margin-bottom: 28px; max-width: 480px; }
+.swap-card { background: var(--bg-2); padding: 18px 20px; margin-bottom: 12px; border-radius: 2px; display: flex; gap: 20px; align-items: flex-start; }
+.swap-text { flex: 1; font-size: 13px; line-height: 1.55; color: var(--fg-2); }
+.swap-text strong { color: var(--fg); font-weight: 600; }
+.swap-impact { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--ok); margin-top: 4px; }
+.swap-btn { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; background: none; border: 1px solid var(--accent); color: var(--accent); padding: 6px 14px; cursor: pointer; border-radius: 1px; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
+.swap-btn:hover { background: var(--accent); color: var(--accent-fg); }
+.opt-gen-btn { margin-top: 20px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; background: var(--accent); color: var(--accent-fg); border: none; padding: 12px 28px; cursor: pointer; border-radius: 2px; }
+
+/* Meal prep tab */
+.mp-wrap { padding: 32px 40px; max-width: 720px; }
+.mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 4px; }
+.mp-section { }
+.mp-sec-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.mp-note { font-size: 12px; line-height: 1.65; color: var(--fg-2); }
+.mp-note + .mp-note { margin-top: 6px; }
+.mp-scale { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.mp-chip { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.06em; padding: 5px 12px; border: 1px solid var(--rule); color: var(--muted); cursor: pointer; border-radius: 1px; transition: all 0.15s; }
+.mp-chip:hover, .mp-chip.on { border-color: var(--accent); color: var(--accent); }
+.mp-save-btn { margin-top: 28px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; background: none; border: 1px solid var(--rule); color: var(--muted); padding: 10px 22px; cursor: pointer; border-radius: 2px; transition: all 0.15s; }
+.mp-save-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PANTRY ── */
+.pantry-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--rule); }
+.pt-card { background: var(--bg); padding: 20px; cursor: pointer; position: relative; transition: background 0.15s; }
+.pt-card:hover { background: var(--bg-2); }
+.pt-img-wrap { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; margin-bottom: 14px; background: var(--bg-2); }
+.pt-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pt-cat { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.pt-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 12px; }
+.pt-unit { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); margin-bottom: 10px; }
+.pt-nut-row { display: flex; justify-content: space-between; padding: 5px 0; border-top: 1px solid var(--rule); }
+.pt-nut-row:first-of-type { border-top: 1px solid var(--rule); }
+.pt-nut-name { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pt-nut-val { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--fg); }
+.pt-kcal { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--fg); margin-bottom: 2px; }
+.pt-kcal-label { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); margin-bottom: 10px; }
+
+/* ── PLANNER ── */
+.pl-wrap { display: flex; height: 100%; }
+.pl-main { flex: 1; overflow: auto; }
+.pl-toolbar { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--rule); background: var(--bg); position: sticky; top: 0; z-index: 5; }
+.pl-nav-btn { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; background: none; border: 1px solid var(--rule); color: var(--muted); padding: 5px 10px; cursor: pointer; border-radius: 2px; transition: all 0.15s; }
+.pl-nav-btn:hover { color: var(--fg); border-color: var(--fg); }
+.pl-range { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg); flex: 1; text-align: center; }
+.person-toggle { display: flex; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.person-toggle button { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: none; border-right: 1px solid var(--rule); color: var(--muted); padding: 6px 12px; cursor: pointer; transition: all 0.15s; }
+.person-toggle button:last-child { border-right: none; }
+.person-toggle button.on { background: var(--fg); color: var(--bg); }
+
+/* week grid */
+.wk-grid { display: grid; }
+.wk-row-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 20px; border-bottom: 1px solid var(--rule); display: flex; align-items: center; border-right: 1px solid var(--rule); }
+.wk-day-header { padding: 10px 12px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); background: var(--bg); }
+.wk-day-header:last-child { border-right: none; }
+.wk-day-name { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.wk-day-date { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.06em; color: var(--muted); margin-top: 1px; }
+.wk-day-header.today .wk-day-name,
+.wk-day-header.today .wk-day-date { color: var(--accent); }
+.wk-cell { padding: 8px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); min-height: 64px; vertical-align: top; }
+.wk-cell:last-child { border-right: none; }
+.wk-cell.today-col { background: var(--bg-2); }
+.meal-chip { background: var(--bg-3); border-radius: 1px; padding: 4px 7px; margin-bottom: 4px; cursor: pointer; transition: background 0.15s; }
+.meal-chip:last-child { margin-bottom: 0; }
+.meal-chip:hover { background: var(--accent-l); }
+.meal-chip-name { font-size: 10px; line-height: 1.3; color: var(--fg); display: block; }
+.meal-chip-kcal { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); }
+.meal-person-row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+.meal-person-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* right nutrition panel */
+.pl-right { width: 300px; flex-shrink: 0; border-left: 1px solid var(--rule); overflow-y: auto; padding: 24px 20px; background: var(--bg); transition: background 0.5s; }
+.pl-right-title { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.pl-kcal-hero { font-family: 'Bricolage Grotesque', sans-serif; font-size: 48px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; }
+.pl-kcal-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-bottom: 20px; }
+.pl-divider { border: none; border-top: 1px solid var(--rule); margin: 16px 0; }
+.warn-chips { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.warn-chip { background: var(--warn-l); font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.08em; color: var(--warn-fg); padding: 6px 10px; border-radius: 1px; }
+[data-theme="dark"] .warn-chip { color: var(--warn); }
+.pl-swap-section { margin-top: 16px; }
+.pl-swap-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.pl-swap-card { background: var(--bg-2); padding: 12px; margin-bottom: 8px; border-radius: 2px; }
+.pl-swap-text { font-size: 11px; line-height: 1.5; color: var(--fg-2); margin-bottom: 8px; }
+.pl-swap-savings { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--ok); margin-bottom: 8px; }
+.pl-swap-btn { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: 1px solid var(--rule); color: var(--muted); padding: 4px 10px; cursor: pointer; border-radius: 1px; transition: all 0.15s; }
+.pl-swap-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* everyone mode */
+.ev-person-header { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 1px; color: #fff; display: inline-block; margin-bottom: 4px; font-size: 7px; }
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px}
+  </style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="cursor-dot" id="cur-dot"></div>
+<div class="cursor-ring" id="cur-ring"></div>
+<div class="cursor-label" id="cur-label">View</div>
+
+<!-- NAV (hidden until app) -->
+<nav id="nav">
+  <div class="nav-logo" onclick="goToScatter()">GOOD MEASURE</div>
+  <div class="nav-links">
+    <span class="nav-link" id="nl-recipes" onclick="goRecipes()">Recipes</span>
+    <span class="nav-link" id="nl-pantry"  onclick="goPantry()">Pantry</span>
+    <span class="nav-link" id="nl-planner" onclick="goPlanner()">Planner</span>
+  </div>
+  <div class="nav-right">
+    <div class="p-dot ring" style="background:#E84828;color:#E84828" title="Jen"></div>
+    <div class="p-dot" style="background:#5B7BA0" title="Garth"></div>
+    <button class="theme-btn" onclick="toggleTheme()">◑</button>
+  </div>
+</nav>
+
+<!-- SCATTER STATE -->
+<div id="scatter">
+  <div class="sc-center">
+    <div class="sc-wm" id="sc-wm">GOOD MEASURE</div>
+  </div>
+  <div id="sc-field"></div>
+</div>
+
+<!-- APP STATE -->
+<div id="app">
+  <div class="app-pane" id="pane-recipes"></div>
+  <div class="app-pane" id="pane-detail"></div>
+  <div class="app-pane" id="pane-pantry"></div>
+  <div class="app-pane" id="pane-planner"></div>
+</div>
+
+<script>
+/* ─── DATA ─── */
+const R = [
+  {id:0,name:"Cottage Cheese Breakfast Bowl",cat:"Breakfast",kcal:298,protein:32,carbs:24,fat:8,fiber:3,time:"5 min",srv:1,
+   img:"https://picsum.photos/seed/cot-bowl/700/900",
+   ing:[["1 cup","cottage cheese (2%)"],["½ cup","blueberries"],["2 tbsp","granola"],["1 tsp","honey"],["1 tsp","chia seeds"]],
+   steps:["Spoon cottage cheese into a wide bowl.","Scatter blueberries and granola across the top.","Drizzle with honey and dust with chia seeds.","Eat immediately — the granola loses its crunch fast."]},
+  {id:1,name:"Overnight Oats PB Chocolate",cat:"Breakfast",kcal:305,protein:14,carbs:42,fat:10,fiber:6,time:"5 min + overnight",srv:1,
+   img:"https://picsum.photos/seed/oats-pb2/700/900",
+   ing:[["½ cup","rolled oats"],["1 cup","oat milk"],["2 tbsp","peanut butter"],["1 tbsp","cacao powder"],["1 tsp","maple syrup"],["pinch","flaky salt"]],
+   steps:["Combine oats and oat milk in a jar. Stir.","Add peanut butter, cacao, maple syrup, and salt. Mix well.","Seal and refrigerate overnight (minimum 4 hours).","Stir before eating. Thin with a splash of oat milk if needed."]},
+  {id:2,name:"Noodle Bowl w/ Impossible Meat",cat:"Dinner",kcal:708,protein:38,carbs:72,fat:24,fiber:8,time:"25 min",srv:2,
+   img:"https://picsum.photos/seed/noodle-im/700/900",
+   ing:[["200g","rice noodles"],["150g","Impossible Meat"],["2 cups","bok choy"],["3 tbsp","soy sauce"],["1 tbsp","sesame oil"],["1 tsp","chili flakes"],["2","green onions"]],
+   steps:["Cook noodles per package. Rinse cold and set aside.","Brown Impossible Meat in a hot pan, breaking into small pieces.","In the same pan, wilt bok choy with a splash of water, 2 min.","Toss noodles with soy sauce and sesame oil.","Plate, top with meat and greens, finish with chili and onion."]},
+  {id:3,name:"Rice Bowl w/ Impossible Meat",cat:"Dinner",kcal:683,protein:40,carbs:68,fat:21,fiber:6,time:"30 min",srv:2,
+   img:"https://picsum.photos/seed/rice-im2/700/900",
+   ing:[["1½ cups","brown rice"],["150g","Impossible Meat"],["½ cup","edamame"],["½","cucumber, diced"],["½","avocado, sliced"],["1 tbsp","sesame seeds"],["3 tbsp","ponzu sauce"]],
+   steps:["Cook brown rice (use a rice cooker if you have one).","Season and brown Impossible Meat.","Assemble bowl: rice base, meat, edamame, cucumber, avocado.","Drizzle ponzu and scatter sesame seeds."]},
+  {id:4,name:"Green Goddess Salad",cat:"Lunch",kcal:342,protein:18,carbs:28,fat:18,fiber:9,time:"10 min",srv:1,
+   img:"https://picsum.photos/seed/gg-salad/700/900",
+   ing:[["3 cups","mixed greens"],["½","cucumber, sliced"],["2","green onions, chopped"],["½","avocado, diced"],["2 tbsp","hemp seeds"],["3 tbsp","green goddess dressing"]],
+   steps:["Combine greens, cucumber, and green onions in a wide bowl.","Add avocado and hemp seeds.","Dress generously and toss gently — don't bruise the greens.","Serve right away."]},
+  {id:5,name:"Protein Smoothie Bowl",cat:"Snack",kcal:285,protein:28,carbs:32,fat:6,fiber:5,time:"8 min",srv:1,
+   img:"https://picsum.photos/seed/smooth-b/700/900",
+   ing:[["1 scoop","vanilla protein powder"],["1","frozen banana"],["⅓ cup","almond milk"],["¼ cup","granola"],["½ cup","mixed berries"],["2 tbsp","coconut flakes"]],
+   steps:["Blend protein, banana, and almond milk until thick. Add ice if needed.","Pour into a bowl.","Top with granola, berries, and coconut flakes."]},
+  {id:6,name:"Lentil & Roasted Tomato Soup",cat:"Lunch",kcal:410,protein:22,carbs:58,fat:10,fiber:16,time:"40 min",srv:3,
+   img:"https://picsum.photos/seed/lentil2/700/900",
+   ing:[["1 cup","red lentils"],["2 cups","cherry tomatoes"],["3 cups","vegetable stock"],["1 tsp","cumin"],["1 tsp","smoked paprika"],["½","lemon"],["2 tbsp","olive oil"]],
+   steps:["Roast tomatoes at 200°C with olive oil and salt, 20 min until blistered.","Sauté onion and garlic, add spices.","Add lentils and stock, simmer 15 min until soft.","Add roasted tomatoes. Blend partially for texture.","Finish with lemon juice. Adjust seasoning."]},
+  {id:7,name:"Miso Glazed Salmon",cat:"Dinner",kcal:480,protein:42,carbs:18,fat:26,fiber:2,time:"20 min",srv:2,
+   img:"https://picsum.photos/seed/miso-sal2/700/900",
+   ing:[["2","salmon fillets"],["2 tbsp","white miso"],["1 tbsp","mirin"],["1 tsp","sesame oil"],["2 cups","bok choy"],["1 cup","brown rice"]],
+   steps:["Mix miso, mirin, and sesame oil into a glaze.","Coat salmon fillets and marinate 10 min.","Broil 8–10 min until the glaze caramelizes.","Steam bok choy alongside.","Serve over rice."]},
+  {id:8,name:"Avocado Toast w/ Poached Egg",cat:"Breakfast",kcal:390,protein:18,carbs:34,fat:22,fiber:8,time:"12 min",srv:1,
+   img:"https://picsum.photos/seed/avo-t/700/900",
+   ing:[["2 slices","sourdough bread"],["1","ripe avocado"],["2","large eggs"],["pinch","chili flakes"],["½","lemon, juiced"],["handful","microgreens"]],
+   steps:["Toast bread to golden-brown.","Mash avocado with lemon, salt, and pepper.","Poach eggs in barely simmering water with a splash of vinegar, 3 min.","Spread avocado on toast. Top with egg.","Finish with chili flakes and microgreens."]}
+];
+
+const pantryItems = [
+  {name:"Cottage Cheese 2%",cat:"Dairy",unit:"per 100g",kcal:98,protein:11.1,carbs:3.4,fat:4.3,img:"https://picsum.photos/seed/cottage2/300/300"},
+  {name:"Rolled Oats",cat:"Grains",unit:"per 100g",kcal:389,protein:16.9,carbs:66.3,fat:6.9,img:"https://picsum.photos/seed/oats3/300/300"},
+  {name:"Peanut Butter",cat:"Spreads",unit:"2 tbsp (32g)",kcal:190,protein:8,carbs:7,fat:16,img:"https://picsum.photos/seed/pb3/300/300"},
+  {name:"Impossible Meat",cat:"Protein",unit:"113g serving",kcal:240,protein:19,carbs:9,fat:14,img:"https://picsum.photos/seed/imp3/300/300"},
+  {name:"Brown Rice",cat:"Grains",unit:"100g cooked",kcal:123,protein:2.7,carbs:25.6,fat:0.9,img:"https://picsum.photos/seed/rice3/300/300"},
+  {name:"Atlantic Salmon",cat:"Protein",unit:"per 100g",kcal:208,protein:20,carbs:0,fat:13,img:"https://picsum.photos/seed/salm3/300/300"},
+  {name:"Avocado",cat:"Produce",unit:"½ fruit (68g)",kcal:160,protein:2,carbs:9,fat:15,img:"https://picsum.photos/seed/avo3/300/300"},
+  {name:"Blueberries",cat:"Produce",unit:"per 100g",kcal:57,protein:0.7,carbs:14.5,fat:0.3,img:"https://picsum.photos/seed/blue3/300/300"},
+  {name:"Hemp Seeds",cat:"Seeds",unit:"3 tbsp (30g)",kcal:166,protein:9.5,carbs:2.6,fat:14.6,img:"https://picsum.photos/seed/hemp3/300/300"},
+  {name:"Sourdough Bread",cat:"Bakery",unit:"2 slices (80g)",kcal:175,protein:5,carbs:35,fat:1.5,img:"https://picsum.photos/seed/sour3/300/300"},
+  {name:"White Miso",cat:"Condiments",unit:"1 tbsp (17g)",kcal:34,protein:2.2,carbs:4.3,fat:1,img:"https://picsum.photos/seed/miso3/300/300"},
+  {name:"Oat Milk",cat:"Dairy Alt",unit:"240ml",kcal:120,protein:3,carbs:16,fat:5,img:"https://picsum.photos/seed/oatm3/300/300"},
+];
+
+const DAYS  = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const DATES = ['29','30','31','1','2','3','4'];
+const MONS  = ['MAR','MAR','MAR','APR','APR','APR','APR'];
+const TODAY = 3;
+const planJen = [
+  {b:[{n:'Overnight Oats PB Chocolate',k:305}], l:[{n:'Green Goddess Salad',k:342}], d:[], s:[]},
+  {b:[{n:'Cottage Cheese Breakfast Bowl',k:298}], l:[], d:[{n:'Miso Glazed Salmon',k:480}], s:[]},
+  {b:[], l:[{n:'Lentil & Roasted Tomato Soup',k:410}], d:[{n:'Rice Bowl w/ Impossible Meat',k:683}], s:[]},
+  {b:[{n:'Cottage Cheese Breakfast Bowl',k:298},{n:'Overnight Oats PB Chocolate',k:305}], l:[{n:'Green Goddess Salad',k:342}], d:[{n:'Noodle Bowl w/ Impossible Meat',k:708}], s:[{n:'Protein Smoothie Bowl',k:285}]},
+  {b:[{n:'Avocado Toast w/ Poached Egg',k:390}], l:[], d:[], s:[]},
+  {b:[], l:[], d:[], s:[]},
+  {b:[], l:[], d:[], s:[]},
+];
+const planGarth = [
+  {b:[{n:'Overnight Oats PB Chocolate',k:305}], l:[], d:[{n:'Noodle Bowl w/ Impossible Meat',k:708}], s:[]},
+  {b:[], l:[{n:'Lentil & Roasted Tomato Soup',k:410}], d:[{n:'Rice Bowl w/ Impossible Meat',k:683}], s:[]},
+  {b:[{n:'Cottage Cheese Breakfast Bowl',k:298}], l:[], d:[{n:'Miso Glazed Salmon',k:480}], s:[]},
+  {b:[{n:'Overnight Oats PB Chocolate',k:305}], l:[{n:'Lentil & Roasted Tomato Soup',k:410}], d:[{n:'Miso Glazed Salmon',k:480}], s:[]},
+  {b:[], l:[], d:[{n:'Green Goddess Salad',k:342}], s:[]},
+  {b:[], l:[], d:[], s:[]},
+  {b:[], l:[], d:[], s:[]},
+];
+
+const goals = {kcal:1800, protein:120, carbs:200, fat:65, fiber:25};
+
+/* ─── SCATTER ─── */
+// palette.supply–style: varying sizes, generous gaps, edge bleeds
+// Center zone (~32-68vw × 38-62vh) clear for wordmark
+const scPos = [
+  // ── Row 1: top — balanced spread ──
+  {t:'-4vh',  l:'-2vw',  w:'10vw', h:'16vh'},     // 0 — top-left bleed
+  {t:'-2vh',  l:'17vw',  w:'19vw', h:'25vh'},     // 1 — top left-center (large)
+  {t:'-3vh',  l:'47vw',  w:'12vw', h:'17vh'},     // 2 — top center (small)
+  {t:'-4vh',  l:'70vw',  w:'17vw', h:'21vh'},     // 3 — top right
+  // ── Row 2: mid flanks — symmetrical weight ──
+  {t:'30vh',  l:'-3vw',  w:'17vw', h:'28vh'},     // 4 — left bleed (tall)
+  {t:'26vh',  l:'74vw',  w:'23vw', h:'34vh'},     // 5 — right (largest, bleeds)
+  // ── Row 3: bottom — mirror top pattern ──
+  {t:'68vh',  l:'-1vw',  w:'13vw', h:'20vh'},     // 6 — bottom-left
+  {t:'64vh',  l:'26vw',  w:'20vw', h:'28vh'},     // 7 — bottom-center (large)
+  {t:'70vh',  l:'58vw',  w:'17vw', h:'24vh'},     // 8 — bottom-right
+];
+
+function buildScatter() {
+  const f = document.getElementById('sc-field');
+  R.forEach((r,i) => {
+    const p = scPos[i];
+    const c = document.createElement('div');
+    c.className = 'sc-card';
+    c.style.cssText = `top:${p.t};left:${p.l};width:${p.w};height:${p.h}`;
+    c.innerHTML = `<img src="${r.img}" alt="${r.name}" loading="lazy">
+      <div class="sc-card-info">
+        <div class="sc-card-cat">${r.cat}</div>
+        <div class="sc-card-name">${r.name}</div>
+        <div class="sc-card-kcal">${r.kcal} kcal</div>
+      </div>`;
+    c.onclick = () => expandCard(c, r.id);
+    c.addEventListener('mouseenter', () => { prlFrozen = true; document.body.classList.add('cur-card'); });
+    c.addEventListener('mouseleave', () => { prlFrozen = false; document.body.classList.remove('cur-card'); });
+    f.appendChild(c);
+    // Stagger entrance: cards start after wordmark has time to register
+    setTimeout(() => { c.classList.add('in'); }, i * 70 + 800);
+  });
+}
+
+/* ─── STATE MACHINE ─── */
+let appReady = false;
+
+function enterAppAndDetail(id) {
+  enterApp(() => { openDetail(id); setNav('nl-recipes'); });
+}
+
+/* ─── CARD EXPANSION (FLIP: image enlarges, moves to position, then page builds) ─── */
+function expandCard(cardEl, recipeId) {
+  const first = cardEl.getBoundingClientRect();
+  prlFrozen = true;
+
+  const easeOut = 'cubic-bezier(0.23,1,0.32,1)';
+
+  // Step 1: Fade all other cards + wordmark
+  document.querySelectorAll('.sc-card').forEach(c => {
+    if (c !== cardEl) {
+      c.style.transition = `opacity 150ms ${easeOut}`;
+      c.style.opacity = '0';
+    }
+  });
+  const center = document.querySelector('.sc-center');
+  center.style.transition = `opacity 120ms ${easeOut}`;
+  center.style.opacity = '0';
+
+  // Step 2: Create flying overlay, set up page behind it
+  setTimeout(() => {
+    const cl = document.createElement('div');
+    cl.style.cssText = `position:fixed;top:${first.top}px;left:${first.left}px;width:${first.width}px;height:${first.height}px;z-index:600;overflow:hidden;pointer-events:none;border-radius:0;`;
+    const img = document.createElement('img');
+    img.src = R[recipeId].img;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    cl.appendChild(img);
+    document.body.appendChild(cl);
+    cardEl.style.opacity = '0';
+
+    // Set up detail page with content hidden
+    document.getElementById('scatter').style.display = 'none';
+    document.getElementById('nav').classList.add('show');
+    const app = document.getElementById('app');
+    app.classList.add('show');
+    app.style.opacity = '0';
+    appReady = true;
+    currentRid = recipeId;
+    renderDetail(true);
+    showPane('pane-detail', 'recipes');
+    setNav('nl-recipes');
+
+    // Measure target and animate with real position properties
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const target = document.getElementById('rd-inset-img');
+        const last = target ? target.getBoundingClientRect() : {top:80,left:580,width:460,height:345};
+
+        // Animate top/left/width/height for true positional movement
+        cl.animate([
+          { top: first.top+'px', left: first.left+'px', width: first.width+'px', height: first.height+'px' },
+          { top: last.top+'px', left: last.left+'px', width: last.width+'px', height: last.height+'px' }
+        ], {
+          duration: 650,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'forwards'
+        });
+
+        // Show nav immediately, keep content hidden
+        app.style.transition = 'none';
+        app.style.opacity = '1';
+        const detailPane = document.getElementById('pane-detail');
+        detailPane.style.opacity = '0';
+
+        // After image lands, reveal page content
+        setTimeout(() => {
+          if (target) { target.style.transition = 'none'; target.style.opacity = '1'; }
+          cl.style.transition = `opacity 140ms ${easeOut}`;
+          cl.style.opacity = '0';
+          detailPane.style.transition = `opacity 400ms ${easeOut}`;
+          detailPane.style.opacity = '1';
+          setTimeout(() => { cl.remove(); app.style.transition = ''; detailPane.style.transition = ''; }, 420);
+        }, 670);
+      });
+    });
+  }, 160);
+}
+
+/* ─── GRID/LIST → DETAIL TRANSITION ─── */
+function openDetailFromGrid(cardEl, recipeId) {
+  const imgEl = cardEl.querySelector('.rg-img');
+  const imgRect = imgEl ? imgEl.getBoundingClientRect() : cardEl.getBoundingClientRect();
+  const easeOut = 'cubic-bezier(0.23,1,0.32,1)';
+
+  const cl = document.createElement('div');
+  cl.style.cssText = `position:fixed;top:${imgRect.top}px;left:${imgRect.left}px;width:${imgRect.width}px;height:${imgRect.height}px;z-index:600;overflow:hidden;pointer-events:none;border-radius:0;`;
+  const img = document.createElement('img');
+  img.src = R[recipeId].img;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+  cl.appendChild(img);
+  document.body.appendChild(cl);
+
+  currentRid = recipeId;
+  renderDetail(true);
+  showPane('pane-detail', 'recipes');
+  setNav('nl-recipes');
+
+  const detailPane = document.getElementById('pane-detail');
+  detailPane.style.opacity = '0';
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const target = document.getElementById('rd-inset-img');
+      const last = target ? target.getBoundingClientRect() : {top:80,left:580,width:460,height:345};
+
+      cl.animate([
+        { top: imgRect.top+'px', left: imgRect.left+'px', width: imgRect.width+'px', height: imgRect.height+'px' },
+        { top: last.top+'px', left: last.left+'px', width: last.width+'px', height: last.height+'px' }
+      ], {
+        duration: 550,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        fill: 'forwards'
+      });
+
+      setTimeout(() => {
+        if (target) { target.style.transition = 'none'; target.style.opacity = '1'; }
+        cl.style.transition = `opacity 140ms ${easeOut}`;
+        cl.style.opacity = '0';
+        detailPane.style.transition = `opacity 380ms ${easeOut}`;
+        detailPane.style.opacity = '1';
+        setTimeout(() => { cl.remove(); detailPane.style.transition = ''; }, 400);
+      }, 570);
+    });
+  });
+}
+
+/* ─── BACK TO SCATTER ─── */
+function goToScatter() {
+  document.querySelectorAll('.app-pane').forEach(p => p.classList.remove('active'));
+  const app = document.getElementById('app');
+  app.style.transition = 'opacity 0.35s';
+  app.style.opacity = '0';
+  app.style.pointerEvents = 'none';
+  setTimeout(() => {
+    app.classList.remove('show');
+    app.style.opacity = '';
+    app.style.pointerEvents = '';
+    document.getElementById('nav').classList.remove('show');
+    // Re-show scatter
+    const sc = document.getElementById('scatter');
+    sc.style.display = '';
+    sc.style.transition = 'none';
+    sc.style.opacity = '0';
+    // Reset cards
+    document.querySelectorAll('.sc-card').forEach(c => { c.style.opacity = ''; c.style.transition = ''; });
+    document.querySelector('.sc-center').style.opacity = '';
+    // Reset parallax canvas
+    prlTX = 0; prlTY = 0;
+    prlFrozen = false;
+    appReady = false;
+    // Force reflow after display:none removal, THEN start transition
+    void sc.offsetHeight;
+    sc.style.transition = 'opacity 0.45s cubic-bezier(0.23,1,0.32,1)';
+    requestAnimationFrame(() => { sc.style.opacity = '1'; });
+  }, 350);
+}
+
+function enterApp(cb) {
+  const sc = document.getElementById('scatter');
+  sc.style.transition = 'opacity 0.45s';
+  sc.style.opacity = '0';
+  sc.style.pointerEvents = 'none';
+  document.getElementById('nav').classList.add('show');
+  setTimeout(() => {
+    sc.style.display = 'none';
+    document.getElementById('app').classList.add('show');
+    appReady = true;
+    if (cb) cb();
+  }, 450);
+}
+
+function setNav(id) {
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (id) document.getElementById(id)?.classList.add('active');
+}
+
+function showPane(id, section) {
+  document.querySelectorAll('.app-pane').forEach(p => { p.classList.remove('active'); p.style.opacity = ''; p.style.transition = ''; });
+  document.getElementById(id).classList.add('active');
+  document.documentElement.dataset.section = section || 'recipes';
+  if (!appReady) {
+    document.getElementById('nav').classList.add('show');
+    document.getElementById('scatter').style.display = 'none';
+    document.getElementById('app').classList.add('show');
+    appReady = true;
+  }
+}
+
+function goRecipes() {
+  if (!appReady) enterApp(() => { buildRecipes(); showPane('pane-recipes', 'recipes'); setNav('nl-recipes'); });
+  else { buildRecipes(); showPane('pane-recipes', 'recipes'); setNav('nl-recipes'); }
+}
+
+function goPantry() {
+  if (!appReady) enterApp(() => { buildPantry(); showPane('pane-pantry', 'pantry'); setNav('nl-pantry'); });
+  else { buildPantry(); showPane('pane-pantry', 'pantry'); setNav('nl-pantry'); }
+}
+
+function goPlanner() {
+  if (!appReady) enterApp(() => { buildPlanner('jen'); showPane('pane-planner', 'planner'); setNav('nl-planner'); });
+  else { buildPlanner('jen'); showPane('pane-planner', 'planner'); setNav('nl-planner'); }
+}
+
+/* ─── RECIPES ─── */
+let gridCols = 4, listMode = false;
+
+function buildRecipes(q='') {
+  const pane = document.getElementById('pane-recipes');
+  const flt = R.filter(r => !q || r.name.toLowerCase().includes(q) || r.cat.toLowerCase().includes(q));
+  pane.innerHTML = `
+    <div class="toolbar">
+      <span class="toolbar-title">Recipes</span>
+      <input class="toolbar-search" placeholder="Search…" oninput="buildRecipes(this.value)" value="${q}">
+      <div class="toolbar-right">
+        <div class="col-grp" id="col-grp">
+          <button onclick="setCols(2)" ${gridCols===2?'class="on"':''}>2</button>
+          <button onclick="setCols(3)" ${gridCols===3?'class="on"':''}>3</button>
+          <button onclick="setCols(4)" ${gridCols===4?'class="on"':''}>4</button>
+        </div>
+        <button class="tbtn ${listMode?'on':''}" onclick="toggleList()">List</button>
+      </div>
+    </div>
+    <div class="rg-wrap">
+      <div class="rg ${listMode?'list':'c'+gridCols}" id="rg-inner">
+        ${flt.map(r=>`
+          <div class="rg-card" onclick="openDetail(${r.id}, this)">
+            <div class="rg-img-box"><img class="rg-img" src="${r.img}" alt="${r.name}" loading="lazy"></div>
+            <div class="rg-info">
+              <div class="rg-cat">${r.cat}</div>
+              <div class="rg-name">${r.name}</div>
+              <div class="rg-meta">
+                <span class="rg-kcal">${r.kcal} kcal</span>
+                <span class="rg-macros">
+                  <span class="rg-m">P ${r.protein}g</span>
+                  <span class="rg-m">C ${r.carbs}g</span>
+                  <span class="rg-m">F ${r.fat}g</span>
+                </span>
+              </div>
+            </div>
+            <div class="rg-bar"></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function setCols(n) {
+  gridCols = n; listMode = false;
+  buildRecipes(document.querySelector('.toolbar-search')?.value || '');
+}
+function toggleList() {
+  listMode = !listMode;
+  buildRecipes(document.querySelector('.toolbar-search')?.value || '');
+}
+
+/* ─── RECIPE DETAIL (single long editorial scroll) ─── */
+let currentRid = 0;
+
+function openDetail(id, cardEl) {
+  if (cardEl) {
+    openDetailFromGrid(cardEl, id);
+  } else {
+    currentRid = id;
+    renderDetail();
+    showPane('pane-detail', 'recipes');
+    setNav('nl-recipes');
+  }
+}
+
+function renderDetail(skipImage) {
+  const r = R[currentRid];
+  const pane = document.getElementById('pane-detail');
+  pane.scrollTop = 0;
+  pane.innerHTML = `
+    <div class="rd-scroll">
+      <div class="rd-back-row rd-s1">
+        <button class="rd-back-btn" onclick="goRecipes()" aria-label="Back to recipes">← Recipes</button>
+        <button class="rd-edit-btn" aria-label="Edit recipe">Edit</button>
+      </div>
+      <nav class="rd-jump-nav rd-s2" aria-label="Jump to section">
+        <a class="rd-jump-link" onclick="document.getElementById('rd-sec-ing').scrollIntoView({behavior:'smooth',block:'start'})"><span class="rd-jump-n">01</span> Ingredients</a>
+        <a class="rd-jump-link" onclick="document.getElementById('rd-sec-nut').scrollIntoView({behavior:'smooth',block:'start'})"><span class="rd-jump-n">02</span> Nutrition</a>
+        <a class="rd-jump-link" onclick="document.getElementById('rd-sec-steps').scrollIntoView({behavior:'smooth',block:'start'})"><span class="rd-jump-n">03</span> Instructions</a>
+        <a class="rd-jump-link" onclick="document.getElementById('rd-sec-opt').scrollIntoView({behavior:'smooth',block:'start'})"><span class="rd-jump-n">04</span> Optimize</a>
+        <a class="rd-jump-link" onclick="document.getElementById('rd-sec-prep').scrollIntoView({behavior:'smooth',block:'start'})"><span class="rd-jump-n">05</span> Meal Prep</a>
+      </nav>
+
+      <!-- Hero: name left, image right -->
+      <div class="rd-hero-area">
+        <div class="rd-hero-left">
+          <p class="rd-recipe-meta rd-s1">${r.cat} · ${r.time} · ${r.srv} serving${r.srv>1?'s':''}</p>
+          <h1 class="rd-recipe-name rd-s1">${r.name}</h1>
+          <div class="rd-nut-hero rd-s2" style="margin-top:8px">
+            <div class="rd-nut-num" style="font-size:40px">${r.kcal}</div>
+            <div class="rd-nut-label">kcal per serving · ${Math.round(r.kcal/goals.kcal*100)}% of daily goal</div>
+          </div>
+        </div>
+        <div class="rd-hero-right rd-s1">
+          <div class="rd-image-inset" id="rd-inset-img" ${skipImage ? 'style="opacity:0"' : ''}>
+            <img src="${r.img}" alt="${r.name}">
+          </div>
+        </div>
+      </div>
+
+      <!-- 01 Ingredients + Scale -->
+      <div class="rd-section" id="rd-sec-ing">
+        <div class="rd-two-col">
+          <div>
+            <div class="rd-sec-head rd-s2">
+              <span class="rd-sec-n">01</span>
+              <span class="rd-sec-title">Ingredients</span>
+              <span class="rd-sec-rule"></span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:20px">
+              <span class="mp-sec-label" style="margin:0;line-height:2">Scale</span>
+              ${[1,2,4,6].map(n=>`<span class="mp-chip ${n===1?'on':''}" onclick="this.closest('div').querySelectorAll('.mp-chip').forEach(c=>c.classList.remove('on'));this.classList.add('on')">${n}×</span>`).join('')}
+            </div>
+            <ul class="rd-ing-list rd-s2">${r.ing.map(([a,n])=>`<li class="rd-ing"><span class="rd-ing-amt">${a}</span><span class="rd-ing-name">${n}</span></li>`).join('')}</ul>
+          </div>
+          <div>
+            <div class="rd-sec-head rd-s2" id="rd-sec-nut">
+              <span class="rd-sec-n">02</span>
+              <span class="rd-sec-title">Nutrition</span>
+              <span class="rd-sec-rule"></span>
+            </div>
+            <div class="nut-rows rd-s2" style="max-width:340px">
+              ${nutRow('Protein',r.protein,'g',goals.protein,false)}
+              ${nutRow('Carbs',r.carbs,'g',goals.carbs,false)}
+              ${nutRow('Fat',r.fat,'g',goals.fat,true)}
+              ${nutRow('Fiber',r.fiber,'g',goals.fiber,false)}
+            </div>
+            <p class="rd-s3" style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:16px;max-width:340px">
+              ${r.srv > 1 ? `Makes ${r.srv} servings. Values per serving.` : 'Single serving.'}
+              Remaining: ${goals.kcal - r.kcal} kcal · ${goals.protein - r.protein}g protein.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 Instructions -->
+      <div class="rd-section" id="rd-sec-steps">
+        <div class="rd-sec-head rd-s2">
+          <span class="rd-sec-n">03</span>
+          <span class="rd-sec-title">Instructions</span>
+          <span class="rd-sec-rule"></span>
+        </div>
+        <div class="rd-steps rd-s3 rd-narrow">${r.steps.map((s,i)=>`<div class="rd-step"><span class="rd-step-n">${String(i+1).padStart(2,'0')}</span><span class="rd-step-text">${s}</span></div>`).join('')}</div>
+      </div>
+
+      <!-- 04 Optimize -->
+      <div class="rd-section" id="rd-sec-opt">
+        <div class="rd-sec-head rd-s2">
+          <span class="rd-sec-n">04</span>
+          <span class="rd-sec-title">Optimize</span>
+          <span class="rd-sec-rule"></span>
+        </div>
+        <p class="opt-intro rd-s2">Covers <strong>${Math.round(r.protein/goals.protein*100)}%</strong> of your daily protein. Swaps to improve without changing the dish:</p>
+        <div class="rd-two-col rd-s3" style="gap:16px;max-width:800px">
+          <div class="swap-card">
+            <div class="swap-text">Replace <strong>${r.ing[0]?.[1]||'first ingredient'}</strong> with a higher-protein version<div class="swap-impact">+6g protein · −40 kcal</div></div>
+            <button class="swap-btn" aria-label="Apply swap">Swap</button>
+          </div>
+          <div class="swap-card">
+            <div class="swap-text">Add <strong>1 tbsp hemp seeds</strong> — unnoticeable but meaningful<div class="swap-impact">+3g protein · +2g omega-3</div></div>
+            <button class="swap-btn" aria-label="Add ingredient">Add</button>
+          </div>
+        </div>
+        <button class="opt-gen-btn tbtn accent rd-s3" style="font-size:9px;letter-spacing:.12em;margin-top:24px" aria-label="Generate optimized version">Generate Optimized Version</button>
+      </div>
+
+      <!-- 05 Meal Prep -->
+      <div class="rd-section" id="rd-sec-prep" style="padding-bottom:120px">
+        <div class="rd-sec-head rd-s2">
+          <span class="rd-sec-n">05</span>
+          <span class="rd-sec-title">Meal Prep</span>
+          <span class="rd-sec-rule"></span>
+        </div>
+        <div class="rd-two-col rd-s3">
+          <div>
+            <div class="mp-sec-label">Prep Ahead</div>
+            ${r.steps.slice(0,2).map(s=>`<p class="mp-note">· ${s}</p>`).join('')}
+            <div class="mp-sec-label" style="margin-top:20px">Weekly Use</div>
+            <p class="mp-note">Works well prepped Sunday. Pairs with lighter meals to stay on target.</p>
+          </div>
+          <div>
+            <div class="mp-sec-label">Storage</div>
+            <p class="mp-note">· Assembled: 2–3 days refrigerated</p>
+            <p class="mp-note">· Components: up to 5 days</p>
+            <p class="mp-note">· Freezer: sauce/base only, 1 month</p>
+            <div class="mp-sec-label" style="margin-top:20px">Reheating</div>
+            <p class="mp-note">· Microwave 90s covered</p>
+            <p class="mp-note">· Pan reheat, splash of water</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function nutRow(label, val, unit, goalVal, isMax) {
+  const p = Math.min(Math.round(val / goalVal * 100), 100);
+  const cls = isMax && val/goalVal > 1 ? 'fill-err' : 'fill-ok';
+  return `<div class="nut-row">
+    <div class="nut-row-top">
+      <span class="nut-name">${label}</span>
+      <span class="nut-val">${val}${unit} <span class="nut-pct">/ ${goalVal}${unit}</span></span>
+    </div>
+    <div class="nut-track"><div class="nut-fill ${cls}" style="width:${p}%"></div></div>
+  </div>`;
+}
+
+/* ─── PANTRY ─── */
+function buildPantry() {
+  document.getElementById('pane-pantry').innerHTML = `
+    <div class="toolbar">
+      <span class="toolbar-title">Pantry</span>
+      <input class="toolbar-search" placeholder="Search ingredients…">
+      <div class="toolbar-right">
+        <button class="tbtn on">All</button>
+        <button class="tbtn">Foods</button>
+        <button class="tbtn">Supplements</button>
+      </div>
+    </div>
+    <div class="pantry-grid">
+      ${pantryItems.map(p=>`
+        <div class="pt-card">
+          <div class="pt-img-wrap"><img class="pt-img" src="${p.img}" alt="${p.name}" loading="lazy"></div>
+          <div class="pt-cat">${p.cat}</div>
+          <div class="pt-name">${p.name}</div>
+          <div class="pt-unit">${p.unit}</div>
+          <div class="pt-kcal">${p.kcal}</div>
+          <div class="pt-kcal-label">kcal</div>
+          <div class="pt-nut-row"><span class="pt-nut-name">Protein</span><span class="pt-nut-val">${p.protein}g</span></div>
+          <div class="pt-nut-row"><span class="pt-nut-name">Carbs</span><span class="pt-nut-val">${p.carbs}g</span></div>
+          <div class="pt-nut-row"><span class="pt-nut-name">Fat</span><span class="pt-nut-val">${p.fat}g</span></div>
+        </div>`).join('')}
+    </div>`;
+}
+
+/* ─── PLANNER ─── */
+let planPerson = 'jen';
+
+function buildPlanner(person) {
+  planPerson = person;
+  const plan = person === 'garth' ? planGarth : planJen;
+  const isEv = person === 'everyone';
+
+  const todayKcal = isEv
+    ? planJen[TODAY].b.concat(planJen[TODAY].l,planJen[TODAY].d,planJen[TODAY].s).reduce((a,m)=>a+m.k,0)
+    : plan[TODAY].b.concat(plan[TODAY].l,plan[TODAY].d,plan[TODAY].s).reduce((a,m)=>a+m.k,0);
+
+  const cols = `82px repeat(7, 1fr)`;
+  const rows = ['b','l','d','s'];
+  const rowLabels = ['BREAKFAST','LUNCH','DINNER','SNACK'];
+
+  let headerCells = `<div class="wk-row-label" style="border-bottom:1px solid var(--rule)"></div>`;
+  DAYS.forEach((d,i) => headerCells += `<div class="wk-day-header ${i===TODAY?'today':''}"><div class="wk-day-name">${d}</div><div class="wk-day-date">${MONS[i]} ${DATES[i]}</div></div>`);
+
+  let gridRows = '';
+  rows.forEach((key, ri) => {
+    gridRows += `<div class="wk-row-label">${rowLabels[ri]}</div>`;
+    for (let di = 0; di < 7; di++) {
+      const todayCls = di === TODAY ? 'today-col' : '';
+      let chips = '';
+      if (isEv) {
+        const jMeals = planJen[di][key];
+        const gMeals = planGarth[di][key];
+        if (jMeals.length) chips += `<div style="margin-bottom:4px"><div class="ev-person-header" style="background:#E84828">JEN</div>${jMeals.map(m=>`<div class="meal-chip"><span class="meal-chip-name">${m.n}</span><span class="meal-chip-kcal">${m.k} kcal</span></div>`).join('')}</div>`;
+        if (gMeals.length) chips += `<div><div class="ev-person-header" style="background:#5B7BA0">GARTH</div>${gMeals.map(m=>`<div class="meal-chip"><span class="meal-chip-name">${m.n}</span><span class="meal-chip-kcal">${m.k} kcal</span></div>`).join('')}</div>`;
+      } else {
+        const meals = plan[di][key];
+        chips = meals.map(m=>`<div class="meal-chip"><span class="meal-chip-name">${m.n}</span><span class="meal-chip-kcal">${m.k} kcal</span></div>`).join('');
+      }
+      gridRows += `<div class="wk-cell ${todayCls}">${chips}</div>`;
+    }
+  });
+
+  // Today nutrition
+  const todayDay = isEv ? planJen[TODAY] : plan[TODAY];
+  const allMeals = todayDay.b.concat(todayDay.l, todayDay.d, todayDay.s);
+  const totalKcal = allMeals.reduce((a,m)=>a+m.k,0);
+
+  document.getElementById('pane-planner').innerHTML = `
+    <div class="pl-wrap">
+      <div class="pl-main">
+        <div class="pl-toolbar">
+          <button class="pl-nav-btn">← Prev</button>
+          <span class="pl-range">MAR 29 – APR 4, 2026</span>
+          <button class="pl-nav-btn">Next →</button>
+          <button class="pl-nav-btn">This Week</button>
+          <div class="person-toggle" style="margin-left:12px">
+            <button class="${planPerson==='jen'?'on':''}" onclick="buildPlanner('jen')">JEN</button>
+            <button class="${planPerson==='garth'?'on':''}" onclick="buildPlanner('garth')">GARTH</button>
+            <button class="${planPerson==='everyone'?'on':''}" onclick="buildPlanner('everyone')">ALL</button>
+          </div>
+          <button class="tbtn accent" style="margin-left:8px">+ New Plan</button>
+        </div>
+        <div class="wk-grid" style="grid-template-columns:${cols}">
+          ${headerCells}
+          ${gridRows}
+        </div>
+      </div>
+      <div class="pl-right">
+        <div class="pl-right-title">Wed, Apr 1 · ${planPerson==='everyone'?'Everyone':planPerson==='garth'?'Garth':'Jen'}</div>
+        <div class="pl-kcal-hero">${totalKcal}</div>
+        <div class="pl-kcal-sub">kcal · ${Math.round(totalKcal/goals.kcal*100)}% of ${goals.kcal} goal</div>
+        <div class="nut-rows">
+          ${planNutRow('Protein', isEv?120:96, 'g', goals.protein, false)}
+          ${planNutRow('Carbs', isEv?182:162, 'g', goals.carbs, false)}
+          ${planNutRow('Fat', isEv?40:40, 'g', goals.fat, true)}
+          ${planNutRow('Fiber', isEv?38:26, 'g', goals.fiber, false)}
+          ${planNutRow('Omega-3', isEv?0.8:0.4, 'g', 1.6, false, true)}
+          ${planNutRow('Potassium', isEv?2800:2100, 'mg', 3500, false, true)}
+        </div>
+        <hr class="pl-divider">
+        <div class="warn-chips">
+          <div class="warn-chip">↓ Below minimum · Omega-3</div>
+          <div class="warn-chip">↓ Below minimum · Potassium</div>
+        </div>
+        <hr class="pl-divider">
+        <div class="pl-swap-section">
+          <div class="pl-swap-label">Suggestions</div>
+          <div class="pl-swap-card">
+            <div class="pl-swap-text">Instead of <strong>Noodle Bowl w/ Impossible Meat</strong> → Rice Bowl (optimized)</div>
+            <div class="pl-swap-savings">Saves 25 kcal · +2g protein</div>
+            <button class="pl-swap-btn">SWAP</button>
+          </div>
+          <div class="pl-swap-card">
+            <div class="pl-swap-text">Add <strong>1 tbsp hemp seeds</strong> to breakfast bowl for omega-3</div>
+            <div class="pl-swap-savings">+2g omega-3 · +55 kcal</div>
+            <button class="pl-swap-btn">ADD</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function planNutRow(label, val, unit, goalVal, isMax, isMin) {
+  const p = Math.min(Math.round(val / goalVal * 100), 100);
+  let cls = 'fill-ok';
+  if (isMax && val/goalVal > 1) cls = 'fill-err';
+  if (isMin && val/goalVal < 1) cls = 'fill-warn';
+  return `<div class="nut-row">
+    <div class="nut-row-top">
+      <span class="nut-name">${label}</span>
+      <span class="nut-val">${val}${unit} <span class="nut-pct">/ ${goalVal}${unit}</span></span>
+    </div>
+    <div class="nut-track"><div class="nut-fill ${cls}" style="width:${p}%"></div></div>
+  </div>`;
+}
+
+/* ─── PARALLAX ─── */
+let prlFrozen = false;
+let prlX = 0, prlY = 0, prlTX = 0, prlTY = 0;
+const PRL_MAX = 36; // max px of canvas travel
+
+(function prlTick() {
+  if (!prlFrozen) {
+    prlX += (prlTX - prlX) * 0.08;
+    prlY += (prlTY - prlY) * 0.08;
+    const f = document.getElementById('sc-field');
+    if (f) f.style.transform = `translate(${prlX.toFixed(2)}px,${prlY.toFixed(2)}px)`;
+  }
+  requestAnimationFrame(prlTick);
+})();
+
+document.addEventListener('mousemove', e => {
+  // Only track when scatter is visible
+  const sc = document.getElementById('scatter');
+  if (!sc || sc.style.display === 'none') return;
+  const halfW = window.innerWidth / 2;
+  const halfH = window.innerHeight / 2;
+  // Inverse: mouse right → field shifts left
+  prlTX = -((e.clientX - halfW) / halfW) * PRL_MAX;
+  prlTY = -((e.clientY - halfH) / halfH) * PRL_MAX;
+});
+
+/* ─── THEME ─── */
+function toggleTheme() {
+  const h = document.documentElement;
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+}
+
+/* ─── CUSTOM CURSOR ─── */
+(function() {
+  const dot = document.getElementById('cur-dot');
+  const ring = document.getElementById('cur-ring');
+  const label = document.getElementById('cur-label');
+  let cx = -100, cy = -100, rx = -100, ry = -100;
+  document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; dot.style.left = cx+'px'; dot.style.top = cy+'px'; label.style.left = (cx+22)+'px'; label.style.top = (cy-6)+'px'; });
+  (function tick() { rx += (cx - rx) * 0.1; ry += (cy - ry) * 0.1; ring.style.left = rx+'px'; ring.style.top = ry+'px'; requestAnimationFrame(tick); })();
+  document.addEventListener('mouseover', e => {
+    const card = e.target.closest('.sc-card,.rg-card,.pt-card');
+    const btn = e.target.closest('button,.nav-link,.nav-logo,.sc-hint');
+    if (card) document.body.classList.add('cur-card');
+    else if (btn) { document.body.classList.remove('cur-card'); document.body.classList.add('cur-btn'); }
+    else { document.body.classList.remove('cur-card','cur-btn'); }
+  });
+})();
+
+/* ─── INIT ─── */
+window.addEventListener('load', () => {
+  buildScatter();
+  setTimeout(() => {
+    document.getElementById('sc-wm').classList.add('in');
+  }, 100);
+});
+</script>
+</body>
+</html>

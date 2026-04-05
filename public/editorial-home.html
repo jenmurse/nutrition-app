@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg:      #F5F4EF;
+  --bg-2:    #EEEAE3;
+  --fg:      #1A1916;
+  --fg-2:    #36342F;
+  --muted:   #6B6860;
+  --rule:    #D0CCC2;
+  --accent:  #E84828;
+  --accent-l: rgba(232,72,40,0.07);
+  --ok:      #5A9B6A;
+  --err:     #B02020;
+  --nav-h:   44px;
+  --pad:     40px;
+  --ease:    cubic-bezier(0.23, 1, 0.32, 1);
+  --grain-op: 0.022;
+}
+
+html, body {
+  background: var(--bg); color: var(--fg);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px; opacity: var(--grain-op); mix-blend-mode: overlay;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100;
+  display: flex; align-items: center; padding: 0 var(--pad);
+  background: var(--bg); border-bottom: 1px solid var(--rule);
+}
+.nav-logo {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 13px;
+  font-weight: 700; letter-spacing: -0.02em; color: var(--fg); margin-right: 36px;
+  cursor: pointer;
+}
+.nav-links { display: flex; gap: 24px; flex: 1; }
+.nav-link {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); padding: 6px 0;
+  position: relative; cursor: pointer; transition: color 0.15s;
+}
+.nav-link::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.2s var(--ease);
+}
+.nav-link:hover { color: var(--fg); }
+.nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+.nav-link.active { color: var(--fg); }
+.nav-right { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+.p-dot {
+  width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 7.5px; font-weight: 600; color: #fff;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.p-dot:hover { transform: scale(1.12); }
+.p-dot.active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent); }
+
+
+/* ══════════════════════════════
+   HERO — always exactly viewport
+══════════════════════════════ */
+.hero {
+  height: 100vh;
+  padding-top: var(--nav-h);
+  display: flex; flex-direction: column;
+}
+
+.hero-top {
+  flex: 1; display: flex; align-items: flex-end;
+  padding: 0 var(--pad) 48px;
+}
+
+.greeting-eyebrow {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.greeting-eyebrow-rule { width: 32px; height: 1px; background: var(--rule); }
+
+.greeting {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  line-height: 0.91; letter-spacing: -0.03em;
+  font-weight: 500; font-size: 11.5vw;
+}
+.greeting-name {
+  color: var(--accent); display: block; transition: color 0.4s;
+}
+
+/* ── STATS STRIP ── */
+.hero-stats {
+  border-top: 1px solid var(--rule);
+  flex-shrink: 0; position: relative;
+}
+.hero-stats-inner {
+  display: flex; padding: 0 var(--pad);
+}
+.stat-block {
+  flex: 1; padding: 18px 0 20px; border-right: 1px solid var(--rule);
+  padding-right: 32px; margin-right: 32px;
+}
+.stat-block:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+.stat-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+}
+.stat-value {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 30px; font-weight: 700; letter-spacing: -0.025em; line-height: 1;
+}
+.stat-sub {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.05em;
+  color: var(--muted); margin-top: 5px;
+}
+.stat-bar { height: 2px; background: var(--rule); margin-top: 10px; position: relative; }
+.stat-bar-fill {
+  position: absolute; inset: 0;
+  background: var(--accent); transition: width 0.6s var(--ease), background 0.4s;
+}
+
+
+
+
+/* ══════════════════════════════
+   SECTIONS — shared
+══════════════════════════════ */
+.section { padding: 0 var(--pad) 72px; }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 56px 0 28px; border-top: 1px solid var(--rule);
+}
+.section-header.no-rule { border-top: none; padding-top: 40px; }
+.section-title {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--muted);
+}
+.section-link {
+  font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); cursor: pointer;
+  transition: opacity 0.15s;
+}
+.section-link:hover { opacity: 0.7; }
+
+
+/* ══════════════════════════════
+   TODAY'S MEALS
+══════════════════════════════ */
+.meals-grid { display: flex; gap: 0; }
+.meal-col { flex: 1; padding: 0 36px; }
+.meal-col:first-child { padding-left: 0; }
+.meal-col:last-child  { padding-right: 0; }
+
+.meal-num {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+}
+.meal-name {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px;
+  font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;
+  margin-bottom: 12px; text-wrap: balance;
+}
+.meal-stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid var(--rule);
+}
+.meal-stat-row:last-child { border-bottom: none; }
+.meal-stat-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.meal-stat-val {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 14px;
+  font-weight: 600; letter-spacing: -0.01em;
+}
+.meal-link {
+  font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-top: 14px;
+  display: inline-block; cursor: pointer; transition: opacity 0.15s;
+}
+.meal-link:hover { opacity: 0.7; }
+
+/* Empty state */
+.today-empty {
+  padding: 48px 0; text-align: center;
+  border: 1px dashed var(--rule);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.today-empty-label {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+}
+.today-empty-cta {
+  font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); cursor: pointer;
+}
+
+
+/* ══════════════════════════════
+   THIS WEEK — planner style, no column borders
+══════════════════════════════ */
+.week-grid {
+  display: flex; gap: 0;
+}
+.week-col {
+  flex: 1; min-width: 0;
+  transition: background 0.2s;
+}
+.week-col.is-today { background: var(--accent-l); }
+
+.week-col-head {
+  padding: 12px 14px 14px;
+}
+.week-col:first-child .week-col-head,
+.week-col:first-child .week-col-body { padding-left: 0; }
+.week-col:last-child .week-col-head,
+.week-col:last-child .week-col-body  { padding-right: 0; }
+.week-col-dayname {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.week-col.is-today .week-col-dayname { color: var(--accent); }
+.week-col-num {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1; margin-top: 2px; color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+}
+.week-col.is-today .week-col-num { color: var(--fg); }
+.week-col-kcal {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.04em;
+  color: var(--muted); margin-top: 4px;
+}
+.week-kcal-bar { height: 2px; background: var(--rule); margin-top: 6px; position: relative; }
+.week-kcal-fill {
+  position: absolute; inset: 0;
+  background: var(--ok); transition: width 0.5s var(--ease);
+}
+.week-kcal-fill.today-fill { background: var(--accent); }
+
+.week-col-body { padding: 8px 14px 12px; }
+.week-meal { padding: 6px 0; }
+.week-meal-type {
+  font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
+}
+.week-meal-name {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--fg);
+  line-height: 1.35;
+}
+.week-meal-kcal {
+  font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); margin-top: 1px;
+}
+.week-add {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); cursor: pointer;
+  padding: 6px 0; display: block; transition: color 0.15s;
+}
+.week-add:hover { color: var(--accent); }
+
+
+/* ── DEMO BAR ── */
+.demo-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: var(--bg); border-top: 1px solid var(--rule);
+  padding: 8px 24px; display: flex; align-items: center; gap: 8px;
+}
+.demo-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-right: 2px;
+}
+.demo-sep { width: 1px; height: 16px; background: var(--rule); margin: 0 4px; }
+.dbtn {
+  font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
+  text-transform: uppercase; background: none; border: 1px solid var(--rule);
+  color: var(--muted); padding: 4px 10px; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 100ms var(--ease);
+}
+.dbtn:hover { color: var(--fg); border-color: var(--muted); }
+.dbtn:active { transform: scale(0.97); }
+.dbtn.on { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <span class="nav-logo">Good Measure</span>
+  <div class="nav-links">
+    <span class="nav-link">Recipes</span>
+    <span class="nav-link">Planner</span>
+    <span class="nav-link">Pantry</span>
+  </div>
+  <div class="nav-right">
+    <div class="p-dot active" id="dot-jen"   style="background:#E84828" onclick="setPerson('jen')"   title="Jen">J</div>
+    <div class="p-dot"        id="dot-garth" style="background:#5A9B8A" onclick="setPerson('garth')" title="Garth">G</div>
+  </div>
+</nav>
+
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+
+  <div class="hero-top">
+    <div>
+      <div class="greeting-eyebrow">
+        <span>Friday, April 3, 2026</span>
+      </div>
+      <div class="greeting" id="greeting">
+        Good<br>morning,<br>
+        <span class="greeting-name" id="greeting-name">Jen.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="hero-stats">
+    <div class="hero-stats-inner">
+      <div class="stat-block">
+        <div class="stat-label">Calories today</div>
+        <div class="stat-value" id="stat-cal">2,148</div>
+        <div class="stat-sub" id="stat-cal-sub">of 2,400 · 252 remaining</div>
+        <div class="stat-bar"><div class="stat-bar-fill" id="bar-cal" style="width:89.5%"></div></div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Protein</div>
+        <div class="stat-value" id="stat-p">142g</div>
+        <div class="stat-sub" id="stat-p-sub">of 180g goal</div>
+        <div class="stat-bar"><div class="stat-bar-fill" id="bar-p" style="width:78%"></div></div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Meals this week</div>
+        <div class="stat-value" id="stat-meals">14</div>
+        <div class="stat-sub" id="stat-meals-sub">planned</div>
+      </div>
+    </div>
+  </div>
+
+
+</section>
+
+
+<!-- ══════════════ TODAY'S MEALS ══════════════ -->
+<section class="section" id="today-section">
+  <div class="section-header">
+    <span class="section-title">Today's meals</span>
+    <span class="section-link">Open planner →</span>
+  </div>
+
+  <div class="meals-grid" id="meals-planned">
+    <div class="meal-col">
+      <div class="meal-num">01 · Breakfast</div>
+      <div class="meal-name">Soft Boiled Eggs with Toast</div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Calories</span><span class="meal-stat-val">320</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Protein</span><span class="meal-stat-val">24g</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Carbs</span><span class="meal-stat-val">28g</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Fat</span><span class="meal-stat-val">14g</span></div>
+      <span class="meal-link">See recipe →</span>
+    </div>
+    <div class="meal-col">
+      <div class="meal-num">02 · Lunch</div>
+      <div class="meal-name">Farro Grain Bowl with Tahini</div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Calories</span><span class="meal-stat-val">480</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Protein</span><span class="meal-stat-val">16g</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Carbs</span><span class="meal-stat-val">62g</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Fat</span><span class="meal-stat-val">18g</span></div>
+      <span class="meal-link">See recipe →</span>
+    </div>
+    <div class="meal-col">
+      <div class="meal-num">03 · Dinner</div>
+      <div class="meal-name">Roasted Chicken Thighs With Herb Butter</div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Calories</span><span class="meal-stat-val">380</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Protein</span><span class="meal-stat-val">42g</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Carbs</span><span class="meal-stat-val">4g</span></div>
+      <div class="meal-stat-row"><span class="meal-stat-label">Fat</span><span class="meal-stat-val">28g</span></div>
+      <span class="meal-link">See recipe →</span>
+    </div>
+  </div>
+
+  <div class="today-empty" id="meals-empty" style="display:none;">
+    <span class="today-empty-label">Nothing planned for today</span>
+    <span class="today-empty-cta">+ Plan today's meals →</span>
+  </div>
+</section>
+
+
+<!-- ══════════════ THIS WEEK ══════════════ -->
+<section class="section">
+  <div class="section-header no-rule">
+    <span class="section-title">This week</span>
+    <span class="section-link">Full planner →</span>
+  </div>
+
+  <div class="week-grid" id="week-planned">
+    <div class="week-col">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Mon</div>
+        <div class="week-col-num">31</div>
+        <div class="week-col-kcal">1,013 kcal</div>
+        <div class="week-kcal-bar"><div class="week-kcal-fill" style="width:42%"></div></div>
+      </div>
+      <div class="week-col-body">
+        <div class="week-meal"><div class="week-meal-type">Breakfast</div><div class="week-meal-name">Overnight Oats PB</div><div class="week-meal-kcal">305 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Dinner</div><div class="week-meal-name">Noodle Bowl w/ Impossible Meat</div><div class="week-meal-kcal">708 kcal</div></div>
+        <span class="week-add">+ Add</span>
+      </div>
+    </div>
+
+    <div class="week-col">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Tue</div>
+        <div class="week-col-num">1</div>
+        <div class="week-col-kcal">1,120 kcal</div>
+        <div class="week-kcal-bar"><div class="week-kcal-fill" style="width:47%"></div></div>
+      </div>
+      <div class="week-col-body">
+        <div class="week-meal"><div class="week-meal-type">Breakfast</div><div class="week-meal-name">Cottage Cheese Bowl</div><div class="week-meal-kcal">298 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Lunch</div><div class="week-meal-name">Green Goddess Salad</div><div class="week-meal-kcal">342 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Dinner</div><div class="week-meal-name">Miso Glazed Salmon</div><div class="week-meal-kcal">480 kcal</div></div>
+      </div>
+    </div>
+
+    <div class="week-col">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Wed</div>
+        <div class="week-col-num">2</div>
+        <div class="week-col-kcal">1,919 kcal</div>
+        <div class="week-kcal-bar"><div class="week-kcal-fill" style="width:80%"></div></div>
+      </div>
+      <div class="week-col-body">
+        <div class="week-meal"><div class="week-meal-type">Breakfast</div><div class="week-meal-name">Cottage Cheese Bowl</div><div class="week-meal-kcal">298 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Lunch</div><div class="week-meal-name">Lentil & Roasted Tomato Soup</div><div class="week-meal-kcal">410 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Dinner</div><div class="week-meal-name">Noodle Bowl w/ Impossible Meat</div><div class="week-meal-kcal">708 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Snack</div><div class="week-meal-name">Almond Croissant Bars</div><div class="week-meal-kcal">503 kcal</div></div>
+      </div>
+    </div>
+
+    <div class="week-col">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Thu</div>
+        <div class="week-col-num">3</div>
+        <div class="week-col-kcal">683 kcal</div>
+        <div class="week-kcal-bar"><div class="week-kcal-fill" style="width:28%"></div></div>
+      </div>
+      <div class="week-col-body">
+        <div class="week-meal"><div class="week-meal-type">Dinner</div><div class="week-meal-name">Rice Bowl w/ Impossible Meat</div><div class="week-meal-kcal">683 kcal</div></div>
+        <span class="week-add">+ Add</span>
+      </div>
+    </div>
+
+    <div class="week-col is-today">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Fri</div>
+        <div class="week-col-num" id="week-today-num">4</div>
+        <div class="week-col-kcal" id="week-today-kcal">2,148 kcal</div>
+        <div class="week-kcal-bar"><div class="week-kcal-fill today-fill" id="week-today-bar" style="width:89%"></div></div>
+      </div>
+      <div class="week-col-body">
+        <div class="week-meal"><div class="week-meal-type">Breakfast</div><div class="week-meal-name">Soft Boiled Eggs</div><div class="week-meal-kcal">320 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Lunch</div><div class="week-meal-name">Grain Bowl with Tahini</div><div class="week-meal-kcal">480 kcal</div></div>
+        <div class="week-meal"><div class="week-meal-type">Dinner</div><div class="week-meal-name">Roasted Chicken Thighs</div><div class="week-meal-kcal">380 kcal</div></div>
+      </div>
+    </div>
+
+    <div class="week-col">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Sat</div>
+        <div class="week-col-num">5</div>
+        <div class="week-col-kcal">—</div>
+        <div class="week-kcal-bar"></div>
+      </div>
+      <div class="week-col-body"><span class="week-add">+ Add</span></div>
+    </div>
+
+    <div class="week-col">
+      <div class="week-col-head">
+        <div class="week-col-dayname">Sun</div>
+        <div class="week-col-num">6</div>
+        <div class="week-col-kcal">—</div>
+        <div class="week-kcal-bar"></div>
+      </div>
+      <div class="week-col-body"><span class="week-add">+ Add</span></div>
+    </div>
+  </div>
+
+  <div class="today-empty" id="week-empty" style="display:none;">
+    <span class="today-empty-label">Nothing planned this week</span>
+    <span class="today-empty-cta">+ Start planning →</span>
+  </div>
+</section>
+
+
+<!-- ── DEMO BAR ── -->
+<div class="demo-bar">
+  <span class="demo-label">Weight:</span>
+  <button class="dbtn"    onclick="setWeight(300, this)">300</button>
+  <button class="dbtn on" onclick="setWeight(500, this)">500</button>
+  <button class="dbtn"    onclick="setWeight(700, this)">700</button>
+  <div class="demo-sep"></div>
+  <span class="demo-label">Person:</span>
+  <button class="dbtn on" id="btn-jen"   onclick="setPerson('jen')">Jen</button>
+  <button class="dbtn"    id="btn-garth" onclick="setPerson('garth')">Garth</button>
+  <div class="demo-sep"></div>
+  <span class="demo-label">Today:</span>
+  <button class="dbtn on" onclick="setTodayState('planned', this)">Planned</button>
+  <button class="dbtn"    onclick="setTodayState('empty', this)">Empty</button>
+  <div class="demo-sep"></div>
+  <span class="demo-label">Week:</span>
+  <button class="dbtn on" onclick="setWeekState('planned', this)">Planned</button>
+  <button class="dbtn"    onclick="setWeekState('empty', this)">Empty</button>
+</div>
+
+<script>
+const weightMap = { 300:'13.5vw', 500:'11.5vw', 700:'10vw' };
+function setWeight(w, btn) {
+  const g = document.getElementById('greeting');
+  g.style.fontWeight = w; g.style.fontSize = weightMap[w];
+  document.querySelectorAll('.demo-bar .dbtn').forEach(b => {
+    if(['300','500','700'].includes(b.textContent.trim())) b.classList.remove('on');
+  });
+  btn.classList.add('on');
+}
+
+const people = {
+  jen:   { accent:'#E84828', accentL:'rgba(232,72,40,0.07)',   name:'Jen.',   cal:'2,148', calSub:'of 2,400 · 252 remaining', calBar:'89.5', p:'142g', pSub:'of 180g goal', pBar:'78', meals:'14' },
+  garth: { accent:'#5A9B8A', accentL:'rgba(90,155,138,0.08)',  name:'Garth.', cal:'1,820', calSub:'of 2,800 · 980 remaining', calBar:'65',   p:'118g', pSub:'of 160g goal', pBar:'73', meals:'11' },
+};
+function setPerson(p) {
+  const d = people[p];
+  document.documentElement.style.setProperty('--accent', d.accent);
+  document.documentElement.style.setProperty('--accent-l', d.accentL);
+  document.getElementById('greeting-name').textContent = d.name;
+  document.getElementById('stat-cal').textContent = d.cal;
+  document.getElementById('stat-cal-sub').textContent = d.calSub;
+  document.getElementById('bar-cal').style.width = d.calBar + '%';
+  document.getElementById('stat-p').textContent = d.p;
+  document.getElementById('stat-p-sub').textContent = d.pSub;
+  document.getElementById('bar-p').style.width = d.pBar + '%';
+  document.getElementById('stat-meals').textContent = d.meals;
+  document.getElementById('dot-jen').classList.toggle('active', p==='jen');
+  document.getElementById('dot-garth').classList.toggle('active', p==='garth');
+  document.getElementById('btn-jen').classList.toggle('on', p==='jen');
+  document.getElementById('btn-garth').classList.toggle('on', p==='garth');
+}
+
+function setTodayState(state, btn) {
+  document.getElementById('meals-planned').style.display = state==='planned' ? '' : 'none';
+  document.getElementById('meals-empty').style.display   = state==='empty'   ? '' : 'none';
+  document.querySelectorAll('.demo-bar .dbtn').forEach(b => {
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes('setTodayState')) b.classList.remove('on');
+  });
+  btn.classList.add('on');
+}
+
+function setWeekState(state, btn) {
+  document.getElementById('week-planned').style.display = state==='planned' ? '' : 'none';
+  document.getElementById('week-empty').style.display   = state==='empty'   ? '' : 'none';
+  document.querySelectorAll('.demo-bar .dbtn').forEach(b => {
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes('setWeekState')) b.classList.remove('on');
+  });
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
