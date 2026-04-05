@@ -506,7 +506,7 @@ input[type="number"]:focus {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--pad);
-  height: calc(var(--filter-h) + 1px);
+  height: var(--filter-h);
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.06em;
