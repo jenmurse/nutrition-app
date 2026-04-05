@@ -510,7 +510,7 @@ input[type="number"]:focus {
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid transparent;
+  border-bottom: none;
   animation: notifSlideDown 280ms var(--ease-out) both;
 }
 .notif-bar.notif-hiding {
@@ -532,11 +532,11 @@ input[type="number"]:focus {
 }
 .notif-bar-dismiss:hover { opacity: 1; }
 
-.notif-success { background: color-mix(in srgb, var(--ok) 14%, var(--bg));   color: var(--ok);    border-bottom-color: rgba(90,155,106,0.25); }
+.notif-success { background: color-mix(in srgb, var(--ok) 14%, var(--bg));   color: var(--ok); }
 .notif-success .notif-bar-dot { background: var(--ok); }
-.notif-error   { background: color-mix(in srgb, var(--err) 12%, var(--bg));  color: var(--err);   border-bottom-color: rgba(176,32,32,0.20); }
+.notif-error   { background: color-mix(in srgb, var(--err) 12%, var(--bg));  color: var(--err); }
 .notif-error   .notif-bar-dot { background: var(--err); }
-.notif-warn    { background: color-mix(in srgb, var(--warn) 12%, var(--bg)); color: var(--warn);  border-bottom-color: rgba(192,112,24,0.20); }
+.notif-warn    { background: color-mix(in srgb, var(--warn) 12%, var(--bg)); color: var(--warn); }
 .notif-warn    .notif-bar-dot { background: var(--warn); }
 .notif-info    { background: var(--bg-2);   color: var(--muted); border-bottom-color: var(--rule); }
 .notif-info    .notif-bar-dot { background: var(--muted); }
