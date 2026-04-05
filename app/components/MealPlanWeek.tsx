@@ -409,7 +409,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     role="button"
                     aria-label={`Add meal on ${day.dayOfWeek}`}
                   >
-                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] bg-[var(--bg-raised)] border border-[var(--rule)] px-[8px] py-[3px] rounded-[6px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors">+ Add</span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] bg-[var(--bg-raised)] border border-[var(--rule)] px-[8px] py-[3px] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors active:scale-[0.95]">+ Add</span>
                   </div>
                 );
               })}
@@ -419,9 +419,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       </div>
 
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 overflow-y-auto"
+          onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
+        >
           <div
-            className="w-full max-w-lg bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] p-6 my-4 animate-fade-in"
+            className="w-full max-w-lg bg-[var(--bg-raised)] shadow-[var(--shadow-lg)] p-6 my-4 animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] pb-3 mb-4">
@@ -442,7 +445,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 <button
                   key={mealType}
                   type="button"
-                  className="border border-[var(--rule-faint)] rounded-[6px] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition-colors duration-150 ease-out hover:bg-[var(--bg-subtle)]"
+                  className="border border-[var(--rule-faint)] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition-colors duration-150 ease-out hover:bg-[var(--bg-subtle)] active:scale-[0.97]"
                   onClick={() => handleSelectMealType(mealType)}
                 >
                   {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
@@ -454,9 +457,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       )}
 
       {itemTypeTabOpen && selectedDayMeal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
+        >
           <div
-            className="w-full max-w-2xl max-h-[90vh] bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] flex flex-col animate-fade-in"
+            className="w-full max-w-2xl max-h-[90vh] bg-[var(--bg-raised)] shadow-[var(--shadow-lg)] flex flex-col animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] p-6 shrink-0">
