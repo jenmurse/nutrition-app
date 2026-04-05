@@ -456,12 +456,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] p-6 shrink-0">
-              <div className="flex gap-4">
+              <div className="flex gap-4 items-center">
                 <button
                   onClick={() => setItemTypeTabOpen('recipe')}
-                  className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
+                  className={`text-[11px] font-mono uppercase tracking-[0.1em] transition-colors pb-[3px] ${
                     itemTypeTabOpen === 'recipe'
-                      ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'
+                      ? 'text-[var(--fg)] shadow-[0_2px_0_var(--accent)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
@@ -469,9 +469,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
                 <button
                   onClick={() => setItemTypeTabOpen('ingredient')}
-                  className={`pb-1 text-[11px] font-mono uppercase tracking-[0.1em] transition-colors ${
+                  className={`text-[11px] font-mono uppercase tracking-[0.1em] transition-colors pb-[3px] ${
                     itemTypeTabOpen === 'ingredient'
-                      ? 'border-b-2 border-[var(--accent)] text-[var(--fg)]'
+                      ? 'text-[var(--fg)] shadow-[0_2px_0_var(--accent)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
@@ -589,26 +589,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </>
               ) : (
                 <>
-                  {/* Inline quick food creation */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <input
-                      type="text"
-                      placeholder="New food name..."
-                      value={newFoodName}
-                      onChange={(e) => setNewFoodName(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleCreateQuickFood()}
-                      className="pl-create-date"
-                      style={{ flex: 1 }}
-                      aria-label="New food name"
-                    />
-                    <button
-                      onClick={handleCreateQuickFood}
-                      disabled={creatingFood || !newFoodName.trim()}
-                      className="pl-create-btn"
-                    >
-                      {creatingFood ? 'Adding...' : '+ New Food'}
-                    </button>
-                  </div>
                   <div className="flex flex-wrap gap-3 mb-4">
                     <div className="flex-1 flex items-center gap-2 min-w-max">
                       <label className="pl-create-label" htmlFor="ingredient-search">Search</label>

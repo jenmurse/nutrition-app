@@ -250,6 +250,8 @@ const MealPlansPage = () => {
   const [selectedMealIds, setSelectedMealIds] = useState<Set<number>>(new Set());
   const [viewMode, setViewMode] = useState<'personal' | 'both'>('personal');
   const [copyFromPlanId, setCopyFromPlanId] = useState<string>('');
+  const [copyMenuOpen, setCopyMenuOpen] = useState(false);
+  const copyRef = useRef<HTMLDivElement>(null);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
 
   // Find other person's plan for the current week (for "also add to" checkbox)
@@ -305,6 +307,15 @@ const MealPlansPage = () => {
     fetchRecipes();
     fetchIngredients();
   }, []);
+
+  // Close copy-from dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (copyRef.current && !copyRef.current.contains(e.target as Node)) setCopyMenuOpen(false);
+    };
+    if (copyMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [copyMenuOpen]);
 
   // Load plans + auto-select + fetch details in one flow (no waterfall)
   useEffect(() => {
@@ -887,27 +898,53 @@ const MealPlansPage = () => {
           aria-label="Week start date"
         />
         <span className="pl-create-label">Copy From</span>
-        <select
-          value={copyFromPlanId}
-          onChange={(e) => setCopyFromPlanId(e.target.value)}
-          className="pl-create-date"
-          style={{ minWidth: 180 }}
-          aria-label="Copy meals from existing plan"
-        >
-          <option value="">None</option>
-          {mealPlans
-            .filter(p => p.personId === selectedPersonId && (p._count?.mealLogs ?? 0) > 0)
-            .slice(0, 8)
-            .map(p => {
-              const d = parseUTCDate(p.weekStartDate);
-              const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-              return (
-                <option key={p.id} value={p.id}>
-                  Week of {label} ({p._count?.mealLogs ?? 0} meals)
-                </option>
-              );
-            })}
-        </select>
+        <div className="pl-copy-wrap" ref={copyRef}>
+          <button
+            type="button"
+            className="pl-copy-btn"
+            onClick={() => setCopyMenuOpen(o => !o)}
+            aria-expanded={copyMenuOpen}
+            aria-haspopup="listbox"
+            aria-label="Copy meals from existing plan"
+          >
+            {copyFromPlanId
+              ? (() => {
+                  const p = mealPlans.find(pl => String(pl.id) === copyFromPlanId);
+                  if (!p) return 'None';
+                  const d = parseUTCDate(p.weekStartDate);
+                  return `Week of ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} (${p._count?.mealLogs ?? 0} meals)`;
+                })()
+              : 'None'}
+          </button>
+          <div className={`pl-copy-menu ${copyMenuOpen ? 'open' : ''}`} role="listbox" aria-label="Copy from options">
+            <button
+              type="button"
+              className={copyFromPlanId === '' ? 'on' : ''}
+              onClick={() => { setCopyFromPlanId(''); setCopyMenuOpen(false); }}
+              role="option"
+              aria-selected={copyFromPlanId === ''}
+            >None</button>
+            {mealPlans
+              .filter(p => p.personId === selectedPersonId && (p._count?.mealLogs ?? 0) > 0)
+              .slice(0, 8)
+              .map(p => {
+                const d = parseUTCDate(p.weekStartDate);
+                const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={copyFromPlanId === String(p.id) ? 'on' : ''}
+                    onClick={() => { setCopyFromPlanId(String(p.id)); setCopyMenuOpen(false); }}
+                    role="option"
+                    aria-selected={copyFromPlanId === String(p.id)}
+                  >
+                    Week of {label} ({p._count?.mealLogs ?? 0} meals)
+                  </button>
+                );
+              })}
+          </div>
+        </div>
         <div className="pl-create-actions">
           <button type="submit" className="pl-create-btn" disabled={creatingPlan}>
             {creatingPlan ? 'Creating...' : 'Create'}
