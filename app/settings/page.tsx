@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { APP_NAME } from '@/lib/brand';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
-import { THEMES, themeHex } from '@/lib/themes';
+import { THEMES } from '@/lib/themes';
 
 interface Nutrient {
   id: number;
@@ -15,12 +15,27 @@ interface Nutrient {
   orderIndex: number;
 }
 
-interface UsageData {
-  totalInputTokens: number;
-  totalOutputTokens: number;
-  callCount: number;
-  estimatedCostUsd: number;
+interface DashboardStats {
+  enabledStats: string[];
+  showGreeting: boolean;
 }
+
+const DASHBOARD_STAT_OPTIONS = [
+  { key: 'calories', label: 'Calories today' },
+  { key: 'protein', label: 'Protein' },
+  { key: 'carbs', label: 'Carbs' },
+  { key: 'fat', label: 'Fat' },
+  { key: 'fiber', label: 'Fiber' },
+  { key: 'sodium', label: 'Sodium' },
+  { key: 'meals-week', label: 'Meals this week' },
+];
+
+const GOALS_LAYOUT: { nutrientName: string }[][] = [
+  // Left column
+  [{ nutrientName: 'Calories' }, { nutrientName: 'Carbs' }, { nutrientName: 'Fiber' }, { nutrientName: 'Saturated Fat' }],
+  // Right column
+  [{ nutrientName: 'Protein' }, { nutrientName: 'Fat' }, { nutrientName: 'Sodium' }, { nutrientName: 'Sugar' }],
+];
 
 interface Invite {
   id: number;
@@ -44,224 +59,6 @@ const JUMP_SECTIONS = [
 
 // ─── Household section ──────────────────────────────────────────────────────
 
-interface PersonRowProps {
-  person: { id: number; name: string; color: string; theme: string };
-  role?: string;
-  nutrients: Nutrient[];
-  isExpanded: boolean;
-  onToggle: () => void;
-  onSaved: () => void;
-  canDelete: boolean;
-}
-
-function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete }: PersonRowProps) {
-  const [name, setName] = useState(person.name);
-  const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
-  const [goalsLoaded, setGoalsLoaded] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-
-  // Load goals when expanded
-  useEffect(() => {
-    if (!isExpanded || goalsLoaded) return;
-    fetch(`/api/nutrition-goals?personId=${person.id}`)
-      .then((r) => r.ok ? r.json() : { goals: {} })
-      .then((data) => {
-        const filled: Record<number, { lowGoal?: number; highGoal?: number }> = {};
-        nutrients.forEach((n) => {
-          filled[n.id] = {
-            lowGoal: data.goals?.[n.id]?.lowGoal ?? undefined,
-            highGoal: data.goals?.[n.id]?.highGoal ?? undefined,
-          };
-        });
-        setGoals(filled);
-        setGoalsLoaded(true);
-      })
-      .catch(() => setGoalsLoaded(true));
-  }, [isExpanded, goalsLoaded, person.id, nutrients]);
-
-  // Reset local state when person changes
-  useEffect(() => {
-    setName(person.name);
-    setGoalsLoaded(false);
-  }, [person.id, person.name]);
-
-  const handleGoalChange = (nutrientId: number, field: 'lowGoal' | 'highGoal', value: string) => {
-    setGoals((prev) => ({
-      ...prev,
-      [nutrientId]: {
-        ...prev[nutrientId],
-        [field]: value === '' ? undefined : parseFloat(value),
-      },
-    }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Update name if changed
-      if (name.trim() && name.trim() !== person.name) {
-        await fetch(`/api/persons/${person.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name.trim() }),
-        });
-      }
-      // Save goals
-      await fetch('/api/nutrition-goals', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goals, personId: person.id }),
-      });
-      onSaved();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to remove person');
-      } else {
-        onSaved();
-      }
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  return (
-    <div className="border-b border-[var(--rule-faint)]">
-      {/* Row header */}
-      <button
-        onClick={onToggle}
-        className={`w-full flex items-center justify-between px-7 py-[11px]transition-colors bg-transparent border-0 cursor-pointer text-left ${isExpanded ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}
-        aria-expanded={isExpanded}
-        aria-label={`${person.name} — click to ${isExpanded ? 'collapse' : 'expand'}`}
-      >
-        <div className="flex items-center gap-[10px]">
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ background: person.color || 'var(--accent)' }}
-            aria-hidden="true"
-          />
-          <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
-          {role && (
-            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">
-              {role}
-            </span>
-          )}
-        </div>
-        <span className="text-[var(--muted)] text-[10px] select-none" aria-hidden="true">
-          {isExpanded ? '▾' : '▸'}
-        </span>
-      </button>
-
-      {/* Expanded panel */}
-      {isExpanded && (
-        <div className="border-t border-[var(--rule-faint)] bg-[var(--bg-subtle)]">
-
-          {/* Name + actions on one row */}
-          <div className="px-7 py-[10px] flex items-center gap-4 border-b border-[var(--rule-faint)]">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] shrink-0">Name</span>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-sans text-[13px] bg-transparent text-[var(--fg)] w-[160px] rounded-none focus:outline-none focus:border-[var(--accent)]"
-                aria-label="Member name"
-              />
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={handleSave}
-                disabled={saving || !name.trim()}
-                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                aria-label="Save changes"
-              >
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-              <button
-                onClick={onToggle}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                aria-label="Cancel"
-              >
-                Cancel
-              </button>
-              {canDelete && (
-                <>
-                  <span className="text-[var(--rule-strong)]" aria-hidden="true">·</span>
-                  <button
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                    aria-label={`Remove ${person.name}`}
-                  >
-                    {deleting ? 'Removing…' : 'Remove'}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Goals — tight per-row layout */}
-          <div className="px-7 pt-3 pb-2">
-            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">
-              Daily Goals
-            </div>
-            {!goalsLoaded ? (
-              <div className="text-[11px] text-[var(--muted)] py-2">Loading…</div>
-            ) : (
-              nutrients.map((nutrient) => (
-                <div
-                  key={nutrient.id}
-                  className="flex items-center gap-4 py-[7px] border-b border-[var(--rule-faint)] last:border-0"
-                >
-                  <div className="flex-1 min-w-0">
-                    <span className="font-sans text-[12px] text-[var(--fg)]">{nutrient.displayName}</span>
-                    <span className="font-mono text-[10px] text-[var(--muted)] ml-[5px]">{nutrient.unit}</span>
-                  </div>
-                  <div className="flex items-baseline gap-[5px]">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Min</span>
-                    <input
-                      type="number"
-                      placeholder="—"
-                      value={goals[nutrient.id]?.lowGoal ?? ''}
-                      onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
-                      step="0.1"
-                      className="w-[52px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
-                      aria-label={`${nutrient.displayName} minimum`}
-                    />
-                  </div>
-                  <div className="flex items-baseline gap-[5px]">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Max</span>
-                    <input
-                      type="number"
-                      placeholder="—"
-                      value={goals[nutrient.id]?.highGoal ?? ''}
-                      onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
-                      step="0.1"
-                      className="w-[52px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
-                      aria-label={`${nutrient.displayName} maximum`}
-                    />
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── Section header component ───────────────────────────────────────────────
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
@@ -279,9 +76,23 @@ const SettingsPage = () => {
   const { persons, selectedPersonId, refreshPersons } = usePersonContext();
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
-  const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
   const [savingThemeId, setSavingThemeId] = useState<number | null>(null);
-  const [themeOpenPersonId, setThemeOpenPersonId] = useState<number | null>(null);
+
+  // Goals section
+  const [goalsPersonId, setGoalsPersonId] = useState<number | null>(null);
+  const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
+  const [goalsLoaded, setGoalsLoaded] = useState(false);
+  const [goalsSaving, setGoalsSaving] = useState(false);
+
+  // Dashboard prefs (localStorage)
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>(() => {
+    if (typeof window === 'undefined') return { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
+    try {
+      const stored = localStorage.getItem('dashboard-stats');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
+  });
 
   // Jump nav active section
   const [activeSection, setActiveSection] = useState(JUMP_SECTIONS[0].id);
@@ -310,10 +121,6 @@ const SettingsPage = () => {
   const [newApiKeyValue, setNewApiKeyValue] = useState('');
   const [apiSaving, setApiSaving] = useState(false);
 
-  // Usage
-  const [usage, setUsage] = useState<UsageData | null>(null);
-  const [usageLoading, setUsageLoading] = useState(false);
-  const [clearingLogs, setClearingLogs] = useState(false);
 
   // MCP token
   const [hasMcpToken, setHasMcpToken] = useState(false);
@@ -392,6 +199,81 @@ const SettingsPage = () => {
   const loadInvites = async () => {
     const r = await fetch('/api/households/invite');
     if (r.ok) setInvites(await r.json());
+  };
+
+  // Auto-select first person for goals tab
+  useEffect(() => {
+    if (persons.length > 0 && goalsPersonId === null) {
+      setGoalsPersonId(persons[0].id);
+    }
+  }, [persons, goalsPersonId]);
+
+  // Load goals when person tab changes
+  useEffect(() => {
+    if (goalsPersonId === null) return;
+    setGoalsLoaded(false);
+    fetch(`/api/nutrition-goals?personId=${goalsPersonId}`)
+      .then((r) => r.ok ? r.json() : { goals: {} })
+      .then((data) => {
+        const filled: Record<number, { lowGoal?: number; highGoal?: number }> = {};
+        nutrients.forEach((n) => {
+          filled[n.id] = {
+            lowGoal: data.goals?.[n.id]?.lowGoal ?? undefined,
+            highGoal: data.goals?.[n.id]?.highGoal ?? undefined,
+          };
+        });
+        setGoals(filled);
+        setGoalsLoaded(true);
+      })
+      .catch(() => setGoalsLoaded(true));
+  }, [goalsPersonId, nutrients]);
+
+  const handleGoalChange = (nutrientId: number, field: 'lowGoal' | 'highGoal', value: string) => {
+    setGoals((prev) => ({
+      ...prev,
+      [nutrientId]: {
+        ...prev[nutrientId],
+        [field]: value === '' ? undefined : parseFloat(value),
+      },
+    }));
+  };
+
+  const handleSaveGoals = async () => {
+    if (goalsPersonId === null) return;
+    setGoalsSaving(true);
+    try {
+      await fetch('/api/nutrition-goals', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goals, personId: goalsPersonId }),
+      });
+      toast.success('Goals saved');
+    } finally {
+      setGoalsSaving(false);
+    }
+  };
+
+  const handleResetGoals = () => {
+    const cleared: Record<number, { lowGoal?: number; highGoal?: number }> = {};
+    nutrients.forEach((n) => { cleared[n.id] = { lowGoal: undefined, highGoal: undefined }; });
+    setGoals(cleared);
+  };
+
+  const saveDashboardStats = (updated: DashboardStats) => {
+    setDashboardStats(updated);
+    localStorage.setItem('dashboard-stats', JSON.stringify(updated));
+  };
+
+  const toggleDashboardStat = (key: string) => {
+    const current = dashboardStats.enabledStats;
+    const updated = current.includes(key)
+      ? current.filter((k) => k !== key)
+      : [...current, key];
+    saveDashboardStats({ ...dashboardStats, enabledStats: updated });
+  };
+
+  const toggleGreeting = () => {
+    saveDashboardStats({ ...dashboardStats, showGreeting: !dashboardStats.showGreeting });
   };
 
   const handleSaveHouseholdName = async () => {
@@ -491,23 +373,10 @@ const SettingsPage = () => {
     } catch {}
   }, []);
 
-  const loadUsage = useCallback(async () => {
-    setUsageLoading(true);
-    try {
-      const res = await fetch('/api/settings/usage');
-      if (!res.ok) return;
-      const data = await res.json();
-      setUsage(data);
-    } catch {} finally {
-      setUsageLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     loadApiSettings();
-    loadUsage();
     loadMcpToken();
-  }, [loadApiSettings, loadUsage, loadMcpToken]);
+  }, [loadApiSettings, loadMcpToken]);
 
   const handleSaveApiKey = async () => {
     setApiSaving(true);
@@ -537,16 +406,6 @@ const SettingsPage = () => {
     await loadApiSettings();
   };
 
-  const handleClearLogs = async () => {
-    if (!await dialog.confirm('Clear all usage logs?', { confirmLabel: 'Clear', danger: true })) return;
-    setClearingLogs(true);
-    try {
-      await fetch('/api/settings/usage', { method: 'DELETE' });
-      await loadUsage();
-    } finally {
-      setClearingLogs(false);
-    }
-  };
 
   const handleExport = async () => {
     setExportLoading(true);
@@ -614,11 +473,6 @@ const SettingsPage = () => {
     } finally {
       setAddSaving(false);
     }
-  };
-
-  const handlePersonSaved = async () => {
-    await refreshPersons();
-    setExpandedPersonId(null);
   };
 
   const handleThemeSave = async (personId: number, themeName: string) => {
@@ -724,67 +578,24 @@ const SettingsPage = () => {
                 )}
               </div>
 
-              {/* Member rows with collapsible color palette */}
+              {/* Member rows with inline theme swatches */}
               {persons.map((person) => {
-                const initial = (person.name || '?').charAt(0).toUpperCase();
                 const role = memberRoles[person.id];
                 const isSaving = savingThemeId === person.id;
-                const activeTheme = THEMES.find((t) => t.name === (person.theme || 'sage'));
-                const isThemeOpen = themeOpenPersonId === person.id;
                 return (
                   <div key={person.id} className="py-[12px] border-b border-[var(--rule-faint)]">
-                    {/* Top row: avatar + name + role badge + theme indicator */}
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white shrink-0"
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
                         style={{ background: person.color || 'var(--accent)' }}
                         aria-hidden="true"
-                      >
-                        {initial}
-                      </div>
-                      <div className="flex-1 min-w-0 flex items-center gap-2">
-                        <span className="text-[12px] text-[var(--fg)] font-medium">{person.name}</span>
-                        {role && (
-                          <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">{role}</span>
-                        )}
-                        {role !== 'owner' && (
-                          <button
-                            onClick={async () => {
-                              if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
-                              const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-                              if (res.ok) {
-                                await refreshPersons();
-                              } else {
-                                const data = await res.json();
-                                toast.error(data.error || 'Failed to remove person');
-                              }
-                            }}
-                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
-                            aria-label={`Remove ${person.name}`}
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                      {/* Theme swatch indicator — click to toggle palette */}
-                      <button
-                        onClick={() => setThemeOpenPersonId(isThemeOpen ? null : person.id)}
-                        className="flex items-center gap-[6px] px-[8px] py-[4px] border-0 bg-transparent hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
-                        aria-label={`${isThemeOpen ? 'Hide' : 'Show'} color palette for ${person.name}`}
-                        aria-expanded={isThemeOpen}
-                      >
-                        <span
-                          className="w-[14px] h-[14px] rounded-full shrink-0"
-                          style={{ background: activeTheme?.hex || 'var(--accent)' }}
-                          aria-hidden="true"
-                        />
-                        <span className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{activeTheme?.label || 'Sage'}</span>
-                        <span className="text-[var(--muted)] text-[9px] select-none" aria-hidden="true">{isThemeOpen ? '▾' : '▸'}</span>
-                      </button>
-                    </div>
-                    {/* Swatch strip — only visible when expanded */}
-                    {isThemeOpen && (
-                      <div className="flex flex-wrap gap-[6px] pl-[40px] mt-[10px] pt-[10px] border-t border-[var(--rule-faint)]">
+                      />
+                      <span className="text-[12px] text-[var(--fg)] font-medium">{person.name}</span>
+                      {role && (
+                        <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">{role}</span>
+                      )}
+                      {/* Inline theme swatches */}
+                      <div className="flex items-center gap-[5px] ml-1" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
                         {THEMES.map((t) => {
                           const isActive = (person.theme || 'sage') === t.name;
                           return (
@@ -793,17 +604,19 @@ const SettingsPage = () => {
                               onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
                               disabled={isSaving}
                               title={t.label}
-                              className="w-[18px] h-[18px] rounded-full flex items-center justify-center border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-110"
+                              className="w-[14px] h-[14px] rounded-full border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-125 flex items-center justify-center"
                               style={{
                                 background: t.hex,
                                 outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
-                                outlineOffset: '2px',
+                                outlineOffset: '1.5px',
                               }}
                               aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
                               aria-pressed={isActive}
+                              role="radio"
+                              aria-checked={isActive}
                             >
                               {isActive && (
-                                <svg width="8" height="6" viewBox="0 0 8 6" fill="none" aria-hidden="true">
+                                <svg width="7" height="5" viewBox="0 0 8 6" fill="none" aria-hidden="true">
                                   <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                               )}
@@ -811,7 +624,25 @@ const SettingsPage = () => {
                           );
                         })}
                       </div>
-                    )}
+                      {role !== 'owner' && (
+                        <button
+                          onClick={async () => {
+                            if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
+                            const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                              await refreshPersons();
+                            } else {
+                              const data = await res.json();
+                              toast.error(data.error || 'Failed to remove person');
+                            }
+                          }}
+                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors ml-auto"
+                          aria-label={`Remove ${person.name}`}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -922,19 +753,100 @@ const SettingsPage = () => {
             <SectionHeader number="02" title="Daily Goals" />
 
             <div className="bg-[var(--bg-raised)] p-5">
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrition Goals</div>
-              {persons.map((person) => (
-                <PersonRow
-                  key={person.id}
-                  person={person}
-                  role={memberRoles[person.id]}
-                  nutrients={nutrients}
-                  isExpanded={expandedPersonId === person.id}
-                  onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
-                  onSaved={handlePersonSaved}
-                  canDelete={persons.length > 1}
-                />
-              ))}
+              {/* Person tabs */}
+              <div className="flex items-center gap-2 mb-5" role="tablist" aria-label="Select person for goals">
+                {persons.map((person) => {
+                  const isActive = goalsPersonId === person.id;
+                  return (
+                    <button
+                      key={person.id}
+                      onClick={() => setGoalsPersonId(person.id)}
+                      role="tab"
+                      aria-selected={isActive}
+                      className="px-4 py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
+                      style={{
+                        background: isActive ? (person.color || 'var(--accent)') : 'var(--bg-subtle)',
+                        color: isActive ? '#fff' : 'var(--muted)',
+                      }}
+                      aria-label={`Goals for ${person.name}`}
+                    >
+                      {person.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 2-column nutrient grid */}
+              {!goalsLoaded ? (
+                <div className="text-[11px] text-[var(--muted)] py-4">Loading goals...</div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-0">
+                    {GOALS_LAYOUT.map((column, colIdx) => (
+                      <div key={colIdx}>
+                        {column.map(({ nutrientName }) => {
+                          const nutrient = nutrients.find((n) => n.displayName === nutrientName);
+                          if (!nutrient) return null;
+                          return (
+                            <div
+                              key={nutrient.id}
+                              className="flex items-center gap-3 py-[9px] border-b border-[var(--rule-faint)]"
+                            >
+                              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] min-w-[90px]">
+                                {nutrient.displayName}
+                              </span>
+                              <div className="flex items-baseline gap-[4px]">
+                                <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">Min</span>
+                                <input
+                                  type="number"
+                                  placeholder="—"
+                                  value={goals[nutrient.id]?.lowGoal ?? ''}
+                                  onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
+                                  step="0.1"
+                                  className="w-[56px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                  aria-label={`${nutrient.displayName} minimum`}
+                                />
+                              </div>
+                              <div className="flex items-baseline gap-[4px]">
+                                <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">Max</span>
+                                <input
+                                  type="number"
+                                  placeholder="—"
+                                  value={goals[nutrient.id]?.highGoal ?? ''}
+                                  onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
+                                  step="0.1"
+                                  className="w-[56px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                  aria-label={`${nutrient.displayName} maximum`}
+                                />
+                              </div>
+                              <span className="font-mono text-[8px] text-[var(--muted)]">{nutrient.unit}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Save / Reset */}
+                  <div className="flex items-center gap-4 mt-5">
+                    <button
+                      onClick={handleSaveGoals}
+                      disabled={goalsSaving}
+                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                      aria-label="Save goals"
+                    >
+                      {goalsSaving ? 'Saving...' : 'Save goals'}
+                    </button>
+                    <button
+                      onClick={handleResetGoals}
+                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                      aria-label="Reset goals to defaults"
+                    >
+                      Reset to defaults
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -944,48 +856,56 @@ const SettingsPage = () => {
           <div id="set-sec-dashboard" style={{ padding: '56px 0' }}>
             <SectionHeader number="03" title="Dashboard" />
 
-            <div className="bg-[var(--bg-raised)] p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">API Usage</div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={loadUsage}
-                    className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule-faint)] bg-[var(--bg-raised)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
-                    aria-label="Refresh usage stats"
-                  >
-                    Refresh
-                  </button>
-                  {usage && usage.callCount > 0 && (
-                    <button
-                      onClick={handleClearLogs}
-                      disabled={clearingLogs}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                      aria-label="Clear usage logs"
-                    >
-                      {clearingLogs ? 'Clearing…' : 'Clear logs'}
-                    </button>
-                  )}
+            <div className="flex flex-col gap-5">
+              {/* Home Stats */}
+              <div className="bg-[var(--bg-raised)] p-5">
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Home Stats</div>
+                <p className="font-sans text-[12px] text-[var(--muted)] mb-4 leading-relaxed">
+                  Choose which stats appear on your home screen. Up to 3 recommended.
+                </p>
+                <div className="space-y-[6px]">
+                  {DASHBOARD_STAT_OPTIONS.map((opt) => {
+                    const checked = dashboardStats.enabledStats.includes(opt.key);
+                    return (
+                      <label
+                        key={opt.key}
+                        className="flex items-center gap-3 py-[5px] cursor-pointer group"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleDashboardStat(opt.key)}
+                          className="accent-[var(--accent)] w-[14px] h-[14px] cursor-pointer"
+                          aria-label={opt.label}
+                        />
+                        <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
+                          {opt.label}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
-              {usageLoading ? (
-                <div className="text-[11px] text-[var(--muted)]">Loading…</div>
-              ) : !usage || usage.callCount === 0 ? (
-                <div className="text-[11px] text-[var(--muted)] italic">No usage recorded yet.</div>
-              ) : (
-                <div className="grid grid-cols-2 gap-[1px] border border-[var(--rule-faint)] bg-[var(--rule-faint)] overflow-hidden max-w-[380px]">
-                  {[
-                    { label: 'API calls', value: usage.callCount.toLocaleString() },
-                    { label: 'Est. cost', value: `$${usage.estimatedCostUsd.toFixed(4)}` },
-                    { label: 'Input tokens', value: usage.totalInputTokens.toLocaleString() },
-                    { label: 'Output tokens', value: usage.totalOutputTokens.toLocaleString() },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="bg-[var(--bg)] px-4 py-3">
-                      <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[3px]">{label}</div>
-                      <div className="font-mono text-[15px] text-[var(--fg)]">{value}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+
+              {/* Greeting */}
+              <div className="bg-[var(--bg-raised)] p-5">
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Greeting</div>
+                <p className="font-sans text-[12px] text-[var(--muted)] mb-4 leading-relaxed">
+                  Show a personalized greeting on your home screen.
+                </p>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={dashboardStats.showGreeting}
+                    onChange={toggleGreeting}
+                    className="accent-[var(--accent)] w-[14px] h-[14px] cursor-pointer"
+                    aria-label="Show personalized greeting"
+                  />
+                  <span className="font-mono text-[10px] tracking-[0.02em] text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
+                    Show personalized greeting <span className="text-[var(--muted)] italic">&ldquo;Good morning, {persons[0]?.name || 'Jen'}.&rdquo;</span>
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 

@@ -104,8 +104,8 @@ export default function IngredientsPageWrapper() {
 function IngredientsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [ingredients, setIngredients] = useState<Ingredient[]>(() => clientCache.get<Ingredient[]>('/api/ingredients?slim=true') ?? []);
-  const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients?slim=true'));
+  const [ingredients, setIngredients] = useState<Ingredient[]>(() => clientCache.get<Ingredient[]>('/api/ingredients') ?? []);
+  const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients'));
 
   // Filters
   const searchQuery = searchParams?.get("search") || "";
@@ -126,24 +126,24 @@ function IngredientsPage() {
   };
 
   const loadIngredients = async () => {
-    const cached = clientCache.get<Ingredient[]>('/api/ingredients?slim=true');
+    const cached = clientCache.get<Ingredient[]>('/api/ingredients');
     if (cached && cached.length > 0) {
       setIngredients(cached);
       setLoading(false);
       // Background revalidate
-      fetch("/api/ingredients?slim=true").then(r => r.json()).then((data) => {
+      fetch("/api/ingredients").then(r => r.json()).then((data) => {
         const fresh: Ingredient[] = Array.isArray(data) ? data : [];
-        clientCache.set('/api/ingredients?slim=true', fresh);
+        clientCache.set('/api/ingredients', fresh);
         setIngredients(fresh);
       }).catch(console.error);
       return;
     }
     setLoading(true);
     try {
-      const r = await fetch("/api/ingredients?slim=true");
+      const r = await fetch("/api/ingredients");
       const data = await r.json();
       const list: Ingredient[] = Array.isArray(data) ? data : [];
-      clientCache.set('/api/ingredients?slim=true', list);
+      clientCache.set('/api/ingredients', list);
       setIngredients(list);
     } catch (e) {
       console.error(e);
@@ -155,7 +155,7 @@ function IngredientsPage() {
 
   useEffect(() => { loadIngredients(); }, []);
 
-  // Extract macros for card display
+  // Extract macros for list view
   const getCardMacros = (ingredient: Ingredient) => {
     if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
     const find = (keys: string[]) => {
@@ -170,6 +170,28 @@ function IngredientsPage() {
       protein: find(["protein"]),
       carbs: find(["carbohydrate", "carb"]),
       fat: find(["fat"]),
+    };
+  };
+
+  // Extract full nutrition for grid cards
+  const getFullNutrition = (ingredient: Ingredient) => {
+    if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
+    const find = (keys: string[]) => {
+      const n = ingredient.nutrientValues.find(nv => {
+        const name = (nv.nutrient.displayName || nv.nutrient.name).toLowerCase();
+        return keys.some(k => name.includes(k));
+      });
+      return n ? { value: n.value, unit: n.nutrient.unit } : null;
+    };
+    return {
+      calories: find(["energy", "calorie"]),
+      fat: find(["total fat", "fat"]),
+      saturatedFat: find(["saturated"]),
+      sodium: find(["sodium"]),
+      carbs: find(["carbohydrate", "carb"]),
+      sugar: find(["sugar"]),
+      protein: find(["protein"]),
+      fiber: find(["fiber"]),
     };
   };
 
@@ -301,59 +323,28 @@ function IngredientsPage() {
             </div>
           </div>
         ) : viewMode === "grid" ? (
-          /* ── Card Grid ── */
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
-            <div className="grid gap-6 grid-cols-2 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
-              {sortedIngredients.map((ingredient, idx) => {
-                const macros = getCardMacros(ingredient);
-                const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";
-                const unitDisplay = ingredient.customUnitName || ingredient.defaultUnit;
-                return (
-                  <div
-                    key={ingredient.id}
-                    data-cursor="card"
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => router.push(`/ingredients/${ingredient.id}`)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
-                    aria-label={ingredient.name}
-                    className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group transition-transform duration-200"
-                    style={{ "--card-i": idx } as React.CSSProperties}
-                  >
-                    {/* Info */}
-                    <div style={{ padding: "16px 18px 20px" }}>
-                      <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
-                      <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
-                        {ingredient.name}
-                      </div>
-                      <div className="font-mono text-[8.5px] text-[var(--muted)] tracking-[0.04em] mb-[10px]">
-                        {unitDisplay}
-                      </div>
-                      {macros && (
-                        <div className="flex gap-2 items-baseline flex-wrap">
-                          <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{macros.kcal} kcal</span>
-                          <span className="flex gap-2">
-                            <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {macros.protein}g</span>
-                            <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {macros.carbs}g</span>
-                            <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {macros.fat}g</span>
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {/* Accent bar on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* ── List View ── */
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
-            {sortedIngredients.map((ingredient) => {
-              const macros = getCardMacros(ingredient);
+          /* ── Card Grid — shared borders, staggered animation ── */
+          <div
+            className="grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
+            style={{ gap: 0, padding: "0 64px" }}
+          >
+            {sortedIngredients.map((ingredient, idx) => {
+              const nutrition = getFullNutrition(ingredient);
               const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";
-              const unitDisplay = ingredient.customUnitName || ingredient.defaultUnit;
+              const unitContext = ingredient.customUnitName
+                ? `${ingredient.customUnitAmount || 1} ${ingredient.customUnitName}${ingredient.customUnitGrams ? ` (${ingredient.customUnitGrams}g)` : ""}`
+                : "per 100g";
+              const nutrientRows: { label: string; value: string; unit: string }[] = nutrition ? [
+                { label: "FAT", value: nutrition.fat ? formatNutrient(nutrition.fat.value) : "0", unit: nutrition.fat?.unit || "g" },
+                { label: "SATURATED FAT", value: nutrition.saturatedFat ? formatNutrient(nutrition.saturatedFat.value) : "0", unit: nutrition.saturatedFat?.unit || "g" },
+                { label: "SODIUM", value: nutrition.sodium ? formatNutrient(nutrition.sodium.value) : "0", unit: nutrition.sodium?.unit || "mg" },
+                { label: "CARBS", value: nutrition.carbs ? formatNutrient(nutrition.carbs.value) : "0", unit: nutrition.carbs?.unit || "g" },
+                { label: "SUGAR", value: nutrition.sugar ? formatNutrient(nutrition.sugar.value) : "0", unit: nutrition.sugar?.unit || "g" },
+                { label: "PROTEIN", value: nutrition.protein ? formatNutrient(nutrition.protein.value) : "0", unit: nutrition.protein?.unit || "g" },
+                { label: "FIBER", value: nutrition.fiber ? formatNutrient(nutrition.fiber.value) : "0", unit: nutrition.fiber?.unit || "g" },
+              ] : [];
+              // Shared border logic: every card gets border-right + border-bottom; first in row gets border-left
+              const isFirstInRow = idx % 4 === 0;
               return (
                 <div
                   key={ingredient.id}
@@ -363,20 +354,98 @@ function IngredientsPage() {
                   onClick={() => router.push(`/ingredients/${ingredient.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
                   aria-label={ingredient.name}
-                  className="flex items-center gap-5 py-4 border-b border-[var(--rule)] cursor-pointer group transition-colors hover:bg-[var(--bg-2)]"
-                  style={{ padding: "16px 12px" }}
+                  className={`relative group cursor-pointer transition-colors duration-150 hover:bg-[var(--bg-2)] active:scale-[0.98] border-r border-b border-[var(--rule)]${isFirstInRow ? " border-l" : ""}`}
+                  style={{
+                    padding: 20,
+                    opacity: 0,
+                    animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both`,
+                  } as React.CSSProperties}
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-1">{category}</div>
-                    <div className="font-serif text-[15px] font-semibold tracking-[-0.01em] leading-[1.2] truncate">{ingredient.name}</div>
+                  {/* Hover action buttons */}
+                  <div className="absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
+                      aria-label={`Edit ${ingredient.name}`}
+                    >✎</button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); /* delete handler placeholder */ }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors"
+                      aria-label={`Delete ${ingredient.name}`}
+                    >×</button>
                   </div>
-                  <span className="font-mono text-[8.5px] text-[var(--muted)] tracking-[0.04em] shrink-0">{unitDisplay}</span>
+
+                  {/* Category badge */}
+                  <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
+                  {/* Name */}
+                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]" style={{ textWrap: "balance" }}>
+                    {ingredient.name}
+                  </div>
+                  {/* Unit context */}
+                  <div className="font-mono text-[8.5px] text-[var(--muted)] tracking-[0.04em] mb-[14px]">
+                    {unitContext}
+                  </div>
+                  {nutrition && (
+                    <>
+                      {/* Large calorie number — 20px per mockup */}
+                      <div className="font-serif text-[20px] font-bold tracking-tight leading-none tabular-nums">
+                        {nutrition.calories ? formatNutrient(nutrition.calories.value) : "0"}
+                      </div>
+                      <div className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] mt-[3px] mb-[14px]">
+                        Calories
+                      </div>
+                      {/* Nutrient rows — border-top per mockup */}
+                      <div className="flex flex-col">
+                        {nutrientRows.map((row) => (
+                          <div
+                            key={row.label}
+                            className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]"
+                          >
+                            <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
+                            <span className="font-mono text-[10px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* ── List View — staggered animation, mockup styling ── */
+          <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+            {sortedIngredients.map((ingredient, idx) => {
+              const macros = getCardMacros(ingredient);
+              const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";
+              return (
+                <div
+                  key={ingredient.id}
+                  data-cursor="card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/ingredients/${ingredient.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
+                  aria-label={ingredient.name}
+                  className="flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group transition-colors hover:bg-[var(--bg-2)]"
+                  style={{
+                    padding: "10px 0",
+                    opacity: 0,
+                    animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`,
+                  }}
+                >
+                  {/* Name + category */}
+                  <div className="flex-1 min-w-0 flex items-baseline gap-[10px]">
+                    <span className="text-[14px] font-semibold text-[var(--fg)] truncate">{ingredient.name}</span>
+                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
+                  </div>
+                  {/* Macros */}
                   {macros && (
-                    <div className="flex gap-3 items-baseline shrink-0">
-                      <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{macros.kcal} kcal</span>
-                      <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {macros.protein}g</span>
-                      <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {macros.carbs}g</span>
-                      <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {macros.fat}g</span>
+                    <div className="flex gap-[14px] items-baseline shrink-0">
+                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">protein</span></span>
+                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
                     </div>
                   )}
                 </div>
