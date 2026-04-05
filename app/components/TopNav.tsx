@@ -35,7 +35,8 @@ export default function TopNav() {
       {/* Brand */}
       <Link
         href="/"
-        className="font-serif text-[13px] text-[var(--fg)] no-underline mr-8 tracking-[-0.02em] hover:text-[var(--accent)] transition-colors duration-150"
+        className="font-serif text-[13px] text-[var(--fg)] no-underline tracking-[-0.02em] hover:text-[var(--accent)] transition-colors duration-150"
+        style={{ marginRight: 36 }}
       >
         <BrandName />
       </Link>
@@ -73,7 +74,7 @@ export default function TopNav() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPersonId(p.id)}
-                  className="w-[26px] h-[26px] rounded-full flex items-center justify-center font-mono text-[9px] font-medium text-white shrink-0 transition-opacity duration-150 cursor-pointer border-0"
+                  className="w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[7px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
                   style={{
                     background: p.color || "var(--accent)",
                     opacity: isSelected ? 1 : 0.35,
@@ -91,14 +92,15 @@ export default function TopNav() {
 
         <Link
           href="/settings"
-          className={`w-[26px] h-[26px] flex items-center justify-center no-underline transition-colors duration-150 ${
+          className={`flex items-center justify-center no-underline transition-all duration-150 hover:rotate-[30deg] ${
             pathname?.startsWith("/settings")
               ? "text-[var(--accent)]"
               : "text-[var(--muted)] hover:text-[var(--fg)]"
           }`}
+          style={{ padding: 4 }}
           aria-label="Settings"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>

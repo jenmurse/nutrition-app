@@ -214,23 +214,22 @@ export default function Home() {
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 48px` }}>
             <div>
               {/* Eyebrow: date */}
-              <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '2px' }}>
+              <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '2px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
-                <span className="inline-block h-[1px] w-[32px] bg-[var(--rule)]" />
               </div>
               {/* Greeting */}
               <div className="font-serif" style={{ fontSize: '11.5vw', fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
-                <span className="block">{getGreeting()}</span>
-                <span className="block text-[var(--accent)]">{selectedPerson?.name ?? ""}</span>
+                <span className="block" style={{ animation: 'hmFadeUp 700ms var(--ease-out) 40ms both' }}>{getGreeting()}</span>
+                <span className="block text-[var(--accent)]" style={{ animation: 'hmFadeUp 700ms var(--ease-out) 130ms both' }}>{selectedPerson?.name ?? ""}</span>
               </div>
             </div>
           </div>
 
           {/* Stats strip */}
           {(planChecked && !planLoading && weekPlanId) ? (
-            <div className="border-t border-[var(--rule)]">
+            <div className="border-t border-b border-[var(--rule)] mt-auto">
               <div className="flex" style={{ padding: `0 var(--pad)` }}>
-                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)' }}>
+                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)', animation: 'hmFadeUp 700ms var(--ease-out) 350ms both' }}>
                   <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Calories today</div>
                   <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                     {formatVal(calories?.value ?? 0)}
@@ -240,7 +239,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${calPct}%`, transition: 'width 0.6s var(--ease-out)' }} />
                   </div>
                 </div>
-                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)' }}>
+                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)', animation: 'hmFadeUp 700ms var(--ease-out) 430ms both' }}>
                   <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Protein</div>
                   <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                     {formatVal(protein?.value ?? 0)}<span className="text-[14px] text-[var(--muted)] ml-1">g</span>
@@ -250,7 +249,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${proPct}%`, transition: 'width 0.6s var(--ease-out)' }} />
                   </div>
                 </div>
-                <div className="flex-1 py-[18px]">
+                <div className="flex-1 py-[18px]" style={{ animation: 'hmFadeUp 700ms var(--ease-out) 510ms both' }}>
                   <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Meals today</div>
                   <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                     {mealsPlanned}
@@ -275,34 +274,32 @@ export default function Home() {
         ) : !weekPlanId ? (
           <div style={{ padding: `56px var(--pad) 72px` }}>
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">This week</div>
-            <div className="font-serif text-[clamp(18px,1.8vw,26px)] font-semibold tracking-[-0.02em] text-[var(--fg)] mb-3">No meal plan yet.</div>
-            <p className="text-[13px] text-[var(--fg-2)] mb-8 max-w-[400px]">
-              Create a plan to start logging meals and tracking your daily nutrition.
-            </p>
-            <Link
-              href="/meal-plans"
-              className="inline-block bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] hover:opacity-90 transition-opacity no-underline"
-              aria-label="Create a meal plan for this week"
-            >
-              + Create this week&apos;s plan
-            </Link>
+            <div className="border border-dashed border-[var(--rule)] flex flex-col items-center gap-[10px]" style={{ padding: '48px 0' }}>
+              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)]">No meal plan yet</span>
+              <Link
+                href="/meal-plans"
+                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                aria-label="Create a meal plan for this week"
+              >
+                + Create this week&apos;s plan →
+              </Link>
+            </div>
           </div>
 
         ) : !todayData || todayMeals.length === 0 ? (
           <>
             <div style={{ padding: `56px var(--pad) 72px` }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">Today</div>
-              <div className="font-serif text-[clamp(18px,1.8vw,26px)] font-semibold tracking-[-0.02em] text-[var(--fg)] mb-3">No meals logged yet.</div>
-              <p className="text-[13px] text-[var(--fg-2)] mb-8 max-w-[400px]">
-                Open your meal plan to log breakfast, lunch, and dinner.
-              </p>
-              <Link
-                href={`/meal-plans?planId=${weekPlanId}`}
-                className="inline-block bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] hover:opacity-90 transition-opacity no-underline"
-                aria-label="Open meal plan to log meals"
-              >
-                Open meal plan →
-              </Link>
+              <div className="border border-dashed border-[var(--rule)] flex flex-col items-center gap-[10px]" style={{ padding: '48px 0' }}>
+                <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)]">No meals logged today</span>
+                <Link
+                  href={`/meal-plans?planId=${weekPlanId}`}
+                  className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                  aria-label="Open meal plan to log meals"
+                >
+                  Open meal plan →
+                </Link>
+              </div>
             </div>
 
             {/* This Week — show even when no meals today */}
@@ -483,7 +480,7 @@ function WeekOverview({
 
   return (
     <div className="flex" style={{ minHeight: '55vh', alignItems: 'stretch' }}>
-      {weekDays.map((day) => {
+      {weekDays.map((day, dayIdx) => {
         const date = parseUTCDate(day.date);
         const isToday = date.toDateString() === todayStr;
         const dayMeals = allMealLogs.filter(
@@ -505,7 +502,7 @@ function WeekOverview({
             style={{ background: isToday ? 'var(--accent-l)' : undefined }}
           >
             {/* Day header */}
-            <div style={{ padding: '12px 14px 14px' }}>
+            <div style={{ padding: `12px ${dayIdx === weekDays.length - 1 ? 0 : 14}px 14px ${dayIdx === 0 ? 0 : 14}px` }}>
               <div
                 className="font-mono text-[8px] uppercase tracking-[0.1em]"
                 style={{ color: isToday ? 'var(--accent)' : 'var(--muted)' }}
@@ -534,7 +531,7 @@ function WeekOverview({
             </div>
 
             {/* Meals */}
-            <div style={{ padding: '8px 14px 72px' }}>
+            <div style={{ padding: `8px ${dayIdx === weekDays.length - 1 ? 0 : 14}px 72px ${dayIdx === 0 ? 0 : 14}px` }}>
               {dayMeals.map((m) => {
                 const name = m.recipe?.name ?? m.ingredient?.name ?? "";
                 let kcal: number | null = null;

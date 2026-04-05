@@ -178,7 +178,7 @@ function RecipesPage() {
         {/* Tag chips */}
         <button
           onClick={() => updateSearchParam("tags", "")}
-          className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
             selectedTags.length === 0
               ? "text-[var(--fg)] border-[var(--rule)]"
               : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -190,7 +190,7 @@ function RecipesPage() {
           <button
             key={tag}
             onClick={() => toggleTag(tag)}
-            className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
               selectedTags.includes(tag)
                 ? "text-[var(--fg)] border-[var(--rule)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"

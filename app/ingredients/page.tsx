@@ -212,7 +212,7 @@ function IngredientsPage() {
         {/* Filter chips */}
         <button
           onClick={() => setFoodFilter('all')}
-          className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
             foodFilter === 'all'
               ? "text-[var(--fg)] border-[var(--rule)]"
               : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -222,7 +222,7 @@ function IngredientsPage() {
         >All</button>
         <button
           onClick={() => setFoodFilter('foods')}
-          className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
             foodFilter === 'foods'
               ? "text-[var(--fg)] border-[var(--rule)]"
               : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -232,7 +232,7 @@ function IngredientsPage() {
         >Foods</button>
         <button
           onClick={() => setFoodFilter('ingredients')}
-          className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
             foodFilter === 'ingredients'
               ? "text-[var(--fg)] border-[var(--rule)]"
               : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -316,7 +316,7 @@ function IngredientsPage() {
         ) : viewMode === "grid" ? (
           /* ── Card Grid — shared borders, staggered animation ── */
           <div
-            key={`grid-${viewMode}`}
+            key={`grid-${viewMode}-${foodFilter}`}
             className="grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
             style={{ gap: 0, padding: "0 64px" }}
           >
@@ -405,7 +405,7 @@ function IngredientsPage() {
           </div>
         ) : (
           /* ── List View — staggered animation, mockup styling ── */
-          <div key={`list-${viewMode}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+          <div key={`list-${viewMode}-${foodFilter}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
               const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";
