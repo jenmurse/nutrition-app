@@ -63,6 +63,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [servings, setServings] = useState(1);
   const [servingUnit, setServingUnit] = useState("servings");
   const [instructions, setInstructions] = useState("");
+  const [steps, setSteps] = useState<string[]>(["", "", ""]);
   const [prepTime, setPrepTime] = useState("");
   const [cookTime, setCookTime] = useState("");
   const [sourceApp, setSourceApp] = useState("");
@@ -121,6 +122,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
     setServings(Number(initialRecipe.servingSize) || 1);
     setServingUnit(initialRecipe.servingUnit || "servings");
     setInstructions(initialRecipe.instructions || "");
+    const parsed = (initialRecipe.instructions || "").split("\n").filter((s) => s.trim());
+    setSteps(parsed.length > 0 ? parsed : ["", "", ""]);
     setPrepTime(initialRecipe.prepTime != null ? String(initialRecipe.prepTime) : "");
     setCookTime(initialRecipe.cookTime != null ? String(initialRecipe.cookTime) : "");
     setSourceApp(initialRecipe.sourceApp ?? "");
@@ -390,7 +393,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       name,
       servingSize: servings,
       servingUnit,
-      instructions,
+      instructions: steps.filter((s) => s.trim()).join("\n"),
       tags: tags.join(","),
       prepTime: prepTime !== "" ? Number(prepTime) : null,
       cookTime: cookTime !== "" ? Number(cookTime) : null,
@@ -419,6 +422,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           setTags([]);
           setRows([{ id: "r1" }]);
           setInstructions("");
+          setSteps(["", "", ""]);
         }
         onSaved?.();
       } else {
@@ -536,10 +540,12 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           </div>
         </div>
 
-        <div className="ed-field">
-          <label className="ed-label">Source URL</label>
-          <input className="ed-input" type="url" placeholder="https://..." value={sourceApp} onChange={(e) => setSourceApp(e.target.value)} aria-label="Source URL" />
-        </div>
+        {initialRecipe?.id && (
+          <div className="ed-field">
+            <label className="ed-label">Source URL</label>
+            <input className="ed-input" type="url" placeholder="https://..." value={sourceApp} onChange={(e) => setSourceApp(e.target.value)} aria-label="Source URL" />
+          </div>
+        )}
       </div>
 
       {/* ═══ 02 Photo ═══ */}
@@ -842,13 +848,34 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 
-        <textarea
-          className="ed-textarea w-full"
-          placeholder="Add recipe instructions — one step per line..."
-          value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
-          aria-label="Recipe instructions"
-        />
+        <div>
+          {steps.map((step, idx) => (
+            <div key={idx} className="flex items-start gap-[10px]" style={{ padding: "8px 0" }}>
+              <textarea
+                className="flex-1 font-sans text-[13px] text-[var(--fg)] bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 outline-none resize-none transition-[border-color] duration-200 focus:border-[var(--accent)]"
+                style={{ minHeight: 40 }}
+                rows={2}
+                placeholder={`Step ${idx + 1}…`}
+                value={step}
+                onChange={(e) => { const next = [...steps]; next[idx] = e.target.value; setSteps(next); }}
+                aria-label={`Step ${idx + 1}`}
+              />
+              <button
+                className="text-[14px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors shrink-0"
+                style={{ width: 28, height: 28, paddingTop: 2 }}
+                onClick={() => setSteps((prev) => prev.filter((_, i) => i !== idx))}
+                aria-label={`Remove step ${idx + 1}`}
+              >×</button>
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: "8px 0" }}>
+          <button
+            className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]"
+            onClick={() => setSteps((prev) => [...prev, ""])}
+            aria-label="Add step"
+          >+ Add Step</button>
+        </div>
       </div>
 
       {/* ═══ 05 Nutrition ═══ */}
@@ -867,8 +894,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               const display = value > 0 ? `${Math.round(value * 10) / 10}${unit !== "kcal" ? unit : ""}` : "—";
               return (
                 <div key={label} className="flex justify-between items-baseline" style={{ padding: `8px ${(idx + 1) % 3 === 0 ? "0" : "12px"} 8px 0` }}>
-                  <span className="font-mono text-[9px] text-[var(--muted)]">{label}</span>
-                  <span className="font-mono text-[11px] font-medium tabular-nums">{display}</span>
+                  <span className="font-mono text-[10px] text-[var(--muted)]">{label}</span>
+                  <span className="font-mono text-[12px] font-medium tabular-nums">{display}</span>
                 </div>
               );
             })}
@@ -893,7 +920,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         {/* Guidance inline panel */}
         {guidedMode && (
           <div className="border-t border-[var(--rule)]" style={{ padding: "24px 0", marginTop: 8 }}>
-            <div className="font-sans text-[11px] text-[var(--muted)] leading-[1.5] tracking-[0.02em] mb-4">
+            <div className="font-sans text-[11px] text-[var(--muted)] leading-[1.5] tracking-[0.02em]" style={{ marginBottom: 16 }}>
               Add ingredients, then select a person and focus nutrients to see how this recipe fits your daily goals.
             </div>
             <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "16px 40px" }}>
@@ -902,7 +929,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 {persons.length > 0 && (
                   <>
                     <div className="ed-label" style={{ marginBottom: 8 }}>For</div>
-                    <div className="flex flex-wrap gap-[6px] mb-4">
+                    <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {persons.map((p) => (
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
                           className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border cursor-pointer transition-colors active:scale-[0.97] ${
@@ -917,7 +944,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 {guidedPersonId && personGoals.length > 0 && (
                   <>
                     <div className="ed-label" style={{ marginBottom: 8 }}>Focus</div>
-                    <div className="flex flex-wrap gap-[6px] mb-4">
+                    <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {personGoals.filter((g) => (g.highGoal ?? g.lowGoal ?? 0) > 0).map((g) => (
                         <button key={g.nutrientId}
                           onClick={() => {
@@ -996,7 +1023,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
       {/* ═══ Footer Buttons ═══ */}
       {!hideFooterButtons && (
-        <div className="flex gap-[10px]" style={{ marginTop: 64 }}>
+        <div className="flex justify-end gap-[10px]" style={{ marginTop: 64 }}>
           <button className="ed-btn ghost" onClick={onCancel} disabled={saving} aria-label="Cancel">Cancel</button>
           <button className="ed-btn primary" onClick={handleSave} disabled={saving} aria-label={initialRecipe ? "Save recipe" : "Create recipe"}>
             {saving ? (initialRecipe ? "Saving…" : "Creating…") : (initialRecipe ? "Save" : "Create")}

@@ -88,7 +88,7 @@ export default function CustomCursor() {
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="fixed pointer-events-none z-[9998]"
+        className="fixed pointer-events-none z-[10001]"
         style={{
           width: 5, height: 5,
           background: "var(--fg)",
@@ -100,7 +100,7 @@ export default function CustomCursor() {
       <div
         ref={ringRef}
         aria-hidden="true"
-        className="fixed pointer-events-none z-[9997]"
+        className="fixed pointer-events-none z-[10001]"
         style={{
           width: 32, height: 32,
           border: "1.5px solid var(--fg)",
@@ -112,7 +112,7 @@ export default function CustomCursor() {
       <div
         ref={labelRef}
         aria-hidden="true"
-        className="fixed pointer-events-none z-[9997]"
+        className="fixed pointer-events-none z-[10001]"
         style={{
           transform: "translate(-50%, -50%)",
           fontFamily: "'DM Mono', monospace",

@@ -191,7 +191,7 @@ export default function CreateRecipePage() {
 
           {/* Import section */}
           {!importedRecipe && (
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 64 }}>
               <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Import Recipe</div>
               <div className="flex gap-[10px] items-end">
                 <div className="ed-field flex-1" style={{ marginBottom: 0 }}>
