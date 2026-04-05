@@ -357,7 +357,6 @@ function IngredientsPage() {
                   className={`relative group cursor-pointer transition-colors duration-150 hover:bg-[var(--bg-2)] active:scale-[0.98] border-r border-b border-[var(--rule)]${isFirstInRow ? " border-l" : ""}`}
                   style={{
                     padding: 20,
-                    opacity: 0,
                     animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both`,
                   } as React.CSSProperties}
                 >
@@ -427,27 +426,39 @@ function IngredientsPage() {
                   onClick={() => router.push(`/ingredients/${ingredient.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
                   aria-label={ingredient.name}
-                  className="flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group transition-colors hover:bg-[var(--bg-2)]"
+                  className="flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
                   style={{
                     padding: "10px 0",
-                    opacity: 0,
                     animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`,
                   }}
                 >
                   {/* Name + category */}
-                  <div className="flex-1 min-w-0 flex items-baseline gap-[10px]">
-                    <span className="text-[14px] font-semibold text-[var(--fg)] truncate">{ingredient.name}</span>
+                  <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
+                    <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{ingredient.name}</span>
                     <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                   </div>
                   {/* Macros */}
                   {macros && (
-                    <div className="flex gap-[14px] items-baseline shrink-0">
-                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
-                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">protein</span></span>
-                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
-                      <span className="font-mono text-[10px] tabular-nums"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
+                    <div className="flex gap-[16px] items-baseline shrink-0">
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
                     </div>
                   )}
+                  {/* Hover action buttons */}
+                  <div className="flex gap-[4px] shrink-0 ml-[8px] opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
+                      aria-label={`Edit ${ingredient.name}`}
+                    >✎</button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors"
+                      aria-label={`Delete ${ingredient.name}`}
+                    >×</button>
+                  </div>
                 </div>
               );
             })}

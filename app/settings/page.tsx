@@ -499,14 +499,16 @@ const SettingsPage = () => {
       {/* ─── Fixed jump nav ─── */}
       <nav
         className="fixed z-50 flex flex-col"
-        style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140 }}
+        style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}
         aria-label="Settings sections"
       >
         {JUMP_SECTIONS.map((s, i) => (
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
+              i < JUMP_SECTIONS.length - 1 ? 'border-b border-[var(--rule)]' : ''
+            } ${
               activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--accent)]'
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
@@ -522,7 +524,7 @@ const SettingsPage = () => {
 
       {/* ─── Scrollable content ─── */}
       <div id="settings-scroll-container" className="h-full overflow-y-auto">
-        <div className="max-w-[1100px] mx-auto" style={{ padding: '48px 64px 60px 196px' }}>
+        <div className="max-w-[1100px] mx-auto" style={{ padding: '48px 64px 60px 196px', animation: 'contentEnter 280ms var(--ease-out) both' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
               01 — PEOPLE
@@ -530,9 +532,7 @@ const SettingsPage = () => {
           <div id="set-sec-people" style={{ padding: '56px 0' }}>
             <SectionHeader number="01" title="People" />
 
-            <div className="bg-[var(--bg-raised)] p-5">
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">Household</div>
-
+            <div>
               {/* Household name row */}
               <div className="py-[10px] border-b border-[var(--rule-faint)]">
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household name</div>
@@ -604,11 +604,10 @@ const SettingsPage = () => {
                               onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
                               disabled={isSaving}
                               title={t.label}
-                              className="w-[14px] h-[14px] rounded-full border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-125 flex items-center justify-center"
+                              className="w-[20px] h-[20px] rounded-full border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-[1.15] active:scale-95 flex items-center justify-center"
                               style={{
                                 background: t.hex,
-                                outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
-                                outlineOffset: '1.5px',
+                                boxShadow: isActive ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${t.hex}` : 'none',
                               }}
                               aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
                               aria-pressed={isActive}
@@ -752,7 +751,7 @@ const SettingsPage = () => {
           <div id="set-sec-goals" style={{ padding: '56px 0' }}>
             <SectionHeader number="02" title="Daily Goals" />
 
-            <div className="bg-[var(--bg-raised)] p-5">
+            <div>
               {/* Person tabs */}
               <div className="flex items-center gap-2 mb-5" role="tablist" aria-label="Select person for goals">
                 {persons.map((person) => {
@@ -856,9 +855,9 @@ const SettingsPage = () => {
           <div id="set-sec-dashboard" style={{ padding: '56px 0' }}>
             <SectionHeader number="03" title="Dashboard" />
 
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-8">
               {/* Home Stats */}
-              <div className="bg-[var(--bg-raised)] p-5">
+              <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Home Stats</div>
                 <p className="font-sans text-[12px] text-[var(--muted)] mb-4 leading-relaxed">
                   Choose which stats appear on your home screen. Up to 3 recommended.
@@ -888,7 +887,7 @@ const SettingsPage = () => {
               </div>
 
               {/* Greeting */}
-              <div className="bg-[var(--bg-raised)] p-5">
+              <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Greeting</div>
                 <p className="font-sans text-[12px] text-[var(--muted)] mb-4 leading-relaxed">
                   Show a personalized greeting on your home screen.
@@ -913,10 +912,10 @@ const SettingsPage = () => {
               04 — MCP
               ════════════════════════════════════════════════════════════════════ */}
           <div id="set-sec-mcp" style={{ padding: '56px 0' }}>
-            <SectionHeader number="04" title="MCP" />
+            <SectionHeader number="04" title="MCP Integration" />
 
-            <div className="flex flex-col gap-5">
-              <div className="bg-[var(--bg-raised)] p-5">
+            <div className="flex flex-col gap-8">
+              <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
                 <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
                   Generate a secure token to let your favorite AI assistant list, analyze, and save recipes directly to this app.
@@ -975,7 +974,7 @@ const SettingsPage = () => {
                 )}
               </div>
 
-              <div className="bg-[var(--bg-raised)] p-5">
+              <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
                 <div className="space-y-7">
 
@@ -1086,8 +1085,8 @@ const SettingsPage = () => {
           <div id="set-sec-data" style={{ padding: '56px 0' }}>
             <SectionHeader number="05" title="Data" />
 
-            <div className="flex flex-col gap-5">
-              <div className="bg-[var(--bg-raised)] p-5">
+            <div className="flex flex-col gap-8">
+              <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
                 <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
                   Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
@@ -1102,7 +1101,7 @@ const SettingsPage = () => {
                 </button>
               </div>
 
-              <div className="bg-[var(--bg-raised)] p-5">
+              <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
                 <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
                   Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
