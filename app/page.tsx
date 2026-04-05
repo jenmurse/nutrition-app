@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePersonContext } from "./components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
@@ -255,26 +255,47 @@ export default function Home() {
     return { type, number: String(i + 1).padStart(2, "0"), logs };
   }).filter((col) => col.logs.length > 0);
 
+  // Scroll-reveal: observe .hm-reveal elements and add .hm-in when visible
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('hm-in');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { root, threshold: 0.1 }
+    );
+    const els = root.querySelectorAll('.hm-reveal');
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [planChecked, planLoading, weekPlanId, todayMeals]);
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto">
-
-        {/* Household switching tip */}
-        {persons.length > 1 && (
-          <div style={{ padding: `20px var(--pad) 0` }}>
-            <ContextualTip tipId="household-switch" label="Switching between people">
-              Use the colored dots in the top bar to switch views. Recipes and pantry are shared across the household — meal plans and nutrition goals are personal to each person.
-            </ContextualTip>
-          </div>
-        )}
-
-        {/* Getting started checklist */}
-        <div style={{ padding: `16px var(--pad) 0` }}>
-          <GettingStartedCard />
-        </div>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
 
         {/* Hero — full-viewport greeting */}
         <div key={`hero-${selectedPersonId}`} style={{ minHeight: `calc(100vh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
+          {/* Household switching tip */}
+          {persons.length > 1 && (
+            <div style={{ padding: `20px var(--pad) 0` }}>
+              <ContextualTip tipId="household-switch" label="Switching between people">
+                Use the colored dots in the top bar to switch views. Recipes and pantry are shared across the household — meal plans and nutrition goals are personal to each person.
+              </ContextualTip>
+            </div>
+          )}
+
+          {/* Getting started checklist */}
+          <div style={{ padding: `16px var(--pad) 0` }}>
+            <GettingStartedCard />
+          </div>
+
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 48px` }}>
             <div>
               {/* Eyebrow: date */}
@@ -289,42 +310,42 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Stats strip — always reserves height to prevent layout jog */}
-          <div className="border-t border-[var(--rule)] mt-auto" style={{ minHeight: 95 }}>
-            {planChecked && !planLoading && weekPlanId && statEntries.length > 0 && (
-              <div className="flex items-end" style={{ padding: `0 var(--pad)` }}>
-                {statEntries.map((stat, idx) => {
-                  const isLast = idx === statEntries.length - 1;
-                  const delay = 350 + idx * 80;
-                  return (
-                    <div
-                      key={stat.key}
-                      className="flex-1 py-[18px]"
-                      style={{
-                        paddingRight: isLast ? 0 : 32,
-                        marginRight: isLast ? 0 : 32,
-                        borderRight: isLast ? 'none' : '1px solid var(--rule)',
-                        animation: `hmFadeUp 700ms var(--ease-out) ${delay}ms both`,
-                      }}
-                    >
-                      <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
-                      <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
-                        {formatVal(stat.value)}
-                        {stat.unit && <span className="text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
-                      </div>
-                      {stat.goal > 0 && (
-                        <>
-                          <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}</div>
-                          <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
-                            <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
-                          </div>
-                        </>
-                      )}
+          {/* Stats strip */}
+          <div className="border-t border-[var(--rule)]">
+            <div className="flex" style={{ padding: `0 var(--pad)` }}>
+              {statEntries.map((stat, idx) => {
+                const isLast = idx === statEntries.length - 1;
+                const delay = 350 + idx * 80;
+                return (
+                  <div
+                    key={stat.key}
+                    className="flex-1"
+                    style={{
+                      padding: '18px 0 20px',
+                      paddingRight: isLast ? 0 : 32,
+                      marginRight: isLast ? 0 : 32,
+                      borderRight: isLast ? 'none' : '1px solid var(--rule)',
+                      opacity: 0,
+                      animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
+                    }}
+                  >
+                    <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
+                    <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                      {formatVal(stat.value)}
+                      {stat.unit && <span className="text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    {stat.goal > 0 && (
+                      <>
+                        <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}</div>
+                        <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                          <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -372,7 +393,7 @@ export default function Home() {
             {/* This Week — show even when no meals today */}
             {weekDays.length > 0 && (
               <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
-                <div className="flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
+                <div className="hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
@@ -396,7 +417,7 @@ export default function Home() {
           <>
             {/* Today's Meals — editorial numbered columns */}
             <div style={{ padding: `0 var(--pad) 72px` }}>
-              <div className="flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
+              <div className="hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s meals</span>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
@@ -411,8 +432,9 @@ export default function Home() {
                   {mealColumns.map((col, idx) => (
                     <div
                       key={col.type}
-                      className="flex-1"
+                      className="flex-1 hm-reveal"
                       style={{
+                        transitionDelay: `${idx * 70}ms`,
                         paddingLeft: idx === 0 ? 0 : 36,
                         paddingRight: idx === mealColumns.length - 1 ? 0 : 36,
                       }}
@@ -473,7 +495,7 @@ export default function Home() {
             {/* This Week — 7-day overview */}
             {weekDays.length > 0 && (
               <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
-                <div className="flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
+                <div className="hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
@@ -536,8 +558,8 @@ function WeekOverview({
         return (
           <div
             key={day.date}
-            className="flex-1 min-w-0 flex flex-col"
-            style={{ background: isToday ? 'var(--accent-l)' : undefined }}
+            className="flex-1 min-w-0 flex flex-col hm-reveal"
+            style={{ background: isToday ? 'var(--accent-l)' : undefined, transitionDelay: `${dayIdx * 40}ms` }}
           >
             {/* Day header */}
             <div style={{ padding: '12px 14px 14px' }}>

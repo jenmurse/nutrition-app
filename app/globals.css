@@ -379,6 +379,13 @@ input[type="number"]:focus {
   to   { opacity: 1; }
 }
 
+/* Scroll-reveal: starts hidden, transitions in when .hm-in is added */
+.hm-reveal {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+.hm-reveal.hm-in { opacity: 1; transform: translateY(0); }
+
 /* Simple fade — for navs, overlays */
 .animate-fade-in {
   animation: fadeIn 260ms var(--ease-out) both;
