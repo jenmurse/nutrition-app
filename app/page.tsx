@@ -334,14 +334,12 @@ export default function Home() {
                       {formatVal(stat.value)}
                       {stat.unit && <span className="text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                     </div>
-                    {stat.goal > 0 && (
-                      <>
-                        <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}</div>
-                        <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
-                          <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
-                        </div>
-                      </>
-                    )}
+                    <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
+                      of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
+                    </div>
+                    <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                      <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                    </div>
                   </div>
                 );
               })}
