@@ -159,7 +159,7 @@ function BothView({
   });
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', snack: 'S', dessert: 'Ds', beverage: 'Bv' };
+  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', snack: 'S', dessert: 'De', beverage: 'Bv' };
   const todayStr = new Date().toDateString();
 
   return (
