@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
+import { toast } from "@/lib/toast";
+import { dialog } from "@/lib/dialog";
 
 type NutrientValue = {
   id: number;
@@ -206,6 +208,20 @@ function IngredientsPage() {
 
   const sortedIngredients = [...filteredIngredients].sort((a, b) => a.name.localeCompare(b.name));
 
+  async function handleDelete(ingredient: Ingredient) {
+    if (!await dialog.confirm(`Delete "${ingredient.name}"?`, { confirmLabel: "Delete", danger: true })) return;
+    try {
+      const res = await fetch(`/api/ingredients/${ingredient.id}`, { method: "DELETE" });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Delete failed"); }
+      clientCache.delete(`/api/ingredients/${ingredient.id}`);
+      setIngredients((prev) => prev.filter((i) => i.id !== ingredient.id));
+      clientCache.set("/api/ingredients", ingredients.filter((i) => i.id !== ingredient.id));
+      toast.success(`${ingredient.name} deleted`);
+    } catch (err) {
+      toast.error(`Failed to delete: ${err instanceof Error ? err.message : "Unknown error"}`);
+    }
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* ── Filter Bar ── */}
@@ -364,7 +380,7 @@ function IngredientsPage() {
                       aria-label={`Edit ${ingredient.name}`}
                     >✎</button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); /* delete handler placeholder */ }}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(ingredient); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors"
                       aria-label={`Delete ${ingredient.name}`}
                     >×</button>
@@ -447,14 +463,14 @@ function IngredientsPage() {
                     </div>
                   )}
                   {/* Action buttons — always visible, subtle until hover */}
-                  <div className="flex gap-[4px] shrink-0 opacity-[0.25] group-hover:opacity-100 transition-opacity duration-150">
+                  <div className="flex gap-[4px] shrink-0 opacity-[0.4] group-hover:opacity-100 transition-opacity duration-150">
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-transparent border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
                       aria-label={`Edit ${ingredient.name}`}
                     >✎</button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); }}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(ingredient); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-transparent border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors"
                       aria-label={`Delete ${ingredient.name}`}
                     >×</button>

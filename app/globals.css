@@ -309,14 +309,43 @@ input[type="number"]:focus {
 .ed-btn.ghost { border-color: transparent; color: var(--muted); }
 .ed-btn.ghost:hover { color: var(--fg); }
 
-/* ── Editorial Label ─────────────────────────────────────────────── */
+/* ── Editorial Form System ───────────────────────────────────────── */
 .ed-label {
   font-family: var(--mono);
   font-size: 8px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
 }
+.ed-input, .ed-select, .ed-textarea {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--fg);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  padding: 6px 0;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.ed-input:focus, .ed-select:focus, .ed-textarea:focus { border-color: var(--accent); }
+.ed-input::placeholder, .ed-textarea::placeholder { color: var(--muted); opacity: 0.6; }
+.ed-select {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4 3.5-4z' fill='%236B6860'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  padding-right: 16px;
+}
+.ed-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.ed-field { margin-bottom: 20px; }
+.ed-row { display: flex; gap: 20px; }
+.ed-row > * { flex: 1; }
 
 /* ── Animations ──────────────────────────────────────────────────── */
 @keyframes fadeIn {

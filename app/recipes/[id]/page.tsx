@@ -336,25 +336,48 @@ export default function RecipeDetailPage() {
 
   // ── Edit Mode ──
   if (editMode && editDraft) {
+    const EDIT_SECTIONS = [
+      { id: "rf-sec-basics", n: "01", label: "Basics" },
+      { id: "rf-sec-photo", n: "02", label: "Photo" },
+      { id: "rf-sec-ingredients", n: "03", label: "Ingredients" },
+      { id: "rf-sec-method", n: "04", label: "Method" },
+      { id: "rf-sec-nutrition", n: "05", label: "Nutrition" },
+    ];
     return (
-      <div className="h-full flex flex-col">
-        <div className="px-[var(--pad)] py-4 shrink-0 flex items-center justify-between border-b border-[var(--rule)]">
-          <h2 className="font-serif text-[20px] text-[var(--fg)] leading-tight">Edit Recipe</h2>
-          <div className="flex items-center gap-3">
-            <button
-              className="ed-btn primary"
-              onClick={() => builderRef.current?.save()}
-              aria-label="Save recipe"
-            >Save</button>
-            <button
-              className="bg-transparent text-[var(--muted)] py-[6px] px-0 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer"
-              onClick={() => { setEditMode(false); setEditDraft(null); }}
-              aria-label="Cancel editing"
-            >Cancel</button>
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px 196px" }}>
+      <div className="h-full relative animate-fade-in">
+        {/* Jump Nav */}
+        <nav className="fixed z-50 flex flex-col" style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
+          {EDIT_SECTIONS.map((s, i) => (
+            <button key={s.id}
+              onClick={() => {
+                const el = document.getElementById(s.id);
+                const container = document.getElementById("rf-edit-scroll");
+                if (el && container) container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
+              }}
+              className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--accent)]`}
+              style={i === 0 ? { paddingTop: 0 } : undefined}
+              aria-label={`Jump to ${s.label}`}
+            >
+              <span className="font-serif text-[9px] font-bold min-w-[16px] text-[var(--rule)]">{s.n}</span>
+              {s.label}
+            </button>
+          ))}
+        </nav>
+
+        <div id="rf-edit-scroll" className="h-full overflow-y-auto">
+          <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
+            {/* Header */}
+            <div className="flex items-baseline justify-between" style={{ marginBottom: 32 }}>
+              <div>
+                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / Edit</div>
+                <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)" }}>Edit Recipe</h1>
+              </div>
+              <div className="flex items-center gap-[10px]">
+                <button className="ed-btn ghost" onClick={() => { setEditMode(false); setEditDraft(null); }} aria-label="Cancel editing">Cancel</button>
+                <button className="ed-btn primary" onClick={() => builderRef.current?.save()} aria-label="Save recipe">Save</button>
+              </div>
+            </div>
+
             <RecipeBuilder
               ref={builderRef}
               initialRecipe={editDraft}
@@ -570,7 +593,7 @@ export default function RecipeDetailPage() {
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
-              <div className="flex flex-col" style={{ maxWidth: 600 }}>
+              <div className="flex flex-col">
                 {recipe.instructions.split("\n").filter(s => s.trim()).map((step, idx) => {
                   const steps = recipe.instructions.split("\n").filter(s => s.trim());
                   return (
