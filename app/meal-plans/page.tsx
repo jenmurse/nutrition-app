@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
-import DailySummary from '@/app/components/DailySummary';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
@@ -164,87 +163,66 @@ function BothView({
   const todayStr = new Date().toDateString();
 
   return (
-    <div className="flex-1 overflow-y-auto" style={{ padding: '0 var(--pad)' }}>
-      <div className="grid py-5" style={{ gridTemplateColumns: '80px repeat(7, 1fr)' }}>
-        {/* Header row: spacer + 7 day headers */}
-        <div className="border-b border-[var(--rule)]" />
-        {days.map((day) => {
-          const isToday = day.toDateString() === todayStr;
-          return (
-            <div
-              key={day.toISOString()}
-              className={`px-3 py-3 border-b border-[var(--rule)] ${isToday ? 'bg-[var(--accent-l)]' : ''}`}
-            >
-              <div className={`font-mono text-[7px] uppercase tracking-[0.14em] ${isToday ? 'text-[var(--accent)]' : 'text-[var(--muted)]'}`}>
-                {dayNames[day.getDay()]}
-              </div>
-              <div className={`font-serif text-[28px] font-bold leading-none mt-[2px] tracking-[-0.02em] ${isToday ? 'text-[var(--accent)]' : 'text-[var(--fg)]'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {day.getDate()}
-              </div>
-            </div>
-          );
-        })}
+    <div className="ev-grid">
+      {/* Header row: spacer + 7 day headers */}
+      <div className="ev-spacer" />
+      {days.map((day, i) => {
+        const isToday = day.toDateString() === todayStr;
+        return (
+          <div
+            key={day.toISOString()}
+            className={`ev-day-head ${isToday ? 'today' : ''}`}
+            style={{ '--col-i': i } as React.CSSProperties}
+          >
+            <div className="ev-dname">{dayNames[day.getDay()]}</div>
+            <div className="ev-dnum">{day.getDate()}</div>
+          </div>
+        );
+      })}
 
-        {/* Person rows */}
-        {persons.map((p) => {
-          const plan = plansByPerson.get(p.id);
-          return (
-            <React.Fragment key={p.id}>
-              {/* Person label column */}
-              <div className="flex items-start gap-[6px] py-3 pl-2 border-b border-[var(--rule)]">
-                <span className="w-[8px] h-[8px] rounded-full shrink-0 mt-[2px]" style={{ background: p.color || 'var(--accent)' }} />
-                <div>
-                  <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--fg)] leading-none">{p.name}</span>
-                  {!plan && (
-                    <div className="font-mono text-[7px] text-[var(--muted)] mt-[2px]">no plan</div>
+      {/* Person rows */}
+      {persons.map((p, ri) => {
+        const plan = plansByPerson.get(p.id);
+        return (
+          <React.Fragment key={p.id}>
+            {/* Person label column */}
+            <div className="ev-row-label" style={{ '--row-i': ri } as React.CSSProperties}>
+              <span className="ev-row-dot" style={{ background: p.color || 'var(--accent)' }} />
+              <span className="ev-row-name">{p.name}</span>
+            </div>
+
+            {/* 7 day cells for this person */}
+            {days.map((day) => {
+              const isToday = day.toDateString() === todayStr;
+              const meals = plan?.mealLogs?.filter(
+                (m) => new Date(m.date).toDateString() === day.toDateString()
+              ) ?? [];
+              return (
+                <div
+                  key={day.toISOString()}
+                  className={`ev-cell ${isToday ? 'today' : ''}`}
+                  style={{ '--row-i': ri } as React.CSSProperties}
+                >
+                  {meals.length === 0 ? (
+                    <span className="ev-meal-type">&mdash;</span>
+                  ) : (
+                    meals.map((m) => {
+                      const name = m.recipe?.name ?? m.ingredient?.name ?? '?';
+                      const typeLetter = mealTypeLetters[m.mealType] || m.mealType.charAt(0).toUpperCase();
+                      return (
+                        <div key={m.id} className="ev-cell-meal">
+                          <span className="ev-meal-type">{typeLetter}</span>
+                          {name}
+                        </div>
+                      );
+                    })
                   )}
                 </div>
-              </div>
-
-              {/* 7 day cells for this person */}
-              {days.map((day) => {
-                const isToday = day.toDateString() === todayStr;
-                const meals = plan?.mealLogs?.filter(
-                  (m) => new Date(m.date).toDateString() === day.toDateString()
-                ) ?? [];
-                return (
-                  <div
-                    key={day.toISOString()}
-                    className={`py-3 px-3 border-b border-[var(--rule)] ${isToday ? 'bg-[var(--accent-l)]' : ''}`}
-                    style={{ minHeight: '90px' }}
-                  >
-                    {meals.length === 0 ? (
-                      <span className="font-mono text-[9px] text-[var(--muted)]">&mdash;</span>
-                    ) : (
-                      <div className="flex flex-col gap-[4px]">
-                        {meals.map((m) => {
-                          const isShared = m.recipe ? sharedKeys.has(sharedKey(m.recipe.id, m.date)) : false;
-                          const name = m.recipe?.name ?? m.ingredient?.name ?? '?';
-                          const typeLetter = mealTypeLetters[m.mealType] || m.mealType.charAt(0).toUpperCase();
-                          return (
-                            <div key={m.id} className="flex items-start gap-[5px]">
-                              <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] mt-[2px] shrink-0 w-[12px]">{typeLetter}</span>
-                              <span className="font-sans text-[11px] text-[var(--fg)] leading-snug truncate min-w-0">{name}</span>
-                              {isShared && (
-                                <span
-                                  className="font-mono text-[7px] uppercase tracking-[0.1em] px-[5px] py-[1px] bg-[var(--bg-3)] text-[var(--muted)] rounded-full shrink-0"
-                                  title="Shared meal"
-                                >
-                                  shared
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </React.Fragment>
-          );
-        })}
-      </div>
+              );
+            })}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -683,12 +661,9 @@ const MealPlansPage = () => {
   return (
     <div className="flex h-full flex-col">
       {/* Editorial toolbar */}
-      <div
-        className="flex items-center shrink-0 overflow-hidden sticky top-0 z-[5] bg-[var(--bg)] border-b border-[var(--rule)]"
-        style={{ height: 'var(--filter-h)', padding: '0 var(--pad)' }}
-      >
+      <div className="pl-toolbar">
         {/* Week range */}
-        <h1 className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] mr-3 whitespace-nowrap shrink-0">
+        <span className="pl-range" role="heading" aria-level={1}>
           {selectedPlan ? (() => {
             const s = parseUTCDate(selectedPlan.weekStartDate);
             const e = new Date(s); e.setDate(e.getDate() + 6);
@@ -696,13 +671,13 @@ const MealPlansPage = () => {
               ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
               : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
           })() : 'Meal Plans'}
-        </h1>
+        </span>
 
-        {/* Nav: Prev / Next */}
+        {/* Nav: Prev / Next / This Week */}
         {mealPlans.length > 1 && selectedPlan && viewMode === 'personal' && (
           <>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-[var(--bg)] px-[8px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors shrink-0"
+              className="pl-nav-btn"
               onClick={() => {
                 const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                 if (idx < mealPlans.length - 1) {
@@ -712,9 +687,9 @@ const MealPlansPage = () => {
                 }
               }}
               aria-label="Previous week"
-            >&#8249;</button>
+            >&#8249; Prev</button>
             <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-[var(--bg)] px-[8px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors shrink-0 mr-2"
+              className="pl-nav-btn"
               onClick={() => {
                 const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                 if (idx > 0) {
@@ -724,13 +699,11 @@ const MealPlansPage = () => {
                 }
               }}
               aria-label="Next week"
-            >&#8250;</button>
+            >Next &#8250;</button>
           </>
         )}
-
-        {/* This Week */}
         <button
-          className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-[var(--bg)] px-[8px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors shrink-0 mr-2"
+          className="pl-nav-btn"
           onClick={() => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -750,240 +723,215 @@ const MealPlansPage = () => {
               params.set("showForm", "true");
               router.push(`/meal-plans?${params.toString()}`);
               toast.error('No meal plan covers today. Create a new plan starting this week.');
-
             }
           }}
+          aria-label="Go to this week"
         >This Week</button>
 
-        {/* Person chips */}
-        {persons.length > 1 && mealPlans.length > 0 && (
-          <div className="flex items-center mr-2">
-            {persons.map((p) => {
-              const isActive = viewMode === 'personal' && selectedPersonId === p.id;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => {
-                    const wasEveryone = viewMode === 'both';
-                    setViewMode('personal');
-                    if (wasEveryone && selectedPersonId === p.id) {
-                      // Same person — useEffect won't re-trigger, so reload plan manually
-                      if (selectedPlan?.id) {
-                        fetchMealPlanDetails(selectedPlan.id);
-                      } else if (selectedPlanId) {
-                        fetchMealPlanDetails(selectedPlanId);
-                      } else {
-                        // Force re-load by toggling person id
+        {/* Right group: + New Plan, separator, edit controls, nutrition, person chips */}
+        <div className="pl-right-group">
+          <button
+            className="pl-new-btn"
+            onClick={() => {
+              setPlanJustCreated(false);
+              const params = new URLSearchParams(searchParams?.toString());
+              params.set("showForm", "true");
+              router.push(`/meal-plans?${params.toString()}`);
+            }}
+            aria-label="New plan"
+          >+ New Plan</button>
+
+          <div className="pl-chip-sep" />
+
+          {/* Edit mode controls */}
+          {selectedPlan && viewMode === 'personal' && !editMode && (
+            <button
+              className="pl-nav-btn"
+              onClick={() => setEditMode(true)}
+              aria-label="Edit meals"
+            >Edit</button>
+          )}
+          {editMode && (
+            <>
+              <span className="pl-range" style={{ paddingRight: 0 }}>{selectedMealIds.size} sel</span>
+              <button
+                className="pl-nav-btn"
+                style={{ background: 'var(--err-l)', color: 'var(--err)', borderColor: 'transparent' }}
+                disabled={selectedMealIds.size === 0}
+                onClick={handleDeleteSelected}
+                aria-label="Delete selected meals"
+              >Delete</button>
+              <button
+                className="pl-nav-btn"
+                onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
+                aria-label="Exit edit mode"
+              >Done</button>
+            </>
+          )}
+
+          {/* Nutrition toggle */}
+          {selectedPlan && viewMode !== 'both' && (
+            <button
+              className={`pl-nut-chip ${summaryPanelOpen ? 'on' : ''}`}
+              onClick={() => setSummaryPanelOpen(o => !o)}
+              aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
+              aria-expanded={summaryPanelOpen}
+            >
+              {summaryPanelOpen ? 'Nutrition \u203A' : '\u2039 Nutrition'}
+            </button>
+          )}
+
+          {/* Person chips */}
+          {persons.length > 1 && mealPlans.length > 0 && (
+            <>
+              {persons.map((p) => {
+                const isActive = viewMode === 'personal' && selectedPersonId === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    className={`pl-person-chip ${isActive ? 'on' : ''}`}
+                    onClick={() => {
+                      const wasEveryone = viewMode === 'both';
+                      setViewMode('personal');
+                      if (wasEveryone && selectedPersonId === p.id) {
+                        if (selectedPlan?.id) {
+                          fetchMealPlanDetails(selectedPlan.id);
+                        } else if (selectedPlanId) {
+                          fetchMealPlanDetails(selectedPlanId);
+                        } else {
+                          setHasAutoSelected(false);
+                          prevPersonId.current = null;
+                          setSelectedPersonId(p.id);
+                        }
+                      } else if (selectedPersonId === p.id) {
                         setHasAutoSelected(false);
                         prevPersonId.current = null;
                         setSelectedPersonId(p.id);
+                      } else {
+                        setSelectedPersonId(p.id);
                       }
-                    } else if (selectedPersonId === p.id) {
-                      // Already this person but not from Everyone — force reload
-                      setHasAutoSelected(false);
-                      prevPersonId.current = null;
-                      setSelectedPersonId(p.id);
-                    } else {
-                      setSelectedPersonId(p.id);
-                    }
-                  }}
-                  className={`flex items-center gap-[5px] font-mono text-[8px] uppercase tracking-[0.1em] px-[8px] py-[3px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
-                    isActive ? 'text-[var(--fg)] bg-[var(--accent-l)]' : 'text-[var(--muted)] hover:text-[var(--fg)]'
-                  }`}
-                  aria-pressed={isActive}
-                >
-                  <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ background: p.color || 'var(--accent)' }} aria-hidden="true" />
-                  {p.name}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setViewMode('both')}
-              className={`font-mono text-[8px] uppercase tracking-[0.1em] px-[8px] py-[3px] transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
-                viewMode === 'both' ? 'text-[var(--fg)] bg-[var(--bg-3)]' : 'text-[var(--muted)] hover:text-[var(--fg)]'
-              }`}
-              aria-pressed={viewMode === 'both'}
-            >Everyone</button>
-          </div>
-        )}
-
-        {/* Spacer */}
-        <div className="flex-1 min-w-0" />
-
-        {/* + New Plan (accent bg) */}
-        <button
-          className="font-mono text-[8px] uppercase tracking-[0.1em] border-0 bg-[var(--accent)] text-[var(--accent-fg)] px-[10px] py-[4px] hover:opacity-90 transition-opacity shrink-0 mr-2"
-          onClick={() => {
-            setPlanJustCreated(false);
-            const params = new URLSearchParams(searchParams?.toString());
-            params.set("showForm", "true");
-            router.push(`/meal-plans?${params.toString()}`);
-          }}
-        >+ New Plan</button>
-
-        {/* Edit mode controls */}
-        {selectedPlan && viewMode === 'personal' && !editMode && (
-          <button
-            className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-[var(--bg)] px-[8px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors shrink-0 mr-2"
-            onClick={() => setEditMode(true)}
-          >Edit</button>
-        )}
-        {editMode && (
-          <>
-            <span className="font-mono text-[8px] text-[var(--muted)] shrink-0 mr-1">{selectedMealIds.size} sel</span>
-            <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border-0 bg-[var(--err-l)] text-[var(--err)] px-[8px] py-[3px] disabled:opacity-40 hover:bg-[var(--err)] hover:text-white transition-colors shrink-0 mr-1"
-              disabled={selectedMealIds.size === 0}
-              onClick={handleDeleteSelected}
-            >Delete</button>
-            <button
-              className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-[var(--bg)] px-[8px] py-[3px] text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors shrink-0 mr-2"
-              onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
-            >Done</button>
-          </>
-        )}
-
-        {/* Nutrition toggle */}
-        {selectedPlan && viewMode !== 'both' && (
-          <button
-            onClick={() => setSummaryPanelOpen(o => !o)}
-            aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
-            aria-expanded={summaryPanelOpen}
-            className={`font-mono text-[8px] uppercase tracking-[0.1em] px-[8px] py-[3px] transition-[color,background] duration-[120ms] cursor-pointer shrink-0 ${
-              summaryPanelOpen
-                ? 'text-[var(--accent)] border border-[var(--accent)] bg-transparent'
-                : 'text-[var(--muted)] border border-transparent hover:text-[var(--fg)] hover:border-[var(--rule)]'
-            }`}
-          >
-            {summaryPanelOpen ? 'Nutrition >' : '< Nutrition'}
-          </button>
-        )}
+                    }}
+                    aria-pressed={isActive}
+                    aria-label={p.name}
+                  >{p.name}</button>
+                );
+              })}
+              <button
+                className={`pl-person-chip ${viewMode === 'both' ? 'on' : ''}`}
+                onClick={() => setViewMode('both')}
+                aria-pressed={viewMode === 'both'}
+                aria-label="Everyone"
+              >Everyone</button>
+            </>
+          )}
+        </div>
       </div>
 
 
-      {/* Inline create form */}
-      {showCreateForm && (
-        <div className="border-b border-[var(--rule)] bg-[var(--bg-2)]" style={{ padding: '16px var(--pad)' }}>
-          <form
-            className="flex items-center gap-3 flex-wrap"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!newWeekStartDate) return;
-              setCreatingPlan(true);
+      {/* Inline create-plan row */}
+      <form
+        className={`pl-create-row ${showCreateForm ? 'open' : ''}`}
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!newWeekStartDate) return;
+          setCreatingPlan(true);
+          try {
+            const res = await fetch('/api/meal-plans', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ weekStartDate: newWeekStartDate, personId: selectedPersonId }),
+            });
+            if (!res.ok) throw new Error('Failed to create');
+            const plan = await res.json();
+
+            if (copyFromPlanId) {
               try {
-                const res = await fetch('/api/meal-plans', {
+                await fetch(`/api/meal-plans/${copyFromPlanId}/duplicate`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ weekStartDate: newWeekStartDate, personId: selectedPersonId }),
+                  body: JSON.stringify({
+                    targetWeekStartDate: newWeekStartDate,
+                    personId: selectedPersonId,
+                  }),
                 });
-                if (!res.ok) throw new Error('Failed to create');
-                const plan = await res.json();
-
-                // Copy meals from selected source plan
-                if (copyFromPlanId) {
-                  try {
-                    await fetch(`/api/meal-plans/${copyFromPlanId}/duplicate`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        targetWeekStartDate: newWeekStartDate,
-                        personId: selectedPersonId,
-                      }),
-                    });
-                  } catch {
-                    // Non-critical — plan was created, just meals weren't copied
-                    toast.error('Plan created but failed to copy meals');
-                  }
-                }
-
-                const updatedPlans = [plan, ...mealPlans];
-                clientCache.set(`/api/meal-plans?personId=${selectedPersonId}`, updatedPlans);
-                setMealPlans(updatedPlans);
-                setNewWeekStartDate('');
-                setCopyFromPlanId('');
-                setPlanJustCreated(true);
-                const params = new URLSearchParams(searchParams?.toString());
-                params.set("planId", String(plan.id));
-                params.delete("showForm");
-                router.push(`/meal-plans?${params.toString()}`);
-                setViewMode('personal');
               } catch {
-                toast.error('Failed to create meal plan');
-              } finally {
-                setCreatingPlan(false);
+                toast.error('Plan created but failed to copy meals');
               }
+            }
+
+            const updatedPlans = [plan, ...mealPlans];
+            clientCache.set(`/api/meal-plans?personId=${selectedPersonId}`, updatedPlans);
+            setMealPlans(updatedPlans);
+            setNewWeekStartDate('');
+            setCopyFromPlanId('');
+            setPlanJustCreated(true);
+            const params = new URLSearchParams(searchParams?.toString());
+            params.set("planId", String(plan.id));
+            params.delete("showForm");
+            router.push(`/meal-plans?${params.toString()}`);
+            setViewMode('personal');
+          } catch {
+            toast.error('Failed to create meal plan');
+          } finally {
+            setCreatingPlan(false);
+          }
+        }}
+      >
+        <span className="pl-create-label">Week Start</span>
+        <input
+          type="date"
+          className="pl-create-date"
+          value={newWeekStartDate}
+          onChange={(e) => setNewWeekStartDate(e.target.value)}
+          required
+          aria-label="Week start date"
+        />
+        <span className="pl-create-label">Copy From</span>
+        <select
+          value={copyFromPlanId}
+          onChange={(e) => setCopyFromPlanId(e.target.value)}
+          className="pl-create-date"
+          style={{ minWidth: 180 }}
+          aria-label="Copy meals from existing plan"
+        >
+          <option value="">None</option>
+          {mealPlans
+            .filter(p => p.personId === selectedPersonId && (p._count?.mealLogs ?? 0) > 0)
+            .slice(0, 8)
+            .map(p => {
+              const d = parseUTCDate(p.weekStartDate);
+              const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+              return (
+                <option key={p.id} value={p.id}>
+                  Week of {label} ({p._count?.mealLogs ?? 0} meals)
+                </option>
+              );
+            })}
+        </select>
+        <div className="pl-create-actions">
+          <button type="submit" className="pl-create-btn" disabled={creatingPlan}>
+            {creatingPlan ? 'Creating...' : 'Create'}
+          </button>
+          <button
+            type="button"
+            className="pl-cancel-btn"
+            onClick={() => {
+              const params = new URLSearchParams(searchParams?.toString());
+              params.delete("showForm");
+              router.push(`/meal-plans?${params.toString()}`);
             }}
-          >
-            <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Week start</label>
-            <input
-              type="date"
-              value={newWeekStartDate}
-              onChange={(e) => setNewWeekStartDate(e.target.value)}
-              required
-              className="border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
-            />
-            {selectedPerson && (
-              <span className="flex items-center gap-1 font-mono text-[10px] text-[var(--muted)]">
-                <span className="w-[7px] h-[7px] rounded-full bg-[var(--accent)]" />
-                {selectedPerson.name}
-              </span>
-            )}
-            {/* Copy from previous plan */}
-            {mealPlans.filter(p => p.personId === selectedPersonId && (p._count?.mealLogs ?? 0) > 0).length > 0 && (
-              <>
-                <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Copy from</label>
-                <select
-                  value={copyFromPlanId}
-                  onChange={(e) => setCopyFromPlanId(e.target.value)}
-                  className="border border-[var(--rule)] bg-[var(--bg)] px-2 py-1 font-mono text-[11px] text-[var(--fg)]"
-                  aria-label="Copy meals from existing plan"
-                >
-                  <option value="">None</option>
-                  {mealPlans
-                    .filter(p => p.personId === selectedPersonId && (p._count?.mealLogs ?? 0) > 0)
-                    .slice(0, 8)
-                    .map(p => {
-                      const d = parseUTCDate(p.weekStartDate);
-                      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                      return (
-                        <option key={p.id} value={p.id}>
-                          Week of {label} ({p._count?.mealLogs ?? 0} meals)
-                        </option>
-                      );
-                    })}
-                </select>
-              </>
-            )}
-            <button
-              type="submit"
-              disabled={creatingPlan}
-              className="font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] px-3 py-[5px] hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {creatingPlan ? 'Creating...' : 'Create'}
-            </button>
-            <button
-              type="button"
-              className="font-mono text-[10px] text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
-              onClick={() => {
-                const params = new URLSearchParams(searchParams?.toString());
-                params.delete("showForm");
-                router.push(`/meal-plans?${params.toString()}`);
-              }}
-            >
-              Cancel
-            </button>
-          </form>
+          >Cancel</button>
         </div>
-      )}
+      </form>
 
       {/* Main Content */}
-      <div className="flex-1 flex min-h-0">
+      <div className="pl-wrap" style={{ flex: 1, minHeight: 0 }}>
         {viewMode === 'both' && selectedPlan ? (
           <BothView persons={persons} weekStartDate={selectedPlan.weekStartDate} />
         ) : selectedPlan ? (
           <>
             {/* Left: Week view */}
-            <div className="flex-1 overflow-y-auto" style={{ padding: '0 var(--pad)' }}>
+            <div className="pl-main">
               <MealPlanWeek
                 mealPlanId={selectedPlan.id}
                 weekStartDate={parseUTCDate(selectedPlan.weekStartDate)}
@@ -1032,7 +980,7 @@ const MealPlansPage = () => {
               />
             </div>
 
-            {/* Right: Daily summary panel */}
+            {/* Right: Daily summary sidebar */}
             {selectedPlan.weeklySummary && (() => {
               const dailyNutritions = selectedPlan.weeklySummary.dailyNutritions;
               const dayData = selectedDay
@@ -1058,86 +1006,64 @@ const MealPlansPage = () => {
                 n => n.status === 'warning' || n.status === 'error'
               );
 
-              const dayMeals = selectedPlan.mealLogs?.filter(m =>
-                parseUTCDate(m.date).toDateString() === parseUTCDate(activeDayData.date).toDateString()
-              ) ?? [];
-
               const activeDate = parseUTCDate(activeDayData.date);
 
               return (
-                <div className="relative flex shrink-0">
-                  {/* Panel — collapses via width transition */}
-                  <div
-                    className={`flex flex-col overflow-hidden bg-[var(--bg)] transition-[width,min-width] duration-300 [transition-timing-function:var(--ease-drawer)] relative z-[1] ${summaryPanelOpen ? 'border-l border-[var(--rule)]' : ''}`}
-                    style={{
-                      width: summaryPanelOpen ? 280 : 0,
-                      minWidth: summaryPanelOpen ? 280 : 0,
-                    }}
-                  >
-                  {/* Summary header */}
-                  <div
-                    className="flex items-center justify-between border-b border-[var(--rule)] shrink-0 bg-[var(--bg)]"
-                    style={{ height: 'var(--filter-h)', padding: '0 20px' }}
-                  >
-                    <h2 className="font-sans text-[13px] font-medium text-[var(--fg)]">
-                      {activeDayData.dayOfWeek},{' '}
-                      {activeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </h2>
-                    {selectedPerson && (
-                      <div className="flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
-                        <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ background: selectedPerson.color || 'var(--accent)' }} aria-hidden="true" />
-                        {selectedPerson.name}
-                      </div>
-                    )}
-                  </div>
+                <div className={`pl-right ${summaryPanelOpen ? 'open' : ''}`}>
+                  <div className="pl-right-inner">
+                    {/* Sidebar header */}
+                    <div className="pl-side-header">
+                      <span className="pl-side-day">
+                        {activeDayData.dayOfWeek},{' '}
+                        {activeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      {selectedPerson && (
+                        <span className="pl-side-person">
+                          <span className="pl-side-person-dot" style={{ background: selectedPerson.color || 'var(--accent)' }} aria-hidden="true" />
+                          {selectedPerson.name}
+                        </span>
+                      )}
+                    </div>
 
-                  {/* Scrollable body */}
-                  <div className="flex-1 overflow-y-auto" style={{ padding: '24px 20px' }}>
                     {/* Calorie hero */}
                     {calorieNutrient && (
-                      <div className="mb-4">
-                        <div className="flex items-baseline gap-[6px] mb-1">
-                          <span className="font-serif text-[36px] text-[var(--fg)] leading-none tracking-[-0.02em]" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {Math.round(calorieNutrient.value).toLocaleString()}
-                          </span>
-                          <span className="font-mono text-[10px] text-[var(--muted)]">kcal</span>
+                      <>
+                        <div className="pl-kcal-hero">
+                          <span className="pl-kcal-num">{Math.round(calorieNutrient.value).toLocaleString()}</span>
+                          <span className="pl-kcal-unit">kcal</span>
                         </div>
                         {calorieGoal && (
-                          <div className="font-mono text-[10px] text-[var(--muted)] mb-2">
+                          <div className="pl-kcal-sub">
                             of {calorieGoal.toLocaleString()} kcal daily goal · {Math.round(caloriePct)}%
                           </div>
                         )}
-                        <div className="h-[4px] bg-[var(--bg-3)] w-full overflow-hidden">
-                          <div
-                            className="h-full bg-[var(--accent)]"
-                            style={{ width: `${caloriePct}%` }}
-                          />
+                        <div className="pl-kcal-bar">
+                          <div className="pl-kcal-bar-fill" style={{ width: `${caloriePct}%` }} />
                         </div>
-                      </div>
+                      </>
                     )}
 
-                    {/* Compact nutrient bars */}
+                    {/* Nutrient rows */}
                     {keyNutrients.length > 0 && (
-                      <div className="mb-4">
+                      <div className="pl-nut-rows">
                         {keyNutrients.map(nutrient => {
                           const goal = nutrient.highGoal ?? nutrient.lowGoal;
                           const pct = goal ? Math.min(Math.round((nutrient.value / goal) * 100), 100) : 0;
-                          const isOverMax = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
-                          const isWarn = nutrient.status === 'warning';
-                          const barColor = 'bg-[var(--accent)]';
-                          const valueColor = 'text-[var(--muted)]';
+                          const isOver = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
+                          const fillClass = isOver ? 'fill-err' : nutrient.status === 'warning' ? 'fill-warn' : 'fill-ok';
                           const unitSuffix = nutrient.displayName.toLowerCase() === 'calories' ? '' : ` ${nutrient.unit}`;
                           const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
                           return (
-                            <div key={nutrient.nutrientId} className="mb-3">
-                              <div className="flex justify-between items-baseline mb-[5px]">
-                                <span className="font-mono text-[10px] text-[var(--muted)] uppercase tracking-[0.1em]">{nutrient.displayName}</span>
-                                <span className={`font-mono text-[10px] tabular-nums ${valueColor}`}>
+                            <div key={nutrient.nutrientId} className="nut-row">
+                              <div className="nut-row-top">
+                                <span className="nut-name">{nutrient.displayName}</span>
+                                <span className="nut-val">
                                   {formatVal(nutrient.value)} / {formatVal(goal ?? 0)}{unitSuffix}
+                                  {goal ? <span className="nut-pct"> · {pct}%</span> : null}
                                 </span>
                               </div>
-                              <div className="h-[4px] bg-[var(--bg-3)] overflow-hidden">
-                                <div className={`h-full ${barColor}`} style={{ width: `${pct}%` }} />
+                              <div className="nut-track">
+                                <div className={`nut-fill ${fillClass}`} style={{ width: `${pct}%` }} />
                               </div>
                             </div>
                           );
@@ -1146,24 +1072,23 @@ const MealPlansPage = () => {
                     )}
 
                     {/* Warning chips */}
-                    {warningNutrients.map(n => {
-                      const isBelowMin = n.status === 'warning' && n.lowGoal != null && n.value < n.lowGoal;
-                      const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
-                      return (
-                        <div
-                          key={n.nutrientId}
-                          className="font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--muted)] mb-[6px] flex items-center gap-[5px]"
-                        >
-                          <span className="text-[13px] leading-none" aria-hidden="true">{isAboveMax ? '\u26A0\uFE0E' : '\u2296'}</span>
-                          {isBelowMin
-                            ? `${n.displayName} -${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
-                            : isAboveMax
-                            ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
-                            : `${n.displayName} outside target`}
+                    {warningNutrients.length > 0 && (
+                      <div className="pl-warn-section">
+                        <div className="warn-chips">
+                          {warningNutrients.map(n => {
+                            const isBelowMin = n.status === 'warning' && n.lowGoal != null && n.value < n.lowGoal;
+                            const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
+                            const chipClass = isAboveMax ? 'err-chip' : 'warn-chip';
+                            const label = isBelowMin
+                              ? `\u26A0 ${n.displayName} -${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
+                              : isAboveMax
+                              ? `\u26A0 ${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
+                              : `\u26A0 ${n.displayName} outside target`;
+                            return <div key={n.nutrientId} className={chipClass}>{label}</div>;
+                          })}
                         </div>
-                      );
-                    })}
-
+                      </div>
+                    )}
 
                     {/* Suggested swaps */}
                     <SmartSuggestionsPanel
@@ -1173,14 +1098,12 @@ const MealPlansPage = () => {
                       onClose={() => setSelectedDay(null)}
                       onSwapMeal={async (mealLogId, newRecipeId) => {
                         try {
-                          // Preserve the original meal's type (breakfast/lunch/dinner/snack)
                           const originalMeal = selectedPlan.mealLogs?.find((m: MealLog) => m.id === mealLogId);
                           const mealType = originalMeal?.mealType ?? 'snack';
                           await handleRemoveMeal(mealLogId);
                           await handleAddRecipeMeal(activeDate, mealType, newRecipeId, 1);
                           toast.success('Meal swapped!');
                           setAnalysisRefreshKey(k => k + 1);
-
                         } catch {
                           toast.error('Failed to swap meal');
                         }
@@ -1190,42 +1113,39 @@ const MealPlansPage = () => {
                           await handleAddRecipeMeal(activeDate, 'dinner', recipeId, 1);
                           toast.success('Meal added!');
                           setAnalysisRefreshKey(k => k + 1);
-
                         } catch {
                           toast.error('Failed to add meal');
                         }
                       }}
                     />
                   </div>
-                  </div>
                 </div>
               );
             })()}
           </>
         ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <div className="text-center space-y-4 max-w-[280px]">
-              <div className="font-serif text-[20px] text-[var(--fg)]">
+          <div className="pl-main" style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ textAlign: 'center', maxWidth: 280 }}>
+              <div className="font-serif" style={{ fontSize: 20, color: 'var(--fg)', marginBottom: 12 }}>
                 {mealPlans.length === 0
                   ? selectedPerson ? `No plans for ${selectedPerson.name} yet` : 'No meal plans yet'
                   : 'Select a meal plan'}
               </div>
-              <div className="text-[11px] text-[var(--muted)] leading-relaxed">
+              <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
                 {mealPlans.length === 0
                   ? 'Create a weekly meal plan to start tracking your nutrition.'
                   : 'Use the controls above to navigate between plans.'}
               </div>
               {mealPlans.length === 0 && (
                 <button
-                  className="bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] border-0 hover:opacity-90 transition-opacity cursor-pointer"
+                  className="pl-new-btn"
                   onClick={() => {
                     const params = new URLSearchParams(searchParams?.toString());
                     params.set("showForm", "true");
                     router.push(`/meal-plans?${params.toString()}`);
                   }}
-                >
-                  + Create Plan
-                </button>
+                  aria-label="Create a new plan"
+                >+ Create Plan</button>
               )}
             </div>
           </div>
