@@ -511,6 +511,7 @@ input[type="number"]:focus {
   font-size: 9px;
   letter-spacing: 0.06em;
   border-bottom: none;
+  box-shadow: 0 1px 0 var(--rule);
   animation: notifSlideDown 280ms var(--ease-out) both;
 }
 .notif-bar.notif-hiding {
