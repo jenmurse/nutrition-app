@@ -18,6 +18,7 @@ interface OnboardingStatus {
   hasRecipe: boolean;
   hasIngredient: boolean;
   hasMealPlan: boolean;
+  hasDashboardStats: boolean;
   hasMcp: boolean;
 }
 
@@ -26,6 +27,7 @@ const TASKS: Task[] = [
   { id: "recipe", text: "Import your first recipe", note: "", href: "/recipes", checkKey: "hasRecipe" },
   { id: "pantry", text: "Add your first ingredient", note: "", href: "/ingredients", checkKey: "hasIngredient" },
   { id: "plan", text: "Plan your first week", note: "", href: "/meal-plans", checkKey: "hasMealPlan" },
+  { id: "dashboard", text: "Choose 3 dashboard stats", note: "", href: "/settings#dashboard", checkKey: "hasDashboardStats" },
   { id: "ai", text: "Set up AI optimization", note: "Needs MCP setup", href: "/settings#mcp", checkKey: "hasMcp" },
 ];
 
@@ -48,7 +50,20 @@ export default function GettingStartedCard() {
     if (dismissed) return;
     fetch("/api/onboarding")
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data) setStatus(data); })
+      .then((data) => {
+        if (!data) return;
+        // Dashboard stats are in localStorage — check if exactly 3 are selected
+        try {
+          const stored = localStorage.getItem('dashboard-stats');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            data.hasDashboardStats = Array.isArray(parsed.enabledStats) && parsed.enabledStats.length === 3;
+          } else {
+            data.hasDashboardStats = false;
+          }
+        } catch { data.hasDashboardStats = false; }
+        setStatus(data);
+      })
       .catch(() => {});
   }, [dismissed]);
 

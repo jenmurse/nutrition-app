@@ -60,10 +60,27 @@ type PlanDetail = {
   weeklySummary?: { dailyNutritions: DayData[] };
   recipeCaloriesMap?: Record<number, number>;
   mealLogCaloriesMap?: Record<number, number>;
+  recipeNutrientsMap?: Record<number, Record<string, number>>;
+  mealLogNutrientsMap?: Record<number, Record<string, number>>;
 };
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// Canonical display order for dashboard stats — matches settings page order
+const STAT_CANONICAL_ORDER = ['calories', 'fat', 'sat-fat', 'sodium', 'carbs', 'sugar', 'protein', 'fiber'];
+
+// Map stat keys to nutrient displayNames used in the API
+const STAT_NUTRIENT_NAMES: Record<string, string[]> = {
+  calories: ['Calories', 'Energy'],
+  fat: ['Fat'],
+  'sat-fat': ['Saturated Fat'],
+  sodium: ['Sodium'],
+  carbs: ['Carbs', 'Carbohydrate'],
+  sugar: ['Sugar'],
+  protein: ['Protein'],
+  fiber: ['Fiber'],
+};
 
 export default function Home() {
   const router = useRouter();
@@ -84,6 +101,8 @@ export default function Home() {
   const [allMealLogs, setAllMealLogs] = useState<MealLog[]>([]);
   const [recipeCaloriesMap, setRecipeCaloriesMap] = useState<Record<number, number>>({});
   const [mealLogCaloriesMap, setMealLogCaloriesMap] = useState<Record<number, number>>({});
+  const [recipeNutrientsMap, setRecipeNutrientsMap] = useState<Record<number, Record<string, number>>>({});
+  const [mealLogNutrientsMap, setMealLogNutrientsMap] = useState<Record<number, Record<string, number>>>({});
 
   const now = new Date();
   const today = new Date(now);
@@ -100,6 +119,8 @@ export default function Home() {
     setAllMealLogs([]);
     setRecipeCaloriesMap({});
     setMealLogCaloriesMap({});
+    setRecipeNutrientsMap({});
+    setMealLogNutrientsMap({});
 
     const weekStart = getCurrentWeekStart();
     const planListKey = `/api/meal-plans?personId=${selectedPersonId}`;
@@ -122,6 +143,8 @@ export default function Home() {
       setAllMealLogs(detail.mealLogs ?? []);
       setRecipeCaloriesMap(detail.recipeCaloriesMap ?? {});
       setMealLogCaloriesMap(detail.mealLogCaloriesMap ?? {});
+      setRecipeNutrientsMap(detail.recipeNutrientsMap ?? {});
+      setMealLogNutrientsMap(detail.mealLogNutrientsMap ?? {});
 
       const dayEntry = detail.weeklySummary.dailyNutritions.find(
         (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
@@ -182,7 +205,10 @@ export default function Home() {
     fiber: { match: (n) => n.displayName === 'Fiber', label: 'Fiber', unit: 'g' },
   };
 
-  const statEntries = enabledStats.slice(0, 3).map(key => {
+  // Sort enabled stats into canonical order
+  const orderedStats = STAT_CANONICAL_ORDER.filter(k => enabledStats.includes(k)).slice(0, 3);
+
+  const statEntries = orderedStats.map(key => {
     const cfg = STAT_KEY_MAP[key];
     if (!cfg) return null;
     const nutrient = allNutrients.find(cfg.match);
@@ -191,6 +217,26 @@ export default function Home() {
     const pct = goal > 0 ? Math.min(Math.round((value / goal) * 100), 100) : 0;
     return { key, label: cfg.label, unit: cfg.unit, value, goal, pct };
   }).filter(Boolean) as { key: string; label: string; unit: string; value: number; goal: number; pct: number }[];
+
+  /** Get nutrient values for a meal log based on selected stats */
+  const getMealNutrients = (m: MealLog): { label: string; value: number; unit: string }[] => {
+    let nutrients: Record<string, number> = {};
+    if (m.recipe?.id && recipeNutrientsMap[m.recipe.id]) {
+      const perServing = recipeNutrientsMap[m.recipe.id];
+      for (const [name, val] of Object.entries(perServing)) {
+        nutrients[name] = Math.round(val * (m.servings ?? 1));
+      }
+    } else if (mealLogNutrientsMap[m.id]) {
+      nutrients = mealLogNutrientsMap[m.id];
+    }
+    return orderedStats.map(key => {
+      const cfg = STAT_KEY_MAP[key];
+      if (!cfg) return null;
+      const names = STAT_NUTRIENT_NAMES[key] ?? [];
+      const matchName = names.find(n => nutrients[n] != null);
+      return matchName != null ? { label: cfg.label, value: nutrients[matchName], unit: cfg.unit } : null;
+    }).filter(Boolean) as { label: string; value: number; unit: string }[];
+  };
 
   /** Get kcal for a meal log */
   const getMealKcal = (m: MealLog): number | null => {
@@ -243,10 +289,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Stats strip */}
-          {(planChecked && !planLoading && weekPlanId && statEntries.length > 0) ? (
-            <div className="border-t border-[var(--rule)] mt-auto">
-              <div className="flex" style={{ padding: `0 var(--pad)` }}>
+          {/* Stats strip — always reserves height to prevent layout jog */}
+          <div className="border-t border-[var(--rule)] mt-auto" style={{ minHeight: 95 }}>
+            {planChecked && !planLoading && weekPlanId && statEntries.length > 0 && (
+              <div className="flex items-end" style={{ padding: `0 var(--pad)` }}>
                 {statEntries.map((stat, idx) => {
                   const isLast = idx === statEntries.length - 1;
                   const delay = 350 + idx * 80;
@@ -278,8 +324,8 @@ export default function Home() {
                   );
                 })}
               </div>
-            </div>
-          ) : null}
+            )}
+          </div>
         </div>
 
         {/* Body states */}
@@ -373,7 +419,7 @@ export default function Home() {
                     >
                       {col.logs.map((m, mi) => {
                         const name = m.recipe?.name ?? m.ingredient?.name ?? "";
-                        const kcal = getMealKcal(m);
+                        const mealStats = getMealNutrients(m);
                         return (
                           <div key={m.id}>
                             {/* Number · Type header */}
@@ -387,13 +433,15 @@ export default function Home() {
                             <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
                               {name}
                             </div>
-                            {/* Macro rows */}
-                            {kcal != null && (
-                              <div className="flex justify-between py-[6px] border-b border-[var(--rule)]">
-                                <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Calories</span>
-                                <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] tabular-nums">{kcal}</span>
+                            {/* Nutrient rows — 3 selected stats */}
+                            {mealStats.map((s) => (
+                              <div key={s.label} className="flex justify-between py-[6px] border-b border-[var(--rule)]">
+                                <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{s.label}</span>
+                                <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] tabular-nums">
+                                  {s.value}{s.unit && <span className="text-[10px] text-[var(--muted)] ml-[2px]">{s.unit}</span>}
+                                </span>
                               </div>
-                            )}
+                            ))}
                             {/* Link to recipe */}
                             {m.recipe?.id && (
                               <Link

@@ -297,9 +297,6 @@ const SettingsPage = () => {
     saveDashboardStats({ ...dashboardStats, enabledStats: updated });
   };
 
-  const toggleGreeting = () => {
-    saveDashboardStats({ ...dashboardStats, showGreeting: !dashboardStats.showGreeting });
-  };
 
   const handleSaveHouseholdName = async () => {
     if (!householdNameDraft.trim() || householdNameDraft.trim() === householdName) {
@@ -850,19 +847,21 @@ const SettingsPage = () => {
               {/* Home Stats */}
               <div className="ed-label mb-[8px]">Home Stats</div>
               <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
-                Choose which stats appear on your home screen. Up to 3 recommended.
+                Select exactly 3 nutrition stats to display on your dashboard and meal cards.
               </p>
               <div style={{ maxWidth: 400 }}>
                 {DASHBOARD_STAT_OPTIONS.map((opt) => {
                   const checked = dashboardStats.enabledStats.includes(opt.key);
+                  const atLimit = dashboardStats.enabledStats.length >= 3 && !checked;
                   return (
                     <label
                       key={opt.key}
-                      className="flex items-center gap-[12px] py-[9px] border-b border-[var(--rule)] cursor-pointer"
+                      className={`flex items-center gap-[12px] py-[9px] border-b border-[var(--rule)] ${atLimit ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <input
                         type="checkbox"
                         checked={checked}
+                        disabled={atLimit}
                         onChange={() => toggleDashboardStat(opt.key)}
                         aria-label={opt.label}
                       />
@@ -871,27 +870,12 @@ const SettingsPage = () => {
                   );
                 })}
               </div>
-
-              {/* Greeting */}
-              <div className="mt-[40px]">
-                <div className="ed-label mb-[8px]">Greeting</div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
-                  Show a personalized greeting on your home screen.
-                </p>
-                <div style={{ maxWidth: 400 }}>
-                  <label className="flex items-center gap-[12px] py-[9px] border-b border-[var(--rule)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={dashboardStats.showGreeting}
-                      onChange={toggleGreeting}
-                      aria-label="Show personalized greeting"
-                    />
-                    <span className="text-[13px] text-[var(--fg)]">
-                      Show personalized greeting <span className="text-[var(--muted)] italic">&ldquo;Good morning, {persons[0]?.name || 'Jen'}.&rdquo;</span>
-                    </span>
-                  </label>
+              {dashboardStats.enabledStats.length < 3 && (
+                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--warn)] mt-[10px]">
+                  Select {3 - dashboardStats.enabledStats.length} more
                 </div>
-              </div>
+              )}
+
             </div>
           </div>
 

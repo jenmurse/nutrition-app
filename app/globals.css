@@ -571,7 +571,8 @@ input[type="number"]:focus {
 /* ── PLANNER ── */
 
 .pl-wrap { display:flex; height:100%; }
-.pl-main { flex:1; overflow:auto; display:flex; flex-direction:column; }
+.pl-main { flex:1; overflow:auto; display:flex; flex-direction:column; scrollbar-width:none; }
+.pl-main::-webkit-scrollbar { display:none; }
 
 .pl-toolbar {
   display:flex; align-items:center; gap:10px; padding:0 var(--pad);

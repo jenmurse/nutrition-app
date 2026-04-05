@@ -50,12 +50,15 @@ export async function GET(
       personId: mealPlan.personId,
     });
 
-    // Compute calories-per-serving for each recipe and ingredient in this meal plan
-    const calorieNutrient = await prisma.nutrient.findFirst({ where: { name: 'calories' } });
+    // Compute per-serving nutrient values for each recipe in this meal plan
+    const allNutrients = await prisma.nutrient.findMany();
+    const nutrientById = Object.fromEntries(allNutrients.map(n => [n.id, n]));
+    const calorieNutrient = allNutrients.find(n => n.name === 'calories') ?? null;
 
     const recipeIds = [...new Set(mealPlan.mealLogs.filter(m => m.recipeId).map(m => m.recipeId!))];
     let recipeCaloriesMap: Record<number, number> = {};
-    if (recipeIds.length > 0 && calorieNutrient) {
+    let recipeNutrientsMap: Record<number, Record<string, number>> = {};
+    if (recipeIds.length > 0) {
       const recipes = await prisma.recipe.findMany({
         where: { id: { in: recipeIds } },
         select: {
@@ -67,8 +70,7 @@ export async function GET(
               ingredient: {
                 select: {
                   nutrientValues: {
-                    where: { nutrientId: calorieNutrient.id },
-                    select: { value: true },
+                    select: { nutrientId: true, value: true },
                   },
                 },
               },
@@ -77,21 +79,34 @@ export async function GET(
         },
       });
       for (const recipe of recipes) {
-        let totalCal = 0;
+        const totals: Record<number, number> = {};
         for (const ri of recipe.ingredients) {
           const grams = ri.conversionGrams || 0;
           for (const nv of ri.ingredient.nutrientValues) {
-            totalCal += (nv.value / 100) * grams;
+            totals[nv.nutrientId] = (totals[nv.nutrientId] || 0) + (nv.value / 100) * grams;
           }
         }
-        recipeCaloriesMap[recipe.id] = Math.round(totalCal / (recipe.servingSize || 1));
+        const servings = recipe.servingSize || 1;
+        // Build displayName-keyed map for frontend
+        const perServing: Record<string, number> = {};
+        for (const [nid, total] of Object.entries(totals)) {
+          const nutrient = nutrientById[Number(nid)];
+          if (nutrient) {
+            perServing[nutrient.displayName] = Math.round(total / servings);
+          }
+        }
+        recipeNutrientsMap[recipe.id] = perServing;
+        if (calorieNutrient && totals[calorieNutrient.id] != null) {
+          recipeCaloriesMap[recipe.id] = Math.round(totals[calorieNutrient.id] / servings);
+        }
       }
     }
 
-    // Compute calories per meal log for ingredient-based meals
+    // Compute per-meal-log nutrient values for ingredient-based meals
     const ingredientMealLogs = mealPlan.mealLogs.filter(m => m.ingredientId && m.quantity != null);
     let mealLogCaloriesMap: Record<number, number> = {};
-    if (ingredientMealLogs.length > 0 && calorieNutrient) {
+    let mealLogNutrientsMap: Record<number, Record<string, number>> = {};
+    if (ingredientMealLogs.length > 0) {
       const ingredientIds = [...new Set(ingredientMealLogs.map(m => m.ingredientId!))];
       const ingredients = await prisma.ingredient.findMany({
         where: { id: { in: ingredientIds } },
@@ -101,8 +116,7 @@ export async function GET(
           customUnitAmount: true,
           customUnitGrams: true,
           nutrientValues: {
-            where: { nutrientId: calorieNutrient.id },
-            select: { value: true },
+            select: { nutrientId: true, value: true },
           },
         },
       });
@@ -110,11 +124,19 @@ export async function GET(
       for (const log of ingredientMealLogs) {
         const ing = ingById[log.ingredientId!];
         if (!ing) continue;
-        const calPer100g = ing.nutrientValues[0]?.value ?? 0;
         let grams = log.quantity ?? 0;
         if (log.unit === ing.customUnitName && ing.customUnitGrams) {
           grams = ((log.quantity ?? 0) / (ing.customUnitAmount || 1)) * ing.customUnitGrams;
         }
+        const perMeal: Record<string, number> = {};
+        for (const nv of ing.nutrientValues) {
+          const nutrient = nutrientById[nv.nutrientId];
+          if (nutrient) {
+            perMeal[nutrient.displayName] = Math.round((nv.value / 100) * grams);
+          }
+        }
+        mealLogNutrientsMap[log.id] = perMeal;
+        const calPer100g = ing.nutrientValues.find(nv => calorieNutrient && nv.nutrientId === calorieNutrient.id)?.value ?? 0;
         mealLogCaloriesMap[log.id] = Math.round((calPer100g / 100) * grams);
       }
     }
@@ -125,6 +147,8 @@ export async function GET(
         weeklySummary,
         recipeCaloriesMap,
         mealLogCaloriesMap,
+        recipeNutrientsMap,
+        mealLogNutrientsMap,
       },
       { status: 200 }
     );
