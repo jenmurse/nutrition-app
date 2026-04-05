@@ -1082,6 +1082,13 @@ input[type="number"]:focus {
 
 .bottom-nav { display: none; }
 
+/* ── Dashboard hero (desktop) ────────────────────────────────────── */
+.hm-hero {
+  min-height: calc(100dvh - var(--nav-h));
+  display: flex;
+  flex-direction: column;
+}
+
 /* ── Mobile breakpoint — 640px ───────────────────────────────────── */
 @media (max-width: 640px) {
   /* Prevent iOS Safari input zoom */
@@ -1097,7 +1104,11 @@ input[type="number"]:focus {
   .nav-person-dot  { padding: 13px; margin: -13px; }
 
   /* Hero: compact on mobile — no full-viewport lock */
-  .hm-hero { min-height: 0 !important; padding-top: 36px; }
+  .hm-hero { min-height: 0; padding-top: 24px; }
+
+  /* Detail pages: hide jump nav, full-width content with bottom nav padding */
+  .detail-jump-nav { display: none !important; }
+  .detail-content  { padding: 32px var(--pad) calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px) var(--pad) !important; }
 
   /* Stats strip: stack vertically */
   .hm-stats-strip  { flex-direction: column; }

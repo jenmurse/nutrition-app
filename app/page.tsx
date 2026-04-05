@@ -281,7 +281,7 @@ export default function Home() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto hm-bottom-pad">
 
         {/* Hero — full-viewport greeting (compact on mobile via .hm-hero) */}
-        <div key={`hero-${selectedPersonId}`} className="hm-hero" style={{ minHeight: `calc(100dvh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
+        <div key={`hero-${selectedPersonId}`} className="hm-hero">
           {/* Household switching tip */}
           {persons.length > 1 && (
             <div style={{ padding: `20px var(--pad) 0` }}>

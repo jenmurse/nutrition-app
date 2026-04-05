@@ -158,7 +158,7 @@ export default function CreateRecipePage() {
     <div className="h-full relative">
       {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
-        className="fixed z-50 flex flex-col"
+        className="detail-jump-nav fixed z-50 flex flex-col"
         style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
         aria-label="Recipe form navigation"
       >
@@ -182,7 +182,7 @@ export default function CreateRecipePage() {
 
       {/* ── Main Scroll ── */}
       <div id="rf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
-        <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
+        <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
             <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / New</div>

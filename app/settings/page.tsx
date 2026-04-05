@@ -520,7 +520,7 @@ const SettingsPage = () => {
     <div className="h-full overflow-hidden relative">
       {/* ─── Fixed jump nav ─── */}
       <nav
-        className="fixed z-50 flex flex-col"
+        className="detail-jump-nav fixed z-50 flex flex-col"
         style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}
         aria-label="Settings sections"
       >
@@ -546,7 +546,7 @@ const SettingsPage = () => {
 
       {/* ─── Scrollable content ─── */}
       <div id="settings-scroll-container" className="h-full overflow-y-auto" style={{ opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}>
-        <div className="max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
+        <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
               01 — PEOPLE

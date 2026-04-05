@@ -346,7 +346,7 @@ export default function RecipeDetailPage() {
     return (
       <div className="h-full relative">
         {/* Jump Nav — outside animated wrapper */}
-        <nav className="fixed z-50 flex flex-col" style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
+        <nav className="detail-jump-nav fixed z-50 flex flex-col" style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
           {EDIT_SECTIONS.map((s, i) => (
             <button key={s.id}
               onClick={() => {
@@ -365,7 +365,7 @@ export default function RecipeDetailPage() {
         </nav>
 
         <div id="rf-edit-scroll" className="h-full overflow-y-auto animate-page-enter">
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
+          <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
               <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / Edit</div>
@@ -406,7 +406,7 @@ export default function RecipeDetailPage() {
     <div className="h-full relative">
       {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
-        className="fixed z-50 flex flex-col"
+        className="detail-jump-nav fixed z-50 flex flex-col"
         style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
         aria-label="Jump to section"
       >
@@ -430,7 +430,7 @@ export default function RecipeDetailPage() {
 
       {/* ── Main Scroll ── */}
       <div id="rd-scroll-container" className="h-full overflow-y-auto animate-page-enter">
-        <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
+        <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
 
           {/* ── Hero ── */}
           <div className="grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px", minHeight: "50vh" }}>
