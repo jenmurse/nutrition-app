@@ -506,12 +506,10 @@ input[type="number"]:focus {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--pad);
-  height: 36px;
+  height: calc(var(--filter-h) + 1px);
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.06em;
-  border-bottom: none;
-  box-shadow: 0 1px 0 var(--rule);
   animation: notifSlideDown 280ms var(--ease-out) both;
 }
 .notif-bar.notif-hiding {
