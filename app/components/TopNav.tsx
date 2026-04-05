@@ -66,7 +66,7 @@ export default function TopNav() {
       <div className="ml-auto flex items-center gap-3">
         {/* Person dots */}
         {persons.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[8px]">
             {persons.map((p) => {
               const isSelected = p.id === selectedPerson?.id;
               const initial = (p.name || "?").charAt(0).toUpperCase();
@@ -77,7 +77,6 @@ export default function TopNav() {
                   className="w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[7px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
                   style={{
                     background: p.color || "var(--accent)",
-                    opacity: isSelected ? 1 : 0.35,
                     boxShadow: isSelected ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${p.color || 'var(--accent)'}` : 'none',
                   }}
                   aria-label={`Switch to ${p.name}`}

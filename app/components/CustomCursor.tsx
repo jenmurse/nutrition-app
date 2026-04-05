@@ -42,7 +42,7 @@ export default function CustomCursor() {
       ring.style.left = `${rx}px`;
       ring.style.top = `${ry}px`;
       label.style.left = `${rx}px`;
-      label.style.top = `${ry + 24}px`;
+      label.style.top = `${ry + 38}px`;
       raf = requestAnimationFrame(follow);
     };
 

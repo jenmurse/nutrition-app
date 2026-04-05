@@ -210,7 +210,7 @@ export default function Home() {
         </div>
 
         {/* Hero — full-viewport greeting */}
-        <div style={{ minHeight: `calc(100vh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
+        <div key={`hero-${selectedPersonId}`} style={{ minHeight: `calc(100vh - var(--nav-h))`, display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 48px` }}>
             <div>
               {/* Eyebrow: date */}

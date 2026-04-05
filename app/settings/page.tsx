@@ -548,7 +548,7 @@ const SettingsPage = () => {
 
       {/* ─── Scrollable content ─── */}
       <div id="settings-scroll-container" className="h-full overflow-y-auto">
-        <div className="max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px', animation: 'contentEnter 280ms var(--ease-out) both' }}>
+        <div className="max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
               01 — PEOPLE
@@ -559,7 +559,7 @@ const SettingsPage = () => {
             {/* Household name — full width above members */}
             <div className="mb-[32px]">
               <div className="ed-label mb-[8px]">Household Name</div>
-              <div className="flex gap-[8px] items-end" style={{ maxWidth: 400 }}>
+              <div className="flex gap-[8px] items-end">
                 <div className="flex-1">
                   <input
                     type="text"
