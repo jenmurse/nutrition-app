@@ -114,8 +114,6 @@ function IngredientsPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Search expand
-  const [searchOpen, setSearchOpen] = useState(!!searchQuery);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
@@ -270,7 +268,7 @@ function IngredientsPage() {
             >List</button>
           </div>
 
-          {/* Search */}
+          {/* Search — always visible */}
           <input
             ref={searchRef}
             type="text"
@@ -279,15 +277,8 @@ function IngredientsPage() {
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search ingredients"
             className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
-            style={{ width: searchOpen ? 180 : 0, opacity: searchOpen ? 1 : 0, pointerEvents: searchOpen ? "auto" : "none" }}
+            style={{ width: 180 }}
           />
-          {!searchOpen && (
-            <button
-              onClick={() => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }}
-              className="font-mono text-[9px] tracking-[0.06em] bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[3px] px-[9px] cursor-pointer transition-colors whitespace-nowrap hover:text-[var(--fg)] hover:border-[var(--accent)] active:scale-[0.97]"
-              aria-label="Open search"
-            >Search</button>
-          )}
 
           {/* + Add */}
           <button
@@ -325,6 +316,7 @@ function IngredientsPage() {
         ) : viewMode === "grid" ? (
           /* ── Card Grid — shared borders, staggered animation ── */
           <div
+            key={`grid-${viewMode}`}
             className="grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
             style={{ gap: 0, padding: "0 64px" }}
           >
@@ -413,7 +405,7 @@ function IngredientsPage() {
           </div>
         ) : (
           /* ── List View — staggered animation, mockup styling ── */
-          <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+          <div key={`list-${viewMode}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
               const category = ingredient.isMealItem ? "FOOD" : "INGREDIENT";

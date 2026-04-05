@@ -524,78 +524,33 @@ const SettingsPage = () => {
 
       {/* ─── Scrollable content ─── */}
       <div id="settings-scroll-container" className="h-full overflow-y-auto">
-        <div className="max-w-[1100px] mx-auto" style={{ padding: '48px 64px 60px 196px', animation: 'contentEnter 280ms var(--ease-out) both' }}>
+        <div className="max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px', animation: 'contentEnter 280ms var(--ease-out) both' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
               01 — PEOPLE
               ════════════════════════════════════════════════════════════════════ */}
-          <div id="set-sec-people" style={{ padding: '56px 0' }}>
+          <div id="set-sec-people" style={{ paddingTop: 48, paddingBottom: 56 }}>
             <SectionHeader number="01" title="People" />
 
-            <div>
-              {/* Household name row */}
-              <div className="py-[10px] border-b border-[var(--rule-faint)]">
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household name</div>
-                {editingHouseholdName ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={householdNameDraft}
-                      onChange={(e) => setHouseholdNameDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveHouseholdName();
-                        if (e.key === 'Escape') setEditingHouseholdName(false);
-                      }}
-                      autoFocus
-                      className="bg-[var(--bg-subtle)] border border-[var(--rule-faint)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] max-w-[240px] focus:outline-none focus:border-[var(--accent)]"
-                      aria-label="Household name"
-                    />
-                    <button
-                      onClick={handleSaveHouseholdName}
-                      disabled={householdNameSaving || !householdNameDraft.trim()}
-                      className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                    >
-                      {householdNameSaving ? 'Saving…' : 'Save'}
-                    </button>
-                    <button
-                      onClick={() => setEditingHouseholdName(false)}
-                      className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <span className="font-sans text-[15px] font-medium text-[var(--fg)]">{householdName || '…'}</span>
-                    <button
-                      onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
-                      className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] bg-[var(--bg-raised)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-                      aria-label="Edit household name"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Member rows with inline theme swatches */}
-              {persons.map((person) => {
-                const role = memberRoles[person.id];
-                const isSaving = savingThemeId === person.id;
-                return (
-                  <div key={person.id} className="py-[12px] border-b border-[var(--rule-faint)]">
-                    <div className="flex items-center gap-3">
+            {/* 2-column grid: members left, household name right */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
+              <div>
+                {/* Member rows */}
+                {persons.map((person) => {
+                  const role = memberRoles[person.id];
+                  const isSaving = savingThemeId === person.id;
+                  return (
+                    <div key={person.id} className="flex items-center gap-[12px] py-[12px] border-b border-[var(--rule)]">
                       <span
-                        className="w-2 h-2 rounded-full shrink-0"
+                        className="w-[10px] h-[10px] rounded-full shrink-0"
                         style={{ background: person.color || 'var(--accent)' }}
                         aria-hidden="true"
                       />
-                      <span className="text-[12px] text-[var(--fg)] font-medium">{person.name}</span>
+                      <span className="text-[13px] text-[var(--fg)] font-medium">{person.name}</span>
                       {role && (
-                        <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">{role}</span>
+                        <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px]">{role}</span>
                       )}
-                      {/* Inline theme swatches */}
-                      <div className="flex items-center gap-[5px] ml-1" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
+                      <div className="flex items-center gap-[6px] ml-auto" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
                         {THEMES.map((t) => {
                           const isActive = (person.theme || 'sage') === t.name;
                           return (
@@ -610,7 +565,6 @@ const SettingsPage = () => {
                                 boxShadow: isActive ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${t.hex}` : 'none',
                               }}
                               aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
-                              aria-pressed={isActive}
                               role="radio"
                               aria-checked={isActive}
                             >
@@ -628,121 +582,120 @@ const SettingsPage = () => {
                           onClick={async () => {
                             if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
                             const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-                            if (res.ok) {
-                              await refreshPersons();
-                            } else {
+                            if (res.ok) { await refreshPersons(); } else {
                               const data = await res.json();
                               toast.error(data.error || 'Failed to remove person');
                             }
                           }}
-                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors ml-auto"
+                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
                           aria-label={`Remove ${person.name}`}
                         >
                           Remove
                         </button>
                       )}
                     </div>
-                  </div>
-                );
-              })}
-
-              {/* Add / Invite member */}
-              <div className="mt-[14px] flex gap-2">
-                {!addingPerson ? (
-                  <button
-                    onClick={() => setAddingPerson(true)}
-                    className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule-faint)] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors"
-                    aria-label="Add a household member"
-                  >
-                    + Add member
+                  );
+                })}
+                {/* Add / Invite buttons */}
+                <div className="pt-[12px] flex gap-[8px]">
+                  {!addingPerson ? (
+                    <button
+                      onClick={() => setAddingPerson(true)}
+                      className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors"
+                      aria-label="Add a household member"
+                    >+ Add Member</button>
+                  ) : (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddPerson(); if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); } }}
+                        placeholder="Name" autoFocus
+                        className="bg-[var(--bg-2)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
+                        aria-label="New member name" />
+                      <button onClick={handleAddPerson} disabled={!newName.trim() || addSaving}
+                        className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors">
+                        {addSaving ? 'Adding…' : 'Add'}
+                      </button>
+                      <button onClick={() => { setAddingPerson(false); setNewName(''); }}
+                        className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors">Cancel</button>
+                    </div>
+                  )}
+                  <button onClick={handleInvite} disabled={inviting}
+                    className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                    aria-label="Generate invite link">
+                    {inviting ? 'Generating…' : '+ Invite Link'}
                   </button>
-                ) : (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleAddPerson();
-                        if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); }
-                      }}
-                      placeholder="Name"
-                      autoFocus
-                      className="bg-[var(--bg-subtle)] border border-[var(--rule-faint)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
-                      aria-label="New member name"
-                    />
-                    <button
-                      onClick={handleAddPerson}
-                      disabled={!newName.trim() || addSaving}
-                      className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                    >
-                      {addSaving ? 'Adding…' : 'Add'}
-                    </button>
-                    <button
-                      onClick={() => { setAddingPerson(false); setNewName(''); }}
-                      className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-                <button
-                  onClick={handleInvite}
-                  disabled={inviting}
-                  className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule-faint)] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors disabled:opacity-40"
-                  aria-label="Generate invite link"
-                >
-                  {inviting ? 'Generating…' : 'Invite member'}
-                </button>
+                </div>
               </div>
 
-              {/* ── INVITES (directly under add/invite buttons) ── */}
-              {invites.length > 0 && (
-                <div className="mt-4">
-                  <div className="border border-[var(--rule-faint)]overflow-hidden">
-                    <div className="grid grid-cols-[1fr_60px_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule-faint)]">
-                      {['Invite URL', '', 'Status', 'Created', 'Redeemed'].map((h, i) => (
-                        <span key={i} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
+              {/* Right column: Household name */}
+              <div>
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Household Name</div>
+                <div className="flex gap-[8px] items-end">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={editingHouseholdName ? householdNameDraft : householdName}
+                      onChange={(e) => { if (!editingHouseholdName) { setHouseholdNameDraft(e.target.value); setEditingHouseholdName(true); } else { setHouseholdNameDraft(e.target.value); } }}
+                      onFocus={() => { if (!editingHouseholdName) { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); } }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHouseholdName(); if (e.key === 'Escape') setEditingHouseholdName(false); }}
+                      className="w-full bg-[var(--bg-2)] border border-[var(--rule)] px-3 py-[8px] font-sans text-[13px] text-[var(--fg)] focus:outline-none focus:border-[var(--accent)]"
+                      aria-label="Household name"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSaveHouseholdName}
+                    disabled={householdNameSaving}
+                    className="px-4 py-[8px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
+                  >{householdNameSaving ? 'Saving…' : 'Save'}</button>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Invite Links table ── */}
+            {invites.length > 0 && (
+              <div className="mt-[32px]">
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[10px]">Invite Links</div>
+                <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
+                  <thead>
+                    <tr>
+                      {['URL', 'Status', 'Created', 'Redeemed', ''].map((h, i) => (
+                        <th key={i} className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] text-left font-normal py-[8px] border-b border-[var(--rule)]"
+                          style={i === 4 ? { width: 80 } : i >= 1 && i <= 3 ? { width: 80 } : undefined}>{h}</th>
                       ))}
-                    </div>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {invites.map((inv) => {
                       const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
-                      const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
                       return (
-                        <div key={inv.id} className="grid grid-cols-[1fr_60px_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule-faint)] last:border-b-0 items-center">
-                          <span className="font-mono text-[10px] text-[var(--fg)] truncate min-w-0" title={inv.url}>
+                        <tr key={inv.id} className="border-b border-[var(--rule)]">
+                          <td className="font-mono text-[10px] text-[var(--fg)] py-[8px]" title={inv.url}>
                             {inv.url.replace(/^https?:\/\//, '')}
-                          </span>
-                          <div>
-                            {status === 'active' && (
-                              <button
-                                onClick={() => handleCopyInvite(inv.url, inv.token)}
-                                className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule-faint)] bg-[var(--bg-raised)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
-                                aria-label="Copy invite link"
-                              >
-                                {copiedToken === inv.token ? 'Copied!' : 'Copy'}
-                              </button>
-                            )}
-                          </div>
-                          <div>
-                            <span className={`font-mono text-[9px] uppercase tracking-[0.05em] ${statusColor}`}>{status}</span>
-                            {inv.usedByName && (
-                              <div className="font-sans text-[10px] text-[var(--muted)] mt-[1px]">{inv.usedByName}</div>
-                            )}
-                          </div>
-                          <span className="font-mono text-[10px] text-[var(--muted)]">
+                          </td>
+                          <td className={`font-mono text-[10px] py-[8px] ${status === 'active' ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </td>
+                          <td className="font-mono text-[10px] text-[var(--muted)] py-[8px]">
                             {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
-                          </span>
-                          <span className="font-mono text-[10px] text-[var(--muted)]">
+                          </td>
+                          <td className="font-mono text-[10px] text-[var(--muted)] py-[8px]">
                             {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
-                          </span>
-                        </div>
+                          </td>
+                          <td className="text-right py-[8px]">
+                            {status === 'active' ? (
+                              <button className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--err)] border border-[var(--err)] bg-transparent cursor-pointer hover:bg-[var(--err-l)] transition-colors"
+                                aria-label="Revoke invite">Revoke</button>
+                            ) : (
+                              <button className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] bg-transparent opacity-[0.35] cursor-default" disabled aria-disabled="true">Revoke</button>
+                            )}
+                          </td>
+                        </tr>
                       );
                     })}
-                  </div>
-                </div>
-              )}
-            </div>
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* ════════════════════════════════════════════════════════════════════
@@ -791,7 +744,7 @@ const SettingsPage = () => {
                               key={nutrient.id}
                               className="flex items-center gap-3 py-[9px] border-b border-[var(--rule-faint)]"
                             >
-                              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] min-w-[90px]">
+                              <span className="text-[13px] text-[var(--fg)] min-w-[90px]" style={{ flex: 1 }}>
                                 {nutrient.displayName}
                               </span>
                               <div className="flex items-baseline gap-[4px]">
@@ -826,22 +779,22 @@ const SettingsPage = () => {
                     ))}
                   </div>
 
-                  {/* Save / Reset */}
-                  <div className="flex items-center gap-4 mt-5">
-                    <button
-                      onClick={handleSaveGoals}
-                      disabled={goalsSaving}
-                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                      aria-label="Save goals"
-                    >
-                      {goalsSaving ? 'Saving...' : 'Save goals'}
-                    </button>
+                  {/* Save / Reset — mockup: Reset left, Save right */}
+                  <div className="flex items-center justify-end gap-4 mt-5">
                     <button
                       onClick={handleResetGoals}
                       className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
                       aria-label="Reset goals to defaults"
                     >
                       Reset to defaults
+                    </button>
+                    <button
+                      onClick={handleSaveGoals}
+                      disabled={goalsSaving}
+                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-[var(--accent-fg)] border-0 cursor-pointer disabled:opacity-40 transition-colors"
+                      aria-label="Save goals"
+                    >
+                      {goalsSaving ? 'Saving...' : 'Save Goals'}
                     </button>
                   </div>
                 </>
@@ -855,55 +808,51 @@ const SettingsPage = () => {
           <div id="set-sec-dashboard" style={{ padding: '56px 0' }}>
             <SectionHeader number="03" title="Dashboard" />
 
-            <div className="flex flex-col gap-8">
+            <div>
               {/* Home Stats */}
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Home Stats</div>
-                <p className="font-sans text-[12px] text-[var(--muted)] mb-4 leading-relaxed">
-                  Choose which stats appear on your home screen. Up to 3 recommended.
-                </p>
-                <div className="space-y-[6px]">
-                  {DASHBOARD_STAT_OPTIONS.map((opt) => {
-                    const checked = dashboardStats.enabledStats.includes(opt.key);
-                    return (
-                      <label
-                        key={opt.key}
-                        className="flex items-center gap-3 py-[5px] cursor-pointer group"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleDashboardStat(opt.key)}
-                          className="accent-[var(--accent)] w-[14px] h-[14px] cursor-pointer"
-                          aria-label={opt.label}
-                        />
-                        <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
-                          {opt.label}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
+              <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Home Stats</div>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                Choose which stats appear on your home screen. Up to 3 recommended.
+              </p>
+              <div style={{ maxWidth: 400 }}>
+                {DASHBOARD_STAT_OPTIONS.map((opt) => {
+                  const checked = dashboardStats.enabledStats.includes(opt.key);
+                  return (
+                    <label
+                      key={opt.key}
+                      className="flex items-center gap-[12px] py-[9px] border-b border-[var(--rule)] cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleDashboardStat(opt.key)}
+                        aria-label={opt.label}
+                      />
+                      <span className="text-[13px] text-[var(--fg)]">{opt.label}</span>
+                    </label>
+                  );
+                })}
               </div>
 
               {/* Greeting */}
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Greeting</div>
-                <p className="font-sans text-[12px] text-[var(--muted)] mb-4 leading-relaxed">
+              <div className="mt-[40px]">
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Greeting</div>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
                   Show a personalized greeting on your home screen.
                 </p>
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={dashboardStats.showGreeting}
-                    onChange={toggleGreeting}
-                    className="accent-[var(--accent)] w-[14px] h-[14px] cursor-pointer"
-                    aria-label="Show personalized greeting"
-                  />
-                  <span className="font-mono text-[10px] tracking-[0.02em] text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
-                    Show personalized greeting <span className="text-[var(--muted)] italic">&ldquo;Good morning, {persons[0]?.name || 'Jen'}.&rdquo;</span>
-                  </span>
-                </label>
+                <div style={{ maxWidth: 400 }}>
+                  <label className="flex items-center gap-[12px] py-[9px] border-b border-[var(--rule)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={dashboardStats.showGreeting}
+                      onChange={toggleGreeting}
+                      aria-label="Show personalized greeting"
+                    />
+                    <span className="text-[13px] text-[var(--fg)]">
+                      Show personalized greeting <span className="text-[var(--muted)] italic">&ldquo;Good morning, {persons[0]?.name || 'Jen'}.&rdquo;</span>
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -914,120 +863,107 @@ const SettingsPage = () => {
           <div id="set-sec-mcp" style={{ padding: '56px 0' }}>
             <SectionHeader number="04" title="MCP Integration" />
 
-            <div className="flex flex-col gap-8">
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
-                <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
-                  Generate a secure token to let your favorite AI assistant list, analyze, and save recipes directly to this app.
-                </p>
-                {newMcpToken ? (
-                  <div className="space-y-3">
-                    <div className="border border-[var(--accent)] bg-[var(--bg-subtle)]px-4 py-3">
-                      <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] mb-2">
-                        Copy this token now — it won't be shown again
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
-                        <button
-                          onClick={handleCopyMcpToken}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer shrink-0"
-                          aria-label="Copy MCP token"
-                        >
-                          {mcpCopied ? 'Copied!' : 'Copy'}
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setNewMcpToken(null)}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                    >
-                      Done
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule-faint)]bg-[var(--bg-subtle)] min-w-[220px]">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--accent)]' : 'bg-[var(--muted)]'}`} aria-hidden="true" />
-                      <span className="font-mono text-[11px] text-[var(--muted)]">
-                        {hasMcpToken ? 'Token active' : 'No token'}
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleGenerateMcpToken}
-                      disabled={mcpTokenLoading}
-                      className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors disabled:opacity-40"
-                      aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
-                    >
-                      {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate token'}
-                    </button>
-                    {hasMcpToken && (
-                      <button
-                        onClick={handleRevokeMcpToken}
-                        disabled={revokingMcpToken}
-                        className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                        aria-label="Revoke MCP token"
-                      >
-                        {revokingMcpToken ? 'Revoking…' : 'Revoke'}
-                      </button>
-                    )}
-                  </div>
+            <div>
+              {/* Token status dot + label */}
+              <div className="flex items-center gap-[8px] mb-[16px]">
+                <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--ok)]' : 'bg-[var(--rule)]'}`} aria-hidden="true" />
+                <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em]">
+                  {hasMcpToken ? 'Token active' : 'No token'}
+                </span>
+              </div>
+
+              {/* Generate / Revoke buttons */}
+              <div className="flex gap-[8px] mb-[16px]">
+                <button
+                  onClick={handleGenerateMcpToken}
+                  disabled={mcpTokenLoading}
+                  className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                  aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
+                >
+                  {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate Token'}
+                </button>
+                {hasMcpToken && (
+                  <button
+                    onClick={handleRevokeMcpToken}
+                    disabled={revokingMcpToken}
+                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--err)] border border-[var(--err)] bg-transparent cursor-pointer hover:bg-[var(--err-l)] transition-colors disabled:opacity-40"
+                    aria-label="Revoke MCP token"
+                  >
+                    {revokingMcpToken ? 'Revoking…' : 'Revoke'}
+                  </button>
                 )}
               </div>
 
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
-                <div className="space-y-7">
+              {/* New token display */}
+              {newMcpToken && (
+                <div className="mb-[16px]">
+                  <div className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--accent)] mb-[8px]">
+                    Copy this token now — it won&apos;t be shown again
+                  </div>
+                  <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent)] px-[16px] py-[12px]">
+                    <code className="font-mono text-[10px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
+                    <button
+                      onClick={handleCopyMcpToken}
+                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
+                      aria-label="Copy MCP token"
+                    >
+                      {mcpCopied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                  {/* Step 1 */}
-                  <div className="grid grid-cols-[20px_1fr] gap-3">
-                    <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
-                    <div className="space-y-3">
-                      <p className="font-mono text-[10px] text-[var(--fg)] font-medium tracking-[0.02em]">Configure your Assistant</p>
-                      <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed">
-                        Choose your preferred AI host and update its configuration file. We recommend <span className="text-[var(--fg)]">Claude Desktop</span> for complex meal planning or <span className="text-[var(--fg)]">Roo Code/Windsurf</span> for an integrated development experience.
-                      </p>
-                      <div className="border border-[var(--rule-faint)] overflow-hidden">
-                        <div className="grid grid-cols-2 border-b border-[var(--rule-faint)] bg-[var(--bg-subtle)] px-3 py-[6px]">
-                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Assistant</span>
-                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Config File Path</span>
-                        </div>
-                        <div className="grid grid-cols-2 px-3 py-[8px] border-b border-[var(--rule-faint)]">
-                          <span className="font-mono text-[10px] text-[var(--fg)]">Claude Desktop</span>
-                          <span className="font-mono text-[9px] text-[var(--muted)] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</span>
-                        </div>
-                        <div className="grid grid-cols-2 px-3 py-[8px] border-b border-[var(--rule-faint)]">
-                          <span className="font-mono text-[10px] text-[var(--fg)]">Cursor</span>
-                          <span className="font-mono text-[9px] text-[var(--muted)]">~/.cursor/mcp.json</span>
-                        </div>
-                        <div className="grid grid-cols-2 px-3 py-[8px]">
-                          <span className="font-mono text-[10px] text-[var(--fg)]">Windsurf / Roo Code</span>
-                          <span className="font-mono text-[9px] text-[var(--muted)]">~/.codeium/windsurf/mcp_config.json</span>
-                        </div>
-                      </div>
+              {/* ── Configuration ── */}
+              <div className="mt-[40px]">
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Configuration</div>
+                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                  Add the {APP_NAME} MCP server to your assistant&apos;s configuration file.
+                </p>
 
-                      {/* Config block */}
-                      <div className="mt-1">
-                        <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed mb-2">
-                          Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="bg-[var(--bg-subtle)] px-1">good-measure</code> object to your existing <code className="bg-[var(--bg-subtle)] px-1">mcpServers</code> list.
-                        </p>
-                        <div className="border border-[var(--rule-faint)] overflow-hidden">
-                          <div className="flex items-center justify-between px-3 py-[6px] bg-[var(--bg-subtle)] border-b border-[var(--rule-faint)]">
-                            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">JSON</span>
-                            <button
-                              onClick={() => {
-                                const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                                navigator.clipboard.writeText(`{\n  "mcpServers": {\n    "good-measure": {\n      "command": "npx",\n      "args": ["-y", "good-measure-mcp"],\n      "env": {\n        "GOOD_MEASURE_API_URL": "${origin}",\n        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"\n      }\n    }\n  }\n}`);
-                                setConfigBlockCopied(true);
-                                setTimeout(() => setConfigBlockCopied(false), 2000);
-                              }}
-                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
-                              aria-label="Copy configuration block"
-                            >
-                              {configBlockCopied ? 'Copied ✓' : 'Copy'}
-                            </button>
-                          </div>
-                          <div className="bg-[var(--bg-subtle)] px-3 py-3">
-                            <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
+                {/* Config table */}
+                <table className="w-full mb-[12px]" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
+                  <thead>
+                    <tr>
+                      <th className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] text-left font-normal py-[8px] border-b border-[var(--rule)]">Assistant</th>
+                      <th className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] text-left font-normal py-[8px] border-b border-[var(--rule)]">Config File Path</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-[var(--rule)]">
+                      <td className="text-[var(--fg)] font-medium py-[8px]" style={{ width: 140 }}>Claude Desktop</td>
+                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</td>
+                    </tr>
+                    <tr className="border-b border-[var(--rule)]">
+                      <td className="text-[var(--fg)] font-medium py-[8px]">Cursor</td>
+                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px]">~/.cursor/mcp.json</td>
+                    </tr>
+                    <tr className="border-b border-[var(--rule)]">
+                      <td className="text-[var(--fg)] font-medium py-[8px]">Windsurf / Roo Code</td>
+                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px]">~/.codeium/windsurf/mcp_config.json</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[8px]">
+                  Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">good-measure</code> object to your existing <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">mcpServers</code> list.
+                </p>
+
+                {/* Code block */}
+                <div className="bg-[var(--bg-2)] px-[20px] py-[16px] relative overflow-x-auto">
+                  <span className="font-mono text-[7px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
+                  <button
+                    onClick={() => {
+                      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                      navigator.clipboard.writeText(`{\n  "mcpServers": {\n    "good-measure": {\n      "command": "npx",\n      "args": ["-y", "good-measure-mcp"],\n      "env": {\n        "GOOD_MEASURE_API_URL": "${origin}",\n        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"\n      }\n    }\n  }\n}`);
+                      setConfigBlockCopied(true);
+                      setTimeout(() => setConfigBlockCopied(false), 2000);
+                    }}
+                    className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                    aria-label="Copy configuration block"
+                  >
+                    {configBlockCopied ? 'Copied ✓' : 'Copy'}
+                  </button>
+                  <pre className="font-mono text-[10px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`{
   "mcpServers": {
     "good-measure": {
       "command": "npx",
@@ -1039,41 +975,27 @@ const SettingsPage = () => {
     }
   }
 }`}</pre>
-                          </div>
-                        </div>
-                        <div className="mt-2 border-l-2 border-[var(--rule-faint)] pl-3">
-                          <p className="font-mono text-[9px] text-[var(--muted)] leading-relaxed">
-                            <span className="text-[var(--fg)]">Pro Tip:</span> No manual installation is required. <code className="bg-[var(--bg-subtle)] px-1">npx</code> will automatically fetch the latest version of the {APP_NAME} server each time your assistant starts.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                </div>
 
-                  {/* Step 2 */}
-                  <div className="grid grid-cols-[20px_1fr] gap-3">
-                    <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
-                    <div className="space-y-3">
-                      <p className="font-mono text-[10px] text-[var(--fg)] font-medium tracking-[0.02em]">Activate &amp; Test</p>
-                      <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed">
-                        Restart your AI assistant to initialize the connection.
-                      </p>
-                      <div>
-                        <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Try this prompt to test the link:</p>
-                        <div className="border-l-2 border-[var(--rule-faint)] pl-3">
-                          <p className="font-mono text-[10px] text-[var(--fg)] italic">&ldquo;List my recipes from {APP_NAME} and tell me which ones are high in protein.&rdquo;</p>
-                        </div>
-                      </div>
-                      <div className="pt-1">
-                        <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Optimization Workflow <span className="normal-case tracking-normal">(Advanced)</span></p>
-                        <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed mb-2">To use the full power of the Chef Agent for meal prep, try a prompt like this:</p>
-                        <div className="border-l-2 border-[var(--rule-faint)] pl-3">
-                          <p className="font-mono text-[10px] text-[var(--fg)] italic">&ldquo;Get the recipe for Black Bean Avocado Brownies. Analyze it for nutritional optimization—check my database for substitutions using search_ingredients and show me a comparison table before saving.&rdquo;</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* Pro tip */}
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] mt-[16px] text-[12px] text-[var(--fg-2)] leading-[1.6]">
+                  <strong className="text-[var(--fg)]">Pro tip:</strong> The npx command auto-fetches the latest version of the MCP server. No manual installation needed.
+                </div>
+              </div>
 
+              {/* ── Test Connection ── */}
+              <div className="mt-[40px]">
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Test Connection</div>
+                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                  Restart your assistant after saving the config file, then try:
+                </p>
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
+                  &ldquo;List my recipes from {APP_NAME} and tell me which ones are highest in protein.&rdquo;
+                </div>
+
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mt-[20px] mb-[8px]">Advanced — Full Optimization Workflow</div>
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
+                  &ldquo;You are a chef with a background in nutrition. Get my recipe for Almond Croissant Bars. Optimize it to reduce fat and sugar while preserving flavor. Show a comparison table, then save the optimized version.&rdquo;
                 </div>
               </div>
             </div>
@@ -1085,33 +1007,36 @@ const SettingsPage = () => {
           <div id="set-sec-data" style={{ padding: '56px 0' }}>
             <SectionHeader number="05" title="Data" />
 
-            <div className="flex flex-col gap-8">
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
-                <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                  Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
-                </p>
-                <button
-                  onClick={handleExport}
-                  disabled={exportLoading}
-                  className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors disabled:opacity-40"
-                  aria-label="Export household data"
-                >
-                  {exportLoading ? 'Exporting…' : 'Export data'}
-                </button>
-              </div>
+            <div>
+              <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Export</div>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                Download a complete backup of your household data — recipes, ingredients, meal plans, and goals — as a single JSON file.
+              </p>
+              <button
+                onClick={handleExport}
+                disabled={exportLoading}
+                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule)] bg-transparent text-[var(--muted)] hover:text-[var(--fg)] hover:border-[var(--fg)] cursor-pointer transition-colors disabled:opacity-40"
+                aria-label="Export household data"
+              >
+                {exportLoading ? 'Exporting…' : 'Export Data'}
+              </button>
 
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
-                <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                  Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
+              <div className="mt-[40px]">
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[8px]">Import</div>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                  Restore from a backup file. <strong className="text-[var(--fg)]">This will overwrite all existing household data.</strong>
                 </p>
+                {/* Drag-drop zone */}
                 <label
                   htmlFor="import-file"
-                  className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-                  aria-label="Select backup file"
+                  className="flex flex-col items-center justify-center bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer hover:border-[var(--accent)] transition-colors"
+                  style={{ padding: 24, maxWidth: 400 }}
+                  aria-label="Drop JSON file or click to browse"
                 >
-                  {importFile ? importFile.name : 'Choose backup file'}
+                  <span className="text-[18px] text-[var(--muted)] mb-[4px]">↑</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
+                    {importFile ? importFile.name : 'Drop JSON file or click to browse'}
+                  </span>
                 </label>
                 <input
                   id="import-file"
