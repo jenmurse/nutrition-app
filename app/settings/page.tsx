@@ -21,13 +21,14 @@ interface DashboardStats {
 }
 
 const DASHBOARD_STAT_OPTIONS = [
-  { key: 'calories', label: 'Calories today' },
-  { key: 'protein', label: 'Protein' },
-  { key: 'carbs', label: 'Carbs' },
+  { key: 'calories', label: 'Calories' },
   { key: 'fat', label: 'Fat' },
-  { key: 'fiber', label: 'Fiber' },
+  { key: 'sat-fat', label: 'Saturated Fat' },
   { key: 'sodium', label: 'Sodium' },
-  { key: 'meals-week', label: 'Meals this week' },
+  { key: 'carbs', label: 'Carbs' },
+  { key: 'sugar', label: 'Sugar' },
+  { key: 'protein', label: 'Protein' },
+  { key: 'fiber', label: 'Fiber' },
 ];
 
 const GOALS_LAYOUT: { nutrientName: string }[][] = [

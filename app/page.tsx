@@ -150,13 +150,6 @@ export default function Home() {
   }, [selectedPersonId]);
 
   const allNutrients = todayData?.totalNutrients ?? [];
-  const nutrientsWithGoals = allNutrients.filter((n) => n.lowGoal != null || n.highGoal != null);
-  const onTrackCount = nutrientsWithGoals.filter((n) => {
-    const aboveMin = n.lowGoal == null || n.value >= n.lowGoal;
-    const belowMax = n.highGoal == null || n.value <= n.highGoal;
-    return aboveMin && belowMax;
-  }).length;
-  const totalGoals = nutrientsWithGoals.length;
 
   const formatVal = (v: number) => {
     const r = Math.round(v);
@@ -165,14 +158,39 @@ export default function Home() {
 
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
-  // Key stats for the strip
-  const calories = allNutrients.find(n => n.displayName?.toLowerCase().includes("calor"));
-  const protein = allNutrients.find(n => n.displayName?.toLowerCase() === "protein");
-  const calGoal = calories?.highGoal ?? calories?.lowGoal ?? 0;
-  const calPct = calGoal > 0 ? Math.min(Math.round(((calories?.value ?? 0) / calGoal) * 100), 100) : 0;
-  const proGoal = protein?.highGoal ?? protein?.lowGoal ?? 0;
-  const proPct = proGoal > 0 ? Math.min(Math.round(((protein?.value ?? 0) / proGoal) * 100), 100) : 0;
-  const mealsPlanned = todayMeals.length;
+  // Dashboard stat preferences from settings
+  const [enabledStats, setEnabledStats] = useState<string[]>(['calories', 'protein', 'carbs']);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('dashboard-stats');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.enabledStats) setEnabledStats(parsed.enabledStats);
+      }
+    } catch {}
+  }, []);
+
+  // Map stat keys to nutrient lookup
+  const STAT_KEY_MAP: Record<string, { match: (n: DayNutrient) => boolean; label: string; unit: string }> = {
+    calories: { match: (n) => (n.displayName?.toLowerCase().includes('calor') ?? false), label: 'Calories today', unit: '' },
+    fat: { match: (n) => n.displayName === 'Fat', label: 'Fat', unit: 'g' },
+    'sat-fat': { match: (n) => n.displayName === 'Saturated Fat', label: 'Sat Fat', unit: 'g' },
+    sodium: { match: (n) => n.displayName === 'Sodium', label: 'Sodium', unit: 'mg' },
+    carbs: { match: (n) => (n.displayName === 'Carbs' || n.displayName === 'Carbohydrate'), label: 'Carbs', unit: 'g' },
+    sugar: { match: (n) => n.displayName === 'Sugar', label: 'Sugar', unit: 'g' },
+    protein: { match: (n) => n.displayName === 'Protein', label: 'Protein', unit: 'g' },
+    fiber: { match: (n) => n.displayName === 'Fiber', label: 'Fiber', unit: 'g' },
+  };
+
+  const statEntries = enabledStats.slice(0, 3).map(key => {
+    const cfg = STAT_KEY_MAP[key];
+    if (!cfg) return null;
+    const nutrient = allNutrients.find(cfg.match);
+    const value = nutrient?.value ?? 0;
+    const goal = nutrient?.highGoal ?? nutrient?.lowGoal ?? 0;
+    const pct = goal > 0 ? Math.min(Math.round((value / goal) * 100), 100) : 0;
+    return { key, label: cfg.label, unit: cfg.unit, value, goal, pct };
+  }).filter(Boolean) as { key: string; label: string; unit: string; value: number; goal: number; pct: number }[];
 
   /** Get kcal for a meal log */
   const getMealKcal = (m: MealLog): number | null => {
@@ -226,36 +244,39 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          {(planChecked && !planLoading && weekPlanId) ? (
-            <div className="border-t border-b border-[var(--rule)] mt-auto">
+          {(planChecked && !planLoading && weekPlanId && statEntries.length > 0) ? (
+            <div className="border-t border-[var(--rule)] mt-auto">
               <div className="flex" style={{ padding: `0 var(--pad)` }}>
-                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)', animation: 'hmFadeUp 700ms var(--ease-out) 350ms both' }}>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Calories today</div>
-                  <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
-                    {formatVal(calories?.value ?? 0)}
-                  </div>
-                  <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(calGoal)}</div>
-                  <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${calPct}%`, transition: 'width 0.6s var(--ease-out)' }} />
-                  </div>
-                </div>
-                <div className="flex-1 py-[18px]" style={{ paddingRight: 32, marginRight: 32, borderRight: '1px solid var(--rule)', animation: 'hmFadeUp 700ms var(--ease-out) 430ms both' }}>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Protein</div>
-                  <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
-                    {formatVal(protein?.value ?? 0)}<span className="text-[14px] text-[var(--muted)] ml-1">g</span>
-                  </div>
-                  <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(proGoal)}g</div>
-                  <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${proPct}%`, transition: 'width 0.6s var(--ease-out)' }} />
-                  </div>
-                </div>
-                <div className="flex-1 py-[18px]" style={{ animation: 'hmFadeUp 700ms var(--ease-out) 510ms both' }}>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">Meals today</div>
-                  <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
-                    {mealsPlanned}
-                  </div>
-                  <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">logged</div>
-                </div>
+                {statEntries.map((stat, idx) => {
+                  const isLast = idx === statEntries.length - 1;
+                  const delay = 350 + idx * 80;
+                  return (
+                    <div
+                      key={stat.key}
+                      className="flex-1 py-[18px]"
+                      style={{
+                        paddingRight: isLast ? 0 : 32,
+                        marginRight: isLast ? 0 : 32,
+                        borderRight: isLast ? 'none' : '1px solid var(--rule)',
+                        animation: `hmFadeUp 700ms var(--ease-out) ${delay}ms both`,
+                      }}
+                    >
+                      <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
+                      <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                        {formatVal(stat.value)}
+                        {stat.unit && <span className="text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+                      </div>
+                      {stat.goal > 0 && (
+                        <>
+                          <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]">of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}</div>
+                          <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                            <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : null}
@@ -401,37 +422,6 @@ export default function Home() {
               )}
             </div>
 
-            {/* Nutrition detail section */}
-            <div style={{ padding: `0 var(--pad) 72px` }}>
-              <div className="flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
-                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Nutrition</span>
-                <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)]">
-                  {onTrackCount} of {totalGoals} on track
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-12 gap-y-4 max-w-[640px]">
-                {allNutrients.map((n) => {
-                  const goal = n.highGoal ?? n.lowGoal ?? 0;
-                  const pct = goal > 0 ? Math.min(Math.round((n.value / goal) * 100), 100) : 0;
-                  return (
-                    <div key={n.nutrientId}>
-                      <div className="flex justify-between items-baseline mb-1">
-                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg)]">
-                          {n.displayName}
-                        </span>
-                        <span className="font-mono text-[9px] tabular-nums text-[var(--muted)]">
-                          {formatVal(n.value)} / {formatVal(goal)} {n.unit}
-                        </span>
-                      </div>
-                      <div className="h-[3px] bg-[var(--bg-3)] overflow-hidden">
-                        <div className="h-full bg-[var(--accent)]" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* This Week — 7-day overview */}
             {weekDays.length > 0 && (
               <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
@@ -502,7 +492,7 @@ function WeekOverview({
             style={{ background: isToday ? 'var(--accent-l)' : undefined }}
           >
             {/* Day header */}
-            <div style={{ padding: `12px ${dayIdx === weekDays.length - 1 ? 0 : 14}px 14px ${dayIdx === 0 ? 0 : 14}px` }}>
+            <div style={{ padding: '12px 14px 14px' }}>
               <div
                 className="font-mono text-[8px] uppercase tracking-[0.1em]"
                 style={{ color: isToday ? 'var(--accent)' : 'var(--muted)' }}
@@ -531,7 +521,7 @@ function WeekOverview({
             </div>
 
             {/* Meals */}
-            <div style={{ padding: `8px ${dayIdx === weekDays.length - 1 ? 0 : 14}px 72px ${dayIdx === 0 ? 0 : 14}px` }}>
+            <div style={{ padding: '8px 14px 72px' }}>
               {dayMeals.map((m) => {
                 const name = m.recipe?.name ?? m.ingredient?.name ?? "";
                 let kcal: number | null = null;

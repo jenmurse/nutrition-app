@@ -794,7 +794,7 @@ input[type="number"]:focus {
 }
 
 .ev-row-label {
-  display:flex; align-items:center; gap:7px;
+  display:flex; align-items:flex-start; gap:7px;
   padding:14px 8px 14px 0; border-bottom:1px solid var(--rule);
   opacity:0; animation:evRowIn 380ms ease-out calc(var(--row-i, 0) * 70ms + 150ms) both;
 }
@@ -832,7 +832,9 @@ input[type="number"]:focus {
 }
 .pl-right.open {
   width:280px; border-left:1px solid var(--rule); overflow-y:auto;
+  scrollbar-width:none;
 }
+.pl-right.open::-webkit-scrollbar { display:none; }
 
 .pl-right-inner { width:280px; padding:24px 20px; }
 .pl-right-inner > * {

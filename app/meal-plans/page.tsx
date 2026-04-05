@@ -159,7 +159,7 @@ function BothView({
   });
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', snack: 'S', dessert: 'De', beverage: 'Bv' };
+  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', side: 'S', dinner: 'D', snack: 'Sn', dessert: 'De', beverage: 'Bv' };
   const todayStr = new Date().toDateString();
 
   return (
@@ -1034,7 +1034,7 @@ const MealPlansPage = () => {
                 ? Math.min((calorieNutrient.value / calorieGoal) * 100, 100)
                 : 0;
 
-              const keyNutrientNames = ['Protein', 'Carbs', 'Carbohydrate', 'Fat', 'Fiber', 'Sugar'];
+              const keyNutrientNames = ['Fat', 'Saturated Fat', 'Sodium', 'Carbs', 'Carbohydrate', 'Sugar', 'Protein', 'Fiber'];
               const keyNutrients = keyNutrientNames
                 .map(name => activeDayData.totalNutrients.find(n => n.displayName.includes(name)))
                 .filter((n): n is NonNullable<typeof n> => !!n);
