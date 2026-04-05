@@ -606,9 +606,9 @@ export default function IngredientDetailPage() {
 
             {/* ── 01 Lookup ── */}
             <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-serif text-[11px] font-bold text-[var(--rule)]">01</span>
-                <span className="font-serif text-[20px] font-bold tracking-[-0.01em]">Lookup</span>
+              <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+                <span className="font-serif font-semibold tracking-[-0.02em]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Lookup</span>
                 <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
@@ -656,9 +656,9 @@ export default function IngredientDetailPage() {
 
             {/* ── 02 Details ── */}
             <div id="pf-sec-details" style={{ marginTop: 64 }}>
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-serif text-[11px] font-bold text-[var(--rule)]">02</span>
-                <span className="font-serif text-[20px] font-bold tracking-[-0.01em]">Details</span>
+              <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                <span className="font-serif font-semibold tracking-[-0.02em]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Details</span>
                 <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
@@ -725,9 +725,9 @@ export default function IngredientDetailPage() {
 
             {/* ── 03 Nutrition ── */}
             <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-serif text-[11px] font-bold text-[var(--rule)]">03</span>
-                <span className="font-serif text-[20px] font-bold tracking-[-0.01em]">Nutrition</span>
+              <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-serif font-semibold tracking-[-0.02em]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
                 <div className="flex-1 h-px bg-[var(--rule)]" />
               </div>
 
