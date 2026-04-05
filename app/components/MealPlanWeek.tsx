@@ -429,15 +429,16 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-0">
               {availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
                   type="button"
-                  className="border border-[var(--rule-faint)] px-3 py-2 text-[11px] font-mono uppercase tracking-[0.1em] text-[var(--fg)] transition-colors duration-150 ease-out hover:bg-[var(--bg-subtle)] active:scale-[0.97]"
+                  className="meal-chip text-left"
                   onClick={() => handleSelectMealType(mealType)}
+                  aria-label={mealType}
                 >
-                  {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+                  <span className="meal-chip-name">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
                 </button>
               ))}
             </div>
@@ -493,53 +494,48 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               {itemTypeTabOpen === 'recipe' ? (
                 <>
                   {/* Search + servings controls */}
-                  <div className="flex flex-wrap items-center gap-3 border border-[var(--rule-faint)] px-4 py-3 mb-3">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
                     <div className="flex-1 flex items-center gap-2 min-w-[180px]">
-                      <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="recipe-search">
-                        Search
-                      </label>
+                      <label className="pl-create-label" htmlFor="recipe-search">Search</label>
                       <input
                         id="recipe-search"
                         type="text"
                         placeholder="Find recipe..."
-                        className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="pl-create-date"
+                        style={{ flex: 1 }}
                         value={recipeSearchTerm}
                         onChange={(e) => setRecipeSearchTerm(e.target.value)}
                         aria-label="Search recipes"
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="meal-servings">
-                        Servings
-                      </label>
+                      <label className="pl-create-label" htmlFor="meal-servings">Servings</label>
                       <input
                         id="meal-servings"
                         type="number"
                         min={0.25}
                         step={0.25}
-                        className="w-20 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="pl-create-date"
+                        style={{ width: 60 }}
                         value={selectedServings}
                         onChange={(e) => setSelectedServings(e.target.value)}
                       />
                     </div>
                   </div>
 
-                  {/* Tag filter pills */}
-                  <div className="flex flex-wrap gap-[6px] mb-4">
+                  {/* Tag filter chips */}
+                  <div className="flex flex-wrap gap-[4px] mb-4">
                     {availableRecipeTags.map((tag) => (
                       <button
                         key={tag}
                         type="button"
-                        className={`text-[8px] font-mono uppercase tracking-[0.1em] px-[9px] py-[3px] transition-colors cursor-pointer border ${
-                          recipeFilterTags.includes(tag)
-                            ? 'bg-[var(--accent-l)] text-[var(--accent)] border-[var(--accent)]'
-                            : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)] hover:border-[var(--rule)]'
-                        }`}
+                        className={`pl-person-chip ${recipeFilterTags.includes(tag) ? 'on' : ''}`}
                         onClick={() =>
                           setRecipeFilterTags((prev) =>
                             prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
                           )
                         }
+                        aria-pressed={recipeFilterTags.includes(tag)}
                       >
                         {tag}
                       </button>
@@ -547,7 +543,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     {recipeFilterTags.length > 0 && (
                       <button
                         type="button"
-                        className="text-[9px] font-mono text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
+                        className="pl-cancel-btn"
                         onClick={() => setRecipeFilterTags([])}
                       >
                         clear
@@ -555,9 +551,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     )}
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid gap-0 md:grid-cols-2">
                     {filteredRecipes.length === 0 ? (
-                      <div className="col-span-full border border-dashed border-[var(--rule-faint)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                      <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
                         No recipes match this meal type
                       </div>
                     ) : (
@@ -565,12 +561,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         <button
                           key={recipe.id}
                           type="button"
-                          className={`border px-3 py-2 text-left transition ${
+                          className={`meal-chip text-left ${
                             recipe.isComplete === false
-                              ? 'cursor-not-allowed border-[var(--error)] opacity-50 text-[var(--muted)]'
+                              ? 'cursor-not-allowed opacity-50'
                               : pendingRecipeId === recipe.id
-                              ? 'border-[var(--rule-strong)] bg-[var(--bg-subtle)]'
-                              : 'border-[var(--rule-faint)] hover:border-[var(--rule)] hover:bg-[var(--bg-subtle)]'
+                              ? 'bg-[var(--bg-2)]'
+                              : ''
                           }`}
                           onClick={
                             addingMealLoading || !recipe.isComplete
@@ -579,20 +575,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           }
                           title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
                           disabled={addingMealLoading}
+                          aria-label={recipe.name}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="text-[12px] font-medium text-[var(--fg)]">
-                              {recipe.name}
-                            </div>
-                            {!recipe.isComplete && (
-                              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--error)]">
-                                Incomplete
-                              </span>
-                            )}
-                          </div>
-                          <div className="mt-1 font-mono text-[10px] text-[var(--muted)]">
+                          <span className="meal-chip-name">{recipe.name}</span>
+                          <span className="meal-chip-kcal">
                             {recipe.servingSize} {recipe.servingUnit}
-                          </div>
+                            {!recipe.isComplete && ' · Incomplete'}
+                          </span>
                         </button>
                       ))
                     )}
@@ -608,53 +597,51 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       value={newFoodName}
                       onChange={(e) => setNewFoodName(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleCreateQuickFood()}
-                      className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] px-3 py-[6px] font-mono text-[11px] placeholder:text-[var(--placeholder)]"
+                      className="pl-create-date"
+                      style={{ flex: 1 }}
                       aria-label="New food name"
                     />
                     <button
                       onClick={handleCreateQuickFood}
                       disabled={creatingFood || !newFoodName.trim()}
-                      className="font-mono text-[8px] uppercase tracking-[0.1em] border border-[var(--accent)] bg-[var(--accent)] text-white px-[9px] py-[5px] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 whitespace-nowrap"
+                      className="pl-create-btn"
                     >
                       {creatingFood ? 'Adding...' : '+ New Food'}
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-3 border border-[var(--rule-faint)] px-4 py-3 mb-4">
+                  <div className="flex flex-wrap gap-3 mb-4">
                     <div className="flex-1 flex items-center gap-2 min-w-max">
-                      <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="ingredient-search">
-                        Search
-                      </label>
+                      <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
                       <input
                         id="ingredient-search"
                         type="text"
                         placeholder="Find food..."
-                        className="flex-1 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="pl-create-date"
+                        style={{ flex: 1 }}
                         value={ingredientSearchTerm}
                         onChange={(e) => setIngredientSearchTerm(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="ingredient-quantity">
-                        Quantity
-                      </label>
+                      <label className="pl-create-label" htmlFor="ingredient-quantity">Quantity</label>
                       <input
                         id="ingredient-quantity"
                         type="number"
                         min={0.01}
                         step={0.1}
-                        className="w-20 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="pl-create-date"
+                        style={{ width: 60 }}
                         value={selectedQuantity}
                         onChange={(e) => setSelectedQuantity(e.target.value)}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="font-mono text-[9px] font-light uppercase tracking-[0.1em] text-[var(--muted)]" htmlFor="ingredient-unit">
-                        Unit
-                      </label>
+                      <label className="pl-create-label" htmlFor="ingredient-unit">Unit</label>
                       <input
                         id="ingredient-unit"
                         type="text"
-                        className="w-20 border border-[var(--rule-faint)] bg-[var(--bg)] px-2 py-1 font-mono text-[12px]"
+                        className="pl-create-date"
+                        style={{ width: 60 }}
                         value={selectedUnit}
                         onChange={(e) => setSelectedUnit(e.target.value)}
                         placeholder="g, ml, etc."
@@ -662,11 +649,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid gap-0 md:grid-cols-2">
                     {ingredients.filter(ing =>
                       ing.isMealItem && ing.name.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
                     ).length === 0 ? (
-                      <div className="col-span-full border border-dashed border-[var(--rule-faint)] px-4 py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                      <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
                         {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No foods available' : 'No foods match your search'}
                       </div>
                     ) : (
@@ -684,20 +671,17 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                             setPendingIngredientId(ingredient.id);
                           }}
                           disabled={addingMealLoading}
-                          className={`border px-3 py-2 text-left transition ${
-                            pendingIngredientId === ingredient.id
-                              ? 'border-[var(--rule-strong)] bg-[var(--bg-subtle)]'
-                              : 'border-[var(--rule-faint)] hover:border-[var(--rule)] hover:bg-[var(--bg-subtle)]'
+                          className={`meal-chip text-left ${
+                            pendingIngredientId === ingredient.id ? 'bg-[var(--bg-2)]' : ''
                           }`}
+                          aria-label={ingredient.name}
                         >
-                          <div className="text-[12px] font-medium text-[var(--fg)]">
-                            {ingredient.name}
-                          </div>
-                          <div className="mt-1 font-mono text-[10px] text-[var(--muted)]">
+                          <span className="meal-chip-name">{ingredient.name}</span>
+                          <span className="meal-chip-kcal">
                             {ingredient.customUnitName
                               ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
                               : `per ${ingredient.defaultUnit}`}
-                          </div>
+                          </span>
                         </button>
                       ))
                     )}
@@ -710,7 +694,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
                 <div className="mb-4">
-                  <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Also add to</div>
+                  <div className="pl-create-label" style={{ marginBottom: 8 }}>Also add to</div>
                   <div className="flex flex-col gap-1">
                     {otherPersonPlans.map((op) => (
                       <label key={op.planId} className="flex items-center gap-2 cursor-pointer w-fit">
@@ -736,7 +720,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
               <div className="flex gap-3 justify-end">
                 <button
-                  className="text-[9px] font-mono uppercase tracking-[0.1em] border border-[var(--rule)] bg-[var(--bg-raised)] px-5 py-[7px] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition"
+                  className="pl-cancel-btn"
                   onClick={() => {
                     setItemTypeTabOpen(null);
                     setSelectedDayMeal(null);
@@ -747,11 +731,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     setPendingIngredientId(null);
                     setAlsoAddToPlanIds(new Set());
                   }}
+                  aria-label="Cancel"
                 >
                   Cancel
                 </button>
                 <button
-                  className="bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[7px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40"
+                  className="pl-create-btn"
                   disabled={
                     addingMealLoading ||
                     (itemTypeTabOpen === 'recipe' ? !pendingRecipeId : !pendingIngredientId)
@@ -763,6 +748,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       handleSelectIngredient(pendingIngredientId);
                     }
                   }}
+                  aria-label="Add to plan"
                 >
                   {addingMealLoading ? 'Adding...' : 'Add to Plan'}
                 </button>
