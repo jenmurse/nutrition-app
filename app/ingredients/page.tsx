@@ -1,15 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
-import IngredientContextPanel from "../components/IngredientContextPanel";
-import { usePersonContext } from "../components/PersonContext";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { clientCache } from "@/lib/clientCache";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
-import { clientCache } from "@/lib/clientCache";
-import ContextualTip from "../components/ContextualTip";
-
 
 type NutrientValue = {
   id: number;
@@ -53,7 +48,7 @@ function getAmountInGrams(
   if (!parsed || parsed <= 0) return 100;
 
   if (unit === "g") return parsed;
-  if (unit === "ml") return parsed; // assume 1 ml = 1 g unless a custom gram mapping is set
+  if (unit === "ml") return parsed;
 
   if (customUnitName && customUnitGrams && unit === customUnitName) {
     const customAmount = Number(customUnitAmount) || 1;
@@ -111,15 +106,17 @@ export default function IngredientsPageWrapper() {
 function IngredientsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { selectedPerson } = usePersonContext();
-  const [ingredients, setIngredients] = useState<Ingredient[]>(() => clientCache.get<Ingredient[]>('/api/ingredients?slim=true') ?? []);
-  const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(() => clientCache.get<Ingredient[]>('/api/ingredients') ?? []);
+  const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients'));
+
+  // Filters
   const searchQuery = searchParams?.get("search") || "";
-  const [loading, setLoading] = useState(() => !clientCache.get('/api/ingredients?slim=true'));
-  const [editMode, setEditMode] = useState(false);
-  const [createMode, setCreateMode] = useState(false);
   const [foodFilter, setFoodFilter] = useState<'all' | 'foods' | 'ingredients'>('all');
 
+  // View mode
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams?.toString());
@@ -127,386 +124,79 @@ function IngredientsPage() {
     else params.delete(key);
     router.push(`/ingredients?${params.toString()}`);
   };
-  const [editName, setEditName] = useState("");
-  const [editUnit, setEditUnit] = useState("g");
-  const [editCustomUnitName, setEditCustomUnitName] = useState("");
-  const [editCustomUnitAmount, setEditCustomUnitAmount] = useState("1");
-  const [editCustomUnitGrams, setEditCustomUnitGrams] = useState("");
-  const [editIsMealItem, setEditIsMealItem] = useState(false);
-  const [editSpecifiedAmount, setEditSpecifiedAmount] = useState("100");
-  const [editSpecifiedUnit, setEditSpecifiedUnit] = useState("g");
-  const [editValues, setEditValues] = useState<Record<number, number>>({});
-  const [createName, setCreateName] = useState("");
-  const [createUnit, setCreateUnit] = useState("g");
-  const [createCustomUnitName, setCreateCustomUnitName] = useState("");
-  const [createCustomUnitAmount, setCreateCustomUnitAmount] = useState("1");
-  const [createCustomUnitGrams, setCreateCustomUnitGrams] = useState("");
-  const [createSpecifiedAmount, setCreateSpecifiedAmount] = useState("100");
-  const [createSpecifiedUnit, setCreateSpecifiedUnit] = useState("g");
-  const [createIsMealItem, setCreateIsMealItem] = useState(false);
-  const [createValues, setCreateValues] = useState<Record<number, number>>({});
-  const [usdaLookupQuery, setUsdaLookupQuery] = useState("");
-  const [usdaLookupResults, setUsdaLookupResults] = useState<any[]>([]);
-  const [usdaLookupLoading, setUsdaLookupLoading] = useState(false);
-  const usdaSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [usdaSelectedFood, setUsdaSelectedFood] = useState<any | null>(null);
-  const [nutrients, setNutrients] = useState<Nutrient[]>([]);
-  const [saving, setSaving] = useState(false);
 
-  const createBaseUnit = "g";
-  const editBaseUnit = "g";
-  const createVolumeNote = getVolumeUnitNote(
-    createSpecifiedUnit,
-    !!createCustomUnitGrams && createCustomUnitName === createSpecifiedUnit
-  );
-  const editVolumeNote = getVolumeUnitNote(
-    editSpecifiedUnit,
-    !!editCustomUnitGrams && editCustomUnitName === editSpecifiedUnit
-  );
+  const loadIngredients = async () => {
+    const cached = clientCache.get<Ingredient[]>('/api/ingredients');
+    if (cached && cached.length > 0) {
+      setIngredients(cached);
+      setLoading(false);
+      // Background revalidate
+      fetch("/api/ingredients").then(r => r.json()).then((data) => {
+        const fresh: Ingredient[] = Array.isArray(data) ? data : [];
+        clientCache.set('/api/ingredients', fresh);
+        setIngredients(fresh);
+      }).catch(console.error);
+      return;
+    }
+    setLoading(true);
+    try {
+      const r = await fetch("/api/ingredients");
+      const data = await r.json();
+      const list: Ingredient[] = Array.isArray(data) ? data : [];
+      clientCache.set('/api/ingredients', list);
+      setIngredients(list);
+    } catch (e) {
+      console.error(e);
+      setIngredients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  useEffect(() => {
-    const loadIngredients = async () => {
-      const cachedIngs = clientCache.get<Ingredient[]>('/api/ingredients?slim=true');
-      const cachedNutrients = clientCache.get<unknown[]>('/api/nutrients');
+  useEffect(() => { loadIngredients(); }, []);
 
-      if (cachedIngs && cachedIngs.length > 0) {
-        // Instant render from cache
-        setIngredients(cachedIngs);
-        if (cachedNutrients) setNutrients(cachedNutrients as never[]);
-        const cachedDetail = clientCache.get<Ingredient>(`/api/ingredients/${cachedIngs[0].id}`);
-        if (cachedDetail) {
-          setSelectedIngredient(cachedDetail);
-        } else {
-          // Detail not cached — fetch it so we don't land on empty state
-          refreshSelectedIngredient(cachedIngs[0].id);
-        }
-        setLoading(false);
-        // Background revalidate list only (nutrients are static — skip)
-        fetch("/api/ingredients?slim=true").then(r => r.json()).then((data) => {
-          const fresh: Ingredient[] = Array.isArray(data) ? data : [];
-          clientCache.set('/api/ingredients?slim=true', fresh);
-          setIngredients(fresh);
-        }).catch(console.error);
-        return;
-      }
-
-      // Cache miss — normal loading flow
-      try {
-        const [data, nutrData] = await Promise.all([
-          fetch("/api/ingredients?slim=true").then((r) => r.json()),
-          cachedNutrients
-            ? Promise.resolve(cachedNutrients)
-            : fetch("/api/nutrients").then((r) => r.json()),
-        ]);
-        const ings: Ingredient[] = Array.isArray(data) ? data : [];
-        clientCache.set('/api/ingredients?slim=true', ings);
-        if (!cachedNutrients) clientCache.set('/api/nutrients', nutrData);
-        setIngredients(ings);
-        setNutrients(Array.isArray(nutrData) ? nutrData : []);
-        // Auto-select first ingredient before clearing loading — prevents empty-state flash
-        if (ings.length > 0) {
-          await refreshSelectedIngredient(ings[0].id);
-        }
-      } catch (e) {
-        console.error(e);
-        setIngredients([]);
-        setNutrients([]);
-      } finally {
-        setLoading(false);
-      }
+  // Extract macros for list view — all nutrients
+  const getCardMacros = (ingredient: Ingredient) => {
+    if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
+    const find = (keys: string[]) => {
+      const n = ingredient.nutrientValues.find(nv => {
+        const name = nv.nutrient.displayName.toLowerCase();
+        return keys.some(k => name.includes(k));
+      });
+      return n ? Math.round(n.value) : 0;
     };
-
-    loadIngredients();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleDelete = async (id: number, name: string) => {
-    if (!await dialog.confirm(`Delete "${name}"?`, { confirmLabel: "Delete", danger: true })) return;
-    try {
-      const res = await fetch(`/api/ingredients/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Delete failed");
-      }
-      clientCache.delete(`/api/ingredients/${id}`);
-      const updated = ingredients.filter(ing => ing.id !== id);
-      clientCache.set('/api/ingredients?slim=true', updated);
-      if (selectedIngredient?.id === id) {
-        setSelectedIngredient(null);
-        setEditMode(false);
-      }
-      setIngredients(updated);
-    } catch (err) {
-      console.error(err);
-      toast.error(`Failed to delete: ${err instanceof Error ? err.message : "Unknown error"}`);
-    }
+    return {
+      kcal: find(["energy", "calorie"]),
+      protein: find(["protein"]),
+      carbs: find(["carbohydrate", "carb"]),
+      fat: find(["total fat", "fat"]),
+      satFat: find(["saturated"]),
+      sodium: find(["sodium"]),
+      sugar: find(["sugar"]),
+      fiber: find(["fiber"]),
+    };
   };
 
-  const handleUsdaSearch = (query: string) => {
-    setUsdaLookupQuery(query);
-    if (usdaSearchTimerRef.current) clearTimeout(usdaSearchTimerRef.current);
-    if (!query.trim()) {
-      setUsdaLookupResults([]);
-      setUsdaLookupLoading(false);
-      return;
-    }
-    setUsdaLookupLoading(true);
-    usdaSearchTimerRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setUsdaLookupResults(data.foods || []);
-        } else {
-          setUsdaLookupResults([]);
-        }
-      } catch (err) {
-        console.error("USDA search error:", err);
-        setUsdaLookupResults([]);
-      } finally {
-        setUsdaLookupLoading(false);
-      }
-    }, 500);
-  };
-
-  const applyUsdaFoodDataToForm = async (
-    food: any,
-    setName: (v: string) => void,
-    setValues: (v: Record<number, number>) => void
-  ) => {
-    setUsdaSelectedFood(food);
-    setName(food.description);
-
-    // Check global ingredient cache first
-    const globalRes = await fetch(`/api/global-ingredients?fdcId=${food.fdcId}`);
-    const globalData = globalRes.ok ? await globalRes.json() : null;
-
-    if (globalData) {
-      let nutrientsList = nutrients;
-      if (!nutrientsList || nutrientsList.length === 0) {
-        const nutrRes = await fetch("/api/nutrients");
-        if (nutrRes.ok) nutrientsList = await nutrRes.json();
-      }
-      const newValues: Record<number, number> = {};
-      globalData.nutrients.forEach((gn: any) => {
-        newValues[gn.nutrientId] = gn.value;
+  // Extract full nutrition for grid cards
+  const getFullNutrition = (ingredient: Ingredient) => {
+    if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
+    const find = (keys: string[]) => {
+      const n = ingredient.nutrientValues.find(nv => {
+        const name = (nv.nutrient.displayName || nv.nutrient.name).toLowerCase();
+        return keys.some(k => name.includes(k));
       });
-      setValues(newValues);
-      setUsdaLookupQuery("");
-      setUsdaLookupResults([]);
-      return;
-    }
-
-    // Fall back to USDA API
-    const res = await fetch(`/api/usda/fetch/${food.fdcId}`);
-    if (!res.ok) return;
-    const foodData = await res.json();
-
-    const nutrientMap: Record<string, number> = {};
-    if (foodData.foodNutrients && Array.isArray(foodData.foodNutrients)) {
-      foodData.foodNutrients.forEach((fn: any) => {
-        const lowerName = (fn.nutrient?.name || "").toLowerCase();
-        const value = fn.amount;
-        if (lowerName.includes("energy")) nutrientMap["calories"] = Math.round(value);
-        else if (lowerName.includes("total lipid") || lowerName.includes("total fat")) nutrientMap["fat"] = Math.round(value * 10) / 10;
-        else if (lowerName.includes("saturated")) nutrientMap["satFat"] = Math.round(value * 10) / 10;
-        else if (lowerName.includes("sodium")) nutrientMap["sodium"] = Math.round(value);
-        else if (lowerName.includes("carbohydrate")) nutrientMap["carbs"] = Math.round(value * 10) / 10;
-        else if (lowerName.includes("sugar")) nutrientMap["sugar"] = Math.round(value * 10) / 10;
-        else if (lowerName.includes("protein")) nutrientMap["protein"] = Math.round(value * 10) / 10;
-        else if (lowerName.includes("fiber")) nutrientMap["fiber"] = Math.round(value * 10) / 10;
-      });
-    }
-
-    let nutrientsList = nutrients;
-    if (!nutrientsList || nutrientsList.length === 0) {
-      const nutrRes = await fetch("/api/nutrients");
-      if (nutrRes.ok) nutrientsList = await nutrRes.json();
-    }
-
-    const newValues: Record<number, number> = {};
-    nutrientsList.forEach((n: any) => {
-      if (nutrientMap[n.name] !== undefined) newValues[n.id] = nutrientMap[n.name];
-    });
-    setValues(newValues);
-    setUsdaLookupQuery("");
-    setUsdaLookupResults([]);
-  };
-
-  const handleUsdaSelect = async (food: any) => {
-    try {
-      await applyUsdaFoodDataToForm(food, setCreateName, setCreateValues);
-    } catch (err) {
-      console.error("USDA fetch error:", err);
-    }
-  };
-
-  const handleEditClick = (ing: Ingredient) => {
-    setSelectedIngredient(ing);
-    setEditMode(true);
-    setEditName(ing.name);
-    setEditUnit(ing.defaultUnit);
-    setEditIsMealItem(Boolean(ing.isMealItem));
-    setEditCustomUnitName(
-      ing.customUnitName ?? ("tsp" === ing.defaultUnit || "tbsp" === ing.defaultUnit || "cup" === ing.defaultUnit
-        ? ing.defaultUnit
-        : "")
-    );
-    setEditCustomUnitAmount(ing.customUnitAmount != null ? String(ing.customUnitAmount) : "1");
-    setEditCustomUnitGrams(ing.customUnitGrams != null ? String(ing.customUnitGrams) : "");
-    setEditSpecifiedAmount("100");
-    setEditSpecifiedUnit(ing.defaultUnit === "ml" ? "ml" : "g");
-    const vals: Record<number, number> = {};
-    ing.nutrientValues.forEach((nv) => {
-      vals[nv.nutrient.id] = nv.value;
-    });
-    setEditValues(vals);
-  };
-
-  const handleSave = async () => {
-    if (!editName.trim()) {
-      toast.error("Name is required");
-      return;
-    }
-
-    if (!selectedIngredient) return;
-
-    const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(editUnit);
-    if (isCustomUnit && editUnit === "other" && !editCustomUnitName.trim()) {
-      toast.error("Please enter a custom unit name (e.g., 'banana')");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const specAmount = getAmountInGrams(
-        editSpecifiedAmount,
-        editSpecifiedUnit,
-        editCustomUnitName,
-        editCustomUnitAmount,
-        editCustomUnitGrams
-      );
-      const normalizedValues = Object.entries(editValues).map(([nutrientId, value]) => ({
-        nutrientId: Number(nutrientId),
-        value: (Number(value) || 0) * (100 / specAmount),
-      }));
-
-      const body: any = {
-        name: editName,
-        defaultUnit: editUnit,
-        isMealItem: editIsMealItem,
-        nutrientValues: normalizedValues,
-      };
-
-      if (isCustomUnit) {
-        const unitName = editUnit === "other" ? editCustomUnitName.trim() : editUnit;
-        body.customUnitName = unitName;
-        body.customUnitAmount = Number(editCustomUnitAmount) || 1;
-        body.customUnitGrams = editCustomUnitGrams ? Number(editCustomUnitGrams) : null;
-      }
-
-      const res = await fetch(`/api/ingredients/${selectedIngredient.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Save failed");
-      }
-
-      const updatedIng = await res.json();
-      clientCache.set(`/api/ingredients/${updatedIng.id}`, updatedIng);
-      const updatedList = ingredients.map(ing => ing.id === updatedIng.id ? updatedIng : ing);
-      clientCache.set('/api/ingredients?slim=true', updatedList);
-      setIngredients(updatedList);
-      setSelectedIngredient(updatedIng);
-      setEditMode(false);
-      const savedCount = updatedIng.nutrientValues?.length || 0;
-      toast.success(`Ingredient saved${savedCount > 0 ? ` with ${savedCount} nutrient values` : ""}`);
-    } catch (e) {
-      console.error(e);
-      toast.error(`Failed to save: ${e instanceof Error ? e.message : "Unknown error"}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleCreateSave = async () => {
-    if (!createName.trim()) {
-      toast.error("Name is required");
-      return;
-    }
-
-    const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(createUnit);
-    if (isCustomUnit && createUnit === "other" && !createCustomUnitName.trim()) {
-      toast.error("Please enter a custom unit name (e.g., 'banana')");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const specAmount = getAmountInGrams(
-        createSpecifiedAmount,
-        createSpecifiedUnit,
-        createCustomUnitName,
-        createCustomUnitAmount,
-        createCustomUnitGrams
-      );
-      const normalizedValues = Object.entries(createValues).map(([nutrientId, value]) => ({
-        nutrientId: Number(nutrientId),
-        value: (Number(value) || 0) * (100 / specAmount),
-      }));
-
-      const body: any = {
-        name: createName,
-        defaultUnit: createUnit,
-        isMealItem: createIsMealItem,
-        nutrientValues: normalizedValues,
-      };
-
-      if (isCustomUnit) {
-        const unitName = createUnit === "other" ? createCustomUnitName.trim() : createUnit;
-        body.customUnitName = unitName;
-        body.customUnitAmount = Number(createCustomUnitAmount) || 1;
-        body.customUnitGrams = createCustomUnitGrams ? Number(createCustomUnitGrams) : null;
-      }
-
-      const res = await fetch("/api/ingredients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Save failed");
-      }
-
-      const newIng = await res.json();
-      clientCache.set(`/api/ingredients/${newIng.id}`, newIng);
-      const updatedList = [...ingredients, newIng].sort((a, b) => a.name.localeCompare(b.name));
-      clientCache.set('/api/ingredients?slim=true', updatedList);
-      setIngredients(updatedList);
-      setSelectedIngredient(newIng);
-      setCreateMode(false);
-      setCreateName("");
-      setCreateUnit("g");
-      setCreateCustomUnitName("");
-      setCreateCustomUnitAmount("1");
-      setCreateCustomUnitGrams("");
-      setCreateSpecifiedAmount("100");
-      setCreateSpecifiedUnit("g");
-      setCreateIsMealItem(false);
-      setCreateValues({});
-      toast.success(`${newIng.name} added`);
-    } catch (e) {
-      console.error(e);
-      toast.error(`Failed to create: ${e instanceof Error ? e.message : "Unknown error"}`);
-    } finally {
-      setSaving(false);
-    }
+      return n ? { value: n.value, unit: n.nutrient.unit } : null;
+    };
+    return {
+      calories: find(["energy", "calorie"]),
+      fat: find(["total fat", "fat"]),
+      saturatedFat: find(["saturated"]),
+      sodium: find(["sodium"]),
+      carbs: find(["carbohydrate", "carb"]),
+      sugar: find(["sugar"]),
+      protein: find(["protein"]),
+      fiber: find(["fiber"]),
+    };
   };
 
   const filteredIngredients = ingredients.filter((ing) => {
@@ -516,540 +206,283 @@ function IngredientsPage() {
     return true;
   });
 
-  const refreshSelectedIngredient = async (id: number) => {
-    // Instant render from cache if available
-    const cached = clientCache.get<Ingredient>(`/api/ingredients/${id}`);
-    if (cached) { setSelectedIngredient(cached); return; }
+  const sortedIngredients = [...filteredIngredients].sort((a, b) => a.name.localeCompare(b.name));
+
+  async function handleDelete(ingredient: Ingredient) {
+    if (!await dialog.confirm(`Delete "${ingredient.name}"?`, { confirmLabel: "Delete", danger: true })) return;
     try {
-      const res = await fetch(`/api/ingredients/${id}`);
-      if (res.ok) {
-        const updated = await res.json();
-        clientCache.set(`/api/ingredients/${id}`, updated);
-        setSelectedIngredient(updated);
-      }
+      const res = await fetch(`/api/ingredients/${ingredient.id}`, { method: "DELETE" });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Delete failed"); }
+      clientCache.delete(`/api/ingredients/${ingredient.id}`);
+      setIngredients((prev) => prev.filter((i) => i.id !== ingredient.id));
+      clientCache.set("/api/ingredients", ingredients.filter((i) => i.id !== ingredient.id));
+      toast.success(`${ingredient.name} deleted`);
     } catch (err) {
-      console.error("Failed to refresh ingredient:", err);
+      toast.error(`Failed to delete: ${err instanceof Error ? err.message : "Unknown error"}`);
     }
-  };
-
-  /* ── Shared input/select style for forms ── */
-  const inputBase =
-    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] transition-colors rounded-none";
-  const inputClass = inputBase + " w-full";
-  const inputNarrow = inputBase + " w-[120px]";
-  const selectClass =
-    "bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 text-[12px] text-[var(--fg)] focus:outline-none focus:border-[var(--rule-strong)] appearance-none transition-colors w-full rounded-none";
-  const labelClass = "block text-[9px] font-mono tracking-[0.1em] uppercase text-[var(--muted)] mb-[6px]";
-  const sectionLabelClass =
-    "font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mt-4 mb-[10px]";
-
-  /* ── Helper: unit select dropdown SVG ── */
-  const selectBgStyle = {
-    backgroundImage:
-      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' opacity='0.5' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E\")",
-    backgroundRepeat: "no-repeat" as const,
-    backgroundPosition: "right 0px center",
-    backgroundSize: "12px",
-  };
-
-  /* ── Unified Form JSX ── */
-  const renderForm = (mode: 'create' | 'edit') => {
-    const isCreate = mode === 'create';
-    const name = isCreate ? createName : editName;
-    const setName = isCreate ? setCreateName : setEditName;
-    const unit = isCreate ? createUnit : editUnit;
-    const setUnit = isCreate ? setCreateUnit : setEditUnit;
-    const customUnitName = isCreate ? createCustomUnitName : editCustomUnitName;
-    const setCustomUnitName = isCreate ? setCreateCustomUnitName : setEditCustomUnitName;
-    const customUnitAmount = isCreate ? createCustomUnitAmount : editCustomUnitAmount;
-    const setCustomUnitAmount = isCreate ? setCreateCustomUnitAmount : setEditCustomUnitAmount;
-    const customUnitGrams = isCreate ? createCustomUnitGrams : editCustomUnitGrams;
-    const setCustomUnitGrams = isCreate ? setCreateCustomUnitGrams : setEditCustomUnitGrams;
-    const isMealItem = isCreate ? createIsMealItem : editIsMealItem;
-    const setIsMealItem = isCreate ? setCreateIsMealItem : setEditIsMealItem;
-    const specifiedAmount = isCreate ? createSpecifiedAmount : editSpecifiedAmount;
-    const setSpecifiedAmount = isCreate ? setCreateSpecifiedAmount : setEditSpecifiedAmount;
-    const specifiedUnit = isCreate ? createSpecifiedUnit : editSpecifiedUnit;
-    const setSpecifiedUnit = isCreate ? setCreateSpecifiedUnit : setEditSpecifiedUnit;
-    const values = isCreate ? createValues : editValues;
-    const setValues = isCreate ? setCreateValues : setEditValues;
-    const baseUnit = isCreate ? createBaseUnit : editBaseUnit;
-    const volumeNote = isCreate ? createVolumeNote : editVolumeNote;
-    const onSave = isCreate ? handleCreateSave : handleSave;
-    const onCancel = isCreate ? () => setCreateMode(false) : () => setEditMode(false);
-    const title = isCreate ? "New Pantry Item" : "Edit Pantry Item";
-    const subtitle = "";
-    const saveLabel = isCreate ? "Create" : "Save";
-    const savingLabel = isCreate ? "Creating..." : "Saving...";
-
-    const handleUsdaSelectForMode = async (food: any) => {
-      try {
-        await applyUsdaFoodDataToForm(food, setName, (vals) => setValues(vals));
-      } catch (err) {
-        console.error("USDA fetch error:", err);
-      }
-    };
-
-    return (
-    <div className="flex-1 flex flex-col overflow-hidden animate-fade-in">
-      {/* Sticky header with title + actions */}
-      <div className="px-6 pt-5 pb-4 shrink-0 flex items-start justify-between">
-        <h1 className="font-serif text-[20px] text-[var(--fg)] leading-tight">{title}</h1>
-        <div className="flex items-center gap-3">
-          <button
-            className="bg-[var(--accent)] text-[var(--accent-text)] py-[6px] px-4 text-[9px] font-mono tracking-[0.1em] uppercase border-0 rounded-[6px] cursor-pointer disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
-            onClick={onSave}
-            disabled={saving}
-            aria-label={saveLabel}
-          >
-            {saving ? savingLabel : saveLabel}
-          </button>
-          <button
-            className="bg-transparent text-[var(--muted)] py-[6px] px-0 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer disabled:opacity-50"
-            onClick={onCancel}
-            disabled={saving}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 px-7">
-
-      <div className="space-y-5 max-w-[720px]">
-        {/* USDA Lookup */}
-        <div>
-          <label className={labelClass}>Search USDA (Optional)</label>
-          <input
-            type="text"
-            className={inputClass}
-            placeholder="e.g., 'almonds raw' or 'banana'"
-            value={usdaLookupQuery}
-            onChange={(e) => handleUsdaSearch(e.target.value)}
-          />
-        </div>
-
-        {/* USDA contextual tip */}
-        <ContextualTip tipId="usda-search" label="About the USDA database">
-          Search 300,000+ foods from the USDA national database. Results include branded products and generic entries. Selecting one fills in the nutrition values automatically — you can still edit them.
-        </ContextualTip>
-
-        {/* USDA Results */}
-        {usdaLookupLoading && (
-          <p className="text-[11px] text-[var(--muted)]">Searching USDA...</p>
-        )}
-        {usdaLookupResults.length > 0 && (
-          <div className="border border-[var(--rule)] rounded-[var(--radius-sm,4px)] max-h-48 overflow-y-auto">
-            {usdaLookupResults.map((food: any) => (
-              <button
-                key={food.fdcId}
-                onClick={() => handleUsdaSelectForMode(food)}
-                className="block w-full text-left py-[8px] px-[12px] text-[11px] text-[var(--fg)] hover:bg-[var(--bg-subtle)] border-b border-[var(--rule)] last:border-b-0 cursor-pointer bg-transparent transition-colors"
-              >
-                <div className="font-sans text-[11px]">{food.description.slice(0, 60)}</div>
-                <div className="text-[10px] text-[var(--muted)]">{food.dataType}</div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Selected USDA Food Indicator */}
-        {usdaSelectedFood && (
-          <p className="text-[11px] text-[var(--accent)]">Data imported from USDA FDC</p>
-        )}
-
-        {/* Name */}
-        <div>
-          <label className={labelClass}>Pantry item</label>
-          <input
-            type="text"
-            className={inputClass}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-
-        {/* Default Unit */}
-        <div>
-          <label className={labelClass}>Default Unit</label>
-          <select
-            className={selectClass}
-            style={selectBgStyle}
-            value={unit}
-            onChange={(e) => {
-              const nextUnit = e.target.value;
-              setUnit(nextUnit);
-              if (
-                nextUnit === "g" ||
-                nextUnit === "ml" ||
-                nextUnit === "tsp" ||
-                nextUnit === "tbsp" ||
-                nextUnit === "cup"
-              ) {
-                setSpecifiedUnit(nextUnit);
-              }
-              if (nextUnit === "tsp" || nextUnit === "tbsp" || nextUnit === "cup") {
-                setCustomUnitName(nextUnit);
-              }
-            }}
-          >
-            <option value="g">g (grams)</option>
-            <option value="ml">ml (milliliters)</option>
-            <option value="tsp">tsp (teaspoon)</option>
-            <option value="tbsp">tbsp (tablespoon)</option>
-            <option value="cup">cup</option>
-            <option value="other">other (custom unit)</option>
-          </select>
-        </div>
-
-        {/* Custom Unit Settings */}
-        {["other", "tsp", "tbsp", "cup"].includes(unit) && (
-          <div className="border border-[var(--rule)] rounded-[var(--radius,8px)] p-4 space-y-4">
-            <div className={sectionLabelClass}>Custom Unit Settings</div>
-            <div>
-              <label className={labelClass}>Unit name</label>
-              {unit === "other" ? (
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="e.g., banana, scoop, cup"
-                  value={customUnitName}
-                  onChange={(e) => setCustomUnitName(e.target.value)}
-                />
-              ) : (
-                <div className="py-[6px] font-mono text-[12px] font-light text-[var(--fg)]">
-                  {unit}
-                </div>
-              )}
-            </div>
-            <div>
-              <label className={labelClass}>Amount per unit</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="any"
-                  className={inputNarrow}
-                  value={customUnitAmount}
-                  onChange={(e) => setCustomUnitAmount(e.target.value)}
-                />
-                <span className="text-[11px] text-[var(--muted)]">
-                  {customUnitName || "unit"}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className={labelClass}>Grams per unit</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="any"
-                  className={inputNarrow}
-                  placeholder="e.g., 120 for an average banana"
-                  value={customUnitGrams}
-                  onChange={(e) => setCustomUnitGrams(e.target.value)}
-                />
-                <span className="text-[11px] text-[var(--muted)]">g</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Quick Food Checkbox */}
-        <div className="border border-[var(--rule-faint)] rounded-[8px] p-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isMealItem}
-              onChange={(e) => setIsMealItem(e.target.checked)}
-              className="w-3 h-3 cursor-pointer"
-            />
-            <span className="text-[11px] text-[var(--fg)]">Available as a quick food</span>
-          </label>
-          <p className="text-[10px] text-[var(--muted)] mt-1 ml-5">
-            Shows in meal plans as a standalone food — things you eat as-is like fruit, yogurt, drinks
-          </p>
-        </div>
-
-        {/* Specified amount for nutrient entry */}
-        <div>
-          <div className={sectionLabelClass}>Nutrient Basis</div>
-          <label className={labelClass}>What amount are these nutrients for?</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="number"
-              step="any"
-              className={inputNarrow}
-              placeholder="100"
-              value={specifiedAmount}
-              onChange={(e) => setSpecifiedAmount(e.target.value)}
-            />
-            <select
-              className={selectClass.replace('w-full', 'w-[140px]')}
-              style={selectBgStyle}
-              value={specifiedUnit}
-              onChange={(e) => setSpecifiedUnit(e.target.value)}
-            >
-              <option value="g">g (grams)</option>
-              <option value="ml">ml (milliliters)</option>
-              <option value="tsp">tsp (teaspoon)</option>
-              <option value="tbsp">tbsp (tablespoon)</option>
-              <option value="cup">cup</option>
-            </select>
-            <div className="text-[10px] text-[var(--muted)] whitespace-nowrap">
-              {specifiedAmount && specifiedUnit && specifiedAmount !== "100"
-                ? `Will convert to per 100${baseUnit}`
-                : `Per 100${baseUnit}`}
-              {volumeNote ? ` (${volumeNote})` : ""}
-            </div>
-          </div>
-        </div>
-
-        {/* Nutrient Values */}
-        <div>
-          <div className={sectionLabelClass}>
-            Nutrient Values (per 100{baseUnit})
-            <span className="ml-2 normal-case tracking-normal">
-              {Object.keys(values).length} filled
-            </span>
-          </div>
-          {nutrients.length === 0 ? (
-            <p className="text-[11px] text-[var(--muted)]">Loading nutrients...</p>
-          ) : (
-            <div className="space-y-4">
-              {nutrients.map((n) => {
-                const inputValue = values[n.id];
-                return (
-                  <div key={n.id}>
-                    <label className={labelClass}>{n.displayName} ({n.unit})</label>
-                    <input
-                      type="number"
-                      step="any"
-                      className={inputClass}
-                      value={inputValue != null ? String(inputValue) : ""}
-                      onChange={(e) =>
-                        setValues((prev) => {
-                          if (e.target.value === "") {
-                            const { [n.id]: _, ...rest } = prev;
-                            return rest;
-                          }
-                          return { ...prev, [n.id]: Number(e.target.value) };
-                        })
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-      </div>
-    </div>
-    </div>
-    );
-  };
-
-  /* ── Detail Panel JSX (right side of split) ── */
-  const renderDetailPanel = () => {
-    if (!selectedIngredient) return null;
-    const ing = selectedIngredient;
-    const unitDisplay = ing.customUnitName && ing.customUnitGrams
-      ? `${ing.customUnitAmount || 1} ${ing.customUnitName} = ${ing.customUnitGrams}g`
-      : ing.customUnitName && ing.customUnitAmount
-      ? `${ing.customUnitAmount} ${ing.customUnitName}`
-      : ing.defaultUnit;
-
-    return (
-      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
-        {/* Sticky header */}
-        <div className="pt-5 pb-4 shrink-0 flex items-start justify-between" style={{ padding: '20px 28px 16px' }}>
-          <div>
-            <h2 className="font-serif text-[26px] text-[var(--fg)] leading-[1.2] mb-1">{ing.name}</h2>
-            <p className="font-mono text-[10px] text-[var(--muted)]">
-              {unitDisplay}
-              {ing.isMealItem ? " · Quick food" : ""}
-            </p>
-          </div>
-          <div className="flex gap-[5px] shrink-0 ml-4 mt-1">
-            <button
-              onClick={() => handleEditClick(ing)}
-              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-text)] cursor-pointer hover:bg-[var(--accent-hover)] transition-colors rounded-[var(--radius-sm,4px)]"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(ing.id, ing.name)}
-              className="py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase bg-[var(--error-light)] text-[var(--error)] cursor-pointer hover:bg-[var(--error)] hover:text-white transition-colors rounded-[var(--radius-sm,4px)]"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto" style={{ padding: '24px 28px' }}>
-          <div className={sectionLabelClass}>Nutrition per 100g</div>
-          {ing.nutrientValues.length > 0 ? (
-            <div className="space-y-0">
-              {ing.nutrientValues.map((nv, idx) => (
-                <div key={nv.id} className={`flex justify-between items-baseline py-[7px] ${idx < ing.nutrientValues.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
-                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--fg)]">{nv.nutrient.displayName}</span>
-                  <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{formatNutrient(nv.value)} {nv.nutrient.unit}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-[11px] text-[var(--muted)]">No nutrient data</p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  /* ── Main Return ── */
-
-  // Edit mode: rendered inline in the detail panel below
-
-  // List + optional detail split
-  const hasSplit = !!selectedIngredient;
+  }
 
   return (
-    <div className="flex h-full">
-      {/* ── Left: List pane with integrated header ── */}
-      <div className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' }}>
-        {/* List header */}
-        <div className="px-6 pt-3 pb-3 shrink-0">
-          <div className="flex items-baseline justify-between mb-3">
-            <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Pantry</h1>
-            <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">
-              {filteredIngredients.length}
-            </span>
-          </div>
-          <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => updateSearchParam("search", e.target.value)}
-              aria-label="Search pantry items"
-              className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] rounded-[var(--radius-sm,4px)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none"
-            />
-          {/* Food filter */}
-          <div className="flex gap-[4px] mt-2">
-            {(['all', 'foods', 'ingredients'] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFoodFilter(f)}
-                className={`font-mono text-[8px] uppercase tracking-[0.08em] px-[8px] py-[3px] rounded-full border-0 transition-colors cursor-pointer ${
-                  foodFilter === f
-                    ? 'bg-[var(--accent-light)] text-[var(--accent)]'
-                    : 'bg-[var(--bg-pill)] text-[var(--muted)] hover:text-[var(--fg)]'
-                }`}
-                aria-label={`Filter: ${f}`}
-                aria-pressed={foodFilter === f}
-              >
-                {f === 'all' ? 'All' : f === 'foods' ? 'Foods' : 'Ingredients'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Scrollable list */}
-        <div className="flex-1 overflow-y-auto">
-          {loading ? (
-            <div className="py-8 text-center text-[11px] text-[var(--muted)]">Loading...</div>
-          ) : filteredIngredients.length === 0 ? (
-            <div className="py-8 px-4 text-center text-[11px] text-[var(--muted)]">
-              {ingredients.length === 0 ? 'No items yet' : 'No matches'}
-            </div>
-          ) : (
-            filteredIngredients.map((ing) => {
-              const isSelected = selectedIngredient?.id === ing.id;
-              return (
-                <div
-                  key={ing.id}
-                  className={`relative flex items-center justify-between mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
-                    isSelected ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-subtle)]"
-                  }`}
-                  onClick={() => {
-                    if (isSelected) {
-                      setSelectedIngredient(null);
-                    } else {
-                      setEditMode(false);
-                      refreshSelectedIngredient(ing.id);
-                    }
-                  }}
-                >
-                  <span className="text-[12px] font-medium text-[var(--fg)] truncate">
-                    {ing.name}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* New ingredient button at bottom */}
+    <div className="h-full flex flex-col">
+      {/* ── Filter Bar ── */}
+      <div
+        className="flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
+        style={{ height: "var(--filter-h)" }}
+      >
+        {/* Filter chips */}
         <button
-          onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
-          aria-label="Create new pantry item"
-          className="shrink-0 mx-[6px] mb-[6px] mt-[2px] py-[9px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-[7px]"
-        >
-          + New Pantry Item
-        </button>
+          onClick={() => setFoodFilter('all')}
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+            foodFilter === 'all'
+              ? "text-[var(--fg)] border-[var(--rule)]"
+              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+          }`}
+          aria-label="Show all ingredients"
+          aria-pressed={foodFilter === 'all'}
+        >All</button>
+        <button
+          onClick={() => setFoodFilter('foods')}
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+            foodFilter === 'foods'
+              ? "text-[var(--fg)] border-[var(--rule)]"
+              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+          }`}
+          aria-label="Show only items"
+          aria-pressed={foodFilter === 'foods'}
+        >Items</button>
+        <button
+          onClick={() => setFoodFilter('ingredients')}
+          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+            foodFilter === 'ingredients'
+              ? "text-[var(--fg)] border-[var(--rule)]"
+              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+          }`}
+          aria-label="Show only ingredients"
+          aria-pressed={foodFilter === 'ingredients'}
+        >Ingredients</button>
+
+        {/* Right side controls */}
+        <div className="flex gap-[5px] items-center ml-auto">
+          {/* Count */}
+          <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
+            {filteredIngredients.length} item{filteredIngredients.length !== 1 ? "s" : ""}
+          </span>
+
+          {/* Grid/List toggle */}
+          <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
+                viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
+              }`}
+              aria-label="Grid view"
+              aria-pressed={viewMode === "grid"}
+            >Grid</button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
+                viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
+              }`}
+              aria-label="List view"
+              aria-pressed={viewMode === "list"}
+            >List</button>
+          </div>
+
+          {/* Search — always visible */}
+          <input
+            ref={searchRef}
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => updateSearchParam("search", e.target.value)}
+            aria-label="Search ingredients"
+            className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
+            style={{ width: 180 }}
+          />
+
+          {/* + Add */}
+          <button
+            onClick={() => router.push("/ingredients/create")}
+            className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+            aria-label="Add new ingredient"
+          >+ Add</button>
+        </div>
       </div>
 
-      {/* ── Center + Right: Detail + Context ── */}
-      {createMode ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {renderForm('create')}
-        </div>
-      ) : loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading pantry items...</div>
-        </div>
-      ) : !selectedIngredient ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center space-y-4 max-w-[280px]">
-            <div className="font-serif text-[20px] text-[var(--fg)]">
-              {ingredients.length === 0 ? 'No pantry items yet' : 'Select a pantry item'}
-            </div>
-            <p className="text-[11px] text-[var(--muted)] leading-relaxed">
-              {ingredients.length === 0
-                ? 'Add your first pantry item manually or look it up from the USDA database.'
-                : 'Click a pantry item from the list to view its details.'}
-            </p>
-            {ingredients.length === 0 && (
-              <button
-                onClick={() => { setSelectedIngredient(null); setCreateMode(true); }}
-                className="bg-[var(--accent)] text-[var(--accent-text)] rounded-[6px] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:bg-[var(--accent-hover)] transition-colors border-0 cursor-pointer"
-                aria-label="Add first pantry item"
-              >
-                + New Pantry Item
-              </button>
-            )}
+      {/* ── Content ── */}
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading ingredients...</div>
           </div>
-        </div>
-      ) : (
-        <>
-
-          {/* Detail Panel or Edit Form (center pane) */}
-          {editMode ? renderForm('edit') : renderDetailPanel()}
-
-          {/* Context Panel — right pane with goals % bars */}
-          {!editMode && (
-            <div className="panel-slide-in w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]" style={{ boxShadow: '-1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)' }}>
-              <IngredientContextPanel
-                nutrientValues={selectedIngredient.nutrientValues}
-                defaultUnit={selectedIngredient.defaultUnit}
-                customUnitName={selectedIngredient.customUnitName}
-                customUnitAmount={selectedIngredient.customUnitAmount}
-                customUnitGrams={selectedIngredient.customUnitGrams}
-                personId={selectedPerson?.id}
-                personName={selectedPerson?.name}
-              />
+        ) : sortedIngredients.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center space-y-4 max-w-[280px]">
+              <div className="font-serif text-[20px] text-[var(--fg)]">
+                {ingredients.length === 0 ? "No ingredients yet" : "No matches"}
+              </div>
+              <p className="text-[11px] text-[var(--muted)] leading-relaxed">
+                {ingredients.length === 0 ? "Add an ingredient or food to get started." : "Try adjusting your filters."}
+              </p>
+              {ingredients.length === 0 && (
+                <button
+                  onClick={() => router.push("/ingredients/create")}
+                  className="bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:opacity-[0.88] transition-opacity border-0 cursor-pointer active:scale-[0.97]"
+                  aria-label="Add first ingredient"
+                >+ Add Ingredient</button>
+              )}
             </div>
-          )}
-        </>
-      )}
+          </div>
+        ) : viewMode === "grid" ? (
+          /* ── Card Grid — shared borders, staggered animation ── */
+          <div
+            key={`grid-${viewMode}-${foodFilter}`}
+            className="grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
+            style={{ gap: 0, padding: "0 64px" }}
+          >
+            {sortedIngredients.map((ingredient, idx) => {
+              const nutrition = getFullNutrition(ingredient);
+              const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";
+              const unitContext = ingredient.customUnitName
+                ? `${ingredient.customUnitAmount || 1} ${ingredient.customUnitName}${ingredient.customUnitGrams ? ` (${ingredient.customUnitGrams}g)` : ""}`
+                : "per 100g";
+              const nutrientRows: { label: string; value: string; unit: string }[] = nutrition ? [
+                { label: "FAT", value: nutrition.fat ? formatNutrient(nutrition.fat.value) : "0", unit: nutrition.fat?.unit || "g" },
+                { label: "SATURATED FAT", value: nutrition.saturatedFat ? formatNutrient(nutrition.saturatedFat.value) : "0", unit: nutrition.saturatedFat?.unit || "g" },
+                { label: "SODIUM", value: nutrition.sodium ? formatNutrient(nutrition.sodium.value) : "0", unit: nutrition.sodium?.unit || "mg" },
+                { label: "CARBS", value: nutrition.carbs ? formatNutrient(nutrition.carbs.value) : "0", unit: nutrition.carbs?.unit || "g" },
+                { label: "SUGAR", value: nutrition.sugar ? formatNutrient(nutrition.sugar.value) : "0", unit: nutrition.sugar?.unit || "g" },
+                { label: "PROTEIN", value: nutrition.protein ? formatNutrient(nutrition.protein.value) : "0", unit: nutrition.protein?.unit || "g" },
+                { label: "FIBER", value: nutrition.fiber ? formatNutrient(nutrition.fiber.value) : "0", unit: nutrition.fiber?.unit || "g" },
+              ] : [];
+              // Shared border logic: every card gets border-right + border-bottom; first in row gets border-left
+              const isFirstInRow = idx % 4 === 0;
+              return (
+                <div
+                  key={ingredient.id}
+                  data-cursor="card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/ingredients/${ingredient.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
+                  aria-label={ingredient.name}
+                  className={`relative group cursor-pointer transition-colors duration-150 hover:bg-[var(--bg-2)] active:scale-[0.98] border-r border-b border-[var(--rule)]${isFirstInRow ? " border-l" : ""}`}
+                  style={{
+                    padding: 20,
+                    animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both`,
+                  } as React.CSSProperties}
+                >
+                  {/* Hover action buttons */}
+                  <div className="absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
+                      aria-label={`Edit ${ingredient.name}`}
+                    >✎</button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(ingredient); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors"
+                      aria-label={`Delete ${ingredient.name}`}
+                    >×</button>
+                  </div>
+
+                  {/* Category badge */}
+                  <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
+                  {/* Name */}
+                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]" style={{ textWrap: "balance" }}>
+                    {ingredient.name}
+                  </div>
+                  {/* Unit context */}
+                  <div className="font-mono text-[8.5px] text-[var(--muted)] tracking-[0.04em] mb-[14px]">
+                    {unitContext}
+                  </div>
+                  {nutrition && (
+                    <>
+                      {/* Large calorie number — 20px per mockup */}
+                      <div className="font-serif text-[20px] font-bold tracking-tight leading-none tabular-nums">
+                        {nutrition.calories ? formatNutrient(nutrition.calories.value) : "0"}
+                      </div>
+                      <div className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] mt-[3px] mb-[14px]">
+                        Calories
+                      </div>
+                      {/* Nutrient rows — border-top per mockup */}
+                      <div className="flex flex-col">
+                        {nutrientRows.map((row) => (
+                          <div
+                            key={row.label}
+                            className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]"
+                          >
+                            <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
+                            <span className="font-mono text-[10px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* ── List View — staggered animation, mockup styling ── */
+          <div key={`list-${viewMode}-${foodFilter}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+            {sortedIngredients.map((ingredient, idx) => {
+              const macros = getCardMacros(ingredient);
+              const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";
+              return (
+                <div
+                  key={ingredient.id}
+                  data-cursor="card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/ingredients/${ingredient.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
+                  aria-label={ingredient.name}
+                  className="flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
+                  style={{
+                    padding: "10px 0",
+                    animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`,
+                  }}
+                >
+                  {/* Name + category inline */}
+                  <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
+                    <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{ingredient.name}</span>
+                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
+                  </div>
+                  {/* Macros — all nutrients, right-aligned */}
+                  {macros && (
+                    <div className="flex gap-[16px] items-baseline shrink-0 ml-auto">
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.satFat}g</strong> <span className="text-[var(--muted)]">sat</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sodium}mg</strong> <span className="text-[var(--muted)]">sod</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sugar}g</strong> <span className="text-[var(--muted)]">sugar</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fiber}g</strong> <span className="text-[var(--muted)]">fiber</span></span>
+                    </div>
+                  )}
+                  {/* Action buttons — always visible, subtle until hover */}
+                  <div className="flex gap-[4px] shrink-0 opacity-[0.4] group-hover:opacity-100 transition-opacity duration-150">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-transparent border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
+                      aria-label={`Edit ${ingredient.name}`}
+                    >✎</button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(ingredient); }}
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-transparent border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors"
+                      aria-label={`Delete ${ingredient.name}`}
+                    >×</button>
+                  </div>
+                  {/* Accent bar on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

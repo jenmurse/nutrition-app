@@ -1,91 +1,84 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast, type ToastMessage } from "@/lib/toast";
 
 export default function Toaster() {
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [current, setCurrent] = useState<ToastMessage | null>(null);
+  const [hiding, setHiding] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => toast.subscribe(setToasts), []);
+  useEffect(() => {
+    return toast.subscribe((toasts) => {
+      if (toasts.length === 0) return;
+      // Show the latest toast, replacing any current one
+      const next = toasts[toasts.length - 1];
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      setHiding(false);
+      setCurrent(next);
 
-  // Separate success and error toasts
-  const successes = toasts.filter((t) => t.type === "success");
-  const errors = toasts.filter((t) => t.type === "error" || t.type === "info");
-  const active = toasts.length > 0;
-  const hasError = errors.length > 0;
-  const hasSuccess = successes.length > 0 && !hasError;
+      // Auto-dismiss: success after 4s, info after 4s, error never auto-dismisses
+      if (next.type !== "error") {
+        timerRef.current = setTimeout(() => dismiss(), 4000);
+      }
+    });
+  }, []);
 
-  if (!active) return null;
+  function dismiss() {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setHiding(true);
+    hideTimerRef.current = setTimeout(() => {
+      setCurrent(null);
+      setHiding(false);
+    }, 210);
+  }
+
+  if (!current) return null;
+
+  const typeClass =
+    current.type === "success" ? "notif-success" :
+    current.type === "error"   ? "notif-error"   :
+    "notif-info";
 
   return (
     <>
-      {/* Top bar sweep — green for success, red for error */}
+      {/* Screen-reader announcement */}
       <div
-        aria-hidden="true"
+        aria-live={current.type === "error" ? "assertive" : "polite"}
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {current.message}
+      </div>
+
+      {/* Notification bar — fixed below nav, full width */}
+      <div
+        className={`notif-bar ${typeClass}${hiding ? " notif-hiding" : ""}`}
+        role="status"
         style={{
           position: "fixed",
-          top: 48,
+          top: "var(--nav-h)",
           left: 0,
           right: 0,
-          height: 2,
-          zIndex: 9999,
-          pointerEvents: "none",
-          background: hasError ? "var(--error, #b94a48)" : "var(--accent)",
-          transformOrigin: "left",
-          animation: "toastSweep 400ms cubic-bezier(0.4,0,0.2,1) forwards",
+          zIndex: 200,
         }}
-      />
-
-      {/* Error text — bottom status bar, only shown for errors */}
-      {hasError && (
-        <div
-          aria-live="assertive"
-          aria-atomic="true"
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 9999,
-            pointerEvents: "none",
-            borderTop: "1px solid var(--rule)",
-            background: "var(--bg)",
-            padding: "10px 24px",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            animation: "toastFadeIn 250ms ease forwards",
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              width: 5,
-              height: 5,
-              borderRadius: "50%",
-              background: "var(--error, #b94a48)",
-              flexShrink: 0,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: 11,
-              letterSpacing: "0.05em",
-              color: "var(--muted)",
-            }}
+      >
+        <div className="notif-bar-text">
+          <div className="notif-bar-dot" aria-hidden="true" />
+          <span>{current.message}</span>
+        </div>
+        <div className="notif-bar-right">
+          <button
+            className="notif-bar-dismiss"
+            onClick={dismiss}
+            aria-label="Dismiss notification"
           >
-            {errors[errors.length - 1].message}
-          </span>
+            Dismiss
+          </button>
         </div>
-      )}
-
-      {/* Screen-reader announcement for successes */}
-      {hasSuccess && (
-        <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {successes[successes.length - 1].message}
-        </div>
-      )}
+      </div>
     </>
   );
 }

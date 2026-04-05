@@ -221,14 +221,14 @@ export default function BulkIngredientImport({
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
             placeholder="Item	Qty	Unit	Grams	Calories	Fat (g)	..."
-            className="w-full h-32 p-3 border border-[var(--rule)] bg-[var(--bg)] font-mono text-[11px] text-[var(--fg)] rounded-[var(--radius-sm,4px)]"
+            className="w-full h-32 p-3 border border-[var(--rule)] bg-[var(--bg)] font-mono text-[11px] text-[var(--fg)]"
             aria-label="Ingredient CSV data"
           />
         </div>
         {error && <div className="text-[var(--error)] text-[11px]">{error}</div>}
         <button
           onClick={handleParse}
-          className="w-full px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-[var(--radius-sm,4px)] hover:bg-[var(--accent-hover)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+          className="w-full px-4 py-2 bg-[var(--accent)] text-[var(--accent-fg)] hover:bg-[var(--accent-hover)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
         >
           Parse & Preview
         </button>
@@ -237,7 +237,7 @@ export default function BulkIngredientImport({
       {/* Preview Modal */}
       {showPreviewModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] max-w-6xl w-full max-h-[90vh] flex flex-col animate-fade-in">
+          <div className="bg-[var(--bg)] border border-[var(--rule)] max-w-6xl w-full max-h-[90vh] flex flex-col animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--rule)]">
               <h3 className="font-sans text-[13px] font-medium text-[var(--fg)]">
@@ -296,13 +296,13 @@ export default function BulkIngredientImport({
               <button
                 onClick={handleImport}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-[var(--radius-sm,4px)] hover:bg-[var(--accent-hover)] disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--accent)] text-[var(--accent-fg)] hover:bg-[var(--accent-hover)] disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
               >
                 {loading ? "Importing..." : "Import All"}
               </button>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className="px-4 py-2 rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors cursor-pointer"
+                className="px-4 py-2 border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors cursor-pointer"
               >
                 Cancel
               </button>

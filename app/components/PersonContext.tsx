@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { resolveTheme } from "@/lib/themes";
 
 export interface Person {
   id: number;
@@ -33,8 +34,9 @@ export function usePersonContext() {
 }
 
 function applyTheme(theme: string) {
-  document.documentElement.dataset.theme = theme || 'sage';
-  localStorage.setItem('theme', theme || 'sage');
+  const resolved = resolveTheme(theme || 'sage');
+  document.documentElement.dataset.theme = resolved;
+  localStorage.setItem('theme', resolved);
 }
 
 export function PersonProvider({ children }: { children: ReactNode }) {

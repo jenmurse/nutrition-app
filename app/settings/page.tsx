@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { APP_NAME } from '@/lib/brand';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
-import { THEMES, themeHex } from '@/lib/themes';
+import { THEMES } from '@/lib/themes';
 
 interface Nutrient {
   id: number;
@@ -15,12 +15,28 @@ interface Nutrient {
   orderIndex: number;
 }
 
-interface UsageData {
-  totalInputTokens: number;
-  totalOutputTokens: number;
-  callCount: number;
-  estimatedCostUsd: number;
+interface DashboardStats {
+  enabledStats: string[];
+  showGreeting: boolean;
 }
+
+const DASHBOARD_STAT_OPTIONS = [
+  { key: 'calories', label: 'Calories' },
+  { key: 'fat', label: 'Fat' },
+  { key: 'sat-fat', label: 'Saturated Fat' },
+  { key: 'sodium', label: 'Sodium' },
+  { key: 'carbs', label: 'Carbs' },
+  { key: 'sugar', label: 'Sugar' },
+  { key: 'protein', label: 'Protein' },
+  { key: 'fiber', label: 'Fiber' },
+];
+
+const GOALS_LAYOUT: { nutrientName: string }[][] = [
+  // Left column
+  [{ nutrientName: 'Calories' }, { nutrientName: 'Carbs' }, { nutrientName: 'Fiber' }, { nutrientName: 'Saturated Fat' }],
+  // Right column
+  [{ nutrientName: 'Protein' }, { nutrientName: 'Fat' }, { nutrientName: 'Sodium' }, { nutrientName: 'Sugar' }],
+];
 
 interface Invite {
   id: number;
@@ -33,222 +49,24 @@ interface Invite {
   expired: boolean;
 }
 
+// ─── Jump nav sections ─────────────────────────────────────────────────────
+const JUMP_SECTIONS = [
+  { id: 'set-sec-people', n: '01', label: 'People' },
+  { id: 'set-sec-goals', n: '02', label: 'Daily Goals' },
+  { id: 'set-sec-dashboard', n: '03', label: 'Dashboard' },
+  { id: 'set-sec-mcp', n: '04', label: 'MCP' },
+  { id: 'set-sec-data', n: '05', label: 'Data' },
+];
+
 // ─── Household section ──────────────────────────────────────────────────────
 
-interface PersonRowProps {
-  person: { id: number; name: string; color: string; theme: string };
-  role?: string;
-  nutrients: Nutrient[];
-  isExpanded: boolean;
-  onToggle: () => void;
-  onSaved: () => void;
-  canDelete: boolean;
-}
-
-function PersonRow({ person, role, nutrients, isExpanded, onToggle, onSaved, canDelete }: PersonRowProps) {
-  const [name, setName] = useState(person.name);
-  const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
-  const [goalsLoaded, setGoalsLoaded] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-
-  // Load goals when expanded
-  useEffect(() => {
-    if (!isExpanded || goalsLoaded) return;
-    fetch(`/api/nutrition-goals?personId=${person.id}`)
-      .then((r) => r.ok ? r.json() : { goals: {} })
-      .then((data) => {
-        const filled: Record<number, { lowGoal?: number; highGoal?: number }> = {};
-        nutrients.forEach((n) => {
-          filled[n.id] = {
-            lowGoal: data.goals?.[n.id]?.lowGoal ?? undefined,
-            highGoal: data.goals?.[n.id]?.highGoal ?? undefined,
-          };
-        });
-        setGoals(filled);
-        setGoalsLoaded(true);
-      })
-      .catch(() => setGoalsLoaded(true));
-  }, [isExpanded, goalsLoaded, person.id, nutrients]);
-
-  // Reset local state when person changes
-  useEffect(() => {
-    setName(person.name);
-    setGoalsLoaded(false);
-  }, [person.id, person.name]);
-
-  const handleGoalChange = (nutrientId: number, field: 'lowGoal' | 'highGoal', value: string) => {
-    setGoals((prev) => ({
-      ...prev,
-      [nutrientId]: {
-        ...prev[nutrientId],
-        [field]: value === '' ? undefined : parseFloat(value),
-      },
-    }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Update name if changed
-      if (name.trim() && name.trim() !== person.name) {
-        await fetch(`/api/persons/${person.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name.trim() }),
-        });
-      }
-      // Save goals
-      await fetch('/api/nutrition-goals', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goals, personId: person.id }),
-      });
-      onSaved();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to remove person');
-      } else {
-        onSaved();
-      }
-    } finally {
-      setDeleting(false);
-    }
-  };
-
+// ─── Section header component ───────────────────────────────────────────────
+function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
-    <div className="border-b border-[var(--rule-faint)]">
-      {/* Row header */}
-      <button
-        onClick={onToggle}
-        className={`w-full flex items-center justify-between px-7 py-[11px] rounded-[8px] transition-colors bg-transparent border-0 cursor-pointer text-left ${isExpanded ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}
-        aria-expanded={isExpanded}
-        aria-label={`${person.name} — click to ${isExpanded ? 'collapse' : 'expand'}`}
-      >
-        <div className="flex items-center gap-[10px]">
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ background: person.color || 'var(--accent)' }}
-            aria-hidden="true"
-          />
-          <span className="font-sans text-[13px] text-[var(--fg)]">{person.name}</span>
-          {role && (
-            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">
-              {role}
-            </span>
-          )}
-        </div>
-        <span className="text-[var(--muted)] text-[10px] select-none" aria-hidden="true">
-          {isExpanded ? '▾' : '▸'}
-        </span>
-      </button>
-
-      {/* Expanded panel */}
-      {isExpanded && (
-        <div className="border-t border-[var(--rule-faint)] bg-[var(--bg-subtle)] rounded-b-[8px]">
-
-          {/* Name + actions on one row */}
-          <div className="px-7 py-[10px] flex items-center gap-4 border-b border-[var(--rule-faint)]">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] shrink-0">Name</span>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-sans text-[13px] bg-transparent text-[var(--fg)] w-[160px] rounded-none focus:outline-none focus:border-[var(--accent)]"
-                aria-label="Member name"
-              />
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={handleSave}
-                disabled={saving || !name.trim()}
-                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                aria-label="Save changes"
-              >
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-              <button
-                onClick={onToggle}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                aria-label="Cancel"
-              >
-                Cancel
-              </button>
-              {canDelete && (
-                <>
-                  <span className="text-[var(--rule-strong)]" aria-hidden="true">·</span>
-                  <button
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                    aria-label={`Remove ${person.name}`}
-                  >
-                    {deleting ? 'Removing…' : 'Remove'}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Goals — tight per-row layout */}
-          <div className="px-7 pt-3 pb-2">
-            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">
-              Daily Goals
-            </div>
-            {!goalsLoaded ? (
-              <div className="text-[11px] text-[var(--muted)] py-2">Loading…</div>
-            ) : (
-              nutrients.map((nutrient) => (
-                <div
-                  key={nutrient.id}
-                  className="flex items-center gap-4 py-[7px] border-b border-[var(--rule-faint)] last:border-0"
-                >
-                  <div className="flex-1 min-w-0">
-                    <span className="font-sans text-[12px] text-[var(--fg)]">{nutrient.displayName}</span>
-                    <span className="font-mono text-[10px] text-[var(--muted)] ml-[5px]">{nutrient.unit}</span>
-                  </div>
-                  <div className="flex items-baseline gap-[5px]">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Min</span>
-                    <input
-                      type="number"
-                      placeholder="—"
-                      value={goals[nutrient.id]?.lowGoal ?? ''}
-                      onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
-                      step="0.1"
-                      className="w-[52px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
-                      aria-label={`${nutrient.displayName} minimum`}
-                    />
-                  </div>
-                  <div className="flex items-baseline gap-[5px]">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Max</span>
-                    <input
-                      type="number"
-                      placeholder="—"
-                      value={goals[nutrient.id]?.highGoal ?? ''}
-                      onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
-                      step="0.1"
-                      className="w-[52px] border-0 border-b border-[var(--rule-faint)] px-0 py-[2px] font-mono text-[11px] text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
-                      aria-label={`${nutrient.displayName} maximum`}
-                    />
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-        </div>
-      )}
+    <div className="flex items-baseline gap-3 mb-8">
+      <span className="font-serif text-[12px] font-bold text-[var(--rule)]">{number}</span>
+      <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>{title}</span>
+      <span className="flex-1 h-px bg-[var(--rule)]" />
     </div>
   );
 }
@@ -259,10 +77,26 @@ const SettingsPage = () => {
   const { persons, selectedPersonId, refreshPersons } = usePersonContext();
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
-  const [expandedPersonId, setExpandedPersonId] = useState<number | null>(null);
   const [savingThemeId, setSavingThemeId] = useState<number | null>(null);
-  const [themeOpenPersonId, setThemeOpenPersonId] = useState<number | null>(null);
-  const [settingsTab, setSettingsTab] = useState<'household' | 'mcp' | 'data'>('household');
+
+  // Goals section
+  const [goalsPersonId, setGoalsPersonId] = useState<number | null>(null);
+  const [goals, setGoals] = useState<Record<number, { lowGoal?: number; highGoal?: number }>>({});
+  const [goalsLoaded, setGoalsLoaded] = useState(false);
+  const [goalsSaving, setGoalsSaving] = useState(false);
+
+  // Dashboard prefs (localStorage)
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>(() => {
+    if (typeof window === 'undefined') return { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
+    try {
+      const stored = localStorage.getItem('dashboard-stats');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
+  });
+
+  // Jump nav active section
+  const [activeSection, setActiveSection] = useState(JUMP_SECTIONS[0].id);
 
   // Household info — seed from localStorage so name appears instantly
   const [householdName, setHouseholdName] = useState(
@@ -288,10 +122,6 @@ const SettingsPage = () => {
   const [newApiKeyValue, setNewApiKeyValue] = useState('');
   const [apiSaving, setApiSaving] = useState(false);
 
-  // Usage
-  const [usage, setUsage] = useState<UsageData | null>(null);
-  const [usageLoading, setUsageLoading] = useState(false);
-  const [clearingLogs, setClearingLogs] = useState(false);
 
   // MCP token
   const [hasMcpToken, setHasMcpToken] = useState(false);
@@ -337,10 +167,136 @@ const SettingsPage = () => {
       .catch(() => {});
   }, []);
 
+  // Scroll-based active section tracking (handles near-bottom edge case)
+  const jumpNavLocked = useRef(false);
+  const jumpNavTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const scrollEl = document.getElementById('settings-scroll-container');
+    if (!scrollEl) return;
+
+    const update = () => {
+      if (jumpNavLocked.current) return;
+      const paneRect = scrollEl.getBoundingClientRect();
+      const nearBottom = scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < 60;
+      const sectionIds = JUMP_SECTIONS.map((s) => s.id);
+      let activeId = sectionIds[0];
+
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - paneRect.top <= 100) activeId = id;
+      }
+
+      // Near bottom: pick last section in upper 60% of viewport
+      if (nearBottom) {
+        for (const id of sectionIds) {
+          const el = document.getElementById(id);
+          if (!el) continue;
+          if (el.getBoundingClientRect().top - paneRect.top < scrollEl.clientHeight * 0.6) activeId = id;
+        }
+      }
+
+      setActiveSection(activeId);
+    };
+
+    scrollEl.addEventListener('scroll', update, { passive: true });
+    setTimeout(update, 50);
+    return () => scrollEl.removeEventListener('scroll', update);
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    const container = document.getElementById('settings-scroll-container');
+    if (el && container) {
+      const paneRect = container.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const offset = container.scrollTop + (elRect.top - paneRect.top) - 64;
+      container.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+      // Immediately set active, lock scroll tracking for 800ms
+      setActiveSection(id);
+      jumpNavLocked.current = true;
+      if (jumpNavTimeout.current) clearTimeout(jumpNavTimeout.current);
+      jumpNavTimeout.current = setTimeout(() => { jumpNavLocked.current = false; }, 800);
+    }
+  };
+
   const loadInvites = async () => {
     const r = await fetch('/api/households/invite');
     if (r.ok) setInvites(await r.json());
   };
+
+  // Auto-select first person for goals tab
+  useEffect(() => {
+    if (persons.length > 0 && goalsPersonId === null) {
+      setGoalsPersonId(persons[0].id);
+    }
+  }, [persons, goalsPersonId]);
+
+  // Load goals when person tab changes
+  useEffect(() => {
+    if (goalsPersonId === null) return;
+    setGoalsLoaded(false);
+    fetch(`/api/nutrition-goals?personId=${goalsPersonId}`)
+      .then((r) => r.ok ? r.json() : { goals: {} })
+      .then((data) => {
+        const filled: Record<number, { lowGoal?: number; highGoal?: number }> = {};
+        nutrients.forEach((n) => {
+          filled[n.id] = {
+            lowGoal: data.goals?.[n.id]?.lowGoal ?? undefined,
+            highGoal: data.goals?.[n.id]?.highGoal ?? undefined,
+          };
+        });
+        setGoals(filled);
+        setGoalsLoaded(true);
+      })
+      .catch(() => setGoalsLoaded(true));
+  }, [goalsPersonId, nutrients]);
+
+  const handleGoalChange = (nutrientId: number, field: 'lowGoal' | 'highGoal', value: string) => {
+    setGoals((prev) => ({
+      ...prev,
+      [nutrientId]: {
+        ...prev[nutrientId],
+        [field]: value === '' ? undefined : parseFloat(value),
+      },
+    }));
+  };
+
+  const handleSaveGoals = async () => {
+    if (goalsPersonId === null) return;
+    setGoalsSaving(true);
+    try {
+      await fetch('/api/nutrition-goals', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goals, personId: goalsPersonId }),
+      });
+      toast.success('Goals saved');
+    } finally {
+      setGoalsSaving(false);
+    }
+  };
+
+  const handleResetGoals = () => {
+    const cleared: Record<number, { lowGoal?: number; highGoal?: number }> = {};
+    nutrients.forEach((n) => { cleared[n.id] = { lowGoal: undefined, highGoal: undefined }; });
+    setGoals(cleared);
+  };
+
+  const saveDashboardStats = (updated: DashboardStats) => {
+    setDashboardStats(updated);
+    localStorage.setItem('dashboard-stats', JSON.stringify(updated));
+  };
+
+  const toggleDashboardStat = (key: string) => {
+    const current = dashboardStats.enabledStats;
+    const updated = current.includes(key)
+      ? current.filter((k) => k !== key)
+      : [...current, key];
+    saveDashboardStats({ ...dashboardStats, enabledStats: updated });
+  };
+
 
   const handleSaveHouseholdName = async () => {
     if (!householdNameDraft.trim() || householdNameDraft.trim() === householdName) {
@@ -428,7 +384,7 @@ const SettingsPage = () => {
     setTimeout(() => setMcpCopied(false), 3000);
   };
 
-  // Load API settings when on API tab
+  // Load API settings
   const loadApiSettings = useCallback(async () => {
     try {
       const res = await fetch('/api/settings');
@@ -439,23 +395,10 @@ const SettingsPage = () => {
     } catch {}
   }, []);
 
-  const loadUsage = useCallback(async () => {
-    setUsageLoading(true);
-    try {
-      const res = await fetch('/api/settings/usage');
-      if (!res.ok) return;
-      const data = await res.json();
-      setUsage(data);
-    } catch {} finally {
-      setUsageLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     loadApiSettings();
-    loadUsage();
     loadMcpToken();
-  }, [loadApiSettings, loadUsage, loadMcpToken]);
+  }, [loadApiSettings, loadMcpToken]);
 
   const handleSaveApiKey = async () => {
     setApiSaving(true);
@@ -485,16 +428,6 @@ const SettingsPage = () => {
     await loadApiSettings();
   };
 
-  const handleClearLogs = async () => {
-    if (!await dialog.confirm('Clear all usage logs?', { confirmLabel: 'Clear', danger: true })) return;
-    setClearingLogs(true);
-    try {
-      await fetch('/api/settings/usage', { method: 'DELETE' });
-      await loadUsage();
-    } finally {
-      setClearingLogs(false);
-    }
-  };
 
   const handleExport = async () => {
     setExportLoading(true);
@@ -564,11 +497,6 @@ const SettingsPage = () => {
     }
   };
 
-  const handlePersonSaved = async () => {
-    await refreshPersons();
-    setExpandedPersonId(null);
-  };
-
   const handleThemeSave = async (personId: number, themeName: string) => {
     setSavingThemeId(personId);
     // Apply live if this is the selected person
@@ -588,539 +516,480 @@ const SettingsPage = () => {
     }
   };
 
-  const settingsTabs: { key: typeof settingsTab; label: string }[] = [
-    { key: 'household', label: 'Household' },
-    { key: 'mcp', label: 'MCP' },
-    { key: 'data', label: 'Data' },
-  ];
-
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      {/* Tab bar */}
-      <div className="flex gap-[2px] shrink-0 bg-[var(--bg)] px-8 pt-4 border-b border-[var(--rule-faint)]">
-        {settingsTabs.map((tab) => (
+    <div className="h-full overflow-hidden relative">
+      {/* ─── Fixed jump nav ─── */}
+      <nav
+        className="fixed z-50 flex flex-col"
+        style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}
+        aria-label="Settings sections"
+      >
+        {JUMP_SECTIONS.map((s, i) => (
           <button
-            key={tab.key}
-            onClick={() => setSettingsTab(tab.key)}
-            className={`px-[12px] pt-[6px] pb-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent transition-[color,border-color] duration-[120ms] border-0 border-b-2 cursor-pointer mb-[-1px] ${
-              settingsTab === tab.key
-                ? 'text-[var(--fg)] border-[var(--fg)]'
-                : 'text-[var(--muted)] border-transparent hover:text-[var(--fg)]'
+            key={s.id}
+            onClick={() => scrollToSection(s.id)}
+            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
+              i < JUMP_SECTIONS.length - 1 ? 'border-b border-[var(--rule)]' : ''
+            } ${
+              activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--accent)]'
             }`}
-            aria-label={`${tab.label} tab`}
-            aria-selected={settingsTab === tab.key}
-            role="tab"
+            style={i === 0 ? { paddingTop: 0 } : undefined}
+            aria-label={`Jump to ${s.label}`}
           >
-            {tab.label}
+            <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
+              activeSection === s.id ? 'text-[var(--accent)]' : 'text-[var(--rule)]'
+            }`}>{s.n}</span>
+            {s.label}
           </button>
         ))}
-      </div>
+      </nav>
 
-      {/* Scrollable tab content */}
-      <div className="flex-1 overflow-y-auto bg-[var(--bg)]">
-        <div style={{ maxWidth: 720, padding: '28px 32px' }}>
+      {/* ─── Scrollable content ─── */}
+      <div id="settings-scroll-container" className="h-full overflow-y-auto" style={{ opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}>
+        <div className="max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
-        {/* ── HOUSEHOLD TAB ── */}
-        {settingsTab === 'household' && (
-        <div className="flex flex-col gap-5">
-        {/* Household name + members */}
-        <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">Household</div>
+          {/* ════════════════════════════════════════════════════════════════════
+              01 — PEOPLE
+              ════════════════════════════════════════════════════════════════════ */}
+          <div id="set-sec-people" style={{ paddingTop: 48, paddingBottom: 56 }}>
+            <SectionHeader number="01" title="People" />
 
-          {/* Household name row */}
-          <div className="py-[10px] border-b border-[var(--rule-faint)]">
-            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[6px]">Household name</div>
-            {editingHouseholdName ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={householdNameDraft}
-                  onChange={(e) => setHouseholdNameDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveHouseholdName();
-                    if (e.key === 'Escape') setEditingHouseholdName(false);
-                  }}
-                  autoFocus
-                  className="bg-[var(--bg-subtle)] border border-[var(--rule-faint)] rounded-[6px] px-3 py-2 font-sans text-[13px] text-[var(--fg)] max-w-[240px] focus:outline-none focus:border-[var(--accent)]"
-                  aria-label="Household name"
-                />
+            {/* Household name — full width above members */}
+            <div className="mb-[32px]">
+              <div className="ed-label mb-[8px]">Household Name</div>
+              <div className="flex gap-[8px] items-end">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={editingHouseholdName ? householdNameDraft : householdName}
+                    onChange={(e) => { if (!editingHouseholdName) { setHouseholdNameDraft(e.target.value); setEditingHouseholdName(true); } else { setHouseholdNameDraft(e.target.value); } }}
+                    onFocus={() => { if (!editingHouseholdName) { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); } }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHouseholdName(); if (e.key === 'Escape') setEditingHouseholdName(false); }}
+                    className="w-full bg-transparent border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--accent)]"
+                    aria-label="Household name"
+                  />
+                </div>
                 <button
                   onClick={handleSaveHouseholdName}
-                  disabled={householdNameSaving || !householdNameDraft.trim()}
-                  className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                >
-                  {householdNameSaving ? 'Saving…' : 'Save'}
-                </button>
-                <button
-                  onClick={() => setEditingHouseholdName(false)}
-                  className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                >
-                  Cancel
-                </button>
+                  disabled={householdNameSaving}
+                  className="ed-btn primary disabled:opacity-40"
+                >{householdNameSaving ? 'Saving…' : 'Save'}</button>
               </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="font-sans text-[15px] font-medium text-[var(--fg)]">{householdName || '…'}</span>
-                <button
-                  onClick={() => { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); }}
-                  className="px-[11px] py-[5px] font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-                  aria-label="Edit household name"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
 
-          {/* Member rows with collapsible color palette */}
-          {persons.map((person) => {
-            const initial = (person.name || '?').charAt(0).toUpperCase();
-            const role = memberRoles[person.id];
-            const isSaving = savingThemeId === person.id;
-            const activeTheme = THEMES.find((t) => t.name === (person.theme || 'sage'));
-            const isThemeOpen = themeOpenPersonId === person.id;
-            return (
-              <div key={person.id} className="py-[12px] border-b border-[var(--rule-faint)]">
-                {/* Top row: avatar + name + role badge + theme indicator */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white shrink-0"
-                    style={{ background: person.color || 'var(--accent)' }}
-                    aria-hidden="true"
-                  >
-                    {initial}
-                  </div>
-                  <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <span className="text-[12px] text-[var(--fg)] font-medium">{person.name}</span>
-                    {role && (
-                      <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] border border-[var(--rule-faint)] px-[5px] py-[1px] rounded-full">{role}</span>
-                    )}
-                    {role !== 'owner' && (
-                      <button
-                        onClick={async () => {
-                          if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
-                          const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-                          if (res.ok) {
-                            await refreshPersons();
-                          } else {
-                            const data = await res.json();
-                            toast.error(data.error || 'Failed to remove person');
-                          }
-                        }}
-                        className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
-                        aria-label={`Remove ${person.name}`}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                  {/* Theme swatch indicator — click to toggle palette */}
-                  <button
-                    onClick={() => setThemeOpenPersonId(isThemeOpen ? null : person.id)}
-                    className="flex items-center gap-[6px] px-[8px] py-[4px] rounded-[6px] border-0 bg-transparent hover:bg-[var(--bg-subtle)] cursor-pointer transition-colors"
-                    aria-label={`${isThemeOpen ? 'Hide' : 'Show'} color palette for ${person.name}`}
-                    aria-expanded={isThemeOpen}
-                  >
-                    <span
-                      className="w-[14px] h-[14px] rounded-full shrink-0"
-                      style={{ background: activeTheme?.hex || 'var(--accent)' }}
-                      aria-hidden="true"
-                    />
-                    <span className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.08em]">{activeTheme?.label || 'Sage'}</span>
-                    <span className="text-[var(--muted)] text-[9px] select-none" aria-hidden="true">{isThemeOpen ? '▾' : '▸'}</span>
-                  </button>
-                </div>
-                {/* Swatch strip — only visible when expanded */}
-                {isThemeOpen && (
-                  <div className="flex flex-wrap gap-[6px] pl-[40px] mt-[10px] pt-[10px] border-t border-[var(--rule-faint)]">
-                    {THEMES.map((t) => {
-                      const isActive = (person.theme || 'sage') === t.name;
-                      return (
-                        <button
-                          key={t.name}
-                          onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
-                          disabled={isSaving}
-                          title={t.label}
-                          className="w-[18px] h-[18px] rounded-full flex items-center justify-center border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-110"
-                          style={{
-                            background: t.hex,
-                            outline: isActive ? `2px solid ${t.hex}` : '2px solid transparent',
-                            outlineOffset: '2px',
-                          }}
-                          aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
-                          aria-pressed={isActive}
-                        >
-                          {isActive && (
-                            <svg width="8" height="6" viewBox="0 0 8 6" fill="none" aria-hidden="true">
-                              <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Add / Invite member */}
-          <div className="mt-[14px] flex gap-2">
-            {!addingPerson ? (
-              <button
-                onClick={() => setAddingPerson(true)}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule-faint)] rounded-[6px] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors"
-                aria-label="Add a household member"
-              >
-                + Add member
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 flex-wrap">
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddPerson();
-                    if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); }
-                  }}
-                  placeholder="Name"
-                  autoFocus
-                  className="bg-[var(--bg-subtle)] border border-[var(--rule-faint)] rounded-[6px] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
-                  aria-label="New member name"
-                />
-                <button
-                  onClick={handleAddPerson}
-                  disabled={!newName.trim() || addSaving}
-                  className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] bg-[var(--accent)] text-[var(--accent-text)] border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                >
-                  {addSaving ? 'Adding…' : 'Add'}
-                </button>
-                <button
-                  onClick={() => { setAddingPerson(false); setNewName(''); }}
-                  className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-            <button
-              onClick={handleInvite}
-              disabled={inviting}
-              className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.08em] bg-[var(--bg-subtle)] text-[var(--mid)] border border-[var(--rule-faint)] rounded-[6px] hover:bg-[var(--bg-selected)] cursor-pointer transition-colors disabled:opacity-40"
-              aria-label="Generate invite link"
-            >
-              {inviting ? 'Generating…' : 'Invite member'}
-            </button>
-          </div>
-
-          {/* ── INVITES (directly under add/invite buttons) ── */}
-          {invites.length > 0 && (
-            <div className="mt-4">
-              <div className="border border-[var(--rule-faint)] rounded-[8px] overflow-hidden">
-                <div className="grid grid-cols-[1fr_60px_80px_90px_90px] bg-[var(--bg-subtle)] px-4 py-2 border-b border-[var(--rule-faint)]">
-                  {['Invite URL', '', 'Status', 'Created', 'Redeemed'].map((h, i) => (
-                    <span key={i} className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{h}</span>
-                  ))}
-                </div>
-                {invites.map((inv) => {
-                  const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
-                  const statusColor = status === 'redeemed' ? 'text-[var(--muted)]' : status === 'expired' ? 'text-[var(--error)]' : 'text-[var(--accent)]';
+            {/* Member list — full width */}
+            <div>
+                {/* Member rows */}
+                {persons.map((person) => {
+                  const role = memberRoles[person.id];
+                  const isSaving = savingThemeId === person.id;
                   return (
-                    <div key={inv.id} className="grid grid-cols-[1fr_60px_80px_90px_90px] px-4 py-[10px] bg-[var(--bg)] border-b border-[var(--rule-faint)] last:border-b-0 items-center">
-                      <span className="font-mono text-[10px] text-[var(--fg)] truncate min-w-0" title={inv.url}>
-                        {inv.url.replace(/^https?:\/\//, '')}
-                      </span>
-                      <div>
-                        {status === 'active' && (
-                          <button
-                            onClick={() => handleCopyInvite(inv.url, inv.token)}
-                            className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
-                            aria-label="Copy invite link"
-                          >
-                            {copiedToken === inv.token ? 'Copied!' : 'Copy'}
-                          </button>
-                        )}
+                    <div key={person.id} className="flex items-center gap-[12px] py-[12px] border-b border-[var(--rule)]">
+                      <span
+                        className="w-[10px] h-[10px] rounded-full shrink-0"
+                        style={{ background: person.color || 'var(--accent)' }}
+                        aria-hidden="true"
+                      />
+                      <span className="text-[13px] text-[var(--fg)] font-medium">{person.name}</span>
+                      {role && (
+                        <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px]">{role}</span>
+                      )}
+                      {role !== 'owner' && (
+                        <button
+                          onClick={async () => {
+                            if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
+                            const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
+                            if (res.ok) { await refreshPersons(); } else {
+                              const data = await res.json();
+                              toast.error(data.error || 'Failed to remove person');
+                            }
+                          }}
+                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
+                          aria-label={`Remove ${person.name}`}
+                        >
+                          Remove
+                        </button>
+                      )}
+                      <div className="flex items-center gap-[6px] ml-auto" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
+                        {THEMES.map((t) => {
+                          const isActive = (person.theme || 'sage') === t.name;
+                          return (
+                            <button
+                              key={t.name}
+                              onClick={() => !isSaving && handleThemeSave(person.id, t.name)}
+                              disabled={isSaving}
+                              title={t.label}
+                              className="w-[20px] h-[20px] rounded-full border-0 cursor-pointer p-0 disabled:opacity-50 transition-transform hover:scale-[1.15] active:scale-95 flex items-center justify-center"
+                              style={{
+                                background: t.hex,
+                                boxShadow: isActive ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${t.hex}` : 'none',
+                              }}
+                              aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
+                              role="radio"
+                              aria-checked={isActive}
+                            >
+                              {isActive && (
+                                <svg width="7" height="5" viewBox="0 0 8 6" fill="none" aria-hidden="true">
+                                  <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
-                      <div>
-                        <span className={`font-mono text-[9px] uppercase tracking-[0.05em] ${statusColor}`}>{status}</span>
-                        {inv.usedByName && (
-                          <div className="font-sans text-[10px] text-[var(--muted)] mt-[1px]">{inv.usedByName}</div>
-                        )}
-                      </div>
-                      <span className="font-mono text-[10px] text-[var(--muted)]">
-                        {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
-                      </span>
-                      <span className="font-mono text-[10px] text-[var(--muted)]">
-                        {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
-                      </span>
                     </div>
                   );
                 })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── PERSONS & GOALS ── */}
-        <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Nutrition Goals</div>
-          {persons.map((person) => (
-            <PersonRow
-              key={person.id}
-              person={person}
-              role={memberRoles[person.id]}
-              nutrients={nutrients}
-              isExpanded={expandedPersonId === person.id}
-              onToggle={() => setExpandedPersonId(expandedPersonId === person.id ? null : person.id)}
-              onSaved={handlePersonSaved}
-              canDelete={persons.length > 1}
-            />
-          ))}
-        </div>
-
-        </div>
-        )}
-
-        {/* ── AI API TAB (removed) ── */}
-        {false && (
-        <div className="mb-8">
-          <div className="space-y-6">
-            <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-4">AI API Key</div>
-              {!editingApiKey ? (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule-faint)] rounded-[8px] bg-[var(--bg-subtle)] min-w-[220px]">
-                    {hasApiKey ? (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0" aria-hidden="true" />
-                        <span className="font-mono text-[11px] text-[var(--fg)] tracking-[0.1em]">{maskedKey}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-[var(--muted)] shrink-0" aria-hidden="true" />
-                        <span className="font-mono text-[11px] text-[var(--muted)]">Not configured</span>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
+                {/* Add / Invite buttons */}
+                <div className="pt-[12px] flex gap-[8px]">
+                  {!addingPerson ? (
                     <button
-                      onClick={() => { setEditingApiKey(true); setNewApiKeyValue(''); }}
-                      className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-                      aria-label={hasApiKey ? 'Change API key' : 'Add API key'}
-                    >
-                      {hasApiKey ? 'Change' : 'Add Key'}
-                    </button>
-                    {hasApiKey && (
-                      <button
-                        onClick={handleRemoveApiKey}
-                        className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                        aria-label="Remove API key"
-                      >
-                        Remove
+                      onClick={() => setAddingPerson(true)}
+                      className="ed-btn"
+                      aria-label="Add a household member"
+                    >+ Add Member</button>
+                  ) : (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddPerson(); if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); } }}
+                        placeholder="Name" autoFocus
+                        className="bg-[var(--bg-2)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
+                        aria-label="New member name" />
+                      <button onClick={handleAddPerson} disabled={!newName.trim() || addSaving}
+                        className="ed-btn primary disabled:opacity-40">
+                        {addSaving ? 'Adding…' : 'Add'}
                       </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <input
-                    type="password"
-                    value={newApiKeyValue}
-                    onChange={(e) => setNewApiKeyValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newApiKeyValue.trim()) handleSaveApiKey();
-                      if (e.key === 'Escape') { setEditingApiKey(false); setNewApiKeyValue(''); }
-                    }}
-                    placeholder="sk-ant-…"
-                    autoFocus
-                    className="bg-[var(--bg)] border border-[var(--rule-faint)] rounded-[6px] px-3 py-[9px] font-mono text-[12px] text-[var(--fg)] w-full max-w-[400px] focus:outline-none focus:border-[var(--accent)]"
-                    aria-label="AI API key"
-                  />
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={handleSaveApiKey}
-                      disabled={!newApiKeyValue.trim() || apiSaving}
-                      className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                    >
-                      {apiSaving ? 'Saving…' : 'Save Key'}
-                    </button>
-                    <button
-                      onClick={() => { setEditingApiKey(false); setNewApiKeyValue(''); }}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="h-2" />
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">API Usage</div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={loadUsage}
-                    className="px-[8px] py-[3px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer"
-                    aria-label="Refresh usage stats"
-                  >
-                    Refresh
-                  </button>
-                  {usage && usage.callCount > 0 && (
-                    <button
-                      onClick={handleClearLogs}
-                      disabled={clearingLogs}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                      aria-label="Clear usage logs"
-                    >
-                      {clearingLogs ? 'Clearing…' : 'Clear logs'}
-                    </button>
+                      <button onClick={() => { setAddingPerson(false); setNewName(''); }}
+                        className="ed-btn ghost">Cancel</button>
+                    </div>
                   )}
+                  <button onClick={handleInvite} disabled={inviting}
+                    className="ed-btn disabled:opacity-40"
+                    aria-label="Generate invite link">
+                    {inviting ? 'Generating…' : '+ Invite Link'}
+                  </button>
                 </div>
               </div>
-              {usageLoading ? (
-                <div className="text-[11px] text-[var(--muted)]">Loading…</div>
-              ) : !usage || usage.callCount === 0 ? (
-                <div className="text-[11px] text-[var(--muted)] italic">No usage recorded yet.</div>
+
+            {/* ── Invite Links table ── */}
+            {invites.length > 0 && (
+              <div className="mt-[32px]">
+                <div className="ed-label mb-[10px]">Invite Links</div>
+                <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
+                  <thead>
+                    <tr>
+                      {['URL', 'Status', 'Created', 'Redeemed', ''].map((h, i) => (
+                        <th key={i} className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]"
+                          style={i === 4 ? { width: 80 } : i >= 1 && i <= 3 ? { width: 80 } : undefined}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invites.map((inv) => {
+                      const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
+                      return (
+                        <tr key={inv.id} className="border-b border-[var(--rule)]">
+                          <td className="font-mono text-[10px] text-[var(--fg)] py-[8px]" title={inv.url}>
+                            {inv.url.replace(/^https?:\/\//, '')}
+                          </td>
+                          <td className={`font-mono text-[10px] py-[8px] ${status === 'active' ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </td>
+                          <td className="font-mono text-[10px] text-[var(--muted)] py-[8px]">
+                            {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                          </td>
+                          <td className="font-mono text-[10px] text-[var(--muted)] py-[8px]">
+                            {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
+                          </td>
+                          <td className="text-right py-[8px]">
+                            {status === 'active' ? (
+                              <button
+                                className="ed-btn danger"
+                                aria-label="Revoke invite"
+                                onClick={async () => {
+                                  if (!await dialog.confirm('Revoke this invite link?', { confirmLabel: 'Revoke', danger: true })) return;
+                                  const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
+                                  if (res.ok) await loadInvites();
+                                  else toast.error('Failed to revoke invite');
+                                }}
+                              >Revoke</button>
+                            ) : (
+                              <button
+                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto"
+                                aria-label="Remove expired invite"
+                                onClick={async () => {
+                                  const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
+                                  if (res.ok) await loadInvites();
+                                  else toast.error('Failed to remove invite');
+                                }}
+                              >×</button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* ════════════════════════════════════════════════════════════════════
+              02 — DAILY GOALS
+              ════════════════════════════════════════════════════════════════════ */}
+          <div id="set-sec-goals" style={{ padding: '56px 0' }}>
+            <SectionHeader number="02" title="Daily Goals" />
+
+            <div>
+              {/* Person tabs */}
+              <div className="flex items-center gap-[8px] mb-[16px]" role="tablist" aria-label="Select person for goals">
+                {persons.map((person) => {
+                  const isActive = goalsPersonId === person.id;
+                  return (
+                    <button
+                      key={person.id}
+                      onClick={() => setGoalsPersonId(person.id)}
+                      role="tab"
+                      aria-selected={isActive}
+                      className="px-[16px] py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
+                      style={{
+                        background: isActive ? 'var(--accent)' : 'var(--bg-2)',
+                        color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
+                      }}
+                      aria-label={`Goals for ${person.name}`}
+                    >
+                      {person.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 2-column nutrient grid */}
+              {!goalsLoaded ? (
+                <div className="text-[11px] text-[var(--muted)] py-4">Loading goals...</div>
               ) : (
-                <div className="grid grid-cols-2 gap-[1px] border border-[var(--rule-faint)] bg-[var(--rule-faint)] rounded-[8px] overflow-hidden max-w-[380px]">
-                  {[
-                    { label: 'API calls', value: usage.callCount.toLocaleString() },
-                    { label: 'Est. cost', value: `$${usage.estimatedCostUsd.toFixed(4)}` },
-                    { label: 'Input tokens', value: usage.totalInputTokens.toLocaleString() },
-                    { label: 'Output tokens', value: usage.totalOutputTokens.toLocaleString() },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="bg-[var(--bg)] px-4 py-3">
-                      <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] mb-[3px]">{label}</div>
-                      <div className="font-mono text-[15px] text-[var(--fg)]">{value}</div>
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 56px' }}>
+                    {GOALS_LAYOUT.map((column, colIdx) => (
+                      <div key={colIdx}>
+                        {column.map(({ nutrientName }) => {
+                          const nutrient = nutrients.find((n) => n.displayName === nutrientName);
+                          if (!nutrient) return null;
+                          return (
+                            <div
+                              key={nutrient.id}
+                              className="flex items-center gap-[12px]"
+                              style={{ padding: '8px 0' }}
+                            >
+                              <span className="text-[13px] text-[var(--fg)]" style={{ flex: 1 }}>
+                                {nutrient.displayName}
+                              </span>
+                              <span className="font-mono text-[8px] text-[var(--muted)]" style={{ width: 24 }}>Min</span>
+                              <input
+                                type="number"
+                                placeholder="—"
+                                value={goals[nutrient.id]?.lowGoal ?? ''}
+                                onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
+                                step="0.1"
+                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                style={{ width: 56, fontSize: 13 }}
+                                aria-label={`${nutrient.displayName} minimum`}
+                              />
+                              <span className="font-mono text-[8px] text-[var(--muted)]" style={{ width: 24 }}>Max</span>
+                              <input
+                                type="number"
+                                placeholder="—"
+                                value={goals[nutrient.id]?.highGoal ?? ''}
+                                onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
+                                step="0.1"
+                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                style={{ width: 56, fontSize: 13 }}
+                                aria-label={`${nutrient.displayName} maximum`}
+                              />
+                              <span className="font-mono text-[9px] text-[var(--muted)]" style={{ width: 28 }}>{nutrient.unit}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Save / Reset — mockup: Reset left, Save right */}
+                  <div className="flex items-center justify-end gap-4 mt-5">
+                    <button
+                      onClick={handleResetGoals}
+                      className="ed-btn ghost"
+                      aria-label="Reset goals to defaults"
+                    >
+                      Reset to defaults
+                    </button>
+                    <button
+                      onClick={handleSaveGoals}
+                      disabled={goalsSaving}
+                      className="ed-btn primary disabled:opacity-40"
+                      aria-label="Save goals"
+                    >
+                      {goalsSaving ? 'Saving...' : 'Save Goals'}
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
-        </div>
-        )}
 
-        {/* ── MCP TAB ── */}
-        {settingsTab === 'mcp' && (
-        <div className="flex flex-col gap-5">
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">API Token</div>
-              <p className="font-mono text-[11px] text-[var(--muted)] mb-4 leading-relaxed">
-                Generate a secure token to let your favorite AI assistant list, analyze, and save recipes directly to this app.
+          {/* ════════════════════════════════════════════════════════════════════
+              03 — DASHBOARD
+              ════════════════════════════════════════════════════════════════════ */}
+          <div id="set-sec-dashboard" style={{ padding: '56px 0' }}>
+            <SectionHeader number="03" title="Dashboard" />
+
+            <div>
+              {/* Home Stats */}
+              <div className="ed-label mb-[8px]">Home Stats</div>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                Select exactly 3 nutrition stats to display on your dashboard and meal cards.
               </p>
-              {newMcpToken ? (
-                <div className="space-y-3">
-                  <div className="border border-[var(--accent)] bg-[var(--bg-subtle)] rounded-[8px] px-4 py-3">
-                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--accent)] mb-2">
-                      Copy this token now — it won't be shown again
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
-                      <button
-                        onClick={handleCopyMcpToken}
-                        className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer shrink-0"
-                        aria-label="Copy MCP token"
-                      >
-                        {mcpCopied ? 'Copied!' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setNewMcpToken(null)}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-3 px-4 py-[7px] border border-[var(--rule-faint)] rounded-[8px] bg-[var(--bg-subtle)] min-w-[220px]">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--accent)]' : 'bg-[var(--muted)]'}`} aria-hidden="true" />
-                    <span className="font-mono text-[11px] text-[var(--muted)]">
-                      {hasMcpToken ? 'Token active' : 'No token'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleGenerateMcpToken}
-                    disabled={mcpTokenLoading}
-                    className="px-3 py-[7px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors disabled:opacity-40"
-                    aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
-                  >
-                    {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate token'}
-                  </button>
-                  {hasMcpToken && (
-                    <button
-                      onClick={handleRevokeMcpToken}
-                      disabled={revokingMcpToken}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--error)] transition-colors bg-transparent border-0 cursor-pointer"
-                      aria-label="Revoke MCP token"
+              <div style={{ maxWidth: 400 }}>
+                {DASHBOARD_STAT_OPTIONS.map((opt) => {
+                  const checked = dashboardStats.enabledStats.includes(opt.key);
+                  const atLimit = dashboardStats.enabledStats.length >= 3 && !checked;
+                  return (
+                    <label
+                      key={opt.key}
+                      className={`flex items-center gap-[12px] py-[9px] border-b border-[var(--rule)] ${atLimit ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
-                      {revokingMcpToken ? 'Revoking…' : 'Revoke'}
-                    </button>
-                  )}
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={atLimit}
+                        onChange={() => toggleDashboardStat(opt.key)}
+                        aria-label={opt.label}
+                      />
+                      <span className="text-[13px] text-[var(--fg)]">{opt.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              {dashboardStats.enabledStats.length < 3 && (
+                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--warn)] mt-[10px]">
+                  Select {3 - dashboardStats.enabledStats.length} more
                 </div>
               )}
+
+            </div>
           </div>
 
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-5">How to set up</div>
-              <div className="space-y-7">
+          {/* ════════════════════════════════════════════════════════════════════
+              04 — MCP
+              ════════════════════════════════════════════════════════════════════ */}
+          <div id="set-sec-mcp" style={{ padding: '56px 0' }}>
+            <SectionHeader number="04" title="MCP Integration" />
 
-                {/* Step 1 */}
-                <div className="grid grid-cols-[20px_1fr] gap-3">
-                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">1.</span>
-                  <div className="space-y-3">
-                    <p className="font-mono text-[10px] text-[var(--fg)] font-medium tracking-[0.02em]">Configure your Assistant</p>
-                    <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed">
-                      Choose your preferred AI host and update its configuration file. We recommend <span className="text-[var(--fg)]">Claude Desktop</span> for complex meal planning or <span className="text-[var(--fg)]">Roo Code/Windsurf</span> for an integrated development experience.
-                    </p>
-                    <div className="border border-[var(--rule-faint)] rounded-[6px] overflow-hidden">
-                      <div className="grid grid-cols-2 border-b border-[var(--rule-faint)] bg-[var(--bg-subtle)] px-3 py-[6px]">
-                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Assistant</span>
-                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Config File Path</span>
-                      </div>
-                      <div className="grid grid-cols-2 px-3 py-[8px] border-b border-[var(--rule-faint)]">
-                        <span className="font-mono text-[10px] text-[var(--fg)]">Claude Desktop</span>
-                        <span className="font-mono text-[9px] text-[var(--muted)] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</span>
-                      </div>
-                      <div className="grid grid-cols-2 px-3 py-[8px] border-b border-[var(--rule-faint)]">
-                        <span className="font-mono text-[10px] text-[var(--fg)]">Cursor</span>
-                        <span className="font-mono text-[9px] text-[var(--muted)]">~/.cursor/mcp.json</span>
-                      </div>
-                      <div className="grid grid-cols-2 px-3 py-[8px]">
-                        <span className="font-mono text-[10px] text-[var(--fg)]">Windsurf / Roo Code</span>
-                        <span className="font-mono text-[9px] text-[var(--muted)]">~/.codeium/windsurf/mcp_config.json</span>
-                      </div>
-                    </div>
+            <div>
+              {/* Token status dot + label */}
+              <div className="flex items-center gap-[8px] mb-[16px]">
+                <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--ok)]' : 'bg-[var(--rule)]'}`} aria-hidden="true" />
+                <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em]">
+                  {hasMcpToken ? 'Token active' : 'No token'}
+                </span>
+              </div>
 
-                    {/* Config block */}
-                    <div className="mt-1">
-                      <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed mb-2">
-                        Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="bg-[var(--bg-subtle)] px-1">good-measure</code> object to your existing <code className="bg-[var(--bg-subtle)] px-1">mcpServers</code> list.
-                      </p>
-                      <div className="border border-[var(--rule-faint)] rounded-[6px] overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-[6px] bg-[var(--bg-subtle)] border-b border-[var(--rule-faint)]">
-                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">JSON</span>
-                          <button
-                            onClick={() => {
-                              const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                              navigator.clipboard.writeText(`{\n  "mcpServers": {\n    "good-measure": {\n      "command": "npx",\n      "args": ["-y", "good-measure-mcp"],\n      "env": {\n        "GOOD_MEASURE_API_URL": "${origin}",\n        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"\n      }\n    }\n  }\n}`);
-                              setConfigBlockCopied(true);
-                              setTimeout(() => setConfigBlockCopied(false), 2000);
-                            }}
-                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
-                            aria-label="Copy configuration block"
-                          >
-                            {configBlockCopied ? 'Copied ✓' : 'Copy'}
-                          </button>
-                        </div>
-                        <div className="bg-[var(--bg-subtle)] px-3 py-3">
-                          <pre className="font-mono text-[10px] text-[var(--fg)] whitespace-pre-wrap leading-relaxed">{`{
+              {/* Generate / Revoke buttons */}
+              <div className="flex gap-[8px] mb-[16px]">
+                <button
+                  onClick={handleGenerateMcpToken}
+                  disabled={mcpTokenLoading}
+                  className="ed-btn disabled:opacity-40"
+                  aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
+                >
+                  {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate Token'}
+                </button>
+                {hasMcpToken && (
+                  <button
+                    onClick={handleRevokeMcpToken}
+                    disabled={revokingMcpToken}
+                    className="ed-btn danger disabled:opacity-40"
+                    aria-label="Revoke MCP token"
+                  >
+                    {revokingMcpToken ? 'Revoking…' : 'Revoke'}
+                  </button>
+                )}
+              </div>
+
+              {/* New token display */}
+              {newMcpToken && (
+                <div className="mb-[16px]">
+                  <div className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--accent)] mb-[8px]">
+                    Copy this token now — it won&apos;t be shown again
+                  </div>
+                  <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent)] px-[16px] py-[12px]">
+                    <code className="font-mono text-[10px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
+                    <button
+                      onClick={handleCopyMcpToken}
+                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
+                      aria-label="Copy MCP token"
+                    >
+                      {mcpCopied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Configuration ── */}
+              <div className="mt-[40px]">
+                <div className="ed-label mb-[8px]">Configuration</div>
+                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                  Add the {APP_NAME} MCP server to your assistant&apos;s configuration file.
+                </p>
+
+                {/* Config table */}
+                <table className="w-full mb-[12px]" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
+                  <thead>
+                    <tr>
+                      <th className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]">Assistant</th>
+                      <th className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]">Config File Path</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-[var(--rule)]">
+                      <td className="text-[var(--fg)] font-medium py-[8px]" style={{ width: 140 }}>Claude Desktop</td>
+                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</td>
+                    </tr>
+                    <tr className="border-b border-[var(--rule)]">
+                      <td className="text-[var(--fg)] font-medium py-[8px]">Cursor</td>
+                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px]">~/.cursor/mcp.json</td>
+                    </tr>
+                    <tr className="border-b border-[var(--rule)]">
+                      <td className="text-[var(--fg)] font-medium py-[8px]">Windsurf / Roo Code</td>
+                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px]">~/.codeium/windsurf/mcp_config.json</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[8px]">
+                  Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">good-measure</code> object to your existing <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">mcpServers</code> list.
+                </p>
+
+                {/* Code block */}
+                <div className="bg-[var(--bg-2)] px-[20px] py-[16px] relative overflow-x-auto">
+                  <span className="font-mono text-[7px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
+                  <button
+                    onClick={() => {
+                      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                      navigator.clipboard.writeText(`{\n  "mcpServers": {\n    "good-measure": {\n      "command": "npx",\n      "args": ["-y", "good-measure-mcp"],\n      "env": {\n        "GOOD_MEASURE_API_URL": "${origin}",\n        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"\n      }\n    }\n  }\n}`);
+                      setConfigBlockCopied(true);
+                      setTimeout(() => setConfigBlockCopied(false), 2000);
+                    }}
+                    className="text-[var(--accent)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                    aria-label="Copy configuration block"
+                  >
+                    {configBlockCopied ? (
+                      <span className="font-mono text-[8px] uppercase tracking-[0.1em]">Copied ✓</span>
+                    ) : (
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
+                    )}
+                  </button>
+                  <pre className="font-mono text-[10px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`{
   "mcpServers": {
     "good-measure": {
       "command": "npx",
@@ -1132,122 +1001,115 @@ const SettingsPage = () => {
     }
   }
 }`}</pre>
-                        </div>
-                      </div>
-                      <div className="mt-2 border-l-2 border-[var(--rule-faint)] pl-3">
-                        <p className="font-mono text-[9px] text-[var(--muted)] leading-relaxed">
-                          <span className="text-[var(--fg)]">Pro Tip:</span> No manual installation is required. <code className="bg-[var(--bg-subtle)] px-1">npx</code> will automatically fetch the latest version of the {APP_NAME} server each time your assistant starts.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Step 2 */}
-                <div className="grid grid-cols-[20px_1fr] gap-3">
-                  <span className="font-mono text-[9px] text-[var(--muted)] pt-px">2.</span>
-                  <div className="space-y-3">
-                    <p className="font-mono text-[10px] text-[var(--fg)] font-medium tracking-[0.02em]">Activate &amp; Test</p>
-                    <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed">
-                      Restart your AI assistant to initialize the connection.
-                    </p>
-                    <div>
-                      <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Try this prompt to test the link:</p>
-                      <div className="border-l-2 border-[var(--rule-faint)] pl-3">
-                        <p className="font-mono text-[10px] text-[var(--fg)] italic">&ldquo;List my recipes from {APP_NAME} and tell me which ones are high in protein.&rdquo;</p>
-                      </div>
-                    </div>
-                    <div className="pt-1">
-                      <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Optimization Workflow <span className="normal-case tracking-normal">(Advanced)</span></p>
-                      <p className="font-mono text-[10px] text-[var(--muted)] leading-relaxed mb-2">To use the full power of the Chef Agent for meal prep, try a prompt like this:</p>
-                      <div className="border-l-2 border-[var(--rule-faint)] pl-3">
-                        <p className="font-mono text-[10px] text-[var(--fg)] italic">&ldquo;Get the recipe for Black Bean Avocado Brownies. Analyze it for nutritional optimization—check my database for substitutions using search_ingredients and show me a comparison table before saving.&rdquo;</p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Pro tip */}
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] mt-[16px] text-[12px] text-[var(--fg-2)] leading-[1.6]">
+                  <strong className="text-[var(--fg)]">Pro tip:</strong> The npx command auto-fetches the latest version of the MCP server. No manual installation needed.
                 </div>
-
               </div>
-          </div>
-        </div>
-        )}
 
-        {/* ── DATA TAB ── */}
-        {settingsTab === 'data' && (
-        <div className="flex flex-col gap-5">
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Export</div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                Download a complete backup of your household data — ingredients, recipes, meal plans, and nutrition goals — as a JSON file.
+              {/* ── Test Connection ── */}
+              <div className="mt-[40px]">
+                <div className="ed-label mb-[8px]">Test Connection</div>
+                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                  Restart your assistant after saving the config file, then try:
+                </p>
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
+                  &ldquo;List my recipes from {APP_NAME} and tell me which ones are highest in protein.&rdquo;
+                </div>
+
+                <div className="ed-label mt-[20px] mb-[8px]">Advanced — Full Optimization Workflow</div>
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
+                  &ldquo;You are a chef with a background in nutrition. Get my recipe for Almond Croissant Bars. Optimize it to reduce fat and sugar while preserving flavor. Show a comparison table, then save the optimized version.&rdquo;
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════════════════
+              05 — DATA
+              ════════════════════════════════════════════════════════════════════ */}
+          <div id="set-sec-data" style={{ padding: '56px 0' }}>
+            <SectionHeader number="05" title="Data" />
+
+            <div>
+              <div className="ed-label mb-[8px]">Export</div>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                Download a complete backup of your household data — recipes, ingredients, meal plans, and goals — as a single JSON file.
               </p>
               <button
                 onClick={handleExport}
                 disabled={exportLoading}
-                className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors disabled:opacity-40"
+                className="ed-btn disabled:opacity-40"
                 aria-label="Export household data"
               >
-                {exportLoading ? 'Exporting…' : 'Export data'}
+                {exportLoading ? 'Exporting…' : 'Export Data'}
               </button>
-          </div>
 
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius,12px)] p-5" style={{ boxShadow: 'var(--shadow-md)' }}>
-              <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Import</div>
-              <p className="font-sans text-[13px] text-[var(--muted)] mb-4 leading-relaxed">
-                Restore from a backup file. <strong className="text-[var(--fg)] font-medium">This will overwrite all existing household data</strong> and cannot be undone.
-              </p>
-              <label
-                htmlFor="import-file"
-                className="inline-flex items-center gap-3 px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] border border-[var(--rule-faint)] rounded-[6px] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-                aria-label="Select backup file"
-              >
-                {importFile ? importFile.name : 'Choose backup file'}
-              </label>
-              <input
-                id="import-file"
-                type="file"
-                accept=".json,application/json"
-                className="sr-only"
-                onChange={(e) => {
-                  setImportFile(e.target.files?.[0] ?? null);
-                  setImportResult(null);
-                }}
-                aria-label="Backup file input"
-              />
-              {importFile && (
-                <div className="flex items-center gap-3 mt-3">
-                  <button
-                    onClick={handleImport}
-                    disabled={importLoading}
-                    className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 rounded-[6px] cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
-                    aria-label="Restore from backup"
-                  >
-                    {importLoading ? 'Importing…' : 'Restore'}
-                  </button>
-                  <button
-                    onClick={() => { setImportFile(null); setImportResult(null); }}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-              {importResult && (
-                <div
-                  className={`mt-4 px-4 py-3 font-sans text-[12px] rounded-[8px] border ${
-                    importResult.ok
-                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
-                      : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
-                  }`}
-                  role="status"
+              <div className="mt-[40px]">
+                <div className="ed-label mb-[8px]">Import</div>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                  Restore from a backup file. <strong className="text-[var(--fg)]">This will overwrite all existing household data.</strong>
+                </p>
+                {/* Drag-drop zone */}
+                <label
+                  htmlFor="import-file"
+                  className="flex flex-col items-center justify-center bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer hover:border-[var(--accent)] transition-colors"
+                  style={{ padding: 24, maxWidth: 400 }}
+                  aria-label="Drop JSON file or click to browse"
                 >
-                  {importResult.message}
-                </div>
-              )}
+                  <span className="text-[18px] text-[var(--muted)] mb-[4px]">↑</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
+                    {importFile ? importFile.name : 'Drop JSON file or click to browse'}
+                  </span>
+                </label>
+                <input
+                  id="import-file"
+                  type="file"
+                  accept=".json,application/json"
+                  className="sr-only"
+                  onChange={(e) => {
+                    setImportFile(e.target.files?.[0] ?? null);
+                    setImportResult(null);
+                  }}
+                  aria-label="Backup file input"
+                />
+                {importFile && (
+                  <div className="flex items-center gap-3 mt-3">
+                    <button
+                      onClick={handleImport}
+                      disabled={importLoading}
+                      className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                      aria-label="Restore from backup"
+                    >
+                      {importLoading ? 'Importing…' : 'Restore'}
+                    </button>
+                    <button
+                      onClick={() => { setImportFile(null); setImportResult(null); }}
+                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                {importResult && (
+                  <div
+                    className={`mt-4 px-4 py-3 font-sans text-[12px] border ${
+                      importResult.ok
+                        ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
+                        : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
+                    }`}
+                    role="status"
+                  >
+                    {importResult.message}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-        )}
 
-        </div>{/* end settings-layout */}
+        </div>
       </div>
     </div>
   );

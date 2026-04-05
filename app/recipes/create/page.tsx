@@ -1,9 +1,16 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import RecipeBuilder from "../../components/RecipeBuilder";
+
+const JUMP_SECTIONS = [
+  { id: "rf-sec-basics", n: "01", label: "Basics" },
+  { id: "rf-sec-photo", n: "02", label: "Photo" },
+  { id: "rf-sec-ingredients", n: "03", label: "Ingredients" },
+  { id: "rf-sec-method", n: "04", label: "Method" },
+  { id: "rf-sec-nutrition", n: "05", label: "Nutrition" },
+];
 
 type ImportDraft = {
   id?: number;
@@ -62,6 +69,49 @@ export default function CreateRecipePage() {
   const [importUrl, setImportUrl] = useState("");
   const [importError, setImportError] = useState("");
 
+  // Jump nav
+  const [activeSection, setActiveSection] = useState(JUMP_SECTIONS[0].id);
+  const jumpNavLocked = useRef(false);
+
+  useEffect(() => {
+    const scrollEl = document.getElementById("rf-scroll-container");
+    if (!scrollEl) return;
+    const sectionIds = JUMP_SECTIONS.map((s) => s.id);
+    const update = () => {
+      if (jumpNavLocked.current) return;
+      const paneRect = scrollEl.getBoundingClientRect();
+      const nearBottom = scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < 60;
+      let activeId = sectionIds[0];
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - paneRect.top <= 100) activeId = id;
+      }
+      if (nearBottom) {
+        const threshold = paneRect.top + paneRect.height * 0.6;
+        for (const id of sectionIds) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top < threshold) activeId = id;
+        }
+      }
+      setActiveSection(activeId);
+    };
+    scrollEl.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => scrollEl.removeEventListener("scroll", update);
+  }, [importedRecipe]);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    const container = document.getElementById("rf-scroll-container");
+    if (el && container) {
+      setActiveSection(id);
+      jumpNavLocked.current = true;
+      container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
+      setTimeout(() => { jumpNavLocked.current = false; }, 800);
+    }
+  };
+
   const handleFileImport = async (file: File) => {
     setImporting(true);
     setImportError("");
@@ -105,86 +155,88 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="flex flex-col h-full page-container">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 px-7 animate-fade-in">
-        <button
-          onClick={() => router.push('/recipes')}
-          className="bg-transparent text-[var(--muted)] py-[8px] px-0 text-[9px] font-mono tracking-[0.1em] uppercase border-0 hover:text-[var(--fg)] cursor-pointer mb-4"
-        >
-          ← Back to list
-        </button>
-        <h1 className="font-serif text-[22px] text-[var(--fg)] leading-none mb-5">New Recipe</h1>
+    <div className="h-full relative">
+      {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
+      <nav
+        className="fixed z-50 flex flex-col"
+        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
+        aria-label="Recipe form navigation"
+      >
+        {JUMP_SECTIONS.map((s, i) => (
+          <button
+            key={s.id}
+            onClick={() => scrollToSection(s.id)}
+            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--accent)]"
+            }`}
+            style={i === 0 ? { paddingTop: 0 } : undefined}
+            aria-label={`Jump to ${s.label}`}
+          >
+            <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
+              activeSection === s.id ? "text-[var(--accent)]" : "text-[var(--rule)]"
+            }`}>{s.n}</span>
+            {s.label}
+          </button>
+        ))}
+      </nav>
 
-        <div className="space-y-5 max-w-[720px]">
-        {!importedRecipe && (
-          <div className="mb-6 p-4 border border-[var(--rule)]">
-            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-3">Import Recipe</div>
-
-            {/* URL import */}
-            <div className="flex items-center gap-2 mb-3">
-              <input
-                type="url"
-                placeholder="Paste recipe URL..."
-                value={importUrl}
-                onChange={(e) => setImportUrl(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleUrlImport(); }}
-                disabled={importing}
-                aria-label="Recipe URL"
-                className="flex-1 border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[12px] focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
-              />
-              <button
-                onClick={handleUrlImport}
-                disabled={importing || !importUrl.trim()}
-                aria-label="Import from URL"
-                className="py-[5px] px-3 font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40"
-              >
-                {importing ? "Importing..." : "Import"}
-              </button>
-            </div>
-
-            {/* File import */}
-            <div className="flex items-center gap-3 mt-1">
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Or upload a .md file</span>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".md,text/markdown"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileImport(file);
-                }}
-                disabled={importing}
-                className="sr-only"
-                aria-label="Upload markdown file"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={importing}
-                className="px-3 py-[5px] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] transition-colors cursor-pointer disabled:opacity-40"
-                aria-label="Choose markdown file to upload"
-              >
-                Choose File
-              </button>
-            </div>
-
-            {importError && (
-              <div className="font-mono text-[11px] text-[var(--error)] mt-2">{importError}</div>
-            )}
+      {/* ── Main Scroll ── */}
+      <div id="rf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
+        <div className="max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
+          {/* Header */}
+          <div style={{ marginBottom: 32 }}>
+            <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / New</div>
+            <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>New Recipe</h1>
           </div>
-        )}
 
-        <Suspense fallback={<div className="font-mono text-[12px] font-light text-[var(--muted)]">Loading...</div>}>
-          <RecipeBuilder
-            initialRecipe={importedRecipe || undefined}
-            onSaved={() => {
-              router.push("/recipes");
-            }}
-            onCancel={() => {
-              router.push("/recipes");
-            }}
-          />
-        </Suspense>
+          {/* Import section */}
+          {!importedRecipe && (
+            <div style={{ marginBottom: 64 }}>
+              <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Import Recipe</div>
+              <div className="flex gap-[10px] items-end">
+                <div className="ed-field flex-1" style={{ marginBottom: 0 }}>
+                  <input
+                    className="ed-input"
+                    type="url"
+                    placeholder="Paste recipe URL…"
+                    value={importUrl}
+                    onChange={(e) => setImportUrl(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleUrlImport(); }}
+                    disabled={importing}
+                    aria-label="Import from URL"
+                  />
+                </div>
+                <button className="ed-btn" onClick={handleUrlImport} disabled={importing || !importUrl.trim()} aria-label="Import from URL">
+                  {importing ? "Importing…" : "Import"}
+                </button>
+                <span className="font-mono text-[8px] text-[var(--muted)]" style={{ padding: "0 4px" }}>or</span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".md,text/markdown"
+                  onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFileImport(file); }}
+                  disabled={importing}
+                  className="sr-only"
+                  aria-label="Upload markdown file"
+                />
+                <button className="ed-btn" onClick={() => fileInputRef.current?.click()} disabled={importing} aria-label="Upload file">
+                  Upload File
+                </button>
+              </div>
+              {importError && (
+                <div className="font-mono text-[8px] text-[var(--err)] mt-1">{importError}</div>
+              )}
+            </div>
+          )}
+
+          {/* Recipe Builder */}
+          <Suspense fallback={<div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading…</div>}>
+            <RecipeBuilder
+              initialRecipe={importedRecipe || undefined}
+              onSaved={() => router.push("/recipes")}
+              onCancel={() => router.push("/recipes")}
+            />
+          </Suspense>
         </div>
       </div>
     </div>

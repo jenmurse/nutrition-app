@@ -388,16 +388,16 @@ export default function OnboardingPage() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg)]">
       <div
-        className="w-full max-w-[480px] mx-4"
+        className="w-full max-w-[580px] mx-4"
         ref={stepRef}
       >
         <div
-          className="bg-white rounded-[12px] p-[44px] transition-all duration-[320ms]"
-          style={{ boxShadow: "var(--shadow-md)", transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+          className="bg-[var(--bg)] border border-[var(--rule)] p-[44px] transition-all duration-[320ms]"
+          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           {/* Card top: brand + progress + step counter */}
           <div className="flex items-center justify-between mb-8">
-            <span className="font-serif text-[16px] text-[var(--fg)] tracking-[0.02em]">
+            <span className="font-serif text-[18px] text-[var(--fg)] tracking-[-0.02em]">
               <BrandName />
             </span>
             <div className="flex items-center gap-3">
@@ -414,7 +414,7 @@ export default function OnboardingPage() {
             {/* ── Step 0: Welcome ────────────────────────────────────── */}
             {step === 0 && (
               <div>
-                <h1 className="text-[30px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
+                <h1 className="font-serif text-[30px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
                   Know what{"\u2019"}s in your week.
                 </h1>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -422,7 +422,7 @@ export default function OnboardingPage() {
                 </p>
                 <button
                   onClick={() => nav(1, "fwd")}
-                  className="w-full py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
+                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
                   aria-label="Begin setup"
                 >
                   Let{"\u2019"}s get set up
@@ -441,7 +441,7 @@ export default function OnboardingPage() {
             {step === 1 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Profile</div>
-                <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Make it yours.
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -454,13 +454,13 @@ export default function OnboardingPage() {
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="w-full border border-[var(--rule)] rounded-[8px] px-[14px] py-[10px] font-sans text-[14px] text-[var(--fg)] bg-white focus:outline-none focus:border-[var(--accent)] transition-colors mb-5"
+                  className="w-full border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] bg-transparent focus:outline-none focus:border-[var(--accent)] transition-colors mb-5"
                   aria-label="Your name"
                 />
 
                 {/* Theme picker */}
                 <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] block mb-3">Theme color</label>
-                <div className="flex flex-wrap gap-[8px] mb-5">
+                <div className="flex flex-wrap gap-[12px] mb-5">
                   {THEMES.map((t) => {
                     const isActive = selectedTheme === t.name;
                     return (
@@ -470,12 +470,10 @@ export default function OnboardingPage() {
                           setSelectedTheme(t.name);
                           applyThemeLive(t.name);
                         }}
-                        className="w-[22px] h-[22px] rounded-full border-0 cursor-pointer p-0 transition-transform duration-[140ms] hover:scale-110"
+                        className="w-[26px] h-[26px] rounded-full border-0 cursor-pointer p-0 transition-transform duration-150 hover:scale-[1.18] active:scale-95"
                         style={{
                           background: t.hex,
-                          color: t.hex,
-                          outline: isActive ? "2px solid currentColor" : "none",
-                          outlineOffset: isActive ? "3px" : undefined,
+                          boxShadow: isActive ? `0 0 0 2.5px var(--bg), 0 0 0 4.5px ${t.hex}` : "none",
                         }}
                         aria-label={t.label}
                         aria-pressed={isActive}
@@ -484,7 +482,7 @@ export default function OnboardingPage() {
                   })}
                 </div>
 
-                <div className="px-[14px] py-[11px] bg-[var(--accent-light)] rounded-[8px] mb-6">
+                <div className="px-[14px] py-[11px] bg-[var(--accent-l)] mb-6">
                   <p className="font-sans text-[12px] text-[var(--accent)] leading-[1.5]">
                     Your theme tints buttons, links, and highlights throughout the app. Each household member gets their own.
                   </p>
@@ -494,14 +492,14 @@ export default function OnboardingPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => nav(0, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[8px] bg-transparent cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
                     aria-label="Go back"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
                     aria-label="Continue to household"
                   >
                     Continue
@@ -514,7 +512,7 @@ export default function OnboardingPage() {
             {step === 2 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Household</div>
-                <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Does anyone else cook with you?
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -522,7 +520,7 @@ export default function OnboardingPage() {
                 </p>
 
                 {/* Current user card */}
-                <div className="flex items-center gap-3 px-4 py-3 rounded-[8px] mb-4" style={{ background: "var(--accent-light)" }}>
+                <div className="flex items-center gap-3 px-4 py-3 mb-4" style={{ background: "var(--accent-l)" }}>
                   <div
                     className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0"
                     style={{ background: themeHex(selectedTheme) }}
@@ -539,7 +537,7 @@ export default function OnboardingPage() {
                 {/* Invite link section */}
                 {inviteUrl ? (
                   <div
-                    className="border border-[var(--rule)] rounded-[8px] p-4 mb-4"
+                    className="border border-[var(--rule)] p-4 mb-4"
                     style={{ animation: "fadeUp 300ms cubic-bezier(0.23, 1, 0.32, 1)" }}
                   >
                     <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Invite link</div>
@@ -548,13 +546,13 @@ export default function OnboardingPage() {
                         type="text"
                         readOnly
                         value={inviteUrl}
-                        className="flex-1 border border-[var(--rule)] rounded-[6px] px-3 py-[8px] font-mono text-[11px] text-[var(--fg)] bg-[var(--bg-subtle)] focus:outline-none"
+                        className="flex-1 border-0 border-b border-[var(--rule)] px-0 py-[6px] font-mono text-[11px] text-[var(--fg)] bg-transparent focus:outline-none"
                         aria-label="Invite link"
                         onClick={(e) => (e.target as HTMLInputElement).select()}
                       />
                       <button
                         onClick={copyInvite}
-                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[6px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors shrink-0"
+                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[8px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 shrink-0"
                         aria-label="Copy invite link"
                       >
                         {inviteCopied ? "Copied" : "Copy"}
@@ -568,7 +566,7 @@ export default function OnboardingPage() {
                   <button
                     onClick={generateInvite}
                     disabled={inviteGenerating}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-[8px] border border-dashed border-[var(--rule)] bg-transparent cursor-pointer hover:border-[var(--rule-strong)] hover:bg-[rgba(0,0,0,0.01)] transition-colors mb-4 disabled:opacity-50"
+                    className="w-full flex items-center gap-3 px-4 py-3 border border-dashed border-[var(--rule)] bg-transparent cursor-pointer hover:border-[var(--rule-strong)] hover:bg-[rgba(0,0,0,0.01)] transition-colors mb-4 disabled:opacity-50"
                     aria-label="Generate invite link for a household member"
                   >
                     <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center bg-[var(--bg-subtle)]">
@@ -586,14 +584,14 @@ export default function OnboardingPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => nav(1, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[8px] bg-transparent cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
                     aria-label="Go back"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
                     aria-label="Continue to nutrition goals"
                   >
                     Continue
@@ -606,50 +604,37 @@ export default function OnboardingPage() {
             {step === 3 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Nutrition Goals</div>
-                <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Set a direction.
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Pick a starting point — you can fine-tune every nutrient later in Settings.
                 </p>
 
-                <div className="flex flex-col gap-[8px] mb-6">
+                <div className="grid grid-cols-2 gap-[10px] mb-6">
                   {GOAL_PRESETS.map((g) => {
                     const isSelected = selectedGoal === g.id;
                     return (
                       <button
                         key={g.id}
                         onClick={() => setSelectedGoal(g.id)}
-                        className="flex items-center gap-4 px-4 py-[14px] rounded-[8px] border cursor-pointer bg-transparent text-left transition-all duration-[140ms]"
+                        className="flex flex-col p-5 border cursor-pointer bg-transparent text-left transition-all duration-150 hover:border-[var(--fg-2)] active:scale-[0.98]"
                         style={{
                           borderColor: isSelected ? "var(--accent)" : "var(--rule)",
-                          background: isSelected ? "var(--accent-light)" : "transparent",
+                          background: isSelected ? "var(--accent-l)" : "transparent",
                         }}
                         aria-pressed={isSelected}
                       >
-                        <div
-                          className="w-[38px] h-[38px] rounded-[8px] flex items-center justify-center shrink-0 transition-colors duration-[140ms]"
-                          style={{
-                            background: isSelected ? "var(--accent)" : "rgba(0,0,0,0.04)",
-                            color: isSelected ? "white" : "var(--muted)",
-                          }}
-                        >
-                          {g.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--fg)] mb-[2px]">{g.label}</div>
-                          <div className="font-sans text-[11px] text-[var(--muted)]">{g.desc}</div>
-                        </div>
-                        {g.kcal && (
-                          <div className="text-right shrink-0">
-                            <div className="font-sans text-[21px] font-semibold text-[var(--fg)] leading-none tabular-nums">
-                              {g.kcal.toLocaleString()}
-                            </div>
-                            <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] mt-[2px]">kcal/day</div>
+                        <div className="font-serif text-[17px] font-bold text-[var(--fg)] mb-1">{g.label}</div>
+                        <div className="font-sans text-[12px] text-[var(--muted)] mb-2">{g.desc}</div>
+                        {g.kcal ? (
+                          <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mt-auto">
+                            {g.kcal.toLocaleString()} kcal / day
                           </div>
-                        )}
-                        {g.id === "custom" && (
-                          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] shrink-0">In Settings</div>
+                        ) : (
+                          <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mt-auto">
+                            Set in Settings
+                          </div>
                         )}
                       </button>
                     );
@@ -660,14 +645,14 @@ export default function OnboardingPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => nav(2, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[8px] bg-transparent cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
                     aria-label="Go back"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
                     aria-label="Continue to recipe import"
                   >
                     Continue
@@ -680,7 +665,7 @@ export default function OnboardingPage() {
             {step === 4 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">First Recipe</div>
-                <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Import a recipe you already love.
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -695,13 +680,13 @@ export default function OnboardingPage() {
                     onChange={(e) => setRecipeUrl(e.target.value)}
                     placeholder="https://..."
                     disabled={importStatus === "loading" || importStatus === "success"}
-                    className="flex-1 border border-[var(--rule)] rounded-[8px] px-[14px] py-[10px] font-sans text-[14px] text-[var(--fg)] bg-white focus:outline-none focus:border-[var(--accent)] transition-colors placeholder:text-[var(--placeholder)] disabled:opacity-50"
+                    className="flex-1 border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] bg-transparent focus:outline-none focus:border-[var(--accent)] transition-colors placeholder:text-[var(--muted)] placeholder:opacity-60 disabled:opacity-50"
                     aria-label="Recipe URL"
                   />
                   <button
                     onClick={handleImport}
                     disabled={!recipeUrl.trim() || importStatus === "loading" || importStatus === "success"}
-                    className="px-5 py-[10px] bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 shrink-0"
+                    className="px-5 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[8px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 shrink-0"
                     aria-label="Import recipe"
                   >
                     Import
@@ -710,10 +695,10 @@ export default function OnboardingPage() {
 
                 {/* Import status area */}
                 <div
-                  className="rounded-[8px] px-[14px] py-[12px] mb-6 transition-all duration-[300ms]"
+                  className="px-[14px] py-[12px] mb-6 transition-all duration-[300ms]"
                   style={{
                     background:
-                      importStatus === "success" ? "var(--accent-light)" :
+                      importStatus === "success" ? "var(--accent-l)" :
                       importStatus === "error" ? "var(--error-light)" :
                       importStatus === "loading" ? "var(--bg-subtle)" : "var(--bg-subtle)",
                     borderColor:
@@ -752,14 +737,14 @@ export default function OnboardingPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => nav(3, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] rounded-[8px] bg-transparent cursor-pointer hover:text-[var(--fg)] hover:border-[var(--rule-strong)] transition-colors"
+                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
                     aria-label="Go back"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => nav(5, "fwd")}
-                    className="flex-1 py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
                     aria-label={importResult ? "Continue to finish" : "Skip and finish"}
                   >
                     {importResult ? "Continue" : "Skip"}
@@ -772,7 +757,7 @@ export default function OnboardingPage() {
             {step === 5 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Setup Complete</div>
-                <h2 className="text-[26px] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   You{"\u2019"}re set.
                 </h2>
                 <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -814,7 +799,7 @@ export default function OnboardingPage() {
 
                 <button
                   onClick={completeOnboarding}
-                  className="w-full py-[12px] px-6 bg-[var(--accent)] text-[var(--accent-text)] font-mono text-[9px] uppercase tracking-[0.1em] rounded-[8px] border-0 cursor-pointer hover:bg-[var(--accent-hover)] active:scale-[0.97] transition-all duration-[140ms]"
+                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
                   aria-label="Open the app"
                 >
                   Open Good Measure

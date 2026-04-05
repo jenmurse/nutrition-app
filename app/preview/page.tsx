@@ -1,411 +1,651 @@
 "use client";
 
 /**
- * UI Preview — renders real app components with mock data, no auth required.
- * Use this to verify visual changes in the preview tool.
+ * UI Preview — comprehensive editorial layout showcase, no auth required.
+ * Shows every major layout pattern with mock data.
  * Route: /preview
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrandName } from "@/app/components/BrandName";
 
+/* ───────── Mock Data ───────── */
+
 const mockRecipes = [
-  { id: 1, name: "Almond Croissant Bars" },
-  { id: 2, name: "Black Bean Avocado Brownies" },
-  { id: 3, name: "Cauliflower Salad with Dates" },
-  { id: 4, name: "Cottage Cheese Breakfast" },
-  { id: 5, name: "Crispy Salmon w/ Coconut Rice" },
-  { id: 6, name: "Curried Red Lentils" },
-  { id: 7, name: "Lunch Salad w/Salmon" },
+  { id: 1, name: "Almond Croissant Bars", tag: "dessert", kcal: 678, protein: 22, carbs: 58, fat: 39 },
+  { id: 2, name: "Black Bean Avocado Brownies", tag: "dessert", kcal: 95, protein: 4, carbs: 12, fat: 3 },
+  { id: 3, name: "Cauliflower Salad with Dates", tag: "lunch", kcal: 310, protein: 8, carbs: 42, fat: 14 },
+  { id: 4, name: "Cottage Cheese Breakfast Bowl", tag: "breakfast", kcal: 268, protein: 32, carbs: 24, fat: 8 },
+  { id: 5, name: "Crispy Salmon w/ Coconut Rice", tag: "dinner", kcal: 520, protein: 38, carbs: 45, fat: 18 },
+  { id: 6, name: "Curried Red Lentils", tag: "dinner", kcal: 385, protein: 22, carbs: 52, fat: 6 },
+  { id: 7, name: "Lunch Salad w/ Salmon", tag: "lunch", kcal: 479, protein: 34, carbs: 18, fat: 28 },
+  { id: 8, name: "Overnight Oats Power Bowl", tag: "breakfast", kcal: 308, protein: 14, carbs: 48, fat: 8 },
 ];
 
-const mockNutrients = [
-  { label: "KCAL", value: "678.4", unit: "kcal" },
-  { label: "FAT", value: "0", unit: "" },
-  { label: "SAT FAT", value: "6.1", unit: "g" },
-  { label: "SODIUM", value: "3.7", unit: "mg" },
-  { label: "CARBS", value: "58.3", unit: "g" },
-  { label: "SUGAR", value: "8", unit: "g" },
-  { label: "PROTEIN", value: "22.4", unit: "g" },
-  { label: "FIBER", value: "12.3", unit: "g" },
+const mockDetailIngredients = [
+  { amt: "1 cup", name: "cottage cheese (2%)" },
+  { amt: "1 cup", name: "blueberries" },
+  { amt: "2 tbsp", name: "granola" },
+  { amt: "1 tsp", name: "honey" },
+  { amt: "1 tsp", name: "chia seeds" },
+];
+
+const mockNutrition = [
+  { label: "CALORIES", value: 268, goal: 2000, unit: "" },
+  { label: "FAT", value: 8, goal: 75, unit: "g" },
+  { label: "SAT FAT", value: 4, goal: 20, unit: "g" },
+  { label: "SODIUM", value: 420, goal: 2300, unit: "mg" },
+  { label: "CARBS", value: 24, goal: 225, unit: "g" },
+  { label: "SUGAR", value: 12, goal: 50, unit: "g" },
+  { label: "PROTEIN", value: 32, goal: 95, unit: "g" },
+  { label: "FIBER", value: 3, goal: 22, unit: "g" },
+];
+
+const mockSteps = [
+  "Spoon cottage cheese into a wide bowl.",
+  "Scatter blueberries and granola across the top.",
+  "Drizzle with honey and dust with chia seeds.",
+  "Eat immediately — the granola loses its crunch fast.",
+];
+
+const recipeTags = ["all", "breakfast", "lunch", "dinner", "snack", "side", "dessert"];
+
+const mockTodayMeals = [
+  { num: "01", type: "BREAKFAST", name: "Soft Boiled Eggs with Toast", kcal: 320 },
+  { num: "02", type: "LUNCH", name: "Farro Grain Bowl", kcal: 480 },
+  { num: "03", type: "DINNER", name: "Roasted Chicken Thighs", kcal: 380 },
+];
+
+const mockWeekDays = [
+  { day: "Mon", date: 31, kcal: 1840, goal: 2000, meals: [
+    { type: "B", name: "Overnight Oats", kcal: 308 },
+    { type: "L", name: "Grain Bowl", kcal: 480 },
+    { type: "D", name: "Salmon", kcal: 520 },
+  ]},
+  { day: "Tue", date: 1, kcal: 1620, goal: 2000, meals: [
+    { type: "B", name: "Eggs & Toast", kcal: 320 },
+    { type: "L", name: "Lentil Soup", kcal: 385 },
+    { type: "D", name: "Chicken Thighs", kcal: 380 },
+  ]},
+  { day: "Wed", date: 2, kcal: 1450, goal: 2000, meals: [
+    { type: "B", name: "Yogurt Bowl", kcal: 268 },
+    { type: "D", name: "Red Lentils", kcal: 385 },
+  ]},
+  { day: "Thu", date: 3, kcal: 1980, goal: 2000, meals: [
+    { type: "B", name: "Croissant Bars", kcal: 678 },
+    { type: "L", name: "Cauliflower Salad", kcal: 310 },
+    { type: "D", name: "Salmon Rice", kcal: 520 },
+  ]},
+  { day: "Fri", date: 4, kcal: 1180, goal: 2000, isToday: true, meals: [
+    { type: "B", name: "Soft Boiled Eggs", kcal: 320 },
+    { type: "L", name: "Farro Bowl", kcal: 480 },
+    { type: "D", name: "Chicken Thighs", kcal: 380 },
+  ]},
+  { day: "Sat", date: 5, kcal: 0, goal: 2000, meals: [] },
+  { day: "Sun", date: 6, kcal: 0, goal: 2000, meals: [] },
+];
+
+const mockIngredientCards = [
+  { id: 1, name: "Chicken Breast", category: "FOOD", unit: "4 oz", kcal: 187, protein: 35, carbs: 0, fat: 4 },
+  { id: 2, name: "Brown Rice", category: "FOOD", unit: "1 cup cooked", kcal: 216, protein: 5, carbs: 45, fat: 2 },
+  { id: 3, name: "Olive Oil", category: "INGREDIENT", unit: "1 tbsp", kcal: 119, protein: 0, carbs: 0, fat: 14 },
+  { id: 4, name: "Broccoli", category: "FOOD", unit: "1 cup", kcal: 55, protein: 4, carbs: 11, fat: 1 },
+  { id: 5, name: "Sweet Potato", category: "FOOD", unit: "1 medium", kcal: 103, protein: 2, carbs: 24, fat: 0 },
+  { id: 6, name: "Greek Yogurt", category: "FOOD", unit: "1 cup", kcal: 130, protein: 22, carbs: 8, fat: 0 },
+];
+
+const settingsJumpNav = [
+  { n: "01", label: "People" },
+  { n: "02", label: "Daily Goals" },
+  { n: "03", label: "Dashboard" },
+  { n: "04", label: "MCP" },
+  { n: "05", label: "Data" },
 ];
 
 const mockGoals = [
-  { name: "CALORIES", value: 678, goal: 2000, pct: 34 },
-  { name: "FAT", value: 39, goal: 75, pct: 52 },
-  { name: "CARBS", value: 58, goal: 225, pct: 26 },
-  { name: "PROTEIN", value: 22, goal: 95, pct: 23 },
-  { name: "FIBER", value: 12, goal: 22, pct: 55 },
+  { label: "Calories", value: "2,000", unit: "kcal" },
+  { label: "Protein", value: "120", unit: "g" },
+  { label: "Carbs", value: "225", unit: "g" },
+  { label: "Fat", value: "75", unit: "g" },
+  { label: "Fiber", value: "22", unit: "g" },
 ];
 
-const mockTags = ["BREAKFAST", "LUNCH", "DINNER", "SNACK", "SIDE", "DESSERT"];
+/* ───────── Section Label ───────── */
 
-type Tab = "goals" | "optimize" | "mealprep";
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div className="border-t-4 border-[var(--fg)] px-[var(--pad)] pt-4 pb-2">
+      <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">{label}</span>
+    </div>
+  );
+}
+
+/* ───────── Page ───────── */
 
 export default function PreviewPage() {
-  const [selectedRecipe, setSelectedRecipe] = useState(0);
-  const [activeTab, setActiveTab] = useState<Tab>("goals");
-  const [settingsTab, setSettingsTab] = useState<"household" | "ai" | "mcp" | "data">("household");
+  const [activeTag, setActiveTag] = useState("all");
+  const [activeSection, setActiveSection] = useState("01");
+  const [ingredientFilter, setIngredientFilter] = useState("all");
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "goals", label: "Goals" },
-    { key: "optimize", label: "Optimize" },
-    { key: "mealprep", label: "Meal Prep" },
-  ];
+  // Force sage theme
+  useEffect(() => {
+    const prev = document.documentElement.dataset.theme;
+    document.documentElement.dataset.theme = "sage";
+    return () => { if (prev) document.documentElement.dataset.theme = prev; };
+  }, []);
 
-  const settingsTabs = [
-    { key: "household" as const, label: "Household" },
-    { key: "ai" as const, label: "AI API" },
-    { key: "mcp" as const, label: "MCP" },
-    { key: "data" as const, label: "Data" },
-  ];
+  const filteredRecipes = activeTag === "all" ? mockRecipes : mockRecipes.filter(r => r.tag === activeTag);
+  const filteredIngredients = ingredientFilter === "all" ? mockIngredientCards :
+    mockIngredientCards.filter(i => ingredientFilter === "foods" ? i.category === "FOOD" : i.category === "INGREDIENT");
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
+    <div className="h-full overflow-y-auto bg-[var(--bg)]">
       {/* ═══ TopNav ═══ */}
-      <nav className="flex items-center h-[52px] bg-[var(--bg-nav)] px-6 shrink-0 relative z-10" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)' }}>
-        <BrandName className="font-serif text-[16px] text-[var(--fg)] mr-6 tracking-[0.02em]" />
-        <div className="flex items-center flex-1 gap-[2px]">
-          {["Meal Plans", "Recipes", "Pantry"].map((item, i) => (
+      <nav className="flex items-center h-[var(--nav-h)] bg-[var(--bg)] px-[var(--pad)] shrink-0 relative z-10 border-b border-[var(--rule)]" aria-label="Main navigation">
+        <BrandName className="font-serif text-[13px] text-[var(--fg)] mr-6 tracking-[-0.02em] font-bold" />
+        <div className="flex items-center flex-1 gap-5">
+          {["Dashboard", "Meal Plans", "Recipes", "Pantry", "Settings"].map((item, i) => (
             <span
               key={item}
-              className={`font-mono text-[10px] uppercase tracking-[0.1em] px-[12px] py-[5px] rounded-[6px] whitespace-nowrap ${
-                i === 1
-                  ? "text-[var(--fg)] bg-[var(--accent-light)]"
-                  : "text-[var(--muted)]"
+              className={`nav-link font-mono text-[9px] uppercase tracking-[0.12em] py-[6px] relative ${
+                i === 0 ? "text-[var(--fg)]" : "text-[var(--muted)]"
               }`}
+              {...(i === 0 ? { "aria-current": "page" as const } : {})}
             >
               {item}
             </span>
           ))}
         </div>
         <div className="ml-auto flex items-center gap-[10px]">
-          <div
-            className="w-[28px] h-[28px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white"
-            style={{
-              background: "var(--accent)",
-              boxShadow: "0 0 0 2px var(--bg-nav), 0 0 0 4px var(--accent)",
-            }}
-          >
-            J
-          </div>
-          <div
-            className="w-[28px] h-[28px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white opacity-40"
-            style={{ background: "#7C8DA0" }}
-          >
-            G
-          </div>
-          <span className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] text-[var(--muted)] rounded-[6px]">
-            Sign out
-          </span>
+          <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center font-mono text-[9px] font-medium text-white"
+            style={{ background: "var(--accent)", boxShadow: "0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent)" }} aria-hidden="true">M</div>
+          <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center font-mono text-[9px] font-medium text-white opacity-35"
+            style={{ background: "#7C8DA0" }} aria-hidden="true">G</div>
+          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] cursor-pointer hover:text-[var(--fg)] transition-colors">Sign out</span>
         </div>
       </nav>
 
-      {/* ═══ Three-pane layout ═══ */}
-      <div className="flex" style={{ height: 600 }}>
-        {/* Left sidebar */}
-        <div
-          className="w-[220px] min-w-[220px] flex flex-col bg-[var(--bg-nav)] relative z-[1]"
-          style={{ boxShadow: "1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)" }}
-        >
-          <div className="px-6 pt-3 pb-3 shrink-0">
-            <div className="flex items-baseline justify-between mb-3">
-              <h1 className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--fg)] leading-none">Recipes</h1>
-              <span className="font-mono text-[9px] text-[var(--muted)] bg-[var(--bg-subtle)] py-[2px] px-[6px] rounded-full">{mockRecipes.length}</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full bg-[var(--bg-subtle)] border border-[var(--rule)] py-[7px] px-[10px] text-[11px] font-sans text-[var(--fg)] placeholder:text-[var(--placeholder)] focus:outline-none mb-2"
-              readOnly
-            />
-            <div className="flex gap-[5px] flex-wrap mt-2">
-              {mockTags.map((tag, i) => (
-                <span
-                  key={tag}
-                  className={`py-[2px] px-[8px] font-mono text-[9px] tracking-[0.04em] uppercase rounded-full ${
-                    i === 2 ? "bg-[var(--accent)] text-[var(--accent-text)]" : "bg-[var(--bg-subtle)] text-[var(--muted)]"
-                  }`}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+      {/* ═══ 1. Dashboard Hero + Stats ═══ */}
+      <SectionDivider label="1 / Dashboard Hero + Stats" />
+      <section aria-label="Dashboard hero and stats">
+        <div className="px-[var(--pad)] min-h-[80vh] flex flex-col justify-end pb-10">
+          <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-4">
+            Friday, April 4 2026
           </div>
-
-          <div className="flex-1 overflow-y-auto">
-            {mockRecipes.map((recipe, i) => (
-              <div
-                key={recipe.id}
-                className={`relative mx-[6px] my-[1px] py-[9px] px-[10px] rounded-[7px] cursor-pointer transition-[background] duration-[80ms] ease-in-out ${
-                  i === selectedRecipe ? "bg-[var(--bg-selected)] pl-[14px]" : "hover:bg-[var(--bg-subtle)]"
-                }`}
-                onClick={() => setSelectedRecipe(i)}
-              >
-                {i === selectedRecipe && (
-                  <span className="absolute left-0 top-[25%] bottom-[25%] w-[3px] rounded-full bg-[var(--accent)]" />
-                )}
-                <div className="text-[12px] font-medium text-[var(--fg)] leading-snug">{recipe.name}</div>
-              </div>
-            ))}
-          </div>
-
-          <button className="shrink-0 mx-[6px] mb-[6px] mt-[2px] py-[9px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase bg-transparent text-[var(--muted)] border-0 cursor-pointer hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] transition-colors text-left rounded-[7px]">
-            + New Recipe
-          </button>
+          <h1
+            className="font-serif font-medium leading-[0.91] tracking-[-0.03em] text-[var(--fg)]"
+            style={{ fontSize: "11.5vw", marginLeft: "-6px" }}
+          >
+            Good afternoon,{" "}
+            <span className="text-[var(--accent)]">Maya</span>
+          </h1>
         </div>
 
-        {/* Center content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
-          <div className="flex items-start justify-between mb-4">
-            <h2 className="font-serif text-[22px] text-[var(--fg)] leading-tight">
-              {mockRecipes[selectedRecipe].name}
-            </h2>
-            <div className="flex gap-2">
-              <button className="bg-[var(--accent)] text-[var(--accent-text)] py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase border-0 cursor-pointer">
-                Edit
-              </button>
-              <button className="bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[5px] px-3 text-[9px] font-mono tracking-[0.1em] uppercase cursor-pointer">
-                Duplicate
-              </button>
+        {/* Stats strip */}
+        <div className="border-t border-[var(--rule)] flex">
+          {/* Calories */}
+          <div className="flex-1 px-8 py-6">
+            <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Calories today</div>
+            <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">1,180</div>
+            <div className="font-mono text-[8px] text-[var(--muted)] mb-2">of 2,000 kcal</div>
+            <div className="h-[2px] bg-[var(--rule)] w-full">
+              <div className="h-full bg-[var(--accent)]" style={{ width: "59%" }} />
             </div>
           </div>
-
-          <div className="flex items-center gap-3 mb-4 text-[11px] text-[var(--muted)]">
-            <span>9 servings</span>
-            <span>·</span>
-            <span>10 min prep</span>
-            <span>·</span>
-            <span>40 min cook</span>
-            <span className="inline-block font-mono text-[9px] tracking-[0.04em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[7px] rounded-full ml-2">
-              Dessert
-            </span>
-            <span className="inline-block font-mono text-[9px] tracking-[0.04em] uppercase text-[var(--accent)] bg-[var(--accent-light)] py-[1px] px-[7px] rounded-full">
-              Snack
-            </span>
-          </div>
-
-          {/* Nutrition grid — gap technique */}
-          <div className="mb-5">
-            <div className="grid grid-cols-4 gap-[1px] bg-[var(--rule)] rounded-[var(--radius,12px)] overflow-hidden" style={{ boxShadow: "var(--shadow-md)" }}>
-              {mockNutrients.map((n) => (
-                <div key={n.label} className="py-[14px] px-3 text-center bg-[var(--bg-raised)]">
-                  <div className="font-serif text-[22px] text-[var(--fg)] leading-none">
-                    {n.value}{n.unit}
-                  </div>
-                  <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] mt-[3px]">{n.label}</div>
-                </div>
-              ))}
+          {/* Protein */}
+          <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
+            <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Protein</div>
+            <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">82g</div>
+            <div className="font-mono text-[8px] text-[var(--muted)] mb-2">of 120g goal</div>
+            <div className="h-[2px] bg-[var(--rule)] w-full">
+              <div className="h-full bg-[var(--accent)]" style={{ width: "68%" }} />
             </div>
           </div>
+          {/* Meals */}
+          <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
+            <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Meals today</div>
+            <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">3</div>
+            <div className="font-mono text-[8px] text-[var(--muted)] mb-2">logged</div>
+            <div className="h-[2px] bg-[var(--rule)] w-full">
+              <div className="h-full bg-[var(--accent)]" style={{ width: "100%" }} />
+            </div>
+          </div>
+        </div>
+      </section>
 
-          {/* Ingredients — no dividers */}
-          <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--muted)] mb-2 mt-5">Ingredients</p>
-          {["1 cup Almond flour", "2.33 cup Oats, raw", "0.5 cup Maple syrup", "0.25 cup Coconut oil"].map((ing, i, arr) => (
-            <div key={ing} className={`flex items-center py-[8px] gap-[14px] ${i < arr.length - 1 ? 'border-b border-[var(--rule-faint)]' : ''}`}>
-              <span className="font-mono text-[11px] text-[var(--mid)] min-w-[60px] tabular-nums">{ing.split(" ")[0]} {ing.split(" ")[1]}</span>
-              <span className="text-[12px] text-[var(--fg)] flex-1">{ing.split(" ").slice(2).join(" ")}</span>
+      {/* ═══ 2. Today's Meals ═══ */}
+      <SectionDivider label="2 / Today's Meals" />
+      <section aria-label="Today's meals">
+        <div className="flex items-center justify-between px-[var(--pad)] py-4 border-b border-[var(--rule)]">
+          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--fg)]">Today&apos;s Meals</span>
+          <span className="font-mono text-[8.5px] text-[var(--accent)] cursor-pointer hover:opacity-80 transition-opacity">Open planner &rarr;</span>
+        </div>
+        <div className="flex" style={{ padding: "0 36px" }}>
+          {mockTodayMeals.map((meal, i) => (
+            <div key={meal.num} className="flex-1" style={{ padding: "32px 36px" }}>
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] pb-2 mb-3 border-b border-[var(--rule)]">
+                {meal.num} &middot; {meal.type}
+              </div>
+              <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-4" style={{ textWrap: "balance" }}>
+                {meal.name}
+              </div>
+              <div className="flex items-baseline gap-2 pb-2 border-b border-[var(--rule)]">
+                <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Calories</span>
+                <span className="font-serif text-[14px] tabular-nums text-[var(--fg)] ml-auto">{meal.kcal} kcal</span>
+              </div>
+              <div className="mt-[14px]">
+                <span className="font-mono text-[8.5px] text-[var(--accent)] cursor-pointer hover:opacity-80 transition-opacity">See recipe &rarr;</span>
+              </div>
             </div>
           ))}
         </div>
+      </section>
 
-        {/* Right panel */}
-        <div
-          className="w-[300px] min-w-[300px] h-full bg-[var(--bg-nav)] relative z-[1]"
-          style={{ boxShadow: "-1px 0 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(0,0,0,0.04)" }}
-        >
-          {/* Pill tabs */}
-          <div className="flex gap-[2px] shrink-0 px-4 pt-2 pb-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-[10px] py-[5px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
-                  activeTab === tab.key
-                    ? "text-[var(--fg)] bg-[var(--bg-subtle)]"
-                    : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
+      {/* ═══ 3. This Week Overview ═══ */}
+      <SectionDivider label="3 / This Week Overview" />
+      <section aria-label="This week overview">
+        <div className="flex items-center justify-between px-[var(--pad)] py-4 border-b border-[var(--rule)]">
+          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--fg)]">This Week</span>
+          <span className="font-mono text-[8.5px] text-[var(--accent)] cursor-pointer hover:opacity-80 transition-opacity">Full planner &rarr;</span>
+        </div>
+        <div className="flex" style={{ minHeight: "55vh" }}>
+          {mockWeekDays.map((d, i) => {
+            const pct = d.goal > 0 ? Math.min((d.kcal / d.goal) * 100, 100) : 0;
+            return (
+              <div
+                key={d.day}
+                className={`flex-1 border-r border-[var(--rule)] last:border-r-0 px-3 py-4 flex flex-col ${
+                  d.isToday ? "bg-[var(--accent-l)]" : ""
                 }`}
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Goals content */}
-          <div className="px-6 py-4 space-y-3">
-            {mockGoals.map((g) => (
-              <div key={g.name}>
-                <div className="flex justify-between items-baseline mb-[5px]">
-                  <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{g.name}</span>
-                  <span className="font-mono text-[10px] tabular-nums text-[var(--muted)]">
-                    {g.value} / {g.goal} g
-                  </span>
+                <div className={`font-mono text-[8px] uppercase tracking-[0.12em] mb-1 ${
+                  d.isToday ? "text-[var(--accent)] font-medium" : "text-[var(--muted)]"
+                }`}>
+                  {d.day}
                 </div>
-                <div className="h-[4px] bg-[var(--bg-subtle)] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${g.pct}%` }} />
+                <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">
+                  {d.date}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ Meal Plan Grid Preview ═══ */}
-      <div className="border-t border-[var(--rule)] mt-0">
-        <div className="px-8 pt-6 pb-6">
-          <h2 className="font-serif text-[18px] text-[var(--fg)] mb-4">Meal Plan Grid</h2>
-
-          {/* Header bar with pill tabs */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-[11px] tracking-[0.06em] uppercase text-[var(--fg)]">Mar 22–28</span>
-              <button className="py-[4px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] border border-[var(--rule)] text-[var(--muted)] bg-transparent cursor-pointer">
-                This Week
-              </button>
-              <button className="py-[4px] px-[10px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] bg-[var(--accent)] text-[var(--accent-text)] border-0 cursor-pointer">
-                + New Plan
-              </button>
-            </div>
-            <div className="flex items-center gap-[2px]">
-              <button className="py-[5px] px-3 font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] border-0 text-[var(--accent)] bg-[var(--accent-light)] cursor-pointer mr-2">
-                Nutrition ›
-              </button>
-              <button className="flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] text-[var(--fg)] bg-[var(--accent-light)] border-0 cursor-pointer">
-                <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[var(--accent)]" />
-                Jen
-              </button>
-              <button className="flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] text-[var(--muted)] border-0 cursor-pointer">
-                <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[#7C8DA0]" />
-                Garth
-              </button>
-              <button className="font-mono text-[9px] uppercase tracking-[0.1em] px-3 py-[5px] rounded-[6px] text-[var(--muted)] border-0 cursor-pointer">
-                Everyone
-              </button>
-            </div>
-          </div>
-
-          {/* Grid */}
-          {(() => {
-            const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-            const dates = [22, 23, 24, 25, 26, 27, 28];
-            const mealTypes = ["BREAKFAST", "LUNCH", "DINNER", "SNACK", "DESSERT"];
-            const meals: Record<string, Record<number, { name: string; kcal: number }[]>> = {
-              BREAKFAST: { 2: [{ name: "Overnight Oats P...", kcal: 308 }], 3: [{ name: "Overnight Oats P...", kcal: 308 }] },
-              LUNCH: { 2: [{ name: "Lunch Salad w/Sa...", kcal: 479 }], 3: [{ name: "Lunch Salad w/Sa...", kcal: 454 }] },
-              DINNER: { 2: [{ name: "Noodle bowl", kcal: 788 }], 3: [{ name: "One-pan Indian S...", kcal: 706 }] },
-              SNACK: { 2: [{ name: "PB Protein Balls", kcal: 104 }, { name: "Almond Croissant...", kcal: 678 }], 3: [{ name: "PB Protein Balls", kcal: 104 }] },
-              DESSERT: { 2: [{ name: "Black Bean Avoca...", kcal: 95 }] },
-            };
-            return (
-              <div className="overflow-x-auto">
-                <div style={{ display: "grid", gridTemplateColumns: "90px repeat(7, minmax(0, 1fr))", minWidth: 660 }}>
-                  {/* Header row */}
-                  <div className="bg-[var(--bg-nav)] border-b border-r border-[var(--rule-faint)] p-2" />
-                  {days.map((day, i) => (
-                    <div
-                      key={day}
-                      className={`border-b border-[var(--rule-faint)] ${i < 6 ? "border-r" : ""} p-2 text-center ${i === 4 ? "bg-[var(--bg-selected)]" : "bg-[var(--bg-nav)]"}`}
-                    >
-                      <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{day}</div>
-                      <div className={`font-serif text-[18px] leading-none ${i === 4 ? "text-[var(--accent)]" : "text-[var(--fg)]"}`}>{dates[i]}</div>
-                    </div>
-                  ))}
-
-                  {/* Meal rows */}
-                  {mealTypes.map((mealType) => (
-                    <div key={mealType} className="contents">
-                      <div className="bg-[var(--bg-nav)] border-r border-b border-[var(--rule-faint)] flex items-center px-[16px] py-1">
-                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{mealType}</span>
-                      </div>
-                      {dates.map((_, dayIdx) => {
-                        const dayMeals = meals[mealType]?.[dayIdx] || [];
-                        return (
-                          <div
-                            key={`${mealType}-${dayIdx}`}
-                            className={`border-b border-[var(--rule-faint)] ${dayIdx < 6 ? "border-r" : ""} p-1 flex flex-col gap-[3px] min-h-[48px] ${
-                              dayIdx === 4 ? "bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]" : ""
-                            }`}
-                          >
-                            {dayMeals.map((meal, mi) => (
-                              <div
-                                key={mi}
-                                className="bg-[var(--bg-raised)] rounded-[6px] p-[4px_6px]"
-                                style={{ boxShadow: "var(--shadow-sm)" }}
-                              >
-                                <div className="text-[10px] text-[var(--fg)] font-medium leading-[1.3] truncate">{meal.name}</div>
-                                <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">{meal.kcal} kcal</div>
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-
-                  {/* +ADD row */}
-                  <div className="bg-[var(--bg-nav)]" />
-                  {dates.map((_, dayIdx) => (
-                    <div key={`add-${dayIdx}`} className={`flex items-center justify-center p-[6px] ${dayIdx === 4 ? "bg-[color-mix(in_srgb,var(--bg-selected)_50%,var(--bg))]" : ""}`}>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] bg-[var(--bg-subtle)] px-[8px] py-[3px] rounded-[6px]">+ ADD</span>
+                <div className="font-mono text-[8px] text-[var(--muted)] tabular-nums mb-2">
+                  {d.kcal > 0 ? `${d.kcal.toLocaleString()} kcal` : "—"}
+                </div>
+                <div className="h-[2px] bg-[var(--rule)] w-full mb-4">
+                  <div className="h-full bg-[var(--accent)]" style={{ width: `${pct}%` }} />
+                </div>
+                <div className="flex flex-col gap-2 mt-auto">
+                  {d.meals.map((m, mi) => (
+                    <div key={mi}>
+                      <div className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)]">{m.type}</div>
+                      <div className="font-sans text-[11px] text-[var(--fg)] leading-[1.3]">{m.name}</div>
+                      <div className="font-mono text-[8px] text-[var(--muted)] tabular-nums">{m.kcal} kcal</div>
                     </div>
                   ))}
                 </div>
               </div>
             );
-          })()}
+          })}
         </div>
-      </div>
+      </section>
 
-      {/* ═══ Settings tabs preview ═══ */}
-      <div className="border-t border-[var(--rule)] mt-0">
-        <div className="px-8 pt-6 pb-2">
-          <h2 className="font-serif text-[18px] text-[var(--fg)] mb-4">Settings Tabs</h2>
-          <div className="flex gap-[2px] mb-4">
-            {settingsTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setSettingsTab(tab.key)}
-                className={`px-[12px] py-[6px] font-mono text-[9px] tracking-[0.1em] uppercase rounded-[6px] transition-[background,color] duration-[120ms] border-0 cursor-pointer ${
-                  settingsTab === tab.key
-                    ? "text-[var(--fg)] bg-[var(--bg-subtle)]"
-                    : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[rgba(0,0,0,0.03)]"
-                }`}
-              >
-                {tab.label}
-              </button>
+      {/* ═══ 4. Recipe Card Grid ═══ */}
+      <SectionDivider label="4 / Recipe Card Grid" />
+      <section aria-label="Recipe card grid preview">
+        {/* Filter bar */}
+        <div className="flex items-center gap-[4px] px-[var(--pad)] border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10" style={{ height: "var(--filter-h)" }}>
+          {recipeTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => setActiveTag(tag)}
+              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+                activeTag === tag ? "text-[var(--fg)] border-[var(--rule)]" : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+              }`}
+              aria-label={`Filter by ${tag}`}
+            >{tag}</button>
+          ))}
+          <div className="flex gap-[5px] items-center ml-auto">
+            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredRecipes.length} recipes</span>
+            <div className="flex border border-[var(--rule)]">
+              <span className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
+                Name
+                <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+              </span>
+              <span className="font-mono text-[11px] text-[var(--muted)] py-[3px] px-[9px]">&uarr;</span>
+            </div>
+            <div className="flex border border-[var(--rule)] overflow-hidden">
+              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] bg-[var(--bg-3)] text-[var(--fg)] border-r border-[var(--rule)]">Grid</span>
+              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] text-[var(--muted)]">List</span>
+            </div>
+            <span className="font-mono text-[9px] tracking-[0.06em] bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[3px] px-[9px]">Search</span>
+            <span className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[3px] px-[9px]">+ New</span>
+          </div>
+        </div>
+
+        {/* Card Grid */}
+        <div className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
+          <div className="grid gap-6 grid-cols-4" style={{ gridAutoRows: "auto" }}>
+            {filteredRecipes.map((recipe) => (
+              <div key={recipe.id} className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group" data-cursor="card">
+                <div className="overflow-hidden" style={{ aspectRatio: "4/3" }}>
+                  <div className="w-full h-full bg-[var(--bg-3)] flex items-end p-4">
+                    <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.18]">{recipe.name}</span>
+                  </div>
+                </div>
+                <div style={{ padding: "16px 18px 20px" }}>
+                  <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{recipe.tag}</div>
+                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>{recipe.name}</div>
+                  <div className="flex gap-2 items-baseline flex-wrap">
+                    <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{recipe.kcal} kcal</span>
+                    <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {recipe.protein}g</span>
+                    <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {recipe.carbs}g</span>
+                    <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {recipe.fat}g</span>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
+              </div>
             ))}
           </div>
-          <p className="text-[12px] text-[var(--muted)]">Active: {settingsTab}</p>
         </div>
-      </div>
+      </section>
 
-      {/* ═══ Dashboard hero preview ═══ */}
-      <div className="border-t border-[var(--rule)] mt-0">
-        <div className="px-8 pt-6 pb-8">
-          <h2 className="font-serif text-[18px] text-[var(--fg)] mb-4">Dashboard Hero</h2>
-          <div className="max-w-[480px]">
-            <div className="flex items-baseline gap-[6px] mb-[6px]">
-              <span className="font-serif text-[32px] text-[var(--accent)] leading-none tabular-nums">1,840</span>
-              <span className="font-mono text-[10px] text-[var(--muted)]">kcal</span>
-              <span className="font-mono text-[10px] text-[var(--muted)] ml-auto tabular-nums">of 2,000 · 92%</span>
+      {/* ═══ 5. Recipe Detail ═══ */}
+      <SectionDivider label="5 / Recipe Detail" />
+      <section className="border-t border-[var(--rule)]" aria-label="Recipe detail preview">
+        <div className="relative">
+          {/* Jump nav */}
+          <nav className="absolute flex flex-col z-10" style={{ left: "var(--pad)", top: 48, width: 140 }} aria-label="Recipe sections">
+            {[
+              { n: "01", label: "Ingredients" },
+              { n: "02", label: "Nutrition" },
+              { n: "03", label: "Instructions" },
+              { n: "04", label: "Optimize" },
+              { n: "05", label: "Meal Prep" },
+            ].map((s, i) => (
+              <span key={s.n}
+                className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-b border-[var(--rule)] ${
+                  i === 0 ? "text-[var(--fg)] pt-0" : "text-[var(--muted)]"
+                }`}
+              >
+                <span className={`font-serif text-[9px] font-bold min-w-[16px] ${i === 0 ? "text-[var(--accent)]" : "text-[var(--rule)]"}`}>{s.n}</span>
+                {s.label}
+              </span>
+            ))}
+          </nav>
+
+          {/* Main content */}
+          <div className="max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
+            {/* Hero */}
+            <div className="grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px" }}>
+              <div>
+                <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">
+                  <span>1 serving</span> &middot; <span>0 min</span>
+                  <div className="flex gap-[6px] mt-[10px]">
+                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">breakfast</span>
+                  </div>
+                </div>
+                <h2 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-12" style={{ fontSize: "clamp(30px, 3.4vw, 48px)" }}>
+                  Cottage Cheese Breakfast Bowl
+                </h2>
+                <div className="flex gap-2 mt-6">
+                  <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
+                  <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Duplicate</span>
+                  <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--err)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--err)] transition-colors">Delete</span>
+                </div>
+              </div>
+              <div className="w-full bg-[var(--bg-3)] flex items-end p-6" style={{ aspectRatio: "4/3" }}>
+                <span className="font-serif text-[clamp(28px,3vw,40px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.12]">Cottage Cheese Breakfast Bowl</span>
+              </div>
             </div>
-            <div className="h-[4px] bg-[var(--rule)] mb-5 relative rounded-full">
-              <div className="absolute top-0 left-0 h-full rounded-full bg-[var(--accent)]" style={{ width: "92%" }} />
+
+            {/* Ingredients + Nutrition 2-col */}
+            <div style={{ padding: "56px 0" }}>
+              <div className="grid gap-[56px]" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                <div>
+                  <div className="flex items-baseline gap-3 mb-8">
+                    <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+                    <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
+                    <span className="flex-1 h-px bg-[var(--rule)]" />
+                  </div>
+                  <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
+                    <span>Scale</span>
+                    <div className="flex gap-1">
+                      {["1\u00d7", "2\u00d7", "4\u00d7", "6\u00d7"].map((s, i) => (
+                        <span key={s} className={`font-mono text-[8px] tracking-[0.06em] px-[7px] py-[2px] border ${
+                          i === 0 ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]" : "text-[var(--muted)] border-[var(--rule)]"
+                        }`}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                  {mockDetailIngredients.map((ing, idx) => (
+                    <div key={ing.name} className={`flex gap-[18px] py-3 items-baseline ${idx < mockDetailIngredients.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
+                      <span className="font-mono text-[10px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">{ing.amt}</span>
+                      <span className="text-[14px] leading-[1.4]">{ing.name}</span>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <div className="flex items-baseline gap-3 mb-8">
+                    <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                    <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
+                    <span className="flex-1 h-px bg-[var(--rule)]" />
+                  </div>
+                  <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving &middot; vs goals</div>
+                  <div className="flex flex-col gap-[10px]">
+                    {mockNutrition.map(n => {
+                      const pct = n.goal > 0 ? Math.min((n.value / n.goal) * 100, 100) : 0;
+                      return (
+                        <div key={n.label}>
+                          <div className="flex justify-between items-baseline mb-1">
+                            <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg-2)]">{n.label}</span>
+                            <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
+                              {n.value}{n.unit}
+                              <span className="text-[8px] text-[var(--muted)]"> / {n.goal}{n.unit}</span>
+                            </span>
+                          </div>
+                          <div className="h-[3px] bg-[var(--rule)] rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-[var(--ok)]" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div style={{ padding: "56px 0" }}>
+              <div className="flex items-baseline gap-3 mb-8">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+              <div className="flex flex-col" style={{ maxWidth: 600 }}>
+                {mockSteps.map((step, idx) => (
+                  <div key={idx} className={`flex gap-6 items-start py-5 ${idx < mockSteps.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
+                    <span className="font-serif text-[28px] font-bold text-[var(--rule)] min-w-[40px] leading-none shrink-0 pt-[2px] tabular-nums">{String(idx + 1).padStart(2, "0")}</span>
+                    <span className="text-[13px] leading-[1.7] text-[var(--fg-2)] pt-[6px]">{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Optimization */}
+            <div style={{ padding: "56px 0" }}>
+              <div className="flex items-baseline gap-3 mb-8">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">04</span>
+                <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Optimization</span>
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+              <div className="border border-[var(--accent-l)] bg-[var(--accent-l)] p-4 mb-4">
+                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--accent)] mb-1 font-medium">AI Optimization</div>
+                <p className="text-[11px] text-[var(--fg-2)] leading-[1.5]">Use the MCP prompt below to analyze this recipe with an AI assistant. It will suggest healthier swaps that fit your nutrition goals.</p>
+              </div>
+              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 cursor-pointer hover:opacity-90">Copy prompt &rarr;</span>
+                <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] cursor-pointer hover:text-[var(--fg)]">Paste notes instead</span>
+              </div>
+            </div>
+
+            {/* Meal Prep */}
+            <div style={{ padding: "56px 0" }}>
+              <div className="flex items-baseline gap-3 mb-8">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">05</span>
+                <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Meal Prep</span>
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+              <div className="border border-[var(--accent-l)] bg-[var(--accent-l)] p-4 mb-4">
+                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--accent)] mb-1 font-medium">AI Meal Prep</div>
+                <p className="text-[11px] text-[var(--fg-2)] leading-[1.5]">Use the MCP prompt below to generate a meal prep plan for this recipe — batch cooking, storage, and reheat instructions.</p>
+              </div>
+              <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 cursor-pointer hover:opacity-90">Copy prompt &rarr;</span>
+                <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] cursor-pointer hover:text-[var(--fg)]">Paste notes instead</span>
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* No plan card */}
-          <div className="rounded-[var(--radius,12px)] max-w-[380px] px-7 py-8 space-y-4 bg-[var(--bg-raised)] mt-6" style={{ boxShadow: "var(--shadow-md)" }}>
-            <div className="font-serif text-[18px] text-[var(--fg)] leading-snug">No plan for this week</div>
-            <p className="font-sans text-[12px] text-[var(--muted)] leading-relaxed">
-              Create a weekly meal plan to start logging meals and tracking your nutrition.
-            </p>
-            <span className="inline-block bg-[var(--accent)] text-[var(--accent-text)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em]">
-              + Create this week&apos;s plan
-            </span>
+      {/* ═══ 6. Ingredients Card Grid ═══ */}
+      <SectionDivider label="6 / Ingredients Card Grid" />
+      <section aria-label="Ingredients card grid preview">
+        {/* Filter bar */}
+        <div className="flex items-center gap-[4px] px-[var(--pad)] border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10" style={{ height: "var(--filter-h)" }}>
+          {[
+            { key: "all", label: "All" },
+            { key: "foods", label: "Foods" },
+            { key: "ingredients", label: "Ingredients" },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setIngredientFilter(f.key)}
+              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+                ingredientFilter === f.key ? "text-[var(--fg)] border-[var(--rule)]" : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+              }`}
+              aria-label={`Filter by ${f.label}`}
+            >{f.label}</button>
+          ))}
+          <div className="flex gap-[5px] items-center ml-auto">
+            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredIngredients.length} items</span>
+            <div className="flex border border-[var(--rule)]">
+              <span className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
+                Name
+                <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+              </span>
+              <span className="font-mono text-[11px] text-[var(--muted)] py-[3px] px-[9px]">&uarr;</span>
+            </div>
+            <div className="flex border border-[var(--rule)] overflow-hidden">
+              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] bg-[var(--bg-3)] text-[var(--fg)] border-r border-[var(--rule)]">Grid</span>
+              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] text-[var(--muted)]">List</span>
+            </div>
+            <span className="font-mono text-[9px] tracking-[0.06em] bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[3px] px-[9px]">Search</span>
+            <span className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[3px] px-[9px]">+ New</span>
           </div>
         </div>
-      </div>
+
+        {/* Card Grid */}
+        <div className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
+          <div className="grid gap-6 grid-cols-4" style={{ gridAutoRows: "auto" }}>
+            {filteredIngredients.map((item) => (
+              <div key={item.id} className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group border border-[var(--rule)]">
+                <div style={{ padding: "20px 18px 22px" }}>
+                  <div className={`font-mono text-[7.5px] tracking-[0.14em] uppercase mb-[7px] py-[2px] px-[7px] inline-block ${
+                    item.category === "FOOD" ? "bg-[var(--ok-l)] text-[var(--ok)]" : "bg-[var(--accent-l)] text-[var(--accent)]"
+                  }`}>
+                    {item.category}
+                  </div>
+                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]">{item.name}</div>
+                  <div className="font-mono text-[8px] text-[var(--muted)] tracking-[0.06em] mb-[10px]">{item.unit}</div>
+                  <div className="flex gap-2 items-baseline flex-wrap">
+                    <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{item.kcal} kcal</span>
+                    <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {item.protein}g</span>
+                    <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {item.carbs}g</span>
+                    <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {item.fat}g</span>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 7. Settings Jump Nav ═══ */}
+      <SectionDivider label="7 / Settings Jump Nav" />
+      <section aria-label="Settings layout preview">
+        <div className="relative" style={{ minHeight: "80vh" }}>
+          {/* Jump nav */}
+          <nav className="absolute flex flex-col z-10" style={{ left: "var(--pad)", top: 48, width: 140 }} aria-label="Settings sections">
+            {settingsJumpNav.map((s, i) => (
+              <button
+                key={s.n}
+                onClick={() => setActiveSection(s.n)}
+                className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-b border-[var(--rule)] text-left cursor-pointer bg-transparent ${
+                  activeSection === s.n ? "text-[var(--fg)]" : "text-[var(--muted)]"
+                } ${i === 0 ? "pt-0" : ""}`}
+                aria-label={`Jump to ${s.label}`}
+              >
+                <span className={`font-serif text-[9px] font-bold min-w-[16px] ${activeSection === s.n ? "text-[var(--accent)]" : "text-[var(--rule)]"}`}>{s.n}</span>
+                {s.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Content area */}
+          <div style={{ paddingLeft: 196, paddingRight: 64, paddingTop: 48, paddingBottom: 80 }}>
+            {/* 01 People */}
+            <div className="mb-16">
+              <div className="flex items-baseline gap-3 mb-8">
+                <span className="font-serif text-[12px] font-bold text-[var(--accent)]">01</span>
+                <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>People</span>
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+              {/* Mock person row */}
+              <div className="flex items-center gap-4 py-4 border-b border-[var(--rule)]">
+                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white"
+                  style={{ background: "var(--accent)" }} aria-hidden="true">M</div>
+                <div className="flex-1">
+                  <div className="font-serif text-[15px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Maya</div>
+                  <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)]">Active &middot; 2,000 kcal goal</div>
+                </div>
+                <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
+              </div>
+              <div className="flex items-center gap-4 py-4 border-b border-[var(--rule)]">
+                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white opacity-50"
+                  style={{ background: "#7C8DA0" }} aria-hidden="true">G</div>
+                <div className="flex-1">
+                  <div className="font-serif text-[15px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Greg</div>
+                  <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)]">Inactive &middot; 2,400 kcal goal</div>
+                </div>
+                <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
+              </div>
+              <div className="mt-4">
+                <span className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[5px] px-[12px] cursor-pointer hover:opacity-90">+ Add person</span>
+              </div>
+            </div>
+
+            {/* 02 Daily Goals */}
+            <div className="mb-16">
+              <div className="flex items-baseline gap-3 mb-8">
+                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Daily Goals</span>
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+              <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">Maya&apos;s daily targets</div>
+              {mockGoals.map((g, i) => (
+                <div key={g.label} className={`flex items-baseline justify-between py-3 ${i < mockGoals.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg-2)]">{g.label}</span>
+                  <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
+                    {g.value} <span className="text-[8px] text-[var(--muted)]">{g.unit}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

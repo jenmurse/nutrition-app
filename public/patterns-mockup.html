@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Patterns Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: #F5F4EF;
+  --bg-2: #EEEAE3;
+  --bg-3: #E6E2D8;
+  --fg: #1A1916;
+  --fg-2: #36342F;
+  --muted: #6B6860;
+  --rule: #D0CCC2;
+  --accent: #E84828;
+  --accent-l: rgba(232,72,40,0.09);
+  --accent-fg: #fff;
+  --ok: #5A9B6A;
+  --ok-l: rgba(90,155,106,0.14);
+  --err: #B02020;
+  --err-l: rgba(176,32,32,0.10);
+  --warn: #C07018;
+  --warn-l: rgba(192,112,24,0.10);
+  --warn-fg: #7A4010;
+  --nav-h: 50px;
+  --pad: 40px;
+  --grain-op: 0.025;
+  --float-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-strong: cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-theme="dark"] {
+  --bg: #141311; --bg-2: #1C1B18; --bg-3: #242220;
+  --fg: #F0ECE4; --fg-2: #C0BDB4; --muted: #686560; --rule: #2A2825;
+  --accent: #F05A30; --accent-l: rgba(240,90,48,0.14);
+  --ok: #6AAF7A; --err: #E06060;
+  --grain-op: 0.045;
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--bg); color: var(--fg);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: var(--grain-op);
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 1100px; margin: 0 auto; padding: 60px var(--pad) 120px; }
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; font-weight: 400;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 32px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.section { margin-bottom: 80px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
+.cell { background: var(--bg); }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  position: fixed; top: 16px; right: 20px; z-index: 100;
+  font-family: 'DM Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); background: var(--bg-2);
+  border: 1px solid var(--rule); padding: 6px 10px;
+  cursor: pointer;
+}
+.theme-toggle:hover { color: var(--fg); }
+
+/* ══════════════════════════════════════════════
+   SECTION 1 — EMPTY STATES
+══════════════════════════════════════════════ */
+
+/* Current (before) */
+.empty-current {
+  border: 1px dashed var(--rule);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 10px;
+  padding: 48px 0;
+}
+.empty-current span {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted);
+}
+.empty-current a {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); text-decoration: none;
+}
+.empty-current a:hover { opacity: 0.7; }
+
+/* New empty state — typographic glyph */
+.empty-new {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 56px 24px;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+}
+.empty-glyph {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 72px; font-weight: 200;
+  line-height: 1;
+  color: var(--rule);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  user-select: none;
+}
+.empty-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.empty-action {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.empty-action:hover { opacity: 0.7; }
+
+/* Variant: with a small context line */
+.empty-context {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; color: var(--muted);
+  line-height: 1.5; margin-bottom: 18px;
+  max-width: 220px;
+}
+
+/* ── 3-col example grid (recipe/ingredient list context) ── */
+.empty-list-state {
+  padding: 64px 0;
+  display: flex; flex-direction: column; align-items: center;
+  border-right: 1px solid var(--rule);
+}
+
+/* ── Full-page empty (planner context, wide) ── */
+.empty-full {
+  border: 1px solid var(--rule);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 320px;
+  text-align: center;
+  gap: 0;
+}
+
+.before-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 7.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); opacity: 0.6;
+  background: var(--bg-2); padding: 3px 8px; margin-bottom: 16px;
+  display: inline-block;
+}
+.after-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 7.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ok); opacity: 0.8;
+  background: var(--ok-l); padding: 3px 8px; margin-bottom: 16px;
+  display: inline-block;
+}
+
+/* ══════════════════════════════════════════════
+   SECTION 2 — NOTIFICATION BAR
+══════════════════════════════════════════════ */
+
+/* The bar lives just below the nav (or can be part of it).
+   In the app, it would be position:fixed, top: var(--nav-h),
+   and slide down via translateY. */
+
+.notif-demo-nav {
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  padding: 0 var(--pad);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  position: relative; z-index: 10;
+}
+
+/* The notification bar itself */
+.notif-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--pad);
+  height: 36px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.06em;
+  border-bottom: 1px solid transparent;
+  position: relative;
+}
+.notif-bar .notif-text {
+  display: flex; align-items: center; gap: 10px;
+}
+.notif-bar .notif-dot {
+  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+}
+.notif-bar .notif-dismiss {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: inherit; opacity: 0.5; cursor: pointer; background: none; border: none;
+  padding: 4px 0;
+}
+.notif-bar .notif-dismiss:hover { opacity: 1; }
+.notif-bar .notif-action {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: inherit; text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.7; margin-right: 16px;
+}
+.notif-bar .notif-action:hover { opacity: 1; }
+
+/* ── Variants ── */
+.notif-success {
+  background: var(--ok-l);
+  color: var(--ok);
+  border-bottom-color: rgba(90,155,106,0.18);
+}
+.notif-success .notif-dot { background: var(--ok); }
+
+.notif-error {
+  background: var(--err-l);
+  color: var(--err);
+  border-bottom-color: rgba(176,32,32,0.14);
+}
+.notif-error .notif-dot { background: var(--err); }
+
+.notif-warn {
+  background: var(--warn-l);
+  color: var(--warn);
+  border-bottom-color: rgba(192,112,24,0.14);
+}
+.notif-warn .notif-dot { background: var(--warn); }
+
+.notif-neutral {
+  background: var(--bg-2);
+  color: var(--muted);
+  border-bottom-color: var(--rule);
+}
+.notif-neutral .notif-dot { background: var(--muted); }
+
+/* Demo box for notification bar */
+.notif-demo-box {
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.notif-demo-content {
+  padding: 20px var(--pad);
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; color: var(--muted);
+}
+
+/* Animation demo */
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
+}
+.notif-animated {
+  animation: slideDown 300ms cubic-bezier(0.23,1,0.32,1) both;
+}
+.notif-animated.hiding {
+  animation: slideUp 200ms cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* Live demo area */
+.live-demo {
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.live-nav {
+  background: var(--bg); border-bottom: 1px solid var(--rule);
+  height: var(--nav-h); display: flex; align-items: center;
+  padding: 0 var(--pad); gap: 20px;
+}
+.live-nav .logo {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: -0.02em;
+}
+.live-nav .nav-links {
+  display: flex; gap: 20px;
+}
+.live-nav .nav-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+}
+.notif-slot {
+  overflow: hidden;
+  /* In real app: position:fixed; top: var(--nav-h); width:100% */
+}
+.live-body {
+  padding: 32px var(--pad);
+  min-height: 120px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; color: var(--muted);
+  line-height: 1.6;
+}
+
+.trigger-row {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.trigger-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 7px 12px; cursor: pointer;
+  border: 1px solid var(--rule); background: var(--bg-2);
+  color: var(--fg-2);
+}
+.trigger-btn:hover { background: var(--bg-3); }
+
+/* comparison labels */
+.compare-header {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  margin-bottom: 12px;
+}
+.compare-col-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); opacity: 0.7;
+}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">Toggle dark</button>
+
+<div class="page">
+
+  <!-- ══════════════════════════════════════════
+       1. EMPTY STATES
+  ══════════════════════════════════════════ -->
+
+  <div class="section">
+    <div class="section-label">01 &nbsp;·&nbsp; Empty States</div>
+
+    <!-- Before / After comparison -->
+    <div class="compare-header">
+      <div class="compare-col-label">Before — current pattern</div>
+      <div class="compare-col-label">After — typographic glyph</div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:48px;">
+
+      <!-- BEFORE -->
+      <div>
+        <div class="empty-current">
+          <span>No meal plan yet</span>
+          <a href="#">+ Create this week's plan →</a>
+        </div>
+      </div>
+
+      <!-- AFTER: dash glyph for "no plan" -->
+      <div>
+        <div class="empty-new">
+          <div class="empty-glyph">—</div>
+          <div class="empty-label">No plan this week</div>
+          <a href="#" class="empty-action">+ Create plan →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid-2" style="margin-bottom:48px;">
+
+      <!-- BEFORE -->
+      <div>
+        <div class="empty-current">
+          <span>No meals logged today</span>
+          <a href="#">Open meal plan →</a>
+        </div>
+      </div>
+
+      <!-- AFTER: dot glyph for "no meals" -->
+      <div>
+        <div class="empty-new">
+          <div class="empty-glyph">·</div>
+          <div class="empty-label">Nothing logged today</div>
+          <a href="#" class="empty-action">Open planner →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Three-col list empty states (recipes / pantry sidebar context) -->
+    <div class="section-label" style="margin-top:48px;">Empty states — in list pane (sidebar context)</div>
+    <div style="border:1px solid var(--rule); display:grid; grid-template-columns:220px 1fr; overflow:hidden; margin-bottom:48px;">
+
+      <!-- List pane -->
+      <div style="border-right:1px solid var(--rule); background:var(--bg);">
+        <!-- Before -->
+        <div style="border-bottom:1px solid var(--rule); padding:16px 16px 20px;">
+          <div class="before-label">Before</div>
+          <div class="empty-current" style="padding:24px 0;">
+            <span>No recipes yet</span>
+            <a href="#">+ New recipe</a>
+          </div>
+        </div>
+        <!-- After -->
+        <div style="padding:16px 16px 20px;">
+          <div class="after-label">After</div>
+          <div class="empty-new" style="padding:24px 8px; border-top:none;">
+            <div class="empty-glyph" style="font-size:48px; margin-bottom:12px;">∅</div>
+            <div class="empty-label">No recipes</div>
+            <a href="#" class="empty-action">+ New →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail pane placeholder -->
+      <div style="padding:32px; display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center;">
+          <div style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); opacity:0.4;">Select a recipe</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- With context line variant -->
+    <div class="section-label">With context line — richer empty state</div>
+    <div class="grid-2">
+
+      <div>
+        <div class="empty-new">
+          <div class="empty-glyph" style="font-size:56px;">0</div>
+          <div class="empty-label">No ingredients in pantry</div>
+          <div class="empty-context">Add ingredients to track nutrition in your recipes and meals.</div>
+          <a href="#" class="empty-action">+ Add first ingredient →</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="empty-new">
+          <div class="empty-glyph" style="font-size:56px; letter-spacing:-0.06em;">···</div>
+          <div class="empty-label">No goals set</div>
+          <div class="empty-context">Set daily nutrition goals to see progress across the app.</div>
+          <a href="#" class="empty-action">Set up goals →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Note on glyph choices -->
+    <div style="margin-top:48px; padding:20px 24px; background:var(--bg-2); border-left:2px solid var(--accent);">
+      <div style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Glyph vocabulary</div>
+      <div style="font-family:'DM Sans',sans-serif; font-size:12px; color:var(--fg-2); line-height:1.7;">
+        <strong style="color:var(--fg);">·</strong> &nbsp;dot — "nothing here yet, this slot is empty"&nbsp;&nbsp;
+        <strong style="color:var(--fg);">—</strong> &nbsp;dash — "no plan / no activity"&nbsp;&nbsp;
+        <strong style="color:var(--fg);">∅</strong> &nbsp;empty set — "library is empty"&nbsp;&nbsp;
+        <strong style="color:var(--fg);">0</strong> &nbsp;zero — "count-based empty (ingredients, goals)"&nbsp;&nbsp;
+        <strong style="color:var(--fg);">···</strong> &nbsp;ellipsis — "waiting / pending"
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       2. NOTIFICATION BAR
+  ══════════════════════════════════════════ -->
+
+  <div class="section">
+    <div class="section-label">02 &nbsp;·&nbsp; Notification Bar — replaces bottom toasts</div>
+
+    <!-- All four variants, static -->
+    <div style="margin-bottom:32px;">
+      <div class="notif-demo-box">
+        <div class="notif-demo-nav">Good Measure</div>
+        <div class="notif-bar notif-success">
+          <div class="notif-text">
+            <div class="notif-dot"></div>
+            <span>Recipe saved</span>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <button class="notif-dismiss">Dismiss</button>
+          </div>
+        </div>
+        <div class="notif-demo-content">App content sits here — notification is adjacent to the nav, not floating over content</div>
+      </div>
+
+      <div class="notif-demo-box">
+        <div class="notif-demo-nav">Good Measure</div>
+        <div class="notif-bar notif-error">
+          <div class="notif-text">
+            <div class="notif-dot"></div>
+            <span>Couldn't save — check your connection</span>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <a href="#" class="notif-action">Retry</a>
+            <button class="notif-dismiss">Dismiss</button>
+          </div>
+        </div>
+        <div class="notif-demo-content">Error state: always shows a retry action</div>
+      </div>
+
+      <div class="notif-demo-box">
+        <div class="notif-demo-nav">Good Measure</div>
+        <div class="notif-bar notif-warn">
+          <div class="notif-text">
+            <div class="notif-dot"></div>
+            <span>3 ingredients unmatched — review before saving</span>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <a href="#" class="notif-action">Review</a>
+            <button class="notif-dismiss">Dismiss</button>
+          </div>
+        </div>
+        <div class="notif-demo-content">Warning state: action link to resolve</div>
+      </div>
+
+      <div class="notif-demo-box">
+        <div class="notif-demo-nav">Good Measure</div>
+        <div class="notif-bar notif-neutral">
+          <div class="notif-text">
+            <div class="notif-dot"></div>
+            <span>Importing recipe from URL…</span>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <button class="notif-dismiss">Cancel</button>
+          </div>
+        </div>
+        <div class="notif-demo-content">Neutral / in-progress state: no auto-dismiss while loading</div>
+      </div>
+    </div>
+
+    <!-- Live interactive demo -->
+    <div class="section-label">Live demo — trigger notifications</div>
+
+    <div class="trigger-row">
+      <button class="trigger-btn" onclick="showNotif('success', 'Recipe saved', null)">✓ Success</button>
+      <button class="trigger-btn" onclick="showNotif('error', 'Couldn\'t save — check connection', 'Retry')">✗ Error</button>
+      <button class="trigger-btn" onclick="showNotif('warn', '2 ingredients unmatched', 'Review')">⚠ Warning</button>
+      <button class="trigger-btn" onclick="showNotif('neutral', 'Importing from URL…', 'Cancel')">· Neutral</button>
+      <button class="trigger-btn" onclick="showNotif('success', 'Meal plan copied from last week', null)">Meal plan copied</button>
+      <button class="trigger-btn" onclick="showNotif('success', 'Invite sent to garth@example.com', null)">Invite sent</button>
+    </div>
+
+    <div class="live-demo">
+      <div class="live-nav">
+        <div class="logo">Good Measure</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link">Dashboard</a>
+          <a href="#" class="nav-link">Planner</a>
+          <a href="#" class="nav-link">Recipes</a>
+        </div>
+      </div>
+      <div class="notif-slot" id="notif-slot"></div>
+      <div class="live-body">
+        App content — the notification slides in below the nav, pushes content down slightly (no z-index overlap), then slides back up on dismiss or after 4 seconds.
+        <br><br>
+        On mobile, this avoids the bottom-of-screen hazard zone (notch, gesture bar, home indicator).
+      </div>
+    </div>
+
+    <!-- Behaviour notes -->
+    <div style="padding:20px 24px; background:var(--bg-2); border-left:2px solid var(--accent);">
+      <div style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Behaviour rules</div>
+      <div style="font-family:'DM Sans',sans-serif; font-size:12px; color:var(--fg-2); line-height:1.8;">
+        <strong style="color:var(--fg);">Success</strong> — auto-dismiss after 4s. No action needed.<br>
+        <strong style="color:var(--fg);">Error</strong> — never auto-dismiss. Stays until user acts or retries.<br>
+        <strong style="color:var(--fg);">Warning</strong> — auto-dismiss after 8s, or on action click.<br>
+        <strong style="color:var(--fg);">Neutral/loading</strong> — stays until the operation resolves, then swaps to success or error.<br>
+        <strong style="color:var(--fg);">Stacking</strong> — only one bar at a time. New notification replaces current (crossfade).
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- end .page -->
+
+<script>
+  // ── Theme toggle ──
+  // (button inline above)
+
+  // ── Notification bar demo ──
+  let dismissTimer = null;
+
+  function showNotif(type, message, actionLabel) {
+    const slot = document.getElementById('notif-slot');
+
+    // Clear any existing
+    if (dismissTimer) clearTimeout(dismissTimer);
+    const existing = slot.querySelector('.notif-bar');
+    if (existing) {
+      existing.classList.add('hiding');
+      setTimeout(() => render(), 200);
+    } else {
+      render();
+    }
+
+    function render() {
+      slot.innerHTML = '';
+      const bar = document.createElement('div');
+      bar.className = `notif-bar notif-${type} notif-animated`;
+
+      const dotEl = `<div class="notif-dot"></div>`;
+      const textEl = `<span>${message}</span>`;
+      const actionEl = actionLabel
+        ? `<a href="#" class="notif-action" onclick="hideNotif(event)">${actionLabel}</a>`
+        : '';
+      const dismissEl = `<button class="notif-dismiss" onclick="hideNotif(event)">Dismiss</button>`;
+
+      bar.innerHTML = `
+        <div class="notif-text">${dotEl}${textEl}</div>
+        <div style="display:flex;align-items:center;">${actionEl}${dismissEl}</div>
+      `;
+      slot.appendChild(bar);
+
+      // Auto-dismiss rules
+      if (type === 'success') dismissTimer = setTimeout(() => hideNotif(), 4000);
+      if (type === 'warn')    dismissTimer = setTimeout(() => hideNotif(), 8000);
+      // error + neutral: manual dismiss only
+    }
+  }
+
+  function hideNotif(e) {
+    if (e) e.preventDefault();
+    if (dismissTimer) clearTimeout(dismissTimer);
+    const slot = document.getElementById('notif-slot');
+    const bar = slot.querySelector('.notif-bar');
+    if (!bar) return;
+    bar.classList.add('hiding');
+    setTimeout(() => { slot.innerHTML = ''; }, 220);
+  }
+</script>
+
+</body>
+</html>

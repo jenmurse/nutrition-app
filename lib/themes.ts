@@ -2,32 +2,44 @@ export interface ThemeDef {
   name: string;
   label: string;
   hex: string;
-  warm: boolean;
 }
 
 export const THEMES: ThemeDef[] = [
-  { name: 'sage',        label: 'Sage',        hex: '#5C9169', warm: true  },
-  { name: 'coral',       label: 'Coral',       hex: '#EE636E', warm: true  },
-  { name: 'hotpink',     label: 'Hot Pink',    hex: '#D43875', warm: true  },
-  { name: 'blush',       label: 'Blush',       hex: '#B87880', warm: true  },
-  { name: 'terracotta',  label: 'Terracotta',  hex: '#CB4D1B', warm: true  },
-  { name: 'mauve',       label: 'Mauve',       hex: '#907080', warm: true  },
-  { name: 'burgundy',    label: 'Burgundy',    hex: '#8A3050', warm: true  },
-  { name: 'plum',        label: 'Plum',        hex: '#7A3068', warm: true  },
-  { name: 'olive',       label: 'Olive',       hex: '#808838', warm: true  },
-  { name: 'charcoal',    label: 'Charcoal',    hex: '#504840', warm: true  },
-  { name: 'cobalt',      label: 'Cobalt',      hex: '#2858C0', warm: false },
-  { name: 'emerald',     label: 'Emerald',     hex: '#1E8C58', warm: false },
-  { name: 'teal',        label: 'Teal',        hex: '#1E8A84', warm: false },
-  { name: 'violet',      label: 'Violet',      hex: '#6848D0', warm: false },
-  { name: 'slate',       label: 'Slate',       hex: '#5878A0', warm: false },
-  { name: 'lavender',    label: 'Lavender',    hex: '#7868A0', warm: false },
-  { name: 'cornflower',  label: 'Cornflower',  hex: '#5C78C8', warm: false },
-  { name: 'cerulean',    label: 'Cerulean',    hex: '#3890C0', warm: false },
-  { name: 'periwinkle',  label: 'Periwinkle',  hex: '#8890D0', warm: false },
-  { name: 'steel',       label: 'Steel',       hex: '#607888', warm: false },
+  { name: 'coral',    label: 'Coral',    hex: '#E84828' },
+  { name: 'terra',    label: 'Terra',    hex: '#C45C3A' },
+  { name: 'sage',     label: 'Sage',     hex: '#5A9B6A' },
+  { name: 'forest',   label: 'Forest',   hex: '#2D7D52' },
+  { name: 'steel',    label: 'Steel',    hex: '#4A7AB5' },
+  { name: 'cerulean', label: 'Cerulean', hex: '#2B90C8' },
+  { name: 'plum',     label: 'Plum',     hex: '#8B5A9E' },
+  { name: 'slate',    label: 'Slate',    hex: '#5C7080' },
 ];
 
+/** Map legacy 20-theme names to the surviving 8 */
+const LEGACY_MAP: Record<string, string> = {
+  hotpink:     'coral',
+  blush:       'terra',
+  terracotta:  'terra',
+  mauve:       'plum',
+  burgundy:    'coral',
+  olive:       'sage',
+  charcoal:    'slate',
+  cobalt:      'steel',
+  emerald:     'forest',
+  teal:        'cerulean',
+  violet:      'plum',
+  lavender:    'plum',
+  cornflower:  'steel',
+  periwinkle:  'steel',
+};
+
+/** Resolve any theme name (including legacy) to a valid current theme name */
+export function resolveTheme(name: string): string {
+  if (THEMES.some(t => t.name === name)) return name;
+  return LEGACY_MAP[name] ?? 'sage';
+}
+
 export function themeHex(name: string): string {
-  return THEMES.find(t => t.name === name)?.hex ?? '#5C9169';
+  const resolved = resolveTheme(name);
+  return THEMES.find(t => t.name === resolved)?.hex ?? '#5A9B6A';
 }

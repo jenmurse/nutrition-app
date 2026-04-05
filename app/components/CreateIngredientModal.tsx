@@ -200,7 +200,7 @@ export default function CreateIngredientModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg,12px)] shadow-[var(--shadow-lg)] p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-fade-in">
+      <div className="bg-[var(--bg)] border border-[var(--rule)] p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-fade-in">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -269,7 +269,7 @@ export default function CreateIngredientModal({
               <div className="flex-1" />
               <button
                 onClick={onClose}
-                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
               >
                 Skip
               </button>
@@ -318,14 +318,14 @@ export default function CreateIngredientModal({
                   <button
                     onClick={handleUSDASearch}
                     disabled={searching}
-                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
+                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
                   >
                     {searching ? "Searching…" : "Search"}
                   </button>
                 </div>
 
                 {searchResults.length > 0 && (
-                  <div className="space-y-[2px] max-h-80 overflow-y-auto border border-[var(--rule)] rounded-[var(--radius-sm,4px)]">
+                  <div className="space-y-[2px] max-h-80 overflow-y-auto border border-[var(--rule)]">
                     {searchResults.map((result) => {
                       const isLoading = fetchingFdcId === result.fdcId;
                       return (
@@ -388,7 +388,7 @@ export default function CreateIngredientModal({
             <div className="flex gap-2 mt-6 pt-4 border-t border-[var(--rule)]">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] rounded-[6px] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
               >
                 Skip for now
               </button>

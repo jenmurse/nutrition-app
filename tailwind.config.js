@@ -20,6 +20,7 @@ const config = {
 			fontFamily: {
 				sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
 				mono: ['var(--font-mono)', 'monospace'],
+				serif: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
