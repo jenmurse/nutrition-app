@@ -708,7 +708,7 @@ input[type="number"]:focus {
 .pl-toolbar {
   display:flex; align-items:center; gap:10px; padding:0 var(--pad);
   height:var(--filter-h); flex-shrink:0; border-bottom:1px solid var(--rule);
-  background:var(--bg); position:sticky; top:0; z-index:5;
+  background:var(--bg); position:sticky; top:0; z-index:20;
   transition:background 0.5s;
 }
 
@@ -1443,6 +1443,13 @@ input[type="number"]:focus {
 
   /* Mobile person dropdown — visible only on mobile */
   .pl-mob-person-wrap { display: block; }
+
+  /* Meal text — larger on mobile single-day view */
+  .pl-mobile-day .meal-chip { padding: 10px 0; margin-bottom: 0; }
+  .pl-mobile-day .meal-chip-name { font-size: 15px; line-height: 1.4; }
+  .pl-mobile-day .meal-chip-kcal { font-size: 11px; margin-top: 3px; }
+  .pl-mobile-day .wk-meal-label { font-size: 9px; padding: 0; margin-bottom: 6px; }
+  .pl-mobile-day .wk-meal-section { padding: 16px 0 4px; }
 
   /* Everyone view: JS now handles mobile, desktop grid only for wider viewports */
   .pl-main { overflow-x: auto; }
