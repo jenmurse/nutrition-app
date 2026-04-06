@@ -712,7 +712,7 @@ input[type="number"]:focus {
   transition:background 0.5s;
 }
 
-.pl-range { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg); padding-right:8px; flex-shrink:0; }
+.pl-range { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg); padding-left:4px; padding-right:8px; flex-shrink:0; }
 
 .pl-nav-btn {
   font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
@@ -940,9 +940,11 @@ input[type="number"]:focus {
   right: 0;
   min-width: 140px;
   background: var(--bg);
-  border: 1px solid var(--rule);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14);
   z-index: 200;
+  overflow: hidden;
 }
 
 .pl-mob-person-item {
@@ -2172,7 +2174,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .hm-meals-wrap { padding-bottom: 20px !important; }
 
   /* ── Dashboard: person switcher overflow (scrolls if many people) ── */
-  .hm-mob-persons { overflow-x: auto; scrollbar-width: none; flex-shrink: 1; }
+  .hm-mob-persons { overflow-x: auto; overflow-y: visible; scrollbar-width: none; flex-shrink: 1; padding: 4px 0; }
   .hm-mob-persons::-webkit-scrollbar { display: none; }
   .hm-mob-person-dot { flex-shrink: 0; }
 

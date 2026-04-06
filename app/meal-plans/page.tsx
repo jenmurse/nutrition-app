@@ -1229,6 +1229,62 @@ const MealPlansPage = () => {
                   })}
                 </div>
               </div>
+              {/* Warning chips */}
+              {(() => {
+                const warnNutrients = dayData.totalNutrients.filter(
+                  n => n.status === 'warning' || n.status === 'error'
+                );
+                if (warnNutrients.length === 0) return null;
+                return (
+                  <div style={{ padding: '12px 20px 0' }}>
+                    <div className="warn-chips">
+                      {warnNutrients.map(n => {
+                        const isBelowMin = n.status === 'warning' && n.lowGoal != null && n.value < n.lowGoal;
+                        const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
+                        const chipClass = isAboveMax ? 'err-chip' : 'warn-chip';
+                        const label = isBelowMin
+                          ? `\u26A0 ${n.displayName} -${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
+                          : isAboveMax
+                          ? `\u26A0 ${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
+                          : `\u26A0 ${n.displayName} outside target`;
+                        return <div key={n.nutrientId} className={chipClass}>{label}</div>;
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Smart swap suggestions */}
+              <div style={{ padding: '8px 20px 0' }}>
+                <SmartSuggestionsPanel
+                  key={`mob-smart-${analysisRefreshKey}-${activeDay.toDateString()}`}
+                  mealPlanId={selectedPlan!.id}
+                  date={activeDay}
+                  onClose={() => setMobNutSheetOpen(false)}
+                  onSwapMeal={async (mealLogId, newRecipeId) => {
+                    try {
+                      const originalMeal = selectedPlan!.mealLogs?.find((m: MealLog) => m.id === mealLogId);
+                      const mealType = originalMeal?.mealType ?? 'side';
+                      await handleRemoveMeal(mealLogId);
+                      await handleAddRecipeMeal(activeDay, mealType, newRecipeId, 1);
+                      toast.success('Meal swapped!');
+                      setAnalysisRefreshKey(k => k + 1);
+                    } catch {
+                      toast.error('Failed to swap meal');
+                    }
+                  }}
+                  onAddMeal={async (recipeId) => {
+                    try {
+                      await handleAddRecipeMeal(activeDay, 'dinner', recipeId, 1);
+                      toast.success('Meal added!');
+                      setAnalysisRefreshKey(k => k + 1);
+                    } catch {
+                      toast.error('Failed to add meal');
+                    }
+                  }}
+                />
+              </div>
+
               <button className="mob-sheet-done" onClick={() => setMobNutSheetOpen(false)}>Close</button>
             </div>
           </>
