@@ -502,7 +502,7 @@ function RecipesPage() {
                       {category && (
                         <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
                       )}
-                      <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
+                      <div className="rcp-card-name font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
                         {recipe.name}
                       </div>
                       {macros && (
@@ -539,7 +539,7 @@ function RecipesPage() {
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={recipe.name}
-                  className="flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group relative"
+                  className="rcp-list-row flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group relative"
                   style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both` }}
                 >
                   {/* Thumbnail — 4:3 */}
@@ -548,12 +548,12 @@ function RecipesPage() {
                       <img src={recipe.image} alt="" className="w-full h-full object-cover block" />
                     ) : null}
                   </div>
-                  {/* Name + category inline */}
-                  <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
-                    <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{recipe.name}</span>
+                  {/* Name + category */}
+                  <div className="rcp-list-info flex-1 min-w-0 flex items-baseline gap-[12px]">
                     {category && (
-                      <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
+                      <span className="rcp-list-eyebrow font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                     )}
+                    <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{recipe.name}</span>
                   </div>
                   {/* Accent bar on hover */}
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />

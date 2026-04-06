@@ -114,7 +114,7 @@ function IngredientsPage() {
   const [foodFilter, setFoodFilter] = useState<'all' | 'foods' | 'ingredients'>('all');
 
   // View mode
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   // Filter sheet (mobile bottom sheet)
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -250,30 +250,6 @@ function IngredientsPage() {
             aria-label="Search ingredients"
             className="mob-search-input"
           />
-          {/* View toggle */}
-          <div className="mob-view-group" role="group" aria-label="View mode">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`mob-tb-icon${viewMode === "grid" ? " on" : ""}`}
-              aria-label="Grid view"
-              aria-pressed={viewMode === "grid"}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
-                <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
-              </svg>
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`mob-tb-icon${viewMode === "list" ? " on" : ""}`}
-              aria-label="List view"
-              aria-pressed={viewMode === "list"}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </button>
-          </div>
           {/* Filter */}
           <button
             onClick={() => setFilterSheetOpen(true)}
@@ -543,7 +519,7 @@ function IngredientsPage() {
                   onClick={() => router.push(`/ingredients/${ingredient.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
                   aria-label={ingredient.name}
-                  className="flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
+                  className="ing-list-row flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
                   style={{
                     padding: "10px 0",
                     animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`,
@@ -568,7 +544,7 @@ function IngredientsPage() {
                     </div>
                   )}
                   {/* Action buttons — always visible, subtle until hover */}
-                  <div className="flex gap-[4px] shrink-0 opacity-[0.4] group-hover:opacity-100 transition-opacity duration-150">
+                  <div className="ing-list-actions flex gap-[4px] shrink-0 opacity-[0.4] group-hover:opacity-100 transition-opacity duration-150">
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-transparent border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"

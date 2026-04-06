@@ -1838,6 +1838,28 @@ input[type="number"]:focus {
   /* Make ingredient list action buttons always visible */
   .ing-grid ~ * .opacity-\[0\.4\],
   .list-scroll .opacity-\[0\.4\] { opacity: 0.7 !important; }
+
+  /* ── Recipe card grid: bigger name, de-emphasize macros ── */
+  .rcp-card-name { font-size: 17px !important; }
+
+  /* ── Recipe list rows: stack eyebrow above name, more touch padding ── */
+  .rcp-list-row { padding: 14px 12px !important; }
+  .rcp-list-info {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+  .rcp-list-eyebrow { display: block; margin-bottom: 1px; }
+
+  /* ── Ingredient list: more touch padding, bigger action targets ── */
+  .ing-list-row { padding: 12px !important; }
+  .ing-list-actions { opacity: 1 !important; gap: 8px !important; }
+  .ing-list-actions button {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+  }
 }
 
 /* ── Hide custom cursor on touch devices ──────────────────────────── */
