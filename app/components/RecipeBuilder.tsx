@@ -940,7 +940,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               const { value, unit } = getMacroValue(label);
               const display = value > 0 ? `${Math.round(value * 10) / 10}${unit !== "kcal" ? unit : ""}` : "—";
               return (
-                <div key={label} className="flex justify-between items-baseline" style={{ padding: "8px 0" }}>
+                <div key={label} className="flex justify-between items-baseline" style={{ padding: `8px ${(idx + 1) % 3 === 0 ? "0" : "16px"} 8px 0` }}>
                   <span className="font-mono text-[11px] text-[var(--muted)]">{label}</span>
                   <span className="font-mono text-[13px] font-medium tabular-nums">{display}</span>
                 </div>

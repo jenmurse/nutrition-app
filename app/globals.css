@@ -1502,6 +1502,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   to   { transform: translateY(0); }
 }
 
+/* Prevent accidental taps when sheet slides up under the user's finger */
+.sheet-delay-touch {
+  animation: enableTouch 0ms 300ms both;
+  pointer-events: none;
+}
+@keyframes enableTouch {
+  to { pointer-events: auto; }
+}
+
 .mob-sheet-handle {
   width: 36px;
   height: 4px;
@@ -2119,13 +2128,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     border-radius: 6px !important;
   }
 
-  /* ── Planner toolbar: match recipes/pantry toolbar height + style ── */
+  /* ── Planner toolbar: match recipes/pantry toolbar (shadow, no hairline) ── */
   .pl-toolbar {
     height: 44px !important;
     padding: 0 var(--pad) !important;
     gap: 6px !important;
-    border-bottom: 1px solid var(--rule) !important;
-    box-shadow: none !important;
+    border-bottom: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     background: var(--bg) !important;
   }
   /* Week range: mono label, anchor weight */

@@ -594,7 +594,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+            <div className="grid grid-cols-2 gap-0 px-5 sm:px-0 sheet-delay-touch" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
               {availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
@@ -617,8 +617,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl max-h-[95dvh] sm:max-h-[90vh] bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none"
-            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh]"
+            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100dvh - 60px)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
