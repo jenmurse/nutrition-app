@@ -730,6 +730,17 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 }`}
                 style={{ padding: "8px 0" }}
               >
+                {/* Drag handle */}
+                <div
+                  className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
+                  aria-hidden="true"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                    <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                    <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+                  </svg>
+                </div>
                 <div className="relative" style={{ flex: 1 }}>
                   <input
                     type="text"
