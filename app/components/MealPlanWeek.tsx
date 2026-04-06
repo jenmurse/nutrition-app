@@ -576,12 +576,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
-          onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
+          onClick={() => { if (mealTypeSheetReady) { setMealTypeDropdownOpen(false); setSelectedDate(null); } }}
+          onTouchEnd={(e) => { if (!mealTypeSheetReady) e.preventDefault(); }}
         >
           <div
             className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none"
             style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => { if (!mealTypeSheetReady) { e.stopPropagation(); e.preventDefault(); } }}
           >
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
@@ -597,13 +599,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))', pointerEvents: mealTypeSheetReady ? 'auto' : 'none' }}>
+            <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
               {availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
                   type="button"
                   className="text-left py-3 px-2 transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
                   onClick={() => handleSelectMealType(mealType)}
+                  onTouchEnd={(e) => { if (!mealTypeSheetReady) e.preventDefault(); }}
                   aria-label={mealType}
                 >
                   <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
@@ -620,8 +623,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh]"
-            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'min(80svh, calc(100vh - 80px))' }}
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh]"
+            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100vh - 80px)', display: 'grid', gridTemplateRows: 'auto auto 1fr auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
@@ -660,7 +663,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 px-5 py-4 sm:px-6">
+            <div className="overflow-y-auto min-h-0 px-5 py-4 sm:px-6">
               {itemTypeTabOpen === 'recipe' ? (
                 <>
                   {/* Search + servings controls */}
@@ -840,7 +843,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 sm:p-6 shrink-0 sticky bottom-0 bg-[var(--bg)] z-10" style={{ paddingBottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}>
+            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 sm:p-6 bg-[var(--bg)]" style={{ paddingBottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}>
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
                 <div className="mb-4">
