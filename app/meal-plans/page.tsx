@@ -940,6 +940,15 @@ const MealPlansPage = () => {
             className="pl-new-btn"
             onClick={() => {
               setPlanJustCreated(false);
+              // Pre-fill with next Sunday after the latest existing plan (or this week's Sunday)
+              const existingStarts = mealPlans.map(p => parseUTCDate(p.weekStartDate).getTime()).sort((a,b) => b-a);
+              const latestStart = existingStarts.length > 0 ? new Date(existingStarts[0]) : null;
+              const today = new Date(); today.setHours(0,0,0,0);
+              const thisSunday = new Date(today); thisSunday.setDate(today.getDate() - today.getDay());
+              const nextSunday = latestStart && latestStart >= thisSunday
+                ? new Date(latestStart.getTime() + 7 * 86400000)
+                : thisSunday;
+              setNewWeekStartDate(nextSunday.toISOString().slice(0, 10));
               const params = new URLSearchParams(searchParams?.toString());
               params.set("showForm", "true");
               router.push(`/meal-plans?${params.toString()}`);
