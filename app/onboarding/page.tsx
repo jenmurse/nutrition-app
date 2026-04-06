@@ -386,13 +386,13 @@ export default function OnboardingPage() {
      ═══════════════════════════════════════════════════════════════════════ */
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg)]">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-[var(--bg)] overflow-y-auto py-8 sm:py-0">
       <div
-        className="w-full max-w-[580px] mx-4"
+        className="w-full max-w-[580px] mx-4 my-auto"
         ref={stepRef}
       >
         <div
-          className="bg-[var(--bg)] border border-[var(--rule)] p-[44px] transition-all duration-[320ms]"
+          className="bg-[var(--bg)] border border-[var(--rule)] p-6 sm:p-[44px] transition-all duration-[320ms]"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           {/* Card top: brand + progress + step counter */}
@@ -422,7 +422,7 @@ export default function OnboardingPage() {
                 </p>
                 <button
                   onClick={() => nav(1, "fwd")}
-                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
+                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
                   aria-label="Begin setup"
                 >
                   Let{"\u2019"}s get set up
@@ -499,7 +499,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
                     aria-label="Continue to household"
                   >
                     Continue
@@ -591,7 +591,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
                     aria-label="Continue to nutrition goals"
                   >
                     Continue
@@ -652,7 +652,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
                     aria-label="Continue to recipe import"
                   >
                     Continue
@@ -744,7 +744,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     onClick={() => nav(5, "fwd")}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
                     aria-label={importResult ? "Continue to finish" : "Skip and finish"}
                   >
                     {importResult ? "Continue" : "Skip"}
@@ -799,7 +799,7 @@ export default function OnboardingPage() {
 
                 <button
                   onClick={completeOnboarding}
-                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-all duration-[140ms]"
+                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
                   aria-label="Open the app"
                 >
                   Open Good Measure

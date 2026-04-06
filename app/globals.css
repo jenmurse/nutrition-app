@@ -1425,8 +1425,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   color: var(--fg);
@@ -1996,7 +1996,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     transition: transform 120ms, box-shadow 120ms;
   }
   .mob-fab:active {
-    transform: scale(0.92);
+    transform: scale(0.97);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 

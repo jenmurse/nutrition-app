@@ -461,6 +461,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 {!editMode && (
                   <button
                     className="wk-add-btn"
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddMealClick(new Date(day.date));
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddMealClick(new Date(day.date));
@@ -568,6 +573,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 {!editMode && (
                   <button
                     className="wk-add-btn"
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddMealClick(new Date(day.date));
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddMealClick(new Date(day.date));
@@ -612,6 +622,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   key={mealType}
                   type="button"
                   className="text-left py-3 px-2 transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSelectMealType(mealType);
+                  }}
                   onClick={() => handleSelectMealType(mealType)}
                   aria-label={mealType}
                 >
