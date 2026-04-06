@@ -1777,14 +1777,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Scrollable content: pad bottom so bottom nav doesn't cover last item */
   .hm-bottom-pad { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px); }
 
-  /* Dashboard week grid: compact 7-day row on mobile */
-  .hm-week-grid > .hm-week-inner { min-height: 0 !important; gap: 0; }
-  .hm-week-day { flex: 1; min-width: 0; }
-  .hm-week-day-header { padding: 8px 2px 10px !important; text-align: center; }
-  .hm-week-day-header .hm-day-abbr { font-size: 7px !important; }
-  .hm-week-day-header .hm-day-num { font-size: 18px !important; margin-top: 1px; }
-  .hm-week-day-header .hm-day-kcal { display: none; }
-  .hm-week-day-header .hm-day-bar { margin-top: 4px; height: 2px; }
+  /* Dashboard week grid: hidden on mobile (too compact to be useful) */
+  .hm-thisweek-section { display: none; }
   .hm-day-meals { display: none; }
 
   /* ── List page toolbars: 2-row layout ──────────────────────────── */
@@ -2089,8 +2083,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .ing-nutr-grid { grid-template-columns: 1fr !important; }
   .ing-check-row { align-items: flex-start !important; }
 
-  /* ── Recipe builder: macro grid → 2 col, guidance → 1 col ── */
-  .rf-macro-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  /* ── Recipe builder: macro grid → 1 col (matches pantry layout), guidance → 1 col ── */
+  .rf-macro-grid { grid-template-columns: 1fr !important; }
   .rf-guidance-grid { grid-template-columns: 1fr !important; }
 
   /* ── Settings mobile section jump bar ── */
@@ -2125,16 +2119,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     border-radius: 6px !important;
   }
 
-  /* ── Planner toolbar: match recipes/pantry toolbar style ── */
+  /* ── Planner toolbar: match recipes/pantry toolbar height + style ── */
   .pl-toolbar {
-    height: 48px !important;
+    height: var(--filter-h) !important;
     padding: 0 12px !important;
     gap: 6px !important;
     border-bottom: none !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     background: var(--bg) !important;
   }
-  /* Week range: mono label, slightly bolder as anchor */
+  /* Week range: mono label, anchor weight */
   .pl-range {
     font-size: 11px !important;
     font-weight: 600 !important;
@@ -2142,7 +2136,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     padding-left: 4px !important;
     padding-right: 4px !important;
   }
-  /* Prev/Next: mono, bordered pills matching other toolbar buttons */
+  /* Prev/Next: bordered pills, same height as mob-tb-icon (34px) */
   .pl-nav-btn {
     font-size: 9px !important;
     letter-spacing: 0.06em !important;
@@ -2151,7 +2145,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     background: none !important;
     color: var(--muted) !important;
     padding: 0 8px !important;
-    height: 32px !important;
+    height: 34px !important;
   }
   .pl-nav-btn:active { border-color: var(--accent) !important; color: var(--accent) !important; }
   .pl-this-week-btn { display: none !important; }
@@ -2194,8 +2188,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .rcp-card-stats { display: none !important; }
   .rcp-card-stats-mob { display: flex !important; }
 
-  /* ── Dashboard: week grid flush with container ── */
-  .hm-week-grid { padding: 0 !important; margin: 0 calc(-1 * var(--pad)) !important; padding: 0 var(--pad) !important; }
+  /* (week grid hidden on mobile — see .hm-thisweek-section above) */
 
   /* ── Dashboard: tighten gap between key meals and this week ── */
   .hm-meals-wrap { padding-bottom: 20px !important; }
@@ -2211,7 +2204,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .ing-list-row { border-bottom-color: var(--rule-faint) !important; }
 
   /* ── Checkbox: align to first line of multi-line label ── */
-  .ing-check-row input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; }
+  .ing-check-row input[type="checkbox"] { margin-top: 5px; flex-shrink: 0; }
 
   /* ── Planner: +ADD button compact ── */
   .pl-mobile-day .wk-add-btn {
@@ -2223,7 +2216,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   /* ── Planner: person dropdown matches toolbar element sizing ── */
-  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 32px !important; border-radius: 6px; }
+  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 34px !important; border-radius: 6px; }
 
   /* ── Settings: household member rows wrap theme chips below ── */
   .set-person-row { flex-wrap: wrap; }

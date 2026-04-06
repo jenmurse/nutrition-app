@@ -407,9 +407,9 @@ export default function Home() {
               </div>
             </div>
 
-            {/* This Week — show even when no meals today */}
+            {/* This Week — show even when no meals today (hidden on mobile) */}
             {weekDays.length > 0 && (
-              <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
+              <div className="hm-thisweek-section" style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
                 <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
@@ -506,9 +506,9 @@ export default function Home() {
               )}
             </div>
 
-            {/* This Week — 7-day overview */}
+            {/* This Week — 7-day overview (hidden on mobile) */}
             {weekDays.length > 0 && (
-              <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
+              <div className="hm-thisweek-section" style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
                 <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link

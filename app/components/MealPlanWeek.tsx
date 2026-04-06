@@ -611,11 +611,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
       {itemTypeTabOpen && selectedDayMeal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
-            className="w-full max-w-2xl max-h-[90vh] bg-[var(--bg)] border border-[var(--rule)] flex flex-col animate-fade-in"
+            className="w-full max-w-2xl max-h-[95dvh] sm:max-h-[90vh] bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col animate-fade-in rounded-t-[12px] sm:rounded-t-none"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] p-6 shrink-0">
