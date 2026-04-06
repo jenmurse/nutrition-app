@@ -572,14 +572,15 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
         >
           <div
-            className="w-full max-w-lg bg-[var(--bg)] border border-[var(--rule)] p-6 my-4 animate-fade-in"
+            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 animate-fade-in rounded-t-[12px] sm:rounded-t-none"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] pb-3 mb-4">
+            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-2 mb-1" aria-hidden="true" />
+            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-3 pt-3 sm:px-0 sm:pt-0 mb-4">
               <h3 className="font-sans text-[14px] font-medium text-[var(--fg)]">Select meal type</h3>
               <button
                 className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition"
@@ -592,7 +593,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-0">
+            <div className="grid grid-cols-2 gap-0 px-5 pb-5 sm:px-0 sm:pb-0">
               {availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
@@ -618,6 +619,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             className="w-full max-w-2xl max-h-[95dvh] sm:max-h-[90vh] bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col animate-fade-in rounded-t-[12px] sm:rounded-t-none"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-2 mb-1" aria-hidden="true" />
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] p-6 shrink-0">
               <div className="flex gap-4 items-center">
                 <button
@@ -833,7 +835,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] p-6 shrink-0">
+            <div className="border-t border-[var(--rule-faint)] p-6 pb-[max(24px,env(safe-area-inset-bottom))] shrink-0">
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
                 <div className="mb-4">

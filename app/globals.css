@@ -2122,10 +2122,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* ── Planner toolbar: match recipes/pantry toolbar height + style ── */
   .pl-toolbar {
     height: var(--filter-h) !important;
-    padding: 0 12px !important;
+    padding: 0 var(--pad) !important;
     gap: 6px !important;
-    border-bottom: none !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    border-bottom: 1px solid var(--rule) !important;
+    box-shadow: none !important;
     background: var(--bg) !important;
   }
   /* Week range: mono label, anchor weight */
@@ -2133,7 +2133,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     font-size: 11px !important;
     font-weight: 600 !important;
     letter-spacing: 0.04em !important;
-    padding-left: 4px !important;
+    padding-left: 0 !important;
     padding-right: 4px !important;
   }
   /* Prev/Next: bordered pills, same height as mob-tb-icon (34px) */

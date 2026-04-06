@@ -297,7 +297,7 @@ export default function Home() {
                     aria-pressed={selectedPersonId === p.id}
                   >
                     <span className="hm-mob-person-chip-dot" style={{ background: p.color || 'var(--accent)' }} />
-                    <span className="hm-mob-person-chip-name">{p.name}</span>
+                    <span className="hm-mob-person-chip-name">{persons.length <= 3 ? p.name : p.name[0]}</span>
                   </button>
                 ))}
               </div>
