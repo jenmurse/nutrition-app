@@ -524,7 +524,7 @@ const SettingsPage = () => {
       {/* ─── Fixed jump nav ─── */}
       <nav
         className="detail-jump-nav fixed z-50 flex flex-col"
-        style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}
+        style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'contentEnter 400ms var(--ease-out) both' }}
         aria-label="Settings sections"
       >
         {JUMP_SECTIONS.map((s, i) => (
@@ -548,7 +548,7 @@ const SettingsPage = () => {
       </nav>
 
       {/* ─── Scrollable content ─── */}
-      <div id="settings-scroll-container" className="h-full overflow-y-auto" style={{ opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}>
+      <div id="settings-scroll-container" className="h-full overflow-y-auto" className="animate-page-enter">
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
