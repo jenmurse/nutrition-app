@@ -244,26 +244,50 @@ function IngredientsPage() {
           <input
             ref={searchRef}
             type="search"
-            placeholder="Search ingredients…"
+            placeholder="Search pantry…"
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search ingredients"
             className="mob-search-input"
           />
+          {/* View toggle */}
+          <div className="mob-view-group" role="group" aria-label="View mode">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`mob-tb-icon${viewMode === "grid" ? " on" : ""}`}
+              aria-label="Grid view"
+              aria-pressed={viewMode === "grid"}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+                <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`mob-tb-icon${viewMode === "list" ? " on" : ""}`}
+              aria-label="List view"
+              aria-pressed={viewMode === "list"}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          {/* Filter */}
           <button
             onClick={() => setFilterSheetOpen(true)}
-            className="mob-filter-btn"
+            className={`mob-filter-btn${activeFilterCount > 0 ? " active" : ""}`}
             aria-label={`Filter${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
             aria-haspopup="dialog"
           >
-            Filter
-            {activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>
+              <line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
+              <line x1="4" y1="18" x2="20" y2="18"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
+            </svg>
+            {activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true" style={{ position: 'absolute', top: 4, right: 4 }}>{activeFilterCount}</span>}
           </button>
-          <button
-            onClick={() => router.push("/ingredients/create")}
-            className="mob-new-btn"
-            aria-label="Add new ingredient"
-          >+</button>
         </div>
 
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
@@ -378,19 +402,17 @@ function IngredientsPage() {
               </div>
             </div>
 
-            {/* View */}
-            <div className="mob-sheet-section">
-              <div className="mob-sheet-section-label">View</div>
-              <div className="mob-sheet-chips">
-                <button className={`mob-sheet-chip${viewMode === "grid" ? " on" : ""}`} onClick={() => setViewMode("grid")} aria-pressed={viewMode === "grid"}>Grid</button>
-                <button className={`mob-sheet-chip${viewMode === "list" ? " on" : ""}`} onClick={() => setViewMode("list")} aria-pressed={viewMode === "list"}>List</button>
-              </div>
-            </div>
-
             <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>Done</button>
           </div>
         </>
       )}
+
+      {/* ── FAB (mobile only) ── */}
+      <button
+        className="mob-fab"
+        onClick={() => router.push("/ingredients/create")}
+        aria-label="Add new ingredient"
+      >+</button>
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto">

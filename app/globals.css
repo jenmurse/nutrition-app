@@ -1298,27 +1298,24 @@ input[type="number"]:focus {
 }
 .mob-search-input:focus { border-color: var(--accent); }
 
-/* Filter trigger button */
+/* Filter trigger button — icon only on mobile */
 .mob-filter-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  width: 34px;
   height: 34px;
-  padding: 0 14px;
   background: var(--bg-2);
   border: 1px solid var(--rule);
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: var(--muted);
   cursor: pointer;
-  white-space: nowrap;
-  transition: border-color 0.15s, background 0.15s;
-  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 .mob-filter-btn:active { background: var(--bg-3); }
+.mob-filter-btn.active { color: var(--accent); border-color: var(--accent); }
 
 .mob-filter-badge {
   display: inline-flex;
@@ -1335,24 +1332,38 @@ input[type="number"]:focus {
   line-height: 1;
 }
 
-/* + New / + Add button (mobile) */
-.mob-new-btn {
+/* Icon-only button in mobile toolbar (filter, view toggle) */
+.mob-tb-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: var(--accent);
-  color: var(--accent-fg);
-  border: 0;
-  font-size: 20px;
-  font-weight: 300;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
+  position: relative;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
-.mob-new-btn:active { opacity: 0.82; }
+.mob-tb-icon:active { background: var(--bg-3); }
+.mob-tb-icon.on { color: var(--accent); border-color: var(--accent); }
+
+/* View toggle group — joined pair */
+.mob-view-group {
+  display: flex;
+  flex-shrink: 0;
+}
+.mob-view-group .mob-tb-icon:first-child {
+  border-right: none;
+}
+
+/* Floating action button */
+.mob-fab {
+  display: none;
+}
 
 /* Sheet backdrop */
 .mob-sheet-backdrop {
@@ -1758,6 +1769,34 @@ input[type="number"]:focus {
   /* ── CSS toolbar switching ── */
   .mob-tb { display: flex; }
   .desk-tb { display: none; }
+
+  /* ── Floating action button ── */
+  .mob-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 16px);
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 40;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 120ms, box-shadow 120ms;
+  }
+  .mob-fab:active {
+    transform: scale(0.92);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 
   /* Taller toolbar for touch */
   .list-toolbar {
