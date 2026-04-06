@@ -120,6 +120,24 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
+  const sheetOpenedAt = useRef<number>(0);
+
+  // Block all taps on sheet portals for 500ms after opening.
+  // Uses capture phase to intercept before any child onClick fires.
+  const sheetGuardHandlers = {
+    onClickCapture: (e: React.MouseEvent) => {
+      if (Date.now() - sheetOpenedAt.current < 500) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    },
+    onTouchEndCapture: (e: React.TouchEvent) => {
+      if (Date.now() - sheetOpenedAt.current < 500) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    },
+  };
 
   // Mobile: single-day view state
   const [isMobile, setIsMobile] = useState(false);
@@ -171,22 +189,17 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const handleAddMealClick = (date: Date) => {
     setSelectedDate(date);
-    // Delay sheet open so it doesn't exist during the current tap event cycle.
-    // iOS Safari propagates touch events to elements that appear at the same
-    // coordinates during the same event loop — opening async prevents this.
-    setTimeout(() => setMealTypeDropdownOpen(true), 50);
+    sheetOpenedAt.current = Date.now();
+    setMealTypeDropdownOpen(true);
   };
 
   const handleSelectMealType = (mealType: string) => {
     if (!selectedDate) return;
+    setSelectedDayMeal({ date: selectedDate, mealType });
     setMealTypeDropdownOpen(false);
-    // Same delay: prevent the recipe picker from catching the tap that
-    // selected the meal type.
-    setTimeout(() => {
-      setSelectedDayMeal({ date: selectedDate!, mealType });
-      setItemTypeTabOpen('recipe');
-      setRecipeFilterTags([mealType.toLowerCase()]);
-    }, 50);
+    sheetOpenedAt.current = Date.now();
+    setItemTypeTabOpen('recipe');
+    setRecipeFilterTags([mealType.toLowerCase()]);
   };
 
   const handleSelectRecipe = async (recipeId: number) => {
@@ -581,6 +594,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
+          {...sheetGuardHandlers}
         >
           <div
             className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none"
@@ -623,6 +637,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
+          {...sheetGuardHandlers}
         >
           <div
             className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh]"
