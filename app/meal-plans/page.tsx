@@ -366,6 +366,7 @@ const MealPlansPage = () => {
   const [shopSheetOpen, setShopSheetOpen] = useState(false);
   const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string }[]>([]);
   const [shopLoading, setShopLoading] = useState(false);
+  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
@@ -765,6 +766,7 @@ const MealPlansPage = () => {
 
   const openShoppingList = async () => {
     setShopSheetOpen(true);
+    setCheckedItems(new Set());
     if (!selectedPlan) return;
     setShopLoading(true);
     try {
@@ -902,19 +904,6 @@ const MealPlansPage = () => {
           aria-label="Go to this week"
         >This Week</button>
 
-        {/* Mobile: nutrition summary button — hidden on desktop */}
-        {selectedPlan && (
-          <button
-            className="pl-mob-nut-btn"
-            onClick={() => setMobNutSheetOpen(true)}
-            aria-label="View nutrition summary"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 3v18h18"/><polyline points="7,16 11,11 14,14 18,9"/>
-            </svg>
-          </button>
-        )}
-
         {/* Shopping list button */}
         {selectedPlan && (
           <button
@@ -925,6 +914,19 @@ const MealPlansPage = () => {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Mobile: nutrition summary button — hidden on desktop */}
+        {selectedPlan && (
+          <button
+            className="pl-mob-nut-btn"
+            onClick={() => setMobNutSheetOpen(true)}
+            aria-label="View nutrition summary"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18"/><polyline points="7,16 11,11 14,14 18,9"/>
             </svg>
           </button>
         )}
@@ -1351,9 +1353,9 @@ const MealPlansPage = () => {
       {shopSheetOpen && (
         <>
           <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
-          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list">
+          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
             <div className="mob-sheet-handle" aria-hidden="true" />
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '12px 20px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '12px 20px 14px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
               <div>
                 <div className="mob-sheet-title">Shopping List</div>
                 {selectedPlan && (() => {
@@ -1371,32 +1373,48 @@ const MealPlansPage = () => {
                 aria-label="Close shopping list"
               >✕</button>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 20px 4px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px' }}>
               {shopLoading ? (
                 <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>Loading…</div>
               ) : shopItems.length === 0 ? (
                 <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>No ingredients in this week&apos;s plan</div>
               ) : (
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {shopItems.map((item, i) => (
-                    <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '7px 0', borderBottom: '1px solid var(--rule-faint)' }}>
-                      <span style={{ flexShrink: 0, color: 'var(--fg-2)', fontSize: 13, lineHeight: '20px' }}>□</span>
-                      <span style={{ fontSize: 13, color: 'var(--fg)', lineHeight: '20px' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
-                        {item.name}
-                      </span>
-                    </li>
-                  ))}
+                  {shopItems.map((item, i) => {
+                    const checked = checkedItems.has(i);
+                    return (
+                      <li
+                        key={i}
+                        onClick={() => setCheckedItems(prev => { const n = new Set(prev); checked ? n.delete(i) : n.add(i); return n; })}
+                        style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--rule-faint)', cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        <span style={{
+                          flexShrink: 0, width: 18, height: 18,
+                          border: `1.5px solid ${checked ? 'var(--accent)' : 'var(--fg-2)'}`,
+                          borderRadius: 3,
+                          background: checked ? 'var(--accent)' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.12s',
+                        }}>
+                          {checked && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        </span>
+                        <span style={{ fontSize: 13, color: checked ? 'var(--muted)' : 'var(--fg)', lineHeight: '20px', textDecoration: checked ? 'line-through' : 'none', transition: 'all 0.12s' }}>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
+                          {item.name}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
             {shopItems.length > 0 && (
-              <button className="mob-sheet-done" onClick={handleShareList}>
+              <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 50, margin: '12px 20px 20px' }}>
                 Share
               </button>
             )}
             {shopItems.length === 0 && !shopLoading && (
-              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)}>
+              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)} style={{ height: 50, margin: '12px 20px 20px' }}>
                 Close
               </button>
             )}
