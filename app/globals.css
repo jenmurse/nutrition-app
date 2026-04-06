@@ -2189,6 +2189,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-sheet .pl-cancel-btn { font-size: 12px; padding: 10px 18px; border-radius: 6px; }
   .add-meal-sheet .pl-create-btn { font-size: 12px; padding: 10px 18px; border-radius: 6px; }
 
+  /* Confirm dialog: round buttons on mobile */
+  [role="dialog"] button { border-radius: 6px; }
+
   /* Day strip: shadow separator instead of hairline */
   .pl-day-strip {
     border-bottom: none !important;
