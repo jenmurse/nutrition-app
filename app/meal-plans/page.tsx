@@ -834,7 +834,7 @@ const MealPlansPage = () => {
           </>
         )}
         <button
-          className="pl-nav-btn"
+          className="pl-nav-btn pl-this-week-btn"
           onClick={() => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -857,7 +857,6 @@ const MealPlansPage = () => {
             }
           }}
           aria-label="Go to this week"
-          className="pl-nav-btn pl-this-week-btn"
         >This Week</button>
 
         {/* Mobile: person/everyone dropdown — hidden on desktop */}
