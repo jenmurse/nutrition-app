@@ -159,6 +159,7 @@ function BothView({
   });
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const mealTypeOrder = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
   const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', side: 'Si', snack: 'Sn', dessert: 'De', beverage: 'Bv' };
   const todayStr = new Date().toDateString();
 
@@ -194,9 +195,9 @@ function BothView({
             {/* 7 day cells for this person */}
             {days.map((day) => {
               const isToday = day.toDateString() === todayStr;
-              const meals = plan?.mealLogs?.filter(
+              const meals = (plan?.mealLogs?.filter(
                 (m) => parseUTCDate(m.date).toDateString() === day.toDateString()
-              ) ?? [];
+              ) ?? []).sort((a, b) => mealTypeOrder.indexOf(a.mealType) - mealTypeOrder.indexOf(b.mealType));
               return (
                 <div
                   key={day.toISOString()}
