@@ -595,7 +595,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       <input
                         id="ingredient-search"
                         type="text"
-                        placeholder="Find food..."
+                        placeholder="Find item..."
                         className="pl-create-date"
                         style={{ flex: 1 }}
                         value={ingredientSearchTerm}
