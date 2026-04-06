@@ -618,11 +618,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0 overflow-hidden">
               <div className="shrink-0 overflow-hidden border border-[var(--rule)]" style={{ width: 120, aspectRatio: "4/3" }}>
                 <img src={image} alt="Recipe preview" className="w-full h-full object-cover block" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
-              <div className="min-w-0">
+              <div className="flex-1 min-w-0">
                 <div className="font-mono text-[10px] text-[var(--muted)] truncate mb-1">
                   {image.startsWith("data:") ? "Uploaded image" : image}
                 </div>

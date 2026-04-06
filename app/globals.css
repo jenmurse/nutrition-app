@@ -1273,7 +1273,9 @@ input[type="number"]:focus {
   outline-offset: 2px;
 }
 .hm-mob-person-dot:active { transform: scale(0.88); }
-.hm-mob-person-dot.on { outline-color: var(--fg); }
+.hm-mob-person-dot.on {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg);
+}
 
 /* ── Dashboard meal columns ──────────────────────────────────────── */
 .hm-meal-cols { display: flex; }
@@ -1864,9 +1866,38 @@ input[type="number"]:focus {
     gap: 0 !important;
   }
 
-  /* Settings: invite table — horizontal scroll */
-  .set-invite-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .set-invite-wrap table { min-width: 480px; }
+  /* Settings: invite table — card layout on mobile */
+  .set-invite-wrap table,
+  .set-invite-wrap tbody { display: block; }
+  .set-invite-wrap thead { display: none; }
+  .set-invite-wrap tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule-faint);
+  }
+  /* URL: full width, top row */
+  .set-invite-wrap td:first-child {
+    flex: 0 0 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 0 4px !important;
+  }
+  /* Status, Created, Redeemed: inline row 2 */
+  .set-invite-wrap td:nth-child(2),
+  .set-invite-wrap td:nth-child(3),
+  .set-invite-wrap td:nth-child(4) {
+    padding: 0 !important;
+    flex: none;
+  }
+  /* Separate inline dates with a dot */
+  .set-invite-wrap td:nth-child(3)::before { content: '·'; margin-right: 8px; color: var(--rule); }
+  .set-invite-wrap td:nth-child(4)::before { content: '·'; margin-right: 8px; color: var(--rule); }
+  /* Action button: right-aligned */
+  .set-invite-wrap td:last-child { margin-left: auto; padding: 0 !important; }
   /* Invite buttons: wrap on small screens */
   .set-invite-btns { gap: 6px !important; }
 
@@ -2075,22 +2106,25 @@ input[type="number"]:focus {
     border-radius: 6px !important;
   }
 
-  /* ── Planner toolbar: app-like chrome ── */
+  /* ── Planner toolbar: match recipes/pantry toolbar style ── */
   .pl-toolbar {
+    height: 52px !important;
+    padding: 0 12px !important;
     border-bottom: none !important;
-    box-shadow: 0 1px 0 rgba(128,128,128,0.1) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    background: var(--bg) !important;
   }
-  /* Prev/Next: accent text, no border */
+  /* Prev/Next: accent text, compact */
   .pl-nav-btn {
     border: none !important;
     background: none !important;
     color: var(--accent) !important;
-    padding: 8px 6px !important;
-    font-size: 14px !important;
+    padding: 6px 4px !important;
+    font-size: 12px !important;
     letter-spacing: 0 !important;
   }
-  /* Week range: slightly larger, page title feel */
-  .pl-range { font-size: 12px !important; letter-spacing: 0.04em !important; }
+  /* Week range: mono label style */
+  .pl-range { font-size: 11px !important; letter-spacing: 0.04em !important; }
 
   /* Day strip: shadow separator instead of hairline */
   .pl-day-strip {
@@ -2130,23 +2164,21 @@ input[type="number"]:focus {
   .rcp-card-stats { display: none !important; }
   .rcp-card-stats-mob { display: flex !important; }
 
-  /* ── Dashboard: week grid full-width breakout ── */
+  /* ── Dashboard: week grid full-width breakout with breathing room ── */
   .hm-week-grid {
     margin-left: calc(-1 * var(--pad)) !important;
     margin-right: calc(-1 * var(--pad)) !important;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   /* ── Dashboard: tighten gap between key meals and this week ── */
   .hm-meals-wrap { padding-bottom: 20px !important; }
 
-  /* ── Dashboard: person switcher overflow ── */
-  .hm-mob-persons {
-    overflow-x: auto;
-    scrollbar-width: none;
-    flex-shrink: 1;
-    max-width: 55%;
-  }
+  /* ── Dashboard: person switcher overflow (scrolls if many people) ── */
+  .hm-mob-persons { overflow-x: auto; scrollbar-width: none; flex-shrink: 1; }
   .hm-mob-persons::-webkit-scrollbar { display: none; }
+  .hm-mob-person-dot { flex-shrink: 0; }
 
   /* ── Search placeholder: softer on transparent inputs ── */
   .mob-search-input::placeholder { color: var(--rule) !important; }
@@ -2180,14 +2212,9 @@ input[type="number"]:focus {
     gap: 10px !important;
   }
 
-  /* ── Settings: invite table URL column truncation ── */
-  .set-invite-wrap { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .set-invite-wrap td:first-child {
-    max-width: 140px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  /* ── Recipe detail: reduce top gap (no sticky header anymore) ── */
+  #rd-scroll-container .detail-content { padding-top: 16px !important; }
+  .rd-hero { padding-top: 8px !important; }
 
   /* ── Recipe/pantry builder: prevent URL input causing horizontal scroll ── */
   #rd-scroll-container { overflow-x: hidden; }

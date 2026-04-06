@@ -850,7 +850,7 @@ const SettingsPage = () => {
               {/* Home Stats */}
               <div className="ed-label mb-[8px]">Home Stats</div>
               <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
-                Select exactly 3 nutrition stats to display on your dashboard and meal cards.
+                Select three nutrition stats to display on your dashboard and meal cards.
               </p>
               <div style={{ maxWidth: 400 }}>
                 {DASHBOARD_STAT_OPTIONS.map((opt) => {
