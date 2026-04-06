@@ -33,9 +33,9 @@ const DASHBOARD_STAT_OPTIONS = [
 
 const GOALS_LAYOUT: { nutrientName: string }[][] = [
   // Left column
-  [{ nutrientName: 'Calories' }, { nutrientName: 'Carbs' }, { nutrientName: 'Fiber' }, { nutrientName: 'Saturated Fat' }],
+  [{ nutrientName: 'Calories' }, { nutrientName: 'Fat' }, { nutrientName: 'Saturated Fat' }, { nutrientName: 'Sodium' }],
   // Right column
-  [{ nutrientName: 'Protein' }, { nutrientName: 'Fat' }, { nutrientName: 'Sodium' }, { nutrientName: 'Sugar' }],
+  [{ nutrientName: 'Carbs' }, { nutrientName: 'Sugar' }, { nutrientName: 'Protein' }, { nutrientName: 'Fiber' }],
 ];
 
 interface Invite {
