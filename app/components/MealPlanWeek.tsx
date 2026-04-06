@@ -576,14 +576,15 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
         >
           <div
-            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 animate-fade-in rounded-t-[12px] sm:rounded-t-none"
+            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none"
+            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-2 mb-1" aria-hidden="true" />
-            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-3 pt-3 sm:px-0 sm:pt-0 mb-4">
-              <h3 className="font-sans text-[14px] font-medium text-[var(--fg)]">Select meal type</h3>
+            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
+            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
+              <h3 className="font-sans text-[16px] font-semibold text-[var(--fg)]">Select meal type</h3>
               <button
-                className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition"
+                className="text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
                 onClick={() => {
                   setMealTypeDropdownOpen(false);
                   setSelectedDate(null);
@@ -593,16 +594,16 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-0 px-5 pb-5 sm:px-0 sm:pb-0">
+            <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
               {availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
                   type="button"
-                  className="meal-chip text-left"
+                  className="text-left py-3 px-2 transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
                   onClick={() => handleSelectMealType(mealType)}
                   aria-label={mealType}
                 >
-                  <span className="meal-chip-name">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                  <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
                 </button>
               ))}
             </div>
@@ -616,15 +617,16 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
-            className="w-full max-w-2xl max-h-[95dvh] sm:max-h-[90vh] bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col animate-fade-in rounded-t-[12px] sm:rounded-t-none"
+            className="add-meal-sheet w-full max-w-2xl max-h-[95dvh] sm:max-h-[90vh] bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none"
+            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-2 mb-1" aria-hidden="true" />
-            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] p-6 shrink-0">
-              <div className="flex gap-4 items-center">
+            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
+            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 py-4 sm:p-6 shrink-0">
+              <div className="flex gap-5 items-center">
                 <button
                   onClick={() => setItemTypeTabOpen('recipe')}
-                  className={`text-[11px] font-mono uppercase tracking-[0.1em] transition-colors pb-[3px] ${
+                  className={`text-[13px] font-mono uppercase tracking-[0.08em] transition-colors pb-[3px] ${
                     itemTypeTabOpen === 'recipe'
                       ? 'text-[var(--fg)] shadow-[0_2px_0_var(--accent)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
@@ -634,7 +636,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
                 <button
                   onClick={() => setItemTypeTabOpen('ingredient')}
-                  className={`text-[11px] font-mono uppercase tracking-[0.1em] transition-colors pb-[3px] ${
+                  className={`text-[13px] font-mono uppercase tracking-[0.08em] transition-colors pb-[3px] ${
                     itemTypeTabOpen === 'ingredient'
                       ? 'text-[var(--fg)] shadow-[0_2px_0_var(--accent)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
@@ -644,7 +646,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
               </div>
               <button
-                className="text-[9px] font-mono uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition"
+                className="text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
                 onClick={() => {
                   setItemTypeTabOpen(null);
                   setSelectedDayMeal(null);
@@ -655,7 +657,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 px-6 py-4">
+            <div className="overflow-y-auto flex-1 px-5 py-4 sm:px-6">
               {itemTypeTabOpen === 'recipe' ? (
                 <>
                   {/* Search + servings controls */}
@@ -835,7 +837,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] p-6 pb-[max(24px,env(safe-area-inset-bottom))] shrink-0">
+            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 sm:p-6 shrink-0" style={{ paddingBottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}>
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
                 <div className="mb-4">
