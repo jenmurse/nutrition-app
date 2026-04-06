@@ -1699,6 +1699,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
+  /* On mobile: float above bottom nav */
+  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  border-radius: 10px 10px 0 0;
 }
 
 /* Desktop: centered modal */
@@ -1710,6 +1713,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     bottom: auto;
     transform: translate(-50%, -50%);
     width: 580px;
+    height: auto;
     max-height: 78vh;
     border-radius: 8px;
     animation: none;
@@ -2264,6 +2268,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* Cart button: restore border on mobile */
   .pl-cart-btn { border: 1px solid var(--rule); border-radius: 6px; }
+
+  /* Shopping list sheet: explicit height on mobile for flex to work */
+  .pl-shop-sheet { height: calc(82dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom, 0px)); }
 
 
   /* ── List row hairlines: lighter separator ── */

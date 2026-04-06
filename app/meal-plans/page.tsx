@@ -366,7 +366,7 @@ const MealPlansPage = () => {
   const [shopSheetOpen, setShopSheetOpen] = useState(false);
   const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string }[]>([]);
   const [shopLoading, setShopLoading] = useState(false);
-  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
@@ -766,8 +766,11 @@ const MealPlansPage = () => {
 
   const openShoppingList = async () => {
     setShopSheetOpen(true);
-    setCheckedItems(new Set());
     if (!selectedPlan) return;
+    try {
+      const saved = localStorage.getItem(`shopping-checked-${selectedPlan.id}`);
+      setCheckedItems(saved ? new Set(JSON.parse(saved) as string[]) : new Set());
+    } catch { setCheckedItems(new Set()); }
     setShopLoading(true);
     try {
       const res = await fetch(`/api/meal-plans/${selectedPlan.id}/shopping-list`);
@@ -787,7 +790,7 @@ const MealPlansPage = () => {
     const range = s.getMonth() === e.getMonth()
       ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
       : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const lines = shopItems.map(item => `□ ${fmtQty(item.qty)} ${item.unit} ${item.name}`).join('\n');
+    const lines = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`)).map(item => `□ ${fmtQty(item.qty)} ${item.unit} ${item.name}`).join('\n');
     const text = `Shopping List — ${range}\n\n${lines}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try { await navigator.share({ title: 'Shopping List', text }); } catch { /* cancelled */ }
@@ -1353,7 +1356,7 @@ const MealPlansPage = () => {
       {shopSheetOpen && (
         <>
           <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
-          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden', height: '82dvh' }}>
+          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
             <div className="mob-sheet-handle" aria-hidden="true" />
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 20px 12px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
               <div>
@@ -1381,11 +1384,21 @@ const MealPlansPage = () => {
               ) : (
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {shopItems.map((item, i) => {
-                    const checked = checkedItems.has(i);
+                    const itemKey = `${item.name}-${item.unit}`;
+                    const checked = checkedItems.has(itemKey);
                     return (
                       <li
                         key={i}
-                        onClick={() => setCheckedItems(prev => { const n = new Set(prev); checked ? n.delete(i) : n.add(i); return n; })}
+                        onClick={() => {
+                          setCheckedItems(prev => {
+                            const n = new Set(prev);
+                            checked ? n.delete(itemKey) : n.add(itemKey);
+                            if (selectedPlan) {
+                              try { localStorage.setItem(`shopping-checked-${selectedPlan.id}`, JSON.stringify([...n])); } catch {}
+                            }
+                            return n;
+                          });
+                        }}
                         style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--rule-faint)', cursor: 'pointer', userSelect: 'none' }}
                       >
                         <span style={{
@@ -1409,12 +1422,12 @@ const MealPlansPage = () => {
               )}
             </div>
             {shopItems.length > 0 && (
-              <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 56, margin: '12px 20px max(20px, env(safe-area-inset-bottom))' }}>
+              <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 46, margin: '12px 20px 20px' }}>
                 Share
               </button>
             )}
             {shopItems.length === 0 && !shopLoading && (
-              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)} style={{ height: 56, margin: '12px 20px max(20px, env(safe-area-inset-bottom))' }}>
+              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)} style={{ height: 46, margin: '12px 20px 20px' }}>
                 Close
               </button>
             )}

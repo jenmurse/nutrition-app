@@ -196,7 +196,7 @@ export default function Home() {
 
   // Map stat keys to nutrient lookup
   const STAT_KEY_MAP: Record<string, { match: (n: DayNutrient) => boolean; label: string; unit: string }> = {
-    calories: { match: (n) => (n.displayName?.toLowerCase().includes('calor') ?? false), label: 'Calories today', unit: '' },
+    calories: { match: (n) => (n.displayName?.toLowerCase().includes('calor') ?? false), label: 'Calories', unit: '' },
     fat: { match: (n) => n.displayName === 'Fat', label: 'Fat', unit: 'g' },
     'sat-fat': { match: (n) => n.displayName === 'Saturated Fat', label: 'Sat Fat', unit: 'g' },
     sodium: { match: (n) => n.displayName === 'Sodium', label: 'Sodium', unit: 'mg' },
