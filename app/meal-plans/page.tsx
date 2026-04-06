@@ -190,9 +190,12 @@ function BothView({
     // ── Mobile: day-first, stacked persons ──
     const activeDay = days[activeMobileDayIdx];
     const isToday = activeDay?.toDateString() === todayStr;
+    // 2-char abbreviations fit 7 buttons across 375px without crowding
+    const dayAbbr = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
     return (
-      <>
+      // pl-main provides flex:1 + flex-direction:column so strip stacks above content
+      <div className="pl-main">
         {/* Day strip */}
         <div className="pl-day-strip" role="tablist" aria-label="Week days">
           {days.map((day, idx) => {
@@ -206,7 +209,7 @@ function BothView({
                 aria-selected={idx === activeMobileDayIdx}
                 aria-label={`${dayNames[day.getDay()]} ${day.getDate()}`}
               >
-                <span className="pl-day-strip-name">{dayNames[day.getDay()]}</span>
+                <span className="pl-day-strip-name">{dayAbbr[day.getDay()]}</span>
                 <span className="pl-day-strip-num">{day.getDate()}</span>
               </button>
             );
@@ -264,7 +267,7 @@ function BothView({
             })}
           </div>
         )}
-      </>
+      </div>
     );
   }
 
@@ -359,6 +362,8 @@ const MealPlansPage = () => {
   const [copyMenuOpen, setCopyMenuOpen] = useState(false);
   const copyRef = useRef<HTMLDivElement>(null);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
+  const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
+  const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
   // Find other person's plan for the current week (for "also add to" checkbox)
   const otherPersonPlanId = (() => {
@@ -422,6 +427,15 @@ const MealPlansPage = () => {
     if (copyMenuOpen) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [copyMenuOpen]);
+
+  // Close mobile people dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (mobilePeopleRef.current && !mobilePeopleRef.current.contains(e.target as Node)) setMobilePeopleOpen(false);
+    };
+    if (mobilePeopleOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [mobilePeopleOpen]);
 
   // Load plans + auto-select + fetch details in one flow (no waterfall)
   useEffect(() => {
@@ -843,7 +857,69 @@ const MealPlansPage = () => {
             }
           }}
           aria-label="Go to this week"
+          className="pl-nav-btn pl-this-week-btn"
         >This Week</button>
+
+        {/* Mobile: person/everyone dropdown — hidden on desktop */}
+        {persons.length > 0 && mealPlans.length > 0 && (
+          <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
+            <button
+              className="pl-mob-person-btn"
+              onClick={() => setMobilePeopleOpen(o => !o)}
+              aria-haspopup="listbox"
+              aria-expanded={mobilePeopleOpen}
+              aria-label="Switch person or view"
+            >
+              <span
+                className="pl-mob-person-dot"
+                style={{ background: viewMode === 'both' ? 'var(--fg-2)' : selectedPerson?.color || 'var(--accent)' }}
+              />
+              <span className="pl-mob-person-name">
+                {viewMode === 'both' ? 'Everyone' : selectedPerson?.name || 'Me'}
+              </span>
+              <span className="pl-mob-person-arrow" aria-hidden>▾</span>
+            </button>
+            {mobilePeopleOpen && (
+              <div className="pl-mob-person-menu" role="listbox">
+                {persons.map((p) => {
+                  const isActive = viewMode === 'personal' && selectedPersonId === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      role="option"
+                      aria-selected={isActive}
+                      className={`pl-mob-person-item${isActive ? ' on' : ''}`}
+                      onClick={() => {
+                        const wasEveryone = viewMode === 'both';
+                        setViewMode('personal');
+                        if (wasEveryone && selectedPersonId === p.id) {
+                          if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
+                        } else {
+                          setSelectedPersonId(p.id);
+                        }
+                        setMobilePeopleOpen(false);
+                      }}
+                    >
+                      <span className="pl-mob-person-dot" style={{ background: p.color || 'var(--accent)' }} />
+                      {p.name}
+                    </button>
+                  );
+                })}
+                {persons.length > 1 && (
+                  <button
+                    role="option"
+                    aria-selected={viewMode === 'both'}
+                    className={`pl-mob-person-item${viewMode === 'both' ? ' on' : ''}`}
+                    onClick={() => { setViewMode('both'); setMobilePeopleOpen(false); }}
+                  >
+                    <span className="pl-mob-person-dot" style={{ background: 'var(--fg-2)' }} />
+                    Everyone
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Right group: + New Plan, separator, edit controls, nutrition, person chips */}
         <div className="pl-right-group">

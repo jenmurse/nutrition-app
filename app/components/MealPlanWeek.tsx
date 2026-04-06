@@ -347,7 +347,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   aria-selected={idx === activeMobileDayIdx}
                   aria-label={`${day.dayOfWeek} ${new Date(day.date).getDate()}`}
                 >
-                  <span className="pl-day-strip-name">{day.dayOfWeek.slice(0, 3)}</span>
+                  <span className="pl-day-strip-name">{day.dayOfWeek.slice(0, 2)}</span>
                   <span className="pl-day-strip-num">{new Date(day.date).getDate()}</span>
                 </button>
               );

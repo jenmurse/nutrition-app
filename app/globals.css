@@ -895,6 +895,78 @@ input[type="number"]:focus {
 .wk-add-btn:hover { color:var(--accent); }
 .wk-add-btn:active { transform:scale(0.97); }
 
+/* ── Mobile person dropdown (toolbar, hidden on desktop) ── */
+.pl-mob-person-wrap {
+  display: none; /* shown via mobile media query */
+  position: relative;
+  margin-left: auto;
+}
+
+.pl-mob-person-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  background: none;
+  border: 1px solid var(--rule);
+  padding: 4px 10px 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pl-mob-person-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pl-mob-person-name { flex: 1; }
+
+.pl-mob-person-arrow {
+  font-size: 8px;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+.pl-mob-person-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 140px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 200;
+}
+
+.pl-mob-person-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.1s, background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pl-mob-person-item:hover { color: var(--fg); background: var(--bg-2); }
+.pl-mob-person-item.on { color: var(--fg); }
+.pl-mob-person-item + .pl-mob-person-item { border-top: 1px solid var(--rule-faint); }
+
 /* ── Mobile planner: day strip + single-day view ── */
 .pl-day-strip {
   display: flex;
@@ -1359,32 +1431,20 @@ input[type="number"]:focus {
   .set-invite-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .set-invite-wrap table { min-width: 480px; }
 
-  /* ── Planner toolbar: 2-row layout on mobile ───────────────────── */
-  .pl-toolbar {
-    flex-wrap: wrap;
-    height: auto;
-    min-height: var(--filter-h);
-    padding: 8px var(--pad) 6px;
-    gap: 6px;
-    overflow: visible;
-  }
+  /* ── Planner toolbar: single compact row on mobile ─────────────── */
+  .pl-toolbar { overflow: visible; }
 
-  /* Hide secondary actions — + New Plan, Nutrition toggle, separator, Edit/Done/Delete */
+  /* Hide: This Week, + New Plan, Nutrition toggle, separator, entire right group */
+  .pl-this-week-btn,
   .pl-new-btn,
   .pl-nut-chip,
   .pl-chip-sep,
-  .pl-right-group .pl-nav-btn,
-  .pl-right-group .pl-range { display: none; }
+  .pl-right-group { display: none; }
 
-  /* Person chips row — wrap to new line, left-aligned */
-  .pl-right-group {
-    margin-left: 0;
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
+  /* Mobile person dropdown — visible only on mobile */
+  .pl-mob-person-wrap { display: block; }
 
-  /* Everyone view: JS now handles mobile, desktop grid only used for wider viewports */
+  /* Everyone view: JS now handles mobile, desktop grid only for wider viewports */
   .pl-main { overflow-x: auto; }
   .ev-grid {
     grid-template-columns: 64px repeat(7, minmax(100px, 1fr));
