@@ -1244,7 +1244,7 @@ input[type="number"]:focus {
 .hm-mob-chrome { display: none; }
 .hm-mob-brand {
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--fg);
@@ -2129,6 +2129,69 @@ input[type="number"]:focus {
   /* ── Recipe card stats: mobile vs desktop ── */
   .rcp-card-stats { display: none !important; }
   .rcp-card-stats-mob { display: flex !important; }
+
+  /* ── Dashboard: week grid full-width breakout ── */
+  .hm-week-grid {
+    margin-left: calc(-1 * var(--pad)) !important;
+    margin-right: calc(-1 * var(--pad)) !important;
+  }
+
+  /* ── Dashboard: tighten gap between key meals and this week ── */
+  .hm-meals-wrap { padding-bottom: 20px !important; }
+
+  /* ── Dashboard: person switcher overflow ── */
+  .hm-mob-persons {
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 1;
+    max-width: 55%;
+  }
+  .hm-mob-persons::-webkit-scrollbar { display: none; }
+
+  /* ── Search placeholder: softer on transparent inputs ── */
+  .mob-search-input::placeholder { color: var(--rule) !important; }
+
+  /* ── Pantry list: lighter hairlines (matching recipe list) ── */
+  .ing-list-row { border-bottom-color: var(--rule-faint) !important; }
+
+  /* ── Checkbox: align to first line of multi-line label ── */
+  .ing-check-row input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; }
+
+  /* ── Planner: +ADD button compact ── */
+  .pl-mobile-day .wk-add-btn {
+    width: auto !important;
+    display: inline-block !important;
+    padding: 5px 16px !important;
+    font-size: 10px !important;
+    text-align: center !important;
+  }
+
+  /* ── Planner: person dropdown matches nav button size ── */
+  .pl-mob-person-btn { font-size: 11px !important; padding: 5px 10px 5px 8px !important; height: 30px !important; }
+
+  /* ── Settings: household member rows wrap theme chips below ── */
+  .set-person-row { flex-wrap: wrap; }
+  .set-theme-chips {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+    margin-top: 6px;
+    padding-left: 22px;
+    gap: 10px !important;
+  }
+
+  /* ── Settings: invite table URL column truncation ── */
+  .set-invite-wrap { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .set-invite-wrap td:first-child {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Recipe/pantry builder: prevent URL input causing horizontal scroll ── */
+  #rd-scroll-container { overflow-x: hidden; }
+  #pf-scroll-container { overflow-x: hidden; }
 }
 
 /* ── Hide custom cursor on touch devices ──────────────────────────── */

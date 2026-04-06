@@ -431,29 +431,7 @@ export default function RecipeDetailPage() {
       {/* ── Main Scroll ── */}
       <div id="rd-scroll-container" className="h-full overflow-y-auto animate-page-enter">
 
-        {/* Mobile: sticky back + title header */}
-        <div className="rd-mob-header">
-          <button onClick={() => router.back()} className="rd-mob-back" aria-label="Back to recipes">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
-          </button>
-          <span className="rd-mob-title">{recipe.name}</span>
-        </div>
-
-        {/* Mobile: section jump bar */}
-        <nav className="set-mob-jump" aria-label="Jump to recipe section">
-          {JUMP_SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => scrollToSection(s.id)}
-              className={`set-mob-jump-btn${activeSection === s.id ? " on" : ""}`}
-              aria-label={`Go to ${s.label}`}
-            >{s.label}</button>
-          ))}
-        </nav>
-
-        <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
+          <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
 
           {/* ── Hero ── */}
           <div className="rd-hero grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px", minHeight: "50vh" }}>

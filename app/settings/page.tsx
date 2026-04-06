@@ -549,18 +549,6 @@ const SettingsPage = () => {
 
       {/* ─── Scrollable content ─── */}
       <div id="settings-scroll-container" className="h-full overflow-y-auto" style={{ opacity: 0, animation: 'fadeIn 260ms var(--ease-out) 60ms both' }}>
-        {/* Mobile section jump — visible only on mobile (CSS) */}
-        <nav className="set-mob-jump" aria-label="Jump to settings section">
-          {JUMP_SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => scrollToSection(s.id)}
-              className={`set-mob-jump-btn${activeSection === s.id ? " on" : ""}`}
-              aria-label={`Go to ${s.label}`}
-            >{s.label}</button>
-          ))}
-        </nav>
-
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* ════════════════════════════════════════════════════════════════════
@@ -599,7 +587,7 @@ const SettingsPage = () => {
                   const role = memberRoles[person.id];
                   const isSaving = savingThemeId === person.id;
                   return (
-                    <div key={person.id} className="flex items-center gap-[12px] py-[12px] border-b border-[var(--rule)]">
+                    <div key={person.id} className="set-person-row flex items-center gap-[12px] py-[12px] border-b border-[var(--rule)]">
                       <span
                         className="w-[10px] h-[10px] rounded-full shrink-0"
                         style={{ background: person.color || 'var(--accent)' }}
@@ -625,7 +613,7 @@ const SettingsPage = () => {
                           Remove
                         </button>
                       )}
-                      <div className="flex items-center gap-[6px] ml-auto" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
+                      <div className="set-theme-chips flex items-center gap-[6px] ml-auto" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
                         {THEMES.map((t) => {
                           const isActive = (person.theme || 'sage') === t.name;
                           return (

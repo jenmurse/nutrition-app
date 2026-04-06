@@ -433,7 +433,7 @@ export default function Home() {
         ) : (
           <>
             {/* Today's Meals — editorial numbered columns */}
-            <div style={{ padding: `0 var(--pad) 72px` }}>
+            <div className="hm-meals-wrap" style={{ padding: `0 var(--pad) 72px` }}>
               <div className="hm-keymeal-hdr hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
