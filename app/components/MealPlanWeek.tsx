@@ -120,23 +120,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
-  const sheetOpenedAt = useRef<number>(0);
+  const [sheetTouchBlocked, setSheetTouchBlocked] = useState(false);
 
-  // Block all taps on sheet portals for 500ms after opening.
-  // Uses capture phase to intercept before any child onClick fires.
-  const sheetGuardHandlers = {
-    onClickCapture: (e: React.MouseEvent) => {
-      if (Date.now() - sheetOpenedAt.current < 500) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-    },
-    onTouchEndCapture: (e: React.TouchEvent) => {
-      if (Date.now() - sheetOpenedAt.current < 500) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-    },
+  // Block all interaction on newly opened sheets by rendering a transparent
+  // overlay div on top. This is a physical DOM blocker — no event handling
+  // tricks needed. Removed after 500ms.
+  const blockSheetTouches = () => {
+    setSheetTouchBlocked(true);
+    setTimeout(() => setSheetTouchBlocked(false), 500);
   };
 
   // Mobile: single-day view state
@@ -189,7 +180,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const handleAddMealClick = (date: Date) => {
     setSelectedDate(date);
-    sheetOpenedAt.current = Date.now();
+    blockSheetTouches();
     setMealTypeDropdownOpen(true);
   };
 
@@ -197,7 +188,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     if (!selectedDate) return;
     setSelectedDayMeal({ date: selectedDate, mealType });
     setMealTypeDropdownOpen(false);
-    sheetOpenedAt.current = Date.now();
+    blockSheetTouches();
     setItemTypeTabOpen('recipe');
     setRecipeFilterTags([mealType.toLowerCase()]);
   };
@@ -594,13 +585,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
-          {...sheetGuardHandlers}
         >
           <div
-            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none"
+            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none relative"
             style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
           >
+            {sheetTouchBlocked && <div className="absolute inset-0 z-50" aria-hidden="true" />}
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
               <h3 className="font-sans text-[16px] font-semibold text-[var(--fg)]">Select meal type</h3>
@@ -637,13 +628,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
-          {...sheetGuardHandlers}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh]"
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh] relative"
             style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100vh - 80px)', display: 'grid', gridTemplateRows: 'auto auto 1fr auto' }}
             onClick={(e) => e.stopPropagation()}
           >
+            {sheetTouchBlocked && <div className="absolute inset-0 z-50" aria-hidden="true" />}
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 py-4 sm:p-6 shrink-0">
               <div className="flex gap-5 items-center">
