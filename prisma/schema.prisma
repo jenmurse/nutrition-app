@@ -197,12 +197,13 @@ model RecipeIngredient {
 
 // Weekly meal plans (household-scoped, person-filtered)
 model MealPlan {
-  id              Int       @id @default(autoincrement())
-  householdId     Int?
-  weekStartDate   DateTime
-  personId        Int?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id               Int      @id @default(autoincrement())
+  householdId      Int?
+  weekStartDate    DateTime
+  personId         Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  shoppingChecked  String   @default("")
 
   household       Household?      @relation(fields: [householdId], references: [id])
   person          Person?         @relation(fields: [personId], references: [id])

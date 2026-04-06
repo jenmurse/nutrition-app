@@ -1718,6 +1718,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     border-radius: 8px;
     animation: none;
   }
+  .pl-shop-sheet .mob-sheet-done { height: 56px !important; }
 }
 
 /* Planner mobile nutrition button — hidden on desktop */

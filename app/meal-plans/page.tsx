@@ -82,6 +82,7 @@ interface MealPlan {
   recipeCaloriesMap?: Record<number, number>;
   mealLogCaloriesMap?: Record<number, number>;
   _count?: { mealLogs: number };
+  shoppingChecked?: string;
 }
 
 // Shared meal key: recipeId-dateString
@@ -767,9 +768,14 @@ const MealPlansPage = () => {
   const openShoppingList = async () => {
     setShopSheetOpen(true);
     if (!selectedPlan) return;
+    // Load checked state: prefer server value, fall back to localStorage
     try {
-      const saved = localStorage.getItem(`shopping-checked-${selectedPlan.id}`);
-      setCheckedItems(saved ? new Set(JSON.parse(saved) as string[]) : new Set());
+      if (selectedPlan.shoppingChecked) {
+        setCheckedItems(new Set(JSON.parse(selectedPlan.shoppingChecked) as string[]));
+      } else {
+        const saved = localStorage.getItem(`shopping-checked-${selectedPlan.id}`);
+        setCheckedItems(saved ? new Set(JSON.parse(saved) as string[]) : new Set());
+      }
     } catch { setCheckedItems(new Set()); }
     setShopLoading(true);
     try {
@@ -790,7 +796,7 @@ const MealPlansPage = () => {
     const range = s.getMonth() === e.getMonth()
       ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
       : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const lines = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`)).map(item => `□ ${fmtQty(item.qty)} ${item.unit} ${item.name}`).join('\n');
+    const lines = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`)).map(item => `${item.name} (${fmtQty(item.qty)} ${item.unit})`).join('\n');
     const text = `Shopping List — ${range}\n\n${lines}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try { await navigator.share({ title: 'Shopping List', text }); } catch { /* cancelled */ }
@@ -1393,8 +1399,16 @@ const MealPlansPage = () => {
                           setCheckedItems(prev => {
                             const n = new Set(prev);
                             checked ? n.delete(itemKey) : n.add(itemKey);
+                            const arr = [...n];
                             if (selectedPlan) {
-                              try { localStorage.setItem(`shopping-checked-${selectedPlan.id}`, JSON.stringify([...n])); } catch {}
+                              try { localStorage.setItem(`shopping-checked-${selectedPlan.id}`, JSON.stringify(arr)); } catch {}
+                              fetch(`/api/meal-plans/${selectedPlan.id}/shopping-checked`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ checked: arr }),
+                              }).then(() => {
+                                clientCache.delete(`/api/meal-plans/${selectedPlan.id}`);
+                              }).catch(console.error);
                             }
                             return n;
                           });
