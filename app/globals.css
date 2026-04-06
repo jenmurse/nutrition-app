@@ -1240,6 +1240,9 @@ input[type="number"]:focus {
   border-right: 1px solid var(--rule);
 }
 
+/* ── Fix: ed-label inside table headers must stay table-cell ───────── */
+table th.ed-label { display: table-cell; margin-bottom: 0; }
+
 /* ── Dashboard mobile chrome bar (hidden on desktop) ─────────────── */
 .hm-mob-chrome { display: none; }
 .hm-mob-brand {
@@ -1268,13 +1271,11 @@ input[type="number"]:focus {
   cursor: pointer;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 150ms var(--ease-out);
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+  transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
 }
 .hm-mob-person-dot:active { transform: scale(0.88); }
 .hm-mob-person-dot.on {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--fg);
 }
 
 /* ── Dashboard meal columns ──────────────────────────────────────── */
@@ -2164,13 +2165,8 @@ input[type="number"]:focus {
   .rcp-card-stats { display: none !important; }
   .rcp-card-stats-mob { display: flex !important; }
 
-  /* ── Dashboard: week grid full-width breakout with breathing room ── */
-  .hm-week-grid {
-    margin-left: calc(-1 * var(--pad)) !important;
-    margin-right: calc(-1 * var(--pad)) !important;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
+  /* ── Dashboard: week grid spans full container ── */
+  .hm-week-grid { padding: 0 !important; }
 
   /* ── Dashboard: tighten gap between key meals and this week ── */
   .hm-meals-wrap { padding-bottom: 20px !important; }
@@ -2199,7 +2195,7 @@ input[type="number"]:focus {
   }
 
   /* ── Planner: person dropdown matches nav button size ── */
-  .pl-mob-person-btn { font-size: 11px !important; padding: 5px 10px 5px 8px !important; height: 30px !important; }
+  .pl-mob-person-btn { font-size: 11px !important; padding: 5px 10px 5px 8px !important; height: 34px !important; border-radius: 6px; }
 
   /* ── Settings: household member rows wrap theme chips below ── */
   .set-person-row { flex-wrap: wrap; }
