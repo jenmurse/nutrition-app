@@ -86,7 +86,7 @@ interface MealPlan {
 
 // Shared meal key: recipeId-dateString
 function sharedKey(recipeId: number, date: string) {
-  return `${recipeId}-${new Date(date).toDateString()}`;
+  return `${recipeId}-${parseUTCDate(date).toDateString()}`;
 }
 
 function BothView({
@@ -195,7 +195,7 @@ function BothView({
             {days.map((day) => {
               const isToday = day.toDateString() === todayStr;
               const meals = plan?.mealLogs?.filter(
-                (m) => new Date(m.date).toDateString() === day.toDateString()
+                (m) => parseUTCDate(m.date).toDateString() === day.toDateString()
               ) ?? [];
               return (
                 <div
