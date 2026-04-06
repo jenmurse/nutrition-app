@@ -28,7 +28,7 @@ export default function TopNav() {
 
   return (
     <nav
-      className="flex items-center h-[var(--nav-h)] bg-[var(--bg)] px-[var(--pad)] shrink-0 relative z-10 border-b border-[var(--rule)]"
+      className="top-nav flex items-center h-[var(--nav-h)] bg-[var(--bg)] px-[var(--pad)] shrink-0 relative z-10 border-b border-[var(--rule)]"
       role="navigation"
       aria-label="Main navigation"
     >

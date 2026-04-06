@@ -1537,12 +1537,11 @@ input[type="number"]:focus {
   input:not([type="checkbox"]):not([type="radio"]),
   textarea, select { font-size: 16px !important; }
 
-  /* TopNav: hide links, sign-out, settings gear (bottom nav handles these) */
-  .nav-links-group { display: none; }
-  .nav-signout     { display: none; }
-  .nav-settings    { display: none; }
-  /* Person dots: remove negative margin so dots don't visually overlap */
-  .nav-person-dot  { padding: 10px; margin: -10px; }
+  /* ── Option B nav: hide entire top nav on mobile ── */
+  /* Per-page contextual headers + bottom tab bar handle all navigation */
+  .top-nav { display: none !important; }
+  /* Reset nav-h so hero/content calculations don't reserve space for it */
+  :root { --nav-h: 0px; }
 
   /* Hero: compact on mobile — no full-viewport lock */
   .hm-hero { min-height: 0; padding-top: 24px; }
@@ -1565,7 +1564,7 @@ input[type="number"]:focus {
   .hm-meal-col:not(:first-child) { padding-left: 16px; }
   .hm-meal-col:not(:last-child)  { padding-right: 16px; padding-bottom: 16px; margin-bottom: 0; border-bottom: 1px solid var(--rule); }
 
-  /* Bottom nav */
+  /* Bottom nav — polished fixed tab bar */
   .bottom-nav {
     display: flex;
     position: fixed;
@@ -1574,6 +1573,7 @@ input[type="number"]:focus {
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--bg);
     border-top: 1px solid var(--rule);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
     z-index: 50;
   }
   .bottom-nav-item {
@@ -1582,24 +1582,27 @@ input[type="number"]:focus {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
     background: none;
     border: none;
     cursor: pointer;
     color: var(--muted);
     text-decoration: none;
-    transition: color 150ms;
+    transition: color 120ms;
     -webkit-tap-highlight-color: transparent;
     min-height: 44px;
   }
   .bottom-nav-item.active { color: var(--accent); }
-  .bottom-nav-item svg { width: 20px; height: 20px; }
+  .bottom-nav-item svg { width: 22px; height: 22px; }
   .bottom-nav-label {
-    font-family: var(--font-mono);
-    font-size: 7.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
+
+  /* Home hero: subtract bottom nav height instead of top nav */
+  .hm-hero { min-height: calc(100dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom)); }
 
   /* Scrollable content: pad bottom so bottom nav doesn't cover last item */
   .hm-bottom-pad { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px); }
