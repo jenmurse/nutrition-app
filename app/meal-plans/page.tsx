@@ -363,6 +363,9 @@ const MealPlansPage = () => {
   const copyRef = useRef<HTMLDivElement>(null);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
   const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
+  const [shopSheetOpen, setShopSheetOpen] = useState(false);
+  const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string }[]>([]);
+  const [shopLoading, setShopLoading] = useState(false);
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
@@ -755,6 +758,45 @@ const MealPlansPage = () => {
     }
   };
 
+  function fmtQty(n: number): string {
+    if (n === Math.floor(n)) return String(Math.floor(n));
+    return Number(n.toFixed(2)).toString();
+  }
+
+  const openShoppingList = async () => {
+    setShopSheetOpen(true);
+    if (!selectedPlan) return;
+    setShopLoading(true);
+    try {
+      const res = await fetch(`/api/meal-plans/${selectedPlan.id}/shopping-list`);
+      const data = await res.json();
+      setShopItems(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      toast.error('Failed to load shopping list');
+    } finally {
+      setShopLoading(false);
+    }
+  };
+
+  const handleShareList = async () => {
+    if (!selectedPlan) return;
+    const s = parseUTCDate(selectedPlan.weekStartDate);
+    const e = new Date(s); e.setDate(e.getDate() + 6);
+    const range = s.getMonth() === e.getMonth()
+      ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
+      : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    const lines = shopItems.map(item => `□ ${fmtQty(item.qty)} ${item.unit} ${item.name}`).join('\n');
+    const text = `Shopping List — ${range}\n\n${lines}`;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try { await navigator.share({ title: 'Shopping List', text }); } catch { /* cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.success('Copied to clipboard');
+      } catch { toast.error('Could not copy'); }
+    }
+  };
+
   const toggleSelectMeal = (id: number) => {
     setSelectedMealIds((prev) => {
       const next = new Set(prev);
@@ -869,6 +911,20 @@ const MealPlansPage = () => {
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 3v18h18"/><polyline points="7,16 11,11 14,14 18,9"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Shopping list button */}
+        {selectedPlan && (
+          <button
+            className="pl-cart-btn"
+            onClick={openShoppingList}
+            aria-label="View shopping list"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
             </svg>
           </button>
         )}
@@ -1290,6 +1346,63 @@ const MealPlansPage = () => {
           </>
         );
       })()}
+
+      {/* Shopping list sheet */}
+      {shopSheetOpen && (
+        <>
+          <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
+          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list">
+            <div className="mob-sheet-handle" aria-hidden="true" />
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '12px 20px 0' }}>
+              <div>
+                <div className="mob-sheet-title">Shopping List</div>
+                {selectedPlan && (() => {
+                  const s = parseUTCDate(selectedPlan.weekStartDate);
+                  const e = new Date(s); e.setDate(e.getDate() + 6);
+                  const range = s.getMonth() === e.getMonth()
+                    ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
+                    : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                  return <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{range}</div>;
+                })()}
+              </div>
+              <button
+                onClick={() => setShopSheetOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '0 0 0 8px', fontSize: 18, lineHeight: 1 }}
+                aria-label="Close shopping list"
+              >✕</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 20px 4px' }}>
+              {shopLoading ? (
+                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>Loading…</div>
+              ) : shopItems.length === 0 ? (
+                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>No ingredients in this week&apos;s plan</div>
+              ) : (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {shopItems.map((item, i) => (
+                    <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '7px 0', borderBottom: '1px solid var(--rule-faint)' }}>
+                      <span style={{ flexShrink: 0, color: 'var(--rule)', fontSize: 13, lineHeight: '20px' }}>□</span>
+                      <span style={{ fontSize: 13, color: 'var(--fg)', lineHeight: '20px' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
+                        {item.name}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {shopItems.length > 0 && (
+              <button className="mob-sheet-done" onClick={handleShareList}>
+                Share
+              </button>
+            )}
+            {shopItems.length === 0 && !shopLoading && (
+              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)}>
+                Close
+              </button>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Main Content */}
       <div className="pl-wrap" style={{ flex: 1, minHeight: 0 }}>

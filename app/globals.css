@@ -1676,6 +1676,42 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .rcp-heart-on { animation: heartPop 220ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
+/* Planner shopping cart button — always visible */
+.pl-cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pl-cart-btn:hover { color: var(--fg); border-color: var(--fg-2); }
+.pl-cart-btn:active { opacity: 0.7; }
+
+/* Shopping list sheet — desktop: centered modal */
+@media (min-width: 641px) {
+  .pl-shop-sheet {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: 460px;
+    max-height: 70vh;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 /* Planner mobile nutrition button — hidden on desktop */
 .pl-mob-nut-btn {
   display: none;
@@ -2221,6 +2257,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* Planner mobile nutrition button — visible only on mobile */
   .pl-mob-nut-btn { display: flex; }
+
+  /* Cart button: no auto-margin on mobile (nut + person follow it) */
+  .pl-cart-btn { margin-left: 0; }
 
   /* ── List row hairlines: lighter separator ── */
   .rcp-list-row { border-bottom-color: var(--rule-faint) !important; }
