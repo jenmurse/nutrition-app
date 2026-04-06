@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, ReactNode } from "react";
+import { usePersonContext } from "./PersonContext";
 
 interface ContextualTipProps {
   tipId: string;
@@ -9,41 +10,28 @@ interface ContextualTipProps {
 }
 
 /**
- * One-time contextual tip card. Dismissed tips are tracked in localStorage
- * and never shown again.
+ * One-time contextual tip card. Dismissed tips are stored server-side
+ * per person, so each household member sees tips independently.
  */
 export default function ContextualTip({ tipId, label, children }: ContextualTipProps) {
-  const [visible, setVisible] = useState(false);
+  const { selectedPerson, dismissTip } = usePersonContext();
   const [exiting, setExiting] = useState(false);
+  const [manuallyDismissed, setManuallyDismissed] = useState(false);
 
-  useEffect(() => {
-    try {
-      const dismissed = JSON.parse(localStorage.getItem("dismissedTips") || "[]");
-      if (!dismissed.includes(tipId)) {
-        setVisible(true);
-      }
-    } catch {
-      setVisible(true);
-    }
-  }, [tipId]);
+  const isDismissed = manuallyDismissed || (selectedPerson?.dismissedTips.includes(tipId) ?? false);
+
+  // Wait for person data before deciding visibility
+  const isReady = selectedPerson !== null;
 
   const handleDismiss = () => {
     setExiting(true);
     setTimeout(() => {
-      try {
-        const dismissed = JSON.parse(localStorage.getItem("dismissedTips") || "[]");
-        if (!dismissed.includes(tipId)) {
-          dismissed.push(tipId);
-          localStorage.setItem("dismissedTips", JSON.stringify(dismissed));
-        }
-      } catch {
-        localStorage.setItem("dismissedTips", JSON.stringify([tipId]));
-      }
-      setVisible(false);
+      setManuallyDismissed(true);
+      dismissTip(tipId);
     }, 200);
   };
 
-  if (!visible) return null;
+  if (!isReady || isDismissed) return null;
 
   return (
     <div

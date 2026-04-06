@@ -47,6 +47,10 @@ export async function PUT(
     data.onboardingComplete = Boolean(body.onboardingComplete);
   }
 
+  if (body.dismissedTips !== undefined) {
+    data.dismissedTips = JSON.stringify(body.dismissedTips);
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }

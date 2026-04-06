@@ -9,6 +9,7 @@ export interface Person {
   color: string;
   theme: string;
   onboardingComplete?: boolean;
+  dismissedTips: string[]; // parsed from JSON string in DB
 }
 
 interface PersonContextValue {
@@ -18,6 +19,7 @@ interface PersonContextValue {
   setSelectedPersonId: (id: number) => void;
   refreshPersons: () => Promise<void>;
   onboardingComplete: boolean;
+  dismissTip: (tipId: string) => Promise<void>;
 }
 
 const PersonContext = createContext<PersonContextValue>({
@@ -27,6 +29,7 @@ const PersonContext = createContext<PersonContextValue>({
   setSelectedPersonId: () => {},
   refreshPersons: async () => {},
   onboardingComplete: true,
+  dismissTip: async () => {},
 });
 
 export function usePersonContext() {
@@ -39,6 +42,15 @@ function applyTheme(theme: string) {
   localStorage.setItem('theme', resolved);
 }
 
+function parsePerson(p: Record<string, unknown>): Person {
+  let dismissedTips: string[] = [];
+  try {
+    const raw = p.dismissedTips as string | undefined;
+    if (raw) dismissedTips = JSON.parse(raw);
+  } catch {}
+  return { ...(p as unknown as Person), dismissedTips };
+}
+
 export function PersonProvider({ children }: { children: ReactNode }) {
   const [persons, setPersons] = useState<Person[]>([]);
   const [selectedPersonId, setSelectedPersonIdState] = useState<number | null>(null);
@@ -48,26 +60,27 @@ export function PersonProvider({ children }: { children: ReactNode }) {
     const res = await fetch("/api/persons");
     if (res.ok) {
       const { persons: data, currentPersonId, onboardingComplete: onboarded } = await res.json() as {
-        persons: Person[];
+        persons: Record<string, unknown>[];
         currentPersonId: number | null;
         onboardingComplete?: boolean;
       };
       setOnboardingComplete(onboarded ?? true);
-      setPersons(data);
+      const parsed = data.map(parsePerson);
+      setPersons(parsed);
       // Restore saved person selection if valid, otherwise default to current user
       const saved = localStorage.getItem("selectedPersonId");
       const savedId = saved ? Number(saved) : null;
       let resolvedId: number | null = null;
-      if (savedId && data.some((p) => p.id === savedId)) {
+      if (savedId && parsed.some((p) => p.id === savedId)) {
         resolvedId = savedId;
-      } else if (currentPersonId && data.some((p) => p.id === currentPersonId)) {
+      } else if (currentPersonId && parsed.some((p) => p.id === currentPersonId)) {
         resolvedId = currentPersonId;
-      } else if (data.length > 0) {
-        resolvedId = data[0].id;
+      } else if (parsed.length > 0) {
+        resolvedId = parsed[0].id;
       }
       if (resolvedId !== null) {
         setSelectedPersonIdState(resolvedId);
-        const person = data.find(p => p.id === resolvedId);
+        const person = parsed.find(p => p.id === resolvedId);
         if (person) applyTheme(person.theme);
       }
     }
@@ -84,11 +97,28 @@ export function PersonProvider({ children }: { children: ReactNode }) {
     if (person) applyTheme(person.theme);
   };
 
+  const dismissTip = async (tipId: string) => {
+    if (!selectedPersonId) return;
+    const person = persons.find(p => p.id === selectedPersonId);
+    if (!person) return;
+    if (person.dismissedTips.includes(tipId)) return;
+    const updated = [...person.dismissedTips, tipId];
+    // Optimistically update local state
+    setPersons(prev => prev.map(p =>
+      p.id === selectedPersonId ? { ...p, dismissedTips: updated } : p
+    ));
+    await fetch(`/api/persons/${selectedPersonId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dismissedTips: updated }),
+    });
+  };
+
   const selectedPerson = persons.find((p) => p.id === selectedPersonId) ?? null;
 
   return (
     <PersonContext.Provider
-      value={{ persons, selectedPerson, selectedPersonId, setSelectedPersonId, refreshPersons, onboardingComplete }}
+      value={{ persons, selectedPerson, selectedPersonId, setSelectedPersonId, refreshPersons, onboardingComplete, dismissTip }}
     >
       {children}
     </PersonContext.Provider>

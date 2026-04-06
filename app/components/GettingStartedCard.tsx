@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePersonContext } from "./PersonContext";
 
 /* ─── Task definitions ─────────────────────────────────────────────────── */
 
@@ -33,17 +34,14 @@ const TASKS: Task[] = [
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
+const GETTING_STARTED_TIP_ID = "getting-started";
+
 export default function GettingStartedCard() {
+  const { selectedPerson, dismissTip } = usePersonContext();
   const [status, setStatus] = useState<OnboardingStatus | null>(null);
-  const [dismissed, setDismissed] = useState(false);
   const [exiting, setExiting] = useState(false);
 
-  // Check dismissed state from localStorage
-  useEffect(() => {
-    if (localStorage.getItem("gettingStartedDismissed") === "true") {
-      setDismissed(true);
-    }
-  }, []);
+  const dismissed = selectedPerson?.dismissedTips.includes(GETTING_STARTED_TIP_ID) ?? false;
 
   // Fetch status
   useEffect(() => {
@@ -76,20 +74,18 @@ export default function GettingStartedCard() {
   useEffect(() => {
     if (allDone && status && !dismissed) {
       const t = setTimeout(() => {
-        localStorage.setItem("gettingStartedDismissed", "true");
-        setDismissed(true);
+        dismissTip(GETTING_STARTED_TIP_ID);
       }, 1800);
       return () => clearTimeout(t);
     }
   }, [allDone, status, dismissed]);
 
-  if (dismissed || !status) return null;
+  if (!selectedPerson || dismissed || !status) return null;
 
   const handleDismiss = () => {
     setExiting(true);
     setTimeout(() => {
-      localStorage.setItem("gettingStartedDismissed", "true");
-      setDismissed(true);
+      dismissTip(GETTING_STARTED_TIP_ID);
     }, 320);
   };
 

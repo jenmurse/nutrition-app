@@ -34,6 +34,7 @@ model Person {
   color        String   @default("#5C9169")
   theme        String   @default("sage")
   onboardingComplete Boolean @default(true)
+  dismissedTips String  @default("[]") // JSON array of dismissed tip IDs
   createdAt    DateTime @default(now())
 
   mealPlans            MealPlan[]
