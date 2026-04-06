@@ -16,6 +16,7 @@ type RecipeSummary = {
   prepTime?: number | null;
   cookTime?: number | null;
   image?: string | null;
+  isFavorited?: boolean;
   totals?: Array<{ nutrientId: number; displayName: string; value: number; unit: string }>;
   ingredients: Array<{
     id: number;
@@ -106,6 +107,26 @@ function RecipesPage() {
     updateSearchParam("tags", newTags.join(","));
   };
 
+  // Favorites
+  const showFavorites = searchParams?.get("favorites") === "1";
+
+  const toggleFavorite = async (recipeId: number, currentlyFavorited: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // Optimistic update
+    setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: !currentlyFavorited } : r));
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}/favorite`, { method: currentlyFavorited ? "DELETE" : "POST" });
+      if (!res.ok) {
+        setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: currentlyFavorited } : r));
+      } else {
+        clientCache.delete("/api/recipes");
+      }
+    } catch {
+      setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: currentlyFavorited } : r));
+    }
+  };
+
   const loadRecipes = async () => {
     const cached = clientCache.get<RecipeSummary[]>('/api/recipes');
     if (cached && cached.length > 0) {
@@ -152,6 +173,7 @@ function RecipesPage() {
   };
 
   const filteredRecipes = recipes.filter((recipe) => {
+    if (showFavorites && !recipe.isFavorited) return false;
     if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (selectedTags.length > 0) {
       const recipeTags = recipe.tags ? recipe.tags.split(",").map(t => t.trim()) : [];
@@ -304,6 +326,22 @@ function RecipesPage() {
               aria-pressed={selectedTags.includes(tag)}
             >{tag}</button>
           ))}
+          {/* Favorites chip */}
+          <button
+            onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
+            className={`filter-chip flex items-center gap-[4px] font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              showFavorites
+                ? "text-[#ef4444] border-[var(--rule)]"
+                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+            }`}
+            aria-label="Show favorites"
+            aria-pressed={showFavorites}
+          >
+            <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            Favorites
+          </button>
           </div>
 
           {/* Right side controls */}
@@ -445,9 +483,9 @@ function RecipesPage() {
               <div className="mob-sheet-section-label">Category</div>
               <div className="mob-sheet-chips">
                 <button
-                  className={`mob-sheet-chip${selectedTags.length === 0 ? " on" : ""}`}
-                  onClick={() => updateSearchParam("tags", "")}
-                  aria-pressed={selectedTags.length === 0}
+                  className={`mob-sheet-chip${selectedTags.length === 0 && !showFavorites ? " on" : ""}`}
+                  onClick={() => { updateSearchParam("tags", ""); updateSearchParam("favorites", ""); }}
+                  aria-pressed={selectedTags.length === 0 && !showFavorites}
                 >All</button>
                 {availableTags.map(tag => (
                   <button
@@ -457,6 +495,16 @@ function RecipesPage() {
                     aria-pressed={selectedTags.includes(tag)}
                   >{tag}</button>
                 ))}
+                <button
+                  className={`mob-sheet-chip flex items-center gap-1${showFavorites ? " on" : ""}`}
+                  onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
+                  aria-pressed={showFavorites}
+                >
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  Favorites
+                </button>
               </div>
             </div>
 
@@ -570,6 +618,22 @@ function RecipesPage() {
                     </div>
                     {/* Accent bar on hover */}
                     <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
+                    {/* Favorite heart */}
+                    <button
+                      onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
+                      className={`rcp-fav-btn absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-[color,opacity,background] duration-150 ${
+                        recipe.isFavorited
+                          ? "text-[#ef4444] bg-black/20 opacity-100"
+                          : "text-white bg-black/20 opacity-0 group-hover:opacity-100"
+                      }`}
+                      style={{ backdropFilter: "blur(4px)" }}
+                      aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                      aria-pressed={!!recipe.isFavorited}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill={recipe.isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={recipe.isFavorited ? "rcp-heart-on" : ""}>
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
                   </div>
                 );
               })}
@@ -623,6 +687,21 @@ function RecipesPage() {
                   {recipe.isComplete === false && (
                     <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
                   )}
+                  {/* Favorite heart */}
+                  <button
+                    onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
+                    className={`rcp-fav-btn shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-[color,opacity] duration-150 ${
+                      recipe.isFavorited
+                        ? "text-[#ef4444] opacity-100"
+                        : "text-[var(--muted)] opacity-0 group-hover:opacity-100"
+                    }`}
+                    aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                    aria-pressed={!!recipe.isFavorited}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill={recipe.isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={recipe.isFavorited ? "rcp-heart-on" : ""}>
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </button>
                 </div>
               );
             })}

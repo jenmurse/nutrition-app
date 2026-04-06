@@ -41,6 +41,7 @@ model Person {
   globalNutritionGoals GlobalNutritionGoal[]
   householdMembers     HouseholdMember[]
   createdInvites       HouseholdInvite[]
+  recipeFavorites      RecipeFavorite[]
 }
 
 // Household groups people together; all data is scoped to a household
@@ -156,9 +157,24 @@ model Recipe {
   household   Household?       @relation(fields: [householdId], references: [id])
   ingredients RecipeIngredient[]
   mealLogs    MealLog[]
+  favorites   RecipeFavorite[]
 
   @@index([householdId])
   @@index([isComplete])
+}
+
+// Person favorites for recipes (person-scoped)
+model RecipeFavorite {
+  id        Int      @id @default(autoincrement())
+  recipeId  Int
+  personId  Int
+  createdAt DateTime @default(now())
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, personId])
+  @@index([personId])
 }
 
 // Junction table: Recipes to Ingredients

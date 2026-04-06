@@ -26,6 +26,7 @@ type RecipeDetail = {
   image?: string | null;
   optimizeAnalysis?: string | null;
   mealPrepAnalysis?: string | null;
+  isFavorited?: boolean;
   totals?: Array<{ nutrientId: number; displayName: string; value: number; unit: string }>;
   ingredients: Array<{
     id: number;
@@ -97,6 +98,9 @@ export default function RecipeDetailPage() {
   // Scale
   const [scale, setScale] = useState(1);
 
+  // Favorites
+  const [isFavorited, setIsFavorited] = useState(false);
+
   // Notes
   const [editingNotes, setEditingNotes] = useState<"optimization" | "mealPrep" | null>(null);
   const [notesText, setNotesText] = useState("");
@@ -112,13 +116,15 @@ export default function RecipeDetailPage() {
     const cached = clientCache.get<RecipeDetail>(`/api/recipes/${recipeId}`);
     if (cached) {
       setRecipe(cached);
+      setIsFavorited(!!cached.isFavorited);
       setLoading(false);
       // Background revalidate
       fetch(`/api/recipes/${recipeId}`).then(r => r.json()).then(data => {
         if (data?.recipe) {
-          const full = { ...data.recipe, totals: data.totals };
+          const full = { ...data.recipe, totals: data.totals, isFavorited: !!data.isFavorited };
           clientCache.set(`/api/recipes/${recipeId}`, full);
           setRecipe(full);
+          setIsFavorited(!!data.isFavorited);
         }
       }).catch(console.error);
       return;
@@ -128,9 +134,10 @@ export default function RecipeDetailPage() {
       .then(r => r.json())
       .then(data => {
         if (data?.recipe) {
-          const full = { ...data.recipe, totals: data.totals };
+          const full = { ...data.recipe, totals: data.totals, isFavorited: !!data.isFavorited };
           clientCache.set(`/api/recipes/${recipeId}`, full);
           setRecipe(full);
+          setIsFavorited(!!data.isFavorited);
         }
       })
       .catch(e => { console.error(e); toast.error("Failed to load recipe"); })
@@ -282,6 +289,23 @@ export default function RecipeDetailPage() {
       toast.success("Notes saved");
     } catch { toast.error("Failed to save notes"); }
     finally { setSavingNotes(false); }
+  };
+
+  const toggleFavorite = async () => {
+    const next = !isFavorited;
+    setIsFavorited(next);
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}/favorite`, { method: next ? "POST" : "DELETE" });
+      if (!res.ok) {
+        setIsFavorited(!next);
+      } else {
+        clientCache.delete("/api/recipes");
+        const cached = clientCache.get<RecipeDetail>(`/api/recipes/${recipeId}`);
+        if (cached) clientCache.set(`/api/recipes/${recipeId}`, { ...cached, isFavorited: next });
+      }
+    } catch {
+      setIsFavorited(!next);
+    }
   };
 
   const scrollToSection = (id: string) => {
@@ -464,7 +488,7 @@ export default function RecipeDetailPage() {
                 );
               })()}
               {/* Actions */}
-              <div className="flex gap-[10px] mt-6">
+              <div className="flex gap-[10px] mt-6 items-center">
                 <button onClick={handleEditClick} disabled={editLoading}
                   className="ed-btn disabled:opacity-50"
                   aria-label="Edit recipe">{editLoading ? "Loading…" : "Edit"}</button>
@@ -474,6 +498,18 @@ export default function RecipeDetailPage() {
                 <button onClick={handleDelete}
                   className="ed-btn danger"
                   aria-label="Delete recipe">Delete</button>
+                <button
+                  onClick={toggleFavorite}
+                  className={`rcp-fav-btn w-8 h-8 flex items-center justify-center rounded-full border-0 bg-transparent cursor-pointer transition-[color,background] duration-150 ${
+                    isFavorited ? "text-[#ef4444]" : "text-[var(--muted)] hover:text-[#ef4444]"
+                  }`}
+                  aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                  aria-pressed={isFavorited}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isFavorited ? "rcp-heart-on" : ""}>
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
               </div>
             </div>
             {/* Image */}

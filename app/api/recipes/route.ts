@@ -8,19 +8,27 @@ export async function GET() {
     const auth = await getAuthenticatedHousehold();
     if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const recipes = await prisma.recipe.findMany({
-      where: { householdId: auth.householdId },
-      include: {
-        ingredients: {
-          include: {
-            ingredient: {
-              include: { nutrientValues: { include: { nutrient: true } } },
+    const [recipes, favoriteRows] = await Promise.all([
+      prisma.recipe.findMany({
+        where: { householdId: auth.householdId },
+        include: {
+          ingredients: {
+            include: {
+              ingredient: {
+                include: { nutrientValues: { include: { nutrient: true } } },
+              },
             },
           },
         },
-      },
-      orderBy: { name: "asc" },
-    });
+        orderBy: { name: "asc" },
+      }),
+      prisma.recipeFavorite.findMany({
+        where: { personId: auth.personId },
+        select: { recipeId: true },
+      }),
+    ]);
+
+    const favoriteSet = new Set(favoriteRows.map((f) => f.recipeId));
 
     // Compute per-serving nutrient totals for each recipe (for client-side sorting)
     const recipesWithTotals = recipes.map((recipe) => {
@@ -37,7 +45,7 @@ export async function GET() {
       }
       const servingSize = recipe.servingSize || 1;
       for (const nid in totals) totals[nid].value /= servingSize;
-      return { ...recipe, totals: Object.values(totals) };
+      return { ...recipe, totals: Object.values(totals), isFavorited: favoriteSet.has(recipe.id) };
     });
 
     return NextResponse.json(recipesWithTotals);
