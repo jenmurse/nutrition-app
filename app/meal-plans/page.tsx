@@ -1040,12 +1040,17 @@ const MealPlansPage = () => {
         onSubmit={async (e) => {
           e.preventDefault();
           if (!newWeekStartDate) return;
+          // Snap to nearest Sunday (day 0) to ensure weeks always start on Sunday
+          const picked = new Date(newWeekStartDate + 'T00:00:00');
+          const dayOfWeek = picked.getDay();
+          if (dayOfWeek !== 0) picked.setDate(picked.getDate() - dayOfWeek);
+          const snappedDate = picked.toISOString().slice(0, 10);
           setCreatingPlan(true);
           try {
             const res = await fetch('/api/meal-plans', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ weekStartDate: newWeekStartDate, personId: selectedPersonId }),
+              body: JSON.stringify({ weekStartDate: snappedDate, personId: selectedPersonId }),
             });
             if (!res.ok) throw new Error('Failed to create');
             const plan = await res.json();
@@ -1056,7 +1061,7 @@ const MealPlansPage = () => {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    targetWeekStartDate: newWeekStartDate,
+                    targetWeekStartDate: snappedDate,
                     personId: selectedPersonId,
                   }),
                 });
