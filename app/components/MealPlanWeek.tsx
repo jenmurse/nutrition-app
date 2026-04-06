@@ -177,7 +177,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   };
 
   const handleSelectMealType = (mealType: string) => {
-    if (!selectedDate) return;
+    if (!selectedDate || !mealTypeSheetReady) return;
     setSelectedDayMeal({ date: selectedDate, mealType });
     setMealTypeDropdownOpen(false);
     setItemTypeTabOpen('recipe');
@@ -620,8 +620,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none max-h-[80svh] sm:max-h-[90vh]"
-            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh]"
+            style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'min(80svh, calc(100vh - 80px))' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
@@ -840,7 +840,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 sm:p-6 shrink-0" style={{ paddingBottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}>
+            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 sm:p-6 shrink-0 sticky bottom-0 bg-[var(--bg)] z-10" style={{ paddingBottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}>
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
                 <div className="mb-4">
