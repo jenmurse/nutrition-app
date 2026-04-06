@@ -1444,12 +1444,30 @@ input[type="number"]:focus {
   /* Mobile person dropdown — visible only on mobile */
   .pl-mob-person-wrap { display: block; }
 
-  /* Meal text — larger on mobile single-day view */
+  /* ── Global mobile type baseline ─────────────────────────────── */
+  /* Interactive chips + buttons: 8-9px → 11px */
+  .pl-nav-btn,
+  .pl-person-chip,
+  .pl-nut-chip,
+  .pl-new-btn,
+  .pl-range { font-size: 11px; }
+
+  /* Nutrient display labels: 8-9px → 11px */
+  .nut-name,
+  .nut-val,
+  .nut-pct { font-size: 11px; }
+
+  /* ── Planner single-day view: meal content ─────────────────── */
   .pl-mobile-day .meal-chip { padding: 10px 0; margin-bottom: 0; }
   .pl-mobile-day .meal-chip-name { font-size: 15px; line-height: 1.4; }
   .pl-mobile-day .meal-chip-kcal { font-size: 11px; margin-top: 3px; }
   .pl-mobile-day .wk-meal-label { font-size: 9px; padding: 0; margin-bottom: 6px; }
   .pl-mobile-day .wk-meal-section { padding: 16px 0 4px; }
+
+  /* ── Everyone view: mobile stacked person sections ─────────── */
+  .pl-mobile-day .ev-cell-meal { font-size: 15px; line-height: 1.4; }
+  .pl-mobile-day .ev-meal-type { font-size: 11px; }
+  .ev-mobile-person-label .ev-row-name { font-size: 12px; letter-spacing: 0.06em; }
 
   /* Everyone view: JS now handles mobile, desktop grid only for wider viewports */
   .pl-main { overflow-x: auto; }
