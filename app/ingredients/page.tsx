@@ -116,6 +116,16 @@ function IngredientsPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Filter sheet (mobile bottom sheet)
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  useEffect(() => {
+    if (!filterSheetOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFilterSheetOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [filterSheetOpen]);
+  const activeFilterCount = foodFilter !== 'all' ? 1 : 0;
+
   const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
@@ -229,87 +239,158 @@ function IngredientsPage() {
         className="list-toolbar flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
         style={{ height: "var(--filter-h)" }}
       >
-        {/* Filter chips */}
-        <div className="list-tags contents">
-        <button
-          onClick={() => setFoodFilter('all')}
-          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-            foodFilter === 'all'
-              ? "text-[var(--fg)] border-[var(--rule)]"
-              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-          }`}
-          aria-label="Show all ingredients"
-          aria-pressed={foodFilter === 'all'}
-        >All</button>
-        <button
-          onClick={() => setFoodFilter('foods')}
-          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-            foodFilter === 'foods'
-              ? "text-[var(--fg)] border-[var(--rule)]"
-              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-          }`}
-          aria-label="Show only items"
-          aria-pressed={foodFilter === 'foods'}
-        >Items</button>
-        <button
-          onClick={() => setFoodFilter('ingredients')}
-          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-            foodFilter === 'ingredients'
-              ? "text-[var(--fg)] border-[var(--rule)]"
-              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-          }`}
-          aria-label="Show only ingredients"
-          aria-pressed={foodFilter === 'ingredients'}
-        >Ingredients</button>
-        </div>
-
-        {/* Right side controls */}
-        <div className="list-controls flex gap-[5px] items-center ml-auto">
-          {/* Count */}
-          <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
-            {filteredIngredients.length} item{filteredIngredients.length !== 1 ? "s" : ""}
-          </span>
-
-          {/* Grid/List toggle */}
-          <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
-                viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-              }`}
-              aria-label="Grid view"
-              aria-pressed={viewMode === "grid"}
-            >Grid</button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
-                viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-              }`}
-              aria-label="List view"
-              aria-pressed={viewMode === "list"}
-            >List</button>
-          </div>
-
-          {/* Search — always visible */}
+        {/* ── Mobile toolbar — CSS shows on mobile only ── */}
+        <div className="mob-tb">
           <input
             ref={searchRef}
-            type="text"
-            placeholder="Search..."
+            type="search"
+            placeholder="Search ingredients…"
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search ingredients"
-            className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
-            style={{ width: 180 }}
+            className="mob-search-input"
           />
-
-          {/* + Add */}
+          <button
+            onClick={() => setFilterSheetOpen(true)}
+            className="mob-filter-btn"
+            aria-label={`Filter${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
+            aria-haspopup="dialog"
+          >
+            Filter
+            {activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}
+          </button>
           <button
             onClick={() => router.push("/ingredients/create")}
-            className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+            className="mob-new-btn"
             aria-label="Add new ingredient"
-          >+ Add</button>
+          >+</button>
+        </div>
+
+        {/* ── Desktop toolbar — CSS shows on desktop only ── */}
+        <div className="desk-tb">
+          {/* Filter chips */}
+          <div className="list-tags contents">
+          <button
+            onClick={() => setFoodFilter('all')}
+            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              foodFilter === 'all'
+                ? "text-[var(--fg)] border-[var(--rule)]"
+                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+            }`}
+            aria-label="Show all ingredients"
+            aria-pressed={foodFilter === 'all'}
+          >All</button>
+          <button
+            onClick={() => setFoodFilter('foods')}
+            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              foodFilter === 'foods'
+                ? "text-[var(--fg)] border-[var(--rule)]"
+                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+            }`}
+            aria-label="Show only items"
+            aria-pressed={foodFilter === 'foods'}
+          >Items</button>
+          <button
+            onClick={() => setFoodFilter('ingredients')}
+            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              foodFilter === 'ingredients'
+                ? "text-[var(--fg)] border-[var(--rule)]"
+                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+            }`}
+            aria-label="Show only ingredients"
+            aria-pressed={foodFilter === 'ingredients'}
+          >Ingredients</button>
+          </div>
+
+          {/* Right side controls */}
+          <div className="list-controls flex gap-[5px] items-center ml-auto">
+            {/* Count */}
+            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
+              {filteredIngredients.length} item{filteredIngredients.length !== 1 ? "s" : ""}
+            </span>
+
+            {/* Grid/List toggle */}
+            <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
+                  viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
+                }`}
+                aria-label="Grid view"
+                aria-pressed={viewMode === "grid"}
+              >Grid</button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
+                  viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
+                }`}
+                aria-label="List view"
+                aria-pressed={viewMode === "list"}
+              >List</button>
+            </div>
+
+            {/* Search */}
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => updateSearchParam("search", e.target.value)}
+              aria-label="Search ingredients"
+              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
+              style={{ width: 180 }}
+            />
+
+            {/* + Add */}
+            <button
+              onClick={() => router.push("/ingredients/create")}
+              className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+              aria-label="Add new ingredient"
+            >+ Add</button>
+          </div>
         </div>
       </div>
+
+      {/* ── Mobile Filter Sheet ── */}
+      {filterSheetOpen && (
+        <>
+          <div className="mob-sheet-backdrop" onClick={() => setFilterSheetOpen(false)} aria-hidden="true" />
+          <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Filter ingredients">
+            <div className="mob-sheet-handle" aria-hidden="true" />
+            <div className="mob-sheet-header">
+              <span className="mob-sheet-title">Filter</span>
+              {activeFilterCount > 0 && (
+                <button
+                  className="mob-sheet-clear"
+                  onClick={() => setFoodFilter('all')}
+                  aria-label="Clear filter"
+                >Clear</button>
+              )}
+            </div>
+
+            {/* Type */}
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">Type</div>
+              <div className="mob-sheet-chips">
+                <button className={`mob-sheet-chip${foodFilter === 'all' ? " on" : ""}`} onClick={() => setFoodFilter('all')} aria-pressed={foodFilter === 'all'}>All</button>
+                <button className={`mob-sheet-chip${foodFilter === 'foods' ? " on" : ""}`} onClick={() => setFoodFilter('foods')} aria-pressed={foodFilter === 'foods'}>Items</button>
+                <button className={`mob-sheet-chip${foodFilter === 'ingredients' ? " on" : ""}`} onClick={() => setFoodFilter('ingredients')} aria-pressed={foodFilter === 'ingredients'}>Ingredients</button>
+              </div>
+            </div>
+
+            {/* View */}
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">View</div>
+              <div className="mob-sheet-chips">
+                <button className={`mob-sheet-chip${viewMode === "grid" ? " on" : ""}`} onClick={() => setViewMode("grid")} aria-pressed={viewMode === "grid"}>Grid</button>
+                <button className={`mob-sheet-chip${viewMode === "list" ? " on" : ""}`} onClick={() => setViewMode("list")} aria-pressed={viewMode === "list"}>List</button>
+              </div>
+            </div>
+
+            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>Done</button>
+          </div>
+        </>
+      )}
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto">
@@ -374,8 +455,8 @@ function IngredientsPage() {
                     animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both`,
                   } as React.CSSProperties}
                 >
-                  {/* Hover action buttons */}
-                  <div className="absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+                  {/* Action buttons */}
+                  <div className="ing-card-actions absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
@@ -453,7 +534,7 @@ function IngredientsPage() {
                   </div>
                   {/* Macros — all nutrients, right-aligned */}
                   {macros && (
-                    <div className="flex gap-[16px] items-baseline shrink-0 ml-auto">
+                    <div className="ing-list-macros flex gap-[16px] items-baseline shrink-0 ml-auto">
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.satFat}g</strong> <span className="text-[var(--muted)]">sat</span></span>

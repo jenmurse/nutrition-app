@@ -68,6 +68,16 @@ function RecipesPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Filter sheet (mobile bottom sheet)
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  useEffect(() => {
+    if (!filterSheetOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFilterSheetOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [filterSheetOpen]);
+  const activeFilterCount = selectedTags.length + (sortBy !== "name" ? 1 : 0);
+
   const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
@@ -177,121 +187,229 @@ function RecipesPage() {
         className="list-toolbar flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
         style={{ height: "var(--filter-h)" }}
       >
-        {/* Tag chips */}
-        <div className="list-tags contents">
-        <button
-          onClick={() => updateSearchParam("tags", "")}
-          className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-            selectedTags.length === 0
-              ? "text-[var(--fg)] border-[var(--rule)]"
-              : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-          }`}
-          aria-label="Show all recipes"
-          aria-pressed={selectedTags.length === 0}
-        >All</button>
-        {availableTags.map(tag => (
-          <button
-            key={tag}
-            onClick={() => toggleTag(tag)}
-            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-              selectedTags.includes(tag)
-                ? "text-[var(--fg)] border-[var(--rule)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-            }`}
-            aria-label={`Filter by ${tag}`}
-            aria-pressed={selectedTags.includes(tag)}
-          >{tag}</button>
-        ))}
-        </div>
-
-        {/* Right side controls */}
-        <div className="list-controls flex gap-[5px] items-center ml-auto">
-          {/* Recipe count */}
-          <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
-            {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
-          </span>
-
-          {/* Sort group */}
-          <div ref={sortRef} className="flex border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)]">
-            <button
-              onClick={() => setSortOpen(!sortOpen)}
-              aria-label="Sort recipes by"
-              aria-expanded={sortOpen}
-              aria-haspopup="listbox"
-              className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
-            >
-              {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
-              <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
-            </button>
-            {sortOpen && (
-              <div
-                role="listbox"
-                aria-label="Sort options"
-                className="absolute left-[-1px] top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
-                style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
-              >
-                {sortOptions.map(opt => (
-                  <button
-                    key={opt.key}
-                    role="option"
-                    aria-selected={sortBy === opt.key}
-                    onClick={() => { updateSearchParam("sort", opt.key === "name" ? "" : opt.key); setSortOpen(false); }}
-                    className={`block w-full text-left font-mono text-[8px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
-                      sortBy === opt.key
-                        ? "text-[var(--fg)] bg-transparent"
-                        : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
-                    }`}
-                  >{opt.label}</button>
-                ))}
-              </div>
-            )}
-            <button
-              onClick={() => updateSearchParam("dir", sortDir === "asc" ? "desc" : "asc")}
-              aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
-              className="font-mono text-[10px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
-            >{sortDir === "asc" ? "↑" : "↓"}</button>
-          </div>
-
-          {/* Grid/List toggle */}
-          <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
-                viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-              }`}
-              aria-label="Grid view"
-              aria-pressed={viewMode === "grid"}
-            >Grid</button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
-                viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-              }`}
-              aria-label="List view"
-              aria-pressed={viewMode === "list"}
-            >List</button>
-          </div>
-
-          {/* Search — always visible */}
+        {/* ── Mobile toolbar — CSS shows on mobile only ── */}
+        <div className="mob-tb">
           <input
             ref={searchRef}
-            type="text"
-            placeholder="Search..."
+            type="search"
+            placeholder="Search recipes…"
             value={searchQuery}
             onChange={(e) => updateSearchParam("search", e.target.value)}
             aria-label="Search recipes"
-            className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
-            style={{ width: 180 }}
+            className="mob-search-input"
           />
-
-          {/* + New */}
+          <button
+            onClick={() => setFilterSheetOpen(true)}
+            className="mob-filter-btn"
+            aria-label={`Filter and sort${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
+            aria-haspopup="dialog"
+          >
+            Filter
+            {activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}
+          </button>
           <button
             onClick={() => router.push("/recipes/create")}
-            className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+            className="mob-new-btn"
             aria-label="Create new recipe"
-          >+ New</button>
+          >+</button>
+        </div>
+
+        {/* ── Desktop toolbar — CSS shows on desktop only ── */}
+        <div className="desk-tb">
+          {/* Tag chips */}
+          <div className="list-tags contents">
+          <button
+            onClick={() => updateSearchParam("tags", "")}
+            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              selectedTags.length === 0
+                ? "text-[var(--fg)] border-[var(--rule)]"
+                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+            }`}
+            aria-label="Show all recipes"
+            aria-pressed={selectedTags.length === 0}
+          >All</button>
+          {availableTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => toggleTag(tag)}
+              className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+                selectedTags.includes(tag)
+                  ? "text-[var(--fg)] border-[var(--rule)]"
+                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
+              }`}
+              aria-label={`Filter by ${tag}`}
+              aria-pressed={selectedTags.includes(tag)}
+            >{tag}</button>
+          ))}
+          </div>
+
+          {/* Right side controls */}
+          <div className="list-controls flex gap-[5px] items-center ml-auto">
+            {/* Recipe count */}
+            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
+              {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
+            </span>
+
+            {/* Sort group */}
+            <div ref={sortRef} className="flex border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)]">
+              <button
+                onClick={() => setSortOpen(!sortOpen)}
+                aria-label="Sort recipes by"
+                aria-expanded={sortOpen}
+                aria-haspopup="listbox"
+                className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+              >
+                {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
+                <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+              </button>
+              {sortOpen && (
+                <div
+                  role="listbox"
+                  aria-label="Sort options"
+                  className="absolute left-[-1px] top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
+                  style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+                >
+                  {sortOptions.map(opt => (
+                    <button
+                      key={opt.key}
+                      role="option"
+                      aria-selected={sortBy === opt.key}
+                      onClick={() => { updateSearchParam("sort", opt.key === "name" ? "" : opt.key); setSortOpen(false); }}
+                      className={`block w-full text-left font-mono text-[8px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                        sortBy === opt.key
+                          ? "text-[var(--fg)] bg-transparent"
+                          : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                      }`}
+                    >{opt.label}</button>
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={() => updateSearchParam("dir", sortDir === "asc" ? "desc" : "asc")}
+                aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
+                className="font-mono text-[10px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
+              >{sortDir === "asc" ? "↑" : "↓"}</button>
+            </div>
+
+            {/* Grid/List toggle */}
+            <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
+                  viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
+                }`}
+                aria-label="Grid view"
+                aria-pressed={viewMode === "grid"}
+              >Grid</button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
+                  viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
+                }`}
+                aria-label="List view"
+                aria-pressed={viewMode === "list"}
+              >List</button>
+            </div>
+
+            {/* Search */}
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => updateSearchParam("search", e.target.value)}
+              aria-label="Search recipes"
+              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
+              style={{ width: 180 }}
+            />
+
+            {/* + New */}
+            <button
+              onClick={() => router.push("/recipes/create")}
+              className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+              aria-label="Create new recipe"
+            >+ New</button>
+          </div>
         </div>
       </div>
+
+      {/* ── Mobile Filter Sheet ── */}
+      {filterSheetOpen && (
+        <>
+          <div className="mob-sheet-backdrop" onClick={() => setFilterSheetOpen(false)} aria-hidden="true" />
+          <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Filter and sort recipes">
+            <div className="mob-sheet-handle" aria-hidden="true" />
+            <div className="mob-sheet-header">
+              <span className="mob-sheet-title">Filter &amp; Sort</span>
+              {activeFilterCount > 0 && (
+                <button
+                  className="mob-sheet-clear"
+                  onClick={() => { updateSearchParam("tags", ""); updateSearchParam("sort", ""); updateSearchParam("dir", ""); }}
+                  aria-label="Clear all filters"
+                >Clear all</button>
+              )}
+            </div>
+
+            {/* Sort */}
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">Sort by</div>
+              <div className="mob-sheet-sort-grid">
+                {sortOptions.map(opt => (
+                  <button
+                    key={opt.key}
+                    className={`mob-sheet-sort-btn${sortBy === opt.key ? " on" : ""}`}
+                    onClick={() => updateSearchParam("sort", opt.key === "name" ? "" : opt.key)}
+                    aria-pressed={sortBy === opt.key}
+                  >{opt.label}</button>
+                ))}
+              </div>
+              <div className="mob-sheet-dir-row">
+                <button
+                  className={`mob-sheet-dir-btn${sortDir === "asc" ? " on" : ""}`}
+                  onClick={() => updateSearchParam("dir", "asc")}
+                  aria-pressed={sortDir === "asc"}
+                >↑ Ascending</button>
+                <button
+                  className={`mob-sheet-dir-btn${sortDir === "desc" ? " on" : ""}`}
+                  onClick={() => updateSearchParam("dir", "desc")}
+                  aria-pressed={sortDir === "desc"}
+                >↓ Descending</button>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">Category</div>
+              <div className="mob-sheet-chips">
+                <button
+                  className={`mob-sheet-chip${selectedTags.length === 0 ? " on" : ""}`}
+                  onClick={() => updateSearchParam("tags", "")}
+                  aria-pressed={selectedTags.length === 0}
+                >All</button>
+                {availableTags.map(tag => (
+                  <button
+                    key={tag}
+                    className={`mob-sheet-chip${selectedTags.includes(tag) ? " on" : ""}`}
+                    onClick={() => toggleTag(tag)}
+                    aria-pressed={selectedTags.includes(tag)}
+                  >{tag}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* View */}
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">View</div>
+              <div className="mob-sheet-chips">
+                <button className={`mob-sheet-chip${viewMode === "grid" ? " on" : ""}`} onClick={() => setViewMode("grid")} aria-pressed={viewMode === "grid"}>Grid</button>
+                <button className={`mob-sheet-chip${viewMode === "list" ? " on" : ""}`} onClick={() => setViewMode("list")} aria-pressed={viewMode === "list"}>List</button>
+              </div>
+            </div>
+
+            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>Done</button>
+          </div>
+        </>
+      )}
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto">
@@ -418,7 +536,7 @@ function RecipesPage() {
                   {/* Accent bar on hover */}
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
                   {macros && (
-                    <div className="flex gap-[16px] items-baseline shrink-0 ml-auto">
+                    <div className="rcp-list-macros flex gap-[16px] items-baseline shrink-0 ml-auto">
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
                       <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.saturatedFat}g</strong> <span className="text-[var(--muted)]">sat</span></span>

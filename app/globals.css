@@ -1263,6 +1263,273 @@ input[type="number"]:focus {
   flex-direction: column;
 }
 
+/* ── CSS-based mobile/desktop toolbar switching ─────────────────── */
+/* mob-tb: hidden on desktop, flex on mobile (via MQ below) */
+.mob-tb {
+  display: none;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+}
+/* desk-tb: transparent wrapper — children flow into parent flex */
+.desk-tb {
+  display: contents;
+}
+
+/* Sort dropdown z-index fix — toolbar must allow overflow */
+.list-toolbar { overflow: visible; }
+
+/* ── Mobile filter toolbar + bottom sheet ───────────────────────── */
+
+/* Compact search in mobile toolbar */
+.mob-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 0 10px;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-search-input:focus { border-color: var(--accent); }
+
+/* Filter trigger button */
+.mob-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.mob-filter-btn:active { background: var(--bg-3); }
+
+.mob-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-size: 9px;
+  font-family: var(--font-mono);
+  border-radius: 8px;
+  line-height: 1;
+}
+
+/* + New / + Add button (mobile) */
+.mob-new-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 0;
+  font-size: 20px;
+  font-weight: 300;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.mob-new-btn:active { opacity: 0.82; }
+
+/* Sheet backdrop */
+.mob-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 290;
+  animation: backdropIn 200ms ease both;
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Bottom sheet */
+.mob-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--rule);
+  z-index: 300;
+  max-height: 82dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 0 env(safe-area-inset-bottom, 0);
+  animation: sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.mob-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--rule);
+  border-radius: 2px;
+  margin: 12px auto 8px;
+}
+
+.mob-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 4px;
+}
+.mob-sheet-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mob-sheet-clear {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mob-sheet-section {
+  padding: 16px 20px 4px;
+  border-top: 1px solid var(--rule-faint, var(--rule));
+}
+.mob-sheet-section:first-of-type { border-top: none; }
+
+.mob-sheet-section-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.mob-sheet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mob-sheet-chip {
+  height: 36px;
+  padding: 0 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-sheet-chip.on {
+  color: var(--fg);
+  border-color: var(--fg);
+  background: var(--bg-2);
+}
+.mob-sheet-chip:active { background: var(--bg-3); }
+
+/* Sort grid — 3 columns */
+.mob-sheet-sort-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.mob-sheet-sort-btn {
+  height: 36px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-sheet-sort-btn.on {
+  color: var(--fg);
+  border-color: var(--fg);
+  background: var(--bg-2);
+}
+.mob-sheet-sort-btn:active { background: var(--bg-3); }
+
+.mob-sheet-dir-row {
+  display: flex;
+  gap: 8px;
+}
+.mob-sheet-dir-btn {
+  flex: 1;
+  height: 36px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-sheet-dir-btn.on {
+  color: var(--fg);
+  border-color: var(--fg);
+  background: var(--bg-2);
+}
+
+.mob-sheet-done {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 20px 20px 20px;
+  height: 48px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-sheet-done:active { opacity: 0.85; }
+
 /* ── Mobile breakpoint — 640px ───────────────────────────────────── */
 @media (max-width: 640px) {
   /* Prevent iOS Safari input zoom */
@@ -1475,6 +1742,44 @@ input[type="number"]:focus {
     grid-template-columns: 64px repeat(7, minmax(100px, 1fr));
     min-width: 764px;
   }
+
+  /* ── CSS toolbar switching ── */
+  .mob-tb { display: flex; }
+  .desk-tb { display: none; }
+
+  /* Taller toolbar for touch */
+  .list-toolbar {
+    gap: 8px;
+    padding: 0 16px;
+    height: 52px !important;
+  }
+
+  /* ── Card grids: 1 column on mobile ── */
+  .rcp-grid { padding: 12px !important; }
+  .ing-grid  { padding: 0 12px !important; }
+
+  /* Recipe grid: 1 col */
+  .rcp-grid .grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Ingredient grid: 1 col */
+  .ing-grid.grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ingredient card actions: always visible on mobile */
+  .ing-card-actions {
+    opacity: 1 !important;
+  }
+
+  /* ── List views: hide nutrient columns on mobile ── */
+  .rcp-list-macros { display: none; }
+  .ing-list-macros { display: none; }
+  /* Make ingredient list action buttons always visible */
+  .ing-grid ~ * .opacity-\[0\.4\],
+  .list-scroll .opacity-\[0\.4\] { opacity: 0.7 !important; }
 }
 
 /* ── Hide custom cursor on touch devices ──────────────────────────── */
