@@ -2130,10 +2130,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Planner toolbar: match recipes/pantry toolbar (shadow, no hairline) ── */
   .pl-toolbar {
-    height: 44px !important;
+    height: 52px !important;
     padding: 0 var(--pad) !important;
     gap: 6px !important;
     border-bottom: none !important;
+    border-bottom-color: transparent !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     background: var(--bg) !important;
   }
