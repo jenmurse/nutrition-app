@@ -935,7 +935,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
         {/* Macro grid */}
         <div style={{ margin: "24px 0" }}>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+          <div className="rf-macro-grid grid" style={{ gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
             {MACRO_KEYS.map(({ label }, idx) => {
               const { value, unit } = getMacroValue(label);
               const display = value > 0 ? `${Math.round(value * 10) / 10}${unit !== "kcal" ? unit : ""}` : "—";
@@ -970,7 +970,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             <div className="font-sans text-[11px] text-[var(--muted)] leading-[1.5] tracking-[0.02em]" style={{ marginBottom: 16 }}>
               Add ingredients, then select a person and focus nutrients to see how this recipe fits your daily goals.
             </div>
-            <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "16px 40px" }}>
+            <div className="rf-guidance-grid grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "16px 40px" }}>
               {/* Left: person + focus */}
               <div>
                 {persons.length > 0 && (

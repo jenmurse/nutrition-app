@@ -1364,6 +1364,29 @@ input[type="number"]:focus {
   display: none;
 }
 
+/* Settings mobile section jump — hidden on desktop */
+.set-mob-jump { display: none; }
+.set-mob-jump-btn {
+  white-space: nowrap;
+  padding: 6px 12px;
+  background: var(--bg-2);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s, background 0.15s;
+}
+.set-mob-jump-btn.on {
+  color: var(--accent-fg);
+  background: var(--accent);
+}
+
 /* Sheet backdrop */
 .mob-sheet-backdrop {
   position: fixed;
@@ -1852,6 +1875,36 @@ input[type="number"]:focus {
 
   /* ── Recipe list: fix name truncation in stacked layout ── */
   .rcp-list-info .font-serif { width: 100%; }
+
+  /* ── Form pages: stack ed-row fields vertically ── */
+  .ed-row { flex-direction: column !important; gap: 12px !important; }
+
+  /* ── Settings: goals grid → 1 col ── */
+  .set-goals-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Pantry new: nutrition grid → 1 col, checkbox top-aligned ── */
+  .ing-nutr-grid { grid-template-columns: 1fr !important; }
+  .ing-check-row { align-items: flex-start !important; }
+
+  /* ── Recipe builder: macro grid → 2 col, guidance → 1 col ── */
+  .rf-macro-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .rf-guidance-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Settings mobile section jump bar ── */
+  .set-mob-jump {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 12px 16px 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    box-shadow: 0 1px 0 rgba(128, 128, 128, 0.1);
+  }
+  .set-mob-jump::-webkit-scrollbar { display: none; }
 
   /* ── Ingredient list: more touch padding, bigger action targets ── */
   .ing-list-row { padding: 12px !important; }

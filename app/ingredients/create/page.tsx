@@ -414,7 +414,7 @@ export default function CreateIngredientPage() {
             )}
 
             {/* Meal Item Checkbox */}
-            <div className="flex items-center gap-[10px] py-[12px]" style={{ marginBottom: 20 }}>
+            <div className="ing-check-row flex items-center gap-[10px] py-[12px]" style={{ marginBottom: 20 }}>
               <input type="checkbox" checked={isMealItem} onChange={(e) => setIsMealItem(e.target.checked)} className="cursor-pointer" id="pf-meal-check" aria-label="Meal item" />
               <label htmlFor="pf-meal-check" className="cursor-pointer">
                 <span className="text-[13px] text-[var(--fg)]">This is a standalone item</span>
@@ -462,7 +462,7 @@ export default function CreateIngredientPage() {
             {nutrients.length === 0 ? (
               <p className="text-[11px] text-[var(--muted)]">Loading nutrients...</p>
             ) : (
-              <div className="grid grid-cols-2 gap-x-[40px]" style={{ marginBottom: 24 }}>
+              <div className="ing-nutr-grid grid grid-cols-2 gap-x-[40px]" style={{ marginBottom: 24 }}>
                 {nutrients.map((n) => {
                   const inputValue = values[n.id];
                   return (
