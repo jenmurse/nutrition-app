@@ -71,6 +71,7 @@ export default function CreateIngredientPage() {
   const [customUnitAmount, setCustomUnitAmount] = useState("1");
   const [customUnitGrams, setCustomUnitGrams] = useState("");
   const [isMealItem, setIsMealItem] = useState(false);
+  const [category, setCategory] = useState("");
   const [specifiedAmount, setSpecifiedAmount] = useState("100");
   const [specifiedUnit, setSpecifiedUnit] = useState("g");
   const [values, setValues] = useState<Record<number, number>>({});
@@ -235,6 +236,7 @@ export default function CreateIngredientPage() {
         name,
         defaultUnit: unit,
         isMealItem,
+        category,
         nutrientValues: normalizedValues,
       };
 
@@ -366,6 +368,23 @@ export default function CreateIngredientPage() {
               <div className="ed-field" style={{ flex: 2 }}>
                 <label className="ed-label">Item Name</label>
                 <input className="ed-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Cottage Cheese 2%" aria-label="Item name" />
+              </div>
+              <div className="ed-field" style={{ flex: 1 }}>
+                <label className="ed-label">Category</label>
+                <select className="ed-select" value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category">
+                  <option value="">Other</option>
+                  <option value="Produce">Produce</option>
+                  <option value="Meat & Fish">Meat &amp; Fish</option>
+                  <option value="Dairy & Eggs">Dairy &amp; Eggs</option>
+                  <option value="Grains & Bread">Grains &amp; Bread</option>
+                  <option value="Spices & Seasonings">Spices &amp; Seasonings</option>
+                  <option value="Condiments & Sauces">Condiments &amp; Sauces</option>
+                  <option value="Oils & Fats">Oils &amp; Fats</option>
+                  <option value="Frozen">Frozen</option>
+                  <option value="Canned & Jarred">Canned &amp; Jarred</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Snacks">Snacks</option>
+                </select>
               </div>
               <div className="ed-field" style={{ flex: 1 }}>
                 <label className="ed-label">Default Unit</label>

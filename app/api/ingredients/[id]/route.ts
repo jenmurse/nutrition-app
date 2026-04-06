@@ -39,7 +39,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const body = await request.json();
-    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, nutrientValues } = body;
+    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, category, nutrientValues } = body;
 
     // Only include fields that were actually provided
     const updateData: any = {};
@@ -50,6 +50,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (customUnitAmount !== undefined) updateData.customUnitAmount = customUnitAmount;
     if (customUnitGrams !== undefined) updateData.customUnitGrams = customUnitGrams;
     if (isMealItem !== undefined) updateData.isMealItem = Boolean(isMealItem);
+    if (category !== undefined) updateData.category = category || "";
 
     if (Object.keys(updateData).length > 0) {
       await prisma.ingredient.update({

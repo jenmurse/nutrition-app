@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const body = await request.json();
-    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, nutrientValues } = body;
+    const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, category, nutrientValues } = body;
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
     const isCustomUnit = ["other", "tsp", "tbsp", "cup"].includes(defaultUnit);
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
         customUnitAmount: isCustomUnit ? customUnitAmount : null,
         customUnitGrams: isCustomUnit ? customUnitGrams : null,
         isMealItem: Boolean(isMealItem),
+        category: category || "",
         householdId: auth.householdId,
       },
     });

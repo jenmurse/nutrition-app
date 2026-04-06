@@ -18,7 +18,7 @@ export async function GET(
       include: {
         mealLogs: {
           include: {
-            ingredient: { select: { id: true, name: true } },
+            ingredient: { select: { id: true, name: true, category: true } },
           },
         },
       },
@@ -42,7 +42,7 @@ export async function GET(
             ingredientId: true,
             quantity: true,
             unit: true,
-            ingredient: { select: { id: true, name: true } },
+            ingredient: { select: { id: true, name: true, category: true } },
           },
         },
       },
@@ -50,7 +50,7 @@ export async function GET(
 
     const recipeMap = new Map(recipes.map(r => [r.id, r]));
 
-    type ShoppingItem = { name: string; qty: number; unit: string };
+    type ShoppingItem = { name: string; qty: number; unit: string; category: string };
     const agg = new Map<string, ShoppingItem>();
 
     for (const log of mealPlan.mealLogs) {
@@ -66,7 +66,7 @@ export async function GET(
           if (existing) {
             existing.qty += qty;
           } else {
-            agg.set(key, { name: ri.ingredient.name, qty, unit: ri.unit });
+            agg.set(key, { name: ri.ingredient.name, qty, unit: ri.unit, category: ri.ingredient.category || '' });
           }
         }
       } else if (log.ingredientId && log.ingredient) {
@@ -77,7 +77,7 @@ export async function GET(
         if (existing) {
           existing.qty += qty;
         } else {
-          agg.set(key, { name: log.ingredient.name, qty, unit });
+          agg.set(key, { name: log.ingredient.name, qty, unit, category: log.ingredient.category || '' });
         }
       }
     }

@@ -365,7 +365,7 @@ const MealPlansPage = () => {
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
   const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
   const [shopSheetOpen, setShopSheetOpen] = useState(false);
-  const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string }[]>([]);
+  const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string; category: string }[]>([]);
   const [shopLoading, setShopLoading] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
@@ -796,7 +796,16 @@ const MealPlansPage = () => {
     const range = s.getMonth() === e.getMonth()
       ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
       : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const lines = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`)).map(item => `${item.name} (${fmtQty(item.qty)} ${item.unit})`).join('\n');
+    const SHARE_CAT_ORDER = ['Produce','Meat & Fish','Dairy & Eggs','Grains & Bread','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Snacks'];
+    const unchecked = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`));
+    const sorted = [...unchecked].sort((a, b) => {
+      const ac = a.category || ''; const bc = b.category || '';
+      const ai = SHARE_CAT_ORDER.indexOf(ac); const bi = SHARE_CAT_ORDER.indexOf(bc);
+      const aIdx = ai === -1 ? 999 : ai; const bIdx = bi === -1 ? 999 : bi;
+      if (aIdx !== bIdx) return aIdx - bIdx;
+      return a.name.localeCompare(b.name);
+    });
+    const lines = sorted.map(item => `${item.name} (${fmtQty(item.qty)} ${item.unit})`).join('\n');
     const text = `Shopping List — ${range}\n\n${lines}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try { await navigator.share({ title: 'Shopping List', text }); } catch { /* cancelled */ }
@@ -1387,53 +1396,116 @@ const MealPlansPage = () => {
                 <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>Loading…</div>
               ) : shopItems.length === 0 ? (
                 <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>No ingredients in this week&apos;s plan</div>
-              ) : (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {shopItems.map((item, i) => {
-                    const itemKey = `${item.name}-${item.unit}`;
-                    const checked = checkedItems.has(itemKey);
-                    return (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setCheckedItems(prev => {
-                            const n = new Set(prev);
-                            checked ? n.delete(itemKey) : n.add(itemKey);
-                            const arr = [...n];
-                            if (selectedPlan) {
-                              try { localStorage.setItem(`shopping-checked-${selectedPlan.id}`, JSON.stringify(arr)); } catch {}
-                              fetch(`/api/meal-plans/${selectedPlan.id}/shopping-checked`, {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ checked: arr }),
-                              }).then(() => {
-                                clientCache.delete(`/api/meal-plans/${selectedPlan.id}`);
-                              }).catch(console.error);
-                            }
-                            return n;
-                          });
-                        }}
-                        style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--rule-faint)', cursor: 'pointer', userSelect: 'none' }}
-                      >
-                        <span style={{
-                          flexShrink: 0, width: 18, height: 18,
-                          border: `1.5px solid ${checked ? 'var(--accent)' : 'var(--fg-2)'}`,
-                          borderRadius: 3,
-                          background: checked ? 'var(--accent)' : 'transparent',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'all 0.12s',
-                        }}>
-                          {checked && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                        </span>
-                        <span style={{ fontSize: 13, color: checked ? 'var(--muted)' : 'var(--fg)', lineHeight: '20px', textDecoration: checked ? 'line-through' : 'none', transition: 'all 0.12s' }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
-                          {item.name}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+              ) : (() => {
+                // Group items by category
+                const CATEGORY_ORDER = ['Produce','Meat & Fish','Dairy & Eggs','Grains & Bread','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Snacks'];
+                const groups = new Map<string, typeof shopItems>();
+                for (const item of shopItems) {
+                  const cat = item.category || '';
+                  if (!groups.has(cat)) groups.set(cat, []);
+                  groups.get(cat)!.push(item);
+                }
+                const sortedCats = [...groups.keys()].sort((a, b) => {
+                  if (!a) return 1;
+                  if (!b) return -1;
+                  const ai = CATEGORY_ORDER.indexOf(a);
+                  const bi = CATEGORY_ORDER.indexOf(b);
+                  if (ai === -1 && bi === -1) return a.localeCompare(b);
+                  if (ai === -1) return 1;
+                  if (bi === -1) return -1;
+                  return ai - bi;
+                });
+
+                const saveChecked = (newSet: Set<string>) => {
+                  const arr = [...newSet];
+                  if (selectedPlan) {
+                    try { localStorage.setItem(`shopping-checked-${selectedPlan.id}`, JSON.stringify(arr)); } catch {}
+                    fetch(`/api/meal-plans/${selectedPlan.id}/shopping-checked`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ checked: arr }),
+                    }).then(() => clientCache.delete(`/api/meal-plans/${selectedPlan.id}`)).catch(console.error);
+                  }
+                };
+
+                return (
+                  <div>
+                    {sortedCats.map(cat => {
+                      const items = groups.get(cat)!;
+                      const catLabel = cat || 'Other';
+                      const catKeys = items.map(i => `${i.name}-${i.unit}`);
+                      const allChecked = catKeys.every(k => checkedItems.has(k));
+                      const someChecked = catKeys.some(k => checkedItems.has(k));
+                      return (
+                        <div key={cat}>
+                          {/* Category header with select-all */}
+                          <div
+                            onClick={() => {
+                              setCheckedItems(prev => {
+                                const n = new Set(prev);
+                                if (allChecked) { catKeys.forEach(k => n.delete(k)); }
+                                else { catKeys.forEach(k => n.add(k)); }
+                                saveChecked(n);
+                                return n;
+                              });
+                            }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0 6px', cursor: 'pointer', userSelect: 'none', borderBottom: '1px solid var(--rule)' }}
+                          >
+                            <span style={{
+                              flexShrink: 0, width: 16, height: 16,
+                              border: `1.5px solid ${allChecked ? 'var(--accent)' : someChecked ? 'var(--accent)' : 'var(--fg-2)'}`,
+                              borderRadius: 3,
+                              background: allChecked ? 'var(--accent)' : 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'all 0.12s', position: 'relative',
+                            }}>
+                              {allChecked && <svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                              {!allChecked && someChecked && <span style={{ width: 8, height: 1.5, background: 'var(--accent)', borderRadius: 1, display: 'block' }} />}
+                            </span>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>{catLabel}</span>
+                          </div>
+                          {/* Items */}
+                          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                            {items.map((item, i) => {
+                              const itemKey = `${item.name}-${item.unit}`;
+                              const checked = checkedItems.has(itemKey);
+                              return (
+                                <li
+                                  key={i}
+                                  onClick={() => {
+                                    setCheckedItems(prev => {
+                                      const n = new Set(prev);
+                                      checked ? n.delete(itemKey) : n.add(itemKey);
+                                      saveChecked(n);
+                                      return n;
+                                    });
+                                  }}
+                                  style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--rule-faint)', cursor: 'pointer', userSelect: 'none' }}
+                                >
+                                  <span style={{
+                                    flexShrink: 0, width: 18, height: 18,
+                                    border: `1.5px solid ${checked ? 'var(--accent)' : 'var(--fg-2)'}`,
+                                    borderRadius: 3,
+                                    background: checked ? 'var(--accent)' : 'transparent',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.12s',
+                                  }}>
+                                    {checked && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                  </span>
+                                  <span style={{ fontSize: 13, color: checked ? 'var(--muted)' : 'var(--fg)', lineHeight: '20px', textDecoration: checked ? 'line-through' : 'none', transition: 'all 0.12s' }}>
+                                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
+                                    {item.name}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
             {shopItems.length > 0 && (
               <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 46, margin: '12px 20px 20px' }}>

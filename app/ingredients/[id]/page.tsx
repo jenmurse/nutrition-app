@@ -25,6 +25,7 @@ type Ingredient = {
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
   isMealItem?: boolean;
+  category?: string;
   nutrientValues: NutrientValue[];
 };
 
@@ -103,6 +104,7 @@ export default function IngredientDetailPage() {
   const [editCustomUnitAmount, setEditCustomUnitAmount] = useState("1");
   const [editCustomUnitGrams, setEditCustomUnitGrams] = useState("");
   const [editIsMealItem, setEditIsMealItem] = useState(false);
+  const [editCategory, setEditCategory] = useState("");
   const [editSpecifiedAmount, setEditSpecifiedAmount] = useState("100");
   const [editSpecifiedUnit, setEditSpecifiedUnit] = useState("g");
   const [editValues, setEditValues] = useState<Record<number, number>>({});
@@ -178,6 +180,7 @@ export default function IngredientDetailPage() {
       setEditName(ingredient.name);
       setEditUnit(ingredient.defaultUnit);
       setEditIsMealItem(Boolean(ingredient.isMealItem));
+      setEditCategory(ingredient.category || "");
       setEditCustomUnitName(
         ingredient.customUnitName ??
           (["tsp", "tbsp", "cup"].includes(ingredient.defaultUnit)
@@ -239,6 +242,7 @@ export default function IngredientDetailPage() {
     setEditName(ingredient.name);
     setEditUnit(ingredient.defaultUnit);
     setEditIsMealItem(Boolean(ingredient.isMealItem));
+    setEditCategory(ingredient.category || "");
     setEditCustomUnitName(
       ingredient.customUnitName ??
         (["tsp", "tbsp", "cup"].includes(ingredient.defaultUnit)
@@ -441,6 +445,7 @@ export default function IngredientDetailPage() {
         name: editName,
         defaultUnit: editUnit,
         isMealItem: editIsMealItem,
+        category: editCategory,
         nutrientValues: normalizedValues,
       };
 
@@ -625,6 +630,23 @@ export default function IngredientDetailPage() {
               <div className="ed-field" style={{ flex: 2 }}>
                 <label className="ed-label">Item Name</label>
                 <input className="ed-input" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="e.g. Cottage Cheese 2%" aria-label="Item name" />
+              </div>
+              <div className="ed-field" style={{ flex: 1 }}>
+                <label className="ed-label">Category</label>
+                <select className="ed-select" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} aria-label="Category">
+                  <option value="">Other</option>
+                  <option value="Produce">Produce</option>
+                  <option value="Meat & Fish">Meat &amp; Fish</option>
+                  <option value="Dairy & Eggs">Dairy &amp; Eggs</option>
+                  <option value="Grains & Bread">Grains &amp; Bread</option>
+                  <option value="Spices & Seasonings">Spices &amp; Seasonings</option>
+                  <option value="Condiments & Sauces">Condiments &amp; Sauces</option>
+                  <option value="Oils & Fats">Oils &amp; Fats</option>
+                  <option value="Frozen">Frozen</option>
+                  <option value="Canned & Jarred">Canned &amp; Jarred</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Snacks">Snacks</option>
+                </select>
               </div>
               <div className="ed-field" style={{ flex: 1 }}>
                 <label className="ed-label">Default Unit</label>

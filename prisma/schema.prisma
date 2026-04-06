@@ -104,6 +104,7 @@ model Ingredient {
   customUnitAmount  Float?           // e.g., 1 (meaning 1 banana is the reference)
   customUnitGrams   Float?           // e.g., 120 (meaning 1 banana = 120g)
   isMealItem   Boolean               @default(false) // If true, shows in meal plan ingredient list
+  category     String                @default("") // e.g., "Produce", "Meat & Fish", "Dairy & Eggs"
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
 
