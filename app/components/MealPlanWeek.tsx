@@ -120,7 +120,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
-  const mealTypeSheetOpenedAt = useRef<number>(0);
 
   // Mobile: single-day view state
   const [isMobile, setIsMobile] = useState(false);
@@ -172,17 +171,22 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const handleAddMealClick = (date: Date) => {
     setSelectedDate(date);
-    mealTypeSheetOpenedAt.current = Date.now();
-    setMealTypeDropdownOpen(true);
+    // Delay sheet open so it doesn't exist during the current tap event cycle.
+    // iOS Safari propagates touch events to elements that appear at the same
+    // coordinates during the same event loop — opening async prevents this.
+    setTimeout(() => setMealTypeDropdownOpen(true), 50);
   };
 
   const handleSelectMealType = (mealType: string) => {
-    if (!selectedDate || Date.now() - mealTypeSheetOpenedAt.current < 800) return;
-    setSelectedDayMeal({ date: selectedDate, mealType });
+    if (!selectedDate) return;
     setMealTypeDropdownOpen(false);
-    setItemTypeTabOpen('recipe');
-    // Pre-select the meal type tag so the list is filtered but the user can toggle it
-    setRecipeFilterTags([mealType.toLowerCase()]);
+    // Same delay: prevent the recipe picker from catching the tap that
+    // selected the meal type.
+    setTimeout(() => {
+      setSelectedDayMeal({ date: selectedDate!, mealType });
+      setItemTypeTabOpen('recipe');
+      setRecipeFilterTags([mealType.toLowerCase()]);
+    }, 50);
   };
 
   const handleSelectRecipe = async (recipeId: number) => {
