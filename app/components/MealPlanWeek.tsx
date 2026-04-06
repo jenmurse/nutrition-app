@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
@@ -173,7 +174,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     setSelectedDate(date);
     setMealTypeSheetReady(false);
     setMealTypeDropdownOpen(true);
-    setTimeout(() => setMealTypeSheetReady(true), 350);
+    setTimeout(() => setMealTypeSheetReady(true), 600);
   };
 
   const handleSelectMealType = (mealType: string) => {
@@ -573,7 +574,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         </div>
       )}
 
-      {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
+      {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && createPortal(
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { if (mealTypeSheetReady) { setMealTypeDropdownOpen(false); setSelectedDate(null); } }}
@@ -619,10 +620,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               ))}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {itemTypeTabOpen && selectedDayMeal && (
+      {itemTypeTabOpen && selectedDayMeal && createPortal(
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
@@ -911,7 +913,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
