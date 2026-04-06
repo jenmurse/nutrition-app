@@ -154,6 +154,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     }, 180);
   };
 
+  // Ghost click buster: track last touchend time on +Add buttons to ignore
+  // iOS Safari's synthetic click that fires ~300ms after touchend
+  const lastAddMealTouchRef = useRef<number>(0);
+
   // Mobile: single-day view state
   const [isMobile, setIsMobile] = useState(false);
   const [activeMobileDayIdx, setActiveMobileDayIdx] = useState(0);
@@ -490,10 +494,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     onTouchEnd={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      lastAddMealTouchRef.current = Date.now();
                       handleAddMealClick(new Date(day.date));
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (Date.now() - lastAddMealTouchRef.current < 600) return;
                       handleAddMealClick(new Date(day.date));
                     }}
                     aria-label={`Add meal on ${day.dayOfWeek}`}
@@ -602,10 +608,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     onTouchEnd={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      lastAddMealTouchRef.current = Date.now();
                       handleAddMealClick(new Date(day.date));
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (Date.now() - lastAddMealTouchRef.current < 600) return;
                       handleAddMealClick(new Date(day.date));
                     }}
                     aria-label={`Add meal on ${day.dayOfWeek}`}
@@ -892,8 +900,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             <div className="border-t border-[var(--rule-faint)] px-5 pt-3 pb-3 sm:p-6 bg-[var(--bg)]">
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
-                <div className="mb-3 flex items-center gap-4 flex-wrap">
+                <div className="mb-3 flex flex-col gap-2">
                   <span className="pl-create-label">Also add to</span>
+                  <div className="flex items-center gap-4 flex-wrap">
                   {otherPersonPlans.map((op) => (
                     <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
                       <input
@@ -913,6 +922,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       </span>
                     </label>
                   ))}
+                  </div>
                 </div>
               )}
               <div className="flex gap-3 justify-end">
