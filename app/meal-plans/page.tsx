@@ -362,6 +362,7 @@ const MealPlansPage = () => {
   const [copyMenuOpen, setCopyMenuOpen] = useState(false);
   const copyRef = useRef<HTMLDivElement>(null);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
+  const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
@@ -859,6 +860,19 @@ const MealPlansPage = () => {
           aria-label="Go to this week"
         >This Week</button>
 
+        {/* Mobile: nutrition summary button — hidden on desktop */}
+        {selectedPlan && (
+          <button
+            className="pl-mob-nut-btn"
+            onClick={() => setMobNutSheetOpen(true)}
+            aria-label="View nutrition summary"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18"/><polyline points="7,16 11,11 14,14 18,9"/>
+            </svg>
+          </button>
+        )}
+
         {/* Mobile: person/everyone dropdown — hidden on desktop */}
         {persons.length > 0 && mealPlans.length > 0 && (
           <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
@@ -1141,6 +1155,71 @@ const MealPlansPage = () => {
           >Cancel</button>
         </div>
       </form>
+
+      {/* Mobile nutrition sheet */}
+      {mobNutSheetOpen && selectedPlan?.weeklySummary && (() => {
+        const dailyNutritions = selectedPlan.weeklySummary.dailyNutritions;
+        const activeDate = selectedDay ?? new Date();
+        const dayData = dailyNutritions.find(d => parseUTCDate(d.date).toDateString() === activeDate.toDateString()) ?? dailyNutritions[0];
+        if (!dayData) return null;
+        const calorieNutrient = dayData.totalNutrients.find(n => n.displayName === 'Calories' || n.displayName === 'Energy');
+        const calorieGoal = calorieNutrient?.highGoal ?? calorieNutrient?.lowGoal ?? 0;
+        const caloriePct = calorieGoal && calorieNutrient ? Math.min((calorieNutrient.value / calorieGoal) * 100, 100) : 0;
+        const keyNutrientNames = ['Fat', 'Saturated Fat', 'Sodium', 'Carbs', 'Carbohydrate', 'Sugar', 'Protein', 'Fiber'];
+        const keyNutrients = keyNutrientNames
+          .map(name => dayData.totalNutrients.find(n => n.displayName.includes(name)))
+          .filter((n): n is NonNullable<typeof n> => !!n);
+        const activeDay = parseUTCDate(dayData.date);
+        return (
+          <>
+            <div className="mob-sheet-backdrop" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
+            <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Nutrition summary">
+              <div className="mob-sheet-handle" aria-hidden="true" />
+              <div style={{ padding: '8px 20px 4px' }}>
+                <div className="font-sans text-[13px] font-medium text-[var(--fg)]">
+                  {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+              {calorieNutrient && (
+                <div style={{ padding: '16px 20px 8px' }}>
+                  <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[4px]">Calories</div>
+                  <div className="font-serif text-[36px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                    {Math.round(calorieNutrient.value).toLocaleString()}
+                    {calorieGoal > 0 && <span className="font-mono text-[13px] text-[var(--muted)] font-normal ml-2">/ {Math.round(calorieGoal).toLocaleString()}</span>}
+                  </div>
+                  <div className="h-[3px] bg-[var(--rule)] mt-[12px] relative overflow-hidden rounded-full">
+                    <div className="absolute inset-0 bg-[var(--accent)] rounded-full" style={{ width: `${caloriePct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                  </div>
+                </div>
+              )}
+              <div style={{ padding: '16px 20px 4px' }}>
+                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[12px]">Nutrients</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+                  {keyNutrients.map(n => {
+                    const goal = n.highGoal ?? n.lowGoal ?? 0;
+                    const pct = goal > 0 ? Math.min((n.value / goal) * 100, 100) : 0;
+                    const statusColor = n.status === 'error' ? 'var(--err)' : n.status === 'warning' ? 'var(--warn)' : 'var(--ok)';
+                    return (
+                      <div key={n.nutrientId}>
+                        <div className="flex justify-between items-baseline mb-[3px]">
+                          <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">{n.displayName}</span>
+                          <span className="font-mono text-[10px] tabular-nums text-[var(--fg)]">{Math.round(n.value)}<span className="text-[var(--muted)] text-[8px] ml-[2px]">{n.unit}</span></span>
+                        </div>
+                        {goal > 0 && (
+                          <div className="h-[2px] bg-[var(--rule)] relative overflow-hidden rounded-full">
+                            <div className="absolute inset-0 rounded-full" style={{ background: statusColor, width: `${pct}%` }} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <button className="mob-sheet-done" onClick={() => setMobNutSheetOpen(false)}>Close</button>
+            </div>
+          </>
+        );
+      })()}
 
       {/* Main Content */}
       <div className="pl-wrap" style={{ flex: 1, minHeight: 0 }}>

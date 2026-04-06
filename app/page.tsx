@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { usePersonContext } from "./components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
 import GettingStartedCard from "./components/GettingStartedCard";
+import { BrandName } from "./components/BrandName";
 import ContextualTip from "./components/ContextualTip";
 
 function getCurrentWeekStart(): Date {
@@ -282,6 +283,27 @@ export default function Home() {
 
         {/* Hero — full-viewport greeting (compact on mobile via .hm-hero) */}
         <div key={`hero-${selectedPersonId}`} className="hm-hero">
+          {/* Mobile chrome: logo + person switcher (hidden on desktop — top nav covers this) */}
+          <div className="hm-mob-chrome" aria-hidden="false">
+            <BrandName className="hm-mob-brand" />
+            {persons.length > 1 && (
+              <div className="hm-mob-persons" role="group" aria-label="Switch person">
+                {persons.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedPersonId(p.id)}
+                    className={`hm-mob-person-dot${selectedPersonId === p.id ? ' on' : ''}`}
+                    style={{ background: p.color || 'var(--accent)' }}
+                    aria-label={p.name}
+                    aria-pressed={selectedPersonId === p.id}
+                  >
+                    {p.name[0].toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Household switching tip */}
           {persons.length > 1 && (
             <div style={{ padding: `20px var(--pad) 0` }}>
@@ -298,25 +320,9 @@ export default function Home() {
 
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 48px` }}>
             <div>
-              {/* Eyebrow: date + mobile person switcher */}
+              {/* Eyebrow: date */}
               <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '2px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
-                {persons.length > 1 && (
-                  <div className="hm-mob-persons" role="group" aria-label="Switch person">
-                    {persons.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => setSelectedPersonId(p.id)}
-                        className={`hm-mob-person-dot${selectedPersonId === p.id ? ' on' : ''}`}
-                        style={{ background: p.color || 'var(--accent)' }}
-                        aria-label={p.name}
-                        aria-pressed={selectedPersonId === p.id}
-                      >
-                        {p.name[0].toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
               {/* Greeting */}
               <div className="font-serif" style={{ fontSize: '11.5vw', fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>

@@ -656,7 +656,7 @@ const SettingsPage = () => {
                   );
                 })}
                 {/* Add / Invite buttons */}
-                <div className="pt-[12px] flex gap-[8px]">
+                <div className="set-invite-btns pt-[12px] flex gap-[8px] flex-wrap">
                   {!addingPerson ? (
                     <button
                       onClick={() => setAddingPerson(true)}

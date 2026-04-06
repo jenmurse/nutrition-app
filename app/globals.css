@@ -1240,6 +1240,17 @@ input[type="number"]:focus {
   border-right: 1px solid var(--rule);
 }
 
+/* ── Dashboard mobile chrome bar (hidden on desktop) ─────────────── */
+.hm-mob-chrome { display: none; }
+.hm-mob-brand {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  line-height: 1;
+}
+
 /* ── Dashboard mobile person switcher (hidden on desktop) ─────────── */
 .hm-mob-persons { display: none; }
 .hm-mob-person-dot {
@@ -1620,6 +1631,27 @@ input[type="number"]:focus {
 }
 .mob-sheet-done:active { opacity: 0.85; }
 
+/* Recipe card stats: mobile hidden by default, shown on mobile via MQ */
+.rcp-card-stats-mob { display: none; }
+
+/* Planner mobile nutrition button — hidden on desktop */
+.pl-mob-nut-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pl-mob-nut-btn:active { opacity: 0.7; }
+
 /* ── Mobile breakpoint — 640px ───────────────────────────────────── */
 @media (max-width: 640px) {
   /* Prevent iOS Safari input zoom */
@@ -1641,12 +1673,22 @@ input[type="number"]:focus {
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px);
   }
 
-  /* Hero: compact on mobile — no full-viewport lock */
-  .hm-hero { min-height: 0; padding-top: 24px; }
+  /* Hero: compact on mobile — no full-viewport lock; chrome bar provides top spacing */
+  .hm-hero { min-height: 0; padding-top: 0; }
 
   /* Detail pages: hide jump nav, full-width content with bottom nav padding */
   .detail-jump-nav { display: none !important; }
   .detail-content  { padding: 32px var(--pad) calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px) var(--pad) !important; }
+
+  /* Mobile chrome bar (logo + person switcher) */
+  .hm-mob-chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px var(--pad) 0;
+    flex-shrink: 0;
+  }
+  .hm-mob-persons { display: flex; align-items: center; gap: 6px; }
 
   /* Stats strip: stack vertically, no hairlines */
   .hm-stats-strip  { flex-direction: column; }
@@ -1656,23 +1698,23 @@ input[type="number"]:focus {
     padding-right: 0; margin-right: 0; border-right: none; border-bottom: none;
   }
 
-  /* "Today's key meals" header: remove border-top, reduce top gap */
-  .hm-keymeal-hdr  { border-top: none !important; padding-top: 20px !important; }
+  /* "Today's key meals" header: remove border-top, more top gap */
+  .hm-keymeal-hdr  { border-top: none !important; padding-top: 40px !important; }
 
   /* Meal type eyebrow (breakfast / lunch / dinner): remove underline */
   .hm-mealtype-hdr { border-bottom: none !important; padding-bottom: 0 !important; margin-bottom: 6px !important; }
 
   /* "This week" header: tighten top gap */
-  .hm-thisweek-hdr { padding-top: 20px !important; }
+  .hm-thisweek-hdr { padding-top: 16px !important; }
 
-  /* Mobile person switcher: show alongside date eyebrow */
-  .hm-mob-persons  { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-
-  /* Meal columns: stack as cards */
+  /* Meal columns: stack, no hairlines — space via padding */
   .hm-meal-cols { flex-direction: column; gap: 0; }
-  .hm-meal-col  { padding: 20px 0 !important; background: none !important; border: none !important; border-radius: 0 !important; border-top: 1px solid var(--rule) !important; }
-  .hm-meal-col:not(:first-child) { padding-left: 0 !important; }
+  .hm-meal-col  { padding: 0 0 20px !important; background: none !important; border: none !important; border-radius: 0 !important; }
+  .hm-meal-col:not(:first-child) { padding-left: 0 !important; padding-top: 20px !important; }
   .hm-meal-col:not(:last-child)  { padding-right: 0 !important; }
+
+  /* Week strip: explicit left-alignment */
+  .hm-week-grid > .hm-week-inner { justify-content: flex-start; }
 
   /* Bottom nav — polished fixed tab bar */
   .bottom-nav {
@@ -1825,6 +1867,8 @@ input[type="number"]:focus {
   /* Settings: invite table — horizontal scroll */
   .set-invite-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .set-invite-wrap table { min-width: 480px; }
+  /* Invite buttons: wrap on small screens */
+  .set-invite-btns { gap: 6px !important; }
 
   /* ── Planner toolbar: single compact row on mobile ─────────────── */
   .pl-toolbar { overflow: visible; }
@@ -1909,11 +1953,39 @@ input[type="number"]:focus {
     padding: 0 !important;
     height: 52px !important;
     border-bottom-color: transparent !important;
-    box-shadow: 0 1px 0 rgba(128,128,128,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     background: var(--bg) !important;
   }
-  /* Toolbar inner row: use page background, not card background */
+  /* Toolbar inner row: page background */
   .mob-tb { background: var(--bg); }
+
+  /* ── Hairline toolbar buttons — no fill, lean into accent ── */
+  .mob-search-input {
+    background: transparent !important;
+    border: 1px solid var(--rule) !important;
+  }
+  .mob-search-input:focus { border-color: var(--accent) !important; }
+
+  .mob-filter-btn {
+    background: transparent !important;
+    border: 1px solid var(--rule) !important;
+    color: var(--muted) !important;
+  }
+  .mob-filter-btn.active {
+    background: var(--accent) !important;
+    color: var(--accent-fg) !important;
+    border-color: var(--accent) !important;
+  }
+
+  .mob-tb-icon {
+    background: transparent !important;
+    border: 1px solid var(--rule) !important;
+  }
+  .mob-tb-icon.on {
+    background: var(--accent) !important;
+    color: var(--accent-fg) !important;
+    border-color: var(--accent) !important;
+  }
 
   /* ── Card grids: 1 column on mobile ── */
   .rcp-grid { padding: 12px !important; }
@@ -2003,10 +2075,60 @@ input[type="number"]:focus {
     border-radius: 6px !important;
   }
 
+  /* ── Planner toolbar: app-like chrome ── */
+  .pl-toolbar {
+    border-bottom: none !important;
+    box-shadow: 0 1px 0 rgba(128,128,128,0.1) !important;
+  }
+  /* Prev/Next: accent text, no border */
+  .pl-nav-btn {
+    border: none !important;
+    background: none !important;
+    color: var(--accent) !important;
+    padding: 8px 6px !important;
+    font-size: 14px !important;
+    letter-spacing: 0 !important;
+  }
+  /* Week range: slightly larger, page title feel */
+  .pl-range { font-size: 12px !important; letter-spacing: 0.04em !important; }
+
+  /* Day strip: shadow separator instead of hairline */
+  .pl-day-strip {
+    border-bottom: none !important;
+    box-shadow: 0 1px 0 rgba(128,128,128,0.1) !important;
+  }
+
+  /* +ADD button: give it a proper bordered look */
+  .pl-mobile-day .wk-add-btn {
+    border: 1px solid var(--rule) !important;
+    border-radius: 6px !important;
+    color: var(--accent) !important;
+    margin-top: 12px !important;
+  }
+  .pl-mobile-day .wk-add-btn:active { border-color: var(--accent) !important; }
+
+  /* Planner mobile nutrition button — visible only on mobile */
+  .pl-mob-nut-btn { display: flex; }
+
+  /* ── List row hairlines: lighter separator ── */
+  .rcp-list-row { border-bottom-color: var(--rule-faint) !important; }
+
+  /* ── Filter sheet: hide redundant title ── */
+  .mob-sheet-title { display: none; }
+  .mob-sheet-header { justify-content: flex-end; padding-top: 4px; }
+
+  /* ── Settings: jump bar compact chips ── */
+  .set-mob-jump { gap: 6px !important; padding: 10px 16px 8px !important; }
+  .set-mob-jump-btn { padding: 5px 9px !important; font-size: 10px !important; }
+
   /* ── Settings: reduce section spacing on mobile ── */
   [id^="set-sec-"] { padding-top: 20px !important; padding-bottom: 28px !important; }
   /* Shrink detail-content top padding — jump bar is already sticky */
   #settings-scroll-container .detail-content { padding-top: 8px !important; }
+
+  /* ── Recipe card stats: mobile vs desktop ── */
+  .rcp-card-stats { display: none !important; }
+  .rcp-card-stats-mob { display: flex !important; }
 }
 
 /* ── Hide custom cursor on touch devices ──────────────────────────── */

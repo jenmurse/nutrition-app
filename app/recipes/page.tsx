@@ -65,6 +65,18 @@ function RecipesPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
+  // Dashboard stat preferences — used to show matching stats on mobile cards
+  const [enabledStats, setEnabledStats] = useState<string[]>(['calories', 'protein', 'carbs']);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('dashboard-stats');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed.enabledStats)) setEnabledStats(parsed.enabledStats);
+      }
+    } catch {}
+  }, []);
+
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -178,6 +190,33 @@ function RecipesPage() {
       sugar: find(["sugar"]),
       fiber: find(["fiber"]),
     };
+  };
+
+  // Canonical nutrient name map matching dashboard
+  const STAT_CANONICAL_ORDER = ['calories', 'fat', 'sat-fat', 'sodium', 'carbs', 'sugar', 'protein', 'fiber'];
+  const STAT_KEY_MAP: Record<string, { keys: string[]; label: string; unit: string }> = {
+    calories: { keys: ['energy', 'calorie'], label: 'cal', unit: '' },
+    fat:      { keys: ['total fat', 'fat'],  label: 'fat', unit: 'g' },
+    'sat-fat':{ keys: ['saturated'],         label: 'sat', unit: 'g' },
+    sodium:   { keys: ['sodium'],            label: 'na',  unit: 'mg' },
+    carbs:    { keys: ['carbohydrate','carb'],label: 'carbs',unit: 'g' },
+    sugar:    { keys: ['sugar'],             label: 'sugar',unit: 'g' },
+    protein:  { keys: ['protein'],           label: 'prot', unit: 'g' },
+    fiber:    { keys: ['fiber'],             label: 'fiber',unit: 'g' },
+  };
+
+  const getMobileCardStats = (recipe: RecipeSummary) => {
+    if (!recipe.totals) return [];
+    const orderedKeys = STAT_CANONICAL_ORDER.filter(k => enabledStats.includes(k)).slice(0, 3);
+    return orderedKeys.map(key => {
+      const cfg = STAT_KEY_MAP[key];
+      if (!cfg) return null;
+      const match = recipe.totals!.find(t => {
+        const name = t.displayName.toLowerCase();
+        return cfg.keys.some(k => name.includes(k));
+      });
+      return match ? { label: cfg.label, value: Math.round(match.value), unit: cfg.unit } : null;
+    }).filter(Boolean) as { label: string; value: number; unit: string }[];
   };
 
   return (
@@ -506,12 +545,24 @@ function RecipesPage() {
                         {recipe.name}
                       </div>
                       {macros && (
-                        <div className="flex gap-2 items-baseline flex-wrap">
-                          <span className="font-mono text-[10px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
-                          <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
-                          <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
-                          <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
-                        </div>
+                        <>
+                          {/* Desktop: fixed 4 stats */}
+                          <div className="rcp-card-stats flex gap-2 items-baseline flex-wrap">
+                            <span className="font-mono text-[10px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                            <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
+                            <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
+                            <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
+                          </div>
+                          {/* Mobile: user's dashboard stats */}
+                          <div className="rcp-card-stats-mob gap-2 items-baseline flex-wrap">
+                            {getMobileCardStats(recipe).map(s => (
+                              <span key={s.label} className="font-mono text-[10px] tabular-nums whitespace-nowrap">
+                                <strong className="text-[var(--fg)] font-normal">{s.value}{s.unit}</strong>{' '}
+                                <span className="text-[var(--muted)]">{s.label}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </>
                       )}
                       {recipe.isComplete === false && (
                         <div className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
