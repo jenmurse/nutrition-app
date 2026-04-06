@@ -33,13 +33,13 @@ export default function ConfirmModal() {
           <button
             onClick={() => dialog._resolve(false)}
             autoFocus
-            className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors active:scale-[0.97] transition-transform"
+            className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors active:scale-[0.97] transition-transform rounded-md sm:rounded-none"
           >
             Cancel
           </button>
           <button
             onClick={() => dialog._resolve(true)}
-            className={`px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border cursor-pointer active:scale-[0.97] transition-[transform,colors] ${
+            className={`px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border cursor-pointer active:scale-[0.97] transition-[transform,colors] rounded-md sm:rounded-none ${
               state.danger
                 ? "border-0 bg-[var(--error-light)] text-[var(--error)] hover:bg-[var(--error)] hover:text-white"
                 : "border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] hover:opacity-90"

@@ -295,6 +295,7 @@ export default function Home() {
                     className={`hm-mob-person-chip${selectedPersonId === p.id ? ' on' : ''}`}
                     aria-label={p.name}
                     aria-pressed={selectedPersonId === p.id}
+                    style={selectedPersonId === p.id ? { borderColor: p.color || 'var(--accent)' } : undefined}
                   >
                     <span className="hm-mob-person-chip-dot" style={{ background: p.color || 'var(--accent)' }} />
                     <span className="hm-mob-person-chip-name">{persons.length <= 3 ? p.name : p.name[0]}</span>

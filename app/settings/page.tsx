@@ -718,7 +718,7 @@ const SettingsPage = () => {
                               >Revoke</button>
                             ) : (
                               <button
-                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto"
+                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto rounded-full"
                                 aria-label="Remove expired invite"
                                 onClick={async () => {
                                   const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
@@ -758,6 +758,7 @@ const SettingsPage = () => {
                       style={{
                         background: isActive ? 'var(--accent)' : 'var(--bg-2)',
                         color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
+                        borderRadius: '6px',
                       }}
                       aria-label={`Goals for ${person.name}`}
                     >

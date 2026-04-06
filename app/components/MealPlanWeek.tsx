@@ -123,6 +123,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [sheetTouchBlocked, setSheetTouchBlocked] = useState(false);
   const [closingMealType, setClosingMealType] = useState(false);
   const [closingRecipePicker, setClosingRecipePicker] = useState(false);
+  const [mealTypeContentVisible, setMealTypeContentVisible] = useState(false);
 
   // Block all interaction on newly opened sheets by rendering a transparent
   // overlay div on top. This is a physical DOM blocker — no event handling
@@ -135,6 +136,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   // Animate sheet out before unmounting (Emil: exit faster than enter)
   const closeMealTypeSheet = () => {
     setClosingMealType(true);
+    setMealTypeContentVisible(false);
     setTimeout(() => {
       setClosingMealType(false);
       setMealTypeDropdownOpen(false);
@@ -204,6 +206,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     setSelectedDate(date);
     blockSheetTouches();
     setMealTypeDropdownOpen(true);
+    setMealTypeContentVisible(false);
+    setTimeout(() => setMealTypeContentVisible(true), 350);
   };
 
   const handleSelectMealType = (mealType: string) => {
@@ -636,24 +640,26 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
-              {availableMealTypes.map((mealType) => (
-                <button
-                  key={mealType}
-                  type="button"
-                  className="text-left py-3 px-2 transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSelectMealType(mealType);
-                  }}
-                  onClick={() => handleSelectMealType(mealType)}
-                  aria-label={mealType}
-                >
-                  <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
-                </button>
-              ))}
-            </div>
+            {mealTypeContentVisible && (
+              <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+                {availableMealTypes.map((mealType) => (
+                  <button
+                    key={mealType}
+                    type="button"
+                    className="text-left py-3 px-2 rounded-md transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSelectMealType(mealType);
+                    }}
+                    onClick={() => handleSelectMealType(mealType)}
+                    aria-label={mealType}
+                  >
+                    <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>,
         document.body

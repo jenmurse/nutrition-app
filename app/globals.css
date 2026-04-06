@@ -1280,7 +1280,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .hm-mob-person-chip:active { transform: scale(0.96); }
 .hm-mob-person-chip.on {
-  border-color: var(--fg);
   color: var(--fg);
   background: var(--bg);
 }
@@ -1892,6 +1891,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Image renders above title on mobile */
   .rd-hero-img { order: -1; }
 
+  /* Recipe tags: rounded on mobile */
+  .rd-tag { border-radius: 4px; }
+
   /* Ingredients + Nutrition 2-col → 1-col */
   .rd-two-col {
     grid-template-columns: 1fr !important;
@@ -2184,8 +2186,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-sheet .pl-create-label { font-size: 11px; }
   .add-meal-sheet .pl-create-date { font-size: 14px; }
   .add-meal-sheet .pl-person-chip { font-size: 11px; padding: 6px 12px; }
-  .add-meal-sheet .pl-cancel-btn { font-size: 12px; padding: 10px 18px; }
-  .add-meal-sheet .pl-create-btn { font-size: 12px; padding: 10px 18px; }
+  .add-meal-sheet .pl-cancel-btn { font-size: 12px; padding: 10px 18px; border-radius: 6px; }
+  .add-meal-sheet .pl-create-btn { font-size: 12px; padding: 10px 18px; border-radius: 6px; }
 
   /* Day strip: shadow separator instead of hairline */
   .pl-day-strip {

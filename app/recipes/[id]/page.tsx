@@ -458,7 +458,7 @@ export default function RecipeDetailPage() {
                 {tags.length > 0 && (
                   <div className="flex gap-[6px] mt-[10px]">
                     {tags.map(tag => (
-                      <span key={tag} className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">{tag}</span>
+                      <span key={tag} className="rd-tag font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">{tag}</span>
                     ))}
                   </div>
                 )}
