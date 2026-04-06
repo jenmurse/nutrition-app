@@ -1286,17 +1286,16 @@ input[type="number"]:focus {
   flex: 1;
   min-width: 0;
   height: 34px;
-  background: var(--bg-2);
-  border: 1px solid var(--rule);
+  background: var(--bg-3);
+  border: none;
+  border-radius: 6px;
   color: var(--fg);
   font-family: var(--font-mono);
   font-size: 13px;
   padding: 0 10px;
   outline: none;
-  transition: border-color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.mob-search-input:focus { border-color: var(--accent); }
 
 /* Filter trigger button — icon only on mobile */
 .mob-filter-btn {
@@ -1307,7 +1306,7 @@ input[type="number"]:focus {
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -1342,7 +1341,7 @@ input[type="number"]:focus {
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -1386,7 +1385,7 @@ input[type="number"]:focus {
   right: 0;
   background: var(--bg);
   border-top: none;
-  border-radius: 20px 20px 0 0;
+  border-radius: 16px 16px 0 0;
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.16);
   z-index: 300;
   max-height: 82dvh;
@@ -1465,7 +1464,7 @@ input[type="number"]:focus {
   color: var(--muted);
   background: var(--bg-2);
   border: none;
-  border-radius: 20px;
+  border-radius: 6px;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -1492,7 +1491,7 @@ input[type="number"]:focus {
   color: var(--muted);
   background: var(--bg-2);
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -1516,7 +1515,7 @@ input[type="number"]:focus {
   color: var(--muted);
   background: var(--bg-2);
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -1535,7 +1534,7 @@ input[type="number"]:focus {
   background: var(--accent);
   color: var(--accent-fg);
   border: 0;
-  border-radius: 14px;
+  border-radius: 8px;
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.1em;
@@ -1851,20 +1850,31 @@ input[type="number"]:focus {
   }
   .rcp-list-eyebrow { display: block; margin-bottom: 1px; }
 
+  /* ── Recipe list: fix name truncation in stacked layout ── */
+  .rcp-list-info .font-serif { width: 100%; }
+
   /* ── Ingredient list: more touch padding, bigger action targets ── */
   .ing-list-row { padding: 12px !important; }
+  .ing-list-category { display: none; }
   .ing-list-actions { opacity: 1 !important; gap: 8px !important; }
   .ing-list-actions button {
     width: 44px !important;
     height: 44px !important;
-    font-size: 16px !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
+  }
+  /* Ingredient grid card action buttons */
+  .ing-card-actions button {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 6px !important;
   }
 }
 
 /* ── Hide custom cursor on touch devices ──────────────────────────── */
 @media (pointer: coarse) {
   .cursor-el { display: none !important; }
+  /* Prevent hover accent bar from lingering after tap */
+  .group-hover\:scale-x-100 { transform: scaleX(0) !important; }
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────── */
