@@ -37,7 +37,7 @@ interface Nutrient {
 
 interface Meal {
   id: number;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'side' | 'dessert' | 'beverage';
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'side' | 'snack' | 'dessert' | 'beverage';
   recipe?: Recipe;
   ingredient?: Ingredient;
   servings?: number;
@@ -120,7 +120,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
 
-  const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'dessert', 'beverage'];
+  const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
 
   const handleCreateQuickFood = async () => {
     if (!newFoodName.trim()) return;
@@ -272,7 +272,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const [recipeSearchTerm, setRecipeSearchTerm] = useState('');
   const [recipeFilterTags, setRecipeFilterTags] = useState<string[]>([]);
-  const availableRecipeTags = ['breakfast', 'lunch', 'dinner', 'side', 'dessert', 'beverage'];
+  const availableRecipeTags = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
 
   const filteredRecipes = useMemo(() => {
     let result = recipes;

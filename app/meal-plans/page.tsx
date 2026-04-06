@@ -159,7 +159,7 @@ function BothView({
   });
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', side: 'S', dessert: 'De', beverage: 'Bv' };
+  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', side: 'Si', snack: 'Sn', dessert: 'De', beverage: 'Bv' };
   const todayStr = new Date().toDateString();
 
   return (
@@ -981,7 +981,7 @@ const MealPlansPage = () => {
                           .filter((meal) => parseUTCDate(meal.date).toDateString() === parseUTCDate(day.date).toDateString())
                           .map((meal) => ({
                             id: meal.id,
-                            mealType: meal.mealType as 'breakfast' | 'lunch' | 'dinner' | 'side' | 'dessert' | 'beverage',
+                            mealType: meal.mealType as 'breakfast' | 'lunch' | 'dinner' | 'side' | 'snack' | 'dessert' | 'beverage',
                             recipe: meal.recipe,
                             ingredient: meal.ingredient,
                             servings: meal.servings,

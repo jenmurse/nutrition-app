@@ -90,7 +90,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [editingSectionRowId, setEditingSectionRowId] = useState<string | null>(null);
   const [editingSectionText, setEditingSectionText] = useState("");
 
-  const availableTags = ["breakfast", "lunch", "dinner", "side", "dessert", "beverage"];
+  const availableTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
   useEffect(() => {
     fetch("/api/ingredients")

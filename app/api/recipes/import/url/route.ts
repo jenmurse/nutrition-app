@@ -221,7 +221,7 @@ function parseServings(recipeYield: any): { size: number; unit: string } {
 
 function extractTags(recipeData: any): string {
   const tags: string[] = [];
-  const mealTags = ["breakfast", "lunch", "dinner", "side", "dessert", "beverage"];
+  const mealTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
   // Check recipeCategory
   const category = recipeData.recipeCategory;

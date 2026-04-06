@@ -45,7 +45,7 @@ function RecipesPage() {
   // Filters
   const searchQuery = searchParams?.get("search") || "";
   const selectedTags = searchParams?.get("tags")?.split(",").filter(Boolean) || [];
-  const availableTags = ["breakfast", "lunch", "dinner", "side", "dessert", "beverage"];
+  const availableTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
   // Sort
   const sortOptions = [

@@ -192,7 +192,7 @@ describe('Meal Plans API', () => {
     });
 
     it('should validate that meal type is one of valid options', () => {
-      const validMealTypes = ['breakfast', 'lunch', 'dinner', 'side'];
+      const validMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
       expect(validMealTypes).toContain('breakfast');
       expect(validMealTypes).toContain('lunch');
       expect(validMealTypes).not.toContain('invalid');
