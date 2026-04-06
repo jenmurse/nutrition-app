@@ -620,7 +620,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none max-h-[calc(100dvh-120px)] sm:max-h-[90vh]"
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] flex flex-col rounded-t-[12px] sm:rounded-t-none max-h-[80svh] sm:max-h-[90vh]"
             style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
           >
