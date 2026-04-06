@@ -575,15 +575,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { if (mealTypeSheetReady) { setMealTypeDropdownOpen(false); setSelectedDate(null); } }}
-          onTouchEnd={(e) => { if (!mealTypeSheetReady) e.preventDefault(); }}
         >
           <div
             className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none"
             style={{ animation: 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => { if (!mealTypeSheetReady) { e.stopPropagation(); e.preventDefault(); } }}
           >
             <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
@@ -600,17 +598,24 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
-              {availableMealTypes.map((mealType) => (
+              {mealTypeSheetReady ? availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
                   type="button"
                   className="text-left py-3 px-2 transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
                   onClick={() => handleSelectMealType(mealType)}
-                  onTouchEnd={(e) => { if (!mealTypeSheetReady) e.preventDefault(); }}
                   aria-label={mealType}
                 >
                   <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
                 </button>
+              )) : availableMealTypes.map((mealType) => (
+                <div
+                  key={mealType}
+                  className="text-left py-3 px-2"
+                  aria-hidden="true"
+                >
+                  <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                </div>
               ))}
             </div>
           </div>
@@ -619,7 +624,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
       {itemTypeTabOpen && selectedDayMeal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
           onClick={() => { setItemTypeTabOpen(null); setSelectedDayMeal(null); setIngredientSearchTerm(''); }}
         >
           <div
@@ -843,32 +848,30 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 sm:p-6 bg-[var(--bg)]" style={{ paddingBottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}>
+            <div className="border-t border-[var(--rule-faint)] px-5 pt-3 pb-3 sm:p-6 bg-[var(--bg)]">
               {/* Also add to other people */}
               {otherPersonPlans.length > 0 && (
-                <div className="mb-4">
-                  <div className="pl-create-label" style={{ marginBottom: 8 }}>Also add to</div>
-                  <div className="flex flex-col gap-1">
-                    {otherPersonPlans.map((op) => (
-                      <label key={op.planId} className="flex items-center gap-2 cursor-pointer w-fit">
-                        <input
-                          type="checkbox"
-                          checked={alsoAddToPlanIds.has(op.planId)}
-                          onChange={(e) => {
-                            const next = new Set(alsoAddToPlanIds);
-                            if (e.target.checked) next.add(op.planId);
-                            else next.delete(op.planId);
-                            setAlsoAddToPlanIds(next);
-                          }}
-                          className="w-[14px] h-[14px]"
-                          aria-label={`Also add to ${op.name}'s plan`}
-                        />
-                        <span className="font-mono text-[10px] text-[var(--muted)]">
-                          {op.name}&apos;s plan
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+                <div className="mb-3 flex items-center gap-4 flex-wrap">
+                  <span className="pl-create-label">Also add to</span>
+                  {otherPersonPlans.map((op) => (
+                    <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={alsoAddToPlanIds.has(op.planId)}
+                        onChange={(e) => {
+                          const next = new Set(alsoAddToPlanIds);
+                          if (e.target.checked) next.add(op.planId);
+                          else next.delete(op.planId);
+                          setAlsoAddToPlanIds(next);
+                        }}
+                        className="w-[14px] h-[14px]"
+                        aria-label={`Also add to ${op.name}'s plan`}
+                      />
+                      <span className="font-mono text-[10px] text-[var(--muted)]">
+                        {op.name}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               )}
               <div className="flex gap-3 justify-end">
