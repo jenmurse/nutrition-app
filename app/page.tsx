@@ -584,7 +584,7 @@ function WeekOverview({
             </div>
 
             {/* Meals */}
-            <div style={{ padding: '8px 14px 72px' }}>
+            <div className="hm-day-meals" style={{ padding: '8px 14px 72px' }}>
               {dayMeals.map((m) => {
                 const name = m.recipe?.name ?? m.ingredient?.name ?? "";
                 let kcal: number | null = null;

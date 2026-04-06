@@ -1364,8 +1364,36 @@ input[type="number"]:focus {
   display: none;
 }
 
-/* Settings mobile section jump — hidden on desktop */
+/* Settings / recipe detail mobile section jump — hidden on desktop */
 .set-mob-jump { display: none; }
+
+/* Recipe detail mobile sticky header — hidden on desktop */
+.rd-mob-header { display: none; }
+.rd-mob-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: var(--fg);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.rd-mob-title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
 .set-mob-jump-btn {
   white-space: nowrap;
   padding: 6px 12px;
@@ -1605,10 +1633,10 @@ input[type="number"]:focus {
   }
 
   /* Meal columns: stack as cards */
-  .hm-meal-cols { flex-direction: column; gap: 12px; }
-  .hm-meal-col  { padding: 16px !important; background: var(--bg-2); border: 1px solid var(--rule); border-radius: 3px; }
-  .hm-meal-col:not(:first-child) { padding-left: 16px; }
-  .hm-meal-col:not(:last-child)  { padding-right: 16px; padding-bottom: 16px; margin-bottom: 0; border-bottom: 1px solid var(--rule); }
+  .hm-meal-cols { flex-direction: column; gap: 0; }
+  .hm-meal-col  { padding: 20px 0 !important; background: none !important; border: none !important; border-radius: 0 !important; border-top: 1px solid var(--rule) !important; }
+  .hm-meal-col:not(:first-child) { padding-left: 0 !important; }
+  .hm-meal-col:not(:last-child)  { padding-right: 0 !important; }
 
   /* Bottom nav — polished fixed tab bar */
   .bottom-nav {
@@ -1656,8 +1684,9 @@ input[type="number"]:focus {
 
   /* Dashboard week grid: horizontal scroll on mobile */
   .hm-week-grid { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .hm-week-grid > .hm-week-inner { min-width: max-content; }
-  .hm-week-day { flex: none; }
+  .hm-week-grid > .hm-week-inner { min-width: max-content; min-height: 0 !important; }
+  .hm-week-day { flex: none; min-width: 80px; }
+  .hm-day-meals { display: none; }
 
   /* ── List page toolbars: 2-row layout ──────────────────────────── */
   .list-toolbar {
@@ -1721,6 +1750,19 @@ input[type="number"]:focus {
   /* Show edit/delete action buttons always on touch (no hover) */
   .ing-grid .opacity-0 { opacity: 1 !important; }
   .ing-grid .opacity-0 button { min-width: 36px; min-height: 36px; width: 36px !important; height: 36px !important; }
+
+  /* ── Recipe detail: mobile header + section jump ────────────────── */
+  .rd-mob-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    box-shadow: 0 1px 0 rgba(128, 128, 128, 0.1);
+  }
 
   /* ── Recipe detail: stack hero + sections ───────────────────────── */
   .rd-hero {
