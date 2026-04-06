@@ -1501,6 +1501,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
+@keyframes sheetDown {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+@keyframes backdropOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
 
 /* Prevent accidental taps when sheet slides up under the user's finger */
 .sheet-delay-touch {
@@ -1729,6 +1737,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* Meal type eyebrow (breakfast / lunch / dinner): remove underline */
   .hm-mealtype-hdr { border-bottom: none !important; padding-bottom: 0 !important; margin-bottom: 6px !important; }
+
+  /* ── Buttons: app-like rounding on mobile ───────────────────────── */
+  .ed-btn { border-radius: 6px; }
+
+  /* ── Small labels: bump minimum to 10px for readability ─────────── */
+  .ed-label { font-size: 10px; }
+  .empty-state-label, .empty-state-action { font-size: 10px; }
+  .pl-day-strip-name { font-size: 10px; }
 
   /* "This week" header: tighten top gap */
   .hm-thisweek-hdr { padding-top: 16px !important; }

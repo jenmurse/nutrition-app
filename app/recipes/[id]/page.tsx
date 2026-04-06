@@ -586,7 +586,7 @@ export default function RecipeDetailPage() {
                         </div>
                         {target > 0 && (
                           <div className="h-[3px] bg-[var(--rule)] rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full transition-all duration-700 ${fillClass}`} style={{ width: `${Math.min(pct, 100)}%`, transitionTimingFunction: "var(--ease-out)" }} />
+                            <div className={`h-full rounded-full transition-[width] duration-700 ${fillClass}`} style={{ width: `${Math.min(pct, 100)}%`, transitionTimingFunction: "var(--ease-out)" }} />
                           </div>
                         )}
                       </div>

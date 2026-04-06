@@ -337,7 +337,7 @@ function IngredientsPage() {
               value={searchQuery}
               onChange={(e) => updateSearchParam("search", e.target.value)}
               aria-label="Search ingredients"
-              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-all focus:border-[var(--accent)]"
+              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-[border-color] focus:border-[var(--accent)]"
               style={{ width: 180 }}
             />
 

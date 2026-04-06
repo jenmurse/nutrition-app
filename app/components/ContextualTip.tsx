@@ -35,7 +35,7 @@ export default function ContextualTip({ tipId, label, children }: ContextualTipP
 
   return (
     <div
-      className="flex gap-3 px-4 py-[12px] bg-[var(--accent-l)] border-l-2 border-[var(--accent)] transition-all duration-[200ms]"
+      className="flex gap-3 px-4 py-[12px] bg-[var(--accent-l)] border-l-2 border-[var(--accent)] transition-[opacity] duration-[200ms]"
       style={{
         opacity: exiting ? 0 : 1,
         transform: exiting ? "translateY(-4px)" : "translateY(0)",

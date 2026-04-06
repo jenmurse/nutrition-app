@@ -377,8 +377,8 @@ export default function OnboardingPage() {
   /* ── Step animation class ───────────────────────────────────────────── */
   const stepAnimClass = animating
     ? direction === "fwd"
-      ? "opacity-0 translate-y-[-8px]"
-      : "opacity-0 translate-y-[-8px]"
+      ? "opacity-0 translate-y-[-8px]"   // forward: exit upward
+      : "opacity-0 translate-y-[8px]"    // backward: exit downward
     : "opacity-100 translate-y-0";
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -392,7 +392,7 @@ export default function OnboardingPage() {
         ref={stepRef}
       >
         <div
-          className="bg-[var(--bg)] border border-[var(--rule)] p-6 sm:p-[44px] transition-all duration-[320ms]"
+          className="bg-[var(--bg)] border border-[var(--rule)] p-6 sm:p-[44px] transition-[opacity,transform] duration-[320ms]"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           {/* Card top: brand + progress + step counter */}
@@ -409,7 +409,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Step content with animation */}
-          <div className={`transition-all duration-[320ms] ${stepAnimClass}`} style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}>
+          <div className={`transition-[opacity,transform] duration-[320ms] ${stepAnimClass}`} style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}>
 
             {/* ── Step 0: Welcome ────────────────────────────────────── */}
             {step === 0 && (
@@ -552,7 +552,7 @@ export default function OnboardingPage() {
                       />
                       <button
                         onClick={copyInvite}
-                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[8px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 shrink-0"
+                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[8px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-[opacity,transform] duration-150 shrink-0"
                         aria-label="Copy invite link"
                       >
                         {inviteCopied ? "Copied" : "Copy"}
@@ -618,7 +618,7 @@ export default function OnboardingPage() {
                       <button
                         key={g.id}
                         onClick={() => setSelectedGoal(g.id)}
-                        className="flex flex-col p-5 border cursor-pointer bg-transparent text-left transition-all duration-150 hover:border-[var(--fg-2)] active:scale-[0.98]"
+                        className="flex flex-col p-5 border cursor-pointer bg-transparent text-left transition-[border-color,transform] duration-150 hover:border-[var(--fg-2)] active:scale-[0.98]"
                         style={{
                           borderColor: isSelected ? "var(--accent)" : "var(--rule)",
                           background: isSelected ? "var(--accent-l)" : "transparent",
@@ -695,7 +695,7 @@ export default function OnboardingPage() {
 
                 {/* Import status area */}
                 <div
-                  className="px-[14px] py-[12px] mb-6 transition-all duration-[300ms]"
+                  className="px-[14px] py-[12px] mb-6 transition-[border-color] duration-[300ms]"
                   style={{
                     background:
                       importStatus === "success" ? "var(--accent-l)" :
@@ -771,7 +771,7 @@ export default function OnboardingPage() {
                     return (
                       <div
                         key={i}
-                        className="flex items-center gap-3 py-[10px] border-b border-[var(--rule-faint)] last:border-b-0 transition-all duration-[320ms]"
+                        className="flex items-center gap-3 py-[10px] border-b border-[var(--rule-faint)] last:border-b-0 transition-[opacity,transform] duration-[320ms]"
                         style={{
                           opacity: visible ? 1 : 0,
                           transform: visible ? "translateY(0)" : "translateY(8px)",

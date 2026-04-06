@@ -91,7 +91,7 @@ export default function GettingStartedCard() {
 
   return (
     <div
-      className="border border-[var(--rule)] overflow-hidden transition-all duration-[320ms]"
+      className="border border-[var(--rule)] overflow-hidden transition-[max-height,opacity,margin] duration-[320ms]"
       style={{
         maxHeight: exiting ? 0 : 600,
         opacity: exiting ? 0 : 1,
@@ -112,7 +112,7 @@ export default function GettingStartedCard() {
       {/* Progress bar */}
       <div className="h-[2px] bg-[var(--rule)] mx-5 overflow-hidden">
         <div
-          className="h-full bg-[var(--accent)] transition-all duration-[400ms]"
+          className="h-full bg-[var(--accent)] transition-[width] duration-[400ms]"
           style={{
             width: `${(completedCount / totalCount) * 100}%`,
             transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
