@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
@@ -119,6 +119,27 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
+
+  // Mobile: single-day view state
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeMobileDayIdx, setActiveMobileDayIdx] = useState(0);
+  const touchStartX = useRef<number>(0);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Default active day to today when days load
+  useEffect(() => {
+    if (!days.length) return;
+    const todayIdx = days.findIndex(d => isToday(new Date(d.date)));
+    setActiveMobileDayIdx(todayIdx >= 0 ? todayIdx : 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [days.length > 0 ? days[0].date.toString() : '']);
 
   const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
 
@@ -307,113 +328,247 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   return (
     <>
-      {/* Day-column grid — matches editorial mockup */}
-      <div className="wk-grid">
-        {days.map((day, dayIdx) => {
-          const todayFlag = isToday(new Date(day.date));
-          const isSelected = selectedDay && new Date(selectedDay).toDateString() === new Date(day.date).toDateString();
-          const dayNum = new Date(day.date).getDate();
-          const dayKcal = getCalories(day.dayNutrients);
-          const calorieNutrient = day.dayNutrients.find(n => n.displayName === 'Calories' || n.displayName === 'Energy');
-          const calorieGoal = calorieNutrient?.highGoal ?? calorieNutrient?.lowGoal;
-          const kcalPct = calorieGoal && dayKcal ? Math.min(Math.round((dayKcal / calorieGoal) * 100), 100) : 0;
-
-          // Group meals by type for this day
-          const mealsByType = availableMealTypes
-            .map(type => ({
-              type,
-              label: type.charAt(0).toUpperCase() + type.slice(1),
-              meals: day.meals.filter(m => m.mealType === type),
-            }))
-            .filter(g => g.meals.length > 0);
-
-          return (
-            <div
-              key={day.date.toISOString()}
-              className={`wk-day-col ${todayFlag ? 'today' : ''}`}
-              style={{ '--col-i': dayIdx } as React.CSSProperties}
-              onClick={() => onDayClick?.(new Date(day.date))}
-              role="button"
-              tabIndex={0}
-              aria-label={`${day.dayOfWeek} ${dayNum}`}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onDayClick?.(new Date(day.date)); }}
-            >
-              {/* Day header */}
-              <div className="wk-day-header">
-                <div className="wk-day-name">{day.dayOfWeek.slice(0, 3)}</div>
-                <div className="wk-day-num">{dayNum}</div>
-                <div className="wk-day-kcal">{dayKcal ? `${dayKcal} kcal` : '\u2014'}</div>
-                <div className="wk-day-bar">
-                  <div className="wk-day-bar-fill" style={{ width: `${kcalPct}%` }} />
-                </div>
-              </div>
-
-              {/* Meal sections grouped by type */}
-              {mealsByType.map(group => (
-                <div key={group.type} className="wk-meal-section">
-                  <div className="wk-meal-label">{group.label}</div>
-                  {group.meals.map(meal => {
-                    const mealName = meal.recipe?.name || meal.ingredient?.name || '?';
-                    let kcal: number | null = null;
-                    if (meal.recipe && recipeCaloriesMap[meal.recipe.id] != null) {
-                      kcal = Math.round(recipeCaloriesMap[meal.recipe.id] * (meal.servings ?? 1));
-                    } else if (meal.ingredient && mealLogCaloriesMap[meal.id] != null) {
-                      kcal = mealLogCaloriesMap[meal.id];
-                    }
-                    return (
-                      <div
-                        key={meal.id}
-                        className={`meal-chip ${meal.recipe?.id ? 'meal-chip-recipe' : ''} ${editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--err-l)]' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (editMode) {
-                            onToggleMealSelect?.(meal.id);
-                          } else if (meal.recipe?.id) {
-                            router.push(`/recipes/${meal.recipe.id}`);
-                          }
-                        }}
-                        role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
-                        aria-checked={editMode ? selectedMealIds.has(meal.id) : undefined}
-                        aria-label={mealName}
-                        draggable={!editMode}
-                        onDragStart={() => setDraggedMealId(meal.id)}
-                        onDragOver={(e) => { e.preventDefault(); setDragOverMealId(meal.id); }}
-                        onDrop={() => handleDrop(day, meal.id)}
-                        onDragEnd={() => { setDraggedMealId(null); setDragOverMealId(null); }}
-                      >
-                        {editMode && (
-                          <input
-                            type="checkbox"
-                            checked={selectedMealIds.has(meal.id)}
-                            onChange={() => onToggleMealSelect?.(meal.id)}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ width: 12, height: 12, marginBottom: 2 }}
-                            aria-label={`Select ${mealName}`}
-                          />
-                        )}
-                        <span className="meal-chip-name">{mealName}</span>
-                        {kcal != null && <span className="meal-chip-kcal">{kcal} kcal</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-
-              {/* + Add button per day */}
-              {!editMode && (
+      {isMobile ? (
+        /* ── Mobile: single-day view ── */
+        <>
+          {/* Day strip — tap any day to jump, swipe the content area to advance */}
+          <div className="pl-day-strip" role="tablist" aria-label="Week days">
+            {days.map((day, idx) => {
+              const todayFlag = isToday(new Date(day.date));
+              return (
                 <button
-                  className="wk-add-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddMealClick(new Date(day.date));
+                  key={idx}
+                  role="tab"
+                  className={`pl-day-strip-btn${todayFlag ? ' today' : ''}${idx === activeMobileDayIdx ? ' active' : ''}`}
+                  onClick={() => {
+                    setActiveMobileDayIdx(idx);
+                    onDayClick?.(new Date(day.date));
                   }}
-                  aria-label={`Add meal on ${day.dayOfWeek}`}
-                >+ Add</button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                  aria-selected={idx === activeMobileDayIdx}
+                  aria-label={`${day.dayOfWeek} ${new Date(day.date).getDate()}`}
+                >
+                  <span className="pl-day-strip-name">{day.dayOfWeek.slice(0, 3)}</span>
+                  <span className="pl-day-strip-num">{new Date(day.date).getDate()}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Single active day */}
+          {days[activeMobileDayIdx] && (() => {
+            const day = days[activeMobileDayIdx];
+            const todayFlag = isToday(new Date(day.date));
+            const dayNum = new Date(day.date).getDate();
+            const dayKcal = getCalories(day.dayNutrients);
+            const calorieNutrient = day.dayNutrients.find(n => n.displayName === 'Calories' || n.displayName === 'Energy');
+            const calorieGoal = calorieNutrient?.highGoal ?? calorieNutrient?.lowGoal;
+            const kcalPct = calorieGoal && dayKcal ? Math.min(Math.round((dayKcal / calorieGoal) * 100), 100) : 0;
+            const mealsByType = availableMealTypes
+              .map(type => ({
+                type,
+                label: type.charAt(0).toUpperCase() + type.slice(1),
+                meals: day.meals.filter(m => m.mealType === type),
+              }))
+              .filter(g => g.meals.length > 0);
+
+            return (
+              <div
+                role="tabpanel"
+                className={`pl-mobile-day${todayFlag ? ' today' : ''}`}
+                onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+                onTouchEnd={(e) => {
+                  const delta = e.changedTouches[0].clientX - touchStartX.current;
+                  if (Math.abs(delta) > 50) {
+                    if (delta < 0 && activeMobileDayIdx < days.length - 1) {
+                      setActiveMobileDayIdx(i => i + 1);
+                    } else if (delta > 0 && activeMobileDayIdx > 0) {
+                      setActiveMobileDayIdx(i => i - 1);
+                    }
+                  }
+                }}
+              >
+                {/* Day header */}
+                <div className="wk-day-header">
+                  <div className="wk-day-name">{day.dayOfWeek}</div>
+                  <div className="wk-day-num">{dayNum}</div>
+                  <div className="wk-day-kcal">{dayKcal ? `${dayKcal} kcal` : '\u2014'}</div>
+                  <div className="wk-day-bar">
+                    <div className="wk-day-bar-fill" style={{ width: `${kcalPct}%` }} />
+                  </div>
+                </div>
+
+                {/* Meal sections */}
+                {mealsByType.map(group => (
+                  <div key={group.type} className="wk-meal-section">
+                    <div className="wk-meal-label">{group.label}</div>
+                    {group.meals.map(meal => {
+                      const mealName = meal.recipe?.name || meal.ingredient?.name || '?';
+                      let kcal: number | null = null;
+                      if (meal.recipe && recipeCaloriesMap[meal.recipe.id] != null) {
+                        kcal = Math.round(recipeCaloriesMap[meal.recipe.id] * (meal.servings ?? 1));
+                      } else if (meal.ingredient && mealLogCaloriesMap[meal.id] != null) {
+                        kcal = mealLogCaloriesMap[meal.id];
+                      }
+                      return (
+                        <div
+                          key={meal.id}
+                          className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && selectedMealIds.has(meal.id) ? ' bg-[var(--err-l)]' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (editMode) {
+                              onToggleMealSelect?.(meal.id);
+                            } else if (meal.recipe?.id) {
+                              router.push(`/recipes/${meal.recipe.id}`);
+                            }
+                          }}
+                          role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
+                          aria-checked={editMode ? selectedMealIds.has(meal.id) : undefined}
+                          aria-label={mealName}
+                        >
+                          {editMode && (
+                            <input
+                              type="checkbox"
+                              checked={selectedMealIds.has(meal.id)}
+                              onChange={() => onToggleMealSelect?.(meal.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              style={{ width: 12, height: 12, marginBottom: 2 }}
+                              aria-label={`Select ${mealName}`}
+                            />
+                          )}
+                          <span className="meal-chip-name">{mealName}</span>
+                          {kcal != null && <span className="meal-chip-kcal">{kcal} kcal</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+
+                {mealsByType.length === 0 && (
+                  <p className="pl-mobile-empty">No meals planned for this day.</p>
+                )}
+
+                {!editMode && (
+                  <button
+                    className="wk-add-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddMealClick(new Date(day.date));
+                    }}
+                    aria-label={`Add meal on ${day.dayOfWeek}`}
+                  >+ Add</button>
+                )}
+              </div>
+            );
+          })()}
+        </>
+      ) : (
+        /* ── Desktop: 7-column grid ── */
+        <div className="wk-grid">
+          {days.map((day, dayIdx) => {
+            const todayFlag = isToday(new Date(day.date));
+            const dayNum = new Date(day.date).getDate();
+            const dayKcal = getCalories(day.dayNutrients);
+            const calorieNutrient = day.dayNutrients.find(n => n.displayName === 'Calories' || n.displayName === 'Energy');
+            const calorieGoal = calorieNutrient?.highGoal ?? calorieNutrient?.lowGoal;
+            const kcalPct = calorieGoal && dayKcal ? Math.min(Math.round((dayKcal / calorieGoal) * 100), 100) : 0;
+
+            // Group meals by type for this day
+            const mealsByType = availableMealTypes
+              .map(type => ({
+                type,
+                label: type.charAt(0).toUpperCase() + type.slice(1),
+                meals: day.meals.filter(m => m.mealType === type),
+              }))
+              .filter(g => g.meals.length > 0);
+
+            return (
+              <div
+                key={day.date.toISOString()}
+                className={`wk-day-col ${todayFlag ? 'today' : ''}`}
+                style={{ '--col-i': dayIdx } as React.CSSProperties}
+                onClick={() => onDayClick?.(new Date(day.date))}
+                role="button"
+                tabIndex={0}
+                aria-label={`${day.dayOfWeek} ${dayNum}`}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onDayClick?.(new Date(day.date)); }}
+              >
+                {/* Day header */}
+                <div className="wk-day-header">
+                  <div className="wk-day-name">{day.dayOfWeek.slice(0, 3)}</div>
+                  <div className="wk-day-num">{dayNum}</div>
+                  <div className="wk-day-kcal">{dayKcal ? `${dayKcal} kcal` : '\u2014'}</div>
+                  <div className="wk-day-bar">
+                    <div className="wk-day-bar-fill" style={{ width: `${kcalPct}%` }} />
+                  </div>
+                </div>
+
+                {/* Meal sections grouped by type */}
+                {mealsByType.map(group => (
+                  <div key={group.type} className="wk-meal-section">
+                    <div className="wk-meal-label">{group.label}</div>
+                    {group.meals.map(meal => {
+                      const mealName = meal.recipe?.name || meal.ingredient?.name || '?';
+                      let kcal: number | null = null;
+                      if (meal.recipe && recipeCaloriesMap[meal.recipe.id] != null) {
+                        kcal = Math.round(recipeCaloriesMap[meal.recipe.id] * (meal.servings ?? 1));
+                      } else if (meal.ingredient && mealLogCaloriesMap[meal.id] != null) {
+                        kcal = mealLogCaloriesMap[meal.id];
+                      }
+                      return (
+                        <div
+                          key={meal.id}
+                          className={`meal-chip ${meal.recipe?.id ? 'meal-chip-recipe' : ''} ${editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--err-l)]' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (editMode) {
+                              onToggleMealSelect?.(meal.id);
+                            } else if (meal.recipe?.id) {
+                              router.push(`/recipes/${meal.recipe.id}`);
+                            }
+                          }}
+                          role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
+                          aria-checked={editMode ? selectedMealIds.has(meal.id) : undefined}
+                          aria-label={mealName}
+                          draggable={!editMode}
+                          onDragStart={() => setDraggedMealId(meal.id)}
+                          onDragOver={(e) => { e.preventDefault(); setDragOverMealId(meal.id); }}
+                          onDrop={() => handleDrop(day, meal.id)}
+                          onDragEnd={() => { setDraggedMealId(null); setDragOverMealId(null); }}
+                        >
+                          {editMode && (
+                            <input
+                              type="checkbox"
+                              checked={selectedMealIds.has(meal.id)}
+                              onChange={() => onToggleMealSelect?.(meal.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              style={{ width: 12, height: 12, marginBottom: 2 }}
+                              aria-label={`Select ${mealName}`}
+                            />
+                          )}
+                          <span className="meal-chip-name">{mealName}</span>
+                          {kcal != null && <span className="meal-chip-kcal">{kcal} kcal</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+
+                {/* + Add button per day */}
+                {!editMode && (
+                  <button
+                    className="wk-add-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddMealClick(new Date(day.date));
+                    }}
+                    aria-label={`Add meal on ${day.dayOfWeek}`}
+                  >+ Add</button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && (
         <div
