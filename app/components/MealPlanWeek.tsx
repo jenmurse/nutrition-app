@@ -641,11 +641,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
               <h3 className="font-sans text-[16px] font-semibold text-[var(--fg)]">Select meal type</h3>
               <button
-                className="text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
+                className="text-[18px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
                 onClick={closeMealTypeSheet}
-              >
-                Close
-              </button>
+                aria-label="Close"
+              >✕</button>
             </div>
 
             {mealTypeContentVisible && (
@@ -710,11 +709,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
               </div>
               <button
-                className="text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
+                className="text-[18px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
                 onClick={closeRecipePickerSheet}
-              >
-                Close
-              </button>
+                aria-label="Close"
+              >✕</button>
             </div>
 
             <div className="overflow-y-auto min-h-0 px-5 py-4 sm:px-6">

@@ -1696,7 +1696,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-cart-btn:hover { color: var(--fg); border-color: var(--fg-2); }
 .pl-cart-btn:active { opacity: 0.7; }
 
-/* Shopping list sheet — desktop: centered modal */
+/* Shopping list sheet — flex column so share button stays pinned at bottom */
+.pl-shop-sheet {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+/* Desktop: centered modal */
 @media (min-width: 641px) {
   .pl-shop-sheet {
     top: 50%;
@@ -1707,9 +1714,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     width: 460px;
     max-height: 70vh;
     border-radius: 8px;
-    display: flex;
-    flex-direction: column;
+    animation: none;
   }
+  .pl-cart-btn { border-radius: 0; }
 }
 
 /* Planner mobile nutrition button — hidden on desktop */

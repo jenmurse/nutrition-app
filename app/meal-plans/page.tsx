@@ -1380,7 +1380,7 @@ const MealPlansPage = () => {
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {shopItems.map((item, i) => (
                     <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '7px 0', borderBottom: '1px solid var(--rule-faint)' }}>
-                      <span style={{ flexShrink: 0, color: 'var(--rule)', fontSize: 13, lineHeight: '20px' }}>□</span>
+                      <span style={{ flexShrink: 0, color: 'var(--fg-2)', fontSize: 13, lineHeight: '20px' }}>□</span>
                       <span style={{ fontSize: 13, color: 'var(--fg)', lineHeight: '20px' }}>
                         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
                         {item.name}
