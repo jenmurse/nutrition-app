@@ -83,6 +83,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [searchText, setSearchText] = useState<Record<string, string>>({});
   const [showDropdown, setShowDropdown] = useState<Record<string, boolean>>({});
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [draggedStepIdx, setDraggedStepIdx] = useState<number | null>(null);
   const [quantityText, setQuantityText] = useState<Record<string, string>>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newIngredientId, setNewIngredientId] = useState<number | null>(null);
@@ -312,6 +313,20 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
   function handleDragEnd() {
     setDraggedId(null);
+  }
+
+  function handleStepDrop(targetIdx: number) {
+    if (draggedStepIdx === null || draggedStepIdx === targetIdx) {
+      setDraggedStepIdx(null);
+      return;
+    }
+    setSteps((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(draggedStepIdx, 1);
+      next.splice(targetIdx, 0, moved);
+      return next;
+    });
+    setDraggedStepIdx(null);
   }
 
   function computeContributors(nutrientId: number): Array<{ name: string; value: number; pct: number }> {
@@ -850,7 +865,28 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
 
         <div>
           {steps.map((step, idx) => (
-            <div key={idx} className="flex items-start gap-[10px]" style={{ padding: "8px 0" }}>
+            <div
+              key={idx}
+              className={`flex items-start gap-[10px] transition-opacity duration-100 ${draggedStepIdx === idx ? 'opacity-40' : ''}`}
+              style={{ padding: "8px 0" }}
+              draggable
+              onDragStart={() => setDraggedStepIdx(idx)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleStepDrop(idx)}
+              onDragEnd={() => setDraggedStepIdx(null)}
+            >
+              {/* Drag handle */}
+              <div
+                className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
+                style={{ paddingTop: 10 }}
+                aria-hidden="true"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                  <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                  <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+                </svg>
+              </div>
               <textarea
                 className="flex-1 font-sans text-[13px] text-[var(--fg)] bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 outline-none resize-none transition-[border-color] duration-200 focus:border-[var(--accent)]"
                 style={{ minHeight: 40 }}
