@@ -292,12 +292,12 @@ export default function Home() {
                   <button
                     key={p.id}
                     onClick={() => setSelectedPersonId(p.id)}
-                    className={`hm-mob-person-dot${selectedPersonId === p.id ? ' on' : ''}`}
-                    style={{ background: p.color || 'var(--accent)' }}
+                    className={`hm-mob-person-chip${selectedPersonId === p.id ? ' on' : ''}`}
                     aria-label={p.name}
                     aria-pressed={selectedPersonId === p.id}
                   >
-                    {p.name[0].toUpperCase()}
+                    <span className="hm-mob-person-chip-dot" style={{ background: p.color || 'var(--accent)' }} />
+                    <span className="hm-mob-person-chip-name">{p.name}</span>
                   </button>
                 ))}
               </div>
@@ -577,23 +577,23 @@ function WeekOverview({
             style={{ background: isToday ? 'var(--accent-l)' : undefined, transitionDelay: `${dayIdx * 40}ms` }}
           >
             {/* Day header */}
-            <div style={{ padding: '12px 14px 14px' }}>
+            <div className="hm-week-day-header" style={{ padding: '12px 14px 14px' }}>
               <div
-                className="font-mono text-[8px] uppercase tracking-[0.1em]"
+                className="hm-day-abbr font-mono text-[8px] uppercase tracking-[0.1em]"
                 style={{ color: isToday ? 'var(--accent)' : 'var(--muted)' }}
               >
                 {DAY_NAMES[date.getDay()]}
               </div>
               <div
-                className="font-serif text-[28px] font-bold tracking-[-0.02em] leading-none mt-[2px] tabular-nums"
+                className="hm-day-num font-serif text-[28px] font-bold tracking-[-0.02em] leading-none mt-[2px] tabular-nums"
                 style={{ color: isToday ? 'var(--fg)' : 'var(--fg-2)' }}
               >
                 {date.getDate()}
               </div>
-              <div className="font-mono text-[8px] tracking-[0.04em] text-[var(--muted)] mt-1">
+              <div className="hm-day-kcal font-mono text-[8px] tracking-[0.04em] text-[var(--muted)] mt-1">
                 {calVal > 0 ? `${calVal.toLocaleString()} kcal` : "\u00A0"}
               </div>
-              <div className="h-[2px] bg-[var(--rule)] mt-[6px] relative overflow-hidden">
+              <div className="hm-day-bar h-[2px] bg-[var(--rule)] mt-[6px] relative overflow-hidden">
                 <div
                   className="absolute inset-0"
                   style={{

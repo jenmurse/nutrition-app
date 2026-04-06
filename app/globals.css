@@ -1258,27 +1258,39 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Dashboard mobile person switcher (hidden on desktop) ─────────── */
 .hm-mob-persons { display: none; }
-.hm-mob-person-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: none;
+.hm-mob-person-chip {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  padding: 5px 10px 5px 7px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  background: var(--bg-2);
   font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 700;
-  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
+  white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
+  transition: border-color 150ms var(--ease-out), color 150ms var(--ease-out), background 150ms var(--ease-out);
 }
-.hm-mob-person-dot:active { transform: scale(0.88); }
-.hm-mob-person-dot.on {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--fg);
+.hm-mob-person-chip:active { transform: scale(0.96); }
+.hm-mob-person-chip.on {
+  border-color: var(--fg);
+  color: var(--fg);
+  background: var(--bg);
 }
+.hm-mob-person-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.hm-mob-person-chip-name { line-height: 1; }
 
 /* ── Dashboard meal columns ──────────────────────────────────────── */
 .hm-meal-cols { display: flex; }
@@ -1644,8 +1656,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: none;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   background: transparent;
   border: 1px solid var(--rule);
   border-radius: 6px;
@@ -1765,10 +1777,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Scrollable content: pad bottom so bottom nav doesn't cover last item */
   .hm-bottom-pad { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px); }
 
-  /* Dashboard week grid: horizontal scroll on mobile */
-  .hm-week-grid { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .hm-week-grid > .hm-week-inner { min-width: max-content; min-height: 0 !important; }
-  .hm-week-day { flex: none; min-width: 80px; }
+  /* Dashboard week grid: compact 7-day row on mobile */
+  .hm-week-grid > .hm-week-inner { min-height: 0 !important; gap: 0; }
+  .hm-week-day { flex: 1; min-width: 0; }
+  .hm-week-day-header { padding: 8px 2px 10px !important; text-align: center; }
+  .hm-week-day-header .hm-day-abbr { font-size: 7px !important; }
+  .hm-week-day-header .hm-day-num { font-size: 18px !important; margin-top: 1px; }
+  .hm-week-day-header .hm-day-kcal { display: none; }
+  .hm-week-day-header .hm-day-bar { margin-top: 4px; height: 2px; }
   .hm-day-meals { display: none; }
 
   /* ── List page toolbars: 2-row layout ──────────────────────────── */
@@ -2111,23 +2127,34 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Planner toolbar: match recipes/pantry toolbar style ── */
   .pl-toolbar {
-    height: 52px !important;
+    height: 48px !important;
     padding: 0 12px !important;
+    gap: 6px !important;
     border-bottom: none !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     background: var(--bg) !important;
   }
-  /* Prev/Next: accent text, compact */
-  .pl-nav-btn {
-    border: none !important;
-    background: none !important;
-    color: var(--accent) !important;
-    padding: 6px 4px !important;
-    font-size: 12px !important;
-    letter-spacing: 0 !important;
+  /* Week range: mono label, slightly bolder as anchor */
+  .pl-range {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
   }
-  /* Week range: mono label style */
-  .pl-range { font-size: 11px !important; letter-spacing: 0.04em !important; }
+  /* Prev/Next: mono, bordered pills matching other toolbar buttons */
+  .pl-nav-btn {
+    font-size: 9px !important;
+    letter-spacing: 0.06em !important;
+    border: 1px solid var(--rule) !important;
+    border-radius: 6px !important;
+    background: none !important;
+    color: var(--muted) !important;
+    padding: 0 8px !important;
+    height: 32px !important;
+  }
+  .pl-nav-btn:active { border-color: var(--accent) !important; color: var(--accent) !important; }
+  .pl-this-week-btn { display: none !important; }
 
   /* Day strip: shadow separator instead of hairline */
   .pl-day-strip {
@@ -2167,16 +2194,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .rcp-card-stats { display: none !important; }
   .rcp-card-stats-mob { display: flex !important; }
 
-  /* ── Dashboard: week grid spans full container ── */
-  .hm-week-grid { padding: 0 !important; }
+  /* ── Dashboard: week grid flush with container ── */
+  .hm-week-grid { padding: 0 !important; margin: 0 calc(-1 * var(--pad)) !important; padding: 0 var(--pad) !important; }
 
   /* ── Dashboard: tighten gap between key meals and this week ── */
   .hm-meals-wrap { padding-bottom: 20px !important; }
 
-  /* ── Dashboard: person switcher overflow (scrolls if many people) ── */
-  .hm-mob-persons { overflow-x: auto; overflow-y: visible; scrollbar-width: none; flex-shrink: 1; padding: 4px 0; }
+  /* ── Dashboard: person chip strip (scrolls if many people) ── */
+  .hm-mob-persons { overflow-x: auto; scrollbar-width: none; flex-shrink: 1; }
   .hm-mob-persons::-webkit-scrollbar { display: none; }
-  .hm-mob-person-dot { flex-shrink: 0; }
 
   /* ── Search placeholder: softer on transparent inputs ── */
   .mob-search-input::placeholder { color: var(--rule) !important; }
@@ -2196,8 +2222,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     text-align: center !important;
   }
 
-  /* ── Planner: person dropdown matches nav button size ── */
-  .pl-mob-person-btn { font-size: 11px !important; padding: 5px 10px 5px 8px !important; height: 34px !important; border-radius: 6px; }
+  /* ── Planner: person dropdown matches toolbar element sizing ── */
+  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 32px !important; border-radius: 6px; }
 
   /* ── Settings: household member rows wrap theme chips below ── */
   .set-person-row { flex-wrap: wrap; }
