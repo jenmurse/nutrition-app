@@ -982,6 +982,20 @@ input[type="number"]:focus {
   text-align: center;
 }
 
+/* Everyone mobile: person sections */
+.ev-mobile-person {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule-faint);
+}
+.ev-mobile-person:last-child { border-bottom: none; }
+
+.ev-mobile-person-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 /* Everyone grid */
 .ev-grid {
   display:grid; grid-template-columns:80px repeat(7,1fr);
@@ -1345,15 +1359,32 @@ input[type="number"]:focus {
   .set-invite-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .set-invite-wrap table { min-width: 480px; }
 
-  /* ── Planner toolbar: scrollable on mobile ──────────────────────── */
+  /* ── Planner toolbar: 2-row layout on mobile ───────────────────── */
   .pl-toolbar {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--filter-h);
+    padding: 8px var(--pad) 6px;
+    gap: 6px;
+    overflow: visible;
   }
-  .pl-toolbar::-webkit-scrollbar { display: none; }
 
-  /* Everyone view still needs horizontal scroll (no JS mobile switch there) */
+  /* Hide secondary actions — + New Plan, Nutrition toggle, separator, Edit/Done/Delete */
+  .pl-new-btn,
+  .pl-nut-chip,
+  .pl-chip-sep,
+  .pl-right-group .pl-nav-btn,
+  .pl-right-group .pl-range { display: none; }
+
+  /* Person chips row — wrap to new line, left-aligned */
+  .pl-right-group {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* Everyone view: JS now handles mobile, desktop grid only used for wider viewports */
   .pl-main { overflow-x: auto; }
   .ev-grid {
     grid-template-columns: 64px repeat(7, minmax(100px, 1fr));

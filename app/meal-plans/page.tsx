@@ -98,6 +98,29 @@ function BothView({
 }) {
   const [plansByPerson, setPlansByPerson] = useState<Map<number, MealPlan | null>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeMobileDayIdx, setActiveMobileDayIdx] = useState(0);
+  const touchStartX = useRef<number>(0);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Default to today's day index within the week
+  useEffect(() => {
+    const weekStart = parseUTCDate(weekStartDate);
+    const todayStr = new Date().toDateString();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(d.getDate() + i);
+      if (d.toDateString() === todayStr) { setActiveMobileDayIdx(i); return; }
+    }
+    setActiveMobileDayIdx(0);
+  }, [weekStartDate]);
 
   useEffect(() => {
     if (!weekStartDate) return;
@@ -162,6 +185,88 @@ function BothView({
   const mealTypeOrder = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
   const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', side: 'Si', snack: 'Sn', dessert: 'De', beverage: 'Bv' };
   const todayStr = new Date().toDateString();
+
+  if (isMobile) {
+    // ── Mobile: day-first, stacked persons ──
+    const activeDay = days[activeMobileDayIdx];
+    const isToday = activeDay?.toDateString() === todayStr;
+
+    return (
+      <>
+        {/* Day strip */}
+        <div className="pl-day-strip" role="tablist" aria-label="Week days">
+          {days.map((day, idx) => {
+            const todayFlag = day.toDateString() === todayStr;
+            return (
+              <button
+                key={idx}
+                role="tab"
+                className={`pl-day-strip-btn${todayFlag ? ' today' : ''}${idx === activeMobileDayIdx ? ' active' : ''}`}
+                onClick={() => setActiveMobileDayIdx(idx)}
+                aria-selected={idx === activeMobileDayIdx}
+                aria-label={`${dayNames[day.getDay()]} ${day.getDate()}`}
+              >
+                <span className="pl-day-strip-name">{dayNames[day.getDay()]}</span>
+                <span className="pl-day-strip-num">{day.getDate()}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active day — stacked person sections */}
+        {activeDay && (
+          <div
+            className={`pl-mobile-day${isToday ? ' today' : ''}`}
+            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              const delta = e.changedTouches[0].clientX - touchStartX.current;
+              if (Math.abs(delta) > 50) {
+                if (delta < 0 && activeMobileDayIdx < days.length - 1) setActiveMobileDayIdx(i => i + 1);
+                else if (delta > 0 && activeMobileDayIdx > 0) setActiveMobileDayIdx(i => i - 1);
+              }
+            }}
+          >
+            {/* Day header */}
+            <div className="wk-day-header">
+              <div className="wk-day-name">{dayNames[activeDay.getDay()]}</div>
+              <div className="wk-day-num">{activeDay.getDate()}</div>
+            </div>
+
+            {/* One section per person */}
+            {persons.map((p) => {
+              const plan = plansByPerson.get(p.id);
+              const meals = (plan?.mealLogs?.filter(
+                (m) => parseUTCDate(m.date).toDateString() === activeDay.toDateString()
+              ) ?? []).sort((a, b) => mealTypeOrder.indexOf(a.mealType) - mealTypeOrder.indexOf(b.mealType));
+
+              return (
+                <div key={p.id} className="ev-mobile-person">
+                  <div className="ev-mobile-person-label">
+                    <span className="ev-row-dot" style={{ background: p.color || 'var(--accent)' }} />
+                    <span className="ev-row-name">{p.name}</span>
+                  </div>
+                  {meals.length === 0 ? (
+                    <p className="pl-mobile-empty" style={{ padding: '8px 0 4px', textAlign: 'left' }}>No meals</p>
+                  ) : (
+                    meals.map((m) => {
+                      const name = m.recipe?.name ?? m.ingredient?.name ?? '?';
+                      const typeLetter = mealTypeLetters[m.mealType] || m.mealType.charAt(0).toUpperCase();
+                      return (
+                        <div key={m.id} className="ev-cell-meal">
+                          <span className="ev-meal-type">{typeLetter}</span>
+                          {name}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="ev-grid">
