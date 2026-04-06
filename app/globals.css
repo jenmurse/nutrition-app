@@ -1305,17 +1305,18 @@ input[type="number"]:focus {
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: var(--bg-2);
-  border: 1px solid var(--rule);
+  background: var(--bg-3);
+  border: none;
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
   position: relative;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s;
 }
-.mob-filter-btn:active { background: var(--bg-3); }
-.mob-filter-btn.active { color: var(--accent); border-color: var(--accent); }
+.mob-filter-btn:active { opacity: 0.7; }
+.mob-filter-btn.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
 
 .mob-filter-badge {
   display: inline-flex;
@@ -1339,25 +1340,24 @@ input[type="number"]:focus {
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: var(--bg-2);
-  border: 1px solid var(--rule);
+  background: var(--bg-3);
+  border: none;
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
   position: relative;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s;
 }
-.mob-tb-icon:active { background: var(--bg-3); }
-.mob-tb-icon.on { color: var(--accent); border-color: var(--accent); }
+.mob-tb-icon:active { opacity: 0.7; }
+.mob-tb-icon.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
 
-/* View toggle group — joined pair */
+/* View toggle group — joined as a pair with slight gap */
 .mob-view-group {
   display: flex;
   flex-shrink: 0;
-}
-.mob-view-group .mob-tb-icon:first-child {
-  border-right: none;
+  gap: 4px;
 }
 
 /* Floating action button */
@@ -1385,7 +1385,9 @@ input[type="number"]:focus {
   left: 0;
   right: 0;
   background: var(--bg);
-  border-top: 1px solid var(--rule);
+  border-top: none;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.16);
   z-index: 300;
   max-height: 82dvh;
   overflow-y: auto;
@@ -1433,9 +1435,10 @@ input[type="number"]:focus {
 
 .mob-sheet-section {
   padding: 16px 20px 4px;
-  border-top: 1px solid var(--rule-faint, var(--rule));
 }
-.mob-sheet-section:first-of-type { border-top: none; }
+.mob-sheet-section + .mob-sheet-section {
+  margin-top: 4px;
+}
 
 .mob-sheet-section-label {
   font-family: var(--font-mono);
@@ -1456,22 +1459,22 @@ input[type="number"]:focus {
   height: 36px;
   padding: 0 16px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--rule);
+  background: var(--bg-2);
+  border: none;
+  border-radius: 20px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-chip.on {
-  color: var(--fg);
-  border-color: var(--fg);
-  background: var(--bg-2);
+  color: var(--accent-fg);
+  background: var(--accent);
 }
-.mob-sheet-chip:active { background: var(--bg-3); }
+.mob-sheet-chip:active { opacity: 0.75; }
 
 /* Sort grid — 3 columns */
 .mob-sheet-sort-grid {
@@ -1487,18 +1490,18 @@ input[type="number"]:focus {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--rule);
+  background: var(--bg-2);
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-sort-btn.on {
-  color: var(--fg);
-  border-color: var(--fg);
-  background: var(--bg-2);
+  color: var(--accent-fg);
+  background: var(--accent);
 }
-.mob-sheet-sort-btn:active { background: var(--bg-3); }
+.mob-sheet-sort-btn:active { opacity: 0.75; }
 
 .mob-sheet-dir-row {
   display: flex;
@@ -1511,26 +1514,28 @@ input[type="number"]:focus {
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--rule);
+  background: var(--bg-2);
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-dir-btn.on {
-  color: var(--fg);
-  border-color: var(--fg);
-  background: var(--bg-2);
+  color: var(--accent-fg);
+  background: var(--accent);
 }
+.mob-sheet-dir-btn:active { opacity: 0.75; }
 
 .mob-sheet-done {
   display: block;
   width: calc(100% - 40px);
   margin: 20px 20px 20px;
-  height: 48px;
+  height: 50px;
   background: var(--accent);
   color: var(--accent-fg);
   border: 0;
+  border-radius: 14px;
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.1em;
@@ -1591,8 +1596,8 @@ input[type="number"]:focus {
     height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--bg);
-    border-top: 1px solid var(--rule);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    border-top: none;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.09);
     z-index: 50;
   }
   .bottom-nav-item {
@@ -1767,7 +1772,7 @@ input[type="number"]:focus {
   }
 
   /* ── CSS toolbar switching ── */
-  .mob-tb { display: flex; }
+  .mob-tb { display: flex; padding: 0 12px; }
   .desk-tb { display: none; }
 
   /* ── Floating action button ── */
@@ -1798,11 +1803,13 @@ input[type="number"]:focus {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
-  /* Taller toolbar for touch */
+  /* Taller toolbar for touch — mob-tb handles its own padding */
   .list-toolbar {
-    gap: 8px;
-    padding: 0 16px;
+    gap: 0;
+    padding: 0 !important;
     height: 52px !important;
+    border-bottom-color: transparent !important;
+    box-shadow: 0 1px 0 rgba(128,128,128,0.1);
   }
 
   /* ── Card grids: 1 column on mobile ── */
