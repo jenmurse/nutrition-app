@@ -673,7 +673,7 @@ const SettingsPage = () => {
 
             {/* ── Invite Links table ── */}
             {invites.length > 0 && (
-              <div className="mt-[32px]">
+              <div className="set-invite-wrap mt-[32px]">
                 <div className="ed-label mb-[10px]">Invite Links</div>
                 <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
@@ -769,7 +769,7 @@ const SettingsPage = () => {
                 <div className="text-[11px] text-[var(--muted)] py-4">Loading goals...</div>
               ) : (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 56px' }}>
+                  <div className="set-goals-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 56px' }}>
                     {GOALS_LAYOUT.map((column, colIdx) => (
                       <div key={colIdx}>
                         {column.map(({ nutrientName }) => {

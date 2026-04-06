@@ -433,7 +433,7 @@ export default function RecipeDetailPage() {
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
 
           {/* ── Hero ── */}
-          <div className="grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px", minHeight: "50vh" }}>
+          <div className="rd-hero grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px", minHeight: "50vh" }}>
             <div>
               {/* Meta */}
               <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">
@@ -476,7 +476,7 @@ export default function RecipeDetailPage() {
               </div>
             </div>
             {/* Image */}
-            <div>
+            <div className="rd-hero-img">
               {recipe.image ? (
                 <div className="w-full overflow-hidden" style={{ aspectRatio: "4/3" }}>
                   <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover block" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
@@ -491,7 +491,7 @@ export default function RecipeDetailPage() {
 
           {/* ── Section: Ingredients + Nutrition (2-col) ── */}
           <div id="rd-sec-ing" style={{ padding: "56px 0" }}>
-            <div className="grid gap-[56px]" style={{ gridTemplateColumns: "1fr 1fr" }}>
+            <div className="rd-two-col grid gap-[56px]" style={{ gridTemplateColumns: "1fr 1fr" }}>
               {/* Ingredients */}
               <div>
                 <div className="flex items-baseline gap-3 mb-8">

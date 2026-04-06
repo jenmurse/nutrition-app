@@ -174,10 +174,11 @@ function RecipesPage() {
     <div className="h-full flex flex-col">
       {/* ── Filter Bar ── */}
       <div
-        className="flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
+        className="list-toolbar flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
         style={{ height: "var(--filter-h)" }}
       >
         {/* Tag chips */}
+        <div className="list-tags contents">
         <button
           onClick={() => updateSearchParam("tags", "")}
           className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
@@ -201,9 +202,10 @@ function RecipesPage() {
             aria-pressed={selectedTags.includes(tag)}
           >{tag}</button>
         ))}
+        </div>
 
         {/* Right side controls */}
-        <div className="flex gap-[5px] items-center ml-auto">
+        <div className="list-controls flex gap-[5px] items-center ml-auto">
           {/* Recipe count */}
           <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
             {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
@@ -292,7 +294,7 @@ function RecipesPage() {
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="list-scroll flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading recipes…</div>
@@ -320,7 +322,7 @@ function RecipesPage() {
           </div>
         ) : viewMode === "grid" ? (
           /* ── Card Grid ── */
-          <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
+          <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
             <div className="grid gap-6 grid-cols-2 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
               {sortedRecipes.map((recipe, idx) => {
                 const macros = getCardMacros(recipe);
@@ -384,7 +386,7 @@ function RecipesPage() {
           </div>
         ) : (
           /* ── List View ── */
-          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
             {sortedRecipes.map((recipe, idx) => {
               const macros = getCardMacros(recipe);
               const category = recipe.tags?.split(",")[0]?.trim();

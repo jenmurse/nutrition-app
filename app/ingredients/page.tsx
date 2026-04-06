@@ -226,10 +226,11 @@ function IngredientsPage() {
     <div className="h-full flex flex-col">
       {/* ── Filter Bar ── */}
       <div
-        className="flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
+        className="list-toolbar flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
         style={{ height: "var(--filter-h)" }}
       >
         {/* Filter chips */}
+        <div className="list-tags contents">
         <button
           onClick={() => setFoodFilter('all')}
           className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
@@ -260,9 +261,10 @@ function IngredientsPage() {
           aria-label="Show only ingredients"
           aria-pressed={foodFilter === 'ingredients'}
         >Ingredients</button>
+        </div>
 
         {/* Right side controls */}
-        <div className="flex gap-[5px] items-center ml-auto">
+        <div className="list-controls flex gap-[5px] items-center ml-auto">
           {/* Count */}
           <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
             {filteredIngredients.length} item{filteredIngredients.length !== 1 ? "s" : ""}
@@ -310,7 +312,7 @@ function IngredientsPage() {
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="list-scroll flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading ingredients...</div>
@@ -337,7 +339,7 @@ function IngredientsPage() {
           /* ── Card Grid — shared borders, staggered animation ── */
           <div
             key={`grid-${viewMode}-${foodFilter}`}
-            className="grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
+            className="ing-grid grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
             style={{ gap: 0, padding: "0 64px" }}
           >
             {sortedIngredients.map((ingredient, idx) => {
@@ -425,7 +427,7 @@ function IngredientsPage() {
           </div>
         ) : (
           /* ── List View — staggered animation, mockup styling ── */
-          <div key={`list-${viewMode}-${foodFilter}`} className="max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+          <div key={`list-${viewMode}-${foodFilter}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
               const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";

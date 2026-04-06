@@ -1100,8 +1100,8 @@ input[type="number"]:focus {
   .nav-links-group { display: none; }
   .nav-signout     { display: none; }
   .nav-settings    { display: none; }
-  /* Larger tap area for person dots */
-  .nav-person-dot  { padding: 13px; margin: -13px; }
+  /* Person dots: remove negative margin so dots don't visually overlap */
+  .nav-person-dot  { padding: 10px; margin: -10px; }
 
   /* Hero: compact on mobile — no full-viewport lock */
   .hm-hero { min-height: 0; padding-top: 24px; }
@@ -1163,8 +1163,118 @@ input[type="number"]:focus {
   /* Scrollable content: pad bottom so bottom nav doesn't cover last item */
   .hm-bottom-pad { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px); }
 
-  /* Planner week grid: horizontal scroll */
-  .wk-grid { grid-template-columns: repeat(7, minmax(110px, 1fr)); }
+  /* ── List page toolbars: 2-row layout ──────────────────────────── */
+  .list-toolbar {
+    height: auto !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  /* Row 1: tag chips — horizontally scrollable */
+  .list-tags {
+    display: flex !important;
+    align-items: center;
+    gap: 4px;
+    padding: 0 var(--pad);
+    height: var(--filter-h);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .list-tags::-webkit-scrollbar { display: none; }
+  /* Row 2: action controls */
+  .list-controls {
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+    padding: 0 var(--pad);
+    height: var(--filter-h);
+    border-top: 1px solid var(--rule);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    margin-left: 0 !important;
+  }
+  .list-controls::-webkit-scrollbar { display: none; }
+  .list-controls input[type="text"] { width: auto !important; min-width: 80px; flex: 1; max-width: 140px; }
+
+  /* List scroll container: clear bottom nav */
+  .list-scroll {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 32px) !important;
+  }
+
+  /* Recipes grid/list content: strip desktop horizontal padding */
+  .rcp-grid {
+    padding-left: var(--pad) !important;
+    padding-right: var(--pad) !important;
+  }
+
+  /* Ingredients grid: strip desktop padding, fix 2-col borders */
+  .ing-grid {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  /* In 2-col layout, left column (odd items) gets left border */
+  .ing-grid > div:nth-child(2n+1) { border-left: 1px solid var(--rule) !important; }
+  .ing-grid > div:nth-child(2n)   { border-left: 0 !important; }
+  /* Show edit/delete action buttons always on touch (no hover) */
+  .ing-grid .opacity-0 { opacity: 1 !important; }
+  .ing-grid .opacity-0 button { min-width: 36px; min-height: 36px; width: 36px !important; height: 36px !important; }
+
+  /* ── Recipe detail: stack hero + sections ───────────────────────── */
+  .rd-hero {
+    grid-template-columns: 1fr !important;
+    padding: 24px 0 32px !important;
+    min-height: 0 !important;
+    gap: 24px !important;
+  }
+  /* Image renders above title on mobile */
+  .rd-hero-img { order: -1; }
+
+  /* Ingredients + Nutrition 2-col → 1-col */
+  .rd-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  /* ── Settings: daily goals 2-col → 1-col ───────────────────────── */
+  .set-goals-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+
+  /* Settings: invite table — horizontal scroll */
+  .set-invite-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .set-invite-wrap table { min-width: 480px; }
+
+  /* ── Planner toolbar: scrollable on mobile ──────────────────────── */
+  .pl-toolbar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .pl-toolbar::-webkit-scrollbar { display: none; }
+
+  /* Planner grids: horizontal scroll container */
+  .pl-main { overflow-x: auto; }
+  .wk-grid {
+    grid-template-columns: repeat(7, minmax(110px, 1fr));
+    min-width: 770px;
+  }
+  .ev-grid {
+    grid-template-columns: 64px repeat(7, minmax(100px, 1fr));
+    min-width: 764px;
+  }
+}
+
+/* ── Hide custom cursor on touch devices ──────────────────────────── */
+@media (pointer: coarse) {
+  .cursor-el { display: none !important; }
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────── */
