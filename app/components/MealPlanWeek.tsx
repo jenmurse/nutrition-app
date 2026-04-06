@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
 import { clientCache } from '@/lib/clientCache';
@@ -36,7 +37,7 @@ interface Nutrient {
 
 interface Meal {
   id: number;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'dessert' | 'beverage';
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'side' | 'dessert' | 'beverage';
   recipe?: Recipe;
   ingredient?: Ingredient;
   servings?: number;
@@ -96,6 +97,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   mealLogCaloriesMap = {},
   onRefreshIngredients,
 }) => {
+  const router = useRouter();
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
     date: Date;
     mealType: string;
@@ -118,7 +120,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
 
-  const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage'];
+  const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'dessert', 'beverage'];
 
   const handleCreateQuickFood = async () => {
     if (!newFoodName.trim()) return;
@@ -189,6 +191,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       setSelectedDayMeal(null);
       setItemTypeTabOpen(null);
       setRecipeDropdownOpen(false);
+      setRecipeSearchTerm('');
+      setRecipeFilterTags([]);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to add meal';
       console.error('Error adding meal:', error);
@@ -268,7 +272,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const [recipeSearchTerm, setRecipeSearchTerm] = useState('');
   const [recipeFilterTags, setRecipeFilterTags] = useState<string[]>([]);
-  const availableRecipeTags = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage'];
+  const availableRecipeTags = ['breakfast', 'lunch', 'dinner', 'side', 'dessert', 'beverage'];
 
   const filteredRecipes = useMemo(() => {
     let result = recipes;
@@ -359,12 +363,16 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     return (
                       <div
                         key={meal.id}
-                        className={`meal-chip ${editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--err-l)]' : ''}`}
+                        className={`meal-chip ${meal.recipe?.id ? 'meal-chip-recipe' : ''} ${editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--err-l)]' : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (editMode) onToggleMealSelect?.(meal.id);
+                          if (editMode) {
+                            onToggleMealSelect?.(meal.id);
+                          } else if (meal.recipe?.id) {
+                            router.push(`/recipes/${meal.recipe.id}`);
+                          }
                         }}
-                        role={editMode ? 'checkbox' : undefined}
+                        role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
                         aria-checked={editMode ? selectedMealIds.has(meal.id) : undefined}
                         aria-label={mealName}
                         draggable={!editMode}

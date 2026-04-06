@@ -64,7 +64,7 @@ type PlanDetail = {
   mealLogNutrientsMap?: Record<number, Record<string, number>>;
 };
 
-const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
+const MEAL_TYPES = ["breakfast", "lunch", "dinner", "side"];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Canonical display order for dashboard stats — matches settings page order
@@ -413,7 +413,7 @@ export default function Home() {
             {/* Today's Meals — editorial numbered columns */}
             <div style={{ padding: `0 var(--pad) 72px` }}>
               <div className="hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
-                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s meals</span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
                   className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"

@@ -203,7 +203,7 @@ model MealLog {
   id         Int       @id @default(autoincrement())
   mealPlanId Int
   date       DateTime  // specific date in the week
-  mealType   String    // "breakfast", "lunch", "dinner", "snack"
+  mealType   String    // "breakfast", "lunch", "dinner", "side", "dessert", "beverage"
   recipeId   Int?      // recipe-based meal (null if ingredient-based)
   ingredientId Int?    // ingredient-based meal (null if recipe-based)
   quantity   Float?    // quantity for ingredient-based meals

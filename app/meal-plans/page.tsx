@@ -159,7 +159,7 @@ function BothView({
   });
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', side: 'S', dinner: 'D', snack: 'Sn', dessert: 'De', beverage: 'Bv' };
+  const mealTypeLetters: Record<string, string> = { breakfast: 'B', lunch: 'L', dinner: 'D', side: 'S', dessert: 'De', beverage: 'Bv' };
   const todayStr = new Date().toDateString();
 
   return (
@@ -981,7 +981,7 @@ const MealPlansPage = () => {
                           .filter((meal) => parseUTCDate(meal.date).toDateString() === parseUTCDate(day.date).toDateString())
                           .map((meal) => ({
                             id: meal.id,
-                            mealType: meal.mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'dessert' | 'beverage',
+                            mealType: meal.mealType as 'breakfast' | 'lunch' | 'dinner' | 'side' | 'dessert' | 'beverage',
                             recipe: meal.recipe,
                             ingredient: meal.ingredient,
                             servings: meal.servings,
@@ -1136,7 +1136,7 @@ const MealPlansPage = () => {
                       onSwapMeal={async (mealLogId, newRecipeId) => {
                         try {
                           const originalMeal = selectedPlan.mealLogs?.find((m: MealLog) => m.id === mealLogId);
-                          const mealType = originalMeal?.mealType ?? 'snack';
+                          const mealType = originalMeal?.mealType ?? 'side';
                           await handleRemoveMeal(mealLogId);
                           await handleAddRecipeMeal(activeDate, mealType, newRecipeId, 1);
                           toast.success('Meal swapped!');

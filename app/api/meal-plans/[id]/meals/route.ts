@@ -65,7 +65,7 @@ export async function POST(
     }
 
     // Validate meal type
-    const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage'];
+    const validMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'dessert', 'beverage'];
     if (!validMealTypes.includes(mealType)) {
       return NextResponse.json(
         {
