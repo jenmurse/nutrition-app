@@ -68,11 +68,22 @@ export default function GettingStartedCard() {
       .catch(() => {});
   }, [dismissed]);
 
-  if (dismissed || !status) return null;
-
-  const completedCount = TASKS.filter((t) => status[t.checkKey]).length;
+  const completedCount = status ? TASKS.filter((t) => status[t.checkKey]).length : 0;
   const totalCount = TASKS.length;
   const allDone = completedCount === totalCount;
+
+  // Auto-dismiss when all tasks are complete
+  useEffect(() => {
+    if (allDone && status && !dismissed) {
+      const t = setTimeout(() => {
+        localStorage.setItem("gettingStartedDismissed", "true");
+        setDismissed(true);
+      }, 1800);
+      return () => clearTimeout(t);
+    }
+  }, [allDone, status, dismissed]);
+
+  if (dismissed || !status) return null;
 
   const handleDismiss = () => {
     setExiting(true);
