@@ -1950,7 +1950,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .nut-pct { font-size: 11px; }
 
   /* ── Planner single-day view: meal content ─────────────────── */
-  .pl-mobile-day .meal-chip { padding: 10px 0; margin-bottom: 0; }
+  .pl-mobile-day .meal-chip { padding: 10px 12px; margin-bottom: 0; border-radius: 8px; }
   .pl-mobile-day .meal-chip-name { font-size: 15px; line-height: 1.4; }
   .pl-mobile-day .meal-chip-kcal { font-size: 11px; margin-top: 3px; }
   .pl-mobile-day .wk-meal-label { font-size: 9px; padding: 0; margin-bottom: 6px; }
@@ -2160,7 +2160,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .pl-this-week-btn { display: none !important; }
 
   /* Add-meal sheet: larger text for mobile touch targets */
-  .add-meal-sheet .meal-chip { padding: 10px 2px; }
+  .add-meal-sheet .meal-chip { padding: 10px 12px; border-radius: 8px; }
   .add-meal-sheet .meal-chip-name { font-size: 14px; }
   .add-meal-sheet .meal-chip-kcal { font-size: 10px; margin-top: 2px; }
   .add-meal-sheet .pl-create-label { font-size: 11px; }

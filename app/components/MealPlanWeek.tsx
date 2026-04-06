@@ -120,7 +120,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
   const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
-  const [mealTypeSheetReady, setMealTypeSheetReady] = useState(false);
+  const mealTypeSheetOpenedAt = useRef<number>(0);
 
   // Mobile: single-day view state
   const [isMobile, setIsMobile] = useState(false);
@@ -172,13 +172,12 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const handleAddMealClick = (date: Date) => {
     setSelectedDate(date);
-    setMealTypeSheetReady(false);
+    mealTypeSheetOpenedAt.current = Date.now();
     setMealTypeDropdownOpen(true);
-    setTimeout(() => setMealTypeSheetReady(true), 600);
   };
 
   const handleSelectMealType = (mealType: string) => {
-    if (!selectedDate || !mealTypeSheetReady) return;
+    if (!selectedDate || Date.now() - mealTypeSheetOpenedAt.current < 800) return;
     setSelectedDayMeal({ date: selectedDate, mealType });
     setMealTypeDropdownOpen(false);
     setItemTypeTabOpen('recipe');
@@ -577,7 +576,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && createPortal(
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
-          onClick={() => { if (mealTypeSheetReady) { setMealTypeDropdownOpen(false); setSelectedDate(null); } }}
+          onClick={() => { setMealTypeDropdownOpen(false); setSelectedDate(null); }}
         >
           <div
             className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none"
@@ -599,7 +598,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
-              {mealTypeSheetReady ? availableMealTypes.map((mealType) => (
+              {availableMealTypes.map((mealType) => (
                 <button
                   key={mealType}
                   type="button"
@@ -609,14 +608,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 >
                   <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
                 </button>
-              )) : availableMealTypes.map((mealType) => (
-                <div
-                  key={mealType}
-                  className="text-left py-3 px-2"
-                  aria-hidden="true"
-                >
-                  <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
-                </div>
               ))}
             </div>
           </div>
