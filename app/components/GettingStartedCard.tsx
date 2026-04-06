@@ -59,9 +59,10 @@ export default function GettingStartedCard() {
             const parsed = JSON.parse(stored);
             data.hasDashboardStats = Array.isArray(parsed.enabledStats) && parsed.enabledStats.length === 3;
           } else {
-            data.hasDashboardStats = false;
+            // No key means defaults are in use (calories, protein, carbs) — that's 3 stats
+            data.hasDashboardStats = true;
           }
-        } catch { data.hasDashboardStats = false; }
+        } catch { data.hasDashboardStats = true; }
         setStatus(data);
       })
       .catch(() => {});

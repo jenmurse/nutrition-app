@@ -88,11 +88,14 @@ const SettingsPage = () => {
   // Dashboard prefs (localStorage)
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>(() => {
     if (typeof window === 'undefined') return { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
+    const defaults = { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
     try {
       const stored = localStorage.getItem('dashboard-stats');
       if (stored) return JSON.parse(stored);
     } catch {}
-    return { enabledStats: ['calories', 'protein', 'carbs'], showGreeting: true };
+    // Write defaults so GettingStartedCard can detect them
+    localStorage.setItem('dashboard-stats', JSON.stringify(defaults));
+    return defaults;
   });
 
   // Jump nav active section
