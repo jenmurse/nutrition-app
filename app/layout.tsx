@@ -42,14 +42,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${dmMono.variable} ${bricolage.variable} font-sans h-screen overflow-hidden`}>
+      <body className={`${dmSans.variable} ${dmMono.variable} ${bricolage.variable} font-sans h-screen overflow-hidden`} style={{ height: '100dvh' }}>
         {/* FOUC prevention: apply stored theme synchronously before React hydration */}
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}` }} />
         <PersonProvider>
           <NumberInputHandler />
           <Toaster />
           <ConfirmModal />
-          <div className="flex flex-col h-screen">
+          <div className="flex flex-col h-screen" style={{ height: '100dvh' }}>
             <Suspense>
               <TopNav />
             </Suspense>

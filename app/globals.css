@@ -1543,6 +1543,14 @@ input[type="number"]:focus {
   /* Reset nav-h so hero/content calculations don't reserve space for it */
   :root { --nav-h: 0px; }
 
+  /* ── Prevent content bleeding behind bottom nav / Safari toolbar ── */
+  /* overscroll-behavior stops rubber-band from revealing content below */
+  html, body { overscroll-behavior-y: none; }
+  /* Settings scroll container: clear fixed bottom nav */
+  #settings-scroll-container {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px);
+  }
+
   /* Hero: compact on mobile — no full-viewport lock */
   .hm-hero { min-height: 0; padding-top: 24px; }
 
