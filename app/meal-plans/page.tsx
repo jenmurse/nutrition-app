@@ -1353,11 +1353,11 @@ const MealPlansPage = () => {
       {shopSheetOpen && (
         <>
           <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
-          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden', height: '82dvh' }}>
             <div className="mob-sheet-handle" aria-hidden="true" />
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '12px 20px 14px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 20px 12px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
               <div>
-                <div className="mob-sheet-title">Shopping List</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--fg)', marginBottom: 2 }}>Shopping List</div>
                 {selectedPlan && (() => {
                   const s = parseUTCDate(selectedPlan.weekStartDate);
                   const e = new Date(s); e.setDate(e.getDate() + 6);
@@ -1409,12 +1409,12 @@ const MealPlansPage = () => {
               )}
             </div>
             {shopItems.length > 0 && (
-              <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 50, margin: '12px 20px 20px' }}>
+              <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 56, margin: '12px 20px max(20px, env(safe-area-inset-bottom))' }}>
                 Share
               </button>
             )}
             {shopItems.length === 0 && !shopLoading && (
-              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)} style={{ height: 50, margin: '12px 20px 20px' }}>
+              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)} style={{ height: 56, margin: '12px 20px max(20px, env(safe-area-inset-bottom))' }}>
                 Close
               </button>
             )}

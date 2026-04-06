@@ -1709,8 +1709,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     right: auto;
     bottom: auto;
     transform: translate(-50%, -50%);
-    width: 460px;
-    max-height: 70vh;
+    width: 580px;
+    max-height: 78vh;
     border-radius: 8px;
     animation: none;
   }
@@ -2261,6 +2261,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* Planner mobile nutrition button — visible only on mobile */
   .pl-mob-nut-btn { display: flex; }
+
+  /* Cart button: restore border on mobile */
+  .pl-cart-btn { border: 1px solid var(--rule); border-radius: 6px; }
 
 
   /* ── List row hairlines: lighter separator ── */
