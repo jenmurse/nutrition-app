@@ -1240,6 +1240,30 @@ input[type="number"]:focus {
   border-right: 1px solid var(--rule);
 }
 
+/* ── Dashboard mobile person switcher (hidden on desktop) ─────────── */
+.hm-mob-persons { display: none; }
+.hm-mob-person-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 150ms var(--ease-out);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.hm-mob-person-dot:active { transform: scale(0.88); }
+.hm-mob-person-dot.on { outline-color: var(--fg); }
+
 /* ── Dashboard meal columns ──────────────────────────────────────── */
 .hm-meal-cols { display: flex; }
 .hm-meal-col { flex: 1; }
@@ -1436,7 +1460,7 @@ input[type="number"]:focus {
   right: 0;
   background: var(--bg);
   border-top: none;
-  border-radius: 16px 16px 0 0;
+  border-radius: 10px 10px 0 0;
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.16);
   z-index: 300;
   max-height: 82dvh;
@@ -1466,8 +1490,8 @@ input[type="number"]:focus {
 }
 .mob-sheet-title {
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 9px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -1580,14 +1604,14 @@ input[type="number"]:focus {
 .mob-sheet-done {
   display: block;
   width: calc(100% - 40px);
-  margin: 20px 20px 20px;
-  height: 50px;
+  margin: 16px 20px;
+  height: 40px;
   background: var(--accent);
   color: var(--accent-fg);
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1624,13 +1648,25 @@ input[type="number"]:focus {
   .detail-jump-nav { display: none !important; }
   .detail-content  { padding: 32px var(--pad) calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px) var(--pad) !important; }
 
-  /* Stats strip: stack vertically */
+  /* Stats strip: stack vertically, no hairlines */
   .hm-stats-strip  { flex-direction: column; }
+  .hm-stats-border { border-top: none !important; }
   .hm-stat-item    { padding: 14px 0 !important; }
   .hm-stat-item:not(:last-child) {
-    padding-right: 0; margin-right: 0; border-right: none;
-    border-bottom: 1px solid var(--rule);
+    padding-right: 0; margin-right: 0; border-right: none; border-bottom: none;
   }
+
+  /* "Today's key meals" header: remove border-top, reduce top gap */
+  .hm-keymeal-hdr  { border-top: none !important; padding-top: 20px !important; }
+
+  /* Meal type eyebrow (breakfast / lunch / dinner): remove underline */
+  .hm-mealtype-hdr { border-bottom: none !important; padding-bottom: 0 !important; margin-bottom: 6px !important; }
+
+  /* "This week" header: tighten top gap */
+  .hm-thisweek-hdr { padding-top: 20px !important; }
+
+  /* Mobile person switcher: show alongside date eyebrow */
+  .hm-mob-persons  { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 
   /* Meal columns: stack as cards */
   .hm-meal-cols { flex-direction: column; gap: 0; }
@@ -1874,7 +1910,10 @@ input[type="number"]:focus {
     height: 52px !important;
     border-bottom-color: transparent !important;
     box-shadow: 0 1px 0 rgba(128,128,128,0.1);
+    background: var(--bg) !important;
   }
+  /* Toolbar inner row: use page background, not card background */
+  .mob-tb { background: var(--bg); }
 
   /* ── Card grids: 1 column on mobile ── */
   .rcp-grid { padding: 12px !important; }
@@ -1963,6 +2002,11 @@ input[type="number"]:focus {
     height: 36px !important;
     border-radius: 6px !important;
   }
+
+  /* ── Settings: reduce section spacing on mobile ── */
+  [id^="set-sec-"] { padding-top: 20px !important; padding-bottom: 28px !important; }
+  /* Shrink detail-content top padding — jump bar is already sticky */
+  #settings-scroll-container .detail-content { padding-top: 8px !important; }
 }
 
 /* ── Hide custom cursor on touch devices ──────────────────────────── */

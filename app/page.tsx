@@ -84,7 +84,7 @@ const STAT_NUTRIENT_NAMES: Record<string, string[]> = {
 
 export default function Home() {
   const router = useRouter();
-  const { selectedPersonId, selectedPerson, persons, onboardingComplete } = usePersonContext();
+  const { selectedPersonId, selectedPerson, persons, setSelectedPersonId, onboardingComplete } = usePersonContext();
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -298,9 +298,25 @@ export default function Home() {
 
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 48px` }}>
             <div>
-              {/* Eyebrow: date */}
+              {/* Eyebrow: date + mobile person switcher */}
               <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '2px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
+                {persons.length > 1 && (
+                  <div className="hm-mob-persons" role="group" aria-label="Switch person">
+                    {persons.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setSelectedPersonId(p.id)}
+                        className={`hm-mob-person-dot${selectedPersonId === p.id ? ' on' : ''}`}
+                        style={{ background: p.color || 'var(--accent)' }}
+                        aria-label={p.name}
+                        aria-pressed={selectedPersonId === p.id}
+                      >
+                        {p.name[0].toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               {/* Greeting */}
               <div className="font-serif" style={{ fontSize: '11.5vw', fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
@@ -311,7 +327,7 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div className="border-t border-[var(--rule)]">
+          <div className="hm-stats-border border-t border-[var(--rule)]">
             <div className="hm-stats-strip" style={{ padding: `0 var(--pad)` }}>
               {statEntries.map((stat, idx) => {
                 const delay = 350 + idx * 80;
@@ -388,7 +404,7 @@ export default function Home() {
             {/* This Week — show even when no meals today */}
             {weekDays.length > 0 && (
               <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
-                <div className="hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
+                <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
@@ -412,7 +428,7 @@ export default function Home() {
           <>
             {/* Today's Meals — editorial numbered columns */}
             <div style={{ padding: `0 var(--pad) 72px` }}>
-              <div className="hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
+              <div className="hm-keymeal-hdr hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
@@ -437,7 +453,7 @@ export default function Home() {
                           <div key={m.id}>
                             {/* Number · Type header */}
                             <div
-                              className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-3 pb-[10px] border-b border-[var(--rule)]"
+                              className="hm-mealtype-hdr font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-3 pb-[10px] border-b border-[var(--rule)]"
                             >
                               {col.number} · {col.type}
                               {mi > 0 ? ` (${mi + 1})` : ""}
@@ -487,7 +503,7 @@ export default function Home() {
             {/* This Week — 7-day overview */}
             {weekDays.length > 0 && (
               <div style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
-                <div className="hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
+                <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
