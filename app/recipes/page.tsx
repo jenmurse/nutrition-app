@@ -394,7 +394,7 @@ function RecipesPage() {
             </div>
 
             {/* Grid/List toggle */}
-            <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
+            <div className="flex border border-[var(--rule)] overflow-hidden rounded-pill transition-colors hover:border-[var(--fg)]">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${

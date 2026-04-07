@@ -2447,8 +2447,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Planner mobile nutrition button — visible only on mobile */
   .pl-mob-nut-btn { display: flex; }
 
-  /* Cart button: restore border on mobile */
-  .pl-cart-btn { border: 1px solid var(--rule); border-radius: var(--radius-pill); }
 
   /* Shopping list sheet: explicit height on mobile for flex to work */
   .pl-shop-sheet { height: calc(82dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom, 0px)); }
