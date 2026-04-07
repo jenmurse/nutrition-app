@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { usePersonContext } from "./components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
 import GettingStartedCard from "./components/GettingStartedCard";
+import { CalendarEmptyIcon, MealsEmptyIcon } from "./components/EmptyStateIcons";
 import { BrandName } from "./components/BrandName";
 import ContextualTip from "./components/ContextualTip";
 
@@ -379,7 +380,7 @@ export default function Home() {
           <div style={{ padding: `56px var(--pad) 72px` }}>
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">This week</div>
             <div className="empty-state">
-              <div className="empty-state-glyph" aria-hidden="true">—</div>
+              <div className="empty-state-glyph" aria-hidden="true"><CalendarEmptyIcon /></div>
               <div className="empty-state-label">No plan this week</div>
               <Link
                 href="/meal-plans"
@@ -495,7 +496,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="empty-state">
-                  <div className="empty-state-glyph" aria-hidden="true">·</div>
+                  <div className="empty-state-glyph" aria-hidden="true"><MealsEmptyIcon /></div>
                   <div className="empty-state-label">Nothing logged today</div>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}

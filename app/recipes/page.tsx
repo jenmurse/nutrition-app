@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
+import { RecipeEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
 
 type RecipeSummary = {
   id: number;
@@ -530,7 +531,7 @@ function RecipesPage() {
           <div className="flex items-center justify-center h-full">
             <div className="empty-state empty-state-pane">
               <div className="empty-state-glyph" aria-hidden="true">
-                {recipes.length === 0 ? "∅" : "—"}
+                {recipes.length === 0 ? <RecipeEmptyIcon /> : <NoMatchesIcon />}
               </div>
               <div className="empty-state-label">
                 {recipes.length === 0 ? "No recipes yet" : "No matches"}

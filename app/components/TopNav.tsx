@@ -17,8 +17,8 @@ export default function TopNav() {
   const { persons, selectedPerson, setSelectedPersonId } = usePersonContext();
   const supabase = createClient();
 
-  // Hide nav on login, preview, and onboarding pages
-  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding") return null;
+  // Hide nav on login, preview, onboarding, and landing pages
+  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
 
   const handleSignOut = async () => {
     localStorage.removeItem("selectedPersonId");

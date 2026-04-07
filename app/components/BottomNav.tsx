@@ -62,8 +62,8 @@ const navItems = [
 export default function BottomNav() {
   const pathname = usePathname();
 
-  // Hide on login, preview, onboarding
-  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding") return null;
+  // Hide on login, preview, onboarding, landing
+  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
 
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Main navigation">

@@ -6,6 +6,7 @@ import MealPlanWeek from '@/app/components/MealPlanWeek';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
+import { CalendarEmptyIcon, SelectPlanIcon } from '@/app/components/EmptyStateIcons';
 import { toast } from '@/lib/toast';
 import { clientCache } from '@/lib/clientCache';
 
@@ -1721,7 +1722,7 @@ const MealPlansPage = () => {
             <div className="empty-state empty-state-pane">
               {mealPlans.length === 0 ? (
                 <>
-                  <div className="empty-state-glyph" aria-hidden="true">—</div>
+                  <div className="empty-state-glyph" aria-hidden="true"><CalendarEmptyIcon /></div>
                   <div className="empty-state-label">
                     {selectedPerson ? `No plans for ${selectedPerson.name}` : 'No meal plans yet'}
                   </div>
@@ -1738,7 +1739,7 @@ const MealPlansPage = () => {
                 </>
               ) : (
                 <>
-                  <div className="empty-state-glyph" aria-hidden="true">·</div>
+                  <div className="empty-state-glyph" aria-hidden="true"><SelectPlanIcon /></div>
                   <div className="empty-state-label">Select a plan</div>
                   <div className="empty-state-context">Use the controls above to navigate between plans.</div>
                 </>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
 import { toast } from "@/lib/toast";
+import { PantryEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
 import { dialog } from "@/lib/dialog";
 
 type NutrientValue = {
@@ -399,19 +400,22 @@ function IngredientsPage() {
           </div>
         ) : sortedIngredients.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-4 max-w-[280px]">
-              <div className="font-serif text-[20px] text-[var(--fg)]">
+            <div className="empty-state empty-state-pane">
+              <div className="empty-state-glyph" aria-hidden="true">
+                {ingredients.length === 0 ? <PantryEmptyIcon /> : <NoMatchesIcon />}
+              </div>
+              <div className="empty-state-label">
                 {ingredients.length === 0 ? "No ingredients yet" : "No matches"}
               </div>
-              <p className="text-[11px] text-[var(--muted)] leading-relaxed">
+              <div className="empty-state-context">
                 {ingredients.length === 0 ? "Add an ingredient or food to get started." : "Try adjusting your filters."}
-              </p>
+              </div>
               {ingredients.length === 0 && (
                 <button
                   onClick={() => router.push("/ingredients/create")}
-                  className="bg-[var(--accent)] text-[var(--accent-fg)] px-5 py-[8px] text-[9px] font-mono uppercase tracking-[0.1em] hover:opacity-[0.88] transition-opacity border-0 cursor-pointer active:scale-[0.97]"
+                  className="empty-state-action"
                   aria-label="Add first ingredient"
-                >+ Add Ingredient</button>
+                >+ Add ingredient →</button>
               )}
             </div>
           </div>

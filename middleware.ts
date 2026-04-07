@@ -31,12 +31,17 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/preview") ||
+    request.nextUrl.pathname.startsWith("/landing") ||
     request.nextUrl.pathname.startsWith("/api/households/invite/info") ||
     request.nextUrl.pathname.startsWith("/api/mcp/");
 
   if (!user && !isAuthRoute) {
     if (request.nextUrl.pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // Root path shows landing page; all other paths redirect to login
+    if (request.nextUrl.pathname === "/") {
+      return NextResponse.redirect(new URL("/landing", request.url));
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
