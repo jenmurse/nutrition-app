@@ -1719,9 +1719,175 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     height: auto;
     max-height: 78vh;
     border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     animation: none;
   }
-  .pl-shop-sheet .mob-sheet-done { height: 48px !important; flex-shrink: 0; }
+  .pl-shop-sheet .mob-sheet-done { height: 48px; flex-shrink: 0; margin: 12px 20px 20px; }
+}
+
+/* ── Shopping list component ── */
+.shop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.shop-header-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-bottom: 2px;
+}
+.shop-header-date {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.shop-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.shop-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 7px 10px;
+  border-radius: 4px;
+  min-height: 32px;
+  min-width: 44px;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-toggle-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+.shop-toggle-btn:active { opacity: 0.8; }
+.shop-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 8px;
+  font-size: 18px;
+  line-height: 1;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-close-btn:hover { color: var(--fg); }
+.shop-list-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 20px;
+}
+.shop-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 24px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.shop-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--rule);
+}
+.shop-cat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.shop-checkbox {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--fg-2);
+  border-radius: 3px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.12s, background 0.12s;
+  position: relative;
+}
+.shop-checkbox--active { border-color: var(--accent); }
+.shop-checkbox--checked { background: var(--accent); }
+.shop-checkbox-dash {
+  width: 8px;
+  height: 1.5px;
+  background: var(--accent);
+  border-radius: 1px;
+  display: block;
+}
+.shop-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.shop-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-faint);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-item-checkbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--fg-2);
+  border-radius: 3px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.12s, background 0.12s;
+}
+.shop-item-checkbox.checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.shop-item-text {
+  font-size: 13px;
+  color: var(--fg);
+  line-height: 20px;
+  transition: color 0.12s;
+}
+.shop-item-text.checked {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.shop-item-qty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
 }
 
 /* Planner mobile nutrition button — hidden on desktop */

@@ -1372,43 +1372,42 @@ const MealPlansPage = () => {
       {shopSheetOpen && (
         <>
           <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
-          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list">
             <div className="mob-sheet-handle" aria-hidden="true" />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 20px 12px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
+            <div className="shop-header">
               <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--fg)', marginBottom: 2 }}>Shopping List</div>
+                <div className="shop-header-label">Shopping List</div>
                 {selectedPlan && (() => {
                   const s = parseUTCDate(selectedPlan.weekStartDate);
                   const e = new Date(s); e.setDate(e.getDate() + 6);
                   const range = s.getMonth() === e.getMonth()
                     ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
                     : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-                  return <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{range}</div>;
+                  return <div className="shop-header-date">{range}</div>;
                 })()}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div className="shop-header-actions">
                 {checkedItems.size > 0 && (
                   <button
+                    className={`shop-toggle-btn${hideChecked ? ' active' : ''}`}
                     onClick={() => setHideChecked(h => !h)}
-                    style={{ background: hideChecked ? 'var(--accent)' : 'var(--bg-3)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: hideChecked ? 'var(--accent-fg)' : 'var(--muted)', padding: '7px 10px', borderRadius: 4, minHeight: 32, minWidth: 44 }}
                   >
                     {hideChecked ? 'Show all' : 'Hide done'}
                   </button>
                 )}
                 <button
+                  className="shop-close-btn"
                   onClick={() => setShopSheetOpen(false)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '8px', fontSize: 18, lineHeight: 1, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   aria-label="Close shopping list"
                 >✕</button>
               </div>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px' }}>
+            <div className="shop-list-body">
               {shopLoading ? (
-                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>Loading…</div>
+                <div className="shop-empty">Loading…</div>
               ) : shopItems.length === 0 ? (
-                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>No ingredients in this week&apos;s plan</div>
+                <div className="shop-empty">No ingredients in this week&apos;s plan</div>
               ) : (() => {
-                // Group items by category
                 const CATEGORY_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains, Pasta & Bread','Legumes','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
                 const groups = new Map<string, typeof shopItems>();
                 for (const item of shopItems) {
@@ -1451,8 +1450,8 @@ const MealPlansPage = () => {
                       const someChecked = catKeys.some(k => checkedItems.has(k));
                       return (
                         <div key={cat}>
-                          {/* Category header with select-all */}
                           <div
+                            className="shop-cat-header"
                             onClick={() => {
                               setCheckedItems(prev => {
                                 const n = new Set(prev);
@@ -1462,29 +1461,21 @@ const MealPlansPage = () => {
                                 return n;
                               });
                             }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0 6px', cursor: 'pointer', userSelect: 'none', borderBottom: '1px solid var(--rule)' }}
                           >
-                            <span style={{
-                              flexShrink: 0, width: 16, height: 16,
-                              border: `1.5px solid ${allChecked ? 'var(--accent)' : someChecked ? 'var(--accent)' : 'var(--fg-2)'}`,
-                              borderRadius: 3,
-                              background: allChecked ? 'var(--accent)' : 'transparent',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              transition: 'all 0.12s', position: 'relative',
-                            }}>
+                            <span className={`shop-checkbox${allChecked ? ' shop-checkbox--active shop-checkbox--checked' : someChecked ? ' shop-checkbox--active' : ''}`}>
                               {allChecked && <svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                              {!allChecked && someChecked && <span style={{ width: 8, height: 1.5, background: 'var(--accent)', borderRadius: 1, display: 'block' }} />}
+                              {!allChecked && someChecked && <span className="shop-checkbox-dash" />}
                             </span>
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>{catLabel}</span>
+                            <span className="shop-cat-label">{catLabel}</span>
                           </div>
-                          {/* Items */}
-                          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                          <ul className="shop-items">
                             {items.map((item, i) => {
                               const itemKey = `${item.name}-${item.unit}`;
                               const checked = checkedItems.has(itemKey);
                               return (
                                 <li
                                   key={i}
+                                  className="shop-item"
                                   onClick={() => {
                                     setCheckedItems(prev => {
                                       const n = new Set(prev);
@@ -1493,20 +1484,12 @@ const MealPlansPage = () => {
                                       return n;
                                     });
                                   }}
-                                  style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--rule-faint)', cursor: 'pointer', userSelect: 'none' }}
                                 >
-                                  <span style={{
-                                    flexShrink: 0, width: 18, height: 18,
-                                    border: `1.5px solid ${checked ? 'var(--accent)' : 'var(--fg-2)'}`,
-                                    borderRadius: 3,
-                                    background: checked ? 'var(--accent)' : 'transparent',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    transition: 'all 0.12s',
-                                  }}>
+                                  <span className={`shop-item-checkbox${checked ? ' checked' : ''}`}>
                                     {checked && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                                   </span>
-                                  <span style={{ fontSize: 13, color: checked ? 'var(--muted)' : 'var(--fg)', lineHeight: '20px', textDecoration: checked ? 'line-through' : 'none', transition: 'all 0.12s' }}>
-                                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>{fmtQty(item.qty)} {item.unit} </span>
+                                  <span className={`shop-item-text${checked ? ' checked' : ''}`}>
+                                    <span className="shop-item-qty">{fmtQty(item.qty)} {item.unit} </span>
                                     {item.name}
                                   </span>
                                 </li>
@@ -1521,12 +1504,12 @@ const MealPlansPage = () => {
               })()}
             </div>
             {shopItems.length > 0 && (
-              <button className="mob-sheet-done" onClick={handleShareList} style={{ margin: '12px 20px 20px' }}>
+              <button className="mob-sheet-done" onClick={handleShareList}>
                 Share
               </button>
             )}
             {shopItems.length === 0 && !shopLoading && (
-              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)} style={{ height: 46, margin: '12px 20px 20px' }}>
+              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)}>
                 Close
               </button>
             )}
