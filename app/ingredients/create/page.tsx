@@ -47,6 +47,23 @@ function getVolumeUnitNote(unit: string, hasCustomGrams: boolean): string {
   return "";
 }
 
+/* ── Categories ── */
+const CATEGORIES = [
+  { value: "", label: "Other" },
+  { value: "Produce", label: "Produce" },
+  { value: "Meat & Fish", label: "Meat & Fish" },
+  { value: "Dairy & Eggs", label: "Dairy & Eggs" },
+  { value: "Grains & Bread", label: "Grains & Bread" },
+  { value: "Baking", label: "Baking" },
+  { value: "Spices & Seasonings", label: "Spices & Seasonings" },
+  { value: "Condiments & Sauces", label: "Condiments & Sauces" },
+  { value: "Oils & Fats", label: "Oils & Fats" },
+  { value: "Frozen", label: "Frozen" },
+  { value: "Canned & Jarred", label: "Canned & Jarred" },
+  { value: "Beverages", label: "Beverages" },
+  { value: "Snacks", label: "Snacks" },
+];
+
 /* ── Jump Sections ── */
 
 const JUMP_SECTIONS = [
@@ -72,6 +89,8 @@ export default function CreateIngredientPage() {
   const [customUnitGrams, setCustomUnitGrams] = useState("");
   const [isMealItem, setIsMealItem] = useState(false);
   const [category, setCategory] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
   const [specifiedAmount, setSpecifiedAmount] = useState("100");
   const [specifiedUnit, setSpecifiedUnit] = useState("g");
   const [values, setValues] = useState<Record<number, number>>({});
@@ -106,6 +125,16 @@ export default function CreateIngredientPage() {
       })
       .catch(console.error);
   }, []);
+
+  /* ── Category dropdown outside click ── */
+  useEffect(() => {
+    if (!categoryOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) setCategoryOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [categoryOpen]);
 
   /* ── Jump nav scroll tracking ── */
   useEffect(() => {
@@ -371,20 +400,42 @@ export default function CreateIngredientPage() {
               </div>
               <div className="ed-field" style={{ flex: 1 }}>
                 <label className="ed-label">Category</label>
-                <select className="ed-select" value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category">
-                  <option value="">Other</option>
-                  <option value="Produce">Produce</option>
-                  <option value="Meat & Fish">Meat &amp; Fish</option>
-                  <option value="Dairy & Eggs">Dairy &amp; Eggs</option>
-                  <option value="Grains & Bread">Grains &amp; Bread</option>
-                  <option value="Spices & Seasonings">Spices &amp; Seasonings</option>
-                  <option value="Condiments & Sauces">Condiments &amp; Sauces</option>
-                  <option value="Oils & Fats">Oils &amp; Fats</option>
-                  <option value="Frozen">Frozen</option>
-                  <option value="Canned & Jarred">Canned &amp; Jarred</option>
-                  <option value="Beverages">Beverages</option>
-                  <option value="Snacks">Snacks</option>
-                </select>
+                <div ref={categoryRef} className="relative" style={{ display: 'flex', border: '1px solid var(--rule)', transition: 'border-color 0.2s' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryOpen(o => !o)}
+                    aria-haspopup="listbox"
+                    aria-expanded={categoryOpen}
+                    aria-label="Category"
+                    className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 py-[5px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative w-full text-left"
+                  >
+                    {CATEGORIES.find(c => c.value === category)?.label ?? "Other"}
+                    <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+                  </button>
+                  {categoryOpen && (
+                    <div
+                      role="listbox"
+                      aria-label="Category options"
+                      className="absolute left-[-1px] top-[calc(100%+2px)] min-w-full bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
+                      style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+                    >
+                      {CATEGORIES.map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          role="option"
+                          aria-selected={category === opt.value}
+                          onClick={() => { setCategory(opt.value); setCategoryOpen(false); }}
+                          className={`block w-full text-left font-mono text-[8px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                            category === opt.value
+                              ? "text-[var(--fg)] bg-transparent"
+                              : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                          }`}
+                        >{opt.label}</button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="ed-field" style={{ flex: 1 }}>
                 <label className="ed-label">Default Unit</label>
