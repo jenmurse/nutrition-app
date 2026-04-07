@@ -460,8 +460,12 @@ export default function RecipeDetailPage() {
           {/* ── Hero ── */}
           <div className="rd-hero grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px", minHeight: "50vh" }}>
             <div>
+              {/* Name */}
+              <h1 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-4" style={{ fontSize: "clamp(30px, 3.4vw, 48px)", textWrap: "balance" }}>
+                {recipe.name}
+              </h1>
               {/* Meta */}
-              <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">
+              <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-10">
                 <span>{recipe.servingSize} {recipe.servingUnit}</span>
                 {recipe.prepTime != null && <> · <span>{recipe.prepTime} min prep</span></>}
                 {recipe.cookTime != null && <> · <span>{recipe.cookTime} min cook</span></>}
@@ -473,10 +477,6 @@ export default function RecipeDetailPage() {
                   </div>
                 )}
               </div>
-              {/* Name */}
-              <h1 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-12" style={{ fontSize: "clamp(30px, 3.4vw, 48px)", textWrap: "balance" }}>
-                {recipe.name}
-              </h1>
               {/* Source */}
               {recipe.sourceApp?.startsWith("http") && (() => {
                 let domain = recipe.sourceApp;
