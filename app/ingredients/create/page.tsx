@@ -54,6 +54,7 @@ const CATEGORIES = [
   { value: "Meat & Fish", label: "Meat & Fish" },
   { value: "Dairy & Eggs", label: "Dairy & Eggs" },
   { value: "Grains & Bread", label: "Grains & Bread" },
+  { value: "Pasta & Rice", label: "Pasta & Rice" },
   { value: "Baking", label: "Baking" },
   { value: "Nuts & Seeds", label: "Nuts & Seeds" },
   { value: "Spices & Seasonings", label: "Spices & Seasonings" },

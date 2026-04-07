@@ -2399,6 +2399,5 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .cursor-dot.on-link {
   width: 32px; height: 32px;
-  background: var(--accent);
   mix-blend-mode: multiply;
 }

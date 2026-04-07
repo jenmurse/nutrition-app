@@ -21,12 +21,17 @@ export default function CustomCursor() {
       cur.style.top = `${e.clientY}px`;
     };
 
+    const getAccent = () =>
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5A9B6A';
+
     const onOver = (e: MouseEvent) => {
       const el = e.target as HTMLElement;
       const isInteractive = el.closest("a[href], button, [role='button'], input, select, textarea, label");
       if (isInteractive) {
+        cur.style.background = getAccent();
         cur.classList.add("on-link");
       } else {
+        cur.style.background = '';
         cur.classList.remove("on-link");
       }
     };
