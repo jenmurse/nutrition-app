@@ -39,14 +39,10 @@ export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // Root path shows landing page; all other paths redirect to login
-    if (request.nextUrl.pathname === "/") {
-      return NextResponse.redirect(new URL("/landing", request.url));
-    }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (user && request.nextUrl.pathname === "/login") {
+  if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/landing")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
