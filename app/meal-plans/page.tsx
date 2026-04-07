@@ -1267,7 +1267,7 @@ const MealPlansPage = () => {
           <>
             <div className="mob-sheet-backdrop mob-sheet-backdrop--above-nav" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
             <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Nutrition summary">
-              <div style={{ position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 1, borderBottom: '1px solid var(--rule-faint)', flexShrink: 0 }}>
+              <div style={{ position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 1, borderBottom: '1px solid var(--rule-faint)', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                 <div className="mob-sheet-handle" aria-hidden="true" />
                 <div className="flex items-center justify-between" style={{ padding: '8px 20px 12px' }}>
                   <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">
