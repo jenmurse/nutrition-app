@@ -796,7 +796,7 @@ const MealPlansPage = () => {
     const range = s.getMonth() === e.getMonth()
       ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
       : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const SHARE_CAT_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains & Bread','Pasta & Rice','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
+    const SHARE_CAT_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains, Pasta & Bread','Legumes','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
     const unchecked = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`));
     const sorted = [...unchecked].sort((a, b) => {
       const ac = a.category || ''; const bc = b.category || '';
@@ -1398,7 +1398,7 @@ const MealPlansPage = () => {
                 <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0', fontFamily: 'var(--font-mono)', fontSize: 11 }}>No ingredients in this week&apos;s plan</div>
               ) : (() => {
                 // Group items by category
-                const CATEGORY_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains & Bread','Pasta & Rice','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
+                const CATEGORY_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains, Pasta & Bread','Legumes','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
                 const groups = new Map<string, typeof shopItems>();
                 for (const item of shopItems) {
                   const cat = item.category || '';
