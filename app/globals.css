@@ -1900,7 +1900,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 32px;
   background: transparent;
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -2441,7 +2441,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .pl-mob-nut-btn { display: flex; }
 
   /* Cart button: restore border on mobile */
-  .pl-cart-btn { border: 1px solid var(--rule); border-radius: 6px; }
+  .pl-cart-btn { border: 1px solid var(--rule); border-radius: var(--radius-pill); }
 
   /* Shopping list sheet: explicit height on mobile for flex to work */
   .pl-shop-sheet { height: calc(82dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom, 0px)); }
@@ -2495,7 +2495,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   /* ── Planner: person dropdown matches toolbar element sizing ── */
-  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 34px !important; border-radius: 6px; }
+  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 34px !important; border-radius: var(--radius-pill); }
 
   /* ── Settings: household member rows wrap theme chips below ── */
   .set-person-row { flex-wrap: wrap; }
