@@ -251,15 +251,20 @@ function RecipesPage() {
       >
         {/* ── Mobile toolbar — CSS shows on mobile only ── */}
         <div className="mob-tb">
-          <input
-            ref={searchRef}
-            type="search"
-            placeholder="Search recipes…"
-            value={searchQuery}
-            onChange={(e) => updateSearchParam("search", e.target.value)}
-            aria-label="Search recipes"
-            className="mob-search-input"
-          />
+          <div className="relative flex-1 min-w-0">
+            <svg className="absolute left-[10px] top-1/2 -translate-y-1/2 pointer-events-none text-[var(--muted)]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              ref={searchRef}
+              type="search"
+              placeholder="Search recipes…"
+              value={searchQuery}
+              onChange={(e) => updateSearchParam("search", e.target.value)}
+              aria-label="Search recipes"
+              className="mob-search-input mob-search-input--icon"
+            />
+          </div>
           {/* View toggle */}
           <div className="mob-view-group" role="group" aria-label="View mode">
             <button
