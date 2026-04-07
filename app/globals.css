@@ -1340,7 +1340,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   color: var(--fg);
   font-family: var(--font-mono);
   font-size: 13px;
@@ -1358,7 +1358,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -1380,7 +1380,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--accent-fg);
   font-size: 9px;
   font-family: var(--font-mono);
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   line-height: 1;
 }
 
@@ -1393,7 +1393,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -1657,7 +1657,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--accent);
   color: var(--accent-fg);
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -2368,13 +2368,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .ing-list-actions button {
     width: 44px !important;
     height: 44px !important;
-    border-radius: 6px !important;
+    border-radius: 50% !important;
   }
   /* Ingredient grid card action buttons */
   .ing-card-actions button {
     width: 36px !important;
     height: 36px !important;
-    border-radius: 6px !important;
+    border-radius: 50% !important;
   }
 
   /* ── Planner toolbar: match recipes/pantry toolbar (shadow, no hairline) ── */
@@ -2400,7 +2400,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     font-size: 9px !important;
     letter-spacing: 0.06em !important;
     border: 1px solid var(--rule) !important;
-    border-radius: 6px !important;
+    border-radius: var(--radius-pill) !important;
     background: none !important;
     color: var(--muted) !important;
     padding: 0 8px !important;

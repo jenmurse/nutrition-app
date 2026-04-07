@@ -1267,10 +1267,15 @@ const MealPlansPage = () => {
             <div className="mob-sheet-backdrop" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
             <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Nutrition summary">
               <div className="mob-sheet-handle" aria-hidden="true" />
-              <div style={{ padding: '8px 20px 4px' }}>
+              <div className="flex items-center justify-between" style={{ padding: '8px 20px 4px' }}>
                 <div className="font-sans text-[13px] font-medium text-[var(--fg)]">
                   {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
+                <button
+                  onClick={() => setMobNutSheetOpen(false)}
+                  className="w-[28px] h-[28px] flex items-center justify-center rounded-full text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-1"
+                  aria-label="Close nutrition summary"
+                >✕</button>
               </div>
               {calorieNutrient && (
                 <div style={{ padding: '16px 20px 8px' }}>
@@ -1363,7 +1368,6 @@ const MealPlansPage = () => {
                 />
               </div>
 
-              <button className="mob-sheet-done" onClick={() => setMobNutSheetOpen(false)}>Close</button>
             </div>
           </>
         );
