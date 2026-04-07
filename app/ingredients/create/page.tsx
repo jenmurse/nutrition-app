@@ -407,7 +407,7 @@ export default function CreateIngredientPage() {
                     aria-haspopup="listbox"
                     aria-expanded={categoryOpen}
                     aria-label="Category"
-                    className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 py-[5px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative w-full text-left"
+                    className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 py-[8px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative w-full text-left"
                   >
                     {CATEGORIES.find(c => c.value === category)?.label ?? "Other"}
                     <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
@@ -426,7 +426,7 @@ export default function CreateIngredientPage() {
                           role="option"
                           aria-selected={category === opt.value}
                           onClick={() => { setCategory(opt.value); setCategoryOpen(false); }}
-                          className={`block w-full text-left font-mono text-[8px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                          className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                             category === opt.value
                               ? "text-[var(--fg)] bg-transparent"
                               : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
