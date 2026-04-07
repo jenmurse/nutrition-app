@@ -10,7 +10,7 @@ const MICHAEL_RED  = "#E84828";
 const LINDSEY_PRP  = "#7B5EA7";
 
 const PEOPLE = [
-  { init: "C", name: "Chloe",   color: BRAND_SAGE  },
+  { init: "S", name: "Sarah",   color: BRAND_SAGE  },
   { init: "M", name: "Michael", color: MICHAEL_RED },
   { init: "L", name: "Lindsey", color: LINDSEY_PRP },
 ];
@@ -42,6 +42,34 @@ function smoothScroll(el: HTMLElement, to: number, durationMs: number) {
     if (p < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
+}
+
+/** Looping scroll animation — scrolls down then back up, repeating while active */
+function useLoopScroll(ref: React.RefObject<HTMLDivElement | null>, target: number, opts: {
+  downMs?: number; pauseDownMs?: number; upMs?: number; pauseUpMs?: number; startDelayMs?: number;
+} = {}, isActive?: boolean) {
+  const { downMs = 2200, pauseDownMs = 1800, upMs = 1200, pauseUpMs = 1000, startDelayMs = 1000 } = opts;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !isActive) { if (el) el.scrollTop = 0; return; }
+    let cancelled = false;
+    const cycle = () => {
+      if (cancelled) return;
+      el.scrollTop = 0;
+      const t1 = setTimeout(() => {
+        if (cancelled) return;
+        smoothScroll(el, target, downMs);
+        const t2 = setTimeout(() => {
+          if (cancelled) return;
+          smoothScroll(el, 0, upMs);
+          const t3 = setTimeout(() => { if (!cancelled) cycle(); }, upMs + pauseUpMs);
+        }, downMs + pauseDownMs);
+      }, startDelayMs);
+      return () => { clearTimeout(t1); };
+    };
+    cycle();
+    return () => { cancelled = true; };
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /** Thin nutrition progress bar */
@@ -98,15 +126,7 @@ function MiniNav({ active }: { active: "Planner" | "Recipes" | "Pantry" | null }
    ───────────────────────────────────────────────────────────── */
 function DashboardScreen({ isActive }: { isActive?: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTop = 0;
-    if (!isActive) return;
-    const t1 = setTimeout(() => smoothScroll(el, 220, 2200), 1000);
-    return () => clearTimeout(t1);
-  }, [isActive]);
+  useLoopScroll(scrollRef, 220, { downMs: 2200, pauseDownMs: 2000, upMs: 1000, pauseUpMs: 800 }, isActive);
 
   const meals = [
     { n: "01", type: "Breakfast", name: "Cottage Cheese Bowl", kcal: 298, carbs: 14, protein: 32 },
@@ -139,7 +159,7 @@ function DashboardScreen({ isActive }: { isActive?: boolean }) {
             Good afternoon,
           </div>
           <div style={{ fontFamily: "var(--display)", fontSize: 40, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, color: BRAND_SAGE, marginBottom: 20 }}>
-            Chloe
+            Sarah
           </div>
         </div>
 
@@ -303,44 +323,38 @@ function PantryScreen() {
 
 /* ─────────────────────────────────────────────────────────────
    Screen 2 — Recipe Detail
-   Jump nav · 2-col ingredients + nutrition · auto-scrolls to instructions
+   Jump nav · 2-col ingredients + nutrition · loops scroll to instructions
    ───────────────────────────────────────────────────────────── */
 function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTop = 0;
-    if (!isActive) return;
-    const t = setTimeout(() => smoothScroll(el, 280, 1800), 1200);
-    return () => clearTimeout(t);
-  }, [isActive]);
+  useLoopScroll(scrollRef, 300, { downMs: 1800, pauseDownMs: 2200, upMs: 900, pauseUpMs: 800, startDelayMs: 1200 }, isActive);
 
   const ingredients = [
-    { qty: "400 g", name: "Salmon fillet" },
-    { qty: "1 tbsp", name: "Olive oil" },
-    { qty: "2 cloves", name: "Garlic, minced" },
-    { qty: "1 tsp", name: "Fresh ginger" },
-    { qty: "2 tbsp", name: "Soy sauce (low sodium)" },
-    { qty: "1 tsp", name: "Sesame oil" },
-    { qty: "200 g", name: "Baby bok choy" },
+    { qty: "400 g",   name: "Pink salmon fillet" },
+    { qty: "2 cloves",name: "Garlic" },
+    { qty: "1 tsp",   name: "Ginger" },
+    { qty: "200 g",   name: "White rice (light)" },
+    { qty: "240 ml",  name: "Coconut milk" },
+    { qty: "½ tsp",   name: "Salt" },
+    { qty: "2 tbsp",  name: "Tamari" },
+    { qty: "1 tsp",   name: "Sesame oil" },
+    { qty: "1 tbsp",  name: "Honey" },
   ];
   const nutrition = [
-    { label: "Calories", val: "480", goal: "2000", unit: "",   pct: 24 },
-    { label: "Protein",  val: "52",  goal: "95",   unit: "g",  pct: 55 },
-    { label: "Fat",      val: "24",  goal: "75",   unit: "g",  pct: 32 },
-    { label: "Carbs",    val: "12",  goal: "225",  unit: "g",  pct: 5  },
-    { label: "Fiber",    val: "3",   goal: "22",   unit: "g",  pct: 14 },
-    { label: "Sodium",   val: "620", goal: "2300", unit: "mg", pct: 27 },
+    { label: "Calories", val: "524", goal: "2000", unit: "",   pct: 26 },
+    { label: "Protein",  val: "44",  goal: "95",   unit: "g",  pct: 46 },
+    { label: "Fat",      val: "19",  goal: "75",   unit: "g",  pct: 25 },
+    { label: "Carbs",    val: "46",  goal: "225",  unit: "g",  pct: 20 },
+    { label: "Fiber",    val: "1",   goal: "22",   unit: "g",  pct: 5  },
+    { label: "Sodium",   val: "540", goal: "2300", unit: "mg", pct: 23 },
   ];
   const steps = [
-    "Pat salmon dry. Season both sides with salt and white pepper.",
-    "Mix soy sauce, sesame oil, and ginger in a small bowl. Set aside.",
-    "Heat olive oil in a large skillet over medium-high. Add garlic, sauté 30 seconds until fragrant.",
-    "Add salmon skin-side up. Cook 4 minutes without moving. Flip, cook 3 more minutes.",
-    "Pour sauce over salmon. Add bok choy to pan, toss to coat. Cover and steam 2 minutes.",
-    "Serve immediately, spooning pan sauce over the top.",
+    "Start the coconut rice — rinse rice, combine with coconut milk and ½ cup water. Bring to boil, reduce to low, cover 18 min.",
+    "Whisk tamari, sesame oil, honey, and grated ginger together. Set aside.",
+    "Pat salmon dry. Season with salt and white pepper on both sides.",
+    "Heat a skillet over medium-high. Sear salmon skin-side down 4 min. Flip, cook 3 min more.",
+    "Pour glaze over salmon in the last minute of cooking. Spoon over the top as it thickens.",
+    "Serve salmon over coconut rice. Garnish with sliced scallions and chili flakes.",
   ];
 
   return (
@@ -357,10 +371,10 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
           ))}
         </div>
         <div style={{ fontFamily: "var(--display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, color: "var(--fg)", marginBottom: 4 }}>
-          Ginger Soy Salmon
+          Crispy Salmon w/ Coconut Rice
         </div>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", marginBottom: 0 }}>
-          2 servings · 20 min prep · 15 min cook
+        <div style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)" }}>
+          2 servings · 15 min prep · 25 min cook
         </div>
       </div>
       {/* Jump nav */}
@@ -369,7 +383,7 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
           { n: "01", l: "Ingredients", active: true },
           { n: "02", l: "Nutrition" },
           { n: "03", l: "Instructions" },
-          { n: "04", l: "Optimize" },
+          { n: "04", l: "Optimization" },
           { n: "05", l: "Meal Prep" },
         ].map(s => (
           <div key={s.l} style={{
@@ -392,9 +406,11 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
             <div style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", paddingBottom: 6, borderBottom: "1px solid var(--rule)", marginBottom: 8 }}>Ingredients</div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {ingredients.map(ing => (
-                <li key={ing.name} style={{ display: "flex", gap: 10, padding: "6px 0", borderBottom: "1px solid var(--rule)" }}>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 8.5, color: "var(--muted)", minWidth: 46, textAlign: "right", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{ing.qty}</span>
-                  <span style={{ fontSize: 11.5, lineHeight: 1.4, color: "var(--fg)" }}>{ing.name}</span>
+                <li key={ing.name} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "5px 0", borderBottom: "1px solid var(--rule)" }}>
+                  {/* checkbox */}
+                  <span style={{ width: 9, height: 9, border: "1px solid var(--rule)", borderRadius: 2, flexShrink: 0, marginTop: 1 }} />
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--muted)", minWidth: 40, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{ing.qty}</span>
+                  <span style={{ fontSize: 11, lineHeight: 1.4, color: "var(--fg)" }}>{ing.name}</span>
                 </li>
               ))}
             </ul>
@@ -403,13 +419,13 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
             <div style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", paddingBottom: 6, borderBottom: "1px solid var(--rule)", marginBottom: 4 }}>
               Per serving · vs goals
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               {nutrition.map(n => (
                 <div key={n.label}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     <span style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--fg-2)" }}>{n.label}</span>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 8.5, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-                      {n.val}{n.unit}<span style={{ fontSize: 7.5, color: "var(--muted)" }}> / {n.goal}{n.unit}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
+                      {n.val}{n.unit}<span style={{ fontSize: 7, color: "var(--muted)" }}> / {n.goal}{n.unit}</span>
                     </span>
                   </div>
                   <NutBar pct={n.pct} />
@@ -421,16 +437,18 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
 
         {/* 03 Instructions — revealed by scroll */}
         <div style={{ padding: "0 24px 28px", borderTop: "1px solid var(--rule)" }}>
-          <div style={{ fontFamily: "var(--display)", fontSize: 10, fontWeight: 700, color: "var(--rule)", display: "inline", marginRight: 8 }}>03</div>
-          <span style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)" }}>Instructions</span>
-          <div style={{ height: 1, background: "var(--rule)", marginBottom: 12, marginTop: 6 }} />
-          <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 0 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "14px 0 10px" }}>
+            <span style={{ fontFamily: "var(--display)", fontSize: 11, fontWeight: 700, color: "var(--rule)" }}>03</span>
+            <span style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)" }}>Instructions</span>
+            <div style={{ flex: 1, height: 1, background: "var(--rule)", alignSelf: "center" }} />
+          </div>
+          <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {steps.map((step, i) => (
-              <li key={i} style={{ display: "flex", gap: 12, padding: "9px 0", borderBottom: "1px solid var(--rule)" }}>
-                <span style={{ fontFamily: "var(--display)", fontSize: 11, fontWeight: 700, color: BRAND_SAGE, minWidth: 18, flexShrink: 0, lineHeight: 1.6 }}>
+              <li key={i} style={{ display: "flex", gap: 12, padding: "8px 0", borderBottom: "1px solid var(--rule)" }}>
+                <span style={{ fontFamily: "var(--display)", fontSize: 11, fontWeight: 700, color: BRAND_SAGE, minWidth: 18, flexShrink: 0, lineHeight: 1.65 }}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span style={{ fontSize: 11.5, lineHeight: 1.65, color: "var(--fg-2)" }}>{step}</span>
+                <span style={{ fontSize: 11, lineHeight: 1.65, color: "var(--fg-2)" }}>{step}</span>
               </li>
             ))}
           </ol>
@@ -441,12 +459,19 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Screen 3 — Optimize (same recipe, scrolled to 04 Optimize + 05 Meal Prep)
+   Screen 3 — Optimize (same recipe, 04 Optimization active)
+   Shows optimization notes + comparison table + meal prep batching
    ───────────────────────────────────────────────────────────── */
 function AIOptimizeScreen() {
-  const swaps = [
-    { from: "Soy sauce (2 tbsp)", to: "Coconut aminos",  why: "−440mg sodium" },
-    { from: "Sesame oil (1 tsp)", to: "Extra olive oil",  why: "+polyphenols" },
+  const compTable = [
+    { ing: "White rice",   orig: "200g",   opt: "Brown rice",    kcal: "−18", prot: "+1g", fat: "—",    carb: "−2g",  fiber: "+2g" },
+    { ing: "Coconut milk", orig: "240ml",  opt: "Light coconut", kcal: "−100",prot: "—",   fat: "−10g", carb: "−2g",  fiber: "—"   },
+    { ing: "Honey",        orig: "1 tbsp", opt: "Monk fruit",    kcal: "−60", prot: "—",   fat: "—",    carb: "−17g", fiber: "—"   },
+  ];
+  const batchTable = [
+    { item: "Coconut rice",   time: "Sun",  store: "4 days", note: "Reheat with splash of water" },
+    { item: "Salmon glaze",   time: "Sun",  store: "5 days", note: "Store in jar, shake before use" },
+    { item: "Salmon fillet",  time: "Fresh",store: "2 days", note: "Best cooked day-of; reheat gently" },
   ];
 
   return (
@@ -454,16 +479,16 @@ function AIOptimizeScreen() {
       <MiniNav active="Recipes" />
       {/* Recipe header (condensed) */}
       <div style={{ padding: "10px 24px 0", flexShrink: 0 }}>
-        <div style={{ fontFamily: "var(--display)", fontSize: 17, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)", marginBottom: 2 }}>Ginger Soy Salmon</div>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)" }}>2 servings · 20 min prep</div>
+        <div style={{ fontFamily: "var(--display)", fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)", marginBottom: 2 }}>Crispy Salmon w/ Coconut Rice</div>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)" }}>2 servings · 15 min prep</div>
       </div>
-      {/* Jump nav — 04 Optimize active */}
+      {/* Jump nav — 04 Optimization active */}
       <div style={{ display: "flex", padding: "0 24px", borderBottom: "1px solid var(--rule)", flexShrink: 0, marginTop: 8 }}>
         {[
           { n: "01", l: "Ingredients" },
           { n: "02", l: "Nutrition" },
           { n: "03", l: "Instructions" },
-          { n: "04", l: "Optimize", active: true },
+          { n: "04", l: "Optimization", active: true },
           { n: "05", l: "Meal Prep" },
         ].map(s => (
           <div key={s.l} style={{
@@ -479,40 +504,61 @@ function AIOptimizeScreen() {
         ))}
       </div>
 
-      <div style={{ flex: 1, padding: "16px 24px", overflowY: "scroll", scrollbarWidth: "none" }}>
+      <div style={{ flex: 1, padding: "14px 24px", overflowY: "scroll", scrollbarWidth: "none" }}>
         {/* 04 Optimization */}
-        <div style={{ marginBottom: 22 }}>
+        <div style={{ marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
             <span style={{ fontFamily: "var(--display)", fontSize: 11, fontWeight: 700, color: "var(--rule)" }}>04</span>
-            <span style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)" }}>Optimization</span>
+            <span style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)" }}>Optimization Notes</span>
             <div style={{ flex: 1, height: 1, background: "var(--rule)", alignSelf: "center" }} />
           </div>
-          <div style={{ fontSize: 11.5, lineHeight: 1.65, color: "var(--fg-2)", marginBottom: 12 }}>
-            Recipe is high-protein with good fat profile. To further reduce sodium and boost micronutrients, consider these ingredient swaps:
+          <div style={{ fontSize: 11, lineHeight: 1.65, color: "var(--fg-2)", marginBottom: 12 }}>
+            High in protein and healthy fats. Three swaps reduce calories and carbs while keeping the dish satisfying:
           </div>
-          {swaps.map(swap => (
-            <div key={swap.from} style={{
-              display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
-              background: "rgba(90,155,106,0.07)", border: `1px solid rgba(90,155,106,0.20)`,
-              borderRadius: 3, marginBottom: 6,
-            }}>
-              <span style={{ fontSize: 10.5, color: "var(--muted)", textDecoration: "line-through" }}>{swap.from}</span>
-              <span style={{ fontSize: 10.5, color: BRAND_SAGE }}>→</span>
-              <span style={{ fontSize: 10.5, color: "var(--fg)", fontWeight: 500 }}>{swap.to}</span>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: "var(--muted)", marginLeft: "auto" }}>{swap.why}</span>
+          {/* Comparison table */}
+          <div style={{ border: "1px solid var(--rule)", overflow: "hidden", marginBottom: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr 1fr", background: "var(--bg-2)", borderBottom: "1px solid var(--rule)" }}>
+              {["Ingredient", "Original", "Optimized", "Kcal", "Prot", "Fat", "Carb"].map(h => (
+                <div key={h} style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", padding: "5px 6px" }}>{h}</div>
+              ))}
             </div>
-          ))}
+            {compTable.map((row, i) => (
+              <div key={row.ing} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr 1fr", borderBottom: i < compTable.length - 1 ? "1px solid var(--rule)" : "none" }}>
+                <div style={{ fontSize: 9.5, color: "var(--fg)", padding: "6px 6px" }}>{row.ing}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--muted)", padding: "6px 6px", textDecoration: "line-through" }}>{row.orig}</div>
+                <div style={{ fontSize: 9.5, color: BRAND_SAGE, padding: "6px 6px", fontWeight: 500 }}>{row.opt}</div>
+                {[row.kcal, row.prot, row.fat, row.carb].map((v, vi) => (
+                  <div key={vi} style={{ fontFamily: "var(--mono)", fontSize: 8, color: v === "—" ? "var(--rule)" : v.startsWith("−") ? "var(--ok)" : "var(--fg-2)", padding: "6px 6px", fontVariantNumeric: "tabular-nums" }}>{v}</div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* 05 Meal Prep */}
         <div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
             <span style={{ fontFamily: "var(--display)", fontSize: 11, fontWeight: 700, color: "var(--rule)" }}>05</span>
-            <span style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)" }}>Meal Prep</span>
+            <span style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)" }}>Meal Prep</span>
             <div style={{ flex: 1, height: 1, background: "var(--rule)", alignSelf: "center" }} />
           </div>
-          <div style={{ fontSize: 11.5, lineHeight: 1.7, color: "var(--fg-2)" }}>
-            Prep the sauce (soy, ginger, sesame) up to 3 days ahead and refrigerate. Salmon is best cooked fresh — 8 minutes total from cold. Bok choy can be blanched in advance and added at the last minute. Leftovers keep 2 days; reheat gently to avoid drying out the fish.
+          <div style={{ fontSize: 11, lineHeight: 1.6, color: "var(--fg-2)", marginBottom: 10 }}>
+            Batch the rice and glaze on Sunday — both hold well. Cook salmon fresh each time for best texture.
+          </div>
+          <div style={{ border: "1px solid var(--rule)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.7fr 0.8fr 1.5fr", background: "var(--bg-2)", borderBottom: "1px solid var(--rule)" }}>
+              {["Component", "Batch", "Stores", "Notes"].map(h => (
+                <div key={h} style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", padding: "5px 8px" }}>{h}</div>
+              ))}
+            </div>
+            {batchTable.map((row, i) => (
+              <div key={row.item} style={{ display: "grid", gridTemplateColumns: "1.2fr 0.7fr 0.8fr 1.5fr", borderBottom: i < batchTable.length - 1 ? "1px solid var(--rule)" : "none" }}>
+                <div style={{ fontSize: 10, color: "var(--fg)", padding: "7px 8px" }}>{row.item}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: row.time === "Fresh" ? MICHAEL_RED : BRAND_SAGE, padding: "7px 8px" }}>{row.time}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--muted)", padding: "7px 8px" }}>{row.store}</div>
+                <div style={{ fontSize: 9.5, color: "var(--fg-2)", padding: "7px 8px", lineHeight: 1.4 }}>{row.note}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -529,9 +575,22 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
 
   useEffect(() => {
     if (!isActive) { setPanelOpen(false); return; }
-    const t1 = setTimeout(() => setPanelOpen(true),  1400);
-    const t2 = setTimeout(() => setPanelOpen(false), 5000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    let cancelled = false;
+    const cycle = () => {
+      if (cancelled) return;
+      setPanelOpen(false);
+      const t1 = setTimeout(() => {
+        if (cancelled) return;
+        setPanelOpen(true);
+        const t2 = setTimeout(() => {
+          if (cancelled) return;
+          setPanelOpen(false);
+          const t3 = setTimeout(() => { if (!cancelled) cycle(); }, 1800);
+        }, 5000);
+      }, 1600);
+    };
+    cycle();
+    return () => { cancelled = true; setPanelOpen(false); };
   }, [isActive]);
 
   const days = [
@@ -583,13 +642,13 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
               background: b === "‹ Nutrition" && panelOpen ? "var(--bg-2)" : "transparent",
             }}>{b}</span>
           ))}
-          {["Chloe", "Michael", "Everyone"].map(p => (
+          {["Sarah", "Michael", "Everyone"].map(p => (
             <span key={p} style={{
               fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
               padding: "3px 7px",
-              border: p === "Chloe" ? `1.5px solid ${BRAND_SAGE}` : "1px solid var(--rule)",
-              borderRadius: 9999, color: p === "Chloe" ? "var(--fg)" : "var(--muted)",
-              fontWeight: p === "Chloe" ? 600 : 400,
+              border: p === "Sarah" ? `1.5px solid ${BRAND_SAGE}` : "1px solid var(--rule)",
+              borderRadius: 9999, color: p === "Sarah" ? "var(--fg)" : "var(--muted)",
+              fontWeight: p === "Sarah" ? 600 : 400,
             }}>{p}</span>
           ))}
         </div>
@@ -632,7 +691,7 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
         {/* Nutrition panel — slides in/out */}
         <div style={{
           width: panelOpen ? 230 : 0,
-          transition: `width ${panelOpen ? "500ms" : "380ms"} cubic-bezier(0.23, 1, 0.32, 1)`,
+          transition: `width ${panelOpen ? "800ms" : "600ms"} cubic-bezier(0.23, 1, 0.32, 1)`,
           overflow: "hidden", flexShrink: 0,
           borderLeft: "1px solid var(--rule)", background: "var(--bg)",
         }}>
@@ -640,7 +699,7 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
             <div style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--fg)", marginBottom: 2 }}>Sunday, Apr 5</div>
             <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 10 }}>
               <span style={{ width: 7, height: 7, borderRadius: "50%", background: BRAND_SAGE, flexShrink: 0 }} />
-              <span style={{ fontFamily: "var(--mono)", fontSize: 7.5, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)" }}>Chloe</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 7.5, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)" }}>Sarah</span>
             </div>
             <div style={{ fontFamily: "var(--display)", fontSize: 32, fontWeight: 700, letterSpacing: "-0.04em", color: "var(--fg)", lineHeight: 1 }}>1,107</div>
             <div style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: "var(--muted)", marginBottom: 4 }}>of 2,000 kcal · 55%</div>
@@ -667,7 +726,7 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
 
 /* ─────────────────────────────────────────────────────────────
    Screen 5 — Everyone
-   Person-row grid: day headers + Chloe / Michael / Lindsey rows
+   Person-row grid: day headers + Sarah / Michael / Lindsey rows
    ───────────────────────────────────────────────────────────── */
 function EveryoneScreen() {
   const days = [
@@ -680,7 +739,7 @@ function EveryoneScreen() {
     { abbr: "SAT", num: 11 },
   ];
   const personRows = [
-    { name: "Chloe",   color: BRAND_SAGE,  week: [
+    { name: "Sarah",   color: BRAND_SAGE,  week: [
       [{ t:"B", n:"Eggs & Toast" }, { t:"D", n:"One-pan Fish" }],
       [{ t:"B", n:"Cottage Cheese" }, { t:"L", n:"Salmon Salad" }, { t:"D", n:"Thai Curry" }],
       [{ t:"B", n:"Cottage Cheese" }, { t:"L", n:"Ginger Salmon" }, { t:"D", n:"Curried Lentils" }],
@@ -728,7 +787,7 @@ function EveryoneScreen() {
             fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
             padding: "4px 10px", background: BRAND_SAGE, color: "white", borderRadius: 9999,
           }}>+ New Plan</span>
-          {["Chloe", "Michael", "Lindsey"].map(p => (
+          {["Sarah", "Michael", "Lindsey"].map(p => (
             <span key={p} style={{
               fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
               padding: "3px 7px", border: "1px solid var(--rule)", borderRadius: 9999, color: "var(--muted)",
