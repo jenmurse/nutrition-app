@@ -88,6 +88,7 @@ const CATEGORIES = [
   { value: "Frozen", label: "Frozen" },
   { value: "Canned & Jarred", label: "Canned & Jarred" },
   { value: "Beverages", label: "Beverages" },
+  { value: "Alcohol", label: "Alcohol" },
   { value: "Snacks", label: "Snacks" },
 ];
 
