@@ -326,7 +326,7 @@ export default function Home() {
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
               </div>
               {/* Greeting */}
-              <div className="font-serif" style={{ fontSize: '11.5vw', fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
+              <div className="font-serif hm-greeting-text" style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
                 <span className="block" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 40ms both' }}>{getGreeting()}</span>
                 <span className="block text-[var(--accent)]" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 130ms both' }}>{selectedPerson?.name ?? ""}</span>
               </div>
@@ -347,12 +347,12 @@ export default function Home() {
                       animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
                     }}
                   >
-                    <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
-                    <div className="font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                    <div className="hm-stat-label font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
+                    <div className="hm-stat-value font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                       {formatVal(stat.value)}
-                      {stat.unit && <span className="text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+                      {stat.unit && <span className="hm-stat-unit text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                     </div>
-                    <div className="font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
+                    <div className="hm-stat-sub font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
                       of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
                     </div>
                     <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">

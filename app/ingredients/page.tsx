@@ -21,6 +21,7 @@ type Ingredient = {
   customUnitAmount?: number | null;
   customUnitGrams?: number | null;
   isMealItem?: boolean;
+  category?: string;
   nutrientValues: NutrientValue[];
 };
 
@@ -423,7 +424,7 @@ function IngredientsPage() {
           >
             {sortedIngredients.map((ingredient, idx) => {
               const nutrition = getFullNutrition(ingredient);
-              const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";
+              const category = ingredient.category || (ingredient.isMealItem ? "ITEM" : "INGREDIENT");
               const unitContext = ingredient.customUnitName
                 ? `${ingredient.customUnitAmount || 1} ${ingredient.customUnitName}${ingredient.customUnitGrams ? ` (${ingredient.customUnitGrams}g)` : ""}`
                 : "per 100g";
@@ -513,7 +514,7 @@ function IngredientsPage() {
           <div key={`list-${viewMode}-${foodFilter}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
-              const category = ingredient.isMealItem ? "ITEM" : "INGREDIENT";
+              const category = ingredient.category || (ingredient.isMealItem ? "ITEM" : "INGREDIENT");
               return (
                 <div
                   key={ingredient.id}

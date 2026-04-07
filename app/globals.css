@@ -1233,6 +1233,9 @@ input[type="number"]:focus {
 
 @keyframes evRowIn { from { opacity:0; } to { opacity:1; } }
 
+/* ── Dashboard greeting text ────────────────────────────────────── */
+.hm-greeting-text { font-size: 11.5vw; }
+
 /* ── Dashboard stats strip ───────────────────────────────────────── */
 .hm-stats-strip { display: flex; }
 .hm-stat-item { flex: 1; padding: 18px 0 20px; }
@@ -1784,6 +1787,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .hm-stat-item:not(:last-child) {
     padding-right: 0; margin-right: 0; border-right: none; border-bottom: none;
   }
+
+  /* Greeting: slightly larger on mobile */
+  .hm-greeting-text { font-size: 14vw; }
+
+  /* Stats: bigger text on mobile */
+  .hm-stat-label { font-size: 10px !important; }
+  .hm-stat-value { font-size: 36px !important; }
+  .hm-stat-unit  { font-size: 16px !important; }
+  .hm-stat-sub   { font-size: 10px !important; }
 
   /* "Today's key meals" header: remove border-top, more top gap */
   .hm-keymeal-hdr  { border-top: none !important; padding-top: 40px !important; }
@@ -2375,4 +2387,18 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* ── Custom cursor — hide system cursor on fine-pointer devices ── */
 @media (pointer: fine) {
   *, *::before, *::after { cursor: none !important; }
+}
+
+/* ── Cursor dot styles ───────────────────────────────────────────── */
+.cursor-dot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--fg);
+  transform: translate(-50%, -50%);
+  transition: background 0.18s, width 0.22s, height 0.22s;
+}
+.cursor-dot.on-link {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  mix-blend-mode: multiply;
 }

@@ -80,6 +80,7 @@ const CATEGORIES = [
   { value: "Dairy & Eggs", label: "Dairy & Eggs" },
   { value: "Grains & Bread", label: "Grains & Bread" },
   { value: "Baking", label: "Baking" },
+  { value: "Nuts & Seeds", label: "Nuts & Seeds" },
   { value: "Spices & Seasonings", label: "Spices & Seasonings" },
   { value: "Condiments & Sauces", label: "Condiments & Sauces" },
   { value: "Oils & Fats", label: "Oils & Fats" },
