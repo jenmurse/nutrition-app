@@ -186,7 +186,7 @@ export default function PreviewPage() {
           {/* Calories */}
           <div className="flex-1 px-8 py-6">
             <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Calories today</div>
-            <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">1,180</div>
+            <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">1,180</div>
             <div className="font-mono text-[9px] text-[var(--muted)] mb-2">of 2,000 kcal</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "59%" }} />
@@ -195,7 +195,7 @@ export default function PreviewPage() {
           {/* Protein */}
           <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
             <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Protein</div>
-            <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">82g</div>
+            <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">82g</div>
             <div className="font-mono text-[9px] text-[var(--muted)] mb-2">of 120g goal</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "68%" }} />
@@ -204,7 +204,7 @@ export default function PreviewPage() {
           {/* Meals */}
           <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
             <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Meals today</div>
-            <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">3</div>
+            <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">3</div>
             <div className="font-mono text-[9px] text-[var(--muted)] mb-2">logged</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "100%" }} />

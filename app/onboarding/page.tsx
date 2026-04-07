@@ -414,7 +414,7 @@ export default function OnboardingPage() {
             {/* ── Step 0: Welcome ────────────────────────────────────── */}
             {step === 0 && (
               <div>
-                <h1 className="font-serif text-[30px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
+                <h1 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
                   Know what{"\u2019"}s in your week.
                 </h1>
                 <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -441,7 +441,7 @@ export default function OnboardingPage() {
             {step === 1 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Profile</div>
-                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Make it yours.
                 </h2>
                 <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -512,7 +512,7 @@ export default function OnboardingPage() {
             {step === 2 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Household</div>
-                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Does anyone else cook with you?
                 </h2>
                 <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -604,7 +604,7 @@ export default function OnboardingPage() {
             {step === 3 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Nutrition Goals</div>
-                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Set a direction.
                 </h2>
                 <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -665,7 +665,7 @@ export default function OnboardingPage() {
             {step === 4 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">First Recipe</div>
-                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Import a recipe you already love.
                 </h2>
                 <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
@@ -757,7 +757,7 @@ export default function OnboardingPage() {
             {step === 5 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Setup Complete</div>
-                <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   You{"\u2019"}re set.
                 </h2>
                 <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
