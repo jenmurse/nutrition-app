@@ -979,7 +979,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {persons.map((p) => (
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                          className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-full cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedPersonId === p.id
                               ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent-fg)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
@@ -998,7 +998,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             setGuidedFocus((prev) => prev.includes(g.nutrientId) ? prev.filter((x) => x !== g.nutrientId) : [...prev, g.nutrientId]);
                             if (guidedFocus.includes(g.nutrientId)) setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
                           }}
-                          className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-full cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedFocus.includes(g.nutrientId)
                               ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent-fg)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"

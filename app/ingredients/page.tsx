@@ -312,7 +312,7 @@ function IngredientsPage() {
             </span>
 
             {/* Grid/List toggle */}
-            <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
+            <div className="flex border border-[var(--rule)] overflow-hidden rounded-full transition-colors hover:border-[var(--fg)]">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
@@ -346,7 +346,7 @@ function IngredientsPage() {
             {/* + Add */}
             <button
               onClick={() => router.push("/ingredients/create")}
-              className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+              className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 rounded-full py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
               aria-label="Add new ingredient"
             >+ Add</button>
           </div>
