@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useRouter } from 'next/navigation';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
@@ -1262,13 +1263,13 @@ const MealPlansPage = () => {
           .map(name => dayData.totalNutrients.find(n => n.displayName.includes(name)))
           .filter((n): n is NonNullable<typeof n> => !!n);
         const activeDay = parseUTCDate(dayData.date);
-        return (
+        return createPortal(
           <>
             <div className="mob-sheet-backdrop" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
             <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Nutrition summary">
               <div className="mob-sheet-handle" aria-hidden="true" />
               <div className="flex items-center justify-between" style={{ padding: '8px 20px 4px' }}>
-                <div className="font-sans text-[13px] font-medium text-[var(--fg)]">
+                <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">
                   {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
                 <button
@@ -1369,26 +1370,27 @@ const MealPlansPage = () => {
               </div>
 
             </div>
-          </>
+          </>,
+          document.body
         );
       })()}
 
       {/* Shopping list sheet */}
-      {shopSheetOpen && (
+      {shopSheetOpen && createPortal(
         <>
           <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
           <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list">
             <div className="mob-sheet-handle" aria-hidden="true" />
             <div className="shop-header">
               <div>
-                <div className="shop-header-label">Shopping List</div>
+                <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">Shopping List</div>
                 {selectedPlan && (() => {
                   const s = parseUTCDate(selectedPlan.weekStartDate);
                   const e = new Date(s); e.setDate(e.getDate() + 6);
                   const range = s.getMonth() === e.getMonth()
                     ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
                     : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-                  return <div className="shop-header-date">{range}</div>;
+                  return <div className="font-sans text-[13px] text-[var(--muted)]">{range}</div>;
                 })()}
               </div>
               <div className="shop-header-actions">
@@ -1519,7 +1521,8 @@ const MealPlansPage = () => {
               </button>
             )}
           </div>
-        </>
+        </>,
+        document.body
       )}
 
       {/* Main Content */}
