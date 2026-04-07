@@ -941,46 +941,47 @@ const SettingsPage = () => {
 
               {/* ── Configuration ── */}
               <div className="mt-[40px]">
-                <div className="ed-label mb-[8px]">Configuration</div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
-                  Add the {APP_NAME} MCP server to your assistant&apos;s configuration file.
+                <div className="ed-label mb-[8px]">Connect to your AI assistant</div>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[20px]">
+                  {APP_NAME} works with any MCP-compatible assistant. Generate a token above, then paste the config block into the file for your tool.
                 </p>
 
-                {/* Config table */}
-                <table className="w-full mb-[12px]" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
-                  <thead>
-                    <tr>
-                      <th className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]">Assistant</th>
-                      <th className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]">Config File Path</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-[var(--rule)]">
-                      <td className="text-[var(--fg)] font-medium py-[8px]" style={{ width: 140 }}>Claude Desktop</td>
-                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</td>
-                    </tr>
-                    <tr className="border-b border-[var(--rule)]">
-                      <td className="text-[var(--fg)] font-medium py-[8px]">Cursor</td>
-                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px]">~/.cursor/mcp.json</td>
-                    </tr>
-                    <tr className="border-b border-[var(--rule)]">
-                      <td className="text-[var(--fg)] font-medium py-[8px]">Windsurf / Roo Code</td>
-                      <td className="font-mono text-[9px] text-[var(--muted)] py-[8px]">~/.codeium/windsurf/mcp_config.json</td>
-                    </tr>
-                  </tbody>
-                </table>
+                {/* Config table — stacks on mobile */}
+                <div className="border border-[var(--rule)] mb-[20px]">
+                  {/* Header — hidden on mobile */}
+                  <div className="hidden sm:grid grid-cols-[160px_1fr] border-b border-[var(--rule)]">
+                    <div className="ed-label px-[14px] py-[8px]">Assistant</div>
+                    <div className="ed-label px-[14px] py-[8px]">Config file path</div>
+                  </div>
+                  {[
+                    { name: 'Claude Desktop', path: '~/Library/Application Support/Claude/claude_desktop_config.json' },
+                    { name: 'Cursor',          path: '~/.cursor/mcp.json' },
+                    { name: 'Windsurf',        path: '~/.codeium/windsurf/mcp_config.json' },
+                    { name: 'Roo Code',        path: '~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json' },
+                    { name: 'VS Code + Copilot', path: '.vscode/mcp.json  (or run "MCP: Open User Configuration" in command palette)' },
+                    { name: 'Zed',             path: '~/.config/zed/settings.json  (under "context_servers" key)' },
+                  ].map((row, i, arr) => (
+                    <div key={row.name} className={`sm:grid sm:grid-cols-[160px_1fr] ${i < arr.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
+                      <div className="text-[13px] font-medium text-[var(--fg)] px-[14px] pt-[10px] pb-[2px] sm:py-[10px]">{row.name}</div>
+                      <div className="font-mono text-[9px] text-[var(--muted)] px-[14px] pb-[10px] sm:py-[10px] break-all leading-[1.6]">{row.path}</div>
+                    </div>
+                  ))}
+                </div>
 
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]">
-                  Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">good-measure</code> object to your existing <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">mcpServers</code> list.
+                {/* Config block */}
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[10px]">
+                  Add this to your config file&apos;s <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">mcpServers</code> object.
+                  {newMcpToken
+                    ? <strong className="text-[var(--fg)]"> Your token is pre-filled below.</strong>
+                    : ' Generate a token above to pre-fill your token.'}
                 </p>
-
-                {/* Code block */}
                 <div className="bg-[var(--bg-2)] px-[20px] py-[16px] relative overflow-x-auto">
                   <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
                   <button
                     onClick={() => {
                       const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                      navigator.clipboard.writeText(`{\n  "mcpServers": {\n    "good-measure": {\n      "command": "npx",\n      "args": ["-y", "good-measure-mcp"],\n      "env": {\n        "GOOD_MEASURE_API_URL": "${origin}",\n        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"\n      }\n    }\n  }\n}`);
+                      const token = newMcpToken ?? 'YOUR_TOKEN_HERE';
+                      navigator.clipboard.writeText(`"good-measure": {\n  "command": "npx",\n  "args": ["-y", "good-measure-mcp"],\n  "env": {\n    "GOOD_MEASURE_API_URL": "${origin}",\n    "GOOD_MEASURE_API_TOKEN": "${token}"\n  }\n}`);
                       setConfigBlockCopied(true);
                       setTimeout(() => setConfigBlockCopied(false), 2000);
                     }}
@@ -993,40 +994,36 @@ const SettingsPage = () => {
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
                     )}
                   </button>
-                  <pre className="font-mono text-[11px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`{
-  "mcpServers": {
-    "good-measure": {
-      "command": "npx",
-      "args": ["-y", "good-measure-mcp"],
-      "env": {
-        "GOOD_MEASURE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
-        "GOOD_MEASURE_API_TOKEN": "YOUR_GENERATED_TOKEN"
-      }
-    }
+                  <pre className="font-mono text-[11px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`"good-measure": {
+  "command": "npx",
+  "args": ["-y", "good-measure-mcp"],
+  "env": {
+    "GOOD_MEASURE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
+    "GOOD_MEASURE_API_TOKEN": "${newMcpToken ?? 'YOUR_TOKEN_HERE'}"
   }
 }`}</pre>
                 </div>
 
-                {/* Pro tip */}
-                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] mt-[16px] text-[13px] text-[var(--fg-2)] leading-[1.6]">
-                  <strong className="text-[var(--fg)]">Pro tip:</strong> The npx command auto-fetches the latest version of the MCP server. No manual installation needed.
+                {/* Mac Homebrew note */}
+                <div className="border-l-2 border-[var(--rule)] px-[14px] py-[10px] mt-[12px] text-[12px] text-[var(--muted)] leading-[1.6]">
+                  <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, replace <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
                 </div>
               </div>
 
               {/* ── Test Connection ── */}
               <div className="mt-[40px]">
-                <div className="ed-label mb-[8px]">Test Connection</div>
+                <div className="ed-label mb-[8px]">After connecting</div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
-                  Restart your assistant after saving the config file, then try:
+                  Fully quit and relaunch your assistant after saving the config. Then try one of these prompts:
                 </p>
-                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic">
-                  &ldquo;List my recipes from {APP_NAME} and tell me which ones are highest in protein.&rdquo;
-                </div>
-
-                <div className="ed-label mt-[20px] mb-[8px]">Advanced — Full Optimization Workflow</div>
-                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic">
-                  &ldquo;You are a chef with a background in nutrition. Get my recipe for Almond Croissant Bars. Optimize it to reduce fat and sugar while preserving flavor. Show a comparison table, then save the optimized version.&rdquo;
-                </div>
+                {[
+                  `List my recipes from ${APP_NAME} and tell me which ones are highest in protein.`,
+                  `You are a chef with a background in nutrition. Get my recipe for [recipe name]. Optimize it to reduce saturated fat while preserving flavor. Show a before/after comparison, then save the updated version back to ${APP_NAME}.`,
+                ].map((prompt, i) => (
+                  <div key={i} className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic mb-[8px]">
+                    &ldquo;{prompt}&rdquo;
+                  </div>
+                ))}
               </div>
             </div>
           </div>

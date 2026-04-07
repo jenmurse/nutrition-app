@@ -9,20 +9,7 @@ export const metadata = {
 export default function LandingPage() {
   return (
     <div className="lp-root">
-
-      {/* ── Split hero (nav + copy + features / floating app frame) ── */}
       <LandingScreenCycle />
-
-      {/* ── Footer ── */}
-      <footer className="lp-footer" aria-label="Site footer">
-        <span className="lp-footer-copy">
-          © 2026 Made by{" "}
-          <a href="https://jenmurse.com" target="_blank" rel="noopener noreferrer" className="lp-footer-link">
-            Jen Murse
-          </a>
-        </span>
-      </footer>
-
     </div>
   );
 }

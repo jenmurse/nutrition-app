@@ -21,8 +21,11 @@ export default function CustomCursor() {
       cur.style.top = `${e.clientY}px`;
     };
 
-    const getAccent = () =>
-      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5A9B6A';
+    const getAccent = () => {
+      // Landing page is always brand sage — never inherits person theme
+      if (window.location.pathname === '/landing') return '#5A9B6A';
+      return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5A9B6A';
+    };
 
     const onOver = (e: MouseEvent) => {
       const el = e.target as HTMLElement;
