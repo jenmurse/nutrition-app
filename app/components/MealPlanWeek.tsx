@@ -648,7 +648,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             </div>
 
             {mealTypeContentVisible && (
-              <div className="grid grid-cols-2 gap-0 px-5 sm:px-0" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+              <div className="pl-meal-type-grid grid grid-cols-2 gap-0 px-5 sm:px-0">
                 {availableMealTypes.map((mealType) => (
                   <button
                     key={mealType}
@@ -679,7 +679,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={closeRecipePickerSheet}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[20px] sm:rounded-[16px] sm:max-h-[90vh] relative"
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[20px] sm:rounded-[16px] sm:max-h-[90vh] relative overflow-hidden"
             style={{ animation: closingRecipePicker ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100vh - 80px)', display: 'grid', gridTemplateRows: 'auto auto 1fr auto' }}
             onClick={(e) => e.stopPropagation()}
           >

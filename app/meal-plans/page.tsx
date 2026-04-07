@@ -1401,7 +1401,7 @@ const MealPlansPage = () => {
                     className={`shop-toggle-btn${hideChecked ? ' active' : ''}`}
                     onClick={() => setHideChecked(h => !h)}
                   >
-                    {hideChecked ? 'Show all' : 'Hide done'}
+                    {hideChecked ? 'Show all' : 'Hide completed'}
                   </button>
                 )}
                 <button

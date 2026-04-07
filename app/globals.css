@@ -1188,7 +1188,7 @@ input[type="number"]:focus {
 .pl-swap-instead { font-family:'DM Sans',sans-serif; font-size:11px; color:var(--muted); margin-bottom:4px; }
 .pl-swap-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .pl-swap-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.3; }
-.pl-swap-savings { font-family:'DM Mono',monospace; font-size:9px; color:var(--ok); margin-top:2px; }
+.pl-swap-savings { font-family:'DM Mono',monospace; font-size:9px; color:var(--ok); margin-top:2px; margin-bottom:10px; }
 
 .pl-swap-btn { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: var(--radius-pill); color:var(--muted); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out); }
 .pl-swap-btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -1474,6 +1474,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--accent);
 }
 
+/* Meal type picker grid — mobile needs safe-area bottom, desktop covered by parent padding */
+.pl-meal-type-grid { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+@media (min-width: 641px) { .pl-meal-type-grid { padding-bottom: 4px; } }
+
 /* Sheet backdrop */
 .mob-sheet-backdrop {
   position: fixed;
@@ -1735,6 +1739,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     animation: none;
   }
   .pl-shop-sheet .mob-sheet-done { height: 48px; flex-shrink: 0; margin: 12px 20px 20px; }
+  /* Hide drag handle on desktop — not needed for centered modal */
+  .pl-shop-sheet .mob-sheet-handle { display: none; }
 }
 
 /* ── Shopping list component ── */
