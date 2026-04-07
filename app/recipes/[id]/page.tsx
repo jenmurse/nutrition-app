@@ -460,6 +460,14 @@ export default function RecipeDetailPage() {
           {/* ── Hero ── */}
           <div className="rd-hero grid gap-[56px] items-start" style={{ gridTemplateColumns: "1fr 1fr", padding: "48px 0 72px", minHeight: "50vh" }}>
             <div>
+              {/* Tags */}
+              {tags.length > 0 && (
+                <div className="flex gap-[6px] mb-4">
+                  {tags.map(tag => (
+                    <span key={tag} className="rd-tag font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">{tag}</span>
+                  ))}
+                </div>
+              )}
               {/* Name */}
               <h1 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-4" style={{ fontSize: "clamp(30px, 3.4vw, 48px)", textWrap: "balance" }}>
                 {recipe.name}
@@ -469,13 +477,6 @@ export default function RecipeDetailPage() {
                 <span>{recipe.servingSize} {recipe.servingUnit}</span>
                 {recipe.prepTime != null && <> · <span>{recipe.prepTime} min prep</span></>}
                 {recipe.cookTime != null && <> · <span>{recipe.cookTime} min cook</span></>}
-                {tags.length > 0 && (
-                  <div className="flex gap-[6px] mt-[10px]">
-                    {tags.map(tag => (
-                      <span key={tag} className="rd-tag font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">{tag}</span>
-                    ))}
-                  </div>
-                )}
               </div>
               {/* Source */}
               {recipe.sourceApp?.startsWith("http") && (() => {

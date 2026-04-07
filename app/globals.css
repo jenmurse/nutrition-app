@@ -2533,7 +2533,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Recipe detail: reduce top gap (no sticky header anymore) ── */
   #rd-scroll-container .detail-content { padding-top: 16px !important; }
-  .rd-hero { padding-top: 8px !important; }
+  .rd-hero { padding-top: 8px !important; padding-bottom: 32px !important; min-height: 0 !important; }
+
+  /* ── Recipe detail: tighten section spacing on mobile ── */
+  #rd-sec-ing,
+  #rd-sec-steps,
+  #rd-sec-opt,
+  #rd-sec-prep { padding-top: 32px !important; padding-bottom: 32px !important; }
 
   /* ── Recipe/pantry builder: prevent URL input causing horizontal scroll ── */
   #rd-scroll-container { overflow-x: hidden; }
