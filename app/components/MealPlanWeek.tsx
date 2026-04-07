@@ -632,7 +632,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={closeMealTypeSheet}
         >
           <div
-            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[12px] sm:rounded-t-none relative"
+            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[20px] sm:rounded-[16px] relative"
             style={{ animation: closingMealType ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -679,7 +679,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={closeRecipePickerSheet}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[12px] sm:rounded-t-none sm:max-h-[90vh] relative"
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[20px] sm:rounded-[16px] sm:max-h-[90vh] relative"
             style={{ animation: closingRecipePicker ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100vh - 80px)', display: 'grid', gridTemplateRows: 'auto auto 1fr auto' }}
             onClick={(e) => e.stopPropagation()}
           >

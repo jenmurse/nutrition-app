@@ -758,7 +758,7 @@ const SettingsPage = () => {
                       style={{
                         background: isActive ? 'var(--accent)' : 'var(--bg-2)',
                         color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
-                        borderRadius: '6px',
+                        borderRadius: '9999px',
                       }}
                       aria-label={`Goals for ${person.name}`}
                     >
