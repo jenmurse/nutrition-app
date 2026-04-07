@@ -749,7 +749,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   </div>
 
                   {/* Tag filter chips */}
-                  <div className="flex flex-wrap gap-[4px] mb-4">
+                  <div className="flex flex-wrap gap-[4px] mb-4 items-start">
                     {availableRecipeTags.map((tag) => (
                       <button
                         key={tag}
