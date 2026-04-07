@@ -1374,33 +1374,33 @@ const MealPlansPage = () => {
           <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
           <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list" style={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
             <div className="mob-sheet-handle" aria-hidden="true" />
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 20px 12px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 20px 12px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--fg)', marginBottom: 2 }}>Shopping List</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
-                  {selectedPlan && (() => {
-                    const s = parseUTCDate(selectedPlan.weekStartDate);
-                    const e = new Date(s); e.setDate(e.getDate() + 6);
-                    const range = s.getMonth() === e.getMonth()
-                      ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
-                      : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-                    return <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>{range}</span>;
-                  })()}
-                  {checkedItems.size > 0 && (
-                    <button
-                      onClick={() => setHideChecked(h => !h)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: hideChecked ? 'var(--accent)' : 'var(--muted)', padding: 0 }}
-                    >
-                      {hideChecked ? 'Show all' : 'Hide done'}
-                    </button>
-                  )}
-                </div>
+                {selectedPlan && (() => {
+                  const s = parseUTCDate(selectedPlan.weekStartDate);
+                  const e = new Date(s); e.setDate(e.getDate() + 6);
+                  const range = s.getMonth() === e.getMonth()
+                    ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
+                    : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                  return <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{range}</div>;
+                })()}
               </div>
-              <button
-                onClick={() => setShopSheetOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '0 0 0 8px', fontSize: 18, lineHeight: 1 }}
-                aria-label="Close shopping list"
-              >✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                {checkedItems.size > 0 && (
+                  <button
+                    onClick={() => setHideChecked(h => !h)}
+                    style={{ background: hideChecked ? 'var(--accent)' : 'var(--bg-3)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: hideChecked ? 'var(--accent-fg)' : 'var(--muted)', padding: '7px 10px', borderRadius: 4, minHeight: 32, minWidth: 44 }}
+                  >
+                    {hideChecked ? 'Show all' : 'Hide done'}
+                  </button>
+                )}
+                <button
+                  onClick={() => setShopSheetOpen(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '8px', fontSize: 18, lineHeight: 1, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  aria-label="Close shopping list"
+                >✕</button>
+              </div>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px' }}>
               {shopLoading ? (
