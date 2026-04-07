@@ -1508,7 +1508,7 @@ const MealPlansPage = () => {
               })()}
             </div>
             {shopItems.length > 0 && (
-              <button className="mob-sheet-done" onClick={handleShareList} style={{ height: 46, margin: '12px 20px 20px' }}>
+              <button className="mob-sheet-done" onClick={handleShareList} style={{ margin: '12px 20px 20px' }}>
                 Share
               </button>
             )}
