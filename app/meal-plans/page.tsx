@@ -1273,7 +1273,7 @@ const MealPlansPage = () => {
                 </div>
                 <button
                   onClick={() => setMobNutSheetOpen(false)}
-                  className="w-[28px] h-[28px] flex items-center justify-center rounded-full text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-1"
+                  className="w-[44px] h-[44px] flex items-center justify-center rounded-full text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-[8px]"
                   aria-label="Close nutrition summary"
                 >✕</button>
               </div>
