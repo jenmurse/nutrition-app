@@ -1689,7 +1689,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: var(--bg-3);
+  background: none;
   border: none;
   border-radius: var(--radius-pill);
   color: var(--muted);
@@ -1700,7 +1700,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: color 0.15s, background 0.15s;
 }
 .pl-cart-btn::before { content: ''; position: absolute; inset: -5px; }
-.pl-cart-btn:hover { color: var(--fg); background: var(--bg-2); }
+.pl-cart-btn:hover { color: var(--fg); }
 .pl-cart-btn:active { opacity: 0.7; }
 
 /* Shopping list sheet — flex column so share button stays pinned at bottom */
@@ -2446,6 +2446,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* Planner mobile nutrition button — visible only on mobile */
   .pl-mob-nut-btn { display: flex; }
+
+  /* Cart button: bg-3 fill on mobile to match toolbar icon pattern */
+  .pl-cart-btn { background: var(--bg-3); }
+  .pl-cart-btn:hover { background: var(--bg-2); }
 
 
   /* Shopping list sheet: explicit height on mobile for flex to work */
