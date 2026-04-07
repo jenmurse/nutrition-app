@@ -542,7 +542,7 @@ export default function RecipeDetailPage() {
                   <div className="flex gap-1" role="group" aria-label="Scale recipe">
                     {[1, 2, 4, 6].map(n => (
                       <button key={n} onClick={() => setScale(n)}
-                        className={`font-mono text-[8px] tracking-[0.06em] px-[7px] py-[2px] border transition-colors active:scale-[0.97] ${
+                        className={`font-mono text-[8px] tracking-[0.06em] px-[7px] py-[2px] border rounded-full transition-colors active:scale-[0.97] ${
                           scale === n
                             ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]"
                             : "bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]"
