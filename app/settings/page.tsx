@@ -595,7 +595,7 @@ const SettingsPage = () => {
                       />
                       <span className="text-[13px] text-[var(--fg)] font-medium">{person.name}</span>
                       {role && (
-                        <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-full">{role}</span>
+                        <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">{role}</span>
                       )}
                       {role !== 'owner' && (
                         <button
@@ -758,7 +758,7 @@ const SettingsPage = () => {
                       style={{
                         background: isActive ? 'var(--accent)' : 'var(--bg-2)',
                         color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
-                        borderRadius: '9999px',
+                        borderRadius: 'var(--radius-pill)',
                       }}
                       aria-label={`Goals for ${person.name}`}
                     >
