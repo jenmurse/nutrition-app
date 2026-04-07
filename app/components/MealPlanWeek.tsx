@@ -641,7 +641,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
               <h3 className="font-sans text-[16px] font-semibold text-[var(--fg)]">Select meal type</h3>
               <button
-                className="text-[18px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
+                className="text-[16px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
                 onClick={closeMealTypeSheet}
                 aria-label="Close"
               >✕</button>
@@ -662,7 +662,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     onClick={() => handleSelectMealType(mealType)}
                     aria-label={mealType}
                   >
-                    <span className="font-sans text-[15px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                    <span className="font-sans text-[16px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
                   </button>
                 ))}
               </div>
@@ -709,7 +709,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
               </div>
               <button
-                className="text-[18px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
+                className="text-[16px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
                 onClick={closeRecipePickerSheet}
                 aria-label="Close"
               >✕</button>
@@ -915,7 +915,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         className="w-[14px] h-[14px]"
                         aria-label={`Also add to ${op.name}'s plan`}
                       />
-                      <span className="font-mono text-[10px] text-[var(--muted)]">
+                      <span className="font-mono text-[11px] text-[var(--muted)]">
                         {op.name}
                       </span>
                     </label>

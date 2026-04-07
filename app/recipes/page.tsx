@@ -306,7 +306,7 @@ function RecipesPage() {
           <div className="list-tags contents">
           <button
             onClick={() => updateSearchParam("tags", "")}
-            className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+            className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
               selectedTags.length === 0
                 ? "text-[var(--fg)] border-[var(--rule)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -318,7 +318,7 @@ function RecipesPage() {
             <button
               key={tag}
               onClick={() => toggleTag(tag)}
-              className={`filter-chip font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
                 selectedTags.includes(tag)
                   ? "text-[var(--fg)] border-[var(--rule)]"
                   : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -330,7 +330,7 @@ function RecipesPage() {
           {/* Favorites chip */}
           <button
             onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
-            className={`filter-chip flex items-center gap-[4px] font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+            className={`filter-chip flex items-center gap-[4px] font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
               showFavorites
                 ? "text-[#ef4444] border-[var(--rule)]"
                 : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -348,7 +348,7 @@ function RecipesPage() {
           {/* Right side controls */}
           <div className="list-controls flex gap-[5px] items-center ml-auto">
             {/* Recipe count */}
-            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
+            <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
               {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
             </span>
 
@@ -359,7 +359,7 @@ function RecipesPage() {
                 aria-label="Sort recipes by"
                 aria-expanded={sortOpen}
                 aria-haspopup="listbox"
-                className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+                className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
               >
                 {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
                 <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
@@ -377,7 +377,7 @@ function RecipesPage() {
                       role="option"
                       aria-selected={sortBy === opt.key}
                       onClick={() => { updateSearchParam("sort", opt.key === "name" ? "" : opt.key); setSortOpen(false); }}
-                      className={`block w-full text-left font-mono text-[8px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                      className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                         sortBy === opt.key
                           ? "text-[var(--fg)] bg-transparent"
                           : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -389,7 +389,7 @@ function RecipesPage() {
               <button
                 onClick={() => updateSearchParam("dir", sortDir === "asc" ? "desc" : "asc")}
                 aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
-                className="font-mono text-[10px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
+                className="font-mono text-[11px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
               >{sortDir === "asc" ? "↑" : "↓"}</button>
             </div>
 
@@ -397,7 +397,7 @@ function RecipesPage() {
             <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
+                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
                   viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
                 }`}
                 aria-label="Grid view"
@@ -405,7 +405,7 @@ function RecipesPage() {
               >Grid</button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
+                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
                   viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
                 }`}
                 aria-label="List view"
@@ -428,7 +428,7 @@ function RecipesPage() {
             {/* + New */}
             <button
               onClick={() => router.push("/recipes/create")}
-              className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 rounded-pill py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+              className="font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 rounded-pill py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
               aria-label="Create new recipe"
             >+ New</button>
           </div>
@@ -525,7 +525,7 @@ function RecipesPage() {
       <div className="list-scroll flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading recipes…</div>
+            <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading recipes…</div>
           </div>
         ) : sortedRecipes.length === 0 ? (
           <div className="flex items-center justify-center h-full">
@@ -597,7 +597,7 @@ function RecipesPage() {
                         <>
                           {/* Desktop: fixed 4 stats */}
                           <div className="rcp-card-stats flex gap-2 items-baseline flex-wrap">
-                            <span className="font-mono text-[10px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
+                            <span className="font-mono text-[11px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
                             <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
                             <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
                             <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
@@ -605,7 +605,7 @@ function RecipesPage() {
                           {/* Mobile: user's dashboard stats */}
                           <div className="rcp-card-stats-mob gap-2 items-baseline flex-wrap">
                             {getMobileCardStats(recipe).map(s => (
-                              <span key={s.label} className="font-mono text-[10px] tabular-nums whitespace-nowrap">
+                              <span key={s.label} className="font-mono text-[11px] tabular-nums whitespace-nowrap">
                                 <strong className="text-[var(--fg)] font-normal">{s.value}{s.unit}</strong>{' '}
                                 <span className="text-[var(--muted)]">{s.label}</span>
                               </span>
@@ -614,7 +614,7 @@ function RecipesPage() {
                         </>
                       )}
                       {recipe.isComplete === false && (
-                        <div className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
+                        <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                       )}
                     </div>
                     {/* Accent bar on hover */}
@@ -667,9 +667,9 @@ function RecipesPage() {
                   {/* Name + category */}
                   <div className="rcp-list-info flex-1 min-w-0 flex items-baseline gap-[12px]">
                     {category && (
-                      <span className="rcp-list-eyebrow font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
+                      <span className="rcp-list-eyebrow font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                     )}
-                    <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{recipe.name}</span>
+                    <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{recipe.name}</span>
                   </div>
                   {/* Accent bar on hover */}
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
@@ -686,7 +686,7 @@ function RecipesPage() {
                     </div>
                   )}
                   {recipe.isComplete === false && (
-                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
+                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
                   )}
                   {/* Favorite heart */}
                   <button

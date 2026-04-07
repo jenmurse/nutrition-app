@@ -74,7 +74,7 @@ export default function TopNav() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPersonId(p.id)}
-                  className="nav-person-dot w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[7px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
+                  className="nav-person-dot w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[9px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
                   style={{
                     background: p.color || "var(--accent)",
                     boxShadow: isSelected ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${p.color || 'var(--accent)'}` : 'none',

@@ -166,7 +166,7 @@ export default function CreateRecipePage() {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--accent)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
@@ -185,14 +185,14 @@ export default function CreateRecipePage() {
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
-            <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / New</div>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / New</div>
             <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>New Recipe</h1>
           </div>
 
           {/* Import section */}
           {!importedRecipe && (
             <div style={{ marginBottom: 64 }}>
-              <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Import Recipe</div>
+              <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Import Recipe</div>
               <div className="flex gap-[10px] items-end">
                 <div className="ed-field flex-1" style={{ marginBottom: 0 }}>
                   <input
@@ -209,7 +209,7 @@ export default function CreateRecipePage() {
                 <button className="ed-btn" onClick={handleUrlImport} disabled={importing || !importUrl.trim()} aria-label="Import from URL">
                   {importing ? "Importing…" : "Import"}
                 </button>
-                <span className="font-mono text-[8px] text-[var(--muted)]" style={{ padding: "0 4px" }}>or</span>
+                <span className="font-mono text-[9px] text-[var(--muted)]" style={{ padding: "0 4px" }}>or</span>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -224,13 +224,13 @@ export default function CreateRecipePage() {
                 </button>
               </div>
               {importError && (
-                <div className="font-mono text-[8px] text-[var(--err)] mt-1">{importError}</div>
+                <div className="font-mono text-[9px] text-[var(--err)] mt-1">{importError}</div>
               )}
             </div>
           )}
 
           {/* Recipe Builder */}
-          <Suspense fallback={<div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading…</div>}>
+          <Suspense fallback={<div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading…</div>}>
             <RecipeBuilder
               initialRecipe={importedRecipe || undefined}
               onSaved={() => router.push("/recipes")}

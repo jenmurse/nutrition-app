@@ -397,7 +397,7 @@ export default function OnboardingPage() {
         >
           {/* Card top: brand + progress + step counter */}
           <div className="flex items-center justify-between mb-8">
-            <span className="font-serif text-[18px] text-[var(--fg)] tracking-[-0.02em]">
+            <span className="font-serif text-[16px] text-[var(--fg)] tracking-[-0.02em]">
               <BrandName />
             </span>
             <div className="flex items-center gap-3">
@@ -417,7 +417,7 @@ export default function OnboardingPage() {
                 <h1 className="font-serif text-[30px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
                   Know what{"\u2019"}s in your week.
                 </h1>
-                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Build recipes, plan your meals, and track your nutrition against your goals. Your dashboard updates in real time. Setup takes about two minutes.
                 </p>
                 <button
@@ -444,7 +444,7 @@ export default function OnboardingPage() {
                 <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Make it yours.
                 </h2>
-                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Pick a name and a theme color. This changes the look of the whole app — you can always update it later in Settings.
                 </p>
 
@@ -483,7 +483,7 @@ export default function OnboardingPage() {
                 </div>
 
                 <div className="px-[14px] py-[11px] bg-[var(--accent-l)] mb-6">
-                  <p className="font-sans text-[12px] text-[var(--accent)] leading-[1.5]">
+                  <p className="font-sans text-[13px] text-[var(--accent)] leading-[1.5]">
                     Your theme tints buttons, links, and highlights throughout the app. Each household member gets their own.
                   </p>
                 </div>
@@ -515,7 +515,7 @@ export default function OnboardingPage() {
                 <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Does anyone else cook with you?
                 </h2>
-                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Recipes and pantry are shared across the household. Meal plans and nutrition goals are personal to each person.
                 </p>
 
@@ -552,7 +552,7 @@ export default function OnboardingPage() {
                       />
                       <button
                         onClick={copyInvite}
-                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[8px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-[opacity,transform] duration-150 shrink-0"
+                        className="px-4 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-[opacity,transform] duration-150 shrink-0"
                         aria-label="Copy invite link"
                       >
                         {inviteCopied ? "Copied" : "Copy"}
@@ -607,7 +607,7 @@ export default function OnboardingPage() {
                 <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Set a direction.
                 </h2>
-                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Pick a starting point — you can fine-tune every nutrient later in Settings.
                 </p>
 
@@ -625,8 +625,8 @@ export default function OnboardingPage() {
                         }}
                         aria-pressed={isSelected}
                       >
-                        <div className="font-serif text-[17px] font-bold text-[var(--fg)] mb-1">{g.label}</div>
-                        <div className="font-sans text-[12px] text-[var(--muted)] mb-2">{g.desc}</div>
+                        <div className="font-serif text-[16px] font-bold text-[var(--fg)] mb-1">{g.label}</div>
+                        <div className="font-sans text-[13px] text-[var(--muted)] mb-2">{g.desc}</div>
                         {g.kcal ? (
                           <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mt-auto">
                             {g.kcal.toLocaleString()} kcal / day
@@ -668,7 +668,7 @@ export default function OnboardingPage() {
                 <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   Import a recipe you already love.
                 </h2>
-                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Paste any recipe blog URL — Good Measure will pull the ingredients and nutrition data automatically.
                 </p>
 
@@ -686,7 +686,7 @@ export default function OnboardingPage() {
                   <button
                     onClick={handleImport}
                     disabled={!recipeUrl.trim() || importStatus === "loading" || importStatus === "success"}
-                    className="px-5 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[8px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 shrink-0"
+                    className="px-5 py-[8px] bg-[var(--accent)] text-[var(--accent-fg)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 shrink-0"
                     aria-label="Import recipe"
                   >
                     Import
@@ -708,14 +708,14 @@ export default function OnboardingPage() {
                   }}
                 >
                   {importStatus === "idle" && (
-                    <p className="font-sans text-[12px] text-[var(--muted)]">
+                    <p className="font-sans text-[13px] text-[var(--muted)]">
                       Paste a recipe URL and click Import
                     </p>
                   )}
                   {importStatus === "loading" && (
                     <div className="flex items-center gap-3">
                       <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full" style={{ animation: "spin 0.9s linear infinite" }} />
-                      <p className="font-sans text-[12px] text-[var(--muted)]">Extracting ingredients…</p>
+                      <p className="font-sans text-[13px] text-[var(--muted)]">Extracting ingredients…</p>
                     </div>
                   )}
                   {importStatus === "success" && importResult && (
@@ -723,13 +723,13 @@ export default function OnboardingPage() {
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      <p className="font-sans text-[12px] text-[var(--fg)]">
+                      <p className="font-sans text-[13px] text-[var(--fg)]">
                         {importResult.name} · {importResult.servings} servings · {importResult.ingredients} ingredients matched
                       </p>
                     </div>
                   )}
                   {importStatus === "error" && (
-                    <p className="font-sans text-[12px] text-[var(--error)]">{importError}</p>
+                    <p className="font-sans text-[13px] text-[var(--error)]">{importError}</p>
                   )}
                 </div>
 
@@ -760,7 +760,7 @@ export default function OnboardingPage() {
                 <h2 className="font-serif text-[26px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
                   You{"\u2019"}re set.
                 </h2>
-                <p className="font-sans text-[14px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
                   Here{"\u2019"}s what we set up. You can change any of this in Settings.
                 </p>
 

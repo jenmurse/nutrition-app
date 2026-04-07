@@ -342,7 +342,7 @@ export default function RecipeDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading recipe…</div>
+        <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading recipe…</div>
       </div>
     );
   }
@@ -378,7 +378,7 @@ export default function RecipeDetailPage() {
                 const container = document.getElementById("rf-edit-scroll");
                 if (el && container) container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
               }}
-              className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--accent)]`}
+              className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--accent)]`}
               style={i === 0 ? { paddingTop: 0 } : undefined}
               aria-label={`Jump to ${s.label}`}
             >
@@ -392,7 +392,7 @@ export default function RecipeDetailPage() {
           <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
-              <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / Edit</div>
+              <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Recipe / Edit</div>
               <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)" }}>Edit Recipe</h1>
             </div>
 
@@ -438,7 +438,7 @@ export default function RecipeDetailPage() {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--accent)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
@@ -468,7 +468,7 @@ export default function RecipeDetailPage() {
                 {tags.length > 0 && (
                   <div className="flex gap-[6px] mt-[10px]">
                     {tags.map(tag => (
-                      <span key={tag} className="rd-tag font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">{tag}</span>
+                      <span key={tag} className="rd-tag font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">{tag}</span>
                     ))}
                   </div>
                 )}
@@ -532,17 +532,17 @@ export default function RecipeDetailPage() {
               {/* Ingredients */}
               <div>
                 <div className="flex items-baseline gap-3 mb-8">
-                  <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+                  <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
                   <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {/* Scale */}
-                <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
+                <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
                   <span>Scale</span>
                   <div className="flex gap-1" role="group" aria-label="Scale recipe">
                     {[1, 2, 4, 6].map(n => (
                       <button key={n} onClick={() => setScale(n)}
-                        className={`font-mono text-[8px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
+                        className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
                           scale === n
                             ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]"
                             : "bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]"
@@ -563,10 +563,10 @@ export default function RecipeDetailPage() {
                           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-8 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
                         )}
                         <div className="flex gap-[18px] py-3 items-baseline border-b border-[var(--rule)]">
-                          <span className="font-mono text-[10px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">
+                          <span className="font-mono text-[11px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">
                             {parseFloat((ing.quantity * scale).toFixed(2))} {ing.unit}
                           </span>
-                          <span className="text-[14px] leading-[1.4]">{ing.ingredient?.name || ing.originalText || "Unknown"}</span>
+                          <span className="text-[16px] leading-[1.4]">{ing.ingredient?.name || ing.originalText || "Unknown"}</span>
                         </div>
                       </li>
                     );
@@ -577,12 +577,12 @@ export default function RecipeDetailPage() {
               {/* Nutrition */}
               <div id="rd-sec-nut">
                 <div className="flex items-baseline gap-3 mb-8">
-                  <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                  <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
                   <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {selectedPerson && (
-                  <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving · vs goals</div>
+                  <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving · vs goals</div>
                 )}
                 <div className="flex flex-col gap-[10px]">
                   {GRID_KEYS.map(({ match, label, exact }) => {
@@ -603,7 +603,7 @@ export default function RecipeDetailPage() {
                           <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg-2)]">{label}</span>
                           <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
                             {Math.round(value)}{unit !== "kcal" ? unit : ""}
-                            {target > 0 && <span className="text-[8px] text-[var(--muted)]"> / {Math.round(target)}{unit !== "kcal" ? unit : ""}</span>}
+                            {target > 0 && <span className="text-[9px] text-[var(--muted)]"> / {Math.round(target)}{unit !== "kcal" ? unit : ""}</span>}
                           </span>
                         </div>
                         {target > 0 && (
@@ -623,7 +623,7 @@ export default function RecipeDetailPage() {
           {recipe.instructions && (
             <div id="rd-sec-steps" style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
@@ -646,7 +646,7 @@ export default function RecipeDetailPage() {
           {/* ── Section: Optimization ── */}
           <div id="rd-sec-opt" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
-              <span className="font-serif text-[12px] font-bold text-[var(--rule)]">04</span>
+              <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
               <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Optimization</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -663,7 +663,7 @@ export default function RecipeDetailPage() {
               {editingNotes === "optimization" ? (
                 <>
                   <textarea
-                    className="w-full min-h-[400px] text-[12px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] p-[14px] outline-none resize-y font-sans"
+                    className="w-full min-h-[400px] text-[13px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] p-[14px] outline-none resize-y font-sans"
                     placeholder="Paste optimization notes here (markdown supported)..."
                     value={notesText}
                     onChange={(e) => setNotesText(e.target.value)}
@@ -691,9 +691,9 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a [cuisine] chef with a background in nutrition who works with clients to create great-tasting, healthy meals. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for nutritional optimization — identify the top nutrient contributors, suggest substitutions to [meet your goals here], and preserve the original section headers in your analysis. Show me what you changed and why, including how each change could affect flavor, texture, and overall eating experience. Create a comparison table of the original vs. optimized nutrition numbers per serving.\n\nBefore suggesting any ingredient substitutions, use search_ingredients to check what's already in the database. Prefer substitutions that use existing ingredients — they'll have accurate nutrition data. You can still suggest new ingredients when no good match exists, but flag those clearly.\n\nI may give you feedback and request tweaks before we finalize. Do not save anything until I explicitly tell you I'm happy with the changes.\n\nFormatting rules — follow exactly:\n- Title the document with ## Optimization Notes (H2, not H1)\n- The nutrition comparison section must be headed ### Nutrition comparison (per serving)\n\nOnce approved, save the optimized recipe using save_recipe with section headers preserved. When saving, include the original recipe's sourceApp URL (if it has one) and pass copyImageFromRecipeId set to the original recipe's id so the image is copied automatically. Then save the analysis notes using save_optimization_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="sm:hidden text-[12px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
+                    <p className="sm:hidden text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
                     <p className="hidden sm:block text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
-                    <div className="hidden sm:block text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
+                    <div className="hidden sm:block text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
                     <div className="hidden sm:flex items-center gap-[10px] mb-6">
                       <button
                         onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("optimization"); setTimeout(() => setCopiedPrompt(null), 2000); }}
@@ -712,7 +712,7 @@ export default function RecipeDetailPage() {
           {/* ── Section: Meal Prep ── */}
           <div id="rd-sec-prep" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
-              <span className="font-serif text-[12px] font-bold text-[var(--rule)]">05</span>
+              <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
               <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Meal Prep</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -729,7 +729,7 @@ export default function RecipeDetailPage() {
               {editingNotes === "mealPrep" ? (
                 <>
                   <textarea
-                    className="w-full min-h-[400px] text-[12px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] p-[14px] outline-none resize-y font-sans"
+                    className="w-full min-h-[400px] text-[13px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] p-[14px] outline-none resize-y font-sans"
                     placeholder="Paste meal prep analysis here (markdown supported)..."
                     value={notesText}
                     onChange={(e) => setNotesText(e.target.value)}
@@ -757,9 +757,9 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for meal prep with the following sections:\n\n1. Component-by-component breakdown — how each part stores, reheats, and holds up over time. Note anything that degrades in texture or flavor.\n2. Reheating instructions — for each component, give specific method, temperature, and time.\n3. Batch cooking recommendation — if it makes sense, suggest an optimal batch size with a scaled quantities table.\n4. This week vs. freeze for later — what to eat within the next 3–5 days and what to freeze now for future weeks.\n5. Day-by-day plan — a practical daily guide for the week assuming a Sunday prep session (e.g. Monday: reheat rice + cook salmon fresh, etc.).\n6. Storage summary table — fridge and freezer life per component.\n\nFormatting rules — follow exactly:\n- Title the document with ## Meal Prep Notes (H2, not H1)\n- Use ### (H3) for each section heading — no section numbers\n- Section headings must match exactly: Component-by-component breakdown / Reheating instructions / Batch cooking recommendation / This week vs. freeze for later / Day-by-day plan / Storage summary\n- Scaling line format: **Scaled quantities — [total] servings ([N]×)** (e.g. "8 servings (2×)") — no trailing colon, always use × symbol\n- Batch table columns: Base ([n] srv) and Batch ([N]×)\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="sm:hidden text-[12px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
+                    <p className="sm:hidden text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
                     <p className="hidden sm:block text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
-                    <div className="hidden sm:block text-[12px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
+                    <div className="hidden sm:block text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
                     <div className="hidden sm:flex items-center gap-[10px] mb-6">
                       <button
                         onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("mealPrep"); setTimeout(() => setCopiedPrompt(null), 2000); }}

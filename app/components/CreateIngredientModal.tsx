@@ -219,20 +219,20 @@ export default function CreateIngredientModal({
 
             {/* USDA source */}
             <div>
-              <div className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] mb-1">USDA source</div>
-              <p className="font-sans text-[12px] text-[var(--muted)]">{pending.usdaDescription}</p>
+              <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-1">USDA source</div>
+              <p className="font-sans text-[13px] text-[var(--muted)]">{pending.usdaDescription}</p>
             </div>
 
             {/* Editable name */}
             <div>
-              <label className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] mb-1 block" htmlFor="confirmed-name">
+              <label className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-1 block" htmlFor="confirmed-name">
                 Save as
               </label>
               <input
                 id="confirmed-name"
                 ref={nameInputRef}
                 type="text"
-                className="w-full border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[14px] text-[var(--fg)] focus:outline-none focus:border-[var(--fg)]"
+                className="w-full border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[16px] text-[var(--fg)] focus:outline-none focus:border-[var(--fg)]"
                 value={confirmedName}
                 onChange={(e) => setConfirmedName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleConfirmSave()}
@@ -243,13 +243,13 @@ export default function CreateIngredientModal({
             {/* Nutrient preview */}
             {pending.nutrientUpdates.length > 0 && (
               <div>
-                <div className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Nutrition per 100g</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Nutrition per 100g</div>
                 <div className="flex flex-wrap gap-3">
                   {pending.nutrientUpdates.map((u) => {
                     const n = nutrients.find((x) => x.id === u.nutrientId);
                     if (!n) return null;
                     return (
-                      <div key={u.nutrientId} className="font-mono text-[10px] text-[var(--fg)]">
+                      <div key={u.nutrientId} className="font-mono text-[11px] text-[var(--fg)]">
                         <span className="text-[var(--muted)]">{n.displayName} </span>{Math.round(u.value * 10) / 10}{n.unit}
                       </div>
                     );
@@ -346,7 +346,7 @@ export default function CreateIngredientModal({
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-sans text-[13px] text-[var(--fg)]">{result.description}</span>
                             {isLoading && (
-                              <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] shrink-0">Loading…</span>
+                              <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] shrink-0">Loading…</span>
                             )}
                           </div>
                         </div>
@@ -356,7 +356,7 @@ export default function CreateIngredientModal({
                 )}
 
                 {!searching && searchResults.length === 0 && searchQuery !== ingredientName && (
-                  <p className="font-sans text-[12px] text-[var(--muted)]">No results. Try a different term.</p>
+                  <p className="font-sans text-[13px] text-[var(--muted)]">No results. Try a different term.</p>
                 )}
               </div>
             )}
@@ -364,7 +364,7 @@ export default function CreateIngredientModal({
             {/* Manual Entry Tab */}
             {tab === "manual" && (
               <div className="space-y-4">
-                <p className="font-sans text-[12px] text-[var(--muted)]">Enter nutrition values per 100g:</p>
+                <p className="font-sans text-[13px] text-[var(--muted)]">Enter nutrition values per 100g:</p>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                   {nutrients.map((nutrient) => (
                     <div key={nutrient.id} className="flex items-center gap-3">
@@ -377,7 +377,7 @@ export default function CreateIngredientModal({
                         value={manualNutrients[nutrient.id] ?? ""}
                         onChange={(e) => setManualNutrients({ ...manualNutrients, [nutrient.id]: e.target.value })}
                       />
-                      <span className="w-10 font-mono text-[10px] text-[var(--muted)] text-right">{nutrient.unit}</span>
+                      <span className="w-10 font-mono text-[11px] text-[var(--muted)] text-right">{nutrient.unit}</span>
                     </div>
                   ))}
                 </div>

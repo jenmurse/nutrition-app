@@ -849,7 +849,7 @@ const MealPlansPage = () => {
   if (loading && selectedPersonId !== null) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="font-mono text-[12px] font-light text-[var(--muted)] animate-loading">Loading meal plans...</div>
+        <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading meal plans...</div>
       </div>
     );
   }
@@ -1279,7 +1279,7 @@ const MealPlansPage = () => {
               </div>
               {calorieNutrient && (
                 <div style={{ padding: '16px 20px 8px' }}>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[4px]">Calories</div>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[4px]">Calories</div>
                   <div className="font-serif text-[36px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                     {Math.round(calorieNutrient.value).toLocaleString()}
                     {calorieGoal > 0 && <span className="font-mono text-[13px] text-[var(--muted)] font-normal ml-2">/ {Math.round(calorieGoal).toLocaleString()}</span>}
@@ -1290,7 +1290,7 @@ const MealPlansPage = () => {
                 </div>
               )}
               <div style={{ padding: '16px 20px 4px' }}>
-                <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[12px]">Nutrients</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[12px]">Nutrients</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                   {keyNutrients.map(n => {
                     const goal = n.highGoal ?? n.lowGoal ?? 0;
@@ -1299,8 +1299,8 @@ const MealPlansPage = () => {
                     return (
                       <div key={n.nutrientId}>
                         <div className="flex justify-between items-baseline mb-[3px]">
-                          <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">{n.displayName}</span>
-                          <span className="font-mono text-[10px] tabular-nums text-[var(--fg)]">{Math.round(n.value)}<span className="text-[var(--muted)] text-[8px] ml-[2px]">{n.unit}</span></span>
+                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">{n.displayName}</span>
+                          <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{Math.round(n.value)}<span className="text-[var(--muted)] text-[9px] ml-[2px]">{n.unit}</span></span>
                         </div>
                         {goal > 0 && (
                           <div className="h-[2px] bg-[var(--rule)] relative overflow-hidden rounded-full">

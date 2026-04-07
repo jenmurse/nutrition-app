@@ -45,8 +45,8 @@ const DailySummary: React.FC<DailySummaryProps> = ({
         return (
           <div key={nutrient.nutrientId} className="mb-3">
             <div className="flex justify-between items-baseline mb-[5px]">
-              <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{nutrient.displayName}</span>
-              <span className={`font-mono text-[10px] tabular-nums ${valueColor}`}>
+              <span className="font-mono text-[11px] text-[var(--fg)] uppercase tracking-[0.06em]">{nutrient.displayName}</span>
+              <span className={`font-mono text-[11px] tabular-nums ${valueColor}`}>
                 {formatVal(nutrient.value)} / {formatVal(target)}{unitSuffix}
               </span>
             </div>

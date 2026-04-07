@@ -185,27 +185,27 @@ export default function PreviewPage() {
         <div className="border-t border-[var(--rule)] flex">
           {/* Calories */}
           <div className="flex-1 px-8 py-6">
-            <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Calories today</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Calories today</div>
             <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">1,180</div>
-            <div className="font-mono text-[8px] text-[var(--muted)] mb-2">of 2,000 kcal</div>
+            <div className="font-mono text-[9px] text-[var(--muted)] mb-2">of 2,000 kcal</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "59%" }} />
             </div>
           </div>
           {/* Protein */}
           <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
-            <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Protein</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Protein</div>
             <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">82g</div>
-            <div className="font-mono text-[8px] text-[var(--muted)] mb-2">of 120g goal</div>
+            <div className="font-mono text-[9px] text-[var(--muted)] mb-2">of 120g goal</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "68%" }} />
             </div>
           </div>
           {/* Meals */}
           <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
-            <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Meals today</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Meals today</div>
             <div className="font-serif text-[30px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">3</div>
-            <div className="font-mono text-[8px] text-[var(--muted)] mb-2">logged</div>
+            <div className="font-mono text-[9px] text-[var(--muted)] mb-2">logged</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "100%" }} />
             </div>
@@ -223,15 +223,15 @@ export default function PreviewPage() {
         <div className="flex" style={{ padding: "0 36px" }}>
           {mockTodayMeals.map((meal, i) => (
             <div key={meal.num} className="flex-1" style={{ padding: "32px 36px" }}>
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] pb-2 mb-3 border-b border-[var(--rule)]">
+              <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] pb-2 mb-3 border-b border-[var(--rule)]">
                 {meal.num} &middot; {meal.type}
               </div>
               <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-4" style={{ textWrap: "balance" }}>
                 {meal.name}
               </div>
               <div className="flex items-baseline gap-2 pb-2 border-b border-[var(--rule)]">
-                <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Calories</span>
-                <span className="font-serif text-[14px] tabular-nums text-[var(--fg)] ml-auto">{meal.kcal} kcal</span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Calories</span>
+                <span className="font-serif text-[16px] tabular-nums text-[var(--fg)] ml-auto">{meal.kcal} kcal</span>
               </div>
               <div className="mt-[14px]">
                 <span className="font-mono text-[8.5px] text-[var(--accent)] cursor-pointer hover:opacity-80 transition-opacity">See recipe &rarr;</span>
@@ -258,7 +258,7 @@ export default function PreviewPage() {
                   d.isToday ? "bg-[var(--accent-l)]" : ""
                 }`}
               >
-                <div className={`font-mono text-[8px] uppercase tracking-[0.12em] mb-1 ${
+                <div className={`font-mono text-[9px] uppercase tracking-[0.12em] mb-1 ${
                   d.isToday ? "text-[var(--accent)] font-medium" : "text-[var(--muted)]"
                 }`}>
                   {d.day}
@@ -266,7 +266,7 @@ export default function PreviewPage() {
                 <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">
                   {d.date}
                 </div>
-                <div className="font-mono text-[8px] text-[var(--muted)] tabular-nums mb-2">
+                <div className="font-mono text-[9px] text-[var(--muted)] tabular-nums mb-2">
                   {d.kcal > 0 ? `${d.kcal.toLocaleString()} kcal` : "—"}
                 </div>
                 <div className="h-[2px] bg-[var(--rule)] w-full mb-4">
@@ -275,9 +275,9 @@ export default function PreviewPage() {
                 <div className="flex flex-col gap-2 mt-auto">
                   {d.meals.map((m, mi) => (
                     <div key={mi}>
-                      <div className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)]">{m.type}</div>
+                      <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{m.type}</div>
                       <div className="font-sans text-[11px] text-[var(--fg)] leading-[1.3]">{m.name}</div>
-                      <div className="font-mono text-[8px] text-[var(--muted)] tabular-nums">{m.kcal} kcal</div>
+                      <div className="font-mono text-[9px] text-[var(--muted)] tabular-nums">{m.kcal} kcal</div>
                     </div>
                   ))}
                 </div>
@@ -296,27 +296,27 @@ export default function PreviewPage() {
             <button
               key={tag}
               onClick={() => setActiveTag(tag)}
-              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
                 activeTag === tag ? "text-[var(--fg)] border-[var(--rule)]" : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
               }`}
               aria-label={`Filter by ${tag}`}
             >{tag}</button>
           ))}
           <div className="flex gap-[5px] items-center ml-auto">
-            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredRecipes.length} recipes</span>
+            <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredRecipes.length} recipes</span>
             <div className="flex border border-[var(--rule)]">
-              <span className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
+              <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
                 Name
                 <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
               </span>
               <span className="font-mono text-[11px] text-[var(--muted)] py-[3px] px-[9px]">&uarr;</span>
             </div>
             <div className="flex border border-[var(--rule)] overflow-hidden">
-              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] bg-[var(--bg-3)] text-[var(--fg)] border-r border-[var(--rule)]">Grid</span>
-              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] text-[var(--muted)]">List</span>
+              <span className="font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] bg-[var(--bg-3)] text-[var(--fg)] border-r border-[var(--rule)]">Grid</span>
+              <span className="font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] text-[var(--muted)]">List</span>
             </div>
             <span className="font-mono text-[9px] tracking-[0.06em] bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[3px] px-[9px]">Search</span>
-            <span className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[3px] px-[9px]">+ New</span>
+            <span className="font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[3px] px-[9px]">+ New</span>
           </div>
         </div>
 
@@ -334,7 +334,7 @@ export default function PreviewPage() {
                   <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{recipe.tag}</div>
                   <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>{recipe.name}</div>
                   <div className="flex gap-2 items-baseline flex-wrap">
-                    <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{recipe.kcal} kcal</span>
+                    <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{recipe.kcal} kcal</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {recipe.protein}g</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {recipe.carbs}g</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {recipe.fat}g</span>
@@ -361,7 +361,7 @@ export default function PreviewPage() {
               { n: "05", label: "Meal Prep" },
             ].map((s, i) => (
               <span key={s.n}
-                className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-b border-[var(--rule)] ${
+                className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-b border-[var(--rule)] ${
                   i === 0 ? "text-[var(--fg)] pt-0" : "text-[var(--muted)]"
                 }`}
               >
@@ -379,16 +379,16 @@ export default function PreviewPage() {
                 <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">
                   <span>1 serving</span> &middot; <span>0 min</span>
                   <div className="flex gap-[6px] mt-[10px]">
-                    <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">breakfast</span>
+                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">breakfast</span>
                   </div>
                 </div>
                 <h2 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-12" style={{ fontSize: "clamp(30px, 3.4vw, 48px)" }}>
                   Cottage Cheese Breakfast Bowl
                 </h2>
                 <div className="flex gap-2 mt-6">
-                  <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
-                  <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Duplicate</span>
-                  <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--err)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--err)] transition-colors">Delete</span>
+                  <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
+                  <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Duplicate</span>
+                  <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--err)] py-[6px] px-[14px] cursor-pointer hover:border-[var(--err)] transition-colors">Delete</span>
                 </div>
               </div>
               <div className="w-full bg-[var(--bg-3)] flex items-end p-6" style={{ aspectRatio: "4/3" }}>
@@ -401,15 +401,15 @@ export default function PreviewPage() {
               <div className="grid gap-[56px]" style={{ gridTemplateColumns: "1fr 1fr" }}>
                 <div>
                   <div className="flex items-baseline gap-3 mb-8">
-                    <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+                    <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
                     <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
                     <span className="flex-1 h-px bg-[var(--rule)]" />
                   </div>
-                  <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
+                  <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
                     <span>Scale</span>
                     <div className="flex gap-1">
                       {["1\u00d7", "2\u00d7", "4\u00d7", "6\u00d7"].map((s, i) => (
-                        <span key={s} className={`font-mono text-[8px] tracking-[0.06em] px-[7px] py-[2px] border ${
+                        <span key={s} className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border ${
                           i === 0 ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]" : "text-[var(--muted)] border-[var(--rule)]"
                         }`}>{s}</span>
                       ))}
@@ -417,18 +417,18 @@ export default function PreviewPage() {
                   </div>
                   {mockDetailIngredients.map((ing, idx) => (
                     <div key={ing.name} className={`flex gap-[18px] py-3 items-baseline ${idx < mockDetailIngredients.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
-                      <span className="font-mono text-[10px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">{ing.amt}</span>
-                      <span className="text-[14px] leading-[1.4]">{ing.name}</span>
+                      <span className="font-mono text-[11px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">{ing.amt}</span>
+                      <span className="text-[16px] leading-[1.4]">{ing.name}</span>
                     </div>
                   ))}
                 </div>
                 <div>
                   <div className="flex items-baseline gap-3 mb-8">
-                    <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                    <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
                     <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
                     <span className="flex-1 h-px bg-[var(--rule)]" />
                   </div>
-                  <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving &middot; vs goals</div>
+                  <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving &middot; vs goals</div>
                   <div className="flex flex-col gap-[10px]">
                     {mockNutrition.map(n => {
                       const pct = n.goal > 0 ? Math.min((n.value / n.goal) * 100, 100) : 0;
@@ -438,7 +438,7 @@ export default function PreviewPage() {
                             <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg-2)]">{n.label}</span>
                             <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
                               {n.value}{n.unit}
-                              <span className="text-[8px] text-[var(--muted)]"> / {n.goal}{n.unit}</span>
+                              <span className="text-[9px] text-[var(--muted)]"> / {n.goal}{n.unit}</span>
                             </span>
                           </div>
                           <div className="h-[3px] bg-[var(--rule)] rounded-full overflow-hidden">
@@ -455,7 +455,7 @@ export default function PreviewPage() {
             {/* Instructions */}
             <div style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
@@ -472,12 +472,12 @@ export default function PreviewPage() {
             {/* Optimization */}
             <div style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">04</span>
+                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Optimization</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="border border-[var(--accent-l)] bg-[var(--accent-l)] p-4 mb-4">
-                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--accent)] mb-1 font-medium">AI Optimization</div>
+                <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--accent)] mb-1 font-medium">AI Optimization</div>
                 <p className="text-[11px] text-[var(--fg-2)] leading-[1.5]">Use the MCP prompt below to analyze this recipe with an AI assistant. It will suggest healthier swaps that fit your nutrition goals.</p>
               </div>
               <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
@@ -490,12 +490,12 @@ export default function PreviewPage() {
             {/* Meal Prep */}
             <div style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">05</span>
+                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Meal Prep</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="border border-[var(--accent-l)] bg-[var(--accent-l)] p-4 mb-4">
-                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--accent)] mb-1 font-medium">AI Meal Prep</div>
+                <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--accent)] mb-1 font-medium">AI Meal Prep</div>
                 <p className="text-[11px] text-[var(--fg-2)] leading-[1.5]">Use the MCP prompt below to generate a meal prep plan for this recipe — batch cooking, storage, and reheat instructions.</p>
               </div>
               <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
@@ -521,27 +521,27 @@ export default function PreviewPage() {
             <button
               key={f.key}
               onClick={() => setIngredientFilter(f.key)}
-              className={`font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
+              className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
                 ingredientFilter === f.key ? "text-[var(--fg)] border-[var(--rule)]" : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
               }`}
               aria-label={`Filter by ${f.label}`}
             >{f.label}</button>
           ))}
           <div className="flex gap-[5px] items-center ml-auto">
-            <span className="font-mono text-[8px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredIngredients.length} items</span>
+            <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredIngredients.length} items</span>
             <div className="flex border border-[var(--rule)]">
-              <span className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
+              <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
                 Name
                 <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
               </span>
               <span className="font-mono text-[11px] text-[var(--muted)] py-[3px] px-[9px]">&uarr;</span>
             </div>
             <div className="flex border border-[var(--rule)] overflow-hidden">
-              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] bg-[var(--bg-3)] text-[var(--fg)] border-r border-[var(--rule)]">Grid</span>
-              <span className="font-mono text-[8px] tracking-[0.1em] uppercase py-[3px] px-[9px] text-[var(--muted)]">List</span>
+              <span className="font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] bg-[var(--bg-3)] text-[var(--fg)] border-r border-[var(--rule)]">Grid</span>
+              <span className="font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] text-[var(--muted)]">List</span>
             </div>
             <span className="font-mono text-[9px] tracking-[0.06em] bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[3px] px-[9px]">Search</span>
-            <span className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[3px] px-[9px]">+ New</span>
+            <span className="font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[3px] px-[9px]">+ New</span>
           </div>
         </div>
 
@@ -557,9 +557,9 @@ export default function PreviewPage() {
                     {item.category}
                   </div>
                   <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]">{item.name}</div>
-                  <div className="font-mono text-[8px] text-[var(--muted)] tracking-[0.06em] mb-[10px]">{item.unit}</div>
+                  <div className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] mb-[10px]">{item.unit}</div>
                   <div className="flex gap-2 items-baseline flex-wrap">
-                    <span className="font-mono text-[10px] text-[var(--fg)] tabular-nums">{item.kcal} kcal</span>
+                    <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{item.kcal} kcal</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {item.protein}g</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">C {item.carbs}g</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">F {item.fat}g</span>
@@ -582,7 +582,7 @@ export default function PreviewPage() {
               <button
                 key={s.n}
                 onClick={() => setActiveSection(s.n)}
-                className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-b border-[var(--rule)] text-left cursor-pointer bg-transparent ${
+                className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-b border-[var(--rule)] text-left cursor-pointer bg-transparent ${
                   activeSection === s.n ? "text-[var(--fg)]" : "text-[var(--muted)]"
                 } ${i === 0 ? "pt-0" : ""}`}
                 aria-label={`Jump to ${s.label}`}
@@ -598,47 +598,47 @@ export default function PreviewPage() {
             {/* 01 People */}
             <div className="mb-16">
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[12px] font-bold text-[var(--accent)]">01</span>
+                <span className="font-serif text-[13px] font-bold text-[var(--accent)]">01</span>
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>People</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               {/* Mock person row */}
               <div className="flex items-center gap-4 py-4 border-b border-[var(--rule)]">
-                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white"
+                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white"
                   style={{ background: "var(--accent)" }} aria-hidden="true">M</div>
                 <div className="flex-1">
-                  <div className="font-serif text-[15px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Maya</div>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)]">Active &middot; 2,000 kcal goal</div>
+                  <div className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Maya</div>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">Active &middot; 2,000 kcal goal</div>
                 </div>
-                <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
+                <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
               </div>
               <div className="flex items-center gap-4 py-4 border-b border-[var(--rule)]">
-                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[10px] font-medium text-white opacity-50"
+                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white opacity-50"
                   style={{ background: "#7C8DA0" }} aria-hidden="true">G</div>
                 <div className="flex-1">
-                  <div className="font-serif text-[15px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Greg</div>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)]">Inactive &middot; 2,400 kcal goal</div>
+                  <div className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Greg</div>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">Inactive &middot; 2,400 kcal goal</div>
                 </div>
-                <span className="font-mono text-[8px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
+                <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
               </div>
               <div className="mt-4">
-                <span className="font-mono text-[8px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[5px] px-[12px] cursor-pointer hover:opacity-90">+ Add person</span>
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[5px] px-[12px] cursor-pointer hover:opacity-90">+ Add person</span>
               </div>
             </div>
 
             {/* 02 Daily Goals */}
             <div className="mb-16">
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
                 <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Daily Goals</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
-              <div className="font-mono text-[8px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">Maya&apos;s daily targets</div>
+              <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">Maya&apos;s daily targets</div>
               {mockGoals.map((g, i) => (
                 <div key={g.label} className={`flex items-baseline justify-between py-3 ${i < mockGoals.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg-2)]">{g.label}</span>
                   <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
-                    {g.value} <span className="text-[8px] text-[var(--muted)]">{g.unit}</span>
+                    {g.value} <span className="text-[9px] text-[var(--muted)]">{g.unit}</span>
                   </span>
                 </div>
               ))}

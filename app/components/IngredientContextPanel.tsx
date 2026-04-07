@@ -138,8 +138,8 @@ export default function IngredientContextPanel({
           return (
             <div key={goal.nutrientId} className="mb-3">
               <div className="flex justify-between items-baseline mb-[5px]">
-                <span className="font-mono text-[10px] text-[var(--fg)] uppercase tracking-[0.06em]">{goal.nutrient.displayName}</span>
-                <span className={`font-mono text-[10px] tabular-nums ${isOver ? "text-[var(--error)]" : "text-[var(--muted)]"}`}>
+                <span className="font-mono text-[11px] text-[var(--fg)] uppercase tracking-[0.06em]">{goal.nutrient.displayName}</span>
+                <span className={`font-mono text-[11px] tabular-nums ${isOver ? "text-[var(--error)]" : "text-[var(--muted)]"}`}>
                   {formatGoalVal(Math.round(value * 10) / 10)} / {formatGoalVal(target)}{unitSuffix}{overLabel}
                 </span>
               </div>

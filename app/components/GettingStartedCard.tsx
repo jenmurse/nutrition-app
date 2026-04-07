@@ -104,7 +104,7 @@ export default function GettingStartedCard() {
       {/* Header — static, no collapse */}
       <div className="flex items-center justify-between px-5 py-[14px]">
         <span className="font-sans text-[13px] font-medium text-[var(--fg)]">Getting started</span>
-        <span className="font-mono text-[8px] uppercase tracking-[0.1em] px-[8px] py-[2px] bg-[var(--accent-l)] text-[var(--accent)]">
+        <span className="font-mono text-[9px] uppercase tracking-[0.1em] px-[8px] py-[2px] bg-[var(--accent-l)] text-[var(--accent)]">
           {completedCount} of {totalCount}
         </span>
       </div>
@@ -161,7 +161,7 @@ export default function GettingStartedCard() {
                 >
                   {task.text}
                   {task.note && !done && (
-                    <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)] ml-2">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] ml-2">
                       {task.note}
                     </span>
                   )}
@@ -187,7 +187,7 @@ export default function GettingStartedCard() {
         <div className="flex justify-end pt-3">
           <button
             onClick={handleDismiss}
-            className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+            className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
             aria-label="Dismiss getting started checklist"
           >
             {allDone ? "Done — dismiss" : "Dismiss"}

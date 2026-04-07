@@ -257,16 +257,16 @@ export default function BulkIngredientImport({
               <table className="w-full text-[11px] border-collapse">
                 <thead>
                   <tr className="bg-[var(--bg-subtle)] sticky top-0">
-                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Item</th>
-                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Unit & Amount</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Cal</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Fat</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Sat</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Na</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Carb</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Sug</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Pro</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">Fib</th>
+                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Item</th>
+                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Unit & Amount</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Cal</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Fat</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Sat</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Na</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Carb</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Sug</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Pro</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Fib</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -275,7 +275,7 @@ export default function BulkIngredientImport({
                       <td className="border border-[var(--rule)] p-2 font-medium text-left text-[var(--fg)]">{ing.name}</td>
                       <td className="border border-[var(--rule)] p-2 text-left text-[var(--muted)]">
                         {ing.customUnitAmountDisplay} {ing.customUnitName}
-                        <div className="text-[10px] text-[var(--muted)]">({ing.customUnitGrams}g)</div>
+                        <div className="text-[11px] text-[var(--muted)]">({ing.customUnitGrams}g)</div>
                       </td>
                       <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.calories}</td>
                       <td className="border border-[var(--rule)] p-2 text-right text-[var(--fg)]">{ing.fat}</td>

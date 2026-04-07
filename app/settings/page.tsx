@@ -64,7 +64,7 @@ const JUMP_SECTIONS = [
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-baseline gap-3 mb-8">
-      <span className="font-serif text-[12px] font-bold text-[var(--rule)]">{number}</span>
+      <span className="font-serif text-[13px] font-bold text-[var(--rule)]">{number}</span>
       <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>{title}</span>
       <span className="flex-1 h-px bg-[var(--rule)]" />
     </div>
@@ -531,7 +531,7 @@ const SettingsPage = () => {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
               i < JUMP_SECTIONS.length - 1 ? 'border-b border-[var(--rule)]' : ''
             } ${
               activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--accent)]'
@@ -595,7 +595,7 @@ const SettingsPage = () => {
                       />
                       <span className="text-[13px] text-[var(--fg)] font-medium">{person.name}</span>
                       {role && (
-                        <span className="font-mono text-[7px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">{role}</span>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">{role}</span>
                       )}
                       {role !== 'owner' && (
                         <button
@@ -692,16 +692,16 @@ const SettingsPage = () => {
                       const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
                       return (
                         <tr key={inv.id} className="border-b border-[var(--rule)]">
-                          <td className="font-mono text-[10px] text-[var(--fg)] py-[8px]" title={inv.url}>
+                          <td className="font-mono text-[11px] text-[var(--fg)] py-[8px]" title={inv.url}>
                             {inv.url.replace(/^https?:\/\//, '')}
                           </td>
-                          <td className={`font-mono text-[10px] py-[8px] ${status === 'active' ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
+                          <td className={`font-mono text-[11px] py-[8px] ${status === 'active' ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
                             {status.charAt(0).toUpperCase() + status.slice(1)}
                           </td>
-                          <td className="font-mono text-[10px] text-[var(--muted)] py-[8px]">
+                          <td className="font-mono text-[11px] text-[var(--muted)] py-[8px]">
                             {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
                           </td>
-                          <td className="font-mono text-[10px] text-[var(--muted)] py-[8px]">
+                          <td className="font-mono text-[11px] text-[var(--muted)] py-[8px]">
                             {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
                           </td>
                           <td className="text-right py-[8px]">
@@ -718,7 +718,7 @@ const SettingsPage = () => {
                               >Revoke</button>
                             ) : (
                               <button
-                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[10px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto rounded-full"
+                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[11px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto rounded-full"
                                 aria-label="Remove expired invite"
                                 onClick={async () => {
                                   const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
@@ -788,7 +788,7 @@ const SettingsPage = () => {
                               <span className="text-[13px] text-[var(--fg)]" style={{ flex: 1 }}>
                                 {nutrient.displayName}
                               </span>
-                              <span className="font-mono text-[8px] text-[var(--muted)]" style={{ width: 24 }}>Min</span>
+                              <span className="font-mono text-[9px] text-[var(--muted)]" style={{ width: 24 }}>Min</span>
                               <input
                                 type="number"
                                 placeholder="—"
@@ -799,7 +799,7 @@ const SettingsPage = () => {
                                 style={{ width: 56, fontSize: 13 }}
                                 aria-label={`${nutrient.displayName} minimum`}
                               />
-                              <span className="font-mono text-[8px] text-[var(--muted)]" style={{ width: 24 }}>Max</span>
+                              <span className="font-mono text-[9px] text-[var(--muted)]" style={{ width: 24 }}>Max</span>
                               <input
                                 type="number"
                                 placeholder="—"
@@ -923,11 +923,11 @@ const SettingsPage = () => {
               {/* New token display */}
               {newMcpToken && (
                 <div className="mb-[16px]">
-                  <div className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--accent)] mb-[8px]">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mb-[8px]">
                     Copy this token now — it won&apos;t be shown again
                   </div>
                   <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent)] px-[16px] py-[12px]">
-                    <code className="font-mono text-[10px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
+                    <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
                     <button
                       onClick={handleCopyMcpToken}
                       className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
@@ -942,7 +942,7 @@ const SettingsPage = () => {
               {/* ── Configuration ── */}
               <div className="mt-[40px]">
                 <div className="ed-label mb-[8px]">Configuration</div>
-                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
                   Add the {APP_NAME} MCP server to your assistant&apos;s configuration file.
                 </p>
 
@@ -970,13 +970,13 @@ const SettingsPage = () => {
                   </tbody>
                 </table>
 
-                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[8px]">
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]">
                   Copy and paste the block below into your config file. If you already have other servers configured, simply add the <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">good-measure</code> object to your existing <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">mcpServers</code> list.
                 </p>
 
                 {/* Code block */}
                 <div className="bg-[var(--bg-2)] px-[20px] py-[16px] relative overflow-x-auto">
-                  <span className="font-mono text-[7px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
                   <button
                     onClick={() => {
                       const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -988,12 +988,12 @@ const SettingsPage = () => {
                     aria-label="Copy configuration block"
                   >
                     {configBlockCopied ? (
-                      <span className="font-mono text-[8px] uppercase tracking-[0.1em]">Copied ✓</span>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.1em]">Copied ✓</span>
                     ) : (
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
                     )}
                   </button>
-                  <pre className="font-mono text-[10px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`{
+                  <pre className="font-mono text-[11px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`{
   "mcpServers": {
     "good-measure": {
       "command": "npx",
@@ -1008,7 +1008,7 @@ const SettingsPage = () => {
                 </div>
 
                 {/* Pro tip */}
-                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] mt-[16px] text-[12px] text-[var(--fg-2)] leading-[1.6]">
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] mt-[16px] text-[13px] text-[var(--fg-2)] leading-[1.6]">
                   <strong className="text-[var(--fg)]">Pro tip:</strong> The npx command auto-fetches the latest version of the MCP server. No manual installation needed.
                 </div>
               </div>
@@ -1016,15 +1016,15 @@ const SettingsPage = () => {
               {/* ── Test Connection ── */}
               <div className="mt-[40px]">
                 <div className="ed-label mb-[8px]">Test Connection</div>
-                <p className="text-[12px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
                   Restart your assistant after saving the config file, then try:
                 </p>
-                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic">
                   &ldquo;List my recipes from {APP_NAME} and tell me which ones are highest in protein.&rdquo;
                 </div>
 
                 <div className="ed-label mt-[20px] mb-[8px]">Advanced — Full Optimization Workflow</div>
-                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[12px] text-[var(--fg-2)] leading-[1.6] italic">
+                <div className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic">
                   &ldquo;You are a chef with a background in nutrition. Get my recipe for Almond Croissant Bars. Optimize it to reduce fat and sugar while preserving flavor. Show a comparison table, then save the optimized version.&rdquo;
                 </div>
               </div>
@@ -1063,7 +1063,7 @@ const SettingsPage = () => {
                   style={{ padding: 24, maxWidth: 400 }}
                   aria-label="Drop JSON file or click to browse"
                 >
-                  <span className="text-[18px] text-[var(--muted)] mb-[4px]">↑</span>
+                  <span className="text-[16px] text-[var(--muted)] mb-[4px]">↑</span>
                   <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
                     {importFile ? importFile.name : 'Drop JSON file or click to browse'}
                   </span>
@@ -1099,7 +1099,7 @@ const SettingsPage = () => {
                 )}
                 {importResult && (
                   <div
-                    className={`mt-4 px-4 py-3 font-sans text-[12px] border ${
+                    className={`mt-4 px-4 py-3 font-sans text-[13px] border ${
                       importResult.ok
                         ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
                         : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'

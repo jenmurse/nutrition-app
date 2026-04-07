@@ -315,7 +315,7 @@ export default function CreateIngredientPage() {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[8px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--accent)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
@@ -334,14 +334,14 @@ export default function CreateIngredientPage() {
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
-            <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Pantry / New</div>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">Pantry / New</div>
             <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>New Pantry Item</h1>
           </div>
 
           {/* ── 01 Lookup ── */}
           <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+              <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
               <span className="font-serif font-semibold tracking-[-0.02em]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Lookup</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -377,7 +377,7 @@ export default function CreateIngredientPage() {
                     className="block w-full text-left py-[10px] px-[12px] border-b border-[var(--rule)] cursor-pointer bg-transparent hover:bg-[var(--bg-3)] transition-colors"
                   >
                     <div className="font-sans text-[13px] font-medium">{food.description}</div>
-                    <div className="font-mono text-[8px] text-[var(--muted)] mt-[2px]">{food.dataType}</div>
+                    <div className="font-mono text-[9px] text-[var(--muted)] mt-[2px]">{food.dataType}</div>
                   </button>
                 ))}
               </div>
@@ -391,7 +391,7 @@ export default function CreateIngredientPage() {
           {/* ── 02 Details ── */}
           <div id="pf-sec-details" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+              <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
               <span className="font-serif font-semibold tracking-[-0.02em]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Details</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -463,14 +463,14 @@ export default function CreateIngredientPage() {
             {/* Custom Unit Settings */}
             {["other", "tsp", "tbsp", "cup"].includes(unit) && (
               <div style={{ marginBottom: 20 }}>
-                <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Custom Unit Settings</div>
+                <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">Custom Unit Settings</div>
                 <div className="ed-row">
                   <div className="ed-field">
                     <label className="ed-label">Unit Name</label>
                     {unit === "other" ? (
                       <input className="ed-input" placeholder="e.g. banana, scoop, cup" value={customUnitName} onChange={(e) => setCustomUnitName(e.target.value)} aria-label="Custom unit name" />
                     ) : (
-                      <div className="py-[6px] font-mono text-[12px] font-light text-[var(--fg)]">{unit}</div>
+                      <div className="py-[6px] font-mono text-[13px] font-light text-[var(--fg)]">{unit}</div>
                     )}
                   </div>
                   <div className="ed-field">
@@ -480,7 +480,7 @@ export default function CreateIngredientPage() {
                   <div className="ed-field">
                     <label className="ed-label">Grams Per Unit</label>
                     <input className="ed-input" type="number" step="any" placeholder="e.g. 120" value={customUnitGrams} onChange={(e) => setCustomUnitGrams(e.target.value)} aria-label="Grams per unit" />
-                    <div className="font-mono text-[8px] text-[var(--muted)] mt-[4px]">e.g. 120 for an average banana</div>
+                    <div className="font-mono text-[9px] text-[var(--muted)] mt-[4px]">e.g. 120 for an average banana</div>
                   </div>
                 </div>
               </div>
@@ -499,14 +499,14 @@ export default function CreateIngredientPage() {
           {/* ── 03 Nutrition ── */}
           <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+              <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
               <span className="font-serif font-semibold tracking-[-0.02em]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
 
             {/* Basis row */}
             <div className="flex items-center gap-[10px]" style={{ marginBottom: 24 }}>
-              <span className="font-mono text-[8px] text-[var(--muted)]">Values are per</span>
+              <span className="font-mono text-[9px] text-[var(--muted)]">Values are per</span>
               <input
                 className="ed-input"
                 type="number"
@@ -527,7 +527,7 @@ export default function CreateIngredientPage() {
                 <option value="ml">ml (milliliters)</option>
               </select>
               {volumeNote && (
-                <span className="font-mono text-[8px] text-[var(--muted)]">({volumeNote})</span>
+                <span className="font-mono text-[9px] text-[var(--muted)]">({volumeNote})</span>
               )}
             </div>
 

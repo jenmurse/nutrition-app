@@ -89,7 +89,7 @@ function LoginPage() {
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="mb-10 text-center">
-          <h1 className="font-serif text-[18px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em]">
+          <h1 className="font-serif text-[16px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em]">
             <BrandName />
           </h1>
         </div>
@@ -97,7 +97,7 @@ function LoginPage() {
         {/* Invite banner */}
         {inviteHousehold && (
           <div className="mb-6 p-3 bg-[var(--accent-l)]" role="status" aria-live="polite">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--fg)]">
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--fg)]">
               You{"\u2019"}ve been invited to join <strong>{inviteHousehold}</strong>
             </p>
           </div>
@@ -135,7 +135,7 @@ function LoginPage() {
         <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-5">
           {mode === "signup" && (
             <div>
-              <label className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="firstName">
+              <label className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="firstName">
                 Name
               </label>
               <input
@@ -151,7 +151,7 @@ function LoginPage() {
             </div>
           )}
           <div>
-            <label className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="email">
+            <label className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="email">
               Email
             </label>
             <input
@@ -167,7 +167,7 @@ function LoginPage() {
           </div>
 
           <div>
-            <label className="font-mono text-[8px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="password">
+            <label className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="password">
               Password
             </label>
             <input
@@ -183,7 +183,7 @@ function LoginPage() {
           </div>
 
           {error && (
-            <p className="font-mono text-[10px] text-[var(--error)]" role="alert">
+            <p className="font-mono text-[11px] text-[var(--error)]" role="alert">
               {error}
             </p>
           )}
@@ -202,7 +202,7 @@ function LoginPage() {
         {/* Divider */}
         <div className="flex items-center gap-3 my-6">
           <div className="flex-1 border-t border-[var(--rule)]" />
-          <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">or</span>
+          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">or</span>
           <div className="flex-1 border-t border-[var(--rule)]" />
         </div>
 

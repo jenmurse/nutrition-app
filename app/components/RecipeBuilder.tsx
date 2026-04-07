@@ -485,7 +485,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 01 Basics ═══ */}
       <div id="rf-sec-basics" style={{ marginTop: 0 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-serif text-[12px] font-bold text-[var(--rule)]">01</span>
+          <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
           <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Basics</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -537,7 +537,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           </div>
           <div className="ed-field">
             <label className="ed-label">Total Time</label>
-            <div className="font-mono text-[12px] text-[var(--muted)]" style={{ padding: "6px 0", borderBottom: "1px solid var(--rule)" }}>
+            <div className="font-mono text-[13px] text-[var(--muted)]" style={{ padding: "6px 0", borderBottom: "1px solid var(--rule)" }}>
               {(prepTime !== "" || cookTime !== "") ? `${(Number(prepTime) || 0) + (Number(cookTime) || 0)}` : "—"}
             </div>
           </div>
@@ -547,7 +547,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <label className="ed-label">Tags</label>
           <div className="flex flex-wrap gap-3" style={{ padding: "4px 0" }}>
             {availableTags.map((tag) => (
-              <label key={tag} className="flex items-center gap-[5px] cursor-pointer text-[12px]">
+              <label key={tag} className="flex items-center gap-[5px] cursor-pointer text-[13px]">
                 <input type="checkbox" checked={tags.includes(tag)} onChange={(e) => { if (e.target.checked) setTags([...tags, tag]); else setTags(tags.filter((t) => t !== tag)); }} className="cursor-pointer" />
                 <span className="capitalize">{tag}</span>
               </label>
@@ -566,7 +566,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 02 Photo ═══ */}
       <div id="rf-sec-photo" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-serif text-[12px] font-bold text-[var(--rule)]">02</span>
+          <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
           <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Photo</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -623,7 +623,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 <img src={image} alt="Recipe preview" className="w-full h-full object-cover block" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-mono text-[10px] text-[var(--muted)] truncate mb-1">
+                <div className="font-mono text-[11px] text-[var(--muted)] truncate mb-1">
                   {image.startsWith("data:") ? "Uploaded image" : image}
                 </div>
                 <button
@@ -644,7 +644,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 03 Ingredients ═══ */}
       <div id="rf-sec-ingredients" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-serif text-[12px] font-bold text-[var(--rule)]">03</span>
+          <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
           <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -709,7 +709,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   )}
                   <button
                     type="button"
-                    className="text-[14px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
+                    className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
                     style={{ width: 28, height: 28, marginLeft: "auto" }}
                     onClick={() => removeSectionFromRow(row.id)}
                     aria-label="Remove section header"
@@ -759,13 +759,13 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   {showDropdown[row.id] && currentSearch && (
                     <div className="absolute z-10 w-full mt-1 border border-[var(--rule)] bg-[var(--bg)] max-h-48 overflow-auto" style={{ boxShadow: '0 4px 12px rgba(0,0,0,.08)' }}>
                       {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
-                        <div className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[12px] border-b border-[var(--rule)] text-[var(--fg)] font-medium"
+                        <div className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[13px] border-b border-[var(--rule)] text-[var(--fg)] font-medium"
                           onMouseDown={(e) => { e.preventDefault(); createIngredient(currentSearch, row.id); }}>
                           + Create new ingredient: &ldquo;{currentSearch}&rdquo;
                         </div>
                       )}
                       {filteredIngredients.map((i) => (
-                        <div key={i.id} className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[12px]"
+                        <div key={i.id} className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[13px]"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             const defaultUnit = i.customUnitName || i.defaultUnit || "g";
@@ -776,20 +776,20 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           <div>{i.name}{i.customUnitName ? ` (${i.customUnitName})` : ""}</div>
                           {i.nutrientValues.length > 0 && (() => {
                             const kcalNv = i.nutrientValues.find((v) => v.nutrient.displayName.toLowerCase().includes("energy") || v.nutrient.displayName.toLowerCase().includes("calorie"));
-                            return kcalNv ? <div className="font-mono text-[8px] text-[var(--muted)]">{Math.round(kcalNv.value)} kcal / 100g</div> : null;
+                            return kcalNv ? <div className="font-mono text-[9px] text-[var(--muted)]">{Math.round(kcalNv.value)} kcal / 100g</div> : null;
                           })()}
                         </div>
                       ))}
                       {filteredIngredients.length === 0 && ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
-                        <div className="px-3 py-2 text-[12px] text-[var(--muted)]">No matching ingredients</div>
+                        <div className="px-3 py-2 text-[13px] text-[var(--muted)]">No matching ingredients</div>
                       )}
                     </div>
                   )}
                   {!selectedIngredient && row.nameGuess && (
                     <div className="flex items-center gap-[6px]" style={{ padding: "2px 0" }}>
-                      <span className="font-mono text-[8px] text-[var(--warn)]">Not in library —</span>
+                      <span className="font-mono text-[9px] text-[var(--warn)]">Not in library —</span>
                       <button type="button" onClick={() => createIngredient(currentSearch || row.nameGuess!, row.id)}
-                        className="font-mono text-[8px] text-[var(--accent)] underline bg-transparent border-0 p-0 cursor-pointer">
+                        className="font-mono text-[9px] text-[var(--accent)] underline bg-transparent border-0 p-0 cursor-pointer">
                         Add to library
                       </button>
                     </div>
@@ -835,7 +835,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   )}
                 </select>
                 <button
-                  className="text-[14px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
+                  className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
                   style={{ width: 28, height: 28 }}
                   onClick={() => setRows((prev) => {
                     const idx = prev.findIndex((r) => r.id === row.id);
@@ -869,7 +869,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 04 Method ═══ */}
       <div id="rf-sec-method" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-serif text-[12px] font-bold text-[var(--rule)]">04</span>
+          <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
           <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Method</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -908,7 +908,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 aria-label={`Step ${idx + 1}`}
               />
               <button
-                className="text-[14px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors shrink-0"
+                className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors shrink-0"
                 style={{ width: 28, height: 28, paddingTop: 2 }}
                 onClick={() => setSteps((prev) => prev.filter((_, i) => i !== idx))}
                 aria-label={`Remove step ${idx + 1}`}
@@ -928,7 +928,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 05 Nutrition ═══ */}
       <div id="rf-sec-nutrition" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-serif text-[12px] font-bold text-[var(--rule)]">05</span>
+          <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
           <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -961,7 +961,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             onChange={(e) => { setGuidedMode(e.target.checked); if (!e.target.checked) { setGuidedPersonId(null); setGuidedFocus([]); setFocusCaps({}); } }}
             style={{ accentColor: "var(--accent)", width: 13, height: 13, cursor: "pointer" }}
           />
-          <span className="font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--muted)]">Show nutrition guidance</span>
+          <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)]">Show nutrition guidance</span>
         </label>
 
         {/* Guidance inline panel */}
@@ -979,7 +979,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {persons.map((p) => (
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                          className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedPersonId === p.id
                               ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent-fg)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
@@ -998,7 +998,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             setGuidedFocus((prev) => prev.includes(g.nutrientId) ? prev.filter((x) => x !== g.nutrientId) : [...prev, g.nutrientId]);
                             if (guidedFocus.includes(g.nutrientId)) setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
                           }}
-                          className={`font-mono text-[8px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedFocus.includes(g.nutrientId)
                               ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent-fg)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
@@ -1034,15 +1034,15 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                         </div>
                         {isFocused && guidedFocus.includes(g.nutrientId) && (
                           <div className="flex items-center gap-[6px] mt-[5px]">
-                            <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-[var(--muted)]">Cap</span>
+                            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Cap</span>
                             <input type="number" min="0" value={focusCaps[g.nutrientId] ?? ""}
                               onChange={(e) => setFocusCaps((prev) => ({ ...prev, [g.nutrientId]: e.target.value }))}
                               placeholder={String(Math.round(baseGoal))}
                               className="w-14 font-mono text-[9px] border border-[var(--rule)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--accent)]" />
-                            <span className="font-mono text-[8px] text-[var(--muted)]">{g.nutrient.unit}</span>
+                            <span className="font-mono text-[9px] text-[var(--muted)]">{g.nutrient.unit}</span>
                             {focusCaps[g.nutrientId] && (
                               <button type="button" onClick={() => setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; })}
-                                className="font-mono text-[8px] text-[var(--muted)] hover:text-[var(--fg)] ml-auto bg-transparent border-0 cursor-pointer">clear</button>
+                                className="font-mono text-[9px] text-[var(--muted)] hover:text-[var(--fg)] ml-auto bg-transparent border-0 cursor-pointer">clear</button>
                             )}
                           </div>
                         )}
@@ -1050,7 +1050,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           const contributors = computeContributors(g.nutrientId);
                           if (contributors.length === 0) return null;
                           return (
-                            <div className="font-mono text-[8px] text-[var(--muted)] mt-1 leading-[1.6]">
+                            <div className="font-mono text-[9px] text-[var(--muted)] mt-1 leading-[1.6]">
                               Top contributors:<br />
                               {contributors.map((c) => <span key={c.name}>· {c.name}<br /></span>)}
                             </div>

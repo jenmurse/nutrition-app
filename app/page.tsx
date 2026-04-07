@@ -348,12 +348,12 @@ export default function Home() {
                       animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
                     }}
                   >
-                    <div className="hm-stat-label font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
+                    <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
                     <div className="hm-stat-value font-serif text-[30px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                       {formatVal(stat.value)}
-                      {stat.unit && <span className="hm-stat-unit text-[14px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+                      {stat.unit && <span className="hm-stat-unit text-[16px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                     </div>
-                    <div className="hm-stat-sub font-mono text-[8px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
+                    <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
                       of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
                     </div>
                     <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
@@ -461,7 +461,7 @@ export default function Home() {
                           <div key={m.id}>
                             {/* Number · Type header */}
                             <div
-                              className="hm-mealtype-hdr font-mono text-[8px] uppercase tracking-[0.15em] text-[var(--muted)] mb-3 pb-[10px] border-b border-[var(--rule)]"
+                              className="hm-mealtype-hdr font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-3 pb-[10px] border-b border-[var(--rule)]"
                             >
                               {col.number} · {col.type}
                               {mi > 0 ? ` (${mi + 1})` : ""}
@@ -473,9 +473,9 @@ export default function Home() {
                             {/* Nutrient rows — 3 selected stats */}
                             {mealStats.map((s) => (
                               <div key={s.label} className="flex justify-between py-[6px] border-b border-[var(--rule)]">
-                                <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)]">{s.label}</span>
-                                <span className="font-serif text-[14px] font-semibold tracking-[-0.01em] tabular-nums">
-                                  {s.value}{s.unit && <span className="text-[10px] text-[var(--muted)] ml-[2px]">{s.unit}</span>}
+                                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{s.label}</span>
+                                <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] tabular-nums">
+                                  {s.value}{s.unit && <span className="text-[11px] text-[var(--muted)] ml-[2px]">{s.unit}</span>}
                                 </span>
                               </div>
                             ))}
@@ -581,7 +581,7 @@ function WeekOverview({
             {/* Day header */}
             <div className="hm-week-day-header" style={{ padding: '12px 14px 14px' }}>
               <div
-                className="hm-day-abbr font-mono text-[8px] uppercase tracking-[0.1em]"
+                className="hm-day-abbr font-mono text-[9px] uppercase tracking-[0.1em]"
                 style={{ color: isToday ? 'var(--accent)' : 'var(--muted)' }}
               >
                 {DAY_NAMES[date.getDay()]}
@@ -592,7 +592,7 @@ function WeekOverview({
               >
                 {date.getDate()}
               </div>
-              <div className="hm-day-kcal font-mono text-[8px] tracking-[0.04em] text-[var(--muted)] mt-1">
+              <div className="hm-day-kcal font-mono text-[9px] tracking-[0.04em] text-[var(--muted)] mt-1">
                 {calVal > 0 ? `${calVal.toLocaleString()} kcal` : "\u00A0"}
               </div>
               <div className="hm-day-bar h-[2px] bg-[var(--rule)] mt-[6px] relative overflow-hidden">
@@ -619,12 +619,12 @@ function WeekOverview({
                 }
                 return (
                   <div key={m.id} style={{ padding: '6px 0' }}>
-                    <div className="font-mono text-[7px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[2px]">
+                    <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[2px]">
                       {m.mealType}
                     </div>
                     <div className="font-sans text-[11px] text-[var(--fg)] leading-[1.35]">{name}</div>
                     {kcal != null && (
-                      <div className="font-mono text-[8px] text-[var(--muted)] mt-[1px]">{kcal} kcal</div>
+                      <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">{kcal} kcal</div>
                     )}
                   </div>
                 );
@@ -632,7 +632,7 @@ function WeekOverview({
               {dayMeals.length === 0 && (
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] no-underline hover:text-[var(--accent)] transition-colors block py-[6px]"
+                  className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] no-underline hover:text-[var(--accent)] transition-colors block py-[6px]"
                 >
                   + Add
                 </Link>
