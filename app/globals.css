@@ -2541,6 +2541,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   #rd-sec-opt,
   #rd-sec-prep { padding-top: 32px !important; padding-bottom: 32px !important; }
 
+  /* Ingredients + Nutrition stacked on mobile — match section gap */
+  .rd-two-col { gap: 32px !important; }
+
   /* ── Recipe/pantry builder: prevent URL input causing horizontal scroll ── */
   #rd-scroll-container { overflow-x: hidden; }
   #pf-scroll-container { overflow-x: hidden; }
