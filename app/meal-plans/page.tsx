@@ -1265,18 +1265,20 @@ const MealPlansPage = () => {
         const activeDay = parseUTCDate(dayData.date);
         return createPortal(
           <>
-            <div className="mob-sheet-backdrop" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
+            <div className="mob-sheet-backdrop mob-sheet-backdrop--above-nav" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
             <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Nutrition summary">
-              <div className="mob-sheet-handle" aria-hidden="true" />
-              <div className="flex items-center justify-between" style={{ padding: '8px 20px 4px' }}>
-                <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">
-                  {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              <div style={{ position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 1, borderBottom: '1px solid var(--rule-faint)', flexShrink: 0 }}>
+                <div className="mob-sheet-handle" aria-hidden="true" />
+                <div className="flex items-center justify-between" style={{ padding: '8px 20px 12px' }}>
+                  <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">
+                    {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </div>
+                  <button
+                    onClick={() => setMobNutSheetOpen(false)}
+                    className="w-[44px] h-[44px] flex items-center justify-center rounded-full text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-[8px]"
+                    aria-label="Close nutrition summary"
+                  >✕</button>
                 </div>
-                <button
-                  onClick={() => setMobNutSheetOpen(false)}
-                  className="w-[44px] h-[44px] flex items-center justify-center rounded-full text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-[8px]"
-                  aria-label="Close nutrition summary"
-                >✕</button>
               </div>
               {calorieNutrient && (
                 <div style={{ padding: '16px 20px 8px' }}>
@@ -1378,7 +1380,7 @@ const MealPlansPage = () => {
       {/* Shopping list sheet */}
       {shopSheetOpen && createPortal(
         <>
-          <div className="mob-sheet-backdrop" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
+          <div className="mob-sheet-backdrop mob-sheet-backdrop--above-nav" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
           <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list">
             <div className="mob-sheet-handle" aria-hidden="true" />
             <div className="shop-header">

@@ -707,7 +707,7 @@ input[type="number"]:focus {
 .pl-range { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg); padding-left:4px; padding-right:8px; flex-shrink:0; }
 
 .pl-nav-btn {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:none; border:1px solid var(--rule); color:var(--muted);
   padding:4px 10px; cursor:pointer; white-space:nowrap; flex-shrink:0;
   border-radius: var(--radius-pill);
@@ -720,7 +720,7 @@ input[type="number"]:focus {
 .pl-chip-sep { width:1px; height:14px; background:var(--rule); flex-shrink:0; margin:0 6px; }
 
 .pl-person-chip {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:none; border:1px solid var(--rule); color:var(--muted);
   padding:4px 10px; cursor:pointer; position:relative; white-space:nowrap;
   border-radius: var(--radius-pill);
@@ -734,7 +734,7 @@ input[type="number"]:focus {
 .pl-right-group { display:flex; gap:5px; align-items:center; margin-left:auto; }
 
 .pl-nut-chip {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:none; border:1px solid var(--rule); color:var(--muted);
   padding:4px 10px; cursor:pointer; white-space:nowrap; position:relative;
   border-radius: var(--radius-pill);
@@ -746,7 +746,7 @@ input[type="number"]:focus {
 .pl-nut-chip.on { color:var(--fg); border-color:var(--fg); }
 
 .pl-new-btn {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:var(--accent); color:var(--accent-fg); border:none; padding:4px 10px;
   border-radius: var(--radius-pill);
   cursor:pointer; transition:opacity 0.15s; white-space:nowrap; flex-shrink:0;
@@ -767,7 +767,7 @@ input[type="number"]:focus {
   border-bottom-color:var(--rule);
 }
 
-.pl-create-label { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+.pl-create-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
 
 .pl-create-date {
   font-family:'DM Mono',monospace; font-size:11px; color:var(--fg);
@@ -812,7 +812,7 @@ input[type="number"]:focus {
 .pl-create-actions { display:flex; gap:8px; margin-left:auto; align-items:center; }
 
 .pl-create-btn {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:var(--accent); color:var(--accent-fg); border:none; padding:6px 16px;
   border-radius: var(--radius-pill);
   cursor:pointer; transition:opacity 0.15s, transform 100ms var(--ease-out); white-space:nowrap;
@@ -822,7 +822,7 @@ input[type="number"]:focus {
 .pl-create-btn:disabled { opacity:0.5; cursor:default; }
 
 .pl-cancel-btn {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:none; border:none; color:var(--muted); padding:6px 16px;
   border-radius: var(--radius-pill);
   cursor:pointer; transition:color 0.15s;
@@ -847,7 +847,7 @@ input[type="number"]:focus {
 .wk-day-col.today .wk-day-name { color:var(--accent); }
 .wk-day-col.today .wk-day-num { color:var(--accent); }
 
-.wk-day-kcal { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); margin-top:6px; font-variant-numeric:tabular-nums; }
+.wk-day-kcal { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-top:6px; font-variant-numeric:tabular-nums; }
 
 .wk-day-bar { height:2px; background:var(--rule); margin-top:4px; overflow:hidden; }
 .wk-day-bar-fill { height:100%; background:var(--ok); transition:width 0.6s var(--ease-out); }
@@ -875,7 +875,7 @@ input[type="number"]:focus {
 .meal-chip-recipe:hover::after { transform:scaleX(1); }
 
 .meal-chip-name { font-size:11px; line-height:1.3; color:var(--fg); display:block; text-wrap:balance; }
-.meal-chip-kcal { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:2px; display:block; }
+.meal-chip-kcal { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:2px; display:block; }
 
 .ev-person-label {
   font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
@@ -885,7 +885,7 @@ input[type="number"]:focus {
 
 .wk-add-btn {
   display:block; text-align:left;
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   color:var(--muted); background:none; border:none;
   padding:12px 6px 24px; cursor:pointer;
   transition:color 120ms ease-out, transform 80ms ease-out;
@@ -1108,7 +1108,7 @@ input[type="number"]:focus {
 .ev-row-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
 .ev-row-name {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.08em;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.08em;
   text-transform:uppercase; color:var(--fg-2);
 }
 
@@ -1126,7 +1126,7 @@ input[type="number"]:focus {
 }
 
 .ev-meal-type {
-  font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.04em;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.04em;
   color:var(--muted); flex-shrink:0; padding-top:1px;
 }
 
@@ -1159,38 +1159,38 @@ input[type="number"]:focus {
 
 .pl-side-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; }
 .pl-side-day { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--fg); }
-.pl-side-person { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px; }
+.pl-side-person { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px; }
 .pl-side-person-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
 
 .pl-kcal-hero { margin-bottom:4px; }
 .pl-kcal-num { font-family:'Bricolage Grotesque',sans-serif; font-size:36px; font-weight:700; letter-spacing:-0.03em; line-height:1; font-variant-numeric:tabular-nums; }
 .pl-kcal-unit { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-left:4px; vertical-align:baseline; }
-.pl-kcal-sub { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); margin-bottom:4px; }
+.pl-kcal-sub { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-bottom:4px; }
 .pl-kcal-bar { height:3px; background:var(--rule); overflow:hidden; margin-bottom:20px; }
 .pl-kcal-bar-fill { height:100%; background:var(--accent); transition:width 0.6s var(--ease-out); }
 
 .pl-nut-rows { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
 
 .pl-warn-section { margin-bottom:20px; }
-.pl-warn-label { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.pl-warn-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
 
 .warn-chips { display:flex; flex-direction:column; gap:5px; }
-.warn-chip { background:var(--warn-l); font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.06em; color:var(--warn-fg); padding:5px 10px; }
+.warn-chip { background:var(--warn-l); font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.06em; color:var(--warn-fg); padding:5px 10px; }
 [data-theme="dark"] .warn-chip { color:var(--warn); }
-.err-chip { background:var(--err-l); font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.06em; color:var(--err); padding:5px 10px; }
+.err-chip { background:var(--err-l); font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.06em; color:var(--err); padding:5px 10px; }
 
 .pl-over-section { margin-bottom:20px; }
-.pl-over-title { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; color:var(--fg); margin-bottom:4px; display:flex; align-items:baseline; justify-content:space-between; }
-.pl-over-amount { font-family:'DM Mono',monospace; font-size:8px; color:var(--err); }
+.pl-over-title { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--fg); margin-bottom:4px; display:flex; align-items:baseline; justify-content:space-between; }
+.pl-over-amount { font-family:'DM Mono',monospace; font-size:9px; color:var(--err); }
 .pl-over-desc { font-family:'DM Sans',sans-serif; font-size:11px; color:var(--muted); margin-bottom:8px; }
 
 .pl-swap-card { padding:10px 12px; background:var(--bg-2); margin-bottom:6px; border-radius: var(--radius-sm); }
-.pl-swap-instead { font-family:'DM Sans',sans-serif; font-size:10px; color:var(--muted); margin-bottom:4px; }
+.pl-swap-instead { font-family:'DM Sans',sans-serif; font-size:11px; color:var(--muted); margin-bottom:4px; }
 .pl-swap-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .pl-swap-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.3; }
-.pl-swap-savings { font-family:'DM Mono',monospace; font-size:8px; color:var(--ok); margin-top:2px; }
+.pl-swap-savings { font-family:'DM Mono',monospace; font-size:9px; color:var(--ok); margin-top:2px; }
 
-.pl-swap-btn { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: var(--radius-pill); color:var(--muted); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out); }
+.pl-swap-btn { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: var(--radius-pill); color:var(--muted); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out); }
 .pl-swap-btn:hover { border-color:var(--accent); color:var(--accent); }
 .pl-swap-btn:active { transform:scale(0.97); }
 
@@ -1200,9 +1200,9 @@ input[type="number"]:focus {
 .pl-rec-card { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; background:var(--bg-2); margin-bottom:6px; }
 .pl-rec-info { flex:1; }
 .pl-rec-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.3; }
-.pl-rec-kcal { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); margin-top:2px; }
+.pl-rec-kcal { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-top:2px; }
 
-.pl-add-btn { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--accent); border-radius: var(--radius-pill); color:var(--accent); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
+.pl-add-btn { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--accent); border-radius: var(--radius-pill); color:var(--accent); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
 .pl-add-btn:hover { background:var(--accent-l); }
 .pl-add-btn:active { transform:scale(0.97); }
 
@@ -1211,7 +1211,7 @@ input[type="number"]:focus {
 .nut-row-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
 .nut-name { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.06em; color:var(--fg-2); }
 .nut-val { font-family:'DM Mono',monospace; font-size:9px; color:var(--fg); font-variant-numeric:tabular-nums; }
-.nut-pct { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); }
+.nut-pct { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); }
 .nut-track { height:3px; background:var(--rule); border-radius:99px; overflow:hidden; }
 .nut-fill { height:100%; border-radius:99px; transition:width 0.7s var(--ease-out); }
 .fill-ok  { background:var(--ok); }
@@ -1479,6 +1479,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: rgba(0, 0, 0, 0.4);
   z-index: 290;
   animation: backdropIn 200ms ease both;
+}
+/* Backdrop for sheets that float above the bottom nav — don't dim the nav */
+.mob-sheet-backdrop--above-nav {
+  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
 }
 @keyframes backdropIn {
   from { opacity: 0; }
@@ -1796,6 +1800,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   justify-content: center;
   transition: color 0.12s;
   -webkit-tap-highlight-color: transparent;
+  margin-right: -8px;
 }
 .shop-close-btn:hover { color: var(--fg); }
 .shop-list-body {
