@@ -51,7 +51,7 @@ function getVolumeUnitNote(unit: string, hasCustomGrams: boolean): string {
 const CATEGORIES = [
   { value: "", label: "Other" },
   { value: "Produce", label: "Produce" },
-  { value: "Meat & Fish", label: "Meat & Fish" },
+  { value: "Meat & Seafood", label: "Meat & Seafood" },
   { value: "Dairy & Eggs", label: "Dairy & Eggs" },
   { value: "Grains & Bread", label: "Grains & Bread" },
   { value: "Pasta & Rice", label: "Pasta & Rice" },
