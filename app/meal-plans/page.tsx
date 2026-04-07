@@ -368,6 +368,7 @@ const MealPlansPage = () => {
   const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string; category: string }[]>([]);
   const [shopLoading, setShopLoading] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [hideChecked, setHideChecked] = useState(false);
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
@@ -1376,14 +1377,24 @@ const MealPlansPage = () => {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 20px 12px', borderBottom: '1px solid var(--rule)', flexShrink: 0 }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--fg)', marginBottom: 2 }}>Shopping List</div>
-                {selectedPlan && (() => {
-                  const s = parseUTCDate(selectedPlan.weekStartDate);
-                  const e = new Date(s); e.setDate(e.getDate() + 6);
-                  const range = s.getMonth() === e.getMonth()
-                    ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
-                    : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-                  return <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{range}</div>;
-                })()}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
+                  {selectedPlan && (() => {
+                    const s = parseUTCDate(selectedPlan.weekStartDate);
+                    const e = new Date(s); e.setDate(e.getDate() + 6);
+                    const range = s.getMonth() === e.getMonth()
+                      ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
+                      : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                    return <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>{range}</span>;
+                  })()}
+                  {checkedItems.size > 0 && (
+                    <button
+                      onClick={() => setHideChecked(h => !h)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: hideChecked ? 'var(--accent)' : 'var(--muted)', padding: 0 }}
+                    >
+                      {hideChecked ? 'Show all' : 'Hide done'}
+                    </button>
+                  )}
+                </div>
               </div>
               <button
                 onClick={() => setShopSheetOpen(false)}
@@ -1431,9 +1442,11 @@ const MealPlansPage = () => {
                 return (
                   <div>
                     {sortedCats.map(cat => {
-                      const items = groups.get(cat)!;
+                      const allItems = groups.get(cat)!;
+                      const items = hideChecked ? allItems.filter(i => !checkedItems.has(`${i.name}-${i.unit}`)) : allItems;
+                      if (items.length === 0) return null;
                       const catLabel = cat || 'Other';
-                      const catKeys = items.map(i => `${i.name}-${i.unit}`);
+                      const catKeys = allItems.map(i => `${i.name}-${i.unit}`);
                       const allChecked = catKeys.every(k => checkedItems.has(k));
                       const someChecked = catKeys.some(k => checkedItems.has(k));
                       return (
