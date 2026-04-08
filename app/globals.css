@@ -3557,7 +3557,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   text-transform: uppercase;
   color: rgba(255,255,255,0.55);
   background: #5A9B6A;
-  padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
+  padding: 10px var(--pad) calc(14px + env(safe-area-inset-bottom));
   border-top: 1px solid rgba(0,0,0,0.08);
 }
 .lp-mob-legal-link {
