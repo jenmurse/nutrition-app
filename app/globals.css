@@ -81,7 +81,7 @@
 
     /* Layout */
     --nav-h:    50px;
-    --pad:      clamp(20px, 5vw, 40px);
+    --pad:      clamp(24px, 6vw, 40px);
     --filter-h: 38px;
 
     /* Easing */
