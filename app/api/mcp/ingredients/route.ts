@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       },
     },
     orderBy: { name: 'asc' },
-    take: 50,
+    take: q ? 50 : 500,
   });
 
   return NextResponse.json(ingredients);

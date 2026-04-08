@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.0.9',
+  version: '1.1.0',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -333,6 +333,57 @@ as stubs without nutrition data.`,
       const message = err instanceof Error ? err.message : String(err);
       return {
         content: [{ type: 'text' as const, text: `Failed to search ingredients: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: list_ingredients ────────────────────────────────────────────────────
+
+server.tool(
+  'list_ingredients',
+  `List all ingredients in the user's Good Measure ingredient library.
+Use this when the user wants to generate a recipe from ingredients they already have,
+or when you need to know what's available before suggesting a recipe.
+Returns all ingredients with their default unit and calorie info.`,
+  {},
+  async () => {
+    try {
+      const ingredients = await apiFetch('/api/mcp/ingredients') as {
+        id: number;
+        name: string;
+        defaultUnit: string;
+        source: string;
+        nutrientValues: { value: number; nutrient: { displayName: string; unit: string } }[];
+      }[];
+
+      if (ingredients.length === 0) {
+        return {
+          content: [{ type: 'text' as const, text: 'No ingredients in the library yet.' }],
+        };
+      }
+
+      const lines = ingredients.map((ing) => {
+        const calEntry = ing.nutrientValues.find((n) =>
+          n.nutrient.displayName.toLowerCase().includes('calor') ||
+          n.nutrient.displayName.toLowerCase().includes('energy')
+        );
+        const calInfo = calEntry ? ` — ${Math.round(calEntry.value)} ${calEntry.nutrient.unit}/100g` : '';
+        const hasNutrition = ing.nutrientValues.length > 0;
+        return `• [id:${ing.id}] ${ing.name} (${ing.defaultUnit}${calInfo})${hasNutrition ? '' : ' [no nutrition data]'}`;
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${ingredients.length} ingredient${ingredients.length === 1 ? '' : 's'} in Good Measure:\n\n${lines.join('\n')}`,
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to list ingredients: ${message}` }],
         isError: true,
       };
     }
