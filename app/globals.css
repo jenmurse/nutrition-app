@@ -3616,6 +3616,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     width: calc(100vw - 2 * var(--pad));
     height: auto;
     aspect-ratio: 260 / 500;
+    border: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    background: #FAFAF8;
   }
   .lp-mob-features {
     display: flex;
