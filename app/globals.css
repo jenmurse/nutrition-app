@@ -2881,7 +2881,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   padding: 44px var(--pad);
-  background: #FAFAF8;
+  background: var(--bg);
 }
 .lp-fs-mid {
   flex: 1;
@@ -2898,7 +2898,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   padding: 48px 40px 48px 28px;
-  background: #FAFAF8;
+  background: var(--bg);
 }
 .lp-fs-frame {
   flex: 1;
@@ -2911,7 +2911,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* ══ Zone 3 — Bottom: light, sage accent only ══ */
 .lp-fs-bottom {
   grid-area: bottom;
-  background: #FAFAF8;
+  background: var(--bg);
   border-top: 1px solid var(--rule);
 }
 
@@ -3618,7 +3618,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     aspect-ratio: 260 / 500;
     border: none;
     box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-    background: #FAFAF8;
+    background: var(--bg);
   }
   .lp-mob-features {
     display: flex;
