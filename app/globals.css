@@ -3610,6 +3610,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     justify-content: center;
     padding: 42px 0 42px;
   }
+  .lp-mob-phone {
+    width: calc(100vw - 2 * var(--pad));
+    height: auto;
+    aspect-ratio: 260 / 500;
+  }
   .lp-mob-features {
     display: flex;
     flex-direction: column;
