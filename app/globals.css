@@ -3632,7 +3632,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     color: var(--muted);
     line-height: 1.55;
     margin: 0;
-    text-wrap: balance;
   }
   .lp-mob-legal { display: block; }
 }
