@@ -3441,6 +3441,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* ── Mobile phone demo frame (hidden on desktop, shown on mobile) ── */
 .lp-mob-demo-wrap {
   display: none;
+  pointer-events: none;
 }
 .lp-mob-features {
   display: none;
