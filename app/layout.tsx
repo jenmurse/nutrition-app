@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { APP_NAME, APP_TAGLINE } from "@/lib/brand";
+import { APP_NAME } from "@/lib/brand";
+import { SEO } from "@/lib/seo";
 import { DM_Sans, DM_Mono, Bricolage_Grotesque } from "next/font/google";
 
 import "./globals.css";
@@ -31,8 +32,46 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: APP_NAME,
-  description: `${APP_TAGLINE} Build better habits.`,
+  // ── Core ──────────────────────────────────────────────────────
+  metadataBase: new URL(SEO.siteUrl),
+  title: {
+    default:  SEO.title,
+    template: `%s — ${APP_NAME}`,   // inner pages: "Recipes — Good Measure"
+  },
+  description: SEO.description,
+  applicationName: APP_NAME,
+
+  // ── Open Graph ────────────────────────────────────────────────
+  openGraph: {
+    type:        "website",
+    siteName:    SEO.siteName,
+    url:         SEO.siteUrl,
+    title:       SEO.ogTitle,
+    description: SEO.ogDescription,
+    images: [{
+      url:    SEO.ogImagePath,
+      width:  SEO.ogImageWidth,
+      height: SEO.ogImageHeight,
+      alt:    SEO.siteName,
+    }],
+  },
+
+  // ── Twitter / X ───────────────────────────────────────────────
+  twitter: {
+    card:        SEO.twitterCard,
+    title:       SEO.ogTitle,
+    description: SEO.ogDescription,
+    images:      [SEO.ogImagePath],
+    ...(SEO.twitterHandle ? { creator: SEO.twitterHandle } : {}),
+  },
+
+  // ── Favicon theme colour (Android Chrome, Safari pinned tab) ──
+  themeColor: SEO.brandColor,
+
+  // ── Robots ────────────────────────────────────────────────────
+  robots: SEO.allowIndexing
+    ? { index: true,  follow: true }
+    : { index: false, follow: false },
 };
 
 export default function RootLayout({

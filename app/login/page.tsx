@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { BrandName } from "@/app/components/BrandName";
 
@@ -21,6 +22,11 @@ function LoginPage() {
   useEffect(() => {
     document.documentElement.dataset.theme = "sage";
   }, []);
+
+  useEffect(() => {
+    const signup = searchParams.get("signup");
+    if (signup) setMode("signup");
+  }, [searchParams]);
 
   useEffect(() => {
     const invite = searchParams.get("invite");
@@ -89,9 +95,11 @@ function LoginPage() {
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="mb-10 text-center">
-          <h1 className="font-serif text-[16px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em]">
-            <BrandName />
-          </h1>
+          <Link href="/landing" aria-label="Back to home">
+            <h1 className="font-serif text-[16px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em] hover:opacity-70 transition-opacity duration-150">
+              <BrandName />
+            </h1>
+          </Link>
         </div>
 
         {/* Invite banner */}
