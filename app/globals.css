@@ -3576,7 +3576,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     min-height: auto;
   }
   .lp-fs-right { display: none; }
-  .lp-fs-left { padding: 40px var(--pad) 0; }
+  .lp-fs-left { padding: 40px 30px 0; }
   .lp-fs-mid { gap: 20px; padding-bottom: 0; }
   .lp-headline { font-size: clamp(28px, 9vw, 40px); }
   .lp-subhead { font-size: 15px; }
@@ -3613,7 +3613,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     padding: 42px 0 42px;
   }
   .lp-mob-phone {
-    width: calc(100vw - 2 * var(--pad));
+    width: calc(100vw - 60px);
     height: auto;
     aspect-ratio: 260 / 500;
     border: none;
