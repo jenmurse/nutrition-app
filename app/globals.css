@@ -3608,7 +3608,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .lp-mob-demo-wrap {
     display: flex;
     justify-content: center;
-    padding: 32px 0 32px;
+    padding: 42px 0 42px;
   }
   .lp-mob-features {
     display: flex;
