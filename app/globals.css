@@ -3529,14 +3529,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Feature list items */
 .lp-mob-feature-item {
   padding: 16px 0;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--rule-faint);
 }
 .lp-mob-feature-item:first-child {
   padding-top: 28px;
   border-top: none;
 }
 .lp-mob-feature-item:last-child {
-  padding-bottom: 28px;
+  padding-bottom: 16px;
 }
 .lp-mob-feature-num {
   font-family: var(--mono);
@@ -3559,8 +3559,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--rule);
+  padding: 16px 0 calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rule-faint);
 }
 .lp-mob-legal-link {
   color: var(--fg-2);

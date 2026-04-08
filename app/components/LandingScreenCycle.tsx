@@ -25,7 +25,7 @@ const FEATURES = [
   { num: "06", title: "Track the household",     sub: "See each person's plan, side by side. Everyone shares the recipe and pantry library." },
 ];
 
-const TAB_LABELS = ["At a Glance", "Pantry", "Recipes", "Optimize", "Planner", "Household"];
+const TAB_LABELS = ["Dashboard", "Pantry", "Recipes", "Optimize", "Planner", "Household"];
 
 const MOB_FEATURES = [
   { num: "01", title: "At a Glance",       sub: "A snapshot of today's nutrition, meals, and this week's plan." },
