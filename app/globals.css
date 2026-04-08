@@ -2897,7 +2897,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   grid-area: right;
   display: flex;
   flex-direction: column;
-  padding: 32px 40px 32px 28px;
+  padding: 48px 40px 48px 28px;
   background: #FAFAF8;
 }
 .lp-fs-frame {
@@ -2908,16 +2908,17 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border: 1px solid rgba(0,0,0,0.07);
 }
 
-/* ══ Zone 3 — Bottom: brand sage — hardcoded, never inherits person theme ══ */
+/* ══ Zone 3 — Bottom: light, sage accent only ══ */
 .lp-fs-bottom {
   grid-area: bottom;
-  background: #5A9B6A;
+  background: #FAFAF8;
+  border-top: 1px solid var(--rule);
 }
 
-/* Tab strip — light text on dark bg */
+/* Tab strip */
 .lp-fs-tabs {
   display: flex;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid var(--rule);
 }
 .lp-fs-tab {
   flex: 1;
@@ -2925,35 +2926,35 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  border-right: 1px solid rgba(0,0,0,0.12);
+  border-right: 1px solid var(--rule);
   cursor: pointer;
   transition: border-color 180ms var(--ease-out), color 180ms var(--ease-out);
   text-align: left;
 }
 .lp-fs-tab:first-child { padding-left: var(--pad); }
 .lp-fs-tab:last-child { border-right: none; }
-.lp-fs-tab:hover .lp-fs-tab-label { color: rgba(255,255,255,0.9); }
-.lp-fs-tab--active { border-bottom-color: #1A1916; }
+.lp-fs-tab:hover .lp-fs-tab-label { color: var(--fg); }
+.lp-fs-tab--active { border-bottom-color: #5A9B6A; }
 .lp-fs-tab-num {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.38);
+  color: #5A9B6A;
   margin-right: 7px;
 }
-.lp-fs-tab--active .lp-fs-tab-num { color: rgba(255,255,255,0.6); }
+.lp-fs-tab--active .lp-fs-tab-num { color: #5A9B6A; }
 .lp-fs-tab-label {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.65);
+  color: var(--muted);
   white-space: nowrap;
 }
-.lp-fs-tab--active .lp-fs-tab-label { color: #fff; }
+.lp-fs-tab--active .lp-fs-tab-label { color: var(--fg); }
 
-/* Description row — light text on dark, transitions in-place */
+/* Description row — transitions in-place */
 .lp-fs-desc-wrap {
   position: relative;
   height: 52px;
@@ -2981,43 +2982,43 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: #fff;
+  color: var(--fg);
   white-space: nowrap;
   flex-shrink: 0;
 }
 .lp-fs-desc-sep {
   font-family: var(--mono);
   font-size: 11px;
-  color: #fff;
+  color: var(--rule);
   padding: 0 14px;
   flex-shrink: 0;
 }
 .lp-fs-desc-sub {
   font-family: var(--sans);
   font-size: 13px;
-  color: rgba(255,255,255,0.75);
+  color: var(--muted);
   line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Legal line — lives in the dark bar, no extra scroll */
+/* Legal line */
 .lp-fs-legal {
-  padding: 10px var(--pad) 14px;
+  padding: 16px var(--pad) 14px;
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
-  border-top: 1px solid rgba(0,0,0,0.10);
+  color: var(--muted);
+  border-top: 1px solid var(--rule);
 }
 .lp-fs-legal-link {
-  color: rgba(255,255,255,0.8);
+  color: var(--fg-2);
   text-decoration: none;
   transition: color 150ms var(--ease-out);
 }
-.lp-fs-legal-link:hover { color: #fff; }
+.lp-fs-legal-link:hover { color: var(--fg); }
 
 /* ── Sections ── */
 .lp-section {
