@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { usePersonContext } from "./components/PersonContext";
+import { usePersonContext } from "../components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
-import GettingStartedCard from "./components/GettingStartedCard";
-import { CalendarEmptyIcon, MealsEmptyIcon } from "./components/EmptyStateIcons";
-import { BrandName } from "./components/BrandName";
-import ContextualTip from "./components/ContextualTip";
+import GettingStartedCard from "../components/GettingStartedCard";
+import { CalendarEmptyIcon, MealsEmptyIcon } from "../components/EmptyStateIcons";
+import { BrandName } from "../components/BrandName";
+import ContextualTip from "../components/ContextualTip";
 
 function getCurrentWeekStart(): Date {
   const d = new Date();
