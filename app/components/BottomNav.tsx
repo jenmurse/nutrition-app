@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   {
-    href: "/",
+    href: "/home",
     label: "Home",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -63,12 +63,12 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   // Hide on login, preview, onboarding, landing
-  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
 
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
       {navItems.map((item) => {
-        const isActive = item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href);
+        const isActive = item.href === "/home" ? pathname === "/home" : pathname?.startsWith(item.href);
         return (
           <Link
             key={item.href}

@@ -95,7 +95,7 @@ function LoginPage() {
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="mb-10 text-center">
-          <Link href="/landing" aria-label="Back to home">
+          <Link href="/" aria-label="Back to home">
             <h1 className="font-serif text-[16px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em] hover:opacity-70 transition-opacity duration-150">
               <BrandName />
             </h1>

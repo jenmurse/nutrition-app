@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { APP_NAME } from '@/lib/brand';
 import { usePersonContext } from '@/app/components/PersonContext';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
 import { THEMES } from '@/lib/themes';
@@ -75,6 +76,13 @@ function SectionHeader({ number, title }: { number: string; title: string }) {
 
 const SettingsPage = () => {
   const { persons, selectedPersonId, refreshPersons } = usePersonContext();
+  const supabase = createClient();
+
+  const handleSignOut = async () => {
+    localStorage.removeItem('selectedPersonId');
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [savingThemeId, setSavingThemeId] = useState<number | null>(null);
@@ -1108,6 +1116,20 @@ const SettingsPage = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════════════════
+              SIGN OUT — mobile only
+              ════════════════════════════════════════════════════════════════════ */}
+          <div className="md:hidden" style={{ padding: '40px 0 24px' }}>
+            <div className="h-px bg-[var(--rule)] mb-[32px]" />
+            <button
+              onClick={handleSignOut}
+              className="w-full py-[12px] font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--error,#c0392b)] border border-[var(--error,#c0392b)] bg-transparent cursor-pointer hover:bg-[var(--error,#c0392b)] hover:text-white transition-colors"
+              aria-label="Sign out of your account"
+            >
+              Sign Out
+            </button>
           </div>
 
         </div>

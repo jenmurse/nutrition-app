@@ -311,7 +311,7 @@ export default function OnboardingPage() {
     // Refresh context so onboardingComplete is true before navigating,
     // otherwise the home page redirect check fires with the stale false value.
     await refreshPersons();
-    router.push("/");
+    router.push("/home");
   };
 
   /* ── Checklist items for step 5 ─────────────────────────────────────── */

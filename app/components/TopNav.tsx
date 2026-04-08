@@ -18,7 +18,7 @@ export default function TopNav() {
   const supabase = createClient();
 
   // Hide nav on login, preview, onboarding, and landing pages
-  if (pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
 
   const handleSignOut = async () => {
     localStorage.removeItem("selectedPersonId");
@@ -34,7 +34,7 @@ export default function TopNav() {
     >
       {/* Brand */}
       <Link
-        href="/"
+        href="/home"
         className="font-serif text-[13px] text-[var(--fg)] no-underline tracking-[-0.02em] hover:text-[var(--accent)] transition-colors duration-150"
         style={{ marginRight: 36 }}
       >

@@ -27,7 +27,8 @@ export async function middleware(request: NextRequest) {
   // Refresh session — required for Server Components to read auth state
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isAuthRoute =
+  const isPublicRoute =
+    request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/preview") ||
@@ -35,15 +36,15 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api/households/invite/info") ||
     request.nextUrl.pathname.startsWith("/api/mcp/");
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isPublicRoute) {
     if (request.nextUrl.pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/landing")) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/landing")) {
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   // Pass verified user ID to API routes via request header — avoids redundant getUser() call.

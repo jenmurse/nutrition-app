@@ -1,9 +1,5 @@
-import LandingScreenCycle from "../components/LandingScreenCycle";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
-  return (
-    <div className="lp-root">
-      <LandingScreenCycle />
-    </div>
-  );
+export default function LandingRedirect() {
+  redirect("/");
 }
