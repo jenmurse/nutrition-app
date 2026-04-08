@@ -3528,11 +3528,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 /* Feature list items */
 .lp-mob-feature-item {
-  background: #5A9B6A;
-  padding: 16px var(--pad);
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
 }
 .lp-mob-feature-item:first-child {
   padding-top: 28px;
+  border-top: none;
 }
 .lp-mob-feature-item:last-child {
   padding-bottom: 28px;
@@ -3541,7 +3542,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.45);
+  color: #5A9B6A;
   margin-right: 6px;
 }
 .lp-mob-feature-label {
@@ -3549,7 +3550,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #fff;
+  color: var(--fg);
   font-weight: 500;
 }
 .lp-mob-legal {
@@ -3557,13 +3558,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  background: #5A9B6A;
-  padding: 10px var(--pad) calc(14px + env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(0,0,0,0.08);
+  color: var(--muted);
+  padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rule);
 }
 .lp-mob-legal-link {
-  color: rgba(255,255,255,0.8);
+  color: var(--fg-2);
   text-decoration: none;
 }
 
@@ -3620,17 +3620,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .lp-mob-features {
     display: flex;
     flex-direction: column;
-    margin: 0 calc(-1 * var(--pad));
     flex: 1;
   }
   .lp-mob-feature-title-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
   .lp-mob-feature-desc {
     font-family: var(--sans);
     font-size: 13px;
-    color: rgba(255,255,255,0.72);
+    color: var(--muted);
     line-height: 1.55;
     margin: 0;
     text-wrap: balance;
   }
-  .lp-mob-legal { display: block; margin: 0 calc(-1 * var(--pad)); }
+  .lp-mob-legal { display: block; }
 }

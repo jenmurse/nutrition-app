@@ -1618,7 +1618,7 @@ export default function LandingScreenCycle() {
         {/* Mobile only: legal */}
         <div className="lp-mob-legal">
           © 2026 Made by{" "}
-          <a href="https://jenmurse.com" target="_blank" rel="noopener noreferrer" className="lp-mob-legal-link">Jen Murse</a>
+          <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer" className="lp-mob-legal-link">Jen Murse</a>
         </div>
       </div>
 
@@ -1677,7 +1677,7 @@ export default function LandingScreenCycle() {
         </div>
         <div className="lp-fs-legal">
           © 2026 Made by{" "}
-          <a href="https://jenmurse.com" target="_blank" rel="noopener noreferrer" className="lp-fs-legal-link">
+          <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer" className="lp-fs-legal-link">
             Jen Murse
           </a>
         </div>
