@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { APP_NAME } from "@/lib/brand";
 import { SEO } from "@/lib/seo";
@@ -30,6 +30,12 @@ const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: '--font-display',
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",   // required for env(safe-area-inset-*) to work on iOS PWA
+};
 
 export const metadata: Metadata = {
   // ── Core ──────────────────────────────────────────────────────
