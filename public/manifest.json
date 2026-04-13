@@ -1,0 +1,29 @@
+{
+  "name": "Good Measure",
+  "short_name": "Good Measure",
+  "description": "Know exactly what's in everything you cook. Build and optimize recipes, track nutrition live, and plan the week for your entire household.",
+  "start_url": "/home",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F5F4EF",
+  "theme_color": "#5A9B6A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/PWA_icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/PWA_icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/PWA_icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

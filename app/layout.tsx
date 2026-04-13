@@ -65,8 +65,23 @@ export const metadata: Metadata = {
     ...(SEO.twitterHandle ? { creator: SEO.twitterHandle } : {}),
   },
 
+  // ── Favicon + icons ───────────────────────────────────────────
+  icons: {
+    apple: "/PWA_icon-180x180.png",
+  },
+
   // ── Favicon theme colour (Android Chrome, Safari pinned tab) ──
   themeColor: SEO.brandColor,
+
+  // ── PWA manifest ─────────────────────────────────────────────
+  manifest: "/manifest.json",
+
+  // ── Apple PWA ─────────────────────────────────────────────────
+  appleWebApp: {
+    capable: true,
+    title: APP_NAME,
+    statusBarStyle: "default",
+  },
 
   // ── Robots ────────────────────────────────────────────────────
   robots: SEO.allowIndexing
