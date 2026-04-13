@@ -747,22 +747,6 @@ const MealPlansPage = () => {
     }
   };
 
-  const handleReorderMeals = async (_dayDate: Date, orderedIds: number[]) => {
-    if (!selectedPlanId) return;
-    try {
-      const order = orderedIds.map((id, position) => ({ id, position }));
-      const response = await fetch(`/api/meal-plans/${selectedPlanId}/meals`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order }),
-      });
-      if (!response.ok) throw new Error('Failed to reorder meals');
-      await fetchMealPlanDetails(selectedPlanId);
-    } catch (error) {
-      console.error('Error reordering meals:', error);
-    }
-  };
-
   function fmtQty(n: number): string {
     if (n === Math.floor(n)) return String(Math.floor(n));
     return Number(n.toFixed(2)).toString();
@@ -1563,7 +1547,6 @@ const MealPlansPage = () => {
                 onAddRecipeMeal={handleAddRecipeMeal}
                 onAddIngredientMeal={handleAddIngredientMeal}
                 onRemoveMeal={handleRemoveMeal}
-                onReorderMeals={handleReorderMeals}
                 onError={(msg) => toast.error(msg)}
                 selectedDay={summaryPanelOpen ? selectedDay : null}
                 onDayClick={summaryPanelOpen ? (date) => {

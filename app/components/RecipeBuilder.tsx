@@ -1,10 +1,13 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { Dispatch, SetStateAction, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
 import CreateIngredientModal from "./CreateIngredientModal";
 import { toast } from "@/lib/toast";
 import ContextualTip from "./ContextualTip";
+import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string };
 type Ingredient = {
@@ -44,6 +47,208 @@ type InitialRecipe = {
 
 export type RecipeBuilderHandle = { save: () => void };
 
+// ── Sortable ingredient row ──────────────────────────────────────────────────
+type SortableIngredientRowProps = {
+  row: Row; index: number; rows: Row[]; ingredients: Ingredient[];
+  searchText: Record<string, string>; showDropdown: Record<string, boolean>;
+  quantityText: Record<string, string>; editingSectionRowId: string | null;
+  editingSectionText: string;
+  setSearchText: Dispatch<SetStateAction<Record<string, string>>>;
+  setShowDropdown: Dispatch<SetStateAction<Record<string, boolean>>>;
+  setQuantityText: Dispatch<SetStateAction<Record<string, string>>>;
+  setRows: Dispatch<SetStateAction<Row[]>>;
+  setEditingSectionRowId: Dispatch<SetStateAction<string | null>>;
+  setEditingSectionText: Dispatch<SetStateAction<string>>;
+  updateRow: (id: string, patch: Partial<Row>) => void;
+  commitSection: (rowId: string) => void;
+  removeSectionFromRow: (rowId: string) => void;
+  createIngredient: (name: string, rowId: string) => void;
+};
+
+function SortableIngredientRow({
+  row, index, rows, ingredients,
+  searchText, showDropdown, quantityText,
+  editingSectionRowId, editingSectionText,
+  setSearchText, setShowDropdown, setQuantityText,
+  setRows, setEditingSectionRowId, setEditingSectionText,
+  updateRow, commitSection, removeSectionFromRow, createIngredient,
+}: SortableIngredientRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id });
+  const style: React.CSSProperties = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  const prevSection = index > 0 ? rows[index - 1].section : null;
+  const showSectionHeader = row.section && row.section !== prevSection;
+  const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
+  const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
+  const rawSearch = searchText[row.id] || "";
+  const currentSearch = rawSearch
+    .replace(/\(\([^)]*\)\)/g, "").replace(/\([^)]*note[^)]*\)/gi, "").replace(/\([^)]*\*[^)]*\)/g, "")
+    .replace(/\s{2,}/g, " ").trim() || rawSearch;
+  const filteredIngredients = currentSearch
+    ? ingredients.filter((i) => i.name.toLowerCase().includes(currentSearch.toLowerCase()))
+    : ingredients;
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {editingSectionRowId === row.id && !showSectionHeader && (
+        <div className="flex items-center gap-2" style={{ padding: "10px 0 6px", borderBottom: "1px solid var(--rule)" }}>
+          <input autoFocus className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
+            placeholder="Section name..." value={editingSectionText}
+            onChange={(e) => setEditingSectionText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
+            onBlur={() => commitSection(row.id)} aria-label="Section name" />
+        </div>
+      )}
+      {showSectionHeader && (
+        <div className="flex items-center gap-2" style={{ padding: "10px 0 6px", borderBottom: "1px solid var(--rule)" }}>
+          {editingSectionRowId === row.id ? (
+            <input autoFocus className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
+              placeholder="Section name..." value={editingSectionText}
+              onChange={(e) => setEditingSectionText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
+              onBlur={() => commitSection(row.id)} aria-label="Edit section name" />
+          ) : (
+            <button type="button" className="flex-1 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] font-medium hover:text-[var(--fg)] cursor-pointer bg-transparent border-0 p-0"
+              onClick={() => { setEditingSectionRowId(row.id); setEditingSectionText(row.section || ""); }}
+              aria-label={`Edit section: ${row.section}`}>{row.section}</button>
+          )}
+          <button type="button" className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
+            style={{ width: 28, height: 28, marginLeft: "auto" }}
+            onClick={() => removeSectionFromRow(row.id)} aria-label="Remove section header">×</button>
+        </div>
+      )}
+      <div className="flex items-center gap-[10px] transition" style={{ padding: "8px 0" }}>
+        <div className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
+          role="button" tabIndex={0} aria-label="Drag to reorder ingredient" {...listeners}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+            <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+            <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+          </svg>
+        </div>
+        <div className="relative" style={{ flex: 1 }}>
+          <input type="text"
+            className={`ed-input ${!selectedIngredient && row.nameGuess && !currentSearch ? '!border-[var(--warn)] !text-[var(--warn)]' : ''}`}
+            placeholder="Ingredient name"
+            value={selectedIngredient ? selectedIngredient.name : rawSearch}
+            onChange={(e) => {
+              setSearchText((prev) => ({ ...prev, [row.id]: e.target.value }));
+              setShowDropdown((prev) => ({ ...prev, [row.id]: true }));
+              if (row.ingredientId) updateRow(row.id, { ingredientId: undefined });
+            }}
+            onFocus={() => setShowDropdown((prev) => ({ ...prev, [row.id]: true }))}
+            onBlur={() => { setTimeout(() => { setShowDropdown((prev) => ({ ...prev, [row.id]: false })); }, 150); }}
+            aria-label={`Ingredient ${index + 1} name`} />
+          {showDropdown[row.id] && currentSearch && (
+            <div className="absolute z-10 w-full mt-1 border border-[var(--rule)] bg-[var(--bg)] max-h-48 overflow-auto" style={{ boxShadow: '0 4px 12px rgba(0,0,0,.08)' }}>
+              {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
+                <div className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[13px] border-b border-[var(--rule)] text-[var(--fg)] font-medium"
+                  onMouseDown={(e) => { e.preventDefault(); createIngredient(currentSearch, row.id); }}>
+                  + Create new ingredient: &ldquo;{currentSearch}&rdquo;
+                </div>
+              )}
+              {filteredIngredients.map((i) => (
+                <div key={i.id} className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[13px]"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const defaultUnit = i.customUnitName || i.defaultUnit || "g";
+                    updateRow(row.id, { ingredientId: i.id, unit: row.unit || defaultUnit });
+                    setSearchText((prev) => ({ ...prev, [row.id]: "" }));
+                    setShowDropdown((prev) => ({ ...prev, [row.id]: false }));
+                  }}>
+                  <div>{i.name}{i.customUnitName ? ` (${i.customUnitName})` : ""}</div>
+                  {i.nutrientValues.length > 0 && (() => {
+                    const kcalNv = i.nutrientValues.find((v) => v.nutrient.displayName.toLowerCase().includes("energy") || v.nutrient.displayName.toLowerCase().includes("calorie"));
+                    return kcalNv ? <div className="font-mono text-[9px] text-[var(--muted)]">{Math.round(kcalNv.value)} kcal / 100g</div> : null;
+                  })()}
+                </div>
+              ))}
+              {filteredIngredients.length === 0 && ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
+                <div className="px-3 py-2 text-[13px] text-[var(--muted)]">No matching ingredients</div>
+              )}
+            </div>
+          )}
+          {!selectedIngredient && row.nameGuess && (
+            <div className="flex items-center gap-[6px]" style={{ padding: "2px 0" }}>
+              <span className="font-mono text-[9px] text-[var(--warn)]">Not in library —</span>
+              <button type="button" onClick={() => createIngredient(currentSearch || row.nameGuess!, row.id)}
+                className="font-mono text-[9px] text-[var(--accent)] underline bg-transparent border-0 p-0 cursor-pointer">
+                Add to library
+              </button>
+            </div>
+          )}
+        </div>
+        <input className="ed-input" style={{ width: 70 }} type="text" inputMode="decimal" placeholder="Qty"
+          value={quantityText[row.id] ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQuantityText((prev) => ({ ...prev, [row.id]: val }));
+            if (val === "") { updateRow(row.id, { quantity: undefined }); }
+            else { const numVal = parseFloat(val); if (!isNaN(numVal) && numVal >= 0) updateRow(row.id, { quantity: numVal }); }
+          }}
+          onBlur={(e) => {
+            const val = e.target.value;
+            if (val !== "") {
+              const numVal = parseFloat(val);
+              if (!isNaN(numVal) && numVal >= 0) setQuantityText((prev) => ({ ...prev, [row.id]: String(numVal) }));
+              else { setQuantityText((prev) => ({ ...prev, [row.id]: "" })); updateRow(row.id, { quantity: undefined }); }
+            }
+          }}
+          aria-label={`Ingredient ${index + 1} quantity`} />
+        <select className="ed-select" style={{ width: 80 }} value={row.unit ?? defaultUnitForRow}
+          onChange={(e) => updateRow(row.id, { unit: e.target.value })} aria-label={`Ingredient ${index + 1} unit`}>
+          <optgroup label="Weight"><option value="g">g</option><option value="oz">oz</option><option value="lb">lb</option><option value="kg">kg</option></optgroup>
+          <optgroup label="Volume"><option value="ml">ml</option><option value="l">l</option><option value="tsp">tsp</option><option value="tbsp">tbsp</option><option value="cup">cup</option><option value="fl-oz">fl oz</option></optgroup>
+          {selectedIngredient?.customUnitName && (
+            <optgroup label="Custom"><option value={selectedIngredient.customUnitName}>{selectedIngredient.customUnitName}</option></optgroup>
+          )}
+        </select>
+        <button className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
+          style={{ width: 28, height: 28 }}
+          onClick={() => setRows((prev) => {
+            const idx = prev.findIndex((r) => r.id === row.id);
+            const removedSection = prev[idx]?.section;
+            const ps = idx > 0 ? prev[idx - 1]?.section : null;
+            const isLeader = removedSection && removedSection !== ps;
+            const next = prev.filter((r) => r.id !== row.id);
+            if (isLeader && idx < next.length && (!next[idx].section || next[idx].section === removedSection)) {
+              next[idx] = { ...next[idx], section: removedSection };
+            }
+            return next;
+          })}
+          aria-label="Remove ingredient">×</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Sortable step row ────────────────────────────────────────────────────────
+function SortableStepRow({ id, idx, step, onChangeStep, onRemoveStep }: {
+  id: string; idx: number; step: string;
+  onChangeStep: (idx: number, value: string) => void;
+  onRemoveStep: (idx: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 };
+  return (
+    <div ref={setNodeRef} style={{ ...style, padding: "8px 0" }} className="flex items-start gap-[10px]" {...attributes}>
+      <div className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
+        style={{ paddingTop: 10 }} role="button" tabIndex={0} aria-label={`Drag to reorder step ${idx + 1}`} {...listeners}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+        </svg>
+      </div>
+      <textarea className="flex-1 font-sans text-[13px] text-[var(--fg)] bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 outline-none resize-none transition-[border-color] duration-200 focus:border-[var(--accent)]"
+        style={{ minHeight: 40 }} rows={2} placeholder={`Step ${idx + 1}…`} value={step}
+        onChange={(e) => onChangeStep(idx, e.target.value)} aria-label={`Step ${idx + 1}`} />
+      <button className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors shrink-0"
+        style={{ width: 28, height: 28, paddingTop: 2 }}
+        onClick={() => onRemoveStep(idx)} aria-label={`Remove step ${idx + 1}`}>×</button>
+    </div>
+  );
+}
 
 type Person = { id: number; name: string };
 type Goal = { nutrientId: number; lowGoal: number | null; highGoal: number | null; nutrient: { displayName: string; unit: string } };
@@ -82,8 +287,6 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [tags, setTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<Record<string, string>>({});
   const [showDropdown, setShowDropdown] = useState<Record<string, boolean>>({});
-  const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [draggedStepIdx, setDraggedStepIdx] = useState<number | null>(null);
   const [quantityText, setQuantityText] = useState<Record<string, string>>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newIngredientId, setNewIngredientId] = useState<number | null>(null);
@@ -272,61 +475,31 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
     }
   }
 
-  function handleDragStart(e: React.DragEvent, id: string) {
-    setDraggedId(id);
-    e.dataTransfer.effectAllowed = "move";
-  }
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  }
-
-  function handleDrop(e: React.DragEvent, targetId: string) {
-    e.preventDefault();
-    if (!draggedId || draggedId === targetId) {
-      setDraggedId(null);
-      return;
-    }
-
-    const draggedIndex = rows.findIndex((r) => r.id === draggedId);
-    const targetIndex = rows.findIndex((r) => r.id === targetId);
-
-    if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedId(null);
-      return;
-    }
-
-    setRows((s) => {
-      const newRows = [...s];
-      const draggedRow = newRows[draggedIndex];
-      newRows.splice(draggedIndex, 1);
-      newRows.splice(targetIndex, 0, draggedRow);
-      // Inherit section from the row above, or null if dropped at top
-      const neighborSection = targetIndex > 0 ? newRows[targetIndex - 1].section : null;
-      newRows[targetIndex] = { ...newRows[targetIndex], section: neighborSection };
+  function handleIngredientDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setRows((prev) => {
+      const fromIdx = prev.findIndex((r) => r.id === active.id);
+      const toIdx = prev.findIndex((r) => r.id === over.id);
+      if (fromIdx === -1 || toIdx === -1) return prev;
+      const newRows = arrayMove(prev, fromIdx, toIdx);
+      const neighborSection = toIdx > 0 ? newRows[toIdx - 1].section : null;
+      newRows[toIdx] = { ...newRows[toIdx], section: neighborSection };
       return newRows;
     });
-
-    setDraggedId(null);
   }
 
-  function handleDragEnd() {
-    setDraggedId(null);
-  }
-
-  function handleStepDrop(targetIdx: number) {
-    if (draggedStepIdx === null || draggedStepIdx === targetIdx) {
-      setDraggedStepIdx(null);
-      return;
-    }
-    setSteps((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(draggedStepIdx, 1);
-      next.splice(targetIdx, 0, moved);
-      return next;
-    });
-    setDraggedStepIdx(null);
+  function handleStepDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const fromIdx = parseInt((active.id as string).replace("step-", ""));
+    const toIdx = parseInt((over.id as string).replace("step-", ""));
+    setSteps((prev) => arrayMove(prev, fromIdx, toIdx));
   }
 
   function computeContributors(nutrientId: number): Array<{ name: string; value: number; pct: number }> {
@@ -650,212 +823,22 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         </div>
 
         <div style={{ marginBottom: 12 }}>
-          {rows.map((row, index) => {
-            const prevSection = index > 0 ? rows[index - 1].section : null;
-            const showSectionHeader = row.section && row.section !== prevSection;
-            const selectedIngredient = row.ingredientId ? ingredients.find((i) => i.id === row.ingredientId) : undefined;
-            const defaultUnitForRow = selectedIngredient?.customUnitName || selectedIngredient?.defaultUnit || "g";
-            const rawSearch = searchText[row.id] || "";
-            const currentSearch = rawSearch
-              .replace(/\(\([^)]*\)\)/g, "")
-              .replace(/\([^)]*note[^)]*\)/gi, "")
-              .replace(/\([^)]*\*[^)]*\)/g, "")
-              .replace(/\s{2,}/g, " ")
-              .trim() || rawSearch;
-            const filteredIngredients = currentSearch
-              ? ingredients.filter((i) => i.name.toLowerCase().includes(currentSearch.toLowerCase()))
-              : ingredients;
-
-            return (
-              <div key={row.id}>
-              {/* Section header: new section input */}
-              {editingSectionRowId === row.id && !showSectionHeader && (
-                <div className="flex items-center gap-2" style={{ padding: "10px 0 6px", borderBottom: "1px solid var(--rule)" }}>
-                  <input
-                    autoFocus
-                    className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
-                    placeholder="Section name..."
-                    value={editingSectionText}
-                    onChange={(e) => setEditingSectionText(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
-                    onBlur={() => commitSection(row.id)}
-                    aria-label="Section name"
-                  />
-                </div>
-              )}
-              {/* Section header: existing */}
-              {showSectionHeader && (
-                <div className="flex items-center gap-2" style={{ padding: "10px 0 6px", borderBottom: "1px solid var(--rule)" }}>
-                  {editingSectionRowId === row.id ? (
-                    <input
-                      autoFocus
-                      className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
-                      placeholder="Section name..."
-                      value={editingSectionText}
-                      onChange={(e) => setEditingSectionText(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
-                      onBlur={() => commitSection(row.id)}
-                      aria-label="Edit section name"
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      className="flex-1 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] font-medium hover:text-[var(--fg)] cursor-pointer bg-transparent border-0 p-0"
-                      onClick={() => { setEditingSectionRowId(row.id); setEditingSectionText(row.section || ""); }}
-                      aria-label={`Edit section: ${row.section}`}
-                    >
-                      {row.section}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
-                    style={{ width: 28, height: 28, marginLeft: "auto" }}
-                    onClick={() => removeSectionFromRow(row.id)}
-                    aria-label="Remove section header"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-              {/* Ingredient row */}
-              <div
-                draggable
-                onDragStart={(e) => handleDragStart(e, row.id)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, row.id)}
-                onDragEnd={handleDragEnd}
-                className={`flex items-center gap-[10px] transition ${
-                  draggedId === row.id ? "opacity-50" : draggedId ? "border-dashed" : ""
-                }`}
-                style={{ padding: "8px 0" }}
-              >
-                {/* Drag handle */}
-                <div
-                  className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
-                  aria-hidden="true"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                    <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                    <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                  </svg>
-                </div>
-                <div className="relative" style={{ flex: 1 }}>
-                  <input
-                    type="text"
-                    className={`ed-input ${!selectedIngredient && row.nameGuess && !currentSearch ? '!border-[var(--warn)] !text-[var(--warn)]' : ''}`}
-                    placeholder="Ingredient name"
-                    value={selectedIngredient ? selectedIngredient.name : rawSearch}
-                    onChange={(e) => {
-                      setSearchText({ ...searchText, [row.id]: e.target.value });
-                      setShowDropdown({ ...showDropdown, [row.id]: true });
-                      if (row.ingredientId) updateRow(row.id, { ingredientId: undefined });
-                    }}
-                    onFocus={() => setShowDropdown({ ...showDropdown, [row.id]: true })}
-                    onBlur={() => { setTimeout(() => { setShowDropdown({ ...showDropdown, [row.id]: false }); }, 150); }}
-                    aria-label={`Ingredient ${index + 1} name`}
-                  />
-                  {showDropdown[row.id] && currentSearch && (
-                    <div className="absolute z-10 w-full mt-1 border border-[var(--rule)] bg-[var(--bg)] max-h-48 overflow-auto" style={{ boxShadow: '0 4px 12px rgba(0,0,0,.08)' }}>
-                      {currentSearch && !ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
-                        <div className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[13px] border-b border-[var(--rule)] text-[var(--fg)] font-medium"
-                          onMouseDown={(e) => { e.preventDefault(); createIngredient(currentSearch, row.id); }}>
-                          + Create new ingredient: &ldquo;{currentSearch}&rdquo;
-                        </div>
-                      )}
-                      {filteredIngredients.map((i) => (
-                        <div key={i.id} className="px-3 py-2 hover:bg-[var(--bg-2)] cursor-pointer text-[13px]"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            const defaultUnit = i.customUnitName || i.defaultUnit || "g";
-                            updateRow(row.id, { ingredientId: i.id, unit: row.unit || defaultUnit });
-                            setSearchText({ ...searchText, [row.id]: "" });
-                            setShowDropdown({ ...showDropdown, [row.id]: false });
-                          }}>
-                          <div>{i.name}{i.customUnitName ? ` (${i.customUnitName})` : ""}</div>
-                          {i.nutrientValues.length > 0 && (() => {
-                            const kcalNv = i.nutrientValues.find((v) => v.nutrient.displayName.toLowerCase().includes("energy") || v.nutrient.displayName.toLowerCase().includes("calorie"));
-                            return kcalNv ? <div className="font-mono text-[9px] text-[var(--muted)]">{Math.round(kcalNv.value)} kcal / 100g</div> : null;
-                          })()}
-                        </div>
-                      ))}
-                      {filteredIngredients.length === 0 && ingredients.some((i) => i.name.toLowerCase() === currentSearch.toLowerCase()) && (
-                        <div className="px-3 py-2 text-[13px] text-[var(--muted)]">No matching ingredients</div>
-                      )}
-                    </div>
-                  )}
-                  {!selectedIngredient && row.nameGuess && (
-                    <div className="flex items-center gap-[6px]" style={{ padding: "2px 0" }}>
-                      <span className="font-mono text-[9px] text-[var(--warn)]">Not in library —</span>
-                      <button type="button" onClick={() => createIngredient(currentSearch || row.nameGuess!, row.id)}
-                        className="font-mono text-[9px] text-[var(--accent)] underline bg-transparent border-0 p-0 cursor-pointer">
-                        Add to library
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <input
-                  className="ed-input"
-                  style={{ width: 70 }}
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="Qty"
-                  value={quantityText[row.id] ?? ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setQuantityText({ ...quantityText, [row.id]: val });
-                    if (val === "") { updateRow(row.id, { quantity: undefined }); }
-                    else { const numVal = parseFloat(val); if (!isNaN(numVal) && numVal >= 0) updateRow(row.id, { quantity: numVal }); }
-                  }}
-                  onBlur={(e) => {
-                    const val = e.target.value;
-                    if (val !== "") {
-                      const numVal = parseFloat(val);
-                      if (!isNaN(numVal) && numVal >= 0) setQuantityText({ ...quantityText, [row.id]: String(numVal) });
-                      else { setQuantityText({ ...quantityText, [row.id]: "" }); updateRow(row.id, { quantity: undefined }); }
-                    }
-                  }}
-                  draggable={false}
-                  aria-label={`Ingredient ${index + 1} quantity`}
+          <DndContext sensors={sensors} onDragEnd={handleIngredientDragEnd}>
+            <SortableContext items={rows.map((r) => r.id)} strategy={verticalListSortingStrategy}>
+              {rows.map((row, index) => (
+                <SortableIngredientRow
+                  key={row.id}
+                  row={row} index={index} rows={rows} ingredients={ingredients}
+                  searchText={searchText} showDropdown={showDropdown} quantityText={quantityText}
+                  editingSectionRowId={editingSectionRowId} editingSectionText={editingSectionText}
+                  setSearchText={setSearchText} setShowDropdown={setShowDropdown} setQuantityText={setQuantityText}
+                  setRows={setRows} setEditingSectionRowId={setEditingSectionRowId} setEditingSectionText={setEditingSectionText}
+                  updateRow={updateRow} commitSection={commitSection}
+                  removeSectionFromRow={removeSectionFromRow} createIngredient={createIngredient}
                 />
-                <select
-                  className="ed-select"
-                  style={{ width: 80 }}
-                  value={row.unit ?? defaultUnitForRow}
-                  onChange={(e) => updateRow(row.id, { unit: e.target.value })}
-                  draggable={false}
-                  aria-label={`Ingredient ${index + 1} unit`}
-                >
-                  <optgroup label="Weight"><option value="g">g</option><option value="oz">oz</option><option value="lb">lb</option><option value="kg">kg</option></optgroup>
-                  <optgroup label="Volume"><option value="ml">ml</option><option value="l">l</option><option value="tsp">tsp</option><option value="tbsp">tbsp</option><option value="cup">cup</option><option value="fl-oz">fl oz</option></optgroup>
-                  {selectedIngredient?.customUnitName && (
-                    <optgroup label="Custom"><option value={selectedIngredient.customUnitName}>{selectedIngredient.customUnitName}</option></optgroup>
-                  )}
-                </select>
-                <button
-                  className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
-                  style={{ width: 28, height: 28 }}
-                  onClick={() => setRows((prev) => {
-                    const idx = prev.findIndex((r) => r.id === row.id);
-                    const removedSection = prev[idx]?.section;
-                    const ps = idx > 0 ? prev[idx - 1]?.section : null;
-                    const isLeader = removedSection && removedSection !== ps;
-                    const next = prev.filter((r) => r.id !== row.id);
-                    if (isLeader && idx < next.length && (!next[idx].section || next[idx].section === removedSection)) {
-                      next[idx] = { ...next[idx], section: removedSection };
-                    }
-                    return next;
-                  })}
-                  aria-label="Remove ingredient"
-                >
-                  ×
-                </button>
-              </div>
-              </div>
-            );
-          })}
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
 
         <div className="flex gap-3" style={{ padding: "8px 0" }}>
@@ -874,48 +857,20 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 
-        <div>
-          {steps.map((step, idx) => (
-            <div
-              key={idx}
-              className={`flex items-start gap-[10px] transition-opacity duration-100 ${draggedStepIdx === idx ? 'opacity-40' : ''}`}
-              style={{ padding: "8px 0" }}
-              draggable
-              onDragStart={() => setDraggedStepIdx(idx)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => handleStepDrop(idx)}
-              onDragEnd={() => setDraggedStepIdx(null)}
-            >
-              {/* Drag handle */}
-              <div
-                className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
-                style={{ paddingTop: 10 }}
-                aria-hidden="true"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                  <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                  <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                </svg>
-              </div>
-              <textarea
-                className="flex-1 font-sans text-[13px] text-[var(--fg)] bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 outline-none resize-none transition-[border-color] duration-200 focus:border-[var(--accent)]"
-                style={{ minHeight: 40 }}
-                rows={2}
-                placeholder={`Step ${idx + 1}…`}
-                value={step}
-                onChange={(e) => { const next = [...steps]; next[idx] = e.target.value; setSteps(next); }}
-                aria-label={`Step ${idx + 1}`}
+        <DndContext sensors={sensors} onDragEnd={handleStepDragEnd}>
+          <SortableContext items={steps.map((_, i) => `step-${i}`)} strategy={verticalListSortingStrategy}>
+            {steps.map((step, idx) => (
+              <SortableStepRow
+                key={`step-${idx}`}
+                id={`step-${idx}`}
+                idx={idx}
+                step={step}
+                onChangeStep={(i, val) => { const next = [...steps]; next[i] = val; setSteps(next); }}
+                onRemoveStep={(i) => setSteps((prev) => prev.filter((_, si) => si !== i))}
               />
-              <button
-                className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors shrink-0"
-                style={{ width: 28, height: 28, paddingTop: 2 }}
-                onClick={() => setSteps((prev) => prev.filter((_, i) => i !== idx))}
-                aria-label={`Remove step ${idx + 1}`}
-              >×</button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </SortableContext>
+        </DndContext>
         <div style={{ padding: "8px 0" }}>
           <button
             className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]"

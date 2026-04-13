@@ -62,7 +62,6 @@ interface MealPlanWeekProps {
   onAddRecipeMeal: (date: Date, mealType: string, recipeId: number, servings: number, alsoAddToPlanIds?: number[]) => Promise<void>;
   onAddIngredientMeal: (date: Date, mealType: string, ingredientId: number, quantity: number, unit: string, alsoAddToPlanIds?: number[]) => Promise<void>;
   onRemoveMeal: (mealId: number) => Promise<void>;
-  onReorderMeals?: (dayDate: Date, orderedIds: number[]) => Promise<void>;
   onError?: (message: string) => void;
   isLoading?: boolean;
   selectedDay?: Date | null;
@@ -85,7 +84,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   onAddRecipeMeal,
   onAddIngredientMeal,
   onRemoveMeal,
-  onReorderMeals,
   onError,
   isLoading = false,
   selectedDay,
@@ -117,8 +115,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [pendingIngredientId, setPendingIngredientId] = useState<number | null>(null);
   const [newFoodName, setNewFoodName] = useState('');
   const [creatingFood, setCreatingFood] = useState(false);
-  const [draggedMealId, setDraggedMealId] = useState<number | null>(null);
-  const [dragOverMealId, setDragOverMealId] = useState<number | null>(null);
   const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
   const [sheetTouchBlocked, setSheetTouchBlocked] = useState(false);
   const [closingMealType, setClosingMealType] = useState(false);
@@ -316,20 +312,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
     } catch (error) {
       console.error('Error removing meal:', error);
     }
-  };
-
-  const handleDrop = (day: DayMeals, targetMealId: number) => {
-    if (!draggedMealId || draggedMealId === targetMealId) return;
-    const meals = day.meals;
-    const from = meals.findIndex((m) => m.id === draggedMealId);
-    const to = meals.findIndex((m) => m.id === targetMealId);
-    if (from === -1 || to === -1) return;
-    const reordered = [...meals];
-    const [moved] = reordered.splice(from, 1);
-    reordered.splice(to, 0, moved);
-    setDraggedMealId(null);
-    setDragOverMealId(null);
-    onReorderMeals?.(day.date, reordered.map((m) => m.id));
   };
 
   const [recipeSearchTerm, setRecipeSearchTerm] = useState('');
@@ -577,11 +559,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                           role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
                           aria-checked={editMode ? selectedMealIds.has(meal.id) : undefined}
                           aria-label={mealName}
-                          draggable={!editMode}
-                          onDragStart={() => setDraggedMealId(meal.id)}
-                          onDragOver={(e) => { e.preventDefault(); setDragOverMealId(meal.id); }}
-                          onDrop={() => handleDrop(day, meal.id)}
-                          onDragEnd={() => { setDraggedMealId(null); setDragOverMealId(null); }}
                         >
                           {editMode && (
                             <input
