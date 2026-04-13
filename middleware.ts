@@ -3,6 +3,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // If Supabase redirected to the site root (or any non-callback route) with
+  // ?code= in the URL, forward it to /auth/callback so the session is established.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && request.nextUrl.pathname !== "/auth/callback") {
+    const callbackUrl = new URL("/auth/callback", request.url);
+    callbackUrl.searchParams.set("code", code);
+    const invite = request.nextUrl.searchParams.get("invite");
+    if (invite) callbackUrl.searchParams.set("invite", invite);
+    return NextResponse.redirect(callbackUrl);
+  }
+
   // Create response with forwarded request headers (we'll add user ID later)
   const requestHeaders = new Headers(request.headers);
   let response = NextResponse.next({
