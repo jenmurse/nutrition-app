@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     // Don't block on onboarding check failures
   }
 
-  return NextResponse.redirect(`${origin}/`);
+  return NextResponse.redirect(`${origin}/home`);
 }
 
 async function provisionUser(
