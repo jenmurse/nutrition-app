@@ -15,7 +15,7 @@ export const SEO = {
 
   // ── Canonical URL ────────────────────────────────────────────
   // Update this when you connect a custom domain.
-  siteUrl: "https://good-measure.vercel.app",
+  siteUrl: "https://with-good-measure.vercel.app",
 
   // ── Open Graph (Facebook, iMessage, Slack, etc.) ─────────────
   ogTitle:       "Good Measure",

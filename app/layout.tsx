@@ -42,18 +42,13 @@ export const metadata: Metadata = {
   applicationName: APP_NAME,
 
   // ── Open Graph ────────────────────────────────────────────────
+  // images intentionally omitted — Next.js auto-generates from app/opengraph-image.tsx
   openGraph: {
     type:        "website",
     siteName:    SEO.siteName,
     url:         SEO.siteUrl,
     title:       SEO.ogTitle,
     description: SEO.ogDescription,
-    images: [{
-      url:    SEO.ogImagePath,
-      width:  SEO.ogImageWidth,
-      height: SEO.ogImageHeight,
-      alt:    SEO.siteName,
-    }],
   },
 
   // ── Twitter / X ───────────────────────────────────────────────
@@ -61,7 +56,6 @@ export const metadata: Metadata = {
     card:        SEO.twitterCard,
     title:       SEO.ogTitle,
     description: SEO.ogDescription,
-    images:      [SEO.ogImagePath],
     ...(SEO.twitterHandle ? { creator: SEO.twitterHandle } : {}),
   },
 
