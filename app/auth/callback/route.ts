@@ -7,14 +7,28 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const inviteToken = searchParams.get("invite");
 
+  // On Vercel the internal URL origin may differ from the external host —
+  // use x-forwarded-host when present to build the correct redirect URL.
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const redirectBase =
+    forwardedHost && process.env.NODE_ENV !== "development"
+      ? `https://${forwardedHost}`
+      : origin;
+
+  // Use a single Supabase client for the entire handler so cookie mutations
+  // from exchangeCodeForSession are visible to subsequent getUser() calls.
+  const supabase = await createClient();
+
   if (code) {
-    const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("OAuth code exchange error:", error);
+      return NextResponse.redirect(`${redirectBase}/login?error=auth`);
+    }
   }
 
   // Auto-provision: ensure Person, Household, HouseholdMember exist
   try {
-    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -29,22 +43,23 @@ export async function GET(request: Request) {
 
   // Check if user needs onboarding
   try {
-    const supabase = await createClient();
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
     if (currentUser) {
       const person = await prisma.person.findUnique({
         where: { supabaseId: currentUser.id },
         select: { onboardingComplete: true },
       });
       if (person && !person.onboardingComplete) {
-        return NextResponse.redirect(`${origin}/onboarding`);
+        return NextResponse.redirect(`${redirectBase}/onboarding`);
       }
     }
   } catch {
     // Don't block on onboarding check failures
   }
 
-  return NextResponse.redirect(`${origin}/home`);
+  return NextResponse.redirect(`${redirectBase}/home`);
 }
 
 async function provisionUser(
