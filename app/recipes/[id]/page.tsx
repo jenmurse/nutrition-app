@@ -699,7 +699,7 @@ export default function RecipeDetailPage() {
                 return (
                   <div>
                     {isTouchDevice ? (
-                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
+                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature works with any MCP-compatible AI assistant on a desktop. Notes you generate there will appear here automatically.</p>
                     ) : (
                       <>
                         <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
@@ -770,7 +770,7 @@ export default function RecipeDetailPage() {
                 return (
                   <div>
                     {isTouchDevice ? (
-                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
+                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature works with any MCP-compatible AI assistant on a desktop. Notes you generate there will appear here automatically.</p>
                     ) : (
                       <>
                         <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
