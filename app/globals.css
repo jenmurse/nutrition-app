@@ -2845,6 +2845,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   position: relative;
   overflow: hidden;
   background: var(--bg);
+  pointer-events: none; /* demo is decorative — prevent manual scrolling */
+  user-select: none;
 }
 .lp-cycle-screen {
   position: absolute;

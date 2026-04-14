@@ -107,6 +107,12 @@ export default function RecipeDetailPage() {
   const [savingNotes, setSavingNotes] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<"optimization" | "mealPrep" | null>(null);
   const [hasMcp, setHasMcp] = useState(true);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // Detect touch/tablet devices (phones + iPads both get the MCP unavailable message)
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
 
   // Goals for nutrition bars
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -692,18 +698,23 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a [cuisine] chef with a background in nutrition who works with clients to create great-tasting, healthy meals. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for nutritional optimization — identify the top nutrient contributors, suggest substitutions to [meet your goals here], and preserve the original section headers in your analysis. Show me what you changed and why, including how each change could affect flavor, texture, and overall eating experience. Create a comparison table of the original vs. optimized nutrition numbers per serving.\n\nBefore suggesting any ingredient substitutions, use search_ingredients to check what's already in the database. Prefer substitutions that use existing ingredients — they'll have accurate nutrition data. You can still suggest new ingredients when no good match exists, but flag those clearly.\n\nI may give you feedback and request tweaks before we finalize. Do not save anything until I explicitly tell you I'm happy with the changes.\n\nFormatting rules — follow exactly:\n- Title the document with ## Optimization Notes (H2, not H1)\n- The nutrition comparison section must be headed ### Nutrition comparison (per serving)\n\nOnce approved, save the optimized recipe using save_recipe with section headers preserved. When saving, include the original recipe's sourceApp URL (if it has one) and pass copyImageFromRecipeId set to the original recipe's id so the image is copied automatically. Then save the analysis notes using save_optimization_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="sm:hidden text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
-                    <p className="hidden sm:block text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
-                    <div className="hidden sm:block text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
-                    <div className="hidden sm:flex items-center gap-[10px] mb-6">
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("optimization"); setTimeout(() => setCopiedPrompt(null), 2000); }}
-                        className="ed-btn primary"
-                        aria-label="Copy optimization prompt">{copiedPrompt === "optimization" ? "Copied ✓" : "Copy prompt →"}</button>
-                      <button onClick={() => { setEditingNotes("optimization"); setNotesText(""); }}
-                        className="ed-btn ghost"
-                        aria-label="Paste notes manually">Paste notes instead</button>
-                    </div>
+                    {isTouchDevice ? (
+                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
+                    ) : (
+                      <>
+                        <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
+                        <div className="text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
+                        <div className="flex items-center gap-[10px] mb-6">
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("optimization"); setTimeout(() => setCopiedPrompt(null), 2000); }}
+                            className="ed-btn primary"
+                            aria-label="Copy optimization prompt">{copiedPrompt === "optimization" ? "Copied ✓" : "Copy prompt →"}</button>
+                          <button onClick={() => { setEditingNotes("optimization"); setNotesText(""); }}
+                            className="ed-btn ghost"
+                            aria-label="Paste notes manually">Paste notes instead</button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })()}
@@ -758,18 +769,23 @@ export default function RecipeDetailPage() {
                 const prompt = `You are a meal prep specialist with a background in nutrition. List my recipes from ${APP_NAME}. Get the full recipe for ${recipe.name}. Analyze it for meal prep with the following sections:\n\n1. Component-by-component breakdown — how each part stores, reheats, and holds up over time. Note anything that degrades in texture or flavor.\n2. Reheating instructions — for each component, give specific method, temperature, and time.\n3. Batch cooking recommendation — if it makes sense, suggest an optimal batch size with a scaled quantities table.\n4. This week vs. freeze for later — what to eat within the next 3–5 days and what to freeze now for future weeks.\n5. Day-by-day plan — a practical daily guide for the week assuming a Sunday prep session (e.g. Monday: reheat rice + cook salmon fresh, etc.).\n6. Storage summary table — fridge and freezer life per component.\n\nFormatting rules — follow exactly:\n- Title the document with ## Meal Prep Notes (H2, not H1)\n- Use ### (H3) for each section heading — no section numbers\n- Section headings must match exactly: Component-by-component breakdown / Reheating instructions / Batch cooking recommendation / This week vs. freeze for later / Day-by-day plan / Storage summary\n- Scaling line format: **Scaled quantities — [total] servings ([N]×)** (e.g. "8 servings (2×)") — no trailing colon, always use × symbol\n- Batch table columns: Base ([n] srv) and Batch ([N]×)\n\nI may give you feedback before we finalize. Do not save anything until I explicitly tell you I'm happy.\n\nOnce approved, save the meal prep notes using save_meal_prep_notes. Always report any stub ingredient warnings before moving on.`;
                 return (
                   <div>
-                    <p className="sm:hidden text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
-                    <p className="hidden sm:block text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
-                    <div className="hidden sm:block text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
-                    <div className="hidden sm:flex items-center gap-[10px] mb-6">
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("mealPrep"); setTimeout(() => setCopiedPrompt(null), 2000); }}
-                        className="ed-btn primary"
-                        aria-label="Copy meal prep prompt">{copiedPrompt === "mealPrep" ? "Copied ✓" : "Copy prompt →"}</button>
-                      <button onClick={() => { setEditingNotes("mealPrep"); setNotesText(""); }}
-                        className="ed-btn ghost"
-                        aria-label="Paste notes manually">Paste notes instead</button>
-                    </div>
+                    {isTouchDevice ? (
+                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature requires Claude Desktop on a Mac or PC. Notes you generate there will appear here automatically.</p>
+                    ) : (
+                      <>
+                        <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
+                        <div className="text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
+                        <div className="flex items-center gap-[10px] mb-6">
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("mealPrep"); setTimeout(() => setCopiedPrompt(null), 2000); }}
+                            className="ed-btn primary"
+                            aria-label="Copy meal prep prompt">{copiedPrompt === "mealPrep" ? "Copied ✓" : "Copy prompt →"}</button>
+                          <button onClick={() => { setEditingNotes("mealPrep"); setNotesText(""); }}
+                            className="ed-btn ghost"
+                            aria-label="Paste notes manually">Paste notes instead</button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })()}
