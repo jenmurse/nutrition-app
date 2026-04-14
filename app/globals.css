@@ -2845,8 +2845,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   position: relative;
   overflow: hidden;
   background: var(--bg);
-  pointer-events: none; /* demo is decorative — prevent manual scrolling */
+  pointer-events: none; /* blocks clicks/hovers */
   user-select: none;
+}
+/* Make all inner scroll containers non-scrollable by the user.
+   Programmatic scrollTop still works so the auto-scroll animation is unaffected. */
+.lp-cycle-screen-wrap * {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
 }
 .lp-cycle-screen {
   position: absolute;
