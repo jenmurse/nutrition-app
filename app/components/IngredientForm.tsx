@@ -420,7 +420,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
 
       <div className="flex gap-2">
         <button
-          className="bg-[var(--accent)] text-[var(--accent-fg)] px-4 py-2 disabled:opacity-50"
+          className="bg-[var(--accent-btn)] text-[var(--accent-fg)] px-4 py-2 disabled:opacity-50"
           onClick={handleSave}
           disabled={loading || !name}
         >

@@ -351,7 +351,7 @@ function IngredientsPage() {
             {/* + Add */}
             <button
               onClick={() => router.push("/ingredients/create")}
-              className="ed-btn primary py-[3px] px-[9px]"
+              className="pl-new-btn"
               aria-label="Add new ingredient"
             >+ Add</button>
           </div>

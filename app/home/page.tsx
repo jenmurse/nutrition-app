@@ -416,7 +416,7 @@ export default function Home() {
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
-                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent-btn)] no-underline hover:opacity-70 transition-opacity"
                   >
                     Full planner →
                   </Link>
@@ -440,7 +440,7 @@ export default function Home() {
                 <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                  className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent-btn)] no-underline hover:opacity-70 transition-opacity"
                 >
                   Open planner →
                 </Link>
@@ -483,7 +483,7 @@ export default function Home() {
                             {m.recipe?.id && (
                               <Link
                                 href={`/recipes/${m.recipe.id}`}
-                                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
+                                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent-btn)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
                               >
                                 See recipe →
                               </Link>
@@ -515,7 +515,7 @@ export default function Home() {
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
-                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent)] no-underline hover:opacity-70 transition-opacity"
+                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent-btn)] no-underline hover:opacity-70 transition-opacity"
                   >
                     Full planner →
                   </Link>
@@ -632,7 +632,7 @@ function WeekOverview({
               {dayMeals.length === 0 && (
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] no-underline hover:text-[var(--accent)] transition-colors block py-[6px]"
+                  className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] no-underline hover:text-[var(--accent-btn)] transition-colors block py-[6px]"
                 >
                   + Add
                 </Link>

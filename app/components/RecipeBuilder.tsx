@@ -936,7 +936,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
                           className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedPersonId === p.id
-                              ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent-fg)]"
+                              ? "bg-[var(--accent-btn)] border-[var(--accent-btn)] text-[var(--accent-fg)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
                           }`}>{p.name}</button>
                       ))}
@@ -955,7 +955,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           }}
                           className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedFocus.includes(g.nutrientId)
-                              ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent-fg)]"
+                              ? "bg-[var(--accent-btn)] border-[var(--accent-btn)] text-[var(--accent-fg)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
                           }`}>{g.nutrient.displayName}</button>
                       ))}

@@ -544,13 +544,13 @@ const SettingsPage = () => {
             className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
               i < JUMP_SECTIONS.length - 1 ? 'border-b border-[var(--rule)]' : ''
             } ${
-              activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--accent)]'
+              activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--accent-btn)]'
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
           >
             <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
-              activeSection === s.id ? 'text-[var(--accent)]' : 'text-[var(--rule)]'
+              activeSection === s.id ? 'text-[var(--accent-btn)]' : 'text-[var(--rule)]'
             }`}>{s.n}</span>
             {s.label}
           </button>
@@ -766,7 +766,7 @@ const SettingsPage = () => {
                       aria-selected={isActive}
                       className="px-[16px] py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
                       style={{
-                        background: isActive ? 'var(--accent)' : 'var(--bg-2)',
+                        background: isActive ? 'var(--accent-btn)' : 'var(--bg-2)',
                         color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
                         borderRadius: 'var(--radius-pill)',
                       }}
@@ -933,14 +933,14 @@ const SettingsPage = () => {
               {/* New token display */}
               {newMcpToken && (
                 <div className="mb-[16px]">
-                  <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mb-[8px]">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent-btn)] mb-[8px]">
                     Copy this token now — it won&apos;t be shown again
                   </div>
-                  <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent)] px-[16px] py-[12px]">
+                  <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent-btn)] px-[16px] py-[12px]">
                     <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
                     <button
                       onClick={handleCopyMcpToken}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
+                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent-btn)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
                       aria-label="Copy MCP token"
                     >
                       {mcpCopied ? 'Copied!' : 'Copy'}
@@ -995,7 +995,7 @@ const SettingsPage = () => {
                       setConfigBlockCopied(true);
                       setTimeout(() => setConfigBlockCopied(false), 2000);
                     }}
-                    className="text-[var(--accent)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                    className="text-[var(--accent-btn)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
                     aria-label="Copy configuration block"
                   >
                     {configBlockCopied ? (
@@ -1091,7 +1091,7 @@ const SettingsPage = () => {
                     <button
                       onClick={handleImport}
                       disabled={importLoading}
-                      className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent)] text-white border-0 cursor-pointer disabled:opacity-40 hover:bg-[var(--accent-hover)] transition-colors"
+                      className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--accent-btn)] text-white border-0 cursor-pointer disabled:opacity-40 hover:opacity-90 transition-opacity"
                       aria-label="Restore from backup"
                     >
                       {importLoading ? 'Importing…' : 'Restore'}
@@ -1108,7 +1108,7 @@ const SettingsPage = () => {
                   <div
                     className={`mt-4 px-4 py-3 font-sans text-[13px] border ${
                       importResult.ok
-                        ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-subtle)]'
+                        ? 'border-[var(--accent-btn)] text-[var(--accent-btn)] bg-[var(--bg-subtle)]'
                         : 'border-[var(--error,#c0392b)] text-[var(--error,#c0392b)] bg-[var(--bg-subtle)]'
                     }`}
                     role="status"
