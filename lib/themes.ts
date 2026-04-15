@@ -8,14 +8,12 @@ export const THEMES: ThemeDef[] = [
   { name: 'coral',    label: 'Coral',    hex: '#E84828' },
   { name: 'terra',    label: 'Terra',    hex: '#C45C3A' },
   { name: 'sage',     label: 'Sage',     hex: '#5A9B6A' },
-  { name: 'forest',   label: 'Forest',   hex: '#2D7D52' },
-  { name: 'steel',    label: 'Steel',    hex: '#4A7AB5' },
   { name: 'cerulean', label: 'Cerulean', hex: '#2B90C8' },
   { name: 'plum',     label: 'Plum',     hex: '#8B5A9E' },
   { name: 'slate',    label: 'Slate',    hex: '#5C7080' },
 ];
 
-/** Map legacy 20-theme names to the surviving 8 */
+/** Map legacy theme names to the surviving 6 */
 const LEGACY_MAP: Record<string, string> = {
   hotpink:     'coral',
   blush:       'terra',
@@ -24,13 +22,15 @@ const LEGACY_MAP: Record<string, string> = {
   burgundy:    'coral',
   olive:       'sage',
   charcoal:    'slate',
-  cobalt:      'steel',
-  emerald:     'forest',
+  cobalt:      'cerulean',
+  emerald:     'sage',
+  forest:      'sage',
+  steel:       'cerulean',
   teal:        'cerulean',
   violet:      'plum',
   lavender:    'plum',
-  cornflower:  'steel',
-  periwinkle:  'steel',
+  cornflower:  'cerulean',
+  periwinkle:  'cerulean',
 };
 
 /** Resolve any theme name (including legacy) to a valid current theme name */
