@@ -598,36 +598,6 @@ function RecipesPage() {
                       <div className="rcp-card-name font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
                         {recipe.name}
                       </div>
-                      {macros && (
-                        <>
-                          <div className="rcp-card-stats flex flex-col">
-                            {[
-                              { label: "CALORIES",      value: macros.kcal,        unit: ""   },
-                              { label: "FAT",           value: macros.fat,         unit: "g"  },
-                              { label: "SATURATED FAT", value: macros.saturatedFat, unit: "g"  },
-                              { label: "SODIUM",        value: macros.sodium,       unit: "mg" },
-                              { label: "CARBS",         value: macros.carbs,        unit: "g"  },
-                              { label: "SUGAR",         value: macros.sugar,        unit: "g"  },
-                              { label: "PROTEIN",       value: macros.protein,      unit: "g"  },
-                              { label: "FIBER",         value: macros.fiber,        unit: "g"  },
-                            ].map(row => (
-                              <div key={row.label} className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]">
-                                <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
-                                <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
-                              </div>
-                            ))}
-                          </div>
-                          {/* Mobile: user's dashboard stats */}
-                          <div className="rcp-card-stats-mob gap-2 items-baseline flex-wrap">
-                            {getMobileCardStats(recipe).map(s => (
-                              <span key={s.label} className="font-mono text-[11px] tabular-nums whitespace-nowrap">
-                                <strong className="text-[var(--fg)] font-normal">{s.value}{s.unit}</strong>{' '}
-                                <span className="text-[var(--muted)]">{s.label}</span>
-                              </span>
-                            ))}
-                          </div>
-                        </>
-                      )}
                       {recipe.isComplete === false && (
                         <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                       )}
@@ -688,18 +658,6 @@ function RecipesPage() {
                   </div>
                   {/* Accent bar on hover */}
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
-                  {macros && (
-                    <div className="rcp-list-macros flex gap-[16px] items-baseline shrink-0 ml-auto">
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.saturatedFat}g</strong> <span className="text-[var(--muted)]">sat</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sodium}mg</strong> <span className="text-[var(--muted)]">sod</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sugar}g</strong> <span className="text-[var(--muted)]">sugar</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fiber}g</strong> <span className="text-[var(--muted)]">fiber</span></span>
-                    </div>
-                  )}
                   {recipe.isComplete === false && (
                     <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
                   )}
