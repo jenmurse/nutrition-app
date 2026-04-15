@@ -433,7 +433,7 @@ function RecipesPage() {
             {/* + New */}
             <button
               onClick={() => router.push("/recipes/create")}
-              className="font-mono text-[9px] tracking-[0.1em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] border-0 rounded-pill py-[3px] px-[9px] cursor-pointer transition-opacity whitespace-nowrap hover:opacity-[0.88] active:scale-[0.97]"
+              className="ed-btn primary py-[3px] px-[9px]"
               aria-label="Create new recipe"
             >+ New</button>
           </div>
@@ -569,7 +569,7 @@ function RecipesPage() {
                     onClick={() => router.push(`/recipes/${recipe.id}`)}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
                     aria-label={recipe.name}
-                    className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group transition-transform duration-200"
+                    className="bg-[var(--bg)] cursor-pointer relative group transition-transform duration-200"
                     style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                   >
                     {/* Image */}
