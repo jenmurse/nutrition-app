@@ -600,26 +600,22 @@ function RecipesPage() {
                       </div>
                       {macros && (
                         <>
-                          {/* Large calorie number — matches ingredients card style */}
-                          <div className="rcp-card-stats">
-                            <div className="font-serif text-[20px] font-bold tracking-tight leading-none tabular-nums">{macros.kcal}</div>
-                            <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mt-[3px] mb-[14px]">Calories</div>
-                            <div className="flex flex-col">
-                              {[
-                                { label: "FAT",           value: macros.fat,         unit: "g"  },
-                                { label: "SATURATED FAT", value: macros.saturatedFat, unit: "g"  },
-                                { label: "SODIUM",        value: macros.sodium,       unit: "mg" },
-                                { label: "CARBS",         value: macros.carbs,        unit: "g"  },
-                                { label: "SUGAR",         value: macros.sugar,        unit: "g"  },
-                                { label: "PROTEIN",       value: macros.protein,      unit: "g"  },
-                                { label: "FIBER",         value: macros.fiber,        unit: "g"  },
-                              ].map(row => (
-                                <div key={row.label} className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]">
-                                  <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
-                                  <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
-                                </div>
-                              ))}
-                            </div>
+                          <div className="rcp-card-stats flex flex-col">
+                            {[
+                              { label: "CALORIES",      value: macros.kcal,        unit: ""   },
+                              { label: "FAT",           value: macros.fat,         unit: "g"  },
+                              { label: "SATURATED FAT", value: macros.saturatedFat, unit: "g"  },
+                              { label: "SODIUM",        value: macros.sodium,       unit: "mg" },
+                              { label: "CARBS",         value: macros.carbs,        unit: "g"  },
+                              { label: "SUGAR",         value: macros.sugar,        unit: "g"  },
+                              { label: "PROTEIN",       value: macros.protein,      unit: "g"  },
+                              { label: "FIBER",         value: macros.fiber,        unit: "g"  },
+                            ].map(row => (
+                              <div key={row.label} className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]">
+                                <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
+                                <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
+                              </div>
+                            ))}
                           </div>
                           {/* Mobile: user's dashboard stats */}
                           <div className="rcp-card-stats-mob gap-2 items-baseline flex-wrap">

@@ -438,6 +438,7 @@ function IngredientsPage() {
                 ? `${ingredient.customUnitAmount || 1} ${ingredient.customUnitName}${ingredient.customUnitGrams ? ` (${ingredient.customUnitGrams}g)` : ""}`
                 : "per 100g";
               const nutrientRows: { label: string; value: string; unit: string }[] = nutrition ? [
+                { label: "CALORIES", value: nutrition.calories ? formatNutrient(nutrition.calories.value) : "0", unit: "" },
                 { label: "FAT", value: nutrition.fat ? formatNutrient(nutrition.fat.value) : "0", unit: nutrition.fat?.unit || "g" },
                 { label: "SATURATED FAT", value: nutrition.saturatedFat ? formatNutrient(nutrition.saturatedFat.value) : "0", unit: nutrition.saturatedFat?.unit || "g" },
                 { label: "SODIUM", value: nutrition.sodium ? formatNutrient(nutrition.sodium.value) : "0", unit: nutrition.sodium?.unit || "mg" },
@@ -492,27 +493,17 @@ function IngredientsPage() {
                     {unitContext}
                   </div>
                   {nutrition && (
-                    <>
-                      {/* Large calorie number — 20px per mockup */}
-                      <div className="font-serif text-[20px] font-bold tracking-tight leading-none tabular-nums">
-                        {nutrition.calories ? formatNutrient(nutrition.calories.value) : "0"}
-                      </div>
-                      <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mt-[3px] mb-[14px]">
-                        Calories
-                      </div>
-                      {/* Nutrient rows — border-top per mockup */}
-                      <div className="flex flex-col">
-                        {nutrientRows.map((row) => (
-                          <div
-                            key={row.label}
-                            className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]"
-                          >
-                            <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
-                            <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
+                    <div className="flex flex-col">
+                      {nutrientRows.map((row) => (
+                        <div
+                          key={row.label}
+                          className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]"
+                        >
+                          <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
+                          <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               );
