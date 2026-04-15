@@ -591,7 +591,7 @@ function RecipesPage() {
                       )}
                     </div>
                     {/* Info */}
-                    <div style={{ padding: "16px 18px 20px" }}>
+                    <div style={{ padding: "16px 18px 24px" }}>
                       {category && (
                         <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
                       )}

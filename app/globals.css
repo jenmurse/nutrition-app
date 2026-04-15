@@ -291,6 +291,7 @@ input[type="number"]:focus {
 .ed-btn {
   font-family: var(--mono);
   font-size: 9px;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 8px 20px;
@@ -747,7 +748,7 @@ input[type="number"]:focus {
 .pl-nut-chip.on { color:var(--fg); border-color:var(--fg); }
 
 .pl-new-btn {
-  font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
   background:var(--accent-btn); color:var(--accent-fg); border:none; padding:4px 10px;
   border-radius: var(--radius-pill);
   cursor:pointer; transition:opacity 0.15s; white-space:nowrap; flex-shrink:0;
@@ -1203,7 +1204,7 @@ input[type="number"]:focus {
 .pl-rec-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.5; }
 .pl-rec-kcal { font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:2px; }
 
-.pl-add-btn { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--accent-btn); border-radius: var(--radius-pill); color:var(--accent-btn); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
+.pl-add-btn { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--accent-btn); border-radius: var(--radius-pill); color:var(--accent-btn); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
 .pl-add-btn:hover { background:var(--accent-l); }
 .pl-add-btn:active { transform:scale(0.97); }
 
