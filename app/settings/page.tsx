@@ -1127,7 +1127,7 @@ const SettingsPage = () => {
             <div className="h-px bg-[var(--rule)] mb-[32px]" />
             <button
               onClick={handleSignOut}
-              className="w-full py-[12px] font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--error,#c0392b)] border border-[var(--error,#c0392b)] bg-transparent cursor-pointer hover:bg-[var(--error,#c0392b)] hover:text-white transition-colors"
+              className="ed-btn danger w-full py-[12px]"
               aria-label="Sign out of your account"
             >
               Sign Out
