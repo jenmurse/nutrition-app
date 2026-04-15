@@ -472,7 +472,7 @@ export default function Home() {
                             </div>
                             {/* Nutrient rows — 3 selected stats */}
                             {mealStats.map((s) => (
-                              <div key={s.label} className="flex justify-between py-[6px] border-b border-[var(--rule)]">
+                              <div key={s.label} className="flex justify-between items-center py-[6px] border-b border-[var(--rule)]">
                                 <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{s.label}</span>
                                 <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] tabular-nums">
                                   {s.value}{s.unit && <span className="text-[11px] text-[var(--muted)] ml-[2px]">{s.unit}</span>}
