@@ -351,7 +351,7 @@ export default function Home() {
                     <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
                     <div className="hm-stat-value font-serif text-[28px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                       {formatVal(stat.value)}
-                      {stat.unit && <span className="hm-stat-unit text-[16px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+                      {stat.unit && <span className="hm-stat-unit text-[13px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                     </div>
                     <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
                       of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}

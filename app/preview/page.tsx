@@ -331,8 +331,8 @@ export default function PreviewPage() {
                   </div>
                 </div>
                 <div style={{ padding: "16px 18px 20px" }}>
-                  <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{recipe.tag}</div>
-                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>{recipe.name}</div>
+                  <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{recipe.tag}</div>
+                  <div className="font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>{recipe.name}</div>
                   <div className="flex gap-2 items-baseline flex-wrap">
                     <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{recipe.kcal} kcal</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {recipe.protein}g</span>
@@ -551,12 +551,12 @@ export default function PreviewPage() {
             {filteredIngredients.map((item) => (
               <div key={item.id} className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group border border-[var(--rule)]">
                 <div style={{ padding: "20px 18px 22px" }}>
-                  <div className={`font-mono text-[7.5px] tracking-[0.14em] uppercase mb-[7px] py-[2px] px-[7px] inline-block ${
+                  <div className={`font-mono text-[9px] tracking-[0.14em] uppercase mb-[7px] py-[2px] px-[7px] inline-block ${
                     item.category === "FOOD" ? "bg-[var(--ok-l)] text-[var(--ok)]" : "bg-[var(--accent-l)] text-[var(--accent)]"
                   }`}>
                     {item.category}
                   </div>
-                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]">{item.name}</div>
+                  <div className="font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]">{item.name}</div>
                   <div className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] mb-[10px]">{item.unit}</div>
                   <div className="flex gap-2 items-baseline flex-wrap">
                     <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{item.kcal} kcal</span>

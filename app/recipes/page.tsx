@@ -593,9 +593,9 @@ function RecipesPage() {
                     {/* Info */}
                     <div style={{ padding: "16px 18px 20px" }}>
                       {category && (
-                        <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
+                        <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
                       )}
-                      <div className="rcp-card-name font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
+                      <div className="rcp-card-name font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
                         {recipe.name}
                       </div>
                       {macros && (
