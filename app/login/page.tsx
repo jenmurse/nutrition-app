@@ -91,7 +91,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-5">
+    <div className="min-h-screen flex items-start sm:items-center justify-center bg-[var(--bg)] px-5 pt-[72px] sm:pt-0">
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="mb-10 text-center">

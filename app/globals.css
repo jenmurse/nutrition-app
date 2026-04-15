@@ -3590,12 +3590,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     min-height: auto;
   }
   .lp-fs-right { display: none; }
-  .lp-fs-left { padding: 40px 30px 0; }
-  .lp-fs-mid { gap: 20px; padding-bottom: 0; }
-  .lp-headline { font-size: clamp(32px, 9vw, 44px); }
-  .lp-subhead { font-size: 15px; }
+  .lp-fs-left { padding: 48px 24px 0; }
+  .lp-fs-mid { gap: 16px; padding-bottom: 0; }
+  .lp-headline { font-size: clamp(36px, 10vw, 48px); letter-spacing: -0.04em; }
+  .lp-subhead { font-size: 13px; line-height: 1.65; }
   /* CTA: button + sign in on same row */
-  .lp-hero-ctas { flex-direction: row; align-items: center; gap: 20px; }
+  .lp-hero-ctas { flex-direction: row; align-items: center; gap: 24px; margin-top: 24px; }
+  .lp-nav-signin { font-size: 11px; color: var(--fg-2); }
   /* Bottom bar: stack tabs 2×3 on mobile */
   .lp-fs-tabs { flex-wrap: wrap; }
   .lp-fs-tab { flex: 1 1 33%; min-width: 0; padding: 16px 10px 14px; }
