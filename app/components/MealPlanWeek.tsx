@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
 import { clientCache } from '@/lib/clientCache';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Recipe {
   id: number;
@@ -73,6 +75,103 @@ interface MealPlanWeekProps {
   recipeCaloriesMap?: Record<number, number>;
   mealLogCaloriesMap?: Record<number, number>;
   onRefreshIngredients?: () => void;
+}
+
+/* ── Drag-and-drop sub-components (desktop only) ── */
+
+function DroppableDayCol({
+  dateISO,
+  todayFlag,
+  dayIdx,
+  onClick,
+  onKeyDown,
+  'aria-label': ariaLabel,
+  children,
+}: {
+  dateISO: string;
+  todayFlag: boolean;
+  dayIdx: number;
+  onClick: () => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  'aria-label': string;
+  children: React.ReactNode;
+}) {
+  const { isOver, setNodeRef } = useDroppable({ id: dateISO });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`wk-day-col${todayFlag ? ' today' : ''}${isOver ? ' wk-day-col--drop-target' : ''}`}
+      style={{ '--col-i': dayIdx } as React.CSSProperties}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      aria-label={ariaLabel}
+      tabIndex={0}
+      role="button"
+    >
+      {children}
+    </div>
+  );
+}
+
+function DraggableMealChip({
+  meal,
+  fromDateISO,
+  mealName,
+  kcal,
+  editMode,
+  isSelected,
+  onToggleSelect,
+  onClickRecipe,
+}: {
+  meal: Meal;
+  fromDateISO: string;
+  mealName: string;
+  kcal: number | null;
+  editMode: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+  onClickRecipe: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: meal.id,
+    data: { meal, fromDate: fromDateISO },
+  });
+
+  const style: React.CSSProperties = {
+    ...(transform ? { transform: CSS.Translate.toString(transform) } : {}),
+    opacity: isDragging ? 0.35 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && isSelected ? ' bg-[var(--err-l)]' : ''}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (editMode) {
+          onToggleSelect();
+        } else if (meal.recipe?.id) {
+          onClickRecipe();
+        }
+      }}
+      role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
+      aria-checked={editMode ? isSelected : undefined}
+      aria-label={mealName}
+      {...(!editMode ? { ...attributes, ...listeners } : {})}
+    >
+      {editMode && (
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={onToggleSelect}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+      <span className="meal-chip-name">{mealName}</span>
+      {kcal != null && <span className="meal-chip-kcal">{kcal} kcal</span>}
+    </div>
+  );
 }
 
 const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
@@ -512,15 +611,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               .filter(g => g.meals.length > 0);
 
             return (
-              <div
+              <DroppableDayCol
                 key={day.date.toISOString()}
-                className={`wk-day-col ${todayFlag ? 'today' : ''}`}
-                style={{ '--col-i': dayIdx } as React.CSSProperties}
+                dateISO={day.date.toISOString()}
+                todayFlag={todayFlag}
+                dayIdx={dayIdx}
                 onClick={() => onDayClick?.(new Date(day.date))}
-                role="button"
-                tabIndex={0}
+                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') onDayClick?.(new Date(day.date)); }}
                 aria-label={`${day.dayOfWeek} ${dayNum}`}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onDayClick?.(new Date(day.date)); }}
               >
                 {/* Day header */}
                 <div className="wk-day-header">
@@ -545,34 +643,17 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                         kcal = mealLogCaloriesMap[meal.id];
                       }
                       return (
-                        <div
+                        <DraggableMealChip
                           key={meal.id}
-                          className={`meal-chip ${meal.recipe?.id ? 'meal-chip-recipe' : ''} ${editMode && selectedMealIds.has(meal.id) ? 'bg-[var(--err-l)]' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (editMode) {
-                              onToggleMealSelect?.(meal.id);
-                            } else if (meal.recipe?.id) {
-                              router.push(`/recipes/${meal.recipe.id}`);
-                            }
-                          }}
-                          role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
-                          aria-checked={editMode ? selectedMealIds.has(meal.id) : undefined}
-                          aria-label={mealName}
-                        >
-                          {editMode && (
-                            <input
-                              type="checkbox"
-                              checked={selectedMealIds.has(meal.id)}
-                              onChange={() => onToggleMealSelect?.(meal.id)}
-                              onClick={(e) => e.stopPropagation()}
-                              style={{ width: 12, height: 12, marginBottom: 2 }}
-                              aria-label={`Select ${mealName}`}
-                            />
-                          )}
-                          <span className="meal-chip-name">{mealName}</span>
-                          {kcal != null && <span className="meal-chip-kcal">{kcal} kcal</span>}
-                        </div>
+                          meal={meal}
+                          fromDateISO={day.date.toISOString()}
+                          mealName={mealName}
+                          kcal={kcal}
+                          editMode={!!editMode}
+                          isSelected={!!selectedMealIds?.has(meal.id)}
+                          onToggleSelect={() => onToggleMealSelect?.(meal.id)}
+                          onClickRecipe={() => router.push(`/recipes/${meal.recipe!.id}`)}
+                        />
                       );
                     })}
                   </div>
@@ -596,7 +677,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     aria-label={`Add meal on ${day.dayOfWeek}`}
                   >+ Add</button>
                 )}
-              </div>
+              </DroppableDayCol>
             );
           })}
         </div>

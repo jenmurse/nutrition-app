@@ -583,8 +583,8 @@ function RecipesPage() {
                           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                         />
                       ) : (
-                        <div className="w-full h-full bg-[var(--bg-3)] flex items-end overflow-hidden" style={{ padding: '14px 16px 16px' }}>
-                          <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.18] block overflow-hidden">
+                        <div className="w-full h-full bg-[var(--bg-3)] flex items-end overflow-hidden" style={{ padding: '14px 16px 22px' }}>
+                          <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] opacity-[0.18] block">
                             {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
                           </span>
                         </div>
@@ -600,12 +600,26 @@ function RecipesPage() {
                       </div>
                       {macros && (
                         <>
-                          {/* Desktop: fixed 4 stats */}
-                          <div className="rcp-card-stats flex gap-2 items-baseline flex-wrap">
-                            <span className="font-mono text-[11px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
-                            <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
-                            <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
-                            <span className="font-mono text-[8.5px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
+                          {/* Large calorie number — matches ingredients card style */}
+                          <div className="rcp-card-stats">
+                            <div className="font-serif text-[20px] font-bold tracking-tight leading-none tabular-nums">{macros.kcal}</div>
+                            <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] mt-[3px] mb-[14px]">Calories</div>
+                            <div className="flex flex-col">
+                              {[
+                                { label: "FAT",           value: macros.fat,         unit: "g"  },
+                                { label: "SATURATED FAT", value: macros.saturatedFat, unit: "g"  },
+                                { label: "SODIUM",        value: macros.sodium,       unit: "mg" },
+                                { label: "CARBS",         value: macros.carbs,        unit: "g"  },
+                                { label: "SUGAR",         value: macros.sugar,        unit: "g"  },
+                                { label: "PROTEIN",       value: macros.protein,      unit: "g"  },
+                                { label: "FIBER",         value: macros.fiber,        unit: "g"  },
+                              ].map(row => (
+                                <div key={row.label} className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]">
+                                  <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
+                                  <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                           {/* Mobile: user's dashboard stats */}
                           <div className="rcp-card-stats-mob gap-2 items-baseline flex-wrap">

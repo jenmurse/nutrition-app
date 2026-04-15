@@ -3,6 +3,60 @@ import { prisma } from '@/lib/db';
 import { getAuthenticatedHousehold } from '@/lib/auth';
 
 /**
+ * PATCH /api/meal-plans/[id]/meals/[mealId]
+ * Move a meal to a different date (cross-day drag-and-drop)
+ * Body: { date: string } — ISO or YYYY-MM-DD
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; mealId: string }> | { id: string; mealId: string } }
+) {
+  try {
+    const auth = await getAuthenticatedHousehold();
+    if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+    const { id, mealId } = params instanceof Promise ? await params : params;
+    const mealPlanId = parseInt(id);
+    const mealLogId = parseInt(mealId);
+
+    const body = await request.json();
+    const { date: rawDate } = body as { date: string };
+    if (!rawDate) return NextResponse.json({ error: 'date is required' }, { status: 400 });
+
+    const normalizedDate = rawDate.includes('T') ? rawDate : rawDate + 'T00:00:00Z';
+    const targetDate = new Date(normalizedDate);
+
+    const mealPlan = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
+    if (!mealPlan || mealPlan.householdId !== auth.householdId) {
+      return NextResponse.json({ error: 'Meal plan not found' }, { status: 404 });
+    }
+
+    const mealLog = await prisma.mealLog.findUnique({ where: { id: mealLogId } });
+    if (!mealLog || mealLog.mealPlanId !== mealPlanId) {
+      return NextResponse.json({ error: 'Meal not found' }, { status: 404 });
+    }
+
+    // Append at the end of the target day
+    const lastEntry = await prisma.mealLog.findFirst({
+      where: { mealPlanId, date: targetDate },
+      orderBy: { position: 'desc' },
+    });
+    const nextPosition = lastEntry ? lastEntry.position + 1 : 0;
+
+    const updated = await prisma.mealLog.update({
+      where: { id: mealLogId },
+      data: { date: targetDate, position: nextPosition },
+      include: { recipe: true, ingredient: true },
+    });
+
+    return NextResponse.json(updated, { status: 200 });
+  } catch (error) {
+    console.error('Error moving meal:', error);
+    return NextResponse.json({ error: 'Failed to move meal' }, { status: 500 });
+  }
+}
+
+/**
  * DELETE /api/meal-plans/[id]/meals/[mealId]
  * Remove a recipe from a meal plan
  */

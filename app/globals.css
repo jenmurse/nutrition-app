@@ -895,6 +895,16 @@ input[type="number"]:focus {
 .wk-add-btn:hover { color:var(--accent-btn); }
 .wk-add-btn:active { transform:scale(0.97); }
 
+/* ── Drag-and-drop ── */
+.wk-day-col--drop-target { background:var(--accent-l) !important; outline:2px dashed var(--accent-btn); outline-offset:-2px; }
+.meal-chip--drag-overlay {
+  padding:7px 8px; position:relative; overflow:hidden;
+  background:var(--bg-2);
+  box-shadow:0 8px 24px rgba(0,0,0,0.18);
+  border-radius:4px;
+  cursor:grabbing;
+}
+
 /* ── Mobile person dropdown (toolbar, hidden on desktop) ── */
 .pl-mob-person-wrap {
   display: none; /* shown via mobile media query */

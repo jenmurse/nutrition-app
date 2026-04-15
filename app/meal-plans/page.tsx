@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react
 import { createPortal } from 'react-dom';
 import { useSearchParams, useRouter } from 'next/navigation';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
+import MealPlanDndWrapper from '@/app/components/MealPlanDndWrapper';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
@@ -744,6 +745,33 @@ const MealPlansPage = () => {
     } catch (error) {
       console.error('Error removing meal:', error);
       toast.error('Failed to remove meal');
+    }
+  };
+
+  const handleMoveMeal = async (mealId: number, toDateISO: string) => {
+    if (!selectedPlanId || !selectedPlan) return;
+
+    // Optimistic update: move the meal in local state immediately
+    const prevLogs = selectedPlan.mealLogs ?? [];
+    const updatedLogs = prevLogs.map((m: MealLog) =>
+      m.id === mealId ? { ...m, date: toDateISO } : m
+    );
+    setSelectedPlan(prev => prev ? { ...prev, mealLogs: updatedLogs } : prev);
+
+    try {
+      const res = await fetch(`/api/meal-plans/${selectedPlanId}/meals/${mealId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: toDateISO }),
+      });
+      if (!res.ok) throw new Error('Failed to move meal');
+      // Background refresh for nutrition recalc
+      fetchMealPlanDetails(selectedPlanId);
+    } catch (err) {
+      console.error('Error moving meal:', err);
+      // Revert on failure
+      setSelectedPlan(prev => prev ? { ...prev, mealLogs: prevLogs } : prev);
+      toast.error('Failed to move meal');
     }
   };
 
@@ -1519,7 +1547,8 @@ const MealPlansPage = () => {
           <>
             {/* Left: Week view */}
             <div className="pl-main">
-              <MealPlanWeek
+              <MealPlanDndWrapper
+                onMoveMeal={handleMoveMeal}
                 mealPlanId={selectedPlan.id}
                 weekStartDate={parseUTCDate(selectedPlan.weekStartDate)}
                 days={
