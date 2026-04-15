@@ -199,7 +199,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--accent)] text-[var(--accent-fg)] border border-[var(--accent)] py-[8px] px-5 font-mono text-[9px] uppercase tracking-[0.1em] rounded-pill hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-150 disabled:opacity-50"
+            className="w-full bg-[var(--accent)] text-[var(--accent-fg)] border border-[var(--accent)] py-[8px] px-5 font-mono text-[9px] font-semibold uppercase tracking-[0.1em] rounded-pill hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-150 disabled:opacity-50"
           >
             {loading
               ? mode === "signin" ? "Signing in…" : "Creating account…"
@@ -218,7 +218,7 @@ function LoginPage() {
         <button
           type="button"
           onClick={handleGoogle}
-          className="w-full border border-[var(--rule)] bg-transparent py-[10px] px-[10px] font-sans text-[13px] text-[var(--fg)] rounded-pill hover:border-[var(--fg)] active:scale-[0.97] transition-[border-color,transform] duration-150 cursor-pointer text-center"
+          className="w-full border border-[var(--rule)] bg-transparent py-[8px] px-5 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] rounded-pill hover:border-[var(--fg)] active:scale-[0.97] transition-[border-color,transform] duration-150 cursor-pointer text-center"
         >
           Continue with Google
         </button>
