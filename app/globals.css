@@ -2606,7 +2606,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-root {
   height: 100%;
   overflow-y: auto;
-  background: var(--bg);
+  background: #FAFAF8;
   scroll-behavior: smooth;
 }
 
@@ -2803,8 +2803,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-cycle-chrome {
   height: 32px;
   min-height: 32px;
-  background: var(--bg-3);
-  border-bottom: 1px solid var(--rule);
+  background: #36322D;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -2831,13 +2831,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   justify-content: center;
 }
 .lp-cycle-chrome-urlbar {
-  background: rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 3px;
   padding: 2px 12px;
   font-family: var(--mono);
   font-size: 9px;
-  color: var(--muted);
+  color: rgba(255,255,255,0.45);
   min-width: 140px;
   text-align: center;
   letter-spacing: 0.04em;
@@ -2894,7 +2894,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   padding: 44px var(--pad);
-  background: var(--bg);
+  background: #FAFAF8;
 }
 .lp-fs-mid {
   flex: 1;
@@ -2911,7 +2911,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   padding: 48px 40px 48px 28px;
-  background: var(--bg);
+  background: #FAFAF8;
 }
 .lp-fs-frame {
   flex: 1;
@@ -2924,7 +2924,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* ══ Zone 3 — Bottom: light, sage accent only ══ */
 .lp-fs-bottom {
   grid-area: bottom;
-  background: var(--bg);
+  background: #FAFAF8;
   border-top: 1px solid var(--rule);
 }
 
