@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { APP_NAME } from "@/lib/brand";
 import { SEO } from "@/lib/seo";
-import { DM_Sans, DM_Mono, Bricolage_Grotesque } from "next/font/google";
+import { DM_Sans, DM_Mono } from "next/font/google";
 
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
@@ -25,11 +25,6 @@ const dmMono = DM_Mono({
   variable: '--font-mono',
 });
 
-const bricolage = Bricolage_Grotesque({
-  weight: ['200', '300', '400', '500', '600', '700', '800'],
-  subsets: ["latin"],
-  variable: '--font-display',
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -102,7 +97,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${dmMono.variable} ${bricolage.variable} font-sans h-screen overflow-hidden`} style={{ height: '100dvh' }}>
+      <body className={`${dmSans.variable} ${dmMono.variable} font-sans h-screen overflow-hidden`} style={{ height: '100dvh' }}>
         {/* FOUC prevention: apply stored theme synchronously before React hydration */}
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}` }} />
         <PersonProvider>

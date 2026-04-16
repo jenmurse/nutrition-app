@@ -2,7 +2,7 @@
 
 A household nutrition tracker for building ingredient libraries, creating recipes, and planning weekly meals against personal nutrition goals.
 
-**Live**: v0-nutrition-app-nu.vercel.app
+**Live**: good-measure.vercel.app
 
 ---
 

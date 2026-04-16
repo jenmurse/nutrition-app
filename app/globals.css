@@ -56,13 +56,7 @@
     --error-border:   var(--err);
 
     /* Typography */
-    --display: var(--display);
-    --sans:    var(--sans);
-    --mono:    var(--mono);
-    --serif:   var(--display);
-
-    /* Display font — controls all font-serif usage globally */
-    --display-font:     var(--display);
+    --display-font:     var(--font-sans);
     --display-weight:   700;
     --display-tracking: -0.02em;
 
