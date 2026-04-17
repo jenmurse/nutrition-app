@@ -658,36 +658,36 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
 
       {/* Toolbar */}
       <div style={{
-        display: "flex", alignItems: "center", gap: 6,
-        padding: "0 16px", height: 38, borderBottom: "1px solid var(--rule)", flexShrink: 0, flexWrap: "nowrap",
+        display: "flex", alignItems: "center", gap: 5,
+        padding: "0 12px", height: 32, borderBottom: "1px solid var(--rule)", flexShrink: 0, flexWrap: "nowrap",
       }}>
-        <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--fg-2)", letterSpacing: "0.04em", flexShrink: 0 }}>Apr 5–11</span>
+        <span style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: "var(--fg-2)", letterSpacing: "0.04em", flexShrink: 0 }}>Apr 5–11</span>
         {["‹ Prev", "Next ›", "This Week"].map(b => (
           <span key={b} style={{
-            fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
-            padding: "3px 7px", border: "1px solid var(--rule)", borderRadius: 9999, color: "var(--muted)", flexShrink: 0,
+            fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em",
+            padding: "1.5px 6px", border: "1px solid var(--rule)", borderRadius: 9999, color: "var(--muted)", flexShrink: 0,
           }}>{b}</span>
         ))}
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--muted)", flexShrink: 0 }}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--muted)", flexShrink: 0 }}>
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 5 }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
           <span style={{
-            fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
-            padding: "4px 10px", background: BRAND_SAGE, color: "white", borderRadius: 9999,
+            fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em",
+            padding: "2px 8px", background: BRAND_SAGE, color: "white", borderRadius: 9999,
           }}>+ New Plan</span>
           {["Edit", "‹ Nutrition"].map(b => (
             <span key={b} style={{
-              fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
-              padding: "3px 7px", border: "1px solid var(--rule)", borderRadius: 9999,
+              fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em",
+              padding: "1.5px 6px", border: "1px solid var(--rule)", borderRadius: 9999,
               color: b === "‹ Nutrition" && panelOpen ? "var(--fg)" : "var(--muted)",
               background: b === "‹ Nutrition" && panelOpen ? "var(--bg-2)" : "transparent",
             }}>{b}</span>
           ))}
           {["Sarah", "Michael", "Everyone"].map(p => (
             <span key={p} style={{
-              fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
-              padding: "3px 7px",
+              fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em",
+              padding: "1.5px 6px",
               border: p === "Sarah" ? `1px solid var(--fg)` : "1px solid var(--rule)",
               borderRadius: 9999, color: p === "Sarah" ? "var(--fg)" : "var(--muted)",
             }}>{p}</span>
@@ -786,51 +786,84 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
    Person-row grid: day headers + Sarah / Michael / Lindsey rows
    ───────────────────────────────────────────────────────────── */
 
-/* Animated wrapper: PlannerScreen (with nutrition panel) → crossfade → EveryoneScreen → loop */
-function PlannerCycleScreen() {
-  // false = showing PlannerScreen, true = showing EveryoneScreen
+/* Animated wrapper: PlannerScreen (with nutrition panel) → crossfade → EveryoneScreen → loop
+   Timing:
+     0ms        — grid visible, panel closed
+     1600ms     — nutrition panel opens
+     6600ms     — nutrition panel closes
+     8400ms     — panel fully settled; stop planner cycle, start crossfade to Everyone
+     ~9200ms    — Everyone fully visible (800ms fade)
+     13700ms    — fade back to Planner
+     ~14500ms   — Planner visible, restart
+*/
+function PlannerCycleScreen({ isActive }: { isActive?: boolean }) {
   const [showEveryone, setShowEveryone] = useState(false);
   const [everyoneMounted, setEveryoneMounted] = useState(false);
+  const [plannerActive, setPlannerActive] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    // Planner phase: 9.6s (enough for one full panel-open/close cycle at 1600+5000+1800ms)
-    // then crossfade to Everyone for 4s, then back
-    const cycle = () => {
-      if (cancelled) return;
+    if (!isActive) {
+      // Reset everything when section leaves view
       setShowEveryone(false);
       setEveryoneMounted(false);
-      const t1 = setTimeout(() => {
+      setPlannerActive(false);
+      return;
+    }
+
+    let cancelled = false;
+    // One full PlannerScreen panel cycle: 1600 open-delay + 5000 open + 1800 close-delay = 8400ms
+    const PLANNER_MS   = 8400;
+    const FADE_MS      = 800;
+    const EVERYONE_MS  = 4500;
+
+    const runCycle = () => {
+      if (cancelled) return;
+      setPlannerActive(true);
+      setShowEveryone(false);
+      setEveryoneMounted(false);
+
+      // Mount Everyone layer just before we need it
+      const tMount = setTimeout(() => {
+        if (!cancelled) setEveryoneMounted(true);
+      }, PLANNER_MS - 100);
+
+      // At exactly one planner cycle: stop planner animation, start crossfade
+      const tFade = setTimeout(() => {
         if (cancelled) return;
-        setEveryoneMounted(true);
+        setPlannerActive(false); // prevent second panel-open
         requestAnimationFrame(() => requestAnimationFrame(() => {
           if (!cancelled) setShowEveryone(true);
         }));
-        const t2 = setTimeout(() => {
+
+        // After Everyone has been shown, fade back to Planner
+        const tReturn = setTimeout(() => {
           if (cancelled) return;
           setShowEveryone(false);
-          const t3 = setTimeout(() => {
-            if (!cancelled) { setEveryoneMounted(false); cycle(); }
-          }, 900); // fade-out duration
-        }, 4500); // how long Everyone is visible
-      }, 9600); // how long Planner is visible
+          setTimeout(() => {
+            if (!cancelled) { setEveryoneMounted(false); runCycle(); }
+          }, FADE_MS);
+        }, EVERYONE_MS);
+      }, PLANNER_MS);
+
+      return () => { clearTimeout(tMount); clearTimeout(tFade); };
     };
-    cycle();
+
+    runCycle();
     return () => { cancelled = true; };
-  }, []);
+  }, [isActive]);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      {/* Planner layer — always mounted, fades when Everyone is showing */}
+      {/* Planner layer */}
       <div style={{
         position: "absolute", inset: 0,
         opacity: showEveryone ? 0 : 1,
         transition: "opacity 800ms ease",
         pointerEvents: showEveryone ? "none" : "auto",
       }}>
-        <PlannerScreen isActive={!showEveryone} />
+        <PlannerScreen isActive={plannerActive} />
       </div>
-      {/* Everyone layer — mounted just before it needs to appear */}
+      {/* Everyone layer — only mounted when needed */}
       {everyoneMounted && (
         <div style={{
           position: "absolute", inset: 0,
@@ -1688,7 +1721,7 @@ export default function LandingScreenCycle() {
           {/* Desktop app frame */}
           <div className="lp-hero-frame" aria-hidden="true">
             <AppFrame>
-              <DashboardScreen isActive={true} />
+              <DashboardScreen isActive={activeSection === 0} />
             </AppFrame>
           </div>
           {/* Mobile: phone demo */}
@@ -1748,7 +1781,7 @@ export default function LandingScreenCycle() {
         <div className="lp-feat-grid lp-feat-grid--copy-right">
           <div className="lp-feat-visual">
             <AppFrame>
-              <RecipeDetailScreen isActive={true} />
+              <RecipeDetailScreen isActive={activeSection === 2} />
             </AppFrame>
           </div>
           <div className="lp-feat-copy">
@@ -1805,7 +1838,7 @@ export default function LandingScreenCycle() {
         <div className="lp-feat-grid lp-feat-grid--copy-right">
           <div className="lp-feat-visual">
             <AppFrame>
-              <PlannerCycleScreen />
+              <PlannerCycleScreen isActive={activeSection === 4} />
             </AppFrame>
           </div>
           <div className="lp-feat-copy">
