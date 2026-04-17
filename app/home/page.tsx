@@ -490,6 +490,14 @@ export default function Home() {
                                 </span>
                               </div>
                             ))}
+                            {m.recipe?.id && (
+                              <Link
+                                href={`/recipes/${m.recipe.id}`}
+                                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent-btn)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
+                              >
+                                See recipe →
+                              </Link>
+                            )}
                           </div>
                         );
                       })}

@@ -569,11 +569,16 @@ export default function RecipeDetailPage() {
                         {showSection && (
                           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-8 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
                         )}
-                        <div className="flex gap-[18px] py-3 items-baseline border-b border-[var(--rule)]">
-                          <span className="font-mono text-[11px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums">
+                        <div className="flex gap-[18px] py-3 border-b border-[var(--rule)]">
+                          <span className="font-mono text-[11px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums pt-[3px]">
                             {parseFloat((ing.quantity * scale).toFixed(2))} {ing.unit}
                           </span>
-                          <span className="text-[16px] leading-[1.4]">{ing.ingredient?.name || ing.originalText || "Unknown"}</span>
+                          <span>
+                            <span className="text-[16px] leading-[1.4]">{ing.ingredient?.name || ing.originalText || "Unknown"}</span>
+                            {ing.notes && (
+                              <span className="block text-[11px] text-[var(--muted)] mt-[2px] leading-[1.4]">{ing.notes}</span>
+                            )}
+                          </span>
                         </div>
                       </li>
                     );

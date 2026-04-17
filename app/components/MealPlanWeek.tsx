@@ -145,7 +145,14 @@ function DraggableMealChip({
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        // Suppress iOS Safari long-press context menu (copy/share callout) on draggable chips
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
+        touchAction: editMode ? undefined : 'none',
+      }}
       className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && isSelected ? ' bg-[var(--err-l)]' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
@@ -155,6 +162,7 @@ function DraggableMealChip({
           onClickRecipe();
         }
       }}
+      onContextMenu={(e) => { if (!editMode) e.preventDefault(); }}
       role={editMode ? 'checkbox' : meal.recipe?.id ? 'link' : undefined}
       aria-checked={editMode ? isSelected : undefined}
       aria-label={mealName}
