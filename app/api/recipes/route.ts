@@ -10,43 +10,42 @@ export async function GET(request: Request) {
 
     const slim = new URL(request.url).searchParams.get("slim") === "true";
 
-    const [recipes, favoriteRows] = await Promise.all([
-      prisma.recipe.findMany({
-        where: { householdId: auth.householdId },
-        ...(slim ? {
-          select: {
-            id: true, name: true, image: true, tags: true,
-            prepTime: true, cookTime: true, servingSize: true,
-            servingUnit: true, isComplete: true, instructions: true,
-            sourceApp: true,
-          },
-        } : {
-          include: {
-            ingredients: {
-              include: {
-                ingredient: {
-                  include: { nutrientValues: { include: { nutrient: true } } },
-                },
-              },
-            },
-          },
-        }),
-        orderBy: { name: "asc" },
-      }),
-      prisma.recipeFavorite.findMany({
-        where: { personId: auth.personId },
-        select: { recipeId: true },
-      }),
-    ]);
-
+    const favoriteRows = await prisma.recipeFavorite.findMany({
+      where: { personId: auth.personId },
+      select: { recipeId: true },
+    });
     const favoriteSet = new Set(favoriteRows.map((f) => f.recipeId));
 
     if (slim) {
+      const recipes = await prisma.recipe.findMany({
+        where: { householdId: auth.householdId },
+        select: {
+          id: true, name: true, image: true, tags: true,
+          prepTime: true, cookTime: true, servingSize: true,
+          servingUnit: true, isComplete: true, instructions: true,
+          sourceApp: true,
+        },
+        orderBy: { name: "asc" },
+      });
       return NextResponse.json(recipes.map((r) => ({ ...r, totals: [], isFavorited: favoriteSet.has(r.id) })));
     }
 
+    const recipes = await prisma.recipe.findMany({
+      where: { householdId: auth.householdId },
+      include: {
+        ingredients: {
+          include: {
+            ingredient: {
+              include: { nutrientValues: { include: { nutrient: true } } },
+            },
+          },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+
     // Compute per-serving nutrient totals for each recipe (for client-side sorting)
-    const recipesWithTotals = (recipes as any[]).map((recipe) => {
+    const recipesWithTotals = recipes.map((recipe) => {
       const totals: Record<number, { nutrientId: number; displayName: string; value: number; unit: string }> = {};
       for (const ri of recipe.ingredients) {
         if (!ri.ingredient) continue;
