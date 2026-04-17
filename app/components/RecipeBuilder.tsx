@@ -188,7 +188,7 @@ function SortableIngredientRow({
             aria-label={`Ingredient ${index + 1} preparation notes`}
           />
         </div>
-        <input className="ed-input" style={{ width: 70, paddingTop: 8 }} type="text" inputMode="decimal" placeholder="Qty"
+        <input className="ed-input" style={{ width: 70 }} type="text" inputMode="decimal" placeholder="Qty"
           value={quantityText[row.id] ?? ""}
           onChange={(e) => {
             const val = e.target.value;
@@ -205,7 +205,7 @@ function SortableIngredientRow({
             }
           }}
           aria-label={`Ingredient ${index + 1} quantity`} />
-        <select className="ed-select" style={{ width: 80, paddingTop: 8 }} value={row.unit ?? defaultUnitForRow}
+        <select className="ed-select" style={{ width: 80 }} value={row.unit ?? defaultUnitForRow}
           onChange={(e) => updateRow(row.id, { unit: e.target.value })} aria-label={`Ingredient ${index + 1} unit`}>
           <optgroup label="Weight"><option value="g">g</option><option value="oz">oz</option><option value="lb">lb</option><option value="kg">kg</option></optgroup>
           <optgroup label="Volume"><option value="ml">ml</option><option value="l">l</option><option value="tsp">tsp</option><option value="tbsp">tbsp</option><option value="cup">cup</option><option value="fl-oz">fl oz</option></optgroup>
