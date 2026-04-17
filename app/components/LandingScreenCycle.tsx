@@ -21,8 +21,8 @@ const FEATURES = [
   { num: "02", title: "Build your pantry",       sub: "USDA lookup or manual entry. A customized library of ingredients to build and optimize your recipes." },
   { num: "03", title: "Import or create recipes",sub: "Paste a URL, upload a file, or build from scratch. Nutrition calculates live." },
   { num: "04", title: "Optimize with AI",        sub: "Your desktop AI agent reads the recipe, suggests swaps, creates meal prep plans, and saves it all back automatically." },
-  { num: "05", title: "Plan your week",          sub: "Weekly grid per person. Add meals, see daily totals, and hit your targets." },
-  { num: "06", title: "Track the household",     sub: "See each person's plan, side by side. Everyone shares the recipe and pantry library." },
+  { num: "05", title: "Plan your week",          sub: "Add everyone in your household and each person gets their own plan and nutrition targets. One shared pantry and recipe library." },
+  { num: "06", title: "Track the household",     sub: "See each person's 7-day plan side by side. Drag meals between days and watch nutrition totals update live." },
 ];
 
 const TAB_LABELS = ["Dashboard", "Pantry", "Recipes", "Optimize", "Planner", "Household"];
@@ -1752,10 +1752,10 @@ export default function LandingScreenCycle() {
             <p className="lp-feat-eyebrow">04 / PLANNER</p>
             <h2 className="lp-feat-h2">One week.<br />Every person.<br />On target.</h2>
             <p className="lp-feat-body">
-              A 7-day grid per person. Add meals, drag between days, watch nutrition totals update in real time. One shared pantry and recipe library. Everyone&apos;s plan, side by side.
+              Add everyone in your household and each person gets their own 7-day plan, nutrition goals, and targets. One shared pantry and recipe library. Drag meals between days, watch totals update live, and see the whole household side by side.
             </p>
             <div className="lp-feat-tags" aria-label="Key features">
-              {["WEEKLY GRID", "NUTRITION SUMMARY", "SHARED VIEW"].map(tag => (
+              {["SHARED LIBRARY", "WEEKLY GRID", "NUTRITION SUMMARY"].map(tag => (
                 <span key={tag} className="lp-feat-tag">{tag}</span>
               ))}
             </div>
