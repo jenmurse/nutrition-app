@@ -1611,7 +1611,7 @@ export default function LandingScreenCycle() {
             Measure what<br /><span style={{ color: BRAND_SAGE }}>matters.</span>
           </h1>
           <p className="lp-s-subhead">
-            Know exactly what&apos;s in everything you cook. Build recipes, plan the week, and hit targets for every person in your household.
+            Know exactly what&apos;s in everything you cook. Build and optimize recipes, track nutrition live, and easily plan the week for your entire household.
           </p>
           <div className="lp-hero-btns">
             <Link href="/login?signup=1" className="lp-cta-btn lp-cta-btn--dark">
