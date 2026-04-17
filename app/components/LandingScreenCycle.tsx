@@ -688,7 +688,7 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
             <span key={p} style={{
               fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
               padding: "3px 7px",
-              border: p === "Sarah" ? `1.5px solid var(--fg)` : "1px solid var(--rule)",
+              border: p === "Sarah" ? `1px solid var(--fg)` : "1px solid var(--rule)",
               borderRadius: 9999, color: p === "Sarah" ? "var(--fg)" : "var(--muted)",
             }}>{p}</span>
           ))}
@@ -785,6 +785,66 @@ function PlannerScreen({ isActive }: { isActive?: boolean }) {
    Screen 5 — Everyone
    Person-row grid: day headers + Sarah / Michael / Lindsey rows
    ───────────────────────────────────────────────────────────── */
+
+/* Animated wrapper: PlannerScreen (with nutrition panel) → crossfade → EveryoneScreen → loop */
+function PlannerCycleScreen() {
+  // false = showing PlannerScreen, true = showing EveryoneScreen
+  const [showEveryone, setShowEveryone] = useState(false);
+  const [everyoneMounted, setEveryoneMounted] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    // Planner phase: 9.6s (enough for one full panel-open/close cycle at 1600+5000+1800ms)
+    // then crossfade to Everyone for 4s, then back
+    const cycle = () => {
+      if (cancelled) return;
+      setShowEveryone(false);
+      setEveryoneMounted(false);
+      const t1 = setTimeout(() => {
+        if (cancelled) return;
+        setEveryoneMounted(true);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (!cancelled) setShowEveryone(true);
+        }));
+        const t2 = setTimeout(() => {
+          if (cancelled) return;
+          setShowEveryone(false);
+          const t3 = setTimeout(() => {
+            if (!cancelled) { setEveryoneMounted(false); cycle(); }
+          }, 900); // fade-out duration
+        }, 4500); // how long Everyone is visible
+      }, 9600); // how long Planner is visible
+    };
+    cycle();
+    return () => { cancelled = true; };
+  }, []);
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      {/* Planner layer — always mounted, fades when Everyone is showing */}
+      <div style={{
+        position: "absolute", inset: 0,
+        opacity: showEveryone ? 0 : 1,
+        transition: "opacity 800ms ease",
+        pointerEvents: showEveryone ? "none" : "auto",
+      }}>
+        <PlannerScreen isActive={!showEveryone} />
+      </div>
+      {/* Everyone layer — mounted just before it needs to appear */}
+      {everyoneMounted && (
+        <div style={{
+          position: "absolute", inset: 0,
+          opacity: showEveryone ? 1 : 0,
+          transition: "opacity 800ms ease",
+          pointerEvents: showEveryone ? "auto" : "none",
+        }}>
+          <EveryoneScreen />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function EveryoneScreen() {
   const days = [
     { abbr: "SUN", num: 5  },
@@ -855,7 +915,7 @@ function EveryoneScreen() {
           ))}
           <span style={{
             fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em",
-            padding: "3px 9px", border: "1.5px solid var(--fg)", borderRadius: 9999,
+            padding: "3px 9px", border: "1px solid var(--fg)", borderRadius: 9999,
             color: "var(--fg)",
           }}>Everyone</span>
         </div>
@@ -1745,7 +1805,7 @@ export default function LandingScreenCycle() {
         <div className="lp-feat-grid lp-feat-grid--copy-right">
           <div className="lp-feat-visual">
             <AppFrame>
-              <EveryoneScreen />
+              <PlannerCycleScreen />
             </AppFrame>
           </div>
           <div className="lp-feat-copy">
