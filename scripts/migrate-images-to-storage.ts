@@ -12,10 +12,17 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { PrismaClient } from "@prisma/client";
-import * as dotenv from "dotenv";
 import { randomUUID } from "crypto";
+import { readFileSync } from "fs";
 
-dotenv.config({ path: ".env.local" });
+// Load .env.local manually
+try {
+  const env = readFileSync(".env.local", "utf-8");
+  for (const line of env.split("\n")) {
+    const [key, ...rest] = line.split("=");
+    if (key && rest.length) process.env[key.trim()] = rest.join("=").trim();
+  }
+} catch {}
 
 const prisma = new PrismaClient();
 
