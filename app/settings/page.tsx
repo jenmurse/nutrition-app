@@ -137,6 +137,7 @@ const SettingsPage = () => {
 
 
   // MCP token
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [hasMcpToken, setHasMcpToken] = useState(false);
   const [newMcpToken, setNewMcpToken] = useState<string | null>(null);
   const [mcpTokenLoading, setMcpTokenLoading] = useState(false);
@@ -149,6 +150,11 @@ const SettingsPage = () => {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  // Detect touch/tablet (phones + iPads)
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
+  }, []);
 
   // Load nutrients once
   useEffect(() => {
@@ -894,6 +900,12 @@ const SettingsPage = () => {
               ════════════════════════════════════════════════════════════════════ */}
           <div id="set-sec-mcp" style={{ padding: '56px 0' }}>
             <SectionHeader number="04" title="MCP Integration" />
+
+            {isTouchDevice && (
+              <p className="text-[13px] text-[var(--muted)] leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md mb-[32px]">
+                MCP integration requires a desktop AI assistant like Claude or Cursor. You can still generate a token here — connect it from your computer.
+              </p>
+            )}
 
             <div className="flex flex-col gap-[48px]">
 
