@@ -144,14 +144,9 @@ export interface WeeklyCalorieSummary {
   dailyGoalCalories: number | null;
   /** weeklyGoal = dailyGoal × 7, or null. */
   weeklyGoalCalories: number | null;
-  /** Deficit = weeklyGoal – totalCalories.  Positive → under budget (loss).
-   *  Negative → over budget (gain). */
+  /** Deficit = weeklyGoal – totalCalories.  Positive → under budget.
+   *  Negative → over budget. */
   weeklyDeficit: number | null;
-  /**
-   * Projected weight change in lbs over 7 days.
-   * Positive = loss, negative = gain. (3,500 kcal ≈ 1 lb)
-   */
-  projectedWeightChangeLbs: number | null;
   /** Number of days that have at least one meal logged. */
   daysWithMeals: number;
   /** Per-day calorie breakdown. */
@@ -189,15 +184,12 @@ export function getWeeklyCalorieSummary(days: DailyCalorieEntry[]): WeeklyCalori
   const weeklyGoalCalories = dailyGoalCalories != null ? dailyGoalCalories * 7 : null;
   const weeklyDeficit =
     weeklyGoalCalories != null ? weeklyGoalCalories - Math.round(totalCalories) : null;
-  const projectedWeightChangeLbs =
-    weeklyDeficit != null ? Math.round((weeklyDeficit / 3500) * 10) / 10 : null;
 
   return {
     totalCalories: Math.round(totalCalories),
     dailyGoalCalories,
     weeklyGoalCalories,
     weeklyDeficit,
-    projectedWeightChangeLbs,
     daysWithMeals,
     dailyCalories,
   };

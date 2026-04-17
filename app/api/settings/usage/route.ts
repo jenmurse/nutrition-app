@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 
 // Anthropic pricing per million tokens (as of mid-2025)
 const PRICING: Record<string, { input: number; output: number }> = {
@@ -14,52 +14,36 @@ const PRICING: Record<string, { input: number; output: number }> = {
  * GET /api/settings/usage
  * Returns aggregate token usage and estimated cost
  */
-export async function GET() {
-  try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+export const GET = withAuth(async (auth) => {
+  const logs = await prisma.apiUsageLog.findMany({
+    where: { householdId: auth.householdId },
+    orderBy: { createdAt: "desc" },
+  });
 
-    const logs = await prisma.apiUsageLog.findMany({
-      where: { householdId: auth.householdId },
-      orderBy: { createdAt: "desc" },
-    });
+  const totalInputTokens = logs.reduce((s, l) => s + l.inputTokens, 0);
+  const totalOutputTokens = logs.reduce((s, l) => s + l.outputTokens, 0);
+  const callCount = logs.length;
 
-    const totalInputTokens = logs.reduce((s, l) => s + l.inputTokens, 0);
-    const totalOutputTokens = logs.reduce((s, l) => s + l.outputTokens, 0);
-    const callCount = logs.length;
+  // Compute cost per log entry using the model's rate
+  const estimatedCostUsd = logs.reduce((sum, log) => {
+    const rate = PRICING[log.model] ?? PRICING["default"];
+    return sum + (log.inputTokens / 1_000_000) * rate.input
+               + (log.outputTokens / 1_000_000) * rate.output;
+  }, 0);
 
-    // Compute cost per log entry using the model's rate
-    const estimatedCostUsd = logs.reduce((sum, log) => {
-      const rate = PRICING[log.model] ?? PRICING["default"];
-      return sum + (log.inputTokens / 1_000_000) * rate.input
-                 + (log.outputTokens / 1_000_000) * rate.output;
-    }, 0);
-
-    return NextResponse.json({
-      totalInputTokens,
-      totalOutputTokens,
-      callCount,
-      estimatedCostUsd: Math.round(estimatedCostUsd * 10000) / 10000, // 4 decimal places
-    });
-  } catch (error) {
-    console.error("GET /api/settings/usage error:", error);
-    return NextResponse.json({ error: "Failed to load usage" }, { status: 500 });
-  }
-}
+  return NextResponse.json({
+    totalInputTokens,
+    totalOutputTokens,
+    callCount,
+    estimatedCostUsd: Math.round(estimatedCostUsd * 10000) / 10000, // 4 decimal places
+  });
+}, "Failed to load usage");
 
 /**
  * DELETE /api/settings/usage
  * Clear the usage log
  */
-export async function DELETE() {
-  try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
-    await prisma.apiUsageLog.deleteMany({ where: { householdId: auth.householdId } });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("DELETE /api/settings/usage error:", error);
-    return NextResponse.json({ error: "Failed to clear usage log" }, { status: 500 });
-  }
-}
+export const DELETE = withAuth(async (auth) => {
+  await prisma.apiUsageLog.deleteMany({ where: { householdId: auth.householdId } });
+  return NextResponse.json({ success: true });
+}, "Failed to clear usage log");

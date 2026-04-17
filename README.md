@@ -23,13 +23,12 @@ A household nutrition tracker for building ingredient libraries, creating recipe
 
 ## Design System
 
-Editorial design language built on three typefaces:
+Editorial design language built on two typefaces:
 
 | Role | Family | Usage |
 |---|---|---|
-| **Display** | Bricolage Grotesque | Logo, page titles, recipe names, hero numbers |
 | **Mono / Label** | DM Mono | All caps UI labels, nav links, nutrition values, metadata |
-| **Body / UI** | DM Sans | Body text, form inputs, descriptions |
+| **Body / UI** | DM Sans | Body text, form inputs, descriptions, headings (`font-serif` maps to DM Sans in Tailwind) |
 
 **Color tokens**: all CSS variables (`--fg`, `--bg`, `--accent`, `--muted`, `--rule`, etc.) — never hardcode hex values in components.
 
@@ -40,7 +39,7 @@ Editorial design language built on three typefaces:
 ## Features
 
 ### Dashboard
-- Full-viewport editorial hero greeting (Bricolage Grotesque, time-aware)
+- Full-viewport editorial hero greeting (time-aware)
 - Dynamic stats strip: 3 user-selected nutrients from Settings (localStorage `dashboard-stats`)
 - Today's key meals: breakfast, lunch, dinner, side — with 3 nutrient stats per meal
 - Weekly overview grid with today column highlighted
@@ -105,6 +104,7 @@ Editorial design language built on three typefaces:
 
 ### Auth & Multi-tenancy
 - `lib/auth.ts` — `getAuthenticatedHousehold()` returns `{ personId, householdId, role }` or `{ error, status }`
+- `lib/apiUtils.ts` — `withAuth(handler, fallbackError?)` HOF wraps all API route handlers with auth + error handling
 - Middleware sets `x-supabase-user-id` header — API routes skip re-auth
 - All data queries scoped to `householdId`
 
@@ -125,10 +125,10 @@ Editorial design language built on three typefaces:
 - **SystemSetting** — household-scoped key/value (MCP token)
 
 ### Per-100g Normalization
-All nutrient values stored normalized to per 100g. Recipe totals: `(nutrient_per_100g × ingredient_grams) / 100`.
+All nutrient values stored normalized to per 100g. Recipe totals: `(nutrient_per_100g × ingredient_grams) / USDA_BASE_GRAMS`. The constant `USDA_BASE_GRAMS = 100` lives in `lib/constants.ts` — never use the magic number `100` directly.
 
 ### Client-Side Caching
-`lib/clientCache.ts` — stale-while-revalidate. Cache-first for ingredients/recipes/goals; surgical updates on mutation (no invalidation). Dashboard always bypasses cache for fresh meal data.
+`lib/clientCache.ts` — module-level singleton Map, persists across React mount/unmount for the browser session. Pattern: serve cached data immediately, background-revalidate, call `clientCache.invalidate(prefix)` on any mutation. Cached: ingredients (`/api/ingredients`), nutrients (`/api/nutrients`), goals (`/api/persons/[id]/goals`). Dashboard always bypasses cache for fresh meal data.
 
 ---
 
@@ -164,14 +164,18 @@ nutrition-app/
 │   ├── page.tsx                  # Dashboard
 │   ├── globals.css               # Design tokens + all editorial CSS classes
 │   └── layout.tsx
+├── types/
+│   └── index.ts                  # Shared domain types (Nutrient, Goal)
 ├── lib/
 │   ├── auth.ts
+│   ├── apiUtils.ts               # withAuth HOF for API route handlers
 │   ├── clientCache.ts
+│   ├── constants.ts              # USDA_BASE_GRAMS and other shared constants
 │   ├── themes.ts                 # 8 person themes (THEMES, resolveTheme, themeHex)
 │   ├── toast.ts
 │   ├── dialog.ts
 │   ├── unitConversion.ts
-│   ├── nutritionCalculations.ts
+│   ├── nutritionCalculations.ts  # computeRecipeServingTotals + weekly summary
 │   └── smartMealAnalysis.ts
 ├── mcp/                          # good-measure-mcp stdio server
 ├── prisma/schema.prisma

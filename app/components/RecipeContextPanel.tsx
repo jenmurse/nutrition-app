@@ -2,19 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { clientCache } from "@/lib/clientCache";
+import type { Goal } from "@/types";
 
 type NutrientTotal = {
   nutrientId: number;
   displayName: string;
   value: number;
   unit: string;
-};
-
-type Goal = {
-  nutrientId: number;
-  lowGoal?: number | null;
-  highGoal?: number | null;
-  nutrient: { displayName: string; unit: string };
 };
 
 interface RecipeContextPanelProps {

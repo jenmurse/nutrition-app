@@ -15,7 +15,11 @@ jest.mock('@/lib/db', () => ({
     },
     recipeIngredient: {
       create: jest.fn(),
+      createMany: jest.fn(),
       deleteMany: jest.fn(),
+    },
+    recipeFavorite: {
+      findUnique: jest.fn(),
     },
   },
 }))
@@ -68,6 +72,7 @@ describe('Recipes API - GET /api/recipes/[id]', () => {
     }
 
     ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue(mockRecipe)
+    ;(prisma.recipeFavorite.findUnique as jest.Mock).mockResolvedValue(null)
 
     const response = await getRecipe(new Request('http://localhost:3000'), {
       params: Promise.resolve({ id: '1' }),
@@ -79,12 +84,14 @@ describe('Recipes API - GET /api/recipes/[id]', () => {
     expect(data.recipe.name).toBe('Chicken Stir Fry')
     expect(data.totals).toBeDefined()
     expect(Array.isArray(data.totals)).toBe(true)
+    expect(data.isFavorited).toBe(false)
   })
 
   it('should calculate nutrient totals correctly', async () => {
     const mockRecipe = {
       id: 1,
       householdId: 1,
+      servingSize: 1,
       ingredients: [
         {
           ingredient: {
@@ -101,6 +108,7 @@ describe('Recipes API - GET /api/recipes/[id]', () => {
     }
 
     ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue(mockRecipe)
+    ;(prisma.recipeFavorite.findUnique as jest.Mock).mockResolvedValue(null)
 
     const response = await getRecipe(new Request('http://localhost:3000'), {
       params: Promise.resolve({ id: '1' }),
@@ -108,13 +116,46 @@ describe('Recipes API - GET /api/recipes/[id]', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    // 31 * 200 / 100 = 62g protein total
+    // 31 * 200 / 100 = 62g protein total, / 1 serving = 62 per serving
     expect(data.totals).toEqual([
       expect.objectContaining({
         nutrientId: 203,
-        value: 62, // (31 * 200) / 100
+        value: 62, // (31 * 200) / 100 / 1 serving
       }),
     ])
+  })
+
+  it('should divide totals by servingSize', async () => {
+    const mockRecipe = {
+      id: 1,
+      householdId: 1,
+      servingSize: 4,
+      ingredients: [
+        {
+          ingredient: {
+            nutrientValues: [
+              {
+                nutrient: { id: 208, displayName: 'Calories', unit: 'kcal', orderIndex: 1 },
+                value: 200.0, // 200 kcal per 100g
+              },
+            ],
+          },
+          conversionGrams: 100,
+        },
+      ],
+    }
+
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValue(mockRecipe)
+    ;(prisma.recipeFavorite.findUnique as jest.Mock).mockResolvedValue(null)
+
+    const response = await getRecipe(new Request('http://localhost:3000'), {
+      params: Promise.resolve({ id: '1' }),
+    } as any)
+    const data = await response.json()
+
+    // 200 * 100 / 100 = 200 kcal total, / 4 servings = 50 per serving
+    const calTotal = data.totals.find((t: { nutrientId: number }) => t.nutrientId === 208)
+    expect(calTotal.value).toBe(50)
   })
 
   it('should return 404 for non-existent recipe', async () => {
@@ -177,6 +218,48 @@ describe('Recipes API - PUT /api/recipes/[id]', () => {
     expect(response.status).toBe(200)
     expect(prisma.recipe.update).toHaveBeenCalled()
     expect(prisma.recipeIngredient.deleteMany).toHaveBeenCalledWith({ where: { recipeId: 1 } })
+  })
+
+  it('should update recipe with multiple ingredients', async () => {
+    const updateData = {
+      name: 'Multi-Ingredient Recipe',
+      servingSize: 2,
+      servingUnit: 'servings',
+      instructions: '',
+      isComplete: true,
+      ingredients: [
+        { ingredientId: 1, quantity: 100, unit: 'g', conversionGrams: 100, notes: null, section: null },
+        { ingredientId: 2, quantity: 200, unit: 'g', conversionGrams: 200, notes: null, section: null },
+        { ingredientId: 3, quantity: 50,  unit: 'ml', conversionGrams: 50, notes: null, section: null },
+      ],
+    }
+
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({ id: 1, householdId: 1 })
+    ;(prisma.recipe.update as jest.Mock).mockResolvedValue({ id: 1, ...updateData })
+    ;(prisma.recipeIngredient.deleteMany as jest.Mock).mockResolvedValue({ count: 3 })
+    ;(prisma.recipeIngredient.create as jest.Mock).mockResolvedValue(undefined)
+    ;(prisma.recipeIngredient.createMany as jest.Mock).mockResolvedValue({ count: 3 })
+    ;(prisma.recipe.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: 1,
+      householdId: 1,
+      ...updateData,
+      ingredients: updateData.ingredients.map((ri, i) => ({ id: i + 1, ...ri, recipeId: 1 })),
+    })
+
+    const request = new Request('http://localhost:3000', {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    })
+
+    const response = await updateRecipe(request, {
+      params: Promise.resolve({ id: '1' }),
+    } as any)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(prisma.recipeIngredient.deleteMany).toHaveBeenCalledWith({ where: { recipeId: 1 } })
+    // All 3 ingredients should end up in the saved record
+    expect(data.ingredients).toHaveLength(3)
   })
 
   it('should skip ingredients with null ingredientId during update', async () => {

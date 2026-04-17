@@ -11,6 +11,7 @@ import { marked } from "marked";
 import { APP_NAME } from "@/lib/brand";
 import ContextualTip from "../../components/ContextualTip";
 import Link from "next/link";
+import type { Goal } from "@/types";
 
 type RecipeDetail = {
   id: number;
@@ -64,12 +65,6 @@ type RecipeDraft = {
   }>;
 };
 
-type Goal = {
-  nutrientId: number;
-  lowGoal?: number | null;
-  highGoal?: number | null;
-  nutrient: { displayName: string; unit: string };
-};
 
 const JUMP_SECTIONS = [
   { id: "rd-sec-ing", n: "01", label: "Ingredients" },

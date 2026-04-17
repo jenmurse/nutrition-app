@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
 import { matchIngredients, type ParsedIngredient, type ParsedRecipe } from "../../../../../lib/ingredientMatcher";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
 
@@ -281,11 +281,8 @@ function extractTags(recipeData: any): string {
 
 // ── Main route ──
 
-export async function POST(request: Request) {
+export const POST = withAuth(async (auth, request: Request) => {
   try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
     const body = await request.json();
     const url = typeof body?.url === "string" ? body.url.trim() : "";
     if (!url) {
@@ -396,4 +393,4 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ error: "Failed to import recipe from URL" }, { status: 500 });
   }
-}
+});

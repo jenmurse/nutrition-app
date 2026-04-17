@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
-
-type Nutrient = { id: number; name: string; displayName: string; unit: string };
+import type { Nutrient } from "@/types";
 
 type NutrientValue = { nutrientId: number; value: number };
 

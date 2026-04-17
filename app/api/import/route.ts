@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedHousehold } from '@/lib/auth';
+import { withAuth } from '@/lib/apiUtils';
 import { prisma } from '@/lib/db';
 
 interface ImportedNutrient { nutrientId: number; value: number }
@@ -44,10 +44,7 @@ interface ImportPayload {
   globalNutritionGoals?: ImportedGlobalGoal[];
 }
 
-export async function POST(request: Request) {
-  const auth = await getAuthenticatedHousehold();
-  if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const POST = withAuth(async (auth, request: Request) => {
   let body: ImportPayload;
   try {
     body = await request.json();
@@ -205,4 +202,4 @@ export async function POST(request: Request) {
     console.error('Import error:', err);
     return NextResponse.json({ error: 'Import failed — see server logs for details' }, { status: 500 });
   }
-}
+});

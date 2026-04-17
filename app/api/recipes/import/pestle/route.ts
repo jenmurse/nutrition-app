@@ -5,7 +5,7 @@ import {
   type ParsedRecipe,
   matchIngredients,
 } from "../../../../../lib/ingredientMatcher";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 
 function unicodeFractionToDecimal(token: string): number | null {
   const map: Record<string, number> = {
@@ -191,22 +191,14 @@ function parsePestleMarkdown(markdown: string): ParsedRecipe {
   };
 }
 
-export async function POST(request: Request) {
-  try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+export const POST = withAuth(async (auth, request: Request) => {
+  const body = await request.json();
+  const markdown = typeof body?.markdown === "string" ? body.markdown : "";
+  if (!markdown.trim()) return NextResponse.json({ error: "Markdown required" }, { status: 400 });
 
-    const body = await request.json();
-    const markdown = typeof body?.markdown === "string" ? body.markdown : "";
-    if (!markdown.trim()) return NextResponse.json({ error: "Markdown required" }, { status: 400 });
+  const parsed = parsePestleMarkdown(markdown);
+  const ingredients = await prisma.ingredient.findMany({ where: { householdId: auth.householdId }, select: { id: true, name: true } });
+  const matched = matchIngredients(parsed, ingredients);
 
-    const parsed = parsePestleMarkdown(markdown);
-    const ingredients = await prisma.ingredient.findMany({ where: { householdId: auth.householdId }, select: { id: true, name: true } });
-    const matched = matchIngredients(parsed, ingredients);
-
-    return NextResponse.json(matched);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to parse markdown" }, { status: 500 });
-  }
-}
+  return NextResponse.json(matched);
+}, "Failed to parse markdown");

@@ -54,3 +54,4 @@ export async function getAuthenticatedHousehold(): Promise<AuthResult> {
     role: membership.role,
   };
 }
+

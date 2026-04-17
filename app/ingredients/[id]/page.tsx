@@ -7,6 +7,7 @@ import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import { clientCache } from "@/lib/clientCache";
 import ContextualTip from "../../components/ContextualTip";
+import type { Nutrient } from "@/types";
 
 /* ── Types ── */
 
@@ -27,13 +28,6 @@ type Ingredient = {
   isMealItem?: boolean;
   category?: string;
   nutrientValues: NutrientValue[];
-};
-
-type Nutrient = {
-  id: number;
-  name: string;
-  displayName: string;
-  unit: string;
 };
 
 /* ── Utilities ── */

@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 import { themeHex } from "@/lib/themes";
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+type Ctx = { params: Promise<{ id: string }> };
 
+export const PUT = withAuth(async (auth, request: Request, { params }: Ctx) => {
   const { id } = await params;
   const personId = Number(id);
   if (isNaN(personId)) {
@@ -64,15 +60,9 @@ export async function PUT(
   } catch {
     return NextResponse.json({ error: "Person not found" }, { status: 404 });
   }
-}
+});
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const DELETE = withAuth(async (auth, _request: Request, { params }: Ctx) => {
   const { id } = await params;
   const personId = Number(id);
   if (isNaN(personId)) {
@@ -122,4 +112,4 @@ export async function DELETE(
   } catch {
     return NextResponse.json({ error: "Failed to delete person" }, { status: 500 });
   }
-}
+});

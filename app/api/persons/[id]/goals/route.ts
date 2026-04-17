@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 
 /**
  * GET /api/persons/[id]/goals
  * Returns the person's global nutrition goals with nutrient info.
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
+type Ctx = { params: Promise<{ id: string }> };
+
+export const GET = withAuth(async (auth, _request: NextRequest, { params }: Ctx) => {
   const { id } = await params;
   const personId = parseInt(id);
   if (isNaN(personId)) {
@@ -48,4 +45,4 @@ export async function GET(
       },
     }))
   );
-}
+});

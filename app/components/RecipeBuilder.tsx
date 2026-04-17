@@ -2,6 +2,8 @@
 
 import { Dispatch, SetStateAction, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
+import { USDA_BASE_GRAMS } from "@/lib/constants";
+import { clientCache } from "@/lib/clientCache";
 import CreateIngredientModal from "./CreateIngredientModal";
 import { toast } from "@/lib/toast";
 import ContextualTip from "./ContextualTip";
@@ -9,8 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
-type Nutrient = { id: number; name: string; displayName: string; unit: string };
+import type { Nutrient, Goal } from "@/types";
 type Ingredient = {
   id: number;
   name: string;
@@ -262,7 +263,6 @@ function SortableStepRow({ id, idx, step, onChangeStep, onRemoveStep }: {
 }
 
 type Person = { id: number; name: string };
-type Goal = { nutrientId: number; lowGoal: number | null; highGoal: number | null; nutrient: { displayName: string; unit: string } };
 
 const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   initialRecipe?: InitialRecipe;
@@ -309,14 +309,19 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const availableTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
   useEffect(() => {
+    const cachedIngredients = clientCache.get<Ingredient[]>("/api/ingredients");
+    if (cachedIngredients) setIngredients(cachedIngredients);
     fetch("/api/ingredients")
       .then((r) => r.json())
-      .then((d) => setIngredients(Array.isArray(d) ? d : []))
-      .catch((e) => { console.error(e); setIngredients([]); });
+      .then((d) => { const list = Array.isArray(d) ? d : []; clientCache.set("/api/ingredients", list); setIngredients(list); })
+      .catch((e) => { console.error(e); if (!cachedIngredients) setIngredients([]); });
+
+    const cachedNutrients = clientCache.get<Nutrient[]>("/api/nutrients");
+    if (cachedNutrients) setNutrients(cachedNutrients);
     fetch("/api/nutrients")
       .then((r) => r.json())
-      .then((d) => setNutrients(Array.isArray(d) ? d : []))
-      .catch((e) => { console.error(e); setNutrients([]); });
+      .then((d) => { const list = Array.isArray(d) ? d : []; clientCache.set("/api/nutrients", list); setNutrients(list); })
+      .catch((e) => { console.error(e); if (!cachedNutrients) setNutrients([]); });
     fetch("/api/persons")
       .then((r) => r.json())
       .then((d) => setPersons(Array.isArray(d?.persons) ? d.persons : Array.isArray(d) ? d : []))
@@ -472,7 +477,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       const resData = await res.json();
       if (!res.ok) throw new Error(resData.error || "Failed to create ingredient");
 
-      setIngredients((prev) => [...prev, resData]);
+      setIngredients((prev) => { const next = [...prev, resData]; clientCache.set("/api/ingredients", next); return next; });
       updateRow(rowId, { ingredientId: resData.id, unit: resData.defaultUnit || "g" });
       setSearchText({ ...searchText, [rowId]: "" });
       setShowDropdown({ ...showDropdown, [rowId]: false });
@@ -524,7 +529,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       const grams = convertToGrams(row.quantity || 0, row.unit || ingredient.defaultUnit || "g", density, ingredient);
       const iv = ingredient.nutrientValues.find((v) => v.nutrient.id === nutrientId);
       if (!iv || !iv.value) continue;
-      const contrib = (iv.value * grams) / 100.0 / (servings || 1);
+      const contrib = (iv.value * grams) / USDA_BASE_GRAMS / (servings || 1);
       if (contrib > 0.001) results.push({ name: ingredient.name, value: contrib, pct: 0 });
     }
     const total = results.reduce((sum, r) => sum + r.value, 0);
@@ -545,7 +550,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       for (const iv of ingredient.nutrientValues) {
         const nid = iv.nutrient.id;
         const per100 = iv.value || 0;
-        const contrib = (per100 * grams) / 100.0;
+        const contrib = (per100 * grams) / USDA_BASE_GRAMS;
         totals[nid] = (totals[nid] || 0) + contrib;
       }
     }
@@ -1087,6 +1092,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             .then((r) => r.json())
             .then((d) => {
               const fresh = Array.isArray(d) ? d : [];
+              clientCache.set("/api/ingredients", fresh);
               setIngredients(fresh);
               if (savedIngredientId && sourceNameGuess) {
                 const saved = fresh.find((i) => i.id === savedIngredientId);

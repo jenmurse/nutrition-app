@@ -2,13 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
-
-type Nutrient = {
-  id: number;
-  name: string;
-  displayName: string;
-  unit: string;
-};
+import { clientCache } from "@/lib/clientCache";
+import type { Nutrient } from "@/types";
 
 type USDAResult = {
   fdcId: string;
@@ -50,10 +45,12 @@ export default function CreateIngredientModal({
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const cached = clientCache.get<Nutrient[]>("/api/nutrients");
+    if (cached) setNutrients(cached);
     fetch("/api/nutrients")
       .then((r) => r.json())
-      .then((d) => setNutrients(Array.isArray(d) ? d : []))
-      .catch((e) => console.error(e));
+      .then((d) => { const list = Array.isArray(d) ? d : []; clientCache.set("/api/nutrients", list); setNutrients(list); })
+      .catch((e) => { console.error(e); if (!cached) setNutrients([]); });
   }, []);
 
   // Focus name field when confirm step appears
@@ -170,6 +167,7 @@ export default function CreateIngredientModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.details || data.error || "Save failed");
+      clientCache.invalidate("/api/ingredients");
       onNutritionAdded?.();
       onClose();
     } catch (error) {
@@ -194,7 +192,7 @@ export default function CreateIngredientModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nutrientValues: updates }),
       });
-      if (res.ok) { onNutritionAdded?.(); onClose(); }
+      if (res.ok) { clientCache.invalidate("/api/ingredients"); onNutritionAdded?.(); onClose(); }
     } catch { toast.error("Failed to update ingredient"); }
   };
 

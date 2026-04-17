@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../lib/db';
-import { getAuthenticatedHousehold } from '@/lib/auth';
+import { withAuth } from '@/lib/apiUtils';
 
-export async function GET(request: NextRequest) {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const GET = withAuth(async (auth, request: NextRequest) => {
   const { searchParams } = new URL(request.url);
   const personIdParam = searchParams.get('personId');
   const personId = personIdParam ? parseInt(personIdParam, 10) : undefined;
@@ -77,4 +74,4 @@ export async function GET(request: NextRequest) {
     weekSummary,
     currentWeekPlanId: currentWeekPlan?.id ?? null,
   });
-}
+});

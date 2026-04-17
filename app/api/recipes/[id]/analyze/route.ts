@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 
 /**
  * POST /api/recipes/[id]/analyze
@@ -201,14 +201,10 @@ function parseJsonResponse(text: string): object {
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+type Ctx = { params: Promise<{ id: string }> };
 
+export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx) => {
+  try {
     const { id } = await params;
     const recipeId = parseInt(id);
     if (isNaN(recipeId)) {
@@ -310,4 +306,4 @@ export async function POST(
       { status: 500 }
     );
   }
-}
+});

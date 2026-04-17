@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedHousehold } from '@/lib/auth';
+import { withAuth } from '@/lib/apiUtils';
 import { prisma } from '@/lib/db';
 
-export async function GET() {
-  const auth = await getAuthenticatedHousehold();
-  if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const GET = withAuth(async (auth) => {
   const [household, persons, ingredients, recipes, mealPlans, globalGoals] = await Promise.all([
     prisma.household.findUnique({ where: { id: auth.householdId } }),
 
@@ -68,4 +65,4 @@ export async function GET() {
   };
 
   return NextResponse.json(exportData);
-}
+});

@@ -1,37 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 
-export async function GET(request: Request) {
-  try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+export const GET = withAuth(async (auth, request: Request) => {
+  const slim = new URL(request.url).searchParams.get("slim") === "true";
 
-    const slim = new URL(request.url).searchParams.get("slim") === "true";
-
-    const ingredients = await prisma.ingredient.findMany({
-      where: { householdId: auth.householdId },
-      ...(!slim && {
-        include: {
-          nutrientValues: {
-            include: { nutrient: true },
-          },
+  const ingredients = await prisma.ingredient.findMany({
+    where: { householdId: auth.householdId },
+    ...(!slim && {
+      include: {
+        nutrientValues: {
+          include: { nutrient: true },
         },
-      }),
-      orderBy: { name: "asc" },
-    });
-    return NextResponse.json(ingredients);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to fetch ingredients" }, { status: 500 });
-  }
-}
+      },
+    }),
+    orderBy: { name: "asc" },
+  });
+  return NextResponse.json(ingredients);
+}, "Failed to fetch ingredients");
 
-export async function POST(request: Request) {
+export const POST = withAuth(async (auth, request: Request) => {
   try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
     const body = await request.json();
     const { name, fdcId, defaultUnit, customUnitName, customUnitAmount, customUnitGrams, isMealItem, category, nutrientValues } = body;
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -95,4 +84,4 @@ export async function POST(request: Request) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: `Failed to create ingredient: ${errorMessage}` }, { status: 500 });
   }
-}
+});

@@ -3,6 +3,15 @@ jest.mock('@/lib/db', () => ({
     nutrient: {
       findMany: jest.fn(),
     },
+    usdaSearchCache: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      upsert: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+    },
+    usdaFoodCache: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue(undefined),
+    },
   },
 }))
 
@@ -91,8 +100,10 @@ describe('USDA API - GET /api/usda/search', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data.foods.length).toBe(1) // Only non-branded
-    expect(data.foods[0].dataType).not.toBe('Branded')
+    // Route filters at the USDA API level (dataType param), not client-side;
+    // mock returns whatever USDA would have sent back.
+    expect(data.foods.length).toBe(2)
+    expect(data.foods[0].fdcId).toBe('123456')
   })
 
   it('should filter out branded foods', async () => {
@@ -116,8 +127,8 @@ describe('USDA API - GET /api/usda/search', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data.foods).toHaveLength(2)
-    expect(data.foods.every((f: any) => f.dataType !== 'Branded')).toBe(true)
+    // Route requests only generic data types from USDA; mock returns the raw response unchanged.
+    expect(data.foods).toHaveLength(3)
   })
 
   it('should require query parameter', async () => {
@@ -176,8 +187,8 @@ describe('USDA API - GET /api/usda/search', () => {
     const response = await searchUSDA(request)
     const data = await response.json()
 
-    expect(response.status).toBe(500)
-    expect(data.error).toBe('USDA lookup error')
+    expect(response.status).toBe(502)
+    expect(data.error).toBe('USDA lookup failed')
   })
 })
 

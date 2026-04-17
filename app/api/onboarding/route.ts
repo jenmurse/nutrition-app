@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 
 /**
  * GET /api/onboarding — Returns getting-started checklist status.
  * Single call to check all first-use milestones.
  */
-export async function GET() {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth)
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const GET = withAuth(async (auth) => {
   const [recipeCount, ingredientCount, mealPlanCount, goalsCount, mcpKey] =
     await Promise.all([
       prisma.recipe.count({ where: { householdId: auth.householdId } }),
@@ -32,4 +28,4 @@ export async function GET() {
     hasMealPlan: mealPlanCount > 0,
     hasMcp: !!(mcpKey?.value),
   });
-}
+});

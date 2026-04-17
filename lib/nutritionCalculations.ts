@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import { USDA_BASE_GRAMS } from './constants';
 
 export interface NutrientValue {
   nutrientId: number;
@@ -60,7 +61,7 @@ function _computeRecipeNutritionFromData(
   for (const ri of recipe.ingredients) {
     const grams = ri.conversionGrams || 0;
     for (const nv of ri.ingredient.nutrientValues) {
-      totalNutrients[nv.nutrientId] = (totalNutrients[nv.nutrientId] || 0) + (nv.value / 100) * grams;
+      totalNutrients[nv.nutrientId] = (totalNutrients[nv.nutrientId] || 0) + (nv.value / USDA_BASE_GRAMS) * grams;
     }
   }
 
@@ -99,7 +100,7 @@ function _computeIngredientNutrition(
   }
   const totals: Record<number, number> = {};
   for (const nv of ingredient.nutrientValues) {
-    totals[nv.nutrientId] = (nv.value / 100) * grams;
+    totals[nv.nutrientId] = (nv.value / USDA_BASE_GRAMS) * grams;
   }
   return totals;
 }
@@ -490,4 +491,51 @@ export async function getRecipesWithNutrition() {
       nutrition: nutrition.totalNutrients,
     };
   });
+}
+
+// ─── Lightweight per-serving totals ──────────────────────────────────────────
+// Works with the already-joined Prisma shape used by the recipes API routes
+// (ingredient.nutrientValues includes the full nutrient row).
+// Returns one entry per distinct nutrient, value already divided by servingSize.
+
+export interface RecipeServingTotal {
+  nutrientId: number;
+  displayName: string;
+  value: number;
+  unit: string;
+}
+
+type JoinedIngredient = {
+  conversionGrams: number | null;
+  ingredient?: {
+    nutrientValues: {
+      value: number;
+      nutrient: { id: number; displayName: string; unit: string };
+    }[];
+  } | null;
+};
+
+export function computeRecipeServingTotals(
+  ingredients: JoinedIngredient[],
+  servingSize: number | null
+): RecipeServingTotal[] {
+  const totals: Record<number, RecipeServingTotal> = {};
+
+  for (const ri of ingredients) {
+    if (!ri.ingredient) continue;
+    const grams = ri.conversionGrams ?? 0;
+    for (const iv of ri.ingredient.nutrientValues) {
+      const nid = iv.nutrient.id;
+      const contribution = (iv.value * grams) / USDA_BASE_GRAMS;
+      if (!totals[nid]) {
+        totals[nid] = { nutrientId: nid, displayName: iv.nutrient.displayName, value: 0, unit: iv.nutrient.unit };
+      }
+      totals[nid].value += contribution;
+    }
+  }
+
+  const size = servingSize || 1;
+  for (const nid in totals) totals[nid].value /= size;
+
+  return Object.values(totals);
 }

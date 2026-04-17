@@ -22,6 +22,10 @@ jest.mock('@/lib/db', () => ({
       createMany: jest.fn(),
       deleteMany: jest.fn(),
     },
+    recipeFavorite: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
   },
 }))
 
@@ -71,35 +75,104 @@ describe('Recipes API - GET /api/recipes', () => {
     ]
 
     ;(prisma.recipe.findMany as jest.Mock).mockResolvedValue(mockRecipes)
+    ;(prisma.recipeFavorite.findMany as jest.Mock).mockResolvedValue([])
 
-    const response = await getRecipes()
+    const response = await getRecipes(new Request('http://localhost:3000/api/recipes'))
     const data = await response.json()
 
     expect(response.status).toBe(200)
     expect(data).toHaveLength(1)
     expect(data[0].id).toBe(1)
     expect(data[0].name).toBe('Chicken Stir Fry')
-    expect(prisma.recipe.findMany).toHaveBeenCalledWith({
-      where: { householdId: 1 },
-      include: {
-        ingredients: {
-          include: {
-            ingredient: { select: { id: true, name: true } },
-          },
-        },
-      },
-      orderBy: { name: 'asc' },
-    })
+    expect(data[0].isFavorited).toBe(false)
+    expect(prisma.recipe.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { householdId: 1 }, orderBy: { name: 'asc' } })
+    )
   })
 
   it('should return empty array when no recipes exist', async () => {
     ;(prisma.recipe.findMany as jest.Mock).mockResolvedValue([])
+    ;(prisma.recipeFavorite.findMany as jest.Mock).mockResolvedValue([])
 
-    const response = await getRecipes()
+    const response = await getRecipes(new Request('http://localhost:3000/api/recipes'))
     const data = await response.json()
 
     expect(response.status).toBe(200)
     expect(data).toEqual([])
+  })
+
+  it('should mark favorited recipes correctly', async () => {
+    const mockRecipes = [
+      {
+        id: 1,
+        name: 'Favorited Recipe',
+        servingSize: 1,
+        servingUnit: 'serving',
+        instructions: '',
+        sourceApp: null,
+        isComplete: true,
+        ingredients: [],
+      },
+      {
+        id: 2,
+        name: 'Unfavorited Recipe',
+        servingSize: 1,
+        servingUnit: 'serving',
+        instructions: '',
+        sourceApp: null,
+        isComplete: true,
+        ingredients: [],
+      },
+    ]
+
+    ;(prisma.recipe.findMany as jest.Mock).mockResolvedValue(mockRecipes)
+    ;(prisma.recipeFavorite.findMany as jest.Mock).mockResolvedValue([{ recipeId: 1 }])
+
+    const response = await getRecipes(new Request('http://localhost:3000/api/recipes'))
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data[0].isFavorited).toBe(true)
+    expect(data[1].isFavorited).toBe(false)
+  })
+
+  it('should compute per-serving nutrient totals', async () => {
+    const mockRecipes = [
+      {
+        id: 1,
+        name: 'Protein Bowl',
+        servingSize: 2,
+        servingUnit: 'servings',
+        instructions: '',
+        sourceApp: null,
+        isComplete: true,
+        ingredients: [
+          {
+            conversionGrams: 100,
+            ingredient: {
+              nutrientValues: [
+                {
+                  value: 31.0, // per 100g
+                  nutrient: { id: 203, displayName: 'Protein', unit: 'g' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ]
+
+    ;(prisma.recipe.findMany as jest.Mock).mockResolvedValue(mockRecipes)
+    ;(prisma.recipeFavorite.findMany as jest.Mock).mockResolvedValue([])
+
+    const response = await getRecipes(new Request('http://localhost:3000/api/recipes'))
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    // 31 * 100 / 100 = 31g total, / 2 servings = 15.5 per serving
+    const proteinTotal = data[0].totals.find((t: { nutrientId: number }) => t.nutrientId === 203)
+    expect(proteinTotal).toBeDefined()
+    expect(proteinTotal.value).toBe(15.5)
   })
 })
 

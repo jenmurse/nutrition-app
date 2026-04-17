@@ -56,26 +56,20 @@ describe('Ingredients API - GET /api/ingredients', () => {
 
     ;(prisma.ingredient.findMany as jest.Mock).mockResolvedValue(mockIngredients)
 
-    const response = await getIngredients()
+    const response = await getIngredients(new Request('http://localhost:3000/api/ingredients'))
     const data = await response.json()
 
     expect(response.status).toBe(200)
     expect(data).toEqual(mockIngredients)
-    expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
-      where: { householdId: 1 },
-      include: {
-        nutrientValues: {
-          include: { nutrient: true },
-        },
-      },
-      orderBy: { name: 'asc' },
-    })
+    expect(prisma.ingredient.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { householdId: 1 }, orderBy: { name: 'asc' } })
+    )
   })
 
   it('should return empty array when no ingredients exist', async () => {
     ;(prisma.ingredient.findMany as jest.Mock).mockResolvedValue([])
 
-    const response = await getIngredients()
+    const response = await getIngredients(new Request('http://localhost:3000/api/ingredients'))
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -85,7 +79,7 @@ describe('Ingredients API - GET /api/ingredients', () => {
   it('should handle database errors', async () => {
     ;(prisma.ingredient.findMany as jest.Mock).mockRejectedValue(new Error('DB Error'))
 
-    const response = await getIngredients()
+    const response = await getIngredients(new Request('http://localhost:3000/api/ingredients'))
     const data = await response.json()
 
     expect(response.status).toBe(500)

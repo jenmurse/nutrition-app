@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 import { themeHex } from "@/lib/themes";
 
-export async function GET() {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const GET = withAuth(async (auth) => {
   const persons = await prisma.person.findMany({
     where: { householdMembers: { some: { householdId: auth.householdId } } },
     orderBy: { id: "asc" },
@@ -18,12 +15,9 @@ export async function GET() {
     currentPersonId: auth.personId,
     onboardingComplete: currentPerson?.onboardingComplete ?? true,
   });
-}
+});
 
-export async function POST(request: Request) {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const POST = withAuth(async (auth, request: Request) => {
   const { name, theme } = await request.json();
   if (!name?.trim()) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -43,4 +37,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(person, { status: 201 });
-}
+});

@@ -48,7 +48,7 @@ describe('Pestle Import API - POST /api/recipes/import/pestle', () => {
     expect(data.name).toBe('Pasta Carbonara')
     expect(data.servingSize).toBe(4)
     expect(data.servingUnit).toBe('servings')
-    expect(data.sourceApp).toBe('Pestle')
+    expect(data.sourceApp).toBe('Markdown Import')
     expect(data.ingredients).toHaveLength(3)
   })
 

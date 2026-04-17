@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getMcpAuth } from '@/lib/mcp-auth';
 import { prisma } from '@/lib/db';
+import { USDA_BASE_GRAMS } from '@/lib/constants';
 
 /** GET — return full recipe detail including ingredients and nutrition */
 export async function GET(
@@ -60,7 +61,7 @@ export async function GET(
     const nutrition = ri.ingredient.nutrientValues.map((nv) => ({
       nutrient: nv.nutrient.displayName,
       unit: nv.nutrient.unit,
-      total: parseFloat(((nv.value * grams) / 100).toFixed(2)),
+      total: parseFloat(((nv.value * grams) / USDA_BASE_GRAMS).toFixed(2)),
       per100g: nv.value,
     }));
     return {

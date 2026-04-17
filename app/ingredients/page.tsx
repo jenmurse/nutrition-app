@@ -6,6 +6,7 @@ import { clientCache } from "@/lib/clientCache";
 import { toast } from "@/lib/toast";
 import { PantryEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
 import { dialog } from "@/lib/dialog";
+import type { Nutrient } from "@/types";
 
 type NutrientValue = {
   id: number;
@@ -24,13 +25,6 @@ type Ingredient = {
   isMealItem?: boolean;
   category?: string;
   nutrientValues: NutrientValue[];
-};
-
-type Nutrient = {
-  id: number;
-  name: string;
-  displayName: string;
-  unit: string;
 };
 
 const VOLUME_TO_ML: Record<string, number> = {

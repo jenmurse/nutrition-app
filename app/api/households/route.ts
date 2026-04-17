@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getAuthenticatedHousehold } from "@/lib/auth";
+import { withAuth } from "@/lib/apiUtils";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -51,22 +51,14 @@ export async function GET() {
 /**
  * PATCH /api/households — rename the active household
  */
-export async function PATCH(request: Request) {
-  try {
-    const auth = await getAuthenticatedHousehold();
-    if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+export const PATCH = withAuth(async (auth, request: Request) => {
+  const { name } = await request.json();
+  if (!name?.trim()) return NextResponse.json({ error: "Name required" }, { status: 400 });
 
-    const { name } = await request.json();
-    if (!name?.trim()) return NextResponse.json({ error: "Name required" }, { status: 400 });
+  const household = await prisma.household.update({
+    where: { id: auth.householdId },
+    data: { name: name.trim() },
+  });
 
-    const household = await prisma.household.update({
-      where: { id: auth.householdId },
-      data: { name: name.trim() },
-    });
-
-    return NextResponse.json({ id: household.id, name: household.name });
-  } catch (error) {
-    console.error("Error renaming household:", error);
-    return NextResponse.json({ error: "Failed to rename household" }, { status: 500 });
-  }
-}
+  return NextResponse.json({ id: household.id, name: household.name });
+}, "Failed to rename household");

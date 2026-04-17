@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { getAuthenticatedHousehold } from '@/lib/auth';
+import { withAuth } from '@/lib/apiUtils';
 import { prisma } from '@/lib/db';
 
 const SYSTEM_PROMPTS: Record<string, string> = {
@@ -22,10 +22,7 @@ Format your response in markdown with clear sections.`,
   'scale-recipe': `You are a cooking advisor. Given a recipe and a target scale factor, adjust all ingredient quantities. Flag any ingredients that don't scale linearly (spices, leavening agents, salt). Provide the adjusted ingredient list and any cooking time/temperature notes. Format your response in markdown.`,
 };
 
-export async function POST(request: NextRequest) {
-  const auth = await getAuthenticatedHousehold();
-  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const POST = withAuth(async (auth, request: NextRequest) => {
   const [keyRow, providerRow] = await Promise.all([
     prisma.systemSetting.findFirst({ where: { key: 'anthropicApiKey', householdId: auth.householdId } }),
     prisma.systemSetting.findFirst({ where: { key: 'aiProvider', householdId: auth.householdId } }),
@@ -131,4 +128,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

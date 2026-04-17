@@ -2,18 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { clientCache } from "@/lib/clientCache";
+import { USDA_BASE_GRAMS } from "@/lib/constants";
+import type { Goal } from "@/types";
 
 type NutrientValue = {
   id: number;
   value: number;
   nutrient: { id: number; name: string; displayName: string; unit: string };
-};
-
-type Goal = {
-  nutrientId: number;
-  lowGoal?: number | null;
-  highGoal?: number | null;
-  nutrient: { displayName: string; unit: string };
 };
 
 interface IngredientContextPanelProps {
@@ -127,7 +122,7 @@ export default function IngredientContextPanel({
         {goals.map((goal) => {
           const nv = nutrientValues.find((n) => n.nutrient.id === goal.nutrientId);
           const valuePer100g = nv?.value || 0;
-          const value = (valuePer100g / 100) * gramsPerServing;
+          const value = (valuePer100g / USDA_BASE_GRAMS) * gramsPerServing;
           const target = goal.highGoal || goal.lowGoal || 0;
           const pct = target > 0 ? Math.round((value / target) * 100) : 0;
           const isOver = pct > 100;

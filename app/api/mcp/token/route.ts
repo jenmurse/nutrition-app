@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedHousehold } from '@/lib/auth';
+import { withAuth } from '@/lib/apiUtils';
 import { prisma } from '@/lib/db';
 import { randomBytes } from 'crypto';
 
@@ -9,22 +9,16 @@ function tokenKey(personId: number) {
 }
 
 /** GET — returns whether a token exists for the current person (never exposes the raw value) */
-export async function GET() {
-  const auth = await getAuthenticatedHousehold();
-  if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const GET = withAuth(async (auth) => {
   const setting = await prisma.systemSetting.findFirst({
     where: { key: tokenKey(auth.personId), householdId: auth.householdId },
   });
 
   return NextResponse.json({ hasToken: !!setting });
-}
+});
 
 /** POST — generates a new token for the current person, returns it once */
-export async function POST() {
-  const auth = await getAuthenticatedHousehold();
-  if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const POST = withAuth(async (auth) => {
   const token = `gm_${randomBytes(24).toString('hex')}`;
   const key = tokenKey(auth.personId);
 
@@ -35,16 +29,13 @@ export async function POST() {
   });
 
   return NextResponse.json({ token });
-}
+});
 
 /** DELETE — revokes the current person's token */
-export async function DELETE() {
-  const auth = await getAuthenticatedHousehold();
-  if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
+export const DELETE = withAuth(async (auth) => {
   await prisma.systemSetting.deleteMany({
     where: { key: tokenKey(auth.personId), householdId: auth.householdId },
   });
 
   return NextResponse.json({ success: true });
-}
+});

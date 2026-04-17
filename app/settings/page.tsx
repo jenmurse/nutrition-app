@@ -7,14 +7,9 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
 import { THEMES } from '@/lib/themes';
+import type { Nutrient as BaseNutrient } from '@/types';
 
-interface Nutrient {
-  id: number;
-  name: string;
-  displayName: string;
-  unit: string;
-  orderIndex: number;
-}
+type Nutrient = BaseNutrient & { orderIndex: number };
 
 interface DashboardStats {
   enabledStats: string[];

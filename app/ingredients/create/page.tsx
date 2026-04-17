@@ -5,15 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/lib/toast";
 import { clientCache } from "@/lib/clientCache";
 import ContextualTip from "../../components/ContextualTip";
-
-/* ── Types ── */
-
-type Nutrient = {
-  id: number;
-  name: string;
-  displayName: string;
-  unit: string;
-};
+import type { Nutrient } from "@/types";
 
 /* ── Utilities ── */
 
