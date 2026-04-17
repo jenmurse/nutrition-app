@@ -14,7 +14,7 @@ import CustomCursor from "./components/CustomCursor";
 import { PersonProvider } from "./components/PersonContext";
 
 const dmSans = DM_Sans({
-  weight: ['300', '400', '500', '600'],
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ["latin"],
   variable: '--font-sans',
 });

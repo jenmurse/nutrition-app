@@ -320,17 +320,16 @@ function PantryScreen() {
           <div key={c.name} style={{
             borderRight: (idx % 4) < 3 ? "1px solid var(--rule)" : "none",
             borderBottom: "1px solid var(--rule)",
-            padding: "14px 16px",
+            padding: "12px 14px",
           }}>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>{c.cat}</div>
-            <div style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 2 }}>{c.name}</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 9, color: "var(--muted)", marginBottom: 8 }}>{c.unit}</div>
-            <div style={{ fontFamily: "var(--display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1 }}>{c.cal}</div>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", marginBottom: 6 }}>Calories</div>
-            {([["Fat", c.fat], ["Sat Fat", c.satfat], ["Sodium", c.sodium], ["Carbs", c.carbs], ["Sugar", c.sugar], ["Protein", c.protein], ["Fiber", c.fiber]] as [string, string][]).map(([l, v]) => (
-              <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "2.5px 0", borderTop: "1px solid var(--rule)" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)" }}>{l}</span>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{v}</span>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 6.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(26,25,22,0.45)", marginBottom: 3 }}>{c.cat}</div>
+            <div style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#1A1916", marginBottom: 3 }}>{c.name}</div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "rgba(26,25,22,0.45)", marginBottom: 8, letterSpacing: "0.01em" }}>{c.unit}</div>
+            <div style={{ height: 1, background: "rgba(26,25,22,0.1)", marginBottom: 6 }} />
+            {([["Calories", c.cal], ["Fat", c.fat], ["Saturated Fat", c.satfat], ["Sodium", c.sodium], ["Carbs", c.carbs], ["Sugar", c.sugar], ["Protein", c.protein], ["Fiber", c.fiber]] as [string, string][]).map(([l, v]) => (
+              <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "2.5px 0", borderBottom: "1px solid rgba(26,25,22,0.08)" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(26,25,22,0.45)" }}>{l}</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#1A1916", fontVariantNumeric: "tabular-nums" }}>{v}</span>
               </div>
             ))}
           </div>
@@ -525,127 +524,80 @@ function RecipeDetailScreen({ isActive }: { isActive?: boolean }) {
    Screen 3 — Optimize  (Black Bean Chili, 04 Optimize active)
    Left sidebar nav · optimization notes + table · meal prep table
    ───────────────────────────────────────────────────────────── */
-function AIOptimizeScreen({ isActive }: { isActive?: boolean }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const mealPrepRef = useRef<HTMLDivElement>(null);
-
-  // Looping scroll animation
-  useLoopScroll(scrollRef, 300, { downMs: 2200, pauseDownMs: 1800, upMs: 1400, pauseUpMs: 1000, startDelayMs: 800 }, isActive);
-
-  const compTable = [
-    { ing: "Olive oil",     orig: "1 tbsp",  opt: "½ tbsp",           kcal: "−60", prot: "—",   fat: "−7g",  carb: "—",   fiber: "—"   },
-    { ing: "Regular beans", orig: "800g",    opt: "Low-sodium beans",  kcal: "—",   prot: "—",   fat: "—",    carb: "—",   fiber: "—"   },
-    { ing: "No topping",    orig: "—",       opt: "+ Greek yogurt",    kcal: "+17", prot: "+3g", fat: "—",    carb: "+1g", fiber: "—"   },
+function AIOptimizeScreen() {
+  const messages = [
+    { role: "user", text: "Optimize Black Bean Chili for higher protein and lower fat." },
+    { role: "tool", name: "get_recipe", args: 'id: "black-bean-chili"', done: true },
+    { role: "tool", name: "search_ingredients", args: 'query: "high protein swap olive oil"', done: true },
+    { role: "assistant", text: "I found 3 optimizations for your Black Bean Chili:", swaps: [
+      { from: "1 tbsp olive oil", to: "½ tbsp", delta: "−60 kcal, −7g fat" },
+      { from: "Regular beans", to: "Low-sodium beans", delta: "−180mg sodium" },
+      { from: "No topping", to: "+ Greek yogurt", delta: "+17 kcal, +3g protein" },
+    ]},
+    { role: "tool", name: "save_optimization_notes", args: 'recipe_id: "black-bean-chili"', done: true },
+    { role: "assistant", text: "Changes saved to Good Measure. Your recipe is updated." },
   ];
-  const batchTable = [
-    { item: "Chili base",    batch: "Sunday", store: "5 days / 3 mo frozen", note: "Portion into 4 containers for grab-and-go" },
-    { item: "Toppings",      batch: "Day-of", store: "1 day",                note: "Slice avocado fresh; cilantro wilts quickly" },
-    { item: "Lime juice",    batch: "Sunday", store: "Add after reheat",     note: "Keeps flavors bright on reheating" },
-  ];
+
+  const BG = "#1C1C1E";
+  const SURFACE = "#2C2C2E";
+  const BORDER = "rgba(255,255,255,0.08)";
+  const MUTED = "rgba(255,255,255,0.4)";
+  const TEXT = "rgba(255,255,255,0.88)";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      <MiniNav active="Recipes" />
-
-      {/* Body: floating sidebar + scrollable content */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-
-        {/* Left sidebar — inline number + label, compact */}
-        <div style={{ width: 96, flexShrink: 0, padding: "14px 0 0", display: "flex", flexDirection: "column" }}>
-          {CHILI_SECTIONS.map((s, i) => (
-            <div key={s.l} style={{
-              padding: "6px 14px 6px 16px",
-              display: "flex", alignItems: "center", gap: 7,
-              fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.07em",
-              color: "var(--muted)",
-              borderBottom: i < CHILI_SECTIONS.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
-            }}>
-              <span style={{ color: "rgba(0,0,0,0.25)", fontFamily: "var(--mono)", fontSize: 7.5, fontWeight: 700, flexShrink: 0 }}>{s.n}</span>
-              {s.l}
-            </div>
-          ))}
-        </div>
-
-        {/* Scrollable content */}
-        <div ref={scrollRef} style={{ flex: 1, overflowY: "scroll", scrollbarWidth: "none", paddingLeft: 28, paddingRight: 28, position: "relative" }}>
-
-          {/* Hero: title left + image right — image aligns with nutrition column */}
-          <div style={{ display: "flex", alignItems: "stretch" }}>
-            <div style={{ flex: 1, padding: "20px 12px 12px 0" }}>
-              <div style={{ display: "flex", gap: 4, marginBottom: 6, flexWrap: "wrap" }}>
-                {["Dinner"].map(tag => (
-                  <span key={tag} style={{
-                    fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.1em",
-                    padding: "2px 8px", background: "var(--bg-2)", color: "var(--muted)", borderRadius: 9999,
-                  }}>{tag}</span>
-                ))}
-              </div>
-              <div style={{ fontFamily: "var(--display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, color: "var(--fg)", marginBottom: 4 }}>
-                Black Bean Chili
-              </div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.09em", color: "var(--muted)" }}>
-                4 servings · 20 min prep · 35 min cook
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: BG, overflow: "hidden" }}>
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: "scroll", scrollbarWidth: "none", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+        {messages.map((m, i) => {
+          if (m.role === "user") return (
+            <div key={i} style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ background: "#3A3A3C", borderRadius: "12px 12px 3px 12px", padding: "7px 11px", maxWidth: "80%", fontFamily: "var(--sans)", fontSize: 10, color: TEXT, lineHeight: 1.5 }}>
+                {m.text}
               </div>
             </div>
-            <div style={{ flex: 1, padding: "20px 0 10px 24px", display: "flex", alignItems: "flex-start" }}>
-              <img src="/chili.png" alt="Black Bean Chili" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", borderRadius: 0, display: "block" }} />
+          );
+          if (m.role === "tool") return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 10px", background: SURFACE, borderRadius: 6, border: `1px solid ${BORDER}` }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: m.done ? BRAND_SAGE : MUTED, flexShrink: 0 }} />
+              <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: TEXT, letterSpacing: "0.01em" }}>{m.name}</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: MUTED, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.args}</span>
+              {m.done && <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: BRAND_SAGE, flexShrink: 0 }}>done</span>}
             </div>
-          </div>
-          {/* 04 Optimization */}
-          <div style={{ padding: "12px 0 16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "var(--muted)", flexShrink: 0 }}>04</span>
-              <span style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)", flexShrink: 0 }}>Optimize</span>
-              <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.09)" }} />
-            </div>
-            <div style={{ fontSize: 10, lineHeight: 1.65, color: "var(--fg-2)", marginBottom: 10 }}>
-              Already well-balanced — high fiber, plant protein, complex carbs. Three small swaps reduce fat and sodium while adding protein:
-            </div>
-            {/* Comparison table */}
-            <div style={{ overflow: "hidden", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.8fr 1.2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr", borderBottom: "1px solid var(--rule)" }}>
-                {["Ingredient", "Original", "Optimized", "Kcal", "Prot", "Fat", "Carb", "Fiber"].map(h => (
-                  <div key={h} style={{ fontFamily: "var(--mono)", fontSize: 6, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--muted)", padding: "4px 5px" }}>{h}</div>
-                ))}
+          );
+          if (m.role === "assistant") return (
+            <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: SURFACE, border: `1px solid ${BORDER}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 9 }}>✦</span>
               </div>
-              {compTable.map((row, i) => (
-                <div key={row.ing} style={{ display: "grid", gridTemplateColumns: "1.1fr 0.8fr 1.2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr", borderBottom: i < compTable.length - 1 ? "1px solid var(--rule)" : "none" }}>
-                  <div style={{ fontSize: 9, color: "var(--fg)", padding: "5px 5px", lineHeight: 1.3 }}>{row.ing}</div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: "var(--muted)", padding: "5px 5px", textDecoration: row.orig !== "—" ? "line-through" : "none" }}>{row.orig}</div>
-                  <div style={{ fontSize: 9, color: BRAND_SAGE, padding: "5px 5px", lineHeight: 1.3 }}>{row.opt}</div>
-                  {[row.kcal, row.prot, row.fat, row.carb, row.fiber].map((v, vi) => (
-                    <div key={vi} style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: v === "—" ? "var(--rule)" : v.startsWith("+") ? "#C45C3A" : BRAND_SAGE, padding: "5px 5px", fontVariantNumeric: "tabular-nums" }}>{v}</div>
-                  ))}
-                </div>
-              ))}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: TEXT, lineHeight: 1.55, marginBottom: m.swaps ? 6 : 0 }}>{m.text}</div>
+                {m.swaps && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {m.swaps.map((s, si) => (
+                      <div key={si} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "5px 8px" }}>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
+                          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: MUTED, textDecoration: "line-through" }}>{s.from}</span>
+                          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: MUTED }}>→</span>
+                          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: BRAND_SAGE }}>{s.to}</span>
+                          <span style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: MUTED, marginLeft: "auto" }}>{s.delta}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          );
+          return null;
+        })}
+      </div>
 
-          {/* 05 Meal Prep */}
-          <div ref={mealPrepRef} style={{ padding: "12px 0 20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "var(--muted)", flexShrink: 0 }}>05</span>
-              <span style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)", flexShrink: 0 }}>Meal Prep</span>
-              <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.09)" }} />
-            </div>
-            <div style={{ fontSize: 10, lineHeight: 1.65, color: "var(--fg-2)", marginBottom: 10 }}>
-              The chili improves overnight as flavors meld. Cook Sunday and portion into four containers — lunch or dinner is ready all week. Freeze half if making for fewer people.
-            </div>
-            <div style={{ overflow: "hidden", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "0.9fr 0.7fr 1fr 1.4fr", borderBottom: "1px solid var(--rule)" }}>
-                {["Component", "Batch", "Stores", "Notes"].map(h => (
-                  <div key={h} style={{ fontFamily: "var(--mono)", fontSize: 6, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--muted)", padding: "4px 6px" }}>{h}</div>
-                ))}
-              </div>
-              {batchTable.map((row, i) => (
-                <div key={row.item} style={{ display: "grid", gridTemplateColumns: "0.9fr 0.7fr 1fr 1.4fr", borderBottom: i < batchTable.length - 1 ? "1px solid var(--rule)" : "none" }}>
-                  <div style={{ fontSize: 9.5, color: "var(--fg)", padding: "6px 6px", lineHeight: 1.3 }}>{row.item}</div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: row.batch === "Day-of" ? MICHAEL_RED : BRAND_SAGE, padding: "6px 6px" }}>{row.batch}</div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 7.5, color: "var(--muted)", padding: "6px 6px", lineHeight: 1.35 }}>{row.store}</div>
-                  <div style={{ fontSize: 9, color: "var(--fg-2)", padding: "6px 6px", lineHeight: 1.4 }}>{row.note}</div>
-                </div>
-              ))}
-            </div>
+      {/* Input bar */}
+      <div style={{ padding: "8px 14px 10px", borderTop: `1px solid ${BORDER}`, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: SURFACE, borderRadius: 8, padding: "6px 10px", border: `1px solid ${BORDER}` }}>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 9.5, color: MUTED, flex: 1 }}>Ask about your recipes…</span>
+          <div style={{ width: 18, height: 18, borderRadius: "50%", background: BRAND_SAGE, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <span style={{ fontSize: 9, color: "white" }}>↑</span>
           </div>
         </div>
       </div>
@@ -958,7 +910,9 @@ function EveryoneScreen() {
                 </div>
               ))}
             </div>
-            <div style={{ margin: "0 16px", borderBottom: "1px solid var(--rule)" }} />
+            {ri < personRows.length - 1 && (
+              <div style={{ margin: "0 16px", borderBottom: "1px solid var(--rule)" }} />
+            )}
           </div>
         ))}
       </div>
@@ -1557,131 +1511,275 @@ function MobilePhoneDemo() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Screens index
+   AppFrame — reusable chrome wrapper for feature sections
    ───────────────────────────────────────────────────────────── */
-type ScreenProps = { isActive?: boolean };
-const SCREEN_COMPONENTS: Array<(props: ScreenProps) => React.ReactElement | null> = [
-  DashboardScreen,
-  PantryScreen,
-  RecipeDetailScreen,
-  AIOptimizeScreen,
-  PlannerScreen,
-  EveryoneScreen,
-];
+function AppFrame({ children, dark, className, label }: { children: React.ReactNode; dark?: boolean; className?: string; label?: string }) {
+  return (
+    <div className={`lp-cycle-app-frame lp-feat-frame${dark ? " lp-feat-frame--dark" : ""}${className ? " " + className : ""}`}>
+      <div className="lp-cycle-chrome">
+        <div className="lp-cycle-chrome-dots">
+          <span className="lp-cycle-chrome-dot lp-cycle-chrome-dot--red" />
+          <span className="lp-cycle-chrome-dot lp-cycle-chrome-dot--yellow" />
+          <span className="lp-cycle-chrome-dot lp-cycle-chrome-dot--green" />
+        </div>
+        {label && (
+          <span style={{ fontFamily: "var(--mono)", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(250,248,244,0.5)", position: "absolute", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
+            {label}
+          </span>
+        )}
+      </div>
+      <div className="lp-cycle-screen-wrap lp-feat-screen-wrap" aria-label="App screen demo">
+        <div className="lp-cycle-screen lp-cycle-screen--active">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ─────────────────────────────────────────────────────────────
-   Main export
+   Main export — scroll-snap multi-section layout
    ───────────────────────────────────────────────────────────── */
 export default function LandingScreenCycle() {
-  const [active, setActive] = useState(0);
+  const [activeSection, setActiveSection] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+
+  // IntersectionObserver — track which section is in view
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    sectionRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(i); },
+        { root: scrollRef.current, threshold: 0.5 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach(o => o.disconnect());
+  }, []);
+
+  const scrollToSection = (i: number) => {
+    const el = sectionRefs.current[i];
+    const container = scrollRef.current;
+    if (!el || !container) return;
+    container.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+  };
+
+  // Dark sections: S1, S3, S5 (indices 1, 3, 5)
+  const DARK_SECTIONS = new Set([1, 3, 5]);
 
   return (
-    <section className="lp-fs" aria-labelledby="lp-hero-headline">
+    <div className="lp-scroll" ref={scrollRef}>
 
-      {/* ── Left: brand + headline + subhead + CTA ── */}
-      <div className="lp-fs-left">
+      {/* ── Fixed header ── */}
+      <header className="lp-hdr" role="banner">
         <Link href="/" className="lp-split-brand" aria-label="Good Measure home">
           <BrandName />
         </Link>
-        <div className="lp-fs-mid">
-          <h1 id="lp-hero-headline" className="lp-headline">
-            Measure what matters.
-          </h1>
-          <p className="lp-subhead">
-            Know exactly what&apos;s in everything you cook.
-            Build and optimize recipes, track nutrition live,
-            and easily plan the week for your entire household.
-          </p>
-          <div className="lp-hero-ctas">
-            <Link href="/login?signup=1" className="lp-cta-btn">
-              Get Started →
-            </Link>
-            <Link href="/login" className="lp-nav-signin">Sign in</Link>
-          </div>
-        </div>
-        {/* Mobile only: phone demo */}
-        <div className="lp-mob-demo-wrap" aria-hidden="true">
-          <MobilePhoneDemo />
-        </div>
-        {/* Mobile only: feature list */}
-        <div className="lp-mob-features" aria-label="Features">
-          {MOB_FEATURES.map((f) => (
-            <div key={f.num} className="lp-mob-feature-item">
-              <div className="lp-mob-feature-title-row">
-                <span className="lp-mob-feature-num">{f.num}</span>
-                <span className="lp-mob-feature-label">{f.title}</span>
-              </div>
-              <p className="lp-mob-feature-desc">{f.sub}</p>
-            </div>
-          ))}
-        </div>
-        {/* Mobile only: legal */}
-        <div className="lp-mob-legal">
-          © 2026 Made by{" "}
-          <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer" className="lp-mob-legal-link">Jen Murse</a>
-        </div>
-      </div>
+        <Link href="/login?signup=1" className="lp-cta-btn lp-hdr-cta">
+          Get Started →
+        </Link>
+      </header>
 
-      {/* ── Right: app frame ── */}
-      <div className="lp-fs-right" aria-hidden="true">
-        <div className="lp-cycle-app-frame lp-fs-frame">
-          <div className="lp-cycle-chrome">
-            <div className="lp-cycle-chrome-dots">
-              <span className="lp-cycle-chrome-dot lp-cycle-chrome-dot--red" />
-              <span className="lp-cycle-chrome-dot lp-cycle-chrome-dot--yellow" />
-              <span className="lp-cycle-chrome-dot lp-cycle-chrome-dot--green" />
-            </div>
+      {/* ── Vertical dot nav ── */}
+      <nav className="lp-dots" aria-label="Section navigation">
+        {[0, 1, 2, 3, 4, 5].map(i => (
+          <button
+            key={i}
+            className={`lp-dot${activeSection === i ? " lp-dot--active" : ""}${DARK_SECTIONS.has(activeSection) ? " lp-dot--cream" : ""}`}
+            onClick={() => scrollToSection(i)}
+            aria-label={`Go to section ${i + 1}`}
+          />
+        ))}
+      </nav>
+
+      {/* ── S0: Hero ── */}
+      <section
+        className="lp-s lp-s-hero"
+        ref={el => { sectionRefs.current[0] = el; }}
+        aria-labelledby="lp-hero-headline"
+      >
+        <div className="lp-hero-inner">
+          <h1 id="lp-hero-headline" className="lp-s-headline">
+            Measure what<br /><span style={{ color: BRAND_SAGE }}>matters.</span>
+          </h1>
+          <p className="lp-s-subhead">
+            Know exactly what&apos;s in everything you cook. Build recipes, plan the week, and hit targets for every person in your household.
+          </p>
+          <div className="lp-hero-btns">
+            <Link href="/login?signup=1" className="lp-cta-btn lp-cta-btn--dark">
+              GET STARTED ↗
+            </Link>
+            <button
+              className="lp-outline-btn"
+              onClick={() => scrollToSection(1)}
+              aria-label="See how it works, scroll to first feature"
+            >
+              SEE HOW IT WORKS ↓
+            </button>
           </div>
-          <div className="lp-cycle-screen-wrap" aria-label="App screen demo">
-            {SCREEN_COMPONENTS.map((Screen, i) => (
-              <div
-                key={i}
-                className={`lp-cycle-screen${i === active ? " lp-cycle-screen--active" : ""}`}
-                aria-hidden={i !== active}
-              >
-                <Screen isActive={i === active} />
+          {/* Desktop app frame */}
+          <div className="lp-hero-frame" aria-hidden="true">
+            <AppFrame>
+              <DashboardScreen isActive={true} />
+            </AppFrame>
+          </div>
+          {/* Mobile: phone demo */}
+          <div className="lp-mob-demo-wrap" aria-hidden="true">
+            <MobilePhoneDemo />
+          </div>
+          {/* Mobile: feature list */}
+          <div className="lp-mob-features lp-s-mob-features" aria-label="Features">
+            {MOB_FEATURES.map((f) => (
+              <div key={f.num} className="lp-mob-feature-item lp-s-mob-feature-item">
+                <div className="lp-mob-feature-title-row">
+                  <span className="lp-mob-feature-num">{f.num}</span>
+                  <span className="lp-mob-feature-label">{f.title}</span>
+                </div>
+                <p className="lp-mob-feature-desc">{f.sub}</p>
               </div>
             ))}
           </div>
+          {/* Mobile: bottom padding */}
+          <div style={{ height: 40 }} />
         </div>
-      </div>
+      </section>
 
-      {/* ── Bottom: tabs + description ── */}
-      <div className="lp-fs-bottom">
-        <nav className="lp-fs-tabs" aria-label="Feature navigation">
-          {FEATURES.map((f, i) => (
-            <button
-              key={f.num}
-              className={`lp-fs-tab${i === active ? " lp-fs-tab--active" : ""}`}
-              onClick={() => setActive(i)}
-              aria-pressed={i === active}
-            >
-              <span className="lp-fs-tab-label">
-                <span className="lp-fs-tab-num">{f.num}</span>{TAB_LABELS[i]}
-              </span>
-            </button>
-          ))}
-        </nav>
-        <div className="lp-fs-desc-wrap" aria-live="polite">
-          {FEATURES.map((f, i) => (
-            <div
-              key={f.num}
-              className={`lp-fs-desc${i === active ? " lp-fs-desc--active" : ""}`}
-              aria-hidden={i !== active}
-            >
-              <span className="lp-fs-desc-title">{f.title}</span>
-              <span className="lp-fs-desc-sep" aria-hidden="true"> · </span>
-              <span className="lp-fs-desc-sub">{f.sub}</span>
+      {/* ── S1: Pantry (dark) ── */}
+      <section
+        className="lp-s lp-s-feat lp-s-dark"
+        ref={el => { sectionRefs.current[1] = el; }}
+        aria-label="Pantry feature"
+      >
+        <div className="lp-feat-grid lp-feat-grid--copy-left">
+          <div className="lp-feat-copy">
+            <p className="lp-feat-eyebrow">01 / PANTRY</p>
+            <h2 className="lp-feat-h2">Build your library.</h2>
+            <p className="lp-feat-body">
+              Every ingredient you cook with, stored exactly how you use it. USDA lookup, custom units, per-100g or per-serving. Your pantry powers every recipe&apos;s nutrition automatically.
+            </p>
+            <div className="lp-feat-tags" aria-label="Key features">
+              {["USDA LOOKUP", "CUSTOM UNITS", "156 ITEMS"].map(tag => (
+                <span key={tag} className="lp-feat-tag">{tag}</span>
+              ))}
             </div>
-          ))}
+          </div>
+          <div className="lp-feat-visual">
+            <AppFrame dark>
+              <PantryScreen />
+            </AppFrame>
+          </div>
         </div>
-        <div className="lp-fs-legal">
+      </section>
+
+      {/* ── S2: Recipes (light) ── */}
+      <section
+        className="lp-s lp-s-feat"
+        ref={el => { sectionRefs.current[2] = el; }}
+        aria-label="Recipes feature"
+      >
+        <div className="lp-feat-grid lp-feat-grid--copy-right">
+          <div className="lp-feat-visual">
+            <AppFrame>
+              <RecipeDetailScreen isActive={true} />
+            </AppFrame>
+          </div>
+          <div className="lp-feat-copy">
+            <p className="lp-feat-eyebrow">02 / RECIPES</p>
+            <h2 className="lp-feat-h2">Import or build from scratch.</h2>
+            <p className="lp-feat-body">
+              Paste a URL, upload a file, or add ingredients one by one. Nutrition totals calculate live. No guesswork, ever.
+            </p>
+            <div className="lp-feat-tags" aria-label="Key features">
+              {["URL IMPORT", "MANUAL ENTRY", "LIVE NUTRITION"].map(tag => (
+                <span key={tag} className="lp-feat-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── S3: AI Optimize (dark) ── */}
+      <section
+        className="lp-s lp-s-feat lp-s-dark lp-s-navy"
+        ref={el => { sectionRefs.current[3] = el; }}
+        aria-label="AI optimization feature"
+      >
+        <div className="lp-feat-grid lp-feat-grid--copy-left">
+          <div className="lp-feat-copy">
+            <p className="lp-feat-eyebrow">03 / OPTIMIZE</p>
+            <h2 className="lp-feat-h2">Your AI reads the recipe.</h2>
+            <p className="lp-feat-body">
+              Connect your AI agent via MCP. It reads your recipes, evaluates them against your goals, suggests targeted swaps, and saves changes back automatically.
+            </p>
+            <p className="lp-feat-body" style={{ marginTop: "1em" }}>
+              Batch meal prep. Optimize macros. Build weekly plans from scratch. The app is the data layer. Your AI does the reasoning.
+            </p>
+            <div className="lp-feat-tags" aria-label="Key features">
+              {["AI AGENT", "MCP PROTOCOL", "SAVES BACK AUTOMATICALLY"].map(tag => (
+                <span key={tag} className="lp-feat-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <div className="lp-feat-visual">
+            <AppFrame dark label="AI Agent">
+              <AIOptimizeScreen isActive={true} />
+            </AppFrame>
+          </div>
+        </div>
+      </section>
+
+      {/* ── S4: Planner (light) ── */}
+      <section
+        className="lp-s lp-s-feat"
+        ref={el => { sectionRefs.current[4] = el; }}
+        aria-label="Planner feature"
+      >
+        <div className="lp-feat-grid lp-feat-grid--copy-right">
+          <div className="lp-feat-visual">
+            <AppFrame>
+              <EveryoneScreen />
+            </AppFrame>
+          </div>
+          <div className="lp-feat-copy">
+            <p className="lp-feat-eyebrow">04 / PLANNER</p>
+            <h2 className="lp-feat-h2">One week.<br />Every person.<br />On target.</h2>
+            <p className="lp-feat-body">
+              A 7-day grid per person. Add meals, drag between days, watch nutrition totals update in real time. One shared pantry and recipe library. Everyone&apos;s plan, side by side.
+            </p>
+            <div className="lp-feat-tags" aria-label="Key features">
+              {["WEEKLY GRID", "NUTRITION SUMMARY", "SHARED VIEW"].map(tag => (
+                <span key={tag} className="lp-feat-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── S5: CTA (dark) ── */}
+      <section
+        className="lp-s lp-s-cta lp-s-dark"
+        ref={el => { sectionRefs.current[5] = el; }}
+        aria-label="Get started"
+      >
+        <div className="lp-cta-inner">
+          <h2 className="lp-s-headline lp-cta-headline">
+            Start measuring what <span style={{ color: BRAND_SAGE }}>matters.</span>
+          </h2>
+          <Link href="/login?signup=1" className="lp-cta-btn lp-cta-btn--sage" aria-label="Get started with Good Measure">
+            GET STARTED ↗
+          </Link>
+        </div>
+        <footer className="lp-cta-footer lp-cta-footer--pinned">
           © 2026 Made by{" "}
-          <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer" className="lp-fs-legal-link">
+          <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer" className="lp-mob-legal-link">
             Jen Murse
           </a>
-        </div>
-      </div>
-    </section>
+        </footer>
+      </section>
+
+    </div>
   );
 }
