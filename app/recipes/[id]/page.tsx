@@ -593,6 +593,17 @@ export default function RecipeDetailPage() {
                   <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
+                {/* Partial nutrition warning */}
+                {(() => {
+                  const missingCount = recipe.ingredients.filter(i => !i.ingredientId || !i.ingredient).length;
+                  if (missingCount === 0) return null;
+                  return (
+                    <div className="flex items-center justify-between gap-3 px-3 py-2 mb-4 bg-[var(--bg-2)] text-[13px] text-[var(--muted)] leading-[1.5]">
+                      <span>Nutrition is partial — {missingCount} ingredient{missingCount > 1 ? "s" : ""} {missingCount > 1 ? "don't" : "doesn't"} have data yet.</span>
+                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent-btn)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
+                    </div>
+                  );
+                })()}
                 {selectedPerson && (
                   <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving · vs goals</div>
                 )}

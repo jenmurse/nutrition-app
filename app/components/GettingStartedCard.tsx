@@ -29,7 +29,11 @@ const TASKS: Task[] = [
   { id: "pantry", text: "Add your first ingredient", note: "", href: "/ingredients", checkKey: "hasIngredient" },
   { id: "plan", text: "Plan your first week", note: "", href: "/meal-plans", checkKey: "hasMealPlan" },
   { id: "dashboard", text: "Choose 3 dashboard stats", note: "", href: "/settings#dashboard", checkKey: "hasDashboardStats" },
-  { id: "ai", text: "Set up AI optimization", note: "Needs MCP setup", href: "/settings#mcp", checkKey: "hasMcp" },
+];
+
+// Optional tasks shown below the main list — not counted toward completion
+const OPTIONAL_TASKS: Task[] = [
+  { id: "ai", text: "Set up AI optimization", note: "Desktop only · MCP required", href: "/settings#mcp", checkKey: "hasMcp" },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -175,6 +179,50 @@ export default function GettingStartedCard() {
                     className="shrink-0 transition-transform duration-[140ms] group-hover:translate-x-[2px]"
                     aria-hidden="true"
                   >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Optional tasks */}
+        <div className="border-t border-[var(--rule-faint)] mt-1 pt-1">
+          <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--muted)] px-0 py-[6px]">Optional</div>
+          {OPTIONAL_TASKS.map((task) => {
+            const done = status[task.checkKey];
+            return (
+              <Link
+                key={task.id}
+                href={done ? "#" : task.href}
+                className={`flex items-center gap-3 py-[7px] no-underline transition-colors group ${
+                  done ? "pointer-events-none" : "hover:bg-[var(--bg-2)] -mx-5 px-5"
+                }`}
+                onClick={done ? (e) => e.preventDefault() : undefined}
+                aria-label={`${task.text}${done ? " — complete" : " (optional)"}`}
+              >
+                <div
+                  className="w-[16px] h-[16px] flex items-center justify-center shrink-0 transition-colors duration-[200ms]"
+                  style={{
+                    background: done ? "var(--accent)" : "transparent",
+                    border: done ? "none" : "1.5px dashed var(--rule)",
+                  }}
+                >
+                  {done && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <span className="flex-1 font-sans text-[13px] text-[var(--muted)]" style={{ textDecoration: done ? "line-through" : "none" }}>
+                  {task.text}
+                  {task.note && !done && (
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] ml-2 opacity-60">{task.note}</span>
+                  )}
+                </span>
+                {!done && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50 transition-transform duration-[140ms] group-hover:translate-x-[2px]" aria-hidden="true">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 )}

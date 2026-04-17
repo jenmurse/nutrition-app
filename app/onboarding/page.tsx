@@ -58,21 +58,6 @@ const GOAL_PRESETS: GoalPreset[] = [
     ),
     kcal: 1600,
   },
-  {
-    id: "custom",
-    label: "Custom",
-    desc: "I\u2019ll set my own targets",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="4" x2="4" y1="21" y2="14" /><line x1="4" x2="4" y1="10" y2="3" />
-        <line x1="12" x2="12" y1="21" y2="12" /><line x1="12" x2="12" y1="8" y2="3" />
-        <line x1="20" x2="20" y1="21" y2="16" /><line x1="20" x2="20" y1="12" y2="3" />
-        <line x1="2" x2="6" y1="14" y2="14" /><line x1="10" x2="14" y1="8" y2="8" />
-        <line x1="18" x2="22" y1="16" y2="16" />
-      </svg>
-    ),
-    kcal: null,
-  },
 ];
 
 /* ─── Preset goal values (nutrient name → { low, high }) ─────────────── */
@@ -217,7 +202,7 @@ export default function OnboardingPage() {
 
   /* ── Step 3: Save nutrition goals ───────────────────────────────────── */
   const saveGoals = async () => {
-    if (selectedGoal === "custom" || !selectedPerson) return;
+    if (!selectedPerson) return;
     const preset = GOAL_VALUES[selectedGoal];
     if (!preset) return;
 
@@ -329,11 +314,8 @@ export default function OnboardingPage() {
       },
       {
         text: "Nutrition goals",
-        note:
-          selectedGoal === "custom"
-            ? "Custom — set in Settings"
-            : `${GOAL_PRESETS.find((g) => g.id === selectedGoal)?.label} · ${GOAL_PRESETS.find((g) => g.id === selectedGoal)?.kcal?.toLocaleString()} kcal target`,
-        done: selectedGoal !== "custom" || true,
+        note: `${GOAL_PRESETS.find((g) => g.id === selectedGoal)?.label} · ${GOAL_PRESETS.find((g) => g.id === selectedGoal)?.kcal?.toLocaleString()} kcal target`,
+        done: true,
       },
       {
         text: importResult ? "Recipe imported" : "Import a recipe",
@@ -352,7 +334,7 @@ export default function OnboardingPage() {
   /* ── Handle "Continue" per step ─────────────────────────────────────── */
   const handleContinue = async () => {
     if (step === 1) await saveProfile();
-    if (step === 3) await saveGoals();
+    if (step === 2) await saveGoals(); // Goals is now step 2
     nav(step + 1, "fwd");
   };
 
@@ -508,8 +490,63 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* ── Step 2: Household ──────────────────────────────────── */}
+            {/* ── Step 2: Nutrition Goals ────────────────────────────── */}
             {step === 2 && (
+              <div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Nutrition Goals</div>
+                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
+                  Set a direction.
+                </h2>
+                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
+                  Pick a starting point — you can fine-tune every nutrient later in Settings.
+                </p>
+
+                <div className="grid grid-cols-3 gap-[10px] mb-6">
+                  {GOAL_PRESETS.map((g) => {
+                    const isSelected = selectedGoal === g.id;
+                    return (
+                      <button
+                        key={g.id}
+                        onClick={() => setSelectedGoal(g.id)}
+                        className="flex flex-col p-5 border cursor-pointer bg-transparent text-left transition-[border-color,transform] duration-150 hover:border-[var(--fg-2)] active:scale-[0.98]"
+                        style={{
+                          borderColor: isSelected ? "var(--accent)" : "var(--rule)",
+                          background: isSelected ? "var(--accent-l)" : "transparent",
+                        }}
+                        aria-pressed={isSelected}
+                      >
+                        <div className="font-serif text-[16px] font-bold text-[var(--fg)] mb-1">{g.label}</div>
+                        <div className="font-sans text-[13px] text-[var(--muted)] mb-2">{g.desc}</div>
+                        <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mt-auto">
+                          {g.kcal?.toLocaleString()} kcal / day
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="font-sans text-[11px] text-[var(--muted)] leading-[1.5] mb-6">You can fine-tune protein, fat, carbs, sodium and more in Settings any time.</p>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => nav(1, "back")}
+                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
+                    aria-label="Go back"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleContinue}
+                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
+                    aria-label="Continue to household"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step 3: Household ──────────────────────────────────── */}
+            {step === 3 && (
               <div>
                 <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Household</div>
                 <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
@@ -583,67 +620,6 @@ export default function OnboardingPage() {
                 {/* Nav buttons */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => nav(1, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
-                    aria-label="Go back"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                    aria-label="Continue to nutrition goals"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Step 3: Nutrition Goals ────────────────────────────── */}
-            {step === 3 && (
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Nutrition Goals</div>
-                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  Set a direction.
-                </h2>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Pick a starting point — you can fine-tune every nutrient later in Settings.
-                </p>
-
-                <div className="grid grid-cols-2 gap-[10px] mb-6">
-                  {GOAL_PRESETS.map((g) => {
-                    const isSelected = selectedGoal === g.id;
-                    return (
-                      <button
-                        key={g.id}
-                        onClick={() => setSelectedGoal(g.id)}
-                        className="flex flex-col p-5 border cursor-pointer bg-transparent text-left transition-[border-color,transform] duration-150 hover:border-[var(--fg-2)] active:scale-[0.98]"
-                        style={{
-                          borderColor: isSelected ? "var(--accent)" : "var(--rule)",
-                          background: isSelected ? "var(--accent-l)" : "transparent",
-                        }}
-                        aria-pressed={isSelected}
-                      >
-                        <div className="font-serif text-[16px] font-bold text-[var(--fg)] mb-1">{g.label}</div>
-                        <div className="font-sans text-[13px] text-[var(--muted)] mb-2">{g.desc}</div>
-                        {g.kcal ? (
-                          <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mt-auto">
-                            {g.kcal.toLocaleString()} kcal / day
-                          </div>
-                        ) : (
-                          <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mt-auto">
-                            Set in Settings
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Nav buttons */}
-                <div className="flex gap-2">
-                  <button
                     onClick={() => nav(2, "back")}
                     className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
                     aria-label="Go back"
@@ -653,7 +629,7 @@ export default function OnboardingPage() {
                   <button
                     onClick={handleContinue}
                     className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                    aria-label="Continue to recipe import"
+                    aria-label="Continue to nutrition goals"
                   >
                     Continue
                   </button>
