@@ -19,8 +19,16 @@ import { readFileSync } from "fs";
 try {
   const env = readFileSync(".env.local", "utf-8");
   for (const line of env.split("\n")) {
-    const [key, ...rest] = line.split("=");
-    if (key && rest.length) process.env[key.trim()] = rest.join("=").trim();
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    let val = trimmed.slice(eqIdx + 1).trim();
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    if (key && !process.env[key]) process.env[key] = val;
   }
 } catch {}
 
