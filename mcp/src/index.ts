@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.1.0',
+  version: '1.2.0',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
