@@ -79,7 +79,7 @@ const SettingsPage = () => {
   const supabase = createClient();
 
   const handleSignOut = async () => {
-    localStorage.removeItem('selectedPersonId');
+    sessionStorage.removeItem('selectedPersonId');
     localStorage.removeItem('theme');
     document.documentElement.removeAttribute('data-theme');
     await supabase.auth.signOut();

@@ -177,6 +177,15 @@ function SortableIngredientRow({
               </button>
             </div>
           )}
+          <input
+            type="text"
+            className="ed-input"
+            style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}
+            placeholder="Preparation (optional) — e.g. finely diced"
+            value={row.notes ?? ""}
+            onChange={(e) => updateRow(row.id, { notes: e.target.value || undefined })}
+            aria-label={`Ingredient ${index + 1} preparation notes`}
+          />
         </div>
         <input className="ed-input" style={{ width: 70 }} type="text" inputMode="decimal" placeholder="Qty"
           value={quantityText[row.id] ?? ""}

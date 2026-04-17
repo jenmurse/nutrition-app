@@ -467,9 +467,20 @@ export default function Home() {
                               {mi > 0 ? ` (${mi + 1})` : ""}
                             </div>
                             {/* Meal name */}
-                            <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
-                              {name}
-                            </div>
+                            {m.recipe?.id ? (
+                              <Link
+                                href={`/recipes/${m.recipe.id}`}
+                                className="no-underline group"
+                              >
+                                <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3 text-[var(--fg)] group-hover:text-[var(--accent-btn)] transition-colors" style={{ textWrap: 'balance' }}>
+                                  {name}
+                                </div>
+                              </Link>
+                            ) : (
+                              <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
+                                {name}
+                              </div>
+                            )}
                             {/* Nutrient rows — 3 selected stats */}
                             {mealStats.map((s) => (
                               <div key={s.label} className="flex justify-between items-center py-[6px] border-b border-[var(--rule)]">
@@ -479,15 +490,6 @@ export default function Home() {
                                 </span>
                               </div>
                             ))}
-                            {/* Link to recipe */}
-                            {m.recipe?.id && (
-                              <Link
-                                href={`/recipes/${m.recipe.id}`}
-                                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--accent-btn)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
-                              >
-                                See recipe →
-                              </Link>
-                            )}
                           </div>
                         );
                       })}

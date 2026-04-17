@@ -21,7 +21,7 @@ export default function TopNav() {
   if (pathname === "/" || pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing") return null;
 
   const handleSignOut = async () => {
-    localStorage.removeItem("selectedPersonId");
+    sessionStorage.removeItem("selectedPersonId");
     localStorage.removeItem("theme");
     document.documentElement.removeAttribute("data-theme");
     await supabase.auth.signOut();

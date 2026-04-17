@@ -67,8 +67,10 @@ export function PersonProvider({ children }: { children: ReactNode }) {
       setOnboardingComplete(onboarded ?? true);
       const parsed = data.map(parsePerson);
       setPersons(parsed);
-      // Restore saved person selection if valid, otherwise default to current user
-      const saved = localStorage.getItem("selectedPersonId");
+      // Restore saved person selection if valid, otherwise default to current user.
+      // sessionStorage (not localStorage) so it clears when the browser is closed —
+      // logging out and back in, or opening a new browser session, always lands on your own profile.
+      const saved = sessionStorage.getItem("selectedPersonId");
       const savedId = saved ? Number(saved) : null;
       let resolvedId: number | null = null;
       if (savedId && parsed.some((p) => p.id === savedId)) {
@@ -92,7 +94,7 @@ export function PersonProvider({ children }: { children: ReactNode }) {
 
   const setSelectedPersonId = (id: number) => {
     setSelectedPersonIdState(id);
-    localStorage.setItem("selectedPersonId", String(id));
+    sessionStorage.setItem("selectedPersonId", String(id));
     const person = persons.find(p => p.id === id);
     if (person) applyTheme(person.theme);
   };

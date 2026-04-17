@@ -7,6 +7,7 @@ import {
   DragOverlay,
   DragStartEvent,
   MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCenter,
@@ -29,9 +30,11 @@ interface ActiveMeal {
 export default function MealPlanDndWrapper({ onMoveMeal, ...weekProps }: MealPlanDndWrapperProps) {
   const [activeMeal, setActiveMeal] = useState<ActiveMeal | null>(null);
 
-  // 8px activation distance prevents accidental drags when clicking chips
+  // Mouse: 8px distance prevents accidental drags on click
+  // Touch (iPad): 250ms long-press with 5px tolerance before drag activates
   const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 8 } })
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
 
   function handleDragStart(event: DragStartEvent) {
