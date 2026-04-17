@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // If Supabase redirected to the site root (or any non-callback route) with
   // ?code= in the URL, forward it to /auth/callback so the session is established.
   const code = request.nextUrl.searchParams.get("code");

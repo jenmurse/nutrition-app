@@ -2,6 +2,35 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
 import { matchIngredients, type ParsedIngredient, type ParsedRecipe } from "../../../../../lib/ingredientMatcher";
 import { getAuthenticatedHousehold } from "@/lib/auth";
+import { createClient } from "@supabase/supabase-js";
+import { randomUUID } from "crypto";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function uploadImageFromUrl(imageUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch(imageUrl, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return null;
+    const contentType = res.headers.get("content-type") ?? "image/jpeg";
+    if (!contentType.startsWith("image/")) return null;
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
+    const filename = `${randomUUID()}.${ext}`;
+    const { error } = await supabaseAdmin.storage
+      .from("recipe-images")
+      .upload(filename, buffer, { contentType });
+    if (error) return null;
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from("recipe-images")
+      .getPublicUrl(filename);
+    return publicUrl;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Extract recipes from URLs using Schema.org JSON-LD structured data.
@@ -345,7 +374,11 @@ export async function POST(request: Request) {
 
     // Add extra metadata
     const response: any = { ...matched };
-    if (image) response.image = image;
+    // Upload external image to Storage so it's not dependent on third-party URLs
+    if (image) {
+      const storedUrl = image.startsWith("http") ? await uploadImageFromUrl(image) : null;
+      response.image = storedUrl ?? image;
+    }
     const prepTime = parseDuration(recipeData.prepTime);
     const cookTime = parseDuration(recipeData.cookTime);
     if (prepTime !== null) response.prepTime = prepTime;

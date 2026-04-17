@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
   const mealPlanWhere = { ...householdFilter, ...(personId !== undefined ? { personId } : {}) };
 
   const [ingredientCount, recipeCount, mealPlanCount, recentPlan, recentRecipes, currentWeekPlan] = await Promise.all([
-    prisma.ingredient.count(),
-    prisma.recipe.count(),
+    prisma.ingredient.count({ where: householdFilter }),
+    prisma.recipe.count({ where: householdFilter }),
     prisma.mealPlan.count({ where: mealPlanWhere }),
     prisma.mealPlan.findFirst({
       where: mealPlanWhere,
