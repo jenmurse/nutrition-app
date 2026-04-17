@@ -1725,7 +1725,7 @@ export default function LandingScreenCycle() {
           </div>
           <div className="lp-feat-visual">
             <AppFrame dark label="AI Agent">
-              <AIOptimizeScreen isActive={true} />
+              <AIOptimizeScreen />
             </AppFrame>
           </div>
         </div>
