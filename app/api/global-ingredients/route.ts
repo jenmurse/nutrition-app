@@ -16,7 +16,10 @@ export async function GET(request: Request) {
           },
         },
       });
-      return NextResponse.json(global ?? null);
+      // Individual ingredient nutrient data is stable — cache for 24h
+      return NextResponse.json(global ?? null, {
+        headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" },
+      });
     }
 
     // Browse all — slim list for library UI
@@ -24,7 +27,9 @@ export async function GET(request: Request) {
       orderBy: { name: "asc" },
       select: { id: true, fdcId: true, name: true, defaultUnit: true, createdAt: true },
     });
-    return NextResponse.json(globals);
+    return NextResponse.json(globals, {
+      headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch global ingredients" }, { status: 500 });

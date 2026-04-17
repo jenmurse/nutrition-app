@@ -5,6 +5,7 @@ import { convertToGrams, getIngredientDensity } from "../../lib/unitConversion";
 import CreateIngredientModal from "./CreateIngredientModal";
 import { toast } from "@/lib/toast";
 import ContextualTip from "./ContextualTip";
+import { createClient } from "@/lib/supabase/client";
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -286,6 +287,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
   const [rows, setRows] = useState<Row[]>([{ id: "r1" }]);
   const [image, setImage] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
   const imageFileRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [guidedMode, setGuidedMode] = useState(false);
@@ -767,14 +769,31 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             reader.onload = (ev) => {
               const dataUrl = ev.target?.result as string;
               const img = new window.Image();
-              img.onload = () => {
+              img.onload = async () => {
+                // Resize client-side first
                 const MAX = 1200;
                 const sc = Math.min(1, MAX / Math.max(img.width, img.height));
                 const canvas = document.createElement("canvas");
                 canvas.width = Math.round(img.width * sc);
                 canvas.height = Math.round(img.height * sc);
                 canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-                setImage(canvas.toDataURL("image/jpeg", 0.82));
+
+                // Upload to Supabase Storage
+                setImageUploading(true);
+                try {
+                  const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), "image/jpeg", 0.82));
+                  const filename = `${crypto.randomUUID()}.jpg`;
+                  const supabase = createClient();
+                  const { error } = await supabase.storage.from("recipe-images").upload(filename, blob, { contentType: "image/jpeg" });
+                  if (error) throw error;
+                  const { data: { publicUrl } } = supabase.storage.from("recipe-images").getPublicUrl(filename);
+                  setImage(publicUrl);
+                } catch (err) {
+                  console.error("Image upload failed:", err);
+                  toast.error("Image upload failed — try again");
+                } finally {
+                  setImageUploading(false);
+                }
               };
               img.src = dataUrl;
             };
@@ -788,12 +807,19 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               <button
                 type="button"
                 onClick={() => imageFileRef.current?.click()}
-                className="flex flex-col items-center justify-center gap-1 shrink-0 bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-3)]"
+                disabled={imageUploading}
+                className="flex flex-col items-center justify-center gap-1 shrink-0 bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-3)] disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ width: 120, aspectRatio: "4/3" }}
                 aria-label="Upload recipe image"
               >
-                <span className="text-[24px] text-[var(--rule)]">+</span>
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Photo</span>
+                {imageUploading ? (
+                  <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] animate-pulse">Uploading…</span>
+                ) : (
+                  <>
+                    <span className="text-[24px] text-[var(--rule)]">+</span>
+                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Photo</span>
+                  </>
+                )}
               </button>
               <div className="ed-field flex-1" style={{ marginBottom: 0, alignSelf: "center" }}>
                 <label className="ed-label">Image URL</label>
@@ -807,7 +833,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-mono text-[11px] text-[var(--muted)] truncate mb-1">
-                  {image.startsWith("data:") ? "Uploaded image" : image}
+                  {image.startsWith("data:") ? "Uploaded image (legacy)" : image}
                 </div>
                 <button
                   type="button"
