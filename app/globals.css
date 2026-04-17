@@ -4178,6 +4178,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     height: auto;
     min-height: auto;
     scroll-snap-align: none;
+    scroll-margin-top: 52px;
   }
 
   .lp-feat-grid {
@@ -4215,7 +4216,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   .lp-cta-headline {
-    font-size: clamp(36px, 10vw, 52px);
+    font-size: clamp(30px, 8vw, 42px);
   }
 
   .lp-cta-footer--pinned {
