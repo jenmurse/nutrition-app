@@ -4216,7 +4216,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   .lp-cta-headline {
-    font-size: clamp(36px, 10vw, 44px);
+    font-size: clamp(34px, 9vw, 44px);
   }
 
   .lp-cta-footer--pinned {
