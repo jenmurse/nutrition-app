@@ -100,19 +100,26 @@ Repeated fetches of the same recipe within a 10-minute window are served from ca
 
 ## 4. Monitoring
 
-**Railway → Metrics** (per service)
-- CPU and memory usage — flag if consistently near the limit
-- Check after deploys or traffic spikes
+**Railway → Usage** (project level) — check mid-month
+- **Estimated Bill** — as long as this shows $0.00, you're within the $5 included usage. Only act if it goes above $0.
+- **Egress (nutrition-app service)** — the one number that grows with traffic. This is data sent from the app to users' browsers. Normal at low traffic; watch it if you get real users.
+- **Egress (Postgres service)** — should always be $0.00. App and DB are on Railway's internal network so DB queries cost nothing. If this ever goes above $0, something is wrong.
+- **CPU / Memory / Volume** — ignore these at current scale. Only relevant if the app starts crashing or slowing down.
+- **Credits Available: $65** — one-time Railway welcome credit. Covers ~13 months of the $5 base fee. Essentially free until mid-2027.
 
-**Railway → Usage** (project level)
-- Monthly cost tracker — check mid-month to avoid surprises
+**During MCP sessions (Claude analyzing recipes):**
+- **nutrition-app Egress** goes up slightly — each tool call sends recipe/ingredient data to Claude. The 10-minute cache headers mean repeated fetches of the same recipe don't re-hit the server, so impact is buffered.
+- **Postgres Egress** stays $0.00 — internal network, always free.
+- A heavy MCP session (full library analysis) adds a few cents to monthly egress. Not meaningful at current scale.
 
-**Cloudflare R2 → Overview**
-- Storage used vs. 10 GB free
-- Request counts vs. free tier limits
+**Cloudflare R2 → Overview** — check occasionally
+- **Total storage** vs. 10 GB free (currently 5.84 MB — negligible)
+- **Class A operations** (writes) vs. 1M free — one write per image upload
+- **Class B operations** (reads) vs. 10M free — one read per image view (cached by browser after first load)
+- At friends-and-family scale: $0/month. Won't matter until thousands of active users.
 
 **Supabase → Authentication → Users**
-- MAU count vs. 50,000 free limit
+- MAU count vs. 50,000 free limit — not a concern until real public launch
 
 ---
 
