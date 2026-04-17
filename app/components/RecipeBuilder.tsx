@@ -7,7 +7,6 @@ import { clientCache } from "@/lib/clientCache";
 import CreateIngredientModal from "./CreateIngredientModal";
 import { toast } from "@/lib/toast";
 import ContextualTip from "./ContextualTip";
-import { createClient } from "@/lib/supabase/client";
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -783,16 +782,16 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 canvas.height = Math.round(img.height * sc);
                 canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Upload to Supabase Storage
+                // Upload to R2 via API route
                 setImageUploading(true);
                 try {
                   const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), "image/jpeg", 0.82));
-                  const filename = `${crypto.randomUUID()}.jpg`;
-                  const supabase = createClient();
-                  const { error } = await supabase.storage.from("recipe-images").upload(filename, blob, { contentType: "image/jpeg" });
-                  if (error) throw error;
-                  const { data: { publicUrl } } = supabase.storage.from("recipe-images").getPublicUrl(filename);
-                  setImage(publicUrl);
+                  const formData = new FormData();
+                  formData.append("file", blob, "image.jpg");
+                  const res = await fetch("/api/recipes/upload-image", { method: "POST", body: formData });
+                  if (!res.ok) throw new Error("Upload failed");
+                  const { url } = await res.json();
+                  setImage(url);
                 } catch (err) {
                   console.error("Image upload failed:", err);
                   toast.error("Image upload failed — try again");

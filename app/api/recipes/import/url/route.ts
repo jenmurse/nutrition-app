@@ -2,13 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
 import { matchIngredients, type ParsedIngredient, type ParsedRecipe } from "../../../../../lib/ingredientMatcher";
 import { withAuth } from "@/lib/apiUtils";
-import { createClient } from "@supabase/supabase-js";
+import { uploadToR2 } from "@/lib/r2";
 import { randomUUID } from "crypto";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 async function uploadImageFromUrl(imageUrl: string): Promise<string | null> {
   try {
@@ -19,14 +14,7 @@ async function uploadImageFromUrl(imageUrl: string): Promise<string | null> {
     const buffer = Buffer.from(await res.arrayBuffer());
     const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
     const filename = `${randomUUID()}.${ext}`;
-    const { error } = await supabaseAdmin.storage
-      .from("recipe-images")
-      .upload(filename, buffer, { contentType });
-    if (error) return null;
-    const { data: { publicUrl } } = supabaseAdmin.storage
-      .from("recipe-images")
-      .getPublicUrl(filename);
-    return publicUrl;
+    return await uploadToR2(filename, buffer, contentType);
   } catch {
     return null;
   }
