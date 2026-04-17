@@ -156,7 +156,7 @@ When saving an optimized version of this recipe, pass copyImageFromRecipeId with
       const recipe = await apiFetch(`/api/mcp/recipes/${id}`) as {
         id: number;
         name: string;
-        image: string | null;
+        hasImage: boolean;
         servings: number;
         servingUnit: string;
         tags: string;
@@ -201,7 +201,7 @@ When saving an optimized version of this recipe, pass copyImageFromRecipeId with
           type: 'text' as const,
           text: [
             `Recipe #${recipe.id}: ${recipe.name}`,
-            recipe.image ? `Image: yes (use copyImageFromRecipeId: ${recipe.id} when saving optimized version)` : 'Image: none',
+            recipe.hasImage ? `Image: yes (use copyImageFromRecipeId: ${recipe.id} when saving optimized version)` : 'Image: none',
             `Servings: ${recipe.servings} ${recipe.servingUnit}`,
             recipe.prepTime ? `Prep: ${recipe.prepTime}m` : '',
             recipe.cookTime ? `Cook: ${recipe.cookTime}m` : '',

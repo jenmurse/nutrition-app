@@ -19,7 +19,7 @@ export async function GET(
     select: {
       id: true,
       name: true,
-      image: true,
+      image: true, // selected to check existence; stripped to boolean in response below
       servingSize: true,
       servingUnit: true,
       tags: true,
@@ -99,7 +99,7 @@ export async function GET(
     cookTime: recipe.cookTime,
     instructions: recipe.instructions,
     sourceApp: recipe.sourceApp ?? null,
-    image: recipe.image ?? null,
+    hasImage: !!recipe.image, // boolean only — base64 data is never sent to the AI
     ingredients,
     nutrition: { totals },
   });

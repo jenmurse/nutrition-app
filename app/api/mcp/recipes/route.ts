@@ -18,15 +18,8 @@ export async function GET(request: Request) {
       tags: true,
       prepTime: true,
       cookTime: true,
-      instructions: true,
-      ingredients: {
-        select: {
-          quantity: true,
-          unit: true,
-          notes: true,
-          ingredient: { select: { id: true, name: true } },
-        },
-      },
+      // instructions intentionally excluded — large text not needed for listing
+      // use GET /api/mcp/recipes/[id] for full recipe details
     },
     orderBy: { name: 'asc' },
   });

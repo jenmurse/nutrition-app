@@ -20,15 +20,22 @@ export async function GET(request: Request) {
       name: true,
       defaultUnit: true,
       source: true,
-      nutrientValues: {
-        select: {
-          value: true,
-          nutrient: { select: { displayName: true, unit: true } },
+      // Full nutrient data only when searching — list view returns id+name+unit only
+      ...(q ? {
+        nutrientValues: {
+          select: {
+            value: true,
+            nutrient: { select: { displayName: true, unit: true } },
+          },
+          // Only fetch the calorie entry — it's the only value the MCP tool displays
+          where: {
+            nutrient: { displayName: { contains: 'Calori', mode: 'insensitive' } },
+          },
         },
-      },
+      } : {}),
     },
     orderBy: { name: 'asc' },
-    take: q ? 50 : 500,
+    take: q ? 50 : 200,
   });
 
   return NextResponse.json(ingredients);

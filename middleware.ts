@@ -76,6 +76,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|html)$).*)",
+    // Skip static assets, images, and MCP API routes (MCP uses Bearer token auth, not session)
+    "/((?!_next/static|_next/image|favicon.ico|api/mcp/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|html)$).*)",
   ],
 };
