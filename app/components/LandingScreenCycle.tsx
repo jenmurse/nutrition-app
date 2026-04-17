@@ -1563,8 +1563,13 @@ export default function LandingScreenCycle() {
   const scrollToSection = (i: number) => {
     const el = sectionRefs.current[i];
     const container = scrollRef.current;
-    if (!el || !container) return;
-    container.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+    if (!el) return;
+    // On desktop the lp-scroll div is the scroll container; on mobile use scrollIntoView
+    if (container && container.scrollHeight > container.clientHeight) {
+      container.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+    } else {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   // Dark sections: S1, S3, S5 (indices 1, 3, 5)
