@@ -7,7 +7,10 @@ export interface McpAuth {
 
 /**
  * Validates a Bearer token from the Authorization header and returns
- * the household context for the MCP server to use.
+ * the person + household context for the MCP server to use.
+ *
+ * Tokens are per-person: key format is `mcpApiToken_${personId}`.
+ * The personId is parsed directly from the key — no owner lookup needed.
  */
 export async function getMcpAuth(
   request: Request
@@ -21,15 +24,14 @@ export async function getMcpAuth(
   if (!token) return { error: 'Empty token', status: 401 };
 
   const setting = await prisma.systemSetting.findFirst({
-    where: { key: 'mcpApiToken', value: token },
+    where: { key: { startsWith: 'mcpApiToken_' }, value: token },
   });
 
   if (!setting?.householdId) return { error: 'Invalid or revoked token', status: 401 };
 
-  const owner = await prisma.householdMember.findFirst({
-    where: { householdId: setting.householdId, role: 'owner', active: true },
-    select: { personId: true },
-  });
+  // Parse personId from key: 'mcpApiToken_123' → 123
+  const personId = parseInt(setting.key.split('_')[1], 10);
+  if (!personId) return { error: 'Malformed token record', status: 401 };
 
-  return { householdId: setting.householdId, personId: owner?.personId ?? 0 };
+  return { householdId: setting.householdId, personId };
 }

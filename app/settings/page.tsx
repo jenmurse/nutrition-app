@@ -858,11 +858,12 @@ const SettingsPage = () => {
             <SectionHeader number="03" title="Dashboard" />
 
             <div>
-              {/* Home Stats */}
-              <div className="ed-label mb-[8px]">Home Stats</div>
-              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]" style={{ maxWidth: 480 }}>
                 Select three nutrition stats to display on your dashboard and meal cards.
               </p>
+              <div className={`font-mono text-[9px] uppercase tracking-[0.08em] mb-[16px] ${dashboardStats.enabledStats.length === 3 ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
+                {dashboardStats.enabledStats.length} of 3 selected
+              </div>
               <div style={{ maxWidth: 400 }}>
                 {DASHBOARD_STAT_OPTIONS.map((opt) => {
                   const checked = dashboardStats.enabledStats.includes(opt.key);
@@ -884,11 +885,6 @@ const SettingsPage = () => {
                   );
                 })}
               </div>
-              {dashboardStats.enabledStats.length < 3 && (
-                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--warn)] mt-[10px]">
-                  Select {3 - dashboardStats.enabledStats.length} more
-                </div>
-              )}
 
             </div>
           </div>
@@ -899,66 +895,72 @@ const SettingsPage = () => {
           <div id="set-sec-mcp" style={{ padding: '56px 0' }}>
             <SectionHeader number="04" title="MCP Integration" />
 
-            <div>
-              {/* Token status dot + label */}
-              <div className="flex items-center gap-[8px] mb-[16px]">
-                <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--ok)]' : 'bg-[var(--rule)]'}`} aria-hidden="true" />
-                <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em]">
-                  {hasMcpToken ? 'Token active' : 'No token'}
-                </span>
-              </div>
+            <div className="flex flex-col gap-[48px]">
 
-              {/* Generate / Revoke buttons */}
-              <div className="flex gap-[8px] mb-[16px]">
-                <button
-                  onClick={handleGenerateMcpToken}
-                  disabled={mcpTokenLoading}
-                  className="ed-btn disabled:opacity-40"
-                  aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
-                >
-                  {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate Token'}
-                </button>
-                {hasMcpToken && (
+              {/* ── Step 1 — Generate token ── */}
+              <div>
+                <div className="flex items-baseline gap-[10px] mb-[16px]">
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">01</span>
+                  <span className="ed-label">Generate a token</span>
+                </div>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                  Each person in your household needs their own token. Your token is private — don&apos;t share it.
+                </p>
+                <div className="flex items-center gap-[8px] mb-[16px]">
+                  <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--ok)]' : 'bg-[var(--rule)]'}`} aria-hidden="true" />
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em]">
+                    {hasMcpToken ? 'Token active' : 'No token'}
+                  </span>
+                </div>
+                <div className="flex gap-[8px] mb-[16px]">
                   <button
-                    onClick={handleRevokeMcpToken}
-                    disabled={revokingMcpToken}
-                    className="ed-btn danger disabled:opacity-40"
-                    aria-label="Revoke MCP token"
+                    onClick={handleGenerateMcpToken}
+                    disabled={mcpTokenLoading}
+                    className="ed-btn primary disabled:opacity-40"
+                    aria-label={hasMcpToken ? 'Regenerate MCP token' : 'Generate MCP token'}
                   >
-                    {revokingMcpToken ? 'Revoking…' : 'Revoke'}
+                    {mcpTokenLoading ? 'Generating…' : hasMcpToken ? 'Regenerate' : 'Generate Token'}
                   </button>
+                  {hasMcpToken && (
+                    <button
+                      onClick={handleRevokeMcpToken}
+                      disabled={revokingMcpToken}
+                      className="ed-btn danger disabled:opacity-40"
+                      aria-label="Revoke MCP token"
+                    >
+                      {revokingMcpToken ? 'Revoking…' : 'Revoke'}
+                    </button>
+                  )}
+                </div>
+                {newMcpToken && (
+                  <div>
+                    <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent-btn)] mb-[8px]">
+                      Copy this token now — it won&apos;t be shown again
+                    </div>
+                    <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent-btn)] px-[16px] py-[12px]">
+                      <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
+                      <button
+                        onClick={handleCopyMcpToken}
+                        className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent-btn)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
+                        aria-label="Copy MCP token"
+                      >
+                        {mcpCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {/* New token display */}
-              {newMcpToken && (
-                <div className="mb-[16px]">
-                  <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent-btn)] mb-[8px]">
-                    Copy this token now — it won&apos;t be shown again
-                  </div>
-                  <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--accent-btn)] px-[16px] py-[12px]">
-                    <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
-                    <button
-                      onClick={handleCopyMcpToken}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent-btn)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
-                      aria-label="Copy MCP token"
-                    >
-                      {mcpCopied ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
+              {/* ── Step 2 — Connect to your AI assistant ── */}
+              <div>
+                <div className="flex items-baseline gap-[10px] mb-[16px]">
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">02</span>
+                  <span className="ed-label">Connect to your AI assistant</span>
                 </div>
-              )}
-
-              {/* ── Configuration ── */}
-              <div className="mt-[40px]">
-                <div className="ed-label mb-[8px]">Connect to your AI assistant</div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[20px]">
-                  {APP_NAME} works with any MCP-compatible assistant. Generate a token above, then paste the config block into the file for your tool.
+                  {APP_NAME} works with any MCP-compatible assistant. Open your assistant&apos;s config file at the path below.
                 </p>
-
-                {/* Config table — stacks on mobile */}
-                <div className="border border-[var(--rule)] mb-[20px]">
-                  {/* Header — hidden on mobile */}
+                <div className="border border-[var(--rule)]">
                   <div className="hidden sm:grid grid-cols-[160px_1fr] border-b border-[var(--rule)]">
                     <div className="ed-label px-[14px] py-[8px]">Assistant</div>
                     <div className="ed-label px-[14px] py-[8px]">Config file path</div>
@@ -977,13 +979,18 @@ const SettingsPage = () => {
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {/* Config block */}
+              {/* ── Step 3 — Add to config file ── */}
+              <div>
+                <div className="flex items-baseline gap-[10px] mb-[16px]">
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">03</span>
+                  <span className="ed-label">Add this to your config file&apos;s <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">mcpServers</code> object</span>
+                </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[10px]">
-                  Add this to your config file&apos;s <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1">mcpServers</code> object.
                   {newMcpToken
-                    ? <strong className="text-[var(--fg)]"> Your token is pre-filled below.</strong>
-                    : ' Generate a token above to pre-fill your token.'}
+                    ? <><strong className="text-[var(--fg)]">Your token is pre-filled below.</strong> Copy the block and paste it into your config file.</>
+                    : 'Generate a token in step 1 to pre-fill your token in the block below.'}
                 </p>
                 <div className="bg-[var(--bg-2)] px-[20px] py-[16px] relative overflow-x-auto">
                   <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
@@ -1013,18 +1020,19 @@ const SettingsPage = () => {
   }
 }`}</pre>
                 </div>
-
-                {/* Mac Homebrew note */}
                 <div className="border-l-2 border-[var(--rule)] px-[14px] py-[10px] mt-[12px] text-[12px] text-[var(--muted)] leading-[1.6]">
                   <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, replace <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
                 </div>
               </div>
 
-              {/* ── Test Connection ── */}
-              <div className="mt-[40px]">
-                <div className="ed-label mb-[8px]">After connecting</div>
+              {/* ── Step 4 — After connecting ── */}
+              <div>
+                <div className="flex items-baseline gap-[10px] mb-[16px]">
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">04</span>
+                  <span className="ed-label">After connecting</span>
+                </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
-                  Fully quit and relaunch your assistant after saving the config. Then try one of these prompts:
+                  Fully quit and relaunch your assistant after saving the config file. Then try one of these prompts:
                 </p>
                 {[
                   `List my recipes from ${APP_NAME} and tell me which ones are highest in protein.`,
@@ -1035,6 +1043,7 @@ const SettingsPage = () => {
                   </div>
                 ))}
               </div>
+
             </div>
           </div>
 
