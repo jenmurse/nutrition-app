@@ -68,6 +68,7 @@ export const metadata: Metadata = {
 
   // ── Favicon + icons ───────────────────────────────────────────
   icons: {
+    icon: "/favicon.svg",
     apple: "/PWA_icon-180x180.png",
   },
 
