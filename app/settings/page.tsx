@@ -904,7 +904,7 @@ const SettingsPage = () => {
                   <span className="ed-label">Generate a token</span>
                 </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
-                  Each person in your household needs their own token. Your token is private — don&apos;t share it.
+                  Each person in your household needs their own token. Keep it private.
                 </p>
                 <div className="flex items-center gap-[8px] mb-[16px]">
                   <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--ok)]' : 'bg-[var(--rule)]'}`} aria-hidden="true" />
@@ -1021,7 +1021,7 @@ const SettingsPage = () => {
 }`}</pre>
                 </div>
                 <div className="border-l-2 border-[var(--rule)] px-[14px] py-[10px] mt-[12px] text-[12px] text-[var(--muted)] leading-[1.6]">
-                  <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, replace <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
+                  <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, in the command line above, replace <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
                 </div>
               </div>
 
