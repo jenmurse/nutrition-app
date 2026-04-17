@@ -3,23 +3,34 @@ import { prisma } from "../../../lib/db";
 import { convertToGrams, getIngredientDensity } from "../../../lib/unitConversion";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await getAuthenticatedHousehold();
     if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
+    const slim = new URL(request.url).searchParams.get("slim") === "true";
+
     const [recipes, favoriteRows] = await Promise.all([
       prisma.recipe.findMany({
         where: { householdId: auth.householdId },
-        include: {
-          ingredients: {
-            include: {
-              ingredient: {
-                include: { nutrientValues: { include: { nutrient: true } } },
+        ...(slim ? {
+          select: {
+            id: true, name: true, image: true, tags: true,
+            prepTime: true, cookTime: true, servingSize: true,
+            servingUnit: true, isComplete: true, instructions: true,
+            sourceApp: true,
+          },
+        } : {
+          include: {
+            ingredients: {
+              include: {
+                ingredient: {
+                  include: { nutrientValues: { include: { nutrient: true } } },
+                },
               },
             },
           },
-        },
+        }),
         orderBy: { name: "asc" },
       }),
       prisma.recipeFavorite.findMany({
@@ -30,8 +41,12 @@ export async function GET() {
 
     const favoriteSet = new Set(favoriteRows.map((f) => f.recipeId));
 
+    if (slim) {
+      return NextResponse.json(recipes.map((r) => ({ ...r, totals: [], isFavorited: favoriteSet.has(r.id) })));
+    }
+
     // Compute per-serving nutrient totals for each recipe (for client-side sorting)
-    const recipesWithTotals = recipes.map((recipe) => {
+    const recipesWithTotals = (recipes as any[]).map((recipe) => {
       const totals: Record<number, { nutrientId: number; displayName: string; value: number; unit: string }> = {};
       for (const ri of recipe.ingredients) {
         if (!ri.ingredient) continue;

@@ -241,6 +241,7 @@ export default function RecipeDetailPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Duplicate failed");
       clientCache.delete("/api/recipes");
+      clientCache.delete("/api/recipes?slim=true");
       router.push(`/recipes/${data.recipe.id}`);
     } catch (e) { console.error(e); toast.error("Failed to duplicate recipe"); }
   };
@@ -306,6 +307,7 @@ export default function RecipeDetailPage() {
         setIsFavorited(!next);
       } else {
         clientCache.delete("/api/recipes");
+        clientCache.delete("/api/recipes?slim=true");
         const cached = clientCache.get<RecipeDetail>(`/api/recipes/${recipeId}`);
         if (cached) clientCache.set(`/api/recipes/${recipeId}`, { ...cached, isFavorited: next });
       }
@@ -408,6 +410,7 @@ export default function RecipeDetailPage() {
               onSaved={() => {
                 clientCache.delete(`/api/recipes/${recipeId}`);
                 clientCache.delete("/api/recipes");
+                clientCache.delete("/api/recipes?slim=true");
                 setEditMode(false);
                 setEditDraft(null);
                 setLoading(true);

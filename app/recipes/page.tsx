@@ -41,8 +41,8 @@ export default function RecipesPageWrapper() {
 function RecipesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [recipes, setRecipes] = useState<RecipeSummary[]>(() => clientCache.get<RecipeSummary[]>('/api/recipes') ?? []);
-  const [loading, setLoading] = useState(() => !clientCache.get('/api/recipes'));
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(() => clientCache.get<RecipeSummary[]>('/api/recipes') ?? clientCache.get<RecipeSummary[]>('/api/recipes?slim=true') ?? []);
+  const [loading, setLoading] = useState(() => !clientCache.get('/api/recipes') && !clientCache.get('/api/recipes?slim=true'));
 
   // Filters
   const searchQuery = searchParams?.get("search") || "";
@@ -122,31 +122,36 @@ function RecipesPage() {
         setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: currentlyFavorited } : r));
       } else {
         clientCache.delete("/api/recipes");
+        clientCache.delete("/api/recipes?slim=true");
       }
     } catch {
       setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: currentlyFavorited } : r));
     }
   };
 
+  const isNutrientSort = (key: string) => key !== "name";
+
   const loadRecipes = async () => {
-    const cached = clientCache.get<RecipeSummary[]>('/api/recipes');
-    if (cached && cached.length > 0) {
-      setRecipes(cached);
+    // If we already have full data cached, use it
+    const fullCached = clientCache.get<RecipeSummary[]>('/api/recipes');
+    if (fullCached && fullCached.length > 0) {
+      setRecipes(fullCached);
       setLoading(false);
-      // Background revalidate
-      fetch("/api/recipes").then(r => r.json()).then((data) => {
-        const fresh: RecipeSummary[] = Array.isArray(data) ? data : [];
-        clientCache.set('/api/recipes', fresh);
-        setRecipes(fresh);
-      }).catch(console.error);
+      return;
+    }
+    // Otherwise load slim first (fast)
+    const slimCached = clientCache.get<RecipeSummary[]>('/api/recipes?slim=true');
+    if (slimCached && slimCached.length > 0) {
+      setRecipes(slimCached);
+      setLoading(false);
       return;
     }
     setLoading(true);
     try {
-      const r = await fetch("/api/recipes");
+      const r = await fetch("/api/recipes?slim=true");
       const data = await r.json();
       const list: RecipeSummary[] = Array.isArray(data) ? data : [];
-      clientCache.set('/api/recipes', list);
+      clientCache.set('/api/recipes?slim=true', list);
       setRecipes(list);
     } catch (e) {
       console.error(e);
@@ -155,6 +160,18 @@ function RecipesPage() {
       setLoading(false);
     }
   };
+
+  // When a nutrient sort is active and we only have slim data, upgrade to full
+  useEffect(() => {
+    if (!isNutrientSort(sortBy)) return;
+    const fullCached = clientCache.get<RecipeSummary[]>('/api/recipes');
+    if (fullCached) { setRecipes(fullCached); return; }
+    fetch("/api/recipes").then(r => r.json()).then((data) => {
+      const list: RecipeSummary[] = Array.isArray(data) ? data : [];
+      clientCache.set('/api/recipes', list);
+      setRecipes(list);
+    }).catch(console.error);
+  }, [sortBy]);
 
   useEffect(() => { loadRecipes(); }, []);
 
