@@ -1771,7 +1771,7 @@ export default function LandingScreenCycle() {
       >
         <div className="lp-cta-inner">
           <h2 className="lp-s-headline lp-cta-headline">
-            Start measuring what <span style={{ color: BRAND_SAGE }}>matters.</span>
+            Start measuring<br className="lp-mob-br" />what <span style={{ color: BRAND_SAGE }}>matters.</span>
           </h2>
           <Link href="/login?signup=1" className="lp-cta-btn lp-cta-btn--sage" aria-label="Get started with Good Measure">
             GET STARTED ↗

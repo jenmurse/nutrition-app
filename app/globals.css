@@ -4231,6 +4231,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Desktop: hide mobile-only elements */
 @media (min-width: 769px) {
+  .lp-mob-br { display: none; }
   .lp-mob-demo-wrap {
     display: none;
   }
