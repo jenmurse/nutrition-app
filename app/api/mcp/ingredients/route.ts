@@ -38,5 +38,7 @@ export async function GET(request: Request) {
     take: q ? 50 : 200,
   });
 
-  return NextResponse.json(ingredients);
+  return NextResponse.json(ingredients, {
+    headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=120' },
+  });
 }

@@ -102,7 +102,7 @@ export async function GET(
     hasImage: !!recipe.image, // boolean only — base64 data is never sent to the AI
     ingredients,
     nutrition: { totals },
-  });
+  }, { headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=120' } });
 }
 
 /** PUT — update recipe fields (optimization notes, meal prep notes, etc.) */

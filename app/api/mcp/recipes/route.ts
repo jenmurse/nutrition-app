@@ -24,7 +24,9 @@ export async function GET(request: Request) {
     orderBy: { name: 'asc' },
   });
 
-  return NextResponse.json(recipes);
+  return NextResponse.json(recipes, {
+    headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=120' },
+  });
 }
 
 /**
