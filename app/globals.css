@@ -1981,8 +1981,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     padding-right: 0; margin-right: 0; border-right: none; border-bottom: none;
   }
 
-  /* Greeting: slightly larger on mobile */
+  /* Greeting: slightly larger on mobile; shrink for long greetings (e.g. "Good afternoon,") */
   .hm-greeting-text { font-size: 14vw; }
+  .hm-greeting-text--long { font-size: 10.5vw; }
 
   /* Stats: bigger text on mobile */
   .hm-stat-label { font-size: 11px !important; }
