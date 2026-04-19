@@ -327,7 +327,7 @@ export default function Home() {
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
               </div>
               {/* Greeting */}
-              <div className={`font-serif hm-greeting-text${getGreeting().length > 13 ? ' hm-greeting-text--long' : ''}`} style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
+              <div className="font-serif hm-greeting-text" style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
                 <span className="block" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 40ms both' }}>{getGreeting()}</span>
                 <span className="block text-[var(--accent)]" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 130ms both' }}>{selectedPerson?.name ?? ""}</span>
               </div>
