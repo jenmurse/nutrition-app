@@ -1981,8 +1981,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     padding-right: 0; margin-right: 0; border-right: none; border-bottom: none;
   }
 
-  /* Greeting: 10.5vw fits all three greetings on one line */
-  .hm-greeting-text { font-size: 10.5vw; }
+  /* Greeting: fits all three greetings on one line */
+  .hm-greeting-text { font-size: 11.5vw; }
 
   /* Stats: bigger text on mobile */
   .hm-stat-label { font-size: 11px !important; }
