@@ -573,7 +573,7 @@ function RecipesPage() {
         ) : viewMode === "grid" ? (
           /* ── Card Grid ── */
           <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
-            <div className="grid gap-6 grid-cols-2 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
+            <div className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
               {sortedRecipes.map((recipe, idx) => {
                 const macros = getCardMacros(recipe);
                 const category = recipe.tags?.split(",")[0]?.trim();

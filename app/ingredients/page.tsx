@@ -422,7 +422,7 @@ function IngredientsPage() {
           /* ── Card Grid — shared borders, staggered animation ── */
           <div
             key={`grid-${viewMode}-${foodFilter}`}
-            className="ing-grid grid grid-cols-2 lg:grid-cols-4 max-w-[1100px] mx-auto"
+            className="ing-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-[1100px] mx-auto"
             style={{ gap: 0, padding: "0 64px" }}
           >
             {sortedIngredients.map((ingredient, idx) => {
