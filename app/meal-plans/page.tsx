@@ -960,7 +960,11 @@ const MealPlansPage = () => {
         {selectedPlan && (
           <button
             className="pl-mob-nut-btn"
-            onClick={() => setMobNutSheetOpen(true)}
+            onClick={() => {
+              const today = new Date(); today.setHours(0,0,0,0);
+              setSelectedDay(today);
+              setMobNutSheetOpen(true);
+            }}
             aria-label="View nutrition summary"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1104,7 +1108,14 @@ const MealPlansPage = () => {
           {selectedPlan && viewMode !== 'both' && (
             <button
               className={`pl-nut-chip ${summaryPanelOpen ? 'on' : ''}`}
-              onClick={() => setSummaryPanelOpen(o => !o)}
+              onClick={() => {
+                const opening = !summaryPanelOpen;
+                setSummaryPanelOpen(opening);
+                if (opening) {
+                  const today = new Date(); today.setHours(0,0,0,0);
+                  setSelectedDay(today);
+                }
+              }}
               aria-label={summaryPanelOpen ? "Collapse summary panel" : "Expand summary panel"}
               aria-expanded={summaryPanelOpen}
             >
@@ -1602,12 +1613,10 @@ const MealPlansPage = () => {
                 onAddIngredientMeal={handleAddIngredientMeal}
                 onRemoveMeal={handleRemoveMeal}
                 onError={(msg) => toast.error(msg)}
-                selectedDay={selectedDay}
-                onDayClick={(date) => {
+                selectedDay={(summaryPanelOpen || mobNutSheetOpen) ? selectedDay : null}
+                onDayClick={(summaryPanelOpen || mobNutSheetOpen) ? (date) => {
                   setSelectedDay(date);
-                  // On mobile, tapping a day opens the nutrition sheet
-                  if (window.innerWidth <= 640) setMobNutSheetOpen(true);
-                }}
+                } : undefined}
                 editMode={editMode}
                 selectedMealIds={selectedMealIds}
                 onToggleMealSelect={toggleSelectMeal}

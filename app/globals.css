@@ -833,8 +833,10 @@ input[type="number"]:focus {
 
 .wk-day-col { padding:0 8px; cursor:pointer; }
 .wk-day-col.today { background:var(--accent-l); }
-.wk-day-col--selected { background: color-mix(in srgb, var(--accent-btn) 6%, transparent); }
-.wk-day-col--selected .wk-day-num { color:var(--accent-btn); }
+.wk-day-col--selected { background:var(--accent-l); }
+.wk-day-col--selected .wk-day-name { color:var(--accent-btn); }
+.wk-day-col--selected .wk-day-num  { color:var(--accent-btn); }
+.wk-day-col--selected .wk-day-bar-fill { background:var(--accent-btn); }
 
 .wk-day-header { padding:16px 6px 12px; }
 

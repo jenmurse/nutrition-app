@@ -621,11 +621,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               .filter(g => g.meals.length > 0);
 
             const selectedFlag = !!selectedDay && new Date(day.date).toDateString() === selectedDay.toDateString();
+            // When a day is explicitly selected (panel open), suppress today's highlight unless today IS the selection
+            const effectiveTodayFlag = todayFlag && (!selectedDay || selectedFlag);
             return (
               <DroppableDayCol
                 key={day.date.toISOString()}
                 dateISO={day.date.toISOString()}
-                todayFlag={todayFlag}
+                todayFlag={effectiveTodayFlag}
                 dayIdx={dayIdx}
                 selectedFlag={selectedFlag}
                 onClick={() => onDayClick?.(new Date(day.date))}
