@@ -831,8 +831,10 @@ input[type="number"]:focus {
   padding:0 var(--pad); flex:1;
 }
 
-.wk-day-col { padding:0 8px; }
+.wk-day-col { padding:0 8px; cursor:pointer; }
 .wk-day-col.today { background:var(--accent-l); }
+.wk-day-col--selected { outline:2px solid var(--accent-btn); outline-offset:-2px; border-radius:4px; }
+.wk-day-col--selected .wk-day-num { color:var(--accent-btn); }
 
 .wk-day-header { padding:16px 6px 12px; }
 

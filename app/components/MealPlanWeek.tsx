@@ -83,6 +83,7 @@ function DroppableDayCol({
   dateISO,
   todayFlag,
   dayIdx,
+  selectedFlag,
   onClick,
   onKeyDown,
   'aria-label': ariaLabel,
@@ -91,6 +92,7 @@ function DroppableDayCol({
   dateISO: string;
   todayFlag: boolean;
   dayIdx: number;
+  selectedFlag?: boolean;
   onClick: () => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   'aria-label': string;
@@ -100,7 +102,7 @@ function DroppableDayCol({
   return (
     <div
       ref={setNodeRef}
-      className={`wk-day-col${todayFlag ? ' today' : ''}${isOver ? ' wk-day-col--drop-target' : ''}`}
+      className={`wk-day-col${todayFlag ? ' today' : ''}${isOver ? ' wk-day-col--drop-target' : ''}${selectedFlag ? ' wk-day-col--selected' : ''}`}
       style={{ '--col-i': dayIdx } as React.CSSProperties}
       onClick={onClick}
       onKeyDown={onKeyDown}
@@ -618,12 +620,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               }))
               .filter(g => g.meals.length > 0);
 
+            const selectedFlag = !!selectedDay && new Date(day.date).toDateString() === selectedDay.toDateString();
             return (
               <DroppableDayCol
                 key={day.date.toISOString()}
                 dateISO={day.date.toISOString()}
                 todayFlag={todayFlag}
                 dayIdx={dayIdx}
+                selectedFlag={selectedFlag}
                 onClick={() => onDayClick?.(new Date(day.date))}
                 onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') onDayClick?.(new Date(day.date)); }}
                 aria-label={`${day.dayOfWeek} ${dayNum}`}

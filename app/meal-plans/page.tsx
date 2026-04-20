@@ -1078,10 +1078,14 @@ const MealPlansPage = () => {
                 onClick={async () => {
                   if (!selectedPlan) return;
                   if (!await dialog.confirm('Delete this entire plan? This cannot be undone.', { confirmLabel: 'Delete plan', danger: true })) return;
-                  await fetch(`/api/meal-plans/${selectedPlan.id}`, { method: 'DELETE' });
+                  const deletedId = selectedPlan.id;
+                  await fetch(`/api/meal-plans/${deletedId}`, { method: 'DELETE' });
+                  // Update state immediately — don't wait for refetch
+                  clientCache.invalidate(`/api/meal-plans`);
+                  setMealPlans(prev => prev.filter(p => p.id !== deletedId));
+                  setSelectedPlan(null);
                   setEditMode(false);
                   setSelectedMealIds(new Set());
-                  // Navigate away — reload plans list
                   const params = new URLSearchParams(searchParams?.toString());
                   params.delete('planId');
                   router.push(`/meal-plans?${params.toString()}`);
@@ -1598,14 +1602,12 @@ const MealPlansPage = () => {
                 onAddIngredientMeal={handleAddIngredientMeal}
                 onRemoveMeal={handleRemoveMeal}
                 onError={(msg) => toast.error(msg)}
-                selectedDay={summaryPanelOpen ? selectedDay : null}
-                onDayClick={summaryPanelOpen ? (date) => {
-                  if (selectedDay && date.toDateString() === selectedDay.toDateString()) {
-                    setSelectedDay(null);
-                  } else {
-                    setSelectedDay(date);
-                  }
-                } : undefined}
+                selectedDay={selectedDay}
+                onDayClick={(date) => {
+                  setSelectedDay(date);
+                  // On mobile, tapping a day opens the nutrition sheet
+                  if (window.innerWidth <= 640) setMobNutSheetOpen(true);
+                }}
                 editMode={editMode}
                 selectedMealIds={selectedMealIds}
                 onToggleMealSelect={toggleSelectMeal}
