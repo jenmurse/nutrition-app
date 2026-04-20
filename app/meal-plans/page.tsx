@@ -1074,6 +1074,22 @@ const MealPlansPage = () => {
               >Delete</button>
               <button
                 className="pl-nav-btn"
+                style={{ color: 'var(--err)', borderColor: 'var(--err)' }}
+                onClick={async () => {
+                  if (!selectedPlan) return;
+                  if (!await dialog.confirm('Delete this entire plan? This cannot be undone.', { confirmLabel: 'Delete plan', danger: true })) return;
+                  await fetch(`/api/meal-plans/${selectedPlan.id}`, { method: 'DELETE' });
+                  setEditMode(false);
+                  setSelectedMealIds(new Set());
+                  // Navigate away — reload plans list
+                  const params = new URLSearchParams(searchParams?.toString());
+                  params.delete('planId');
+                  router.push(`/meal-plans?${params.toString()}`);
+                }}
+                aria-label="Delete entire plan"
+              >Delete plan</button>
+              <button
+                className="pl-nav-btn"
                 onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
                 aria-label="Exit edit mode"
               >Done</button>

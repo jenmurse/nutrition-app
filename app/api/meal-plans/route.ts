@@ -42,9 +42,12 @@ export const POST = withAuth(async (auth, request: NextRequest) => {
   }
 
   const dateStr = weekStartDate.includes('T') ? weekStartDate : weekStartDate + 'T00:00:00Z';
+  // Always snap to the Sunday on or before the given date
+  const rawDate = new Date(dateStr);
+  rawDate.setUTCDate(rawDate.getUTCDate() - rawDate.getUTCDay());
   const mealPlan = await prisma.mealPlan.create({
     data: {
-      weekStartDate: new Date(dateStr),
+      weekStartDate: rawDate,
       personId: personId ?? null,
       householdId: auth.householdId,
     },
