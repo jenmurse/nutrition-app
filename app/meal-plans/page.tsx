@@ -477,12 +477,14 @@ const MealPlansPage = () => {
           // Auto-select current week's plan (same logic as non-cached path)
           const todayLocal = new Date();
           todayLocal.setHours(0, 0, 0, 0);
-          const currentWeekPlan = cachedPlans.find((plan) => {
+          const thisWeekPlans = cachedPlans.filter((plan) => {
             const weekStart = parseUTCDate(plan.weekStartDate);
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
             return todayLocal >= weekStart && todayLocal <= weekEnd;
           });
+          // Prefer Sunday-starting plans (getDay()===0) over Monday-starting ones
+          const currentWeekPlan = thisWeekPlans.find(p => parseUTCDate(p.weekStartDate).getDay() === 0) || thisWeekPlans[0];
           cachedPlanId = (currentWeekPlan || cachedPlans[0]).id;
         }
         if (cachedPlanId && cachedPlans.some(p => p.id === cachedPlanId)) {
@@ -524,12 +526,14 @@ const MealPlansPage = () => {
           // Auto-select current week's plan or first plan
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          const currentWeekPlan = plans.find((plan) => {
+          const thisWeekPlans = plans.filter((plan) => {
             const weekStart = parseUTCDate(plan.weekStartDate);
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
             return today >= weekStart && today <= weekEnd;
           });
+          // Prefer Sunday-starting plans (getDay()===0) over Monday-starting ones
+          const currentWeekPlan = thisWeekPlans.find(p => parseUTCDate(p.weekStartDate).getDay() === 0) || thisWeekPlans[0];
           const planToSelect = currentWeekPlan || plans[0];
           if (planToSelect) {
             targetPlanId = planToSelect.id;
@@ -916,12 +920,13 @@ const MealPlansPage = () => {
           onClick={() => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const todayPlan = mealPlans.find((plan) => {
+            const thisWeekMatches = mealPlans.filter((plan) => {
               const start = parseUTCDate(plan.weekStartDate);
               const end = new Date(start);
               end.setDate(end.getDate() + 6);
               return today >= start && today <= end;
             });
+            const todayPlan = thisWeekMatches.find(p => parseUTCDate(p.weekStartDate).getDay() === 0) || thisWeekMatches[0];
             if (todayPlan) {
               const params = new URLSearchParams(searchParams?.toString());
               params.set("planId", String(todayPlan.id));
