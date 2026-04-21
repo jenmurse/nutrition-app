@@ -325,7 +325,7 @@ function RecipesPage() {
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
         <div className="desk-tb">
           {/* Tag chips */}
-          <div className="list-tags contents">
+          <div className="list-tags">
           <button
             onClick={() => updateSearchParam("tags", "")}
             className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
@@ -573,7 +573,7 @@ function RecipesPage() {
         ) : viewMode === "grid" ? (
           /* ── Card Grid ── */
           <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
-            <div className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
+            <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
               {sortedRecipes.map((recipe, idx) => {
                 const macros = getCardMacros(recipe);
                 const category = recipe.tags?.split(",")[0]?.trim();

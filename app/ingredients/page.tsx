@@ -270,7 +270,7 @@ function IngredientsPage() {
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
         <div className="desk-tb">
           {/* Filter chips */}
-          <div className="list-tags contents">
+          <div className="list-tags">
           <button
             onClick={() => setFoodFilter('all')}
             className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
@@ -422,7 +422,7 @@ function IngredientsPage() {
           /* ── Card Grid — shared borders, staggered animation ── */
           <div
             key={`grid-${viewMode}-${foodFilter}`}
-            className="ing-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-[1100px] mx-auto"
+            className="ing-grid grid md:grid-cols-3 lg:grid-cols-4 max-w-[1100px] mx-auto"
             style={{ gap: 0, padding: "0 64px" }}
           >
             {sortedIngredients.map((ingredient, idx) => {

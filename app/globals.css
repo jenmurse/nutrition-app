@@ -1342,7 +1342,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .list-toolbar { overflow: visible; }
 
 /* Option A: chips row fills remaining space + scrolls; controls stay pinned right */
-.list-tags { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.list-tags { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .list-tags::-webkit-scrollbar { display: none; }
 .list-controls { flex-shrink: 0; }
 
@@ -1944,11 +1944,30 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-mob-nut-btn::before { content: ''; position: absolute; inset: -5px; }
 .pl-mob-nut-btn:active { opacity: 0.7; }
 
+/* ── Below md — switch list pages to mobile toolbar (641–767px) ─── */
+@media (min-width: 641px) and (max-width: 767px) {
+  .mob-tb { display: flex; padding: 0 12px; }
+  .desk-tb { display: none; }
+  .list-toolbar { gap: 0; padding: 0 !important; height: auto !important; }
+  /* Hairline button style same as mobile */
+  .mob-search-input { background: var(--bg-2); border: 1px solid var(--rule); }
+  .mob-filter-btn { background: transparent; border: 1px solid var(--rule); color: var(--muted); }
+  .mob-filter-btn.active { background: color-mix(in srgb, var(--accent) 15%, var(--bg)); color: var(--accent-btn); border-color: var(--accent-btn); }
+  .mob-tb-icon { background: transparent; border: 1px solid var(--rule); }
+  .mob-tb-icon.on { background: var(--accent-btn); color: var(--accent-fg); border-color: var(--accent-btn); }
+}
+
 /* ── Medium breakpoint — tablet / small laptop (641–1280px) ─────── */
 @media (min-width: 641px) and (max-width: 1280px) {
   /* Planner toolbar: scroll horizontally when buttons overflow */
   .pl-toolbar { overflow-x: auto; scrollbar-width: none; }
   .pl-toolbar::-webkit-scrollbar { display: none; }
+
+  /* Pantry list: hide secondary nutrient columns to give name room */
+  .ing-list-macros > span:nth-child(3),
+  .ing-list-macros > span:nth-child(4),
+  .ing-list-macros > span:nth-child(6),
+  .ing-list-macros > span:nth-child(8) { display: none; }
 }
 
 /* ── Mobile breakpoint — 640px ───────────────────────────────────── */
@@ -2315,8 +2334,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     color: var(--muted) !important;
   }
   .mob-filter-btn.active {
-    background: var(--accent-btn) !important;
-    color: var(--accent-fg) !important;
+    background: color-mix(in srgb, var(--accent) 15%, var(--bg)) !important;
+    color: var(--accent-btn) !important;
     border-color: var(--accent-btn) !important;
   }
 
