@@ -44,12 +44,10 @@ function RecipesPage() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>(() => clientCache.get<RecipeSummary[]>('/api/recipes') ?? clientCache.get<RecipeSummary[]>('/api/recipes?slim=true') ?? []);
   const [loading, setLoading] = useState(() => !clientCache.get('/api/recipes') && !clientCache.get('/api/recipes?slim=true'));
 
-  // ── Local filter state (decoupled from router to avoid Suspense remount / stale closure issues) ──
-  const [searchQuery, setSearchQuery] = useState(() => searchParams?.get("search") || "");
-  const [selectedTags, setSelectedTags] = useState<string[]>(() =>
-    searchParams?.get("tags")?.split(",").filter(Boolean) || []
-  );
-  const [showFavorites, setShowFavorites] = useState(() => searchParams?.get("favorites") === "1");
+  // ── Local filter state — always starts fresh on mount (clears when navigating away and back) ──
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const availableTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
@@ -66,8 +64,8 @@ function RecipesPage() {
     { key: "Fiber",         label: "Fiber" },
   ] as const;
   type SortKey = typeof sortOptions[number]["key"];
-  const [sortBy, setSortBy] = useState<SortKey>(() => (searchParams?.get("sort") || "name") as SortKey);
-  const [sortDir, setSortDir] = useState<"asc" | "desc">(() => (searchParams?.get("dir") || "asc") as "asc" | "desc");
+  const [sortBy, setSortBy] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
