@@ -375,7 +375,7 @@ function RecipesPage() {
                   onClick={() => {
                     const p = new URLSearchParams(searchParams?.toString());
                     p.delete("tags"); p.delete("favorites");
-                    startTransition(() => { router.replace(`/recipes?${p.toString()}`); });
+                    router.replace(p.toString() ? `/recipes?${p.toString()}` : '/recipes');
                     setCategoryOpen(false);
                   }}
                 >All</button>
