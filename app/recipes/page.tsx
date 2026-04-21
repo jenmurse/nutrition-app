@@ -66,6 +66,8 @@ function RecipesPage() {
   const sortDir = (searchParams?.get("dir") || "asc") as "asc" | "desc";
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
 
   // Dashboard stat preferences — used to show matching stats on mobile cards
   const [enabledStats, setEnabledStats] = useState<string[]>(['calories', 'protein', 'carbs']);
@@ -184,6 +186,22 @@ function RecipesPage() {
     if (sortOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [sortOpen]);
+
+  // Close category dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) setCategoryOpen(false);
+    };
+    if (categoryOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [categoryOpen]);
+
+  // Category dropdown label
+  const categoryLabel =
+    selectedTags.length === 0 && !showFavorites ? "All"
+    : selectedTags.length === 1 && !showFavorites ? selectedTags[0]
+    : selectedTags.length === 0 && showFavorites ? "Favorites"
+    : `${selectedTags.length + (showFavorites ? 1 : 0)} filters`;
 
   const getNutrientValue = (recipe: RecipeSummary, nutrient: string): number => {
     if (!recipe.totals) return 0;
@@ -325,47 +343,68 @@ function RecipesPage() {
 
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
         <div className="desk-tb">
-          {/* Tag chips */}
-          <div className="list-tags">
-          <button
-            onClick={() => updateSearchParam("tags", "")}
-            className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-              selectedTags.length === 0
-                ? "text-[var(--fg)] border-[var(--rule)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-            }`}
-            aria-label="Show all recipes"
-            aria-pressed={selectedTags.length === 0}
-          >All</button>
-          {availableTags.map(tag => (
+          {/* Category filter dropdown */}
+          <div ref={categoryRef} className="flex border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)] shrink-0">
             <button
-              key={tag}
-              onClick={() => toggleTag(tag)}
-              className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-                selectedTags.includes(tag)
-                  ? "text-[var(--fg)] border-[var(--rule)]"
-                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-              }`}
-              aria-label={`Filter by ${tag}`}
-              aria-pressed={selectedTags.includes(tag)}
-            >{tag}</button>
-          ))}
-          {/* Favorites chip */}
-          <button
-            onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
-            className={`filter-chip flex items-center gap-[4px] font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-              showFavorites
-                ? "text-[#ef4444] border-[var(--rule)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-            }`}
-            aria-label="Show favorites"
-            aria-pressed={showFavorites}
-          >
-            <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            Favorites
-          </button>
+              onClick={() => setCategoryOpen(!categoryOpen)}
+              aria-label="Filter by category"
+              aria-expanded={categoryOpen}
+              aria-haspopup="listbox"
+              className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+              style={{ minWidth: 72 }}
+            >
+              {categoryLabel}
+              <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+            </button>
+            {categoryOpen && (
+              <div
+                role="listbox"
+                aria-label="Category options"
+                aria-multiselectable="true"
+                className="absolute left-[-1px] top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
+                style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+              >
+                <button
+                  role="option"
+                  aria-selected={selectedTags.length === 0 && !showFavorites}
+                  className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                    selectedTags.length === 0 && !showFavorites
+                      ? "text-[var(--fg)] bg-transparent"
+                      : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                  }`}
+                  onClick={() => { updateSearchParam("tags", ""); updateSearchParam("favorites", ""); setCategoryOpen(false); }}
+                >All</button>
+                {availableTags.map(tag => (
+                  <button
+                    key={tag}
+                    role="option"
+                    aria-selected={selectedTags.includes(tag)}
+                    className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                      selectedTags.includes(tag)
+                        ? "text-[var(--fg)] bg-transparent"
+                        : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                    }`}
+                    onClick={() => { toggleTag(tag); setCategoryOpen(false); }}
+                  >{tag}</button>
+                ))}
+                <div className="border-t border-[var(--rule)] my-[3px]" aria-hidden="true" />
+                <button
+                  role="option"
+                  aria-selected={showFavorites}
+                  className={`flex items-center gap-[5px] w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                    showFavorites
+                      ? "text-[#ef4444] bg-transparent"
+                      : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                  }`}
+                  onClick={() => { updateSearchParam("favorites", showFavorites ? "" : "1"); setCategoryOpen(false); }}
+                >
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  Favorites
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right side controls */}
