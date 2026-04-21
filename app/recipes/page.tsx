@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, useTransition, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
 import { RecipeEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
@@ -92,13 +92,14 @@ function RecipesPage() {
   }, [filterSheetOpen]);
   const activeFilterCount = selectedTags.length + (sortBy !== "name" ? 1 : 0);
 
+  const [, startTransition] = useTransition();
   const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams?.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    router.push(`/recipes?${params.toString()}`);
+    startTransition(() => { router.replace(`/recipes?${params.toString()}`); });
   };
 
   const toggleTag = (tag: string) => {
@@ -318,7 +319,7 @@ function RecipesPage() {
               <line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
               <line x1="4" y1="18" x2="20" y2="18"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
             </svg>
-            {activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true" style={{ position: 'absolute', top: 4, right: 4 }}>{activeFilterCount}</span>}
+            {activeFilterCount > 0 && <span className="mob-filter-dot" aria-hidden="true" />}
           </button>
         </div>
 

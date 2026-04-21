@@ -1387,6 +1387,17 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .mob-filter-btn:active { opacity: 0.7; }
 .mob-filter-btn.active { color: var(--accent-btn); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
 
+/* Small dot indicator — replaces numeric badge */
+.mob-filter-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-btn);
+}
+
 .mob-filter-badge {
   display: inline-flex;
   align-items: center;
@@ -1948,7 +1959,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 @media (min-width: 641px) and (max-width: 767px) {
   .mob-tb { display: flex; padding: 0 12px; }
   .desk-tb { display: none; }
-  .list-toolbar { gap: 0; padding: 0 !important; height: auto !important; }
+  .list-toolbar { gap: 0; padding: 8px 0 !important; height: auto !important; }
   /* Hairline button style same as mobile */
   .mob-search-input { background: var(--bg-2); border: 1px solid var(--rule); }
   .mob-filter-btn { background: transparent; border: 1px solid var(--rule); color: var(--muted); }
