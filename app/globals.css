@@ -1957,7 +1957,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Below md — switch list pages to mobile toolbar (641–767px) ─── */
 @media (min-width: 641px) and (max-width: 767px) {
-  .mob-tb { display: flex; padding: 0 12px; }
+  .mob-tb { display: flex; padding: 0 var(--pad); }
   .desk-tb { display: none; }
   .list-toolbar { gap: 0; padding: 8px 0 !important; height: auto !important; }
   /* Hairline button style same as mobile */
@@ -2323,7 +2323,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .list-toolbar {
     gap: 0;
     padding: 0 !important;
-    padding-top: 4px !important;
+    padding-top: 8px !important;
     height: 52px !important;
     border-bottom-color: transparent !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
