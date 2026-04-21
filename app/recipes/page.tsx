@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
 import { RecipeEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
@@ -94,14 +94,13 @@ function RecipesPage() {
   }, [filterSheetOpen]);
   const activeFilterCount = selectedTags.length + (sortBy !== "name" ? 1 : 0);
 
-  const [, startTransition] = useTransition();
   const searchRef = useRef<HTMLInputElement>(null);
 
   const updateSearchParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams?.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    startTransition(() => { router.replace(`/recipes?${params.toString()}`); });
+    router.replace(`/recipes?${params.toString()}`);
   };
 
   const toggleTag = (tag: string) => {
@@ -378,6 +377,7 @@ function RecipesPage() {
                     router.replace(p.toString() ? `/recipes?${p.toString()}` : '/recipes');
                     setCategoryOpen(false);
                   }}
+
                 >All</button>
                 {availableTags.map(tag => (
                   <button
