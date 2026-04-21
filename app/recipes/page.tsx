@@ -372,7 +372,12 @@ function RecipesPage() {
                       ? "text-[var(--fg)] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
                   }`}
-                  onClick={() => { updateSearchParam("tags", ""); updateSearchParam("favorites", ""); setCategoryOpen(false); }}
+                  onClick={() => {
+                    const p = new URLSearchParams(searchParams?.toString());
+                    p.delete("tags"); p.delete("favorites");
+                    startTransition(() => { router.replace(`/recipes?${p.toString()}`); });
+                    setCategoryOpen(false);
+                  }}
                 >All</button>
                 {availableTags.map(tag => (
                   <button
