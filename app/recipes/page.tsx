@@ -379,13 +379,16 @@ function RecipesPage() {
                     key={tag}
                     role="option"
                     aria-selected={selectedTags.includes(tag)}
-                    className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                    className={`flex items-center justify-between w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                       selectedTags.includes(tag)
                         ? "text-[var(--fg)] bg-transparent"
                         : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
                     }`}
-                    onClick={() => { toggleTag(tag); setCategoryOpen(false); }}
-                  >{tag}</button>
+                    onClick={() => toggleTag(tag)}
+                  >
+                    {tag}
+                    {selectedTags.includes(tag) && <span className="text-[var(--accent-btn)]">✓</span>}
+                  </button>
                 ))}
                 <div className="border-t border-[var(--rule)] my-[3px]" aria-hidden="true" />
                 <button
@@ -396,12 +399,13 @@ function RecipesPage() {
                       ? "text-[#ef4444] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
                   }`}
-                  onClick={() => { updateSearchParam("favorites", showFavorites ? "" : "1"); setCategoryOpen(false); }}
+                  onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
                 >
                   <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
-                  Favorites
+                  <span className="flex-1">Favorites</span>
+                  {showFavorites && <span className="text-[#ef4444]">✓</span>}
                 </button>
               </div>
             )}
