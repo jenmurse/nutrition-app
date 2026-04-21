@@ -66,6 +66,9 @@ settings.json
 # SQLite (migrated to Supabase)
 *.db
 
+# Local exports
+_exports/
+
 # Migration artifacts
 migration_data.sql
 tsconfig.tsbuildinfo

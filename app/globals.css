@@ -1341,6 +1341,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Sort dropdown z-index fix — toolbar must allow overflow */
 .list-toolbar { overflow: visible; }
 
+/* Option A: chips row fills remaining space + scrolls; controls stay pinned right */
+.list-tags { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.list-tags::-webkit-scrollbar { display: none; }
+.list-controls { flex-shrink: 0; }
+
 /* ── Mobile filter toolbar + bottom sheet ───────────────────────── */
 
 /* Compact search in mobile toolbar */
@@ -1941,27 +1946,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Medium breakpoint — tablet / small laptop (641–1280px) ─────── */
 @media (min-width: 641px) and (max-width: 1280px) {
-  /* Toolbar wraps to two rows: chips on top, controls below */
-  .list-toolbar {
-    height: auto !important;
-    flex-wrap: wrap;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    gap: 0;
-  }
-  .list-tags {
-    width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--rule-faint);
-  }
-  .list-tags::-webkit-scrollbar { display: none; }
-  .list-controls {
-    width: 100%;
-    margin-left: 0 !important;
-    padding-top: 6px;
-  }
+  /* Planner toolbar: scroll horizontally when buttons overflow */
+  .pl-toolbar { overflow-x: auto; scrollbar-width: none; }
+  .pl-toolbar::-webkit-scrollbar { display: none; }
 }
 
 /* ── Mobile breakpoint — 640px ───────────────────────────────────── */
