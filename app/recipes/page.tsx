@@ -44,9 +44,13 @@ function RecipesPage() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>(() => clientCache.get<RecipeSummary[]>('/api/recipes') ?? clientCache.get<RecipeSummary[]>('/api/recipes?slim=true') ?? []);
   const [loading, setLoading] = useState(() => !clientCache.get('/api/recipes') && !clientCache.get('/api/recipes?slim=true'));
 
-  // Filters
-  const searchQuery = searchParams?.get("search") || "";
-  const selectedTags = searchParams?.get("tags")?.split(",").filter(Boolean) || [];
+  // ── Local filter state (decoupled from router to avoid Suspense remount / stale closure issues) ──
+  const [searchQuery, setSearchQuery] = useState(() => searchParams?.get("search") || "");
+  const [selectedTags, setSelectedTags] = useState<string[]>(() =>
+    searchParams?.get("tags")?.split(",").filter(Boolean) || []
+  );
+  const [showFavorites, setShowFavorites] = useState(() => searchParams?.get("favorites") === "1");
+
   const availableTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
   // Sort
@@ -62,12 +66,24 @@ function RecipesPage() {
     { key: "Fiber",         label: "Fiber" },
   ] as const;
   type SortKey = typeof sortOptions[number]["key"];
-  const sortBy = (searchParams?.get("sort") || "name") as SortKey;
-  const sortDir = (searchParams?.get("dir") || "asc") as "asc" | "desc";
+  const [sortBy, setSortBy] = useState<SortKey>(() => (searchParams?.get("sort") || "name") as SortKey);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">(() => (searchParams?.get("dir") || "asc") as "asc" | "desc");
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const categoryRef = useRef<HTMLDivElement>(null);
+
+  // Sync filter state → URL (no router navigation, no Suspense trigger)
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("search", searchQuery);
+    if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
+    if (showFavorites) params.set("favorites", "1");
+    if (sortBy !== "name") params.set("sort", sortBy);
+    if (sortDir !== "asc") params.set("dir", sortDir);
+    const qs = params.toString();
+    window.history.replaceState(null, "", qs ? `/recipes?${qs}` : "/recipes");
+  }, [searchQuery, selectedTags, showFavorites, sortBy, sortDir]);
 
   // Dashboard stat preferences — used to show matching stats on mobile cards
   const [enabledStats, setEnabledStats] = useState<string[]>(['calories', 'protein', 'carbs']);
@@ -95,23 +111,17 @@ function RecipesPage() {
   const activeFilterCount = selectedTags.length + (sortBy !== "name" ? 1 : 0);
 
   const searchRef = useRef<HTMLInputElement>(null);
-
-  const updateSearchParam = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams?.toString());
-    if (value) params.set(key, value);
-    else params.delete(key);
-    router.replace(`/recipes?${params.toString()}`);
-  };
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   const toggleTag = (tag: string) => {
-    const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag];
-    updateSearchParam("tags", newTags.join(","));
+    setSelectedTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
   };
 
-  // Favorites
-  const showFavorites = searchParams?.get("favorites") === "1";
+  // updateSearchParam kept for mobile sheet (sort/dir) for convenience
+  const updateSort = (key: string) => setSortBy((key || "name") as SortKey);
+  const updateDir = (dir: string) => setSortDir((dir || "asc") as "asc" | "desc");
 
   const toggleFavorite = async (recipeId: number, currentlyFavorited: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -291,11 +301,11 @@ function RecipesPage() {
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
             <input
-              ref={searchRef}
+              ref={mobileSearchRef}
               type="search"
               placeholder="Search recipes…"
               value={searchQuery}
-              onChange={(e) => updateSearchParam("search", e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search recipes"
               className="mob-search-input mob-search-input--icon"
             />
@@ -372,9 +382,8 @@ function RecipesPage() {
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
                   }`}
                   onClick={() => {
-                    const p = new URLSearchParams(searchParams?.toString());
-                    p.delete("tags"); p.delete("favorites");
-                    router.replace(p.toString() ? `/recipes?${p.toString()}` : '/recipes');
+                    setSelectedTags([]);
+                    setShowFavorites(false);
                     setCategoryOpen(false);
                   }}
 
@@ -404,7 +413,7 @@ function RecipesPage() {
                       ? "text-[#ef4444] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
                   }`}
-                  onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
+                  onClick={() => setShowFavorites(prev => !prev)}
                 >
                   <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -447,7 +456,7 @@ function RecipesPage() {
                       key={opt.key}
                       role="option"
                       aria-selected={sortBy === opt.key}
-                      onClick={() => { updateSearchParam("sort", opt.key === "name" ? "" : opt.key); setSortOpen(false); }}
+                      onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
                       className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                         sortBy === opt.key
                           ? "text-[var(--fg)] bg-transparent"
@@ -458,7 +467,7 @@ function RecipesPage() {
                 </div>
               )}
               <button
-                onClick={() => updateSearchParam("dir", sortDir === "asc" ? "desc" : "asc")}
+                onClick={() => setSortDir(prev => prev === "asc" ? "desc" : "asc")}
                 aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
                 className="font-mono text-[11px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
               >{sortDir === "asc" ? "↑" : "↓"}</button>
@@ -490,7 +499,7 @@ function RecipesPage() {
               type="text"
               placeholder="Search..."
               value={searchQuery}
-              onChange={(e) => updateSearchParam("search", e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search recipes"
               className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-[border-color] focus:border-[var(--accent)]"
               style={{ width: 180 }}
@@ -517,7 +526,7 @@ function RecipesPage() {
               {activeFilterCount > 0 && (
                 <button
                   className="mob-sheet-clear"
-                  onClick={() => { updateSearchParam("tags", ""); updateSearchParam("sort", ""); updateSearchParam("dir", ""); }}
+                  onClick={() => { setSelectedTags([]); setShowFavorites(false); setSortBy("name"); setSortDir("asc"); }}
                   aria-label="Clear all filters"
                 >Clear all</button>
               )}
@@ -531,7 +540,7 @@ function RecipesPage() {
                   <button
                     key={opt.key}
                     className={`mob-sheet-sort-btn${sortBy === opt.key ? " on" : ""}`}
-                    onClick={() => updateSearchParam("sort", opt.key === "name" ? "" : opt.key)}
+                    onClick={() => setSortBy(opt.key)}
                     aria-pressed={sortBy === opt.key}
                   >{opt.label}</button>
                 ))}
@@ -539,12 +548,12 @@ function RecipesPage() {
               <div className="mob-sheet-dir-row">
                 <button
                   className={`mob-sheet-dir-btn${sortDir === "asc" ? " on" : ""}`}
-                  onClick={() => updateSearchParam("dir", "asc")}
+                  onClick={() => setSortDir("asc")}
                   aria-pressed={sortDir === "asc"}
                 >↑ Ascending</button>
                 <button
                   className={`mob-sheet-dir-btn${sortDir === "desc" ? " on" : ""}`}
-                  onClick={() => updateSearchParam("dir", "desc")}
+                  onClick={() => setSortDir("desc")}
                   aria-pressed={sortDir === "desc"}
                 >↓ Descending</button>
               </div>
@@ -556,7 +565,7 @@ function RecipesPage() {
               <div className="mob-sheet-chips">
                 <button
                   className={`mob-sheet-chip${selectedTags.length === 0 && !showFavorites ? " on" : ""}`}
-                  onClick={() => { updateSearchParam("tags", ""); updateSearchParam("favorites", ""); }}
+                  onClick={() => { setSelectedTags([]); setShowFavorites(false); }}
                   aria-pressed={selectedTags.length === 0 && !showFavorites}
                 >All</button>
                 {availableTags.map(tag => (
@@ -569,7 +578,7 @@ function RecipesPage() {
                 ))}
                 <button
                   className={`mob-sheet-chip flex items-center gap-1${showFavorites ? " on" : ""}`}
-                  onClick={() => updateSearchParam("favorites", showFavorites ? "" : "1")}
+                  onClick={() => setShowFavorites(prev => !prev)}
                   aria-pressed={showFavorites}
                 >
                   <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
