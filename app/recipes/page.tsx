@@ -965,11 +965,8 @@ function RecipesPage() {
               Back to recipes
             </button>
             <div className="w-[1px] h-[14px] bg-[var(--rule)]" aria-hidden="true" />
-            <span className="font-mono text-[13px] tracking-[0.12em] uppercase text-[var(--fg)] font-medium">Nutrition Comparison</span>
+            <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)]">Nutrition Comparison</span>
           </div>
-          <span className="font-mono text-[9px] tracking-[0.06em] text-[var(--muted)]">
-            {compareIds.length} recipe{compareIds.length !== 1 ? "s" : ""}
-          </span>
         </div>
 
         {/* Body */}
@@ -1018,8 +1015,8 @@ function RecipesPage() {
                       {vals.map((v, i) => {
                         const pct = maxVal > 0 ? (v / maxVal) * 100 : 0;
                         return (
-                          <div key={`val-${n.label}-${i}`} className="flex items-center gap-[8px]" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 8px' }}>
-                            <span className="font-sans text-[20px] font-bold tabular-nums text-[var(--fg)]" style={{ minWidth: 44, textAlign: 'right', letterSpacing: '-0.02em' }}>{v}</span>
+                          <div key={`val-${n.label}-${i}`} className="flex items-center gap-[8px]" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 0' }}>
+                            <span className="font-sans text-[20px] font-bold tabular-nums text-[var(--fg)]" style={{ minWidth: 44, textAlign: 'left', letterSpacing: '-0.02em' }}>{v}</span>
                             <span className="font-mono text-[8px] tracking-[0.06em] text-[var(--muted)]" style={{ minWidth: 22 }}>{n.unit}</span>
                             <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--bg-3)', minWidth: 60 }}>
                               <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: pct === 100 ? 'var(--accent)' : 'var(--muted)', opacity: pct === 100 ? 1 : 0.45 }} />
