@@ -790,7 +790,7 @@ function RecipesPage() {
                       </div>
                     )}
                     {/* Image */}
-                    <div className="overflow-hidden" style={{ aspectRatio: "4/3" }}>
+                    <div className="overflow-hidden relative" style={{ aspectRatio: "4/3" }}>
                       {recipe.image ? (
                         <img
                           src={recipe.image}
@@ -800,7 +800,7 @@ function RecipesPage() {
                           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                         />
                       ) : (
-                        <div className="w-full h-full bg-[var(--bg-3)] flex items-end overflow-hidden" style={{ padding: '14px 16px 22px' }}>
+                        <div className="absolute inset-0 bg-[var(--bg-3)] flex items-end overflow-hidden" style={{ padding: '14px 16px 22px' }}>
                           <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] opacity-[0.18] block">
                             {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
                           </span>
@@ -946,7 +946,7 @@ function RecipesPage() {
         <button
           onClick={() => compareIds.length >= 2 && setCompareOpen(true)}
           disabled={compareIds.length < 2}
-          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--accent-btn)] text-white cursor-pointer transition-colors hover:bg-[#2d6040] disabled:opacity-35 disabled:cursor-default"
+          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--accent-btn)] text-[var(--accent-fg)] cursor-pointer transition-[opacity] hover:opacity-80 disabled:opacity-35 disabled:cursor-default"
           aria-label="Open nutrition comparison"
         >Compare →</button>
       </div>
