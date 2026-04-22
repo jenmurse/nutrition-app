@@ -355,10 +355,10 @@ function RecipesPage() {
           <div className="desk-chips">
             {/* All */}
             <button
-              className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+              className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
                 selectedTags.length === 0 && !showFavorites
-                  ? "border-[var(--fg)] text-[var(--fg)] bg-[var(--bg-3)]"
-                  : "border-[var(--rule)] text-[var(--muted)] bg-transparent hover:border-[var(--fg)] hover:text-[var(--fg)]"
+                  ? "text-[var(--fg)] border-[var(--rule)]"
+                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
               }`}
               onClick={() => { setSelectedTags([]); setShowFavorites(false); }}
               aria-pressed={selectedTags.length === 0 && !showFavorites}
@@ -366,10 +366,10 @@ function RecipesPage() {
             {availableTags.map(tag => (
               <button
                 key={tag}
-                className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+                className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
                   selectedTags.includes(tag)
-                    ? "border-[var(--accent-btn)] text-[var(--accent-btn)] bg-[var(--accent-l)]"
-                    : "border-[var(--rule)] text-[var(--muted)] bg-transparent hover:border-[var(--fg)] hover:text-[var(--fg)]"
+                    ? "text-[var(--fg)] border-[var(--rule)]"
+                    : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
                 }`}
                 onClick={() => toggleTag(tag)}
                 aria-pressed={selectedTags.includes(tag)}
@@ -377,10 +377,10 @@ function RecipesPage() {
             ))}
             {/* Favorites */}
             <button
-              className={`flex items-center gap-[5px] font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+              className={`filter-chip flex items-center gap-[5px] font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
                 showFavorites
-                  ? "border-[#ef4444] text-[#ef4444] bg-[rgba(239,68,68,0.08)]"
-                  : "border-[var(--rule)] text-[var(--muted)] bg-transparent hover:border-[var(--fg)] hover:text-[var(--fg)]"
+                  ? "text-[var(--fg)] border-[var(--rule)]"
+                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
               }`}
               onClick={() => setShowFavorites(prev => !prev)}
               aria-pressed={showFavorites}
