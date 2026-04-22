@@ -63,7 +63,11 @@ type SortableIngredientRowProps = {
   updateRow: (id: string, patch: Partial<Row>) => void;
   commitSection: (rowId: string) => void;
   removeSectionFromRow: (rowId: string) => void;
-  createIngredient: (name: string, rowId: string) => void;
+  createIngredient: (name: string, rowId: string, category?: string) => void;
+  pendingCategoryRow: string | null;
+  setPendingCategoryRow: Dispatch<SetStateAction<string | null>>;
+  pendingCategory: string;
+  setPendingCategory: Dispatch<SetStateAction<string>>;
 };
 
 function SortableIngredientRow({
@@ -73,6 +77,7 @@ function SortableIngredientRow({
   setSearchText, setShowDropdown, setQuantityText,
   setRows, setEditingSectionRowId, setEditingSectionText,
   updateRow, commitSection, removeSectionFromRow, createIngredient,
+  pendingCategoryRow, setPendingCategoryRow, pendingCategory, setPendingCategory,
 }: SortableIngredientRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id });
   const style: React.CSSProperties = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
@@ -171,12 +176,43 @@ function SortableIngredientRow({
             </div>
           )}
           {!selectedIngredient && row.nameGuess && (
-            <div className="flex items-center gap-[6px]" style={{ padding: "2px 0" }}>
-              <span className="font-mono text-[9px] text-[var(--warn)]">Not in library —</span>
-              <button type="button" onClick={() => createIngredient(currentSearch || row.nameGuess!, row.id)}
-                className="font-mono text-[9px] text-[var(--accent)] underline bg-transparent border-0 p-0 cursor-pointer">
-                Add to library
-              </button>
+            <div style={{ padding: "2px 0" }}>
+              {pendingCategoryRow === row.id ? (
+                <div className="flex items-center gap-[6px]">
+                  <select
+                    value={pendingCategory}
+                    onChange={(e) => setPendingCategory(e.target.value)}
+                    className="ed-input font-mono"
+                    style={{ fontSize: 9, padding: "2px 4px", height: "auto" }}
+                    aria-label="Ingredient category"
+                    autoFocus
+                  >
+                    <option value="">Category (optional)</option>
+                    {["Produce","Meat & Seafood","Dairy & Eggs","Grains, Pasta & Bread","Legumes","Baking","Nuts & Seeds","Spices & Seasonings","Condiments & Sauces","Oils & Fats","Frozen","Canned & Jarred","Beverages","Alcohol","Snacks"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <button type="button"
+                    onClick={() => { createIngredient(currentSearch || row.nameGuess!, row.id, pendingCategory); setPendingCategoryRow(null); setPendingCategory(""); }}
+                    className="font-mono text-[9px] text-[var(--accent)] bg-transparent border-0 p-0 cursor-pointer">
+                    Create
+                  </button>
+                  <button type="button"
+                    onClick={() => { setPendingCategoryRow(null); setPendingCategory(""); }}
+                    className="font-mono text-[9px] text-[var(--muted)] bg-transparent border-0 p-0 cursor-pointer">
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-[6px]">
+                  <span className="font-mono text-[9px] text-[var(--warn)]">Not in library —</span>
+                  <button type="button"
+                    onClick={() => { setPendingCategoryRow(row.id); setPendingCategory(""); }}
+                    className="font-mono text-[9px] text-[var(--accent)] underline bg-transparent border-0 p-0 cursor-pointer">
+                    Add to library
+                  </button>
+                </div>
+              )}
             </div>
           )}
           <input
@@ -304,6 +340,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
   const [sourceRowId, setSourceRowId] = useState<string | null>(null);
   const [editingSectionRowId, setEditingSectionRowId] = useState<string | null>(null);
   const [editingSectionText, setEditingSectionText] = useState("");
+  const [pendingCategoryRow, setPendingCategoryRow] = useState<string | null>(null);
+  const [pendingCategory, setPendingCategory] = useState("");
 
   const availableTags = ["breakfast", "lunch", "dinner", "side", "snack", "dessert", "beverage"];
 
@@ -450,7 +488,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
     setEditingSectionRowId(null);
   }
 
-  async function createIngredient(name: string, rowId: string) {
+  async function createIngredient(name: string, rowId: string, category?: string) {
     const trimmedName = name.trim();
     if (!trimmedName) return;
 
@@ -470,7 +508,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       const res = await fetch("/api/ingredients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: trimmedName, defaultUnit: "g" }),
+        body: JSON.stringify({ name: trimmedName, defaultUnit: "g", category: category || "" }),
       });
 
       const resData = await res.json();
@@ -620,6 +658,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (res.ok) {
+        clientCache.invalidate('/api/recipes');
+        clientCache.invalidate('/api/recipes?slim=true');
         toast.success(isEdit ? "Recipe updated" : "Recipe saved");
         if (!isEdit) {
           setName("");
@@ -875,6 +915,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                   setRows={setRows} setEditingSectionRowId={setEditingSectionRowId} setEditingSectionText={setEditingSectionText}
                   updateRow={updateRow} commitSection={commitSection}
                   removeSectionFromRow={removeSectionFromRow} createIngredient={createIngredient}
+                  pendingCategoryRow={pendingCategoryRow} setPendingCategoryRow={setPendingCategoryRow}
+                  pendingCategory={pendingCategory} setPendingCategory={setPendingCategory}
                 />
               ))}
             </SortableContext>
