@@ -98,6 +98,65 @@ function RecipesPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // ── Compare mode ──
+  const [compareMode, setCompareMode]   = useState(false);
+  const [compareIds,  setCompareIds]    = useState<number[]>([]);
+  const [compareOpen, setCompareOpen]   = useState(false);
+
+  const COMPARE_COLORS = ['#3A7A4E', '#4A7FB5', '#B86E2E', '#7B5EA7'] as const;
+
+  const COMPARE_NUTRIENTS = [
+    { label: 'Calories',      unit: 'kcal', keys: ['energy', 'calorie'],     lowerIsBetter: true  },
+    { label: 'Fat',           unit: 'g',    keys: ['total fat', 'fat'],       lowerIsBetter: true  },
+    { label: 'Saturated Fat', unit: 'g',    keys: ['saturated'],              lowerIsBetter: true  },
+    { label: 'Sodium',        unit: 'mg',   keys: ['sodium'],                 lowerIsBetter: true  },
+    { label: 'Carbs',         unit: 'g',    keys: ['carbohydrate', 'carb'],   lowerIsBetter: true  },
+    { label: 'Sugar',         unit: 'g',    keys: ['sugar'],                  lowerIsBetter: true  },
+    { label: 'Protein',       unit: 'g',    keys: ['protein'],                lowerIsBetter: false },
+    { label: 'Fiber',         unit: 'g',    keys: ['fiber'],                  lowerIsBetter: false },
+  ] as const;
+
+  const toggleCompareRecipe = (id: number) => {
+    setCompareIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 4 ? [...prev, id] : prev
+    );
+  };
+
+  const getCompareValue = (recipe: RecipeSummary, keys: readonly string[]): number => {
+    if (!recipe.totals) return 0;
+    const match = recipe.totals.find(t => {
+      const name = t.displayName.toLowerCase();
+      return keys.some(k => name.includes(k));
+    });
+    return match ? Math.round(match.value) : 0;
+  };
+
+  // Load full recipe data when compare mode is activated (slim data may not have totals)
+  useEffect(() => {
+    if (!compareMode) return;
+    const fullCached = clientCache.get<RecipeSummary[]>('/api/recipes');
+    if (fullCached) { setRecipes(fullCached); return; }
+    fetch("/api/recipes").then(r => r.json()).then((data) => {
+      const list: RecipeSummary[] = Array.isArray(data) ? data : [];
+      clientCache.set('/api/recipes', list);
+      setRecipes(list);
+    }).catch(console.error);
+  }, [compareMode]);
+
+  // Escape closes compare overlay
+  useEffect(() => {
+    if (!compareOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setCompareOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [compareOpen]);
+
+  const exitCompareMode = () => {
+    setCompareMode(false);
+    setCompareIds([]);
+    setCompareOpen(false);
+  };
+
   // Filter sheet (mobile bottom sheet)
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   useEffect(() => {
@@ -472,6 +531,23 @@ function RecipesPage() {
               {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
             </span>
 
+            {/* Compare toggle — desktop/iPad only */}
+            <button
+              onClick={() => compareMode ? exitCompareMode() : setCompareMode(true)}
+              className={`cmp-mode-btn font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[10px] border cursor-pointer transition-colors flex items-center gap-[5px] ${
+                compareMode
+                  ? "bg-[var(--fg)] border-[var(--fg)] text-white"
+                  : "border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
+              }`}
+              aria-pressed={compareMode}
+              aria-label={compareMode ? "Exit compare mode" : "Enter compare mode"}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="3" width="8" height="18" rx="1"/><rect x="14" y="3" width="8" height="18" rx="1"/>
+              </svg>
+              Compare
+            </button>
+
             {/* Sort group */}
             <div ref={sortRef} className="flex border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)]">
               <button
@@ -553,6 +629,18 @@ function RecipesPage() {
             >+ New</button>
           </div>
         </div>
+      </div>
+
+      {/* ── Compare mode banner ── */}
+      <div className={`cmp-banner${compareMode ? " open" : ""}`} aria-hidden={!compareMode}>
+        <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-white/60">
+          Select up to <strong className="text-white font-medium">4 recipes</strong> to compare nutrition
+        </span>
+        <button
+          onClick={exitCompareMode}
+          className="font-mono text-[9px] tracking-[0.08em] uppercase text-white/50 border border-white/20 py-[2px] px-[8px] bg-transparent cursor-pointer transition-colors hover:text-white hover:border-white/50"
+          aria-label="Exit compare mode"
+        >✕ Exit</button>
       </div>
 
       {/* ── Mobile Filter Sheet ── */}
@@ -681,12 +769,31 @@ function RecipesPage() {
                     data-cursor="card"
                     role="button"
                     tabIndex={0}
-                    onClick={() => router.push(`/recipes/${recipe.id}`)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
-                    aria-label={recipe.name}
-                    className="bg-[var(--bg)] cursor-pointer relative group transition-transform duration-200"
+                    onClick={() => compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
+                    aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
+                    aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
+                    className={`bg-[var(--bg)] cursor-pointer relative group transition-transform duration-200 ${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 4 ? "opacity-40" : ""}`}
                     style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                   >
+                    {/* Compare selected overlay */}
+                    {compareMode && compareIds.includes(recipe.id) && (() => {
+                      const ci = compareIds.indexOf(recipe.id);
+                      return (
+                        <>
+                          <div className="absolute inset-0 pointer-events-none z-10" style={{ background: COMPARE_COLORS[ci] + '22', outline: `2px solid ${COMPARE_COLORS[ci]}`, outlineOffset: '-2px' }} />
+                          <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: COMPARE_COLORS[ci] }}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                        </>
+                      );
+                    })()}
+                    {/* Compare hover hint */}
+                    {compareMode && !compareIds.includes(recipe.id) && compareIds.length < 4 && (
+                      <div className="absolute top-2 right-2 font-mono text-[8px] tracking-[0.08em] uppercase bg-black/60 text-white/80 px-[7px] py-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" style={{ backdropFilter: 'blur(4px)' }}>
+                        + Add
+                      </div>
+                    )}
                     {/* Image */}
                     <div className="overflow-hidden" style={{ aspectRatio: "4/3" }}>
                       {recipe.image ? (
@@ -752,11 +859,12 @@ function RecipesPage() {
                   data-cursor="card"
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/recipes/${recipe.id}`)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/recipes/${recipe.id}`); } }}
-                  aria-label={recipe.name}
+                  onClick={() => compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
+                  aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
+                  aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
                   className="rcp-list-row flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group relative"
-                  style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both` }}
+                  style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: COMPARE_COLORS[compareIds.indexOf(recipe.id)] + '11' } : {}) }}
                 >
                   {/* Thumbnail — 4:3 */}
                   <div className="overflow-hidden shrink-0 bg-[var(--bg-3)]" style={{ width: 64, aspectRatio: '4/3' }}>
@@ -796,6 +904,154 @@ function RecipesPage() {
             })}
           </div>
         )}
+      </div>
+
+      {/* ── Floating compare bar ── */}
+      <div className={`cmp-bar${compareMode && compareIds.length > 0 ? " open" : ""}`} role="region" aria-label="Compare selection">
+        {/* Clear */}
+        <button
+          onClick={() => setCompareIds([])}
+          className="font-mono text-[9px] tracking-[0.08em] uppercase text-white/40 bg-transparent border-0 border-r border-white/10 px-[14px] h-[48px] cursor-pointer transition-colors hover:text-white/80"
+          aria-label="Clear compare selection"
+        >Clear</button>
+        {/* Slots */}
+        <div className="flex items-center gap-[6px] px-[14px] border-r border-white/10">
+          {[0, 1, 2, 3].map(i => {
+            const rid = compareIds[i];
+            const recipe = rid ? recipes.find(r => r.id === rid) : null;
+            return (
+              <div
+                key={i}
+                className="w-[28px] h-[21px] rounded-[2px] flex items-center justify-center overflow-hidden relative"
+                style={{ border: recipe ? `1.5px solid ${COMPARE_COLORS[i]}` : '1.5px dashed rgba(255,255,255,0.2)' }}
+              >
+                {recipe && (
+                  <>
+                    <span className="font-serif text-[11px]" style={{ color: COMPARE_COLORS[i], background: COMPARE_COLORS[i] + '28', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {recipe.name[0]}
+                    </span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleCompareRecipe(rid); }}
+                      className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer border-0"
+                      aria-label={`Remove ${recipe.name} from comparison`}
+                    >
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* Count */}
+        <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-white/40 px-[14px]">
+          <strong className="text-white/90">{compareIds.length}</strong> / 4 selected
+        </div>
+        {/* Compare button */}
+        <button
+          onClick={() => compareIds.length >= 2 && setCompareOpen(true)}
+          disabled={compareIds.length < 2}
+          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--accent-btn)] text-white cursor-pointer transition-colors hover:bg-[#2d6040] disabled:opacity-35 disabled:cursor-default"
+          aria-label="Open nutrition comparison"
+        >Compare →</button>
+      </div>
+
+      {/* ── Full-screen compare overlay ── */}
+      <div className={`cmp-overlay${compareOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Nutrition comparison">
+        {/* Header */}
+        <div className="flex items-center justify-between px-[40px] border-b border-[var(--rule)] shrink-0" style={{ height: 'var(--nav-h)' }}>
+          <div className="flex items-center gap-[16px]">
+            <button
+              onClick={() => setCompareOpen(false)}
+              className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer transition-colors hover:text-[var(--fg)] flex items-center gap-[5px] p-0"
+              aria-label="Back to recipes"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to recipes
+            </button>
+            <div className="w-[1px] h-[14px] bg-[var(--rule)]" aria-hidden="true" />
+            <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--fg)] font-medium">Nutrition Comparison</span>
+          </div>
+          <span className="font-mono text-[9px] tracking-[0.06em] text-[var(--muted)]">
+            {compareIds.length} recipe{compareIds.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto" style={{ padding: '40px 64px 64px' }}>
+          {(() => {
+            const compareRecipes = compareIds.map(id => recipes.find(r => r.id === id)).filter(Boolean) as RecipeSummary[];
+            if (compareRecipes.length < 2) return null;
+            const cols = compareRecipes.length;
+            const gridCols = `180px repeat(${cols}, 1fr)`;
+
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: gridCols, maxWidth: 960 }}>
+                {/* Recipe headers */}
+                <div />
+                {compareRecipes.map((r, i) => {
+                  const category = r.tags?.split(",")[0]?.trim();
+                  return (
+                    <div key={r.id} style={{ borderBottom: `2px solid ${COMPARE_COLORS[i]}`, paddingBottom: 20, paddingRight: 24 }}>
+                      <div className="overflow-hidden mb-[12px]" style={{ width: 56, aspectRatio: '4/3', borderTop: `3px solid ${COMPARE_COLORS[i]}` }}>
+                        {r.image
+                          ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
+                          : <div className="w-full h-full flex items-center justify-content-center font-serif text-[18px]" style={{ background: COMPARE_COLORS[i] + '14', color: COMPARE_COLORS[i], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.name[0]}</div>
+                        }
+                      </div>
+                      {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
+                      <div className="font-serif text-[16px] leading-[1.2] text-[var(--fg)]">{r.name}</div>
+                    </div>
+                  );
+                })}
+
+                {/* Nutrient rows */}
+                {COMPARE_NUTRIENTS.map(n => {
+                  const vals = compareRecipes.map(r => getCompareValue(r, n.keys));
+                  const maxVal = Math.max(...vals);
+                  const minVal = Math.min(...vals);
+                  return (
+                    <>
+                      {/* Label */}
+                      <div key={`lbl-${n.label}`} className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] flex items-center" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 0' }}>
+                        {n.label}
+                      </div>
+                      {/* Values */}
+                      {vals.map((v, i) => {
+                        const pct = maxVal > 0 ? (v / maxVal) * 100 : 0;
+                        const isBest = cols > 1 && (n.lowerIsBetter ? v === minVal : v === maxVal);
+                        const isWorst = cols > 1 && (n.lowerIsBetter ? v === maxVal : v === minVal) && vals.filter(x => x === (n.lowerIsBetter ? maxVal : minVal)).length < vals.length;
+                        return (
+                          <div key={`val-${n.label}-${i}`} className="flex items-center gap-[8px]" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 8px' }}>
+                            {/* Best value dot */}
+                            <div className="w-[5px] h-[5px] rounded-full shrink-0 transition-opacity" style={{ background: COMPARE_COLORS[i], opacity: isBest && cols > 1 ? 1 : 0 }} />
+                            <span className="font-mono text-[14px] font-medium tabular-nums" style={{ minWidth: 38, textAlign: 'right', color: isBest ? COMPARE_COLORS[i] : isWorst ? 'var(--err)' : 'var(--fg)', letterSpacing: '-0.01em' }}>{v}</span>
+                            <span className="font-mono text-[8px] tracking-[0.06em] text-[var(--muted)]" style={{ minWidth: 22 }}>{n.unit}</span>
+                            <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--bg-3)', minWidth: 60 }}>
+                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: COMPARE_COLORS[i], opacity: 0.65 }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </>
+                  );
+                })}
+
+                {/* Legend */}
+                <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--rule)', paddingTop: 16, marginTop: 12, display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <div className="flex items-center gap-[6px] font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--muted)]">
+                    <div className="w-[10px] h-[3px] rounded-full bg-[var(--accent-btn)]" />
+                    Best value
+                  </div>
+                  <div className="flex items-center gap-[6px] font-mono text-[8px] tracking-[0.08em] uppercase text-[var(--muted)]">
+                    <div className="w-[10px] h-[3px] rounded-full bg-[var(--err)]" />
+                    Highest (lower-is-better)
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
       </div>
     </div>
   );
