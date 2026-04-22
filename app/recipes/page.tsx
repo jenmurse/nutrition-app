@@ -965,7 +965,7 @@ function RecipesPage() {
               Back to recipes
             </button>
             <div className="w-[1px] h-[14px] bg-[var(--rule)]" aria-hidden="true" />
-            <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--fg)] font-medium">Nutrition Comparison</span>
+            <span className="font-mono text-[13px] tracking-[0.12em] uppercase text-[var(--fg)] font-medium">Nutrition Comparison</span>
           </div>
           <span className="font-mono text-[9px] tracking-[0.06em] text-[var(--muted)]">
             {compareIds.length} recipe{compareIds.length !== 1 ? "s" : ""}
@@ -988,14 +988,18 @@ function RecipesPage() {
                   const category = r.tags?.split(",")[0]?.trim();
                   return (
                     <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
-                      <div className="overflow-hidden mb-[12px]" style={{ width: 56, aspectRatio: '4/3', borderTop: '3px solid var(--accent-btn)' }}>
+                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3', borderTop: '3px solid var(--accent-btn)' }}>
                         {r.image
                           ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
-                          : <div className="w-full h-full font-serif text-[18px]" style={{ background: 'var(--bg-3)', color: 'var(--fg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.name[0]}</div>
+                          : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>
+                              <span className="font-sans font-bold leading-[1.05] tracking-[-0.02em] text-[var(--fg)] opacity-[0.18] block" style={{ fontSize: 11 }}>
+                                {r.name.length > 22 ? r.name.slice(0, r.name.lastIndexOf(' ', 22) || 22) : r.name}
+                              </span>
+                            </div>
                         }
                       </div>
                       {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
-                      <div className="font-serif text-[16px] leading-[1.2] text-[var(--fg)]">{r.name}</div>
+                      <div className="font-serif text-[16px] font-semibold leading-[1.2] text-[var(--fg)]">{r.name}</div>
                     </div>
                   );
                 })}
@@ -1015,10 +1019,10 @@ function RecipesPage() {
                         const pct = maxVal > 0 ? (v / maxVal) * 100 : 0;
                         return (
                           <div key={`val-${n.label}-${i}`} className="flex items-center gap-[8px]" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 8px' }}>
-                            <span className="font-mono text-[14px] font-medium tabular-nums text-[var(--fg)]" style={{ minWidth: 38, textAlign: 'right', letterSpacing: '-0.01em' }}>{v}</span>
+                            <span className="font-sans text-[20px] font-bold tabular-nums text-[var(--fg)]" style={{ minWidth: 44, textAlign: 'right', letterSpacing: '-0.02em' }}>{v}</span>
                             <span className="font-mono text-[8px] tracking-[0.06em] text-[var(--muted)]" style={{ minWidth: 22 }}>{n.unit}</span>
                             <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--bg-3)', minWidth: 60 }}>
-                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: 'var(--muted)', opacity: 0.45 }} />
+                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: pct === 100 ? 'var(--accent)' : 'var(--muted)', opacity: pct === 100 ? 1 : 0.45 }} />
                             </div>
                           </div>
                         );
