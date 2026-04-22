@@ -1346,6 +1346,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .list-tags::-webkit-scrollbar { display: none; }
 .list-controls { flex-shrink: 0; }
 
+/* Wide desktop: full chip row visible, dropdown hidden */
+.desk-chips { display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.desk-chips::-webkit-scrollbar { display: none; }
+.desk-dropdown { display: none; }
+/* Narrower desktop (768–1199px): swap to compact dropdown */
+@media (max-width: 1199px) {
+  .desk-chips { display: none; }
+  .desk-dropdown { display: flex; }
+}
+
 /* ── Mobile filter toolbar + bottom sheet ───────────────────────── */
 
 /* Compact search in mobile toolbar */

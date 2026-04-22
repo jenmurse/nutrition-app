@@ -350,8 +350,50 @@ function RecipesPage() {
 
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
         <div className="desk-tb">
-          {/* Category filter dropdown */}
-          <div ref={categoryRef} className="flex border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)] shrink-0">
+
+          {/* ── Wide desktop: full chip row ── */}
+          <div className="desk-chips">
+            {/* All */}
+            <button
+              className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+                selectedTags.length === 0 && !showFavorites
+                  ? "border-[var(--fg)] text-[var(--fg)] bg-[var(--bg-3)]"
+                  : "border-[var(--rule)] text-[var(--muted)] bg-transparent hover:border-[var(--fg)] hover:text-[var(--fg)]"
+              }`}
+              onClick={() => { setSelectedTags([]); setShowFavorites(false); }}
+              aria-pressed={selectedTags.length === 0 && !showFavorites}
+            >All</button>
+            {availableTags.map(tag => (
+              <button
+                key={tag}
+                className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+                  selectedTags.includes(tag)
+                    ? "border-[var(--accent-btn)] text-[var(--accent-btn)] bg-[var(--accent-l)]"
+                    : "border-[var(--rule)] text-[var(--muted)] bg-transparent hover:border-[var(--fg)] hover:text-[var(--fg)]"
+                }`}
+                onClick={() => toggleTag(tag)}
+                aria-pressed={selectedTags.includes(tag)}
+              >{tag}</button>
+            ))}
+            {/* Favorites */}
+            <button
+              className={`flex items-center gap-[5px] font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+                showFavorites
+                  ? "border-[#ef4444] text-[#ef4444] bg-[rgba(239,68,68,0.08)]"
+                  : "border-[var(--rule)] text-[var(--muted)] bg-transparent hover:border-[var(--fg)] hover:text-[var(--fg)]"
+              }`}
+              onClick={() => setShowFavorites(prev => !prev)}
+              aria-pressed={showFavorites}
+            >
+              <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              Favorites
+            </button>
+          </div>
+
+          {/* ── Narrow desktop: compact category dropdown ── */}
+          <div ref={categoryRef} className="desk-dropdown border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)] shrink-0">
             <button
               onClick={() => setCategoryOpen(!categoryOpen)}
               aria-label="Filter by category"
