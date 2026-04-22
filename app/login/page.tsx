@@ -18,9 +18,9 @@ function LoginPage() {
   const supabase = createClient();
   const searchParams = useSearchParams();
 
-  // Force default theme on auth screens so it doesn't inherit a previous user's color
+  // Clear any person theme on auth screens
   useEffect(() => {
-    document.documentElement.dataset.theme = "sage";
+    delete document.documentElement.dataset.theme;
   }, []);
 
   useEffect(() => {

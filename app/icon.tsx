@@ -1,5 +1,5 @@
 // app/icon.tsx — Browser tab favicon.
-// Renders the actual "G" mark from the brand favicon on a sage green rounded square.
+// Renders the actual "G" mark from the brand favicon on a black rounded square.
 
 import { ImageResponse } from "next/og";
 import { SEO } from "@/lib/seo";

@@ -22,20 +22,23 @@ export default function CustomCursor() {
     };
 
     const getAccent = () => {
-      // Landing page is always brand sage — never inherits person theme
-      if (window.location.pathname === '/landing') return '#5A9B6A';
-      return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5A9B6A';
+      return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#111111';
     };
 
     const onOver = (e: MouseEvent) => {
       const el = e.target as HTMLElement;
       const isInteractive = el.closest("a[href], button, [role='button'], input, select, textarea, label");
       if (isInteractive) {
-        cur.style.background = getAccent();
-        cur.classList.add("on-link");
+        if (window.location.pathname === '/landing') {
+          cur.classList.add("on-link", "on-link--outline");
+        } else {
+          cur.style.background = getAccent();
+          cur.classList.add("on-link");
+          cur.classList.remove("on-link--outline");
+        }
       } else {
         cur.style.background = '';
-        cur.classList.remove("on-link");
+        cur.classList.remove("on-link", "on-link--outline");
       }
     };
 

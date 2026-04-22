@@ -32,7 +32,7 @@ export const SEO = {
 
   // ── Favicon + theme ──────────────────────────────────────────
   // Used for the browser tab favicon background and mobile theme colour.
-  brandColor: "#5A9B6A",   // sage green
+  brandColor: "#111111",
 
   // ── Robots ───────────────────────────────────────────────────
   // Set to false to block indexing (e.g. while in private beta).

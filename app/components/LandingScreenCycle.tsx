@@ -1701,7 +1701,7 @@ export default function LandingScreenCycle() {
       >
         <div className="lp-hero-inner">
           <h1 id="lp-hero-headline" className="lp-s-headline">
-            Measure what<br /><span style={{ color: BRAND_SAGE }}>matters.</span>
+            Measure what<br /><span>matters.</span>
           </h1>
           <p className="lp-s-subhead">
             Know exactly what&apos;s in everything you cook. Build and optimize recipes, track nutrition live, and easily plan the week for your entire household.
@@ -1864,7 +1864,7 @@ export default function LandingScreenCycle() {
       >
         <div className="lp-cta-inner">
           <h2 className="lp-s-headline lp-cta-headline">
-            Start measuring <br className="lp-mob-br" />what <span style={{ color: BRAND_SAGE }}>matters.</span>
+            Start measuring <br className="lp-mob-br" />what <span>matters.</span>
           </h2>
           <Link href="/login?signup=1" className="lp-cta-btn lp-cta-btn--sage" aria-label="Get started with Good Measure">
             GET STARTED ↗

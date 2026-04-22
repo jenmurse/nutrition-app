@@ -17,10 +17,10 @@
     --muted: #777777;   /* muted text (labels, hints) */
     --rule:  #DDDDDD;   /* hairlines, borders, dividers */
 
-    /* Accent — default sage, overridden per person theme */
-    --accent:     #5A9B6A;
-    --accent-btn: #3A7A4E;  /* accessible interactive: buttons, text links, dates, bars */
-    --accent-l:   rgba(90,155,106,0.10);
+    /* Accent — default black (brand), overridden per person theme */
+    --accent:     #111111;
+    --accent-btn: #111111;
+    --accent-l:   rgba(17,17,17,0.08);
     --accent-fg:  #fff;
 
     /* Status */
@@ -2707,6 +2707,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   width: 32px; height: 32px;
   mix-blend-mode: multiply;
 }
+.cursor-dot.on-link--outline {
+  width: 28px; height: 28px;
+  background: transparent !important;
+  border: 1.5px solid #111111;
+  mix-blend-mode: normal;
+  transition: background 0.18s, width 0.22s, height 0.22s, border 0.18s;
+}
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /* Landing Page — .lp-*                                                        */
@@ -2750,7 +2757,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 28px;
   transition: color 0.15s;
 }
-.lp-split-brand:hover { color: #5A9B6A; }
+.lp-split-brand:hover { color: var(--fg); }
 .lp-split-right {
   display: flex;
   flex-direction: column;
@@ -2832,7 +2839,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #2D6B3F; /* darker sage for WCAG AA on --bg (5.8:1) */
+  color: var(--muted);
   margin-bottom: 20px;
   display: block;
 }
@@ -3063,7 +3070,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-fs-tab:first-child { padding-left: var(--pad); }
 .lp-fs-tab:last-child { border-right: none; }
 .lp-fs-tab:hover .lp-fs-tab-label { color: var(--fg); }
-.lp-fs-tab--active { border-bottom-color: #5A9B6A; }
+.lp-fs-tab--active { border-bottom-color: var(--fg); }
 .lp-fs-tab-num {
   font-family: var(--mono);
   font-size: 10px;
@@ -3674,7 +3681,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.1em;
-  color: #5A9B6A;
+  color: var(--muted);
   margin-right: 6px;
 }
 .lp-mob-feature-label {
@@ -3794,7 +3801,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  background: #FAF8F4;
+  background: var(--bg);
   border-bottom: 1px solid rgba(17, 17, 17, 0.1);
 }
 
