@@ -7,15 +7,15 @@
     /* ── Editorial Design System Tokens ─────────────────────────────────── */
 
     /* Surfaces */
-    --bg:    #F5F4EF;   /* primary background — warm off-white */
-    --bg-2:  #EEEAE3;   /* secondary surface (inputs, cards) */
-    --bg-3:  #E6E2D8;   /* tertiary surface (hover, tags) */
+    --bg:    #FFFFFF;   /* primary background */
+    --bg-2:  #F4F4F4;   /* secondary surface (inputs, cards) */
+    --bg-3:  #E8E8E8;   /* tertiary surface (hover, tags) */
 
     /* Foreground */
-    --fg:    #1A1916;   /* primary text */
-    --fg-2:  #36342F;   /* secondary text (body, descriptions) */
-    --muted: #6B6860;   /* muted text (labels, hints) */
-    --rule:  #D0CCC2;   /* hairlines, borders, dividers */
+    --fg:    #111111;   /* primary text */
+    --fg-2:  #333333;   /* secondary text (body, descriptions) */
+    --muted: #777777;   /* muted text (labels, hints) */
+    --rule:  #DDDDDD;   /* hairlines, borders, dividers */
 
     /* Accent — default sage, overridden per person theme */
     --accent:     #5A9B6A;
@@ -340,7 +340,7 @@ input[type="number"]:focus {
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4 3.5-4z' fill='%236B6860'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4 3.5-4z' fill='%23777777'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0 center;
   padding-right: 16px;
@@ -779,7 +779,7 @@ input[type="number"]:focus {
   background:transparent; border:none; border-bottom:1px solid var(--rule);
   padding:3px 14px 3px 0; outline:none; min-width:180px; cursor:pointer;
   text-align:left; white-space:nowrap;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4 3.5-4z' fill='%236B6860'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4 3.5-4z' fill='%23777777'/%3E%3C/svg%3E");
   background-repeat:no-repeat; background-position:right 0 center;
   transition:border-color 0.2s;
 }
@@ -2715,7 +2715,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-root {
   height: 100%;
   overflow: hidden;
-  background: #F5F4EF;
+  background: var(--bg);
 }
 @media (max-width: 768px) {
   .lp-root {
@@ -3795,7 +3795,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   justify-content: space-between;
   padding: 0 40px;
   background: #FAF8F4;
-  border-bottom: 1px solid rgba(26, 25, 22, 0.1);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.1);
 }
 
 /* Override split-brand margin when used in header */
@@ -3805,14 +3805,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
-  color: #1A1916;
+  color: var(--fg);
   text-decoration: none;
 }
 
 .lp-hdr-cta {
   font-size: 9px !important;
   padding: 9px 20px !important;
-  background: #1A1916 !important;
+  background: var(--fg) !important;
   color: #FAF8F4 !important;
   letter-spacing: 0.08em;
 }
@@ -3839,7 +3839,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 5px;
   border-radius: 50%;
   border: none;
-  background: rgba(26, 25, 22, 0.2);
+  background: rgba(17, 17, 17, 0.2);
   cursor: pointer;
   padding: 0;
   transition: background 200ms, transform 200ms;
@@ -3851,7 +3851,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-dot--active {
-  background: #1A1916;
+  background: var(--fg);
   transform: scale(1.5);
 }
 
@@ -3876,7 +3876,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* ── Dark variant ── */
 .lp-s-dark,
 .lp-s-feat.lp-s-dark {
-  background: #1A1916 !important;
+  background: var(--fg) !important;
   color: #FAF8F4;
 }
 
@@ -3905,7 +3905,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Hero section ── */
 .lp-s-hero {
-  background: #F5F4EF;
+  background: var(--bg);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -3937,7 +3937,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-s-subhead {
   font-family: var(--sans);
   font-size: 16px;
-  color: rgba(26, 25, 22, 0.6);
+  color: rgba(17, 17, 17, 0.6);
   max-width: 52ch;
   line-height: 1.65;
   margin: 0 auto 28px;
@@ -3953,7 +3953,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-cta-btn--dark {
-  background: #1A1916;
+  background: var(--fg);
   color: #FAF8F4;
   font-family: var(--mono);
   font-size: 9px;
@@ -3961,7 +3961,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   letter-spacing: 0.08em;
   padding: 12px 24px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid #1A1916;
+  border: 1.5px solid var(--fg);
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
@@ -3999,15 +3999,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   letter-spacing: 0.08em;
   padding: 12px 24px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid rgba(26, 25, 22, 0.25);
+  border: 1.5px solid rgba(17, 17, 17, 0.25);
   background: transparent;
-  color: #1A1916;
+  color: var(--fg);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .lp-outline-btn:hover {
-  background: #1A1916;
+  background: var(--fg);
   color: #FAF8F4;
 }
 
@@ -4025,7 +4025,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Feature sections ── */
 .lp-s-feat {
-  background: #F5F4EF;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4075,7 +4075,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(26, 25, 22, 0.75);
+  color: rgba(17, 17, 17, 0.75);
   margin: 0;
 }
 
@@ -4085,14 +4085,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.0;
-  color: #1A1916;
+  color: var(--fg);
   margin: 0;
 }
 
 .lp-feat-body {
   font-family: var(--sans);
   font-size: 15px;
-  color: rgba(26, 25, 22, 0.6);
+  color: rgba(17, 17, 17, 0.6);
   line-height: 1.65;
   margin: 0;
 }

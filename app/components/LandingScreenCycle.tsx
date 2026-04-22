@@ -322,14 +322,14 @@ function PantryScreen() {
             borderBottom: "1px solid var(--rule)",
             padding: "12px 14px",
           }}>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 6.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(26,25,22,0.45)", marginBottom: 3 }}>{c.cat}</div>
-            <div style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#1A1916", marginBottom: 3 }}>{c.name}</div>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "rgba(26,25,22,0.45)", marginBottom: 8, letterSpacing: "0.01em" }}>{c.unit}</div>
-            <div style={{ height: 1, background: "rgba(26,25,22,0.1)", marginBottom: 6 }} />
+            <div style={{ fontFamily: "var(--mono)", fontSize: 6.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(17,17,17,0.45)", marginBottom: 3 }}>{c.cat}</div>
+            <div style={{ fontFamily: "var(--display)", fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#111111", marginBottom: 3 }}>{c.name}</div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "rgba(17,17,17,0.45)", marginBottom: 8, letterSpacing: "0.01em" }}>{c.unit}</div>
+            <div style={{ height: 1, background: "rgba(17,17,17,0.1)", marginBottom: 6 }} />
             {([["Calories", c.cal], ["Fat", c.fat], ["Saturated Fat", c.satfat], ["Sodium", c.sodium], ["Carbs", c.carbs], ["Sugar", c.sugar], ["Protein", c.protein], ["Fiber", c.fiber]] as [string, string][]).map(([l, v]) => (
-              <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "2.5px 0", borderBottom: "1px solid rgba(26,25,22,0.08)" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(26,25,22,0.45)" }}>{l}</span>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#1A1916", fontVariantNumeric: "tabular-nums" }}>{v}</span>
+              <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "2.5px 0", borderBottom: "1px solid rgba(17,17,17,0.08)" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(17,17,17,0.45)" }}>{l}</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#111111", fontVariantNumeric: "tabular-nums" }}>{v}</span>
               </div>
             ))}
           </div>
