@@ -534,7 +534,7 @@ function RecipesPage() {
               onClick={() => compareMode ? exitCompareMode() : setCompareMode(true)}
               className={`cmp-mode-btn font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[10px] border cursor-pointer transition-colors flex items-center gap-[5px] ${
                 compareMode
-                  ? "bg-[var(--fg)] border-[var(--fg)] text-white"
+                  ? "bg-[var(--bg-3)] border-[var(--fg)] text-[var(--fg)]"
                   : "border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
               }`}
               aria-pressed={compareMode}
@@ -588,7 +588,7 @@ function RecipesPage() {
             </div>
 
             {/* Grid/List toggle */}
-            <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
+            <div className="flex border border-[var(--rule)] overflow-hidden rounded-pill transition-colors hover:border-[var(--fg)]">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
@@ -922,8 +922,8 @@ function RecipesPage() {
               >
                 {recipe && (
                   <>
-                    <span className="font-serif text-[11px]" style={{ color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.12)', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {recipe.name[0]}
+                    <span className="font-mono text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.7)', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {i + 1}
                     </span>
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleCompareRecipe(rid); }}
