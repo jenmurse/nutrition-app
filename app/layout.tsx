@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   },
 
   // ── Favicon theme colour (Android Chrome, Safari pinned tab) ──
-  themeColor: SEO.brandColor,
+  themeColor: "#E8E8E8",
 
   // ── PWA manifest ─────────────────────────────────────────────
   manifest: "/manifest.json",

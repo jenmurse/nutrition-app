@@ -29,7 +29,8 @@ export default function CustomCursor() {
       const el = e.target as HTMLElement;
       const isInteractive = el.closest("a[href], button, [role='button'], input, select, textarea, label");
       if (isInteractive) {
-        if (window.location.pathname === '/landing') {
+        const isThemed = !!document.documentElement.dataset.theme;
+        if (!isThemed) {
           cur.classList.add("on-link", "on-link--outline");
         } else {
           cur.style.background = getAccent();
