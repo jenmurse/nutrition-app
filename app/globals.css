@@ -3822,9 +3822,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--fg) !important;
   color: #FAF8F4 !important;
   letter-spacing: 0.08em;
+  border: 1.5px solid var(--fg) !important;
+  transition: background 0.15s, color 0.15s !important;
 }
 .lp-hdr-cta:hover {
-  background: #5A9B6A !important;
+  background: transparent !important;
+  color: var(--fg) !important;
   opacity: 1;
 }
 
@@ -3980,8 +3983,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-cta-btn--sage {
-  background: #5A9B6A;
-  color: #fff;
+  background: #ffffff;
+  color: #111111;
   font-family: var(--mono);
   font-size: 13px;
   text-transform: uppercase;
