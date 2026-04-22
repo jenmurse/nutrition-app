@@ -103,8 +103,6 @@ function RecipesPage() {
   const [compareIds,  setCompareIds]    = useState<number[]>([]);
   const [compareOpen, setCompareOpen]   = useState(false);
 
-  const COMPARE_COLORS = ['#3A7A4E', '#4A7FB5', '#B86E2E', '#7B5EA7'] as const;
-
   const COMPARE_NUTRIENTS = [
     { label: 'Calories',      unit: 'kcal', keys: ['energy', 'calorie'],     lowerIsBetter: true  },
     { label: 'Fat',           unit: 'g',    keys: ['total fat', 'fat'],       lowerIsBetter: true  },
@@ -414,7 +412,7 @@ function RecipesPage() {
           <div className="desk-chips">
             {/* All */}
             <button
-              className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
+              className={`filter-chip font-mono text-[11px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
                 selectedTags.length === 0 && !showFavorites
                   ? "text-[var(--fg)] border-[var(--rule)]"
                   : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -425,7 +423,7 @@ function RecipesPage() {
             {availableTags.map(tag => (
               <button
                 key={tag}
-                className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
+                className={`filter-chip font-mono text-[11px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
                   selectedTags.includes(tag)
                     ? "text-[var(--fg)] border-[var(--rule)]"
                     : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -436,7 +434,7 @@ function RecipesPage() {
             ))}
             {/* Favorites */}
             <button
-              className={`filter-chip flex items-center gap-[5px] font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
+              className={`filter-chip flex items-center gap-[5px] font-mono text-[11px] tracking-[0.08em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
                 showFavorites
                   ? "text-[var(--fg)] border-[var(--rule)]"
                   : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
@@ -458,8 +456,8 @@ function RecipesPage() {
               aria-label="Filter by category"
               aria-expanded={categoryOpen}
               aria-haspopup="listbox"
-              className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
-              style={{ minWidth: 72 }}
+              className="font-mono text-[11px] tracking-[0.06em] uppercase text-[var(--fg)] bg-transparent border-0 py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+              style={{ minWidth: 80 }}
             >
               {categoryLabel}
               <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
@@ -475,7 +473,7 @@ function RecipesPage() {
                 <button
                   role="option"
                   aria-selected={selectedTags.length === 0 && !showFavorites}
-                  className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                  className={`block w-full text-left font-mono text-[11px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                     selectedTags.length === 0 && !showFavorites
                       ? "text-[var(--fg)] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -492,7 +490,7 @@ function RecipesPage() {
                     key={tag}
                     role="option"
                     aria-selected={selectedTags.includes(tag)}
-                    className={`flex items-center justify-between w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                    className={`flex items-center justify-between w-full text-left font-mono text-[11px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                       selectedTags.includes(tag)
                         ? "text-[var(--fg)] bg-transparent"
                         : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -507,9 +505,9 @@ function RecipesPage() {
                 <button
                   role="option"
                   aria-selected={showFavorites}
-                  className={`flex items-center gap-[5px] w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-[5px] w-full text-left font-mono text-[11px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                     showFavorites
-                      ? "text-[#ef4444] bg-transparent"
+                      ? "text-[var(--err)] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
                   }`}
                   onClick={() => setShowFavorites(prev => !prev)}
@@ -518,7 +516,7 @@ function RecipesPage() {
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
                   <span className="flex-1">Favorites</span>
-                  {showFavorites && <span className="text-[#ef4444]">✓</span>}
+                  {showFavorites && <span className="text-[var(--err)]">✓</span>}
                 </button>
               </div>
             )}
@@ -534,7 +532,7 @@ function RecipesPage() {
             {/* Compare toggle — desktop/iPad only */}
             <button
               onClick={() => compareMode ? exitCompareMode() : setCompareMode(true)}
-              className={`cmp-mode-btn font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[10px] border cursor-pointer transition-colors flex items-center gap-[5px] ${
+              className={`cmp-mode-btn font-mono text-[11px] tracking-[0.06em] uppercase py-[3px] px-[10px] border cursor-pointer transition-colors flex items-center gap-[5px] ${
                 compareMode
                   ? "bg-[var(--fg)] border-[var(--fg)] text-white"
                   : "border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
@@ -555,7 +553,7 @@ function RecipesPage() {
                 aria-label="Sort recipes by"
                 aria-expanded={sortOpen}
                 aria-haspopup="listbox"
-                className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+                className="font-mono text-[11px] tracking-[0.06em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
               >
                 {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
                 <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
@@ -573,7 +571,7 @@ function RecipesPage() {
                       role="option"
                       aria-selected={sortBy === opt.key}
                       onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
-                      className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                      className={`block w-full text-left font-mono text-[11px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                         sortBy === opt.key
                           ? "text-[var(--fg)] bg-transparent"
                           : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -590,10 +588,10 @@ function RecipesPage() {
             </div>
 
             {/* Grid/List toggle */}
-            <div className="flex border border-[var(--rule)] overflow-hidden rounded-pill transition-colors hover:border-[var(--fg)]">
+            <div className="flex border border-[var(--rule)] overflow-hidden transition-colors hover:border-[var(--fg)]">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
+                className={`font-mono text-[11px] tracking-[0.06em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
                   viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
                 }`}
                 aria-label="Grid view"
@@ -601,7 +599,7 @@ function RecipesPage() {
               >Grid</button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
+                className={`font-mono text-[11px] tracking-[0.06em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
                   viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
                 }`}
                 aria-label="List view"
@@ -617,7 +615,7 @@ function RecipesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search recipes"
-              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-[border-color] focus:border-[var(--accent)]"
+              className="font-mono text-[11px] tracking-[0.02em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-[border-color] focus:border-[var(--accent)]"
               style={{ width: 180 }}
             />
 
@@ -777,17 +775,14 @@ function RecipesPage() {
                     style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                   >
                     {/* Compare selected overlay */}
-                    {compareMode && compareIds.includes(recipe.id) && (() => {
-                      const ci = compareIds.indexOf(recipe.id);
-                      return (
-                        <>
-                          <div className="absolute inset-0 pointer-events-none z-10" style={{ background: COMPARE_COLORS[ci] + '22', outline: `2px solid ${COMPARE_COLORS[ci]}`, outlineOffset: '-2px' }} />
-                          <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: COMPARE_COLORS[ci] }}>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                          </div>
-                        </>
-                      );
-                    })()}
+                    {compareMode && compareIds.includes(recipe.id) && (
+                      <>
+                        <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--accent-btn)', outlineOffset: '-2px' }} />
+                        <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--accent-btn)' }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      </>
+                    )}
                     {/* Compare hover hint */}
                     {compareMode && !compareIds.includes(recipe.id) && compareIds.length < 4 && (
                       <div className="absolute top-2 right-2 font-mono text-[8px] tracking-[0.08em] uppercase bg-black/60 text-white/80 px-[7px] py-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" style={{ backdropFilter: 'blur(4px)' }}>
@@ -831,7 +826,7 @@ function RecipesPage() {
                       onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
                       className={`rcp-fav-btn absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-[color,opacity,background] duration-150 ${
                         recipe.isFavorited
-                          ? "text-[#ef4444] bg-black/20 opacity-100"
+                          ? "text-[var(--err)] bg-black/20 opacity-100"
                           : "text-white bg-black/20 opacity-0 group-hover:opacity-100"
                       }`}
                       style={{ backdropFilter: "blur(4px)" }}
@@ -864,7 +859,7 @@ function RecipesPage() {
                   aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
                   aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
                   className="rcp-list-row flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group relative"
-                  style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: COMPARE_COLORS[compareIds.indexOf(recipe.id)] + '11' } : {}) }}
+                  style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: 'var(--accent-l)' } : {}) }}
                 >
                   {/* Thumbnail — 4:3 */}
                   <div className="overflow-hidden shrink-0 bg-[var(--bg-3)]" style={{ width: 64, aspectRatio: '4/3' }}>
@@ -889,7 +884,7 @@ function RecipesPage() {
                     onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
                     className={`rcp-fav-btn shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-[color,opacity] duration-150 ${
                       recipe.isFavorited
-                        ? "text-[#ef4444] opacity-100"
+                        ? "text-[var(--err)] opacity-100"
                         : "text-[var(--muted)] opacity-0 group-hover:opacity-100"
                     }`}
                     aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
@@ -923,11 +918,11 @@ function RecipesPage() {
               <div
                 key={i}
                 className="w-[28px] h-[21px] rounded-[2px] flex items-center justify-center overflow-hidden relative"
-                style={{ border: recipe ? `1.5px solid ${COMPARE_COLORS[i]}` : '1.5px dashed rgba(255,255,255,0.2)' }}
+                style={{ border: recipe ? '1.5px solid rgba(255,255,255,0.5)' : '1.5px dashed rgba(255,255,255,0.2)' }}
               >
                 {recipe && (
                   <>
-                    <span className="font-serif text-[11px]" style={{ color: COMPARE_COLORS[i], background: COMPARE_COLORS[i] + '28', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="font-serif text-[11px]" style={{ color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.12)', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {recipe.name[0]}
                     </span>
                     <button
@@ -992,11 +987,11 @@ function RecipesPage() {
                 {compareRecipes.map((r, i) => {
                   const category = r.tags?.split(",")[0]?.trim();
                   return (
-                    <div key={r.id} style={{ borderBottom: `2px solid ${COMPARE_COLORS[i]}`, paddingBottom: 20, paddingRight: 24 }}>
-                      <div className="overflow-hidden mb-[12px]" style={{ width: 56, aspectRatio: '4/3', borderTop: `3px solid ${COMPARE_COLORS[i]}` }}>
+                    <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
+                      <div className="overflow-hidden mb-[12px]" style={{ width: 56, aspectRatio: '4/3', borderTop: '3px solid var(--accent-btn)' }}>
                         {r.image
                           ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
-                          : <div className="w-full h-full flex items-center justify-content-center font-serif text-[18px]" style={{ background: COMPARE_COLORS[i] + '14', color: COMPARE_COLORS[i], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.name[0]}</div>
+                          : <div className="w-full h-full font-serif text-[18px]" style={{ background: 'var(--bg-3)', color: 'var(--fg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.name[0]}</div>
                         }
                       </div>
                       {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
@@ -1024,11 +1019,11 @@ function RecipesPage() {
                         return (
                           <div key={`val-${n.label}-${i}`} className="flex items-center gap-[8px]" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 8px' }}>
                             {/* Best value dot */}
-                            <div className="w-[5px] h-[5px] rounded-full shrink-0 transition-opacity" style={{ background: COMPARE_COLORS[i], opacity: isBest && cols > 1 ? 1 : 0 }} />
-                            <span className="font-mono text-[14px] font-medium tabular-nums" style={{ minWidth: 38, textAlign: 'right', color: isBest ? COMPARE_COLORS[i] : isWorst ? 'var(--err)' : 'var(--fg)', letterSpacing: '-0.01em' }}>{v}</span>
+                            <div className="w-[5px] h-[5px] rounded-full shrink-0 transition-opacity" style={{ background: 'var(--accent-btn)', opacity: isBest && cols > 1 ? 1 : 0 }} />
+                            <span className="font-mono text-[14px] font-medium tabular-nums" style={{ minWidth: 38, textAlign: 'right', color: isBest ? 'var(--accent-btn)' : isWorst ? 'var(--err)' : 'var(--fg)', letterSpacing: '-0.01em' }}>{v}</span>
                             <span className="font-mono text-[8px] tracking-[0.06em] text-[var(--muted)]" style={{ minWidth: 22 }}>{n.unit}</span>
                             <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--bg-3)', minWidth: 60 }}>
-                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: COMPARE_COLORS[i], opacity: 0.65 }} />
+                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: 'var(--muted)', opacity: 0.45 }} />
                             </div>
                           </div>
                         );

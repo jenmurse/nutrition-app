@@ -1364,7 +1364,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .cmp-banner {
   height: 0;
   overflow: hidden;
-  background: var(--fg);
+  background: var(--fg-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1379,7 +1379,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: var(--fg);
+  background: var(--fg-2);
   display: flex;
   align-items: center;
   z-index: 100;
