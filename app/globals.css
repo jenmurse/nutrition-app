@@ -2662,10 +2662,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   #pf-scroll-container { overflow-x: hidden; }
 }
 
-/* ── Hide custom cursor on touch devices ──────────────────────────── */
+/* ── Prevent hover accent bar from lingering after tap ───────────── */
 @media (pointer: coarse) {
-  .cursor-el { display: none !important; }
-  /* Prevent hover accent bar from lingering after tap */
   .group-hover\:scale-x-100 { transform: scaleX(0) !important; }
 }
 
@@ -2690,30 +2688,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 }
 
-/* ── Custom cursor — hide system cursor on fine-pointer devices ── */
-@media (pointer: fine) {
-  *, *::before, *::after { cursor: none !important; }
-}
-
-/* ── Cursor dot styles ───────────────────────────────────────────── */
-.cursor-dot {
-  width: 11px; height: 11px;
-  border-radius: 50%;
-  background: var(--fg);
-  transform: translate(-50%, -50%);
-  transition: background 0.18s, width 0.22s, height 0.22s;
-}
-.cursor-dot.on-link {
-  width: 32px; height: 32px;
-  mix-blend-mode: multiply;
-}
-.cursor-dot.on-link--outline {
-  width: 28px; height: 28px;
-  background: transparent !important;
-  border: 1.5px solid #111111;
-  mix-blend-mode: normal;
-  transition: background 0.18s, width 0.22s, height 0.22s, border 0.18s;
-}
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /* Landing Page — .lp-*                                                        */
