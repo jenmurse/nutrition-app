@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tab Bar Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #F5F4EF;
+    font-family: 'Inter', sans-serif;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 12px;
+  }
+
+  /* ─── Shared bottom wrapper ─── */
+  .bottom {
+    background: #5A9B6A;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  /* ════════════════════════════════════════
+     OPTION A — Underline active, bigger text, — separator
+  ════════════════════════════════════════ */
+  .a-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .a-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px 12px;
+    border-bottom: 2px solid transparent;
+    text-align: left;
+  }
+  .a-tab + .a-tab { border-left: 1px solid rgba(0,0,0,0.12); }
+  .a-tab-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .a-tab-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    font-weight: 700;
+  }
+  .a-tab.active {
+    border-bottom-color: rgba(255,255,255,0.9);
+  }
+  .a-tab.active .a-tab-num { color: rgba(255,255,255,0.7); }
+  .a-tab.active .a-tab-label { color: #fff; }
+
+  .a-desc {
+    padding: 13px 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .a-desc-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .a-desc-sep {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    padding: 0 14px;
+    flex-shrink: 0;
+  }
+  .a-desc-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .a-legal {
+    padding: 9px 24px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* ════════════════════════════════════════
+     OPTION B — Bold sans labels, bg active, no sep char
+  ════════════════════════════════════════ */
+  .b-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .b-tab {
+    flex: 1;
+    padding: 15px 16px 13px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-right: 1px solid rgba(0,0,0,0.12);
+  }
+  .b-tab:last-child { border-right: none; }
+  .b-tab-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    display: block;
+  }
+  .b-tab.active { background: rgba(0,0,0,0.16); }
+  .b-tab.active .b-tab-label { color: #fff; }
+
+  .b-desc {
+    padding: 13px 24px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .b-desc-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .b-desc-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .b-legal {
+    padding: 9px 24px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* ════════════════════════════════════════
+     OPTION C — Single-line mono, border-bottom active
+  ════════════════════════════════════════ */
+  .c-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .c-tab {
+    flex: 1;
+    padding: 15px 16px 13px;
+    border-bottom: 2px solid transparent;
+    border-right: 1px solid rgba(0,0,0,0.12);
+    text-align: left;
+  }
+  .c-tab:last-child { border-right: none; }
+  .c-tab-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+  }
+  .c-tab-label span {
+    color: rgba(255,255,255,0.4);
+    margin-right: 6px;
+  }
+  .c-tab.active {
+    border-bottom-color: #fff;
+  }
+  .c-tab.active .c-tab-label { color: #fff; }
+  .c-tab.active .c-tab-label span { color: rgba(255,255,255,0.6); }
+
+  .c-desc {
+    padding: 13px 24px;
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .c-desc-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .c-desc-sep {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    padding: 0 14px;
+    flex-shrink: 0;
+  }
+  .c-desc-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-legal {
+    padding: 9px 24px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+</style>
+</head>
+<body>
+
+  <!-- ── OPTION A ── -->
+  <div>
+    <div class="label">Option A — Stacked num + label · underline active · — separator</div>
+    <div class="bottom">
+      <div class="a-tabs">
+        <div class="a-tab">
+          <span class="a-tab-num">01</span>
+          <span class="a-tab-label">At a Glance</span>
+        </div>
+        <div class="a-tab">
+          <span class="a-tab-num">02</span>
+          <span class="a-tab-label">Pantry</span>
+        </div>
+        <div class="a-tab active">
+          <span class="a-tab-num">03</span>
+          <span class="a-tab-label">Recipes</span>
+        </div>
+        <div class="a-tab">
+          <span class="a-tab-num">04</span>
+          <span class="a-tab-label">Optimize</span>
+        </div>
+        <div class="a-tab">
+          <span class="a-tab-num">05</span>
+          <span class="a-tab-label">Planner</span>
+        </div>
+        <div class="a-tab">
+          <span class="a-tab-num">06</span>
+          <span class="a-tab-label">Everyone</span>
+        </div>
+      </div>
+      <div class="a-desc">
+        <span class="a-desc-title">Import or create recipes</span>
+        <span class="a-desc-sep"> — </span>
+        <span class="a-desc-sub">Paste a URL, upload a file, or build from scratch. Nutrition calculates live.</span>
+      </div>
+      <div class="a-legal">© 2026 Made by Jen Murse</div>
+    </div>
+  </div>
+
+  <!-- ── OPTION B ── -->
+  <div>
+    <div class="label">Option B — Bold sans label only · bg active · no separator char</div>
+    <div class="bottom">
+      <div class="b-tabs">
+        <div class="b-tab">
+          <span class="b-tab-label">At a Glance</span>
+        </div>
+        <div class="b-tab">
+          <span class="b-tab-label">Pantry</span>
+        </div>
+        <div class="b-tab active">
+          <span class="b-tab-label">Recipes</span>
+        </div>
+        <div class="b-tab">
+          <span class="b-tab-label">Optimize</span>
+        </div>
+        <div class="b-tab">
+          <span class="b-tab-label">Planner</span>
+        </div>
+        <div class="b-tab">
+          <span class="b-tab-label">Everyone</span>
+        </div>
+      </div>
+      <div class="b-desc">
+        <span class="b-desc-title">Import or create recipes</span>
+        <span class="b-desc-sub">&nbsp;&nbsp;Paste a URL, upload a file, or build from scratch. Nutrition calculates live.</span>
+      </div>
+      <div class="b-legal">© 2026 Made by Jen Murse</div>
+    </div>
+  </div>
+
+  <!-- ── OPTION C ── -->
+  <div>
+    <div class="label">Option C — Single-line mono · white border-bottom active · — separator</div>
+    <div class="bottom">
+      <div class="c-tabs">
+        <div class="c-tab">
+          <span class="c-tab-label"><span>01</span>At a Glance</span>
+        </div>
+        <div class="c-tab">
+          <span class="c-tab-label"><span>02</span>Pantry</span>
+        </div>
+        <div class="c-tab active">
+          <span class="c-tab-label"><span>03</span>Recipes</span>
+        </div>
+        <div class="c-tab">
+          <span class="c-tab-label"><span>04</span>Optimize</span>
+        </div>
+        <div class="c-tab">
+          <span class="c-tab-label"><span>05</span>Planner</span>
+        </div>
+        <div class="c-tab active-no">
+          <span class="c-tab-label"><span>06</span>Everyone</span>
+        </div>
+      </div>
+      <div class="c-desc">
+        <span class="c-desc-title">Import or create recipes</span>
+        <span class="c-desc-sep"> — </span>
+        <span class="c-desc-sub">Paste a URL, upload a file, or build from scratch. Nutrition calculates live.</span>
+      </div>
+      <div class="c-legal">© 2026 Made by Jen Murse</div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Brand Identity Concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300..700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #1A1916;
+    --parchment: #F5F4EF;
+    --parchment-2: #EDE9E1;
+    --rule:      #D0CCC2;
+    --muted:     #6B6860;
+    --sage:      #4D7A5A;
+  }
+
+  html { background: var(--parchment); color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 13px; -webkit-font-smoothing: antialiased; }
+  body { max-width: 1060px; margin: 0 auto; padding: 60px 40px 120px; }
+
+  /* ─── Page header ─── */
+  .page-header { border-bottom: 1px solid var(--rule); padding-bottom: 40px; margin-bottom: 72px; }
+  .overline { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .page-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 20px; }
+  .page-desc { font-size: 13px; line-height: 1.7; color: var(--muted); max-width: 520px; }
+
+  /* ─── Section label ─── */
+  .section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 32px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+
+  /* ─── Concept card ─── */
+  .concept { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule); margin-bottom: 56px; }
+  .concept-header { grid-column: 1 / -1; padding: 20px 28px; border-bottom: 1px solid var(--rule); display: flex; align-items: baseline; gap: 16px; }
+  .concept-num { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--rule); }
+  .concept-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .concept-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-left: auto; }
+
+  /* ─── Visual pane ─── */
+  .concept-visual {
+    padding: 56px 40px;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    gap: 32px;
+    min-height: 300px;
+    border-right: 1px solid var(--rule);
+    background: var(--parchment);
+  }
+  /* size row for scale reference */
+  .size-row { display: flex; align-items: center; gap: 20px; }
+  .size-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rule); }
+
+  /* ─── Info pane ─── */
+  .concept-info { padding: 36px 32px; display: flex; flex-direction: column; gap: 24px; }
+  .info-block h4 { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .info-block p { font-size: 13px; line-height: 1.65; }
+  .resonance { background: var(--parchment-2); padding: 14px 16px; font-size: 13px; line-height: 1.6; border-left: 2px solid var(--sage); }
+
+  /* ─── Wordmark styles (shared) ─── */
+  .wm { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+  .wm-sub { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 5px; }
+
+  /* dark chip */
+  .dark-chip { background: var(--ink); padding: 10px 12px; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="overline">Good Measure · Brand Identity · Simplified Marks</p>
+  <h1 class="page-title">Five Logo Concepts</h1>
+  <p class="page-desc">Reduced to the essential gesture. Each mark is a single idea — maximum three elements, legible at 16px.</p>
+</header>
+
+
+<!-- ═══════════════════════════════════════════
+     01 — THE STEM
+     A vertical line with one perpendicular tick.
+     Two strokes. The tick is the measurement.
+═══════════════════════════════════════════ -->
+<p class="section-label">Concepts</p>
+
+<article class="concept">
+  <div class="concept-header">
+    <span class="concept-num">01</span>
+    <span class="concept-title">The Stem</span>
+    <span class="concept-tag">Two strokes</span>
+  </div>
+
+  <div class="concept-visual">
+    <!-- Primary lockup: mark + wordmark -->
+    <div style="display: flex; align-items: center; gap: 18px;">
+      <svg width="36" height="48" viewBox="0 0 36 48" fill="none">
+        <!-- Vertical stem -->
+        <line x1="18" y1="4" x2="18" y2="44" stroke="#1A1916" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Single tick at ~65% — the "measure" mark -->
+        <line x1="18" y1="18" x2="32" y2="18" stroke="#4D7A5A" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="wm">Good Measure</div>
+        <div class="wm-sub">measure what matters</div>
+      </div>
+    </div>
+
+    <!-- Scale variations -->
+    <div class="size-row">
+      <!-- 48px -->
+      <svg width="24" height="32" viewBox="0 0 36 48" fill="none">
+        <line x1="18" y1="4" x2="18" y2="44" stroke="#1A1916" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="18" y1="18" x2="32" y2="18" stroke="#4D7A5A" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <!-- 24px -->
+      <svg width="16" height="22" viewBox="0 0 36 48" fill="none">
+        <line x1="18" y1="4" x2="18" y2="44" stroke="#1A1916" stroke-width="3" stroke-linecap="round"/>
+        <line x1="18" y1="18" x2="32" y2="18" stroke="#4D7A5A" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <!-- Dark bg -->
+      <div class="dark-chip">
+        <svg width="16" height="22" viewBox="0 0 36 48" fill="none">
+          <line x1="18" y1="4" x2="18" y2="44" stroke="#F5F4EF" stroke-width="3" stroke-linecap="round"/>
+          <line x1="18" y1="18" x2="32" y2="18" stroke="#7AAF85" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="size-label">large · small · dark</span>
+    </div>
+  </div>
+
+  <div class="concept-info">
+    <div class="info-block">
+      <h4>Visual Structure</h4>
+      <p>A vertical line. One horizontal tick extending right from it, placed at a position that reads as "partway up" — not centered, not at the top. Two strokes, one weight, one accent. That is the entire mark.</p>
+    </div>
+    <div class="info-block">
+      <h4>Symbolic Meaning</h4>
+      <p>The mark you make on a measuring stick. A tally. A calibration point. The tick is placed at roughly 65% — you have a goal, and you're working toward it. The stem is the range; the tick is where you are.</p>
+    </div>
+    <div class="info-block">
+      <h4>Typography</h4>
+      <p>Bricolage Grotesque 700 for the wordmark. DM Mono uppercase tagline. The mark's verticality echoes the letterforms' stems — it doesn't compete, it rhymes.</p>
+    </div>
+    <div class="resonance">
+      <strong>Why it resonates:</strong> Cooks mark their measuring cups. Researchers mark their baselines. This is that gesture. Radically simple, infinitely scalable. Works at 16px as a favicon because it's just two lines.
+    </div>
+  </div>
+</article>
+
+
+<!-- ═══════════════════════════════════════════
+     02 — THE GAUGE
+     240° arc, 120° gap at the bottom.
+     Two-tone: sage (measured) + stone (remaining).
+     Reads as a dial at every size.
+═══════════════════════════════════════════ -->
+<!--
+  Math for the 240° gauge arc, center (22, 26), radius 18:
+  Gap spans 210°–330° (CCW from right), i.e. the bottom 120°.
+  Arc runs from (6.4, 35) clockwise to (37.6, 35) — bottom-left to bottom-right via top.
+
+  Color split at 65% of 240° = 156° clockwise from start:
+  Split point at 54° CCW from right:
+    x = 22 + 18·cos(54°) = 22 + 10.58 = 32.58
+    y = 26 − 18·sin(54°) = 26 − 14.56 = 11.44
+-->
+<article class="concept">
+  <div class="concept-header">
+    <span class="concept-num">02</span>
+    <span class="concept-title">The Gauge</span>
+    <span class="concept-tag">Two-tone dial arc</span>
+  </div>
+
+  <div class="concept-visual">
+    <!-- Primary lockup -->
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <svg width="48" height="40" viewBox="0 0 44 44" fill="none">
+        <!-- Stone arc: split point → end (remaining portion) -->
+        <path d="M 32.58 11.44 A 18 18 0 0 1 37.6 35"
+              stroke="#D0CCC2" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <!-- Sage arc: start → split point (measured portion) -->
+        <path d="M 6.4 35 A 18 18 0 1 1 32.58 11.44"
+              stroke="#4D7A5A" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div>
+        <div class="wm">Good Measure</div>
+        <div class="wm-sub">measure what matters</div>
+      </div>
+    </div>
+
+    <!-- Scale / colorway variations -->
+    <div class="size-row" style="flex-wrap: wrap; gap: 16px; justify-content: center;">
+
+      <!-- Small -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <svg width="28" height="24" viewBox="0 0 44 44" fill="none">
+          <path d="M 32.58 11.44 A 18 18 0 0 1 37.6 35" stroke="#D0CCC2" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+          <path d="M 6.4 35 A 18 18 0 1 1 32.58 11.44" stroke="#4D7A5A" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span class="size-label">small</span>
+      </div>
+
+      <!-- Dark bg -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <div class="dark-chip">
+          <svg width="28" height="24" viewBox="0 0 44 44" fill="none">
+            <path d="M 32.58 11.44 A 18 18 0 0 1 37.6 35" stroke="#36342F" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <path d="M 6.4 35 A 18 18 0 1 1 32.58 11.44" stroke="#7AAF85" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="size-label">dark</span>
+      </div>
+
+      <!-- Monochrome (single-color, no split) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <svg width="28" height="24" viewBox="0 0 44 44" fill="none">
+          <path d="M 6.4 35 A 18 18 0 1 1 37.6 35" stroke="#1A1916" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span class="size-label">mono</span>
+      </div>
+
+      <!-- Favicon (contained, filled) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <svg width="20" height="20" viewBox="0 0 44 44" fill="none">
+          <rect x="0" y="0" width="44" height="44" rx="9" fill="#1A1916"/>
+          <path d="M 32.58 11.44 A 18 18 0 0 1 37.6 35" stroke="#36342F" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M 6.4 35 A 18 18 0 1 1 32.58 11.44" stroke="#7AAF85" stroke-width="4" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span class="size-label">favicon</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="concept-info">
+    <div class="info-block">
+      <h4>Visual Structure</h4>
+      <p>A 240° dial arc with the gap at the bottom — the classic gauge/speedometer shape. Two strokes, same path: sage green for the measured portion (65%), stone for the remaining goal (35%). The gap is wide enough to be obviously intentional. Monochrome version collapses to a single arc.</p>
+    </div>
+    <div class="info-block">
+      <h4>Symbolic Meaning</h4>
+      <p>A gauge reads a value against a range. The two-tone arc says: here is your total range, here is where you are within it. The gap at the bottom is stable, grounded — like a speedometer or a dial thermometer, it's a tool you trust. The sage portion is always the measured amount; the stone portion is what remains.</p>
+    </div>
+    <div class="info-block">
+      <h4>Typography</h4>
+      <p>The gauge is symmetric on its vertical axis — the wordmark locks neatly to its right at optical center. The arc's open bottom creates natural visual space for the tagline to sit beneath if needed. Bricolage Grotesque 700 for "Good Measure."</p>
+    </div>
+    <div class="resonance">
+      <strong>Why it resonates:</strong> A gauge is an instrument of precision — it shows a reading, not a state. The two-tone split makes the mark instantly meaningful without explanation: you're measuring something against a goal. The 240° arc is wide enough to read clearly at 16px favicon size, and the gap at the bottom is too deliberate to be mistaken for a broken circle.
+    </div>
+  </div>
+</article>
+
+
+<!-- ═══════════════════════════════════════════
+     03 — THE RULE
+     GOOD / hairline / MEASURE
+     Zero icons. Pure type.
+═══════════════════════════════════════════ -->
+<article class="concept">
+  <div class="concept-header">
+    <span class="concept-num">03</span>
+    <span class="concept-title">The Rule</span>
+    <span class="concept-tag">Pure wordmark</span>
+  </div>
+
+  <div class="concept-visual">
+    <!-- Primary -->
+    <div style="text-align: left;">
+      <div style="font-family: 'Bricolage Grotesque'; font-size: 40px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; display: block;">GOOD</div>
+      <div style="height: 2px; background: #4D7A5A; margin: 9px 0;"></div>
+      <div style="font-family: 'Bricolage Grotesque'; font-size: 20px; font-weight: 300; letter-spacing: 0.1em; line-height: 1; display: block;">MEASURE</div>
+    </div>
+
+    <div class="size-row">
+      <!-- Small -->
+      <div>
+        <div style="font-family: 'Bricolage Grotesque'; font-size: 16px; font-weight: 800; letter-spacing: -0.03em; line-height: 1;">GOOD</div>
+        <div style="height: 1.5px; background: #4D7A5A; margin: 4px 0;"></div>
+        <div style="font-family: 'Bricolage Grotesque'; font-size: 8px; font-weight: 300; letter-spacing: 0.1em; line-height: 1;">MEASURE</div>
+      </div>
+      <!-- Dark version -->
+      <div class="dark-chip">
+        <div>
+          <div style="font-family: 'Bricolage Grotesque'; font-size: 16px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: #F5F4EF;">GOOD</div>
+          <div style="height: 1.5px; background: #7AAF85; margin: 4px 0;"></div>
+          <div style="font-family: 'Bricolage Grotesque'; font-size: 8px; font-weight: 300; letter-spacing: 0.1em; line-height: 1; color: #6B6860;">MEASURE</div>
+        </div>
+      </div>
+      <span class="size-label">small · dark</span>
+    </div>
+  </div>
+
+  <div class="concept-info">
+    <div class="info-block">
+      <h4>Visual Structure</h4>
+      <p>"GOOD" in Bricolage 800, extra-bold, tight tracking. A full-width 2px sage rule. "MEASURE" in Bricolage 300, wide tracking. Three elements: one word, one line, one word. No icon ever.</p>
+    </div>
+    <div class="info-block">
+      <h4>Symbolic Meaning</h4>
+      <p>A typographer's "rule" is a horizontal line used as a measurement and divider. To "rule" something is also to govern it. The mark makes three assertions at once: GOOD (the claim) / — (the standard) / MEASURE (the method). A complete thought in pure type.</p>
+    </div>
+    <div class="info-block">
+      <h4>Typography</h4>
+      <p>The weight contrast — 800 vs. 300 — carries the entire design. GOOD is the heavy assertion; MEASURE is the precise, considered qualifier. This contrast is the brand personality in typographic form.</p>
+    </div>
+    <div class="resonance">
+      <strong>Why it resonates:</strong> No icon means no competition on the logomark's conceptual territory. Editorial wordmarks are extremely rare in this category — every nutrition app has an icon. This positions Good Measure as something closer to a cookbook or reference tool. It will not look dated in 10 years.
+    </div>
+  </div>
+</article>
+
+
+<!-- ═══════════════════════════════════════════
+     04 — THE LINES
+     Two horizontal strokes, different lengths.
+     One accent. Nothing else.
+═══════════════════════════════════════════ -->
+<article class="concept">
+  <div class="concept-header">
+    <span class="concept-num">04</span>
+    <span class="concept-title">The Lines</span>
+    <span class="concept-tag">Two strokes, one accent</span>
+  </div>
+
+  <div class="concept-visual">
+    <div style="display: flex; align-items: center; gap: 18px;">
+      <svg width="40" height="28" viewBox="0 0 40 28" fill="none">
+        <!-- Long line (goal) -->
+        <line x1="0" y1="8" x2="40" y2="8" stroke="#1A1916" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Short line (current) — accent, shorter, beneath -->
+        <line x1="0" y1="20" x2="26" y2="20" stroke="#4D7A5A" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="wm">Good Measure</div>
+        <div class="wm-sub">measure what matters</div>
+      </div>
+    </div>
+
+    <div class="size-row">
+      <svg width="28" height="20" viewBox="0 0 40 28" fill="none">
+        <line x1="0" y1="8" x2="40" y2="8" stroke="#1A1916" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="0" y1="20" x2="26" y2="20" stroke="#4D7A5A" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <svg width="18" height="14" viewBox="0 0 40 28" fill="none">
+        <line x1="0" y1="8" x2="40" y2="8" stroke="#1A1916" stroke-width="3" stroke-linecap="round"/>
+        <line x1="0" y1="20" x2="26" y2="20" stroke="#4D7A5A" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div class="dark-chip">
+        <svg width="18" height="14" viewBox="0 0 40 28" fill="none">
+          <line x1="0" y1="8" x2="40" y2="8" stroke="#F5F4EF" stroke-width="3" stroke-linecap="round"/>
+          <line x1="0" y1="20" x2="26" y2="20" stroke="#7AAF85" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="size-label">large · small · dark</span>
+    </div>
+  </div>
+
+  <div class="concept-info">
+    <div class="info-block">
+      <h4>Visual Structure</h4>
+      <p>Two horizontal lines, vertically stacked. The top line is full-width (the goal, the standard). The bottom line is 65% width in sage green (the current measurement). Two strokes, aligned left. That's all.</p>
+    </div>
+    <div class="info-block">
+      <h4>Symbolic Meaning</h4>
+      <p>A before and after. A ruler and a reading. The gap between the two lines' endpoints is where meaning lives — that's the delta between where you are and where you're going. Horizontal marks on a scale, graduated lines on a measuring vessel, the two lines in a comparison chart.</p>
+    </div>
+    <div class="info-block">
+      <h4>Typography</h4>
+      <p>The horizontal mark pairs naturally with the wordmark set beneath it. The two-line structure also echoes the two-line lock-up from Concept 03 — these can coexist as a system (icon variant vs. wordmark variant of the same brand).</p>
+    </div>
+    <div class="resonance">
+      <strong>Why it resonates:</strong> Two lines is the simplest possible way to show "comparison" and "measurement" without any literal imagery. It's abstract enough to be timeless, specific enough to mean something. The left-aligned gap on the bottom line creates a visual tension that pulls the eye — you want that gap to close.
+    </div>
+  </div>
+</article>
+
+
+<!-- ═══════════════════════════════════════════
+     05 — THE SLASH
+     A single diagonal stroke.
+     One element. Ratio / division / precision.
+═══════════════════════════════════════════ -->
+<article class="concept">
+  <div class="concept-header">
+    <span class="concept-num">05</span>
+    <span class="concept-title">The Slash</span>
+    <span class="concept-tag">One stroke</span>
+  </div>
+
+  <div class="concept-visual">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <!-- The slash mark, paired with wordmark -->
+      <svg width="28" height="44" viewBox="0 0 28 44" fill="none">
+        <line x1="22" y1="4" x2="6" y2="40" stroke="#1A1916" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="wm">Good Measure</div>
+        <div class="wm-sub">measure what matters</div>
+      </div>
+    </div>
+
+    <!-- Contained variant — slash in a square -->
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="1" y="1" width="42" height="42" rx="9" stroke="#1A1916" stroke-width="1.5" fill="none"/>
+          <line x1="30" y1="8" x2="14" y2="36" stroke="#1A1916" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="size-label">contained</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="0" y="0" width="44" height="44" rx="9" fill="#1A1916"/>
+          <line x1="30" y1="8" x2="14" y2="36" stroke="#F5F4EF" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="size-label">app icon</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="0" y="0" width="44" height="44" rx="9" fill="#4D7A5A"/>
+          <line x1="30" y1="8" x2="14" y2="36" stroke="#F5F4EF" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="size-label">sage variant</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 44 44" fill="none">
+          <rect x="0" y="0" width="44" height="44" rx="9" fill="#1A1916"/>
+          <line x1="30" y1="8" x2="14" y2="36" stroke="#F5F4EF" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <span class="size-label">favicon</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-info">
+    <div class="info-block">
+      <h4>Visual Structure</h4>
+      <p>A single diagonal line. Used two ways: open (just the stroke, paired with wordmark) and contained (the stroke inside a rounded square for app icon and favicon use). No other marks. The contained variant uses a filled background — ink, sage, or dark.</p>
+    </div>
+    <div class="info-block">
+      <h4>Symbolic Meaning</h4>
+      <p>The slash is the universal symbol of division, ratio, and "per" — as in grams per serving, kcal per day, protein/carb ratio. It's also the mark that separates a numerator from a denominator. In cooking and nutrition, everything meaningful is a ratio.</p>
+    </div>
+    <div class="info-block">
+      <h4>Typography</h4>
+      <p>The open slash is used as a standing mark beside the wordmark. The contained slash lives as the app icon and badge — distinct from the wordmark context. Both are one stroke, which means the mark is always in harmony with whatever weight of type it sits near.</p>
+    </div>
+    <div class="resonance">
+      <strong>Why it resonates:</strong> The most reduced possible mark. One line cannot be confused with any other brand. The slash has inherent energy — it's a forward-leaning, purposeful gesture. The contained version is a world-class app icon: dark background, single stroke, instantly legible at any size. The app icon / open mark duality gives maximum flexibility.
+    </div>
+  </div>
+</article>
+
+
+<!-- ═══════════════════════════════════════════
+     SUMMARY
+═══════════════════════════════════════════ -->
+<p class="section-label" style="margin-top: 80px;">Direction Summary</p>
+
+<div style="border: 1px solid var(--rule); padding: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+  <div>
+    <h3 style="font-family: 'Bricolage Grotesque'; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 16px;">Strongest paths</h3>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; gap: 12px;">
+        <span style="font-family: 'DM Mono'; font-size: 9px; color: var(--sage); margin-top: 2px; flex-shrink: 0;">05</span>
+        <div>
+          <p style="font-weight: 600; margin-bottom: 3px; font-size: 13px;">The Slash</p>
+          <p style="color: var(--muted); font-size: 12px; line-height: 1.5;">One mark, maximum flexibility. The contained version is a perfect app icon. Completely distinct in this category.</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <span style="font-family: 'DM Mono'; font-size: 9px; color: var(--sage); margin-top: 2px; flex-shrink: 0;">03</span>
+        <div>
+          <p style="font-weight: 600; margin-bottom: 3px; font-size: 13px;">The Rule</p>
+          <p style="color: var(--muted); font-size: 12px; line-height: 1.5;">No icon at all. The weight contrast says everything. Best for brand that wants to feel like a reference tool, not an app.</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <span style="font-family: 'DM Mono'; font-size: 9px; color: var(--sage); margin-top: 2px; flex-shrink: 0;">01</span>
+        <div>
+          <p style="font-weight: 600; margin-bottom: 3px; font-size: 13px;">The Stem</p>
+          <p style="color: var(--muted); font-size: 12px; line-height: 1.5;">Clearest conceptual read. The tick at 65% tells a story without a word. Strong favicon, strong icon.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3 style="font-family: 'Bricolage Grotesque'; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 16px;">Locked in regardless</h3>
+    <ul style="display: flex; flex-direction: column; gap: 9px; list-style: none; font-size: 13px;">
+      <li style="display: flex; gap: 8px;"><span style="color: var(--sage);">✓</span> Bricolage Grotesque 700–800 for the wordmark</li>
+      <li style="display: flex; gap: 8px;"><span style="color: var(--sage);">✓</span> DM Mono uppercase for the tagline</li>
+      <li style="display: flex; gap: 8px;"><span style="color: var(--sage);">✓</span> Ink #1A1916 + Parchment #F5F4EF as the brand ground</li>
+      <li style="display: flex; gap: 8px;"><span style="color: var(--sage);">✓</span> Sage #4D7A5A as the single brand accent</li>
+      <li style="display: flex; gap: 8px;"><span style="color: var(--sage);">✓</span> No gradients, fills, or effects on the mark</li>
+      <li style="display: flex; gap: 8px;"><span style="color: var(--sage);">✓</span> Stroke-based — always legible in light and dark</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

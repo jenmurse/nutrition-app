@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure — Recipes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#FFFFFF; --bg2:#F4F4F4; --bg3:#E8E8E8;
+  --fg:#111111; --m:#777777; --r:#DDDDDD;
+  --acc:#5A9B6A; --acc-l:rgba(90,155,106,0.10);
+}
+html { font-family:'DM Sans',sans-serif; -webkit-font-smoothing:antialiased; background:var(--bg); color:var(--fg); }
+.tg { border-right:1px solid var(--r); border-bottom:1px solid var(--r); display:grid; }
+.tg > * { border-top:1px solid var(--r); border-left:1px solid var(--r); }
+.mnav { display:grid; grid-template-columns:auto 1fr auto; border-bottom:1px solid var(--r); height:44px; background:var(--bg); position:sticky; top:0; z-index:10; }
+.mnav-brand { display:flex; align-items:center; padding:0 20px; border-right:1px solid var(--r); font-size:13px; font-weight:700; letter-spacing:-0.02em; }
+.mnav-links { display:flex; align-items:center; padding:0 20px; gap:20px; }
+.mnav-link { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.10em; color:var(--m); text-decoration:none; }
+.mnav-link.on { color:var(--fg); border-bottom:1px solid var(--fg); padding-bottom:2px; }
+.mnav-right { display:flex; align-items:center; padding:0 16px; gap:4px; border-left:1px solid var(--r); }
+.avatar { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:8px; font-weight:600; color:#fff; }
+.page-nav-bar { display:flex; align-items:center; border-bottom:1px solid #111; background:#fff; position:sticky; top:44px; z-index:9; }
+.page-nav-bar a { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.10em; text-transform:uppercase; color:#777; text-decoration:none; padding:8px 16px; border-right:1px solid rgba(17,17,17,0.13); }
+.page-nav-bar a.here { color:#111; background:rgba(17,17,17,0.04); }
+</style>
+</head>
+<body>
+
+<nav class="mnav">
+  <div class="mnav-brand">Good Measure</div>
+  <div class="mnav-links">
+    <a href="mock-planner.html" class="mnav-link">Planner</a>
+    <a href="mock-recipes.html" class="mnav-link on">Recipes</a>
+    <a href="mock-pantry.html" class="mnav-link">Pantry</a>
+  </div>
+  <div class="mnav-right">
+    <div class="avatar" style="background:#5A9B6A">S</div>
+    <div class="avatar" style="background:#E84828;margin-left:-5px;border:2px solid var(--bg)">M</div>
+    <div class="avatar" style="background:#7B5EA7;margin-left:-5px;border:2px solid var(--bg)">L</div>
+  </div>
+</nav>
+
+<div class="page-nav-bar">
+  <a href="mock-dashboard.html">Dashboard</a>
+  <a href="mock-recipes.html" class="here">Recipes</a>
+  <a href="mock-recipe-detail.html">Recipe Detail</a>
+  <a href="mock-planner.html">Planner</a>
+  <a href="mock-pantry.html">Pantry</a>
+</div>
+
+<!-- Toolbar -->
+<div style="display:flex;align-items:stretch;height:40px;border-bottom:1px solid var(--r)">
+  <div style="display:flex;align-items:center;gap:6px;padding:0 20px;flex:1;border-right:1px solid var(--r)">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;background:var(--fg);color:var(--bg);border-radius:9999px;cursor:pointer">All</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">High Protein</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Quick</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Low Carb</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Vegetarian</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;padding:0 16px;border-right:1px solid var(--r)">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">18 recipes</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;padding:0 16px;border-right:1px solid var(--r)">
+    <!-- Grid/list toggle -->
+    <div style="display:flex;border:1px solid var(--r);overflow:hidden">
+      <button style="padding:4px 9px;background:var(--fg);border:none;cursor:pointer;display:flex;align-items:center" title="Grid">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="0.5" y="0.5" width="4" height="4" stroke="#F5F4EF" stroke-width="1"/><rect x="7.5" y="0.5" width="4" height="4" stroke="#F5F4EF" stroke-width="1"/><rect x="0.5" y="7.5" width="4" height="4" stroke="#F5F4EF" stroke-width="1"/><rect x="7.5" y="7.5" width="4" height="4" stroke="#F5F4EF" stroke-width="1"/></svg>
+      </button>
+      <button style="padding:4px 9px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center" title="List">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="0" y1="2" x2="12" y2="2" stroke="#6B6860" stroke-width="1"/><line x1="0" y1="6" x2="12" y2="6" stroke="#6B6860" stroke-width="1"/><line x1="0" y1="10" x2="12" y2="10" stroke="#6B6860" stroke-width="1"/></svg>
+      </button>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 16px">
+    <button style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;background:var(--acc);color:#fff;border:none;padding:6px 16px;border-radius:9999px;cursor:pointer">+ New Recipe</button>
+  </div>
+</div>
+
+<!-- Recipe grid: touching borders, 4 columns -->
+<div class="tg" style="grid-template-columns:repeat(4,1fr)">
+
+  <!-- Recipe cards: ghost-text thumbnail + info -->
+  <!-- Card 1 — selected for compare -->
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;background:var(--acc-l)">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px;position:relative">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Cottage Cheese Bowl</div>
+      <div style="position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center">
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Cottage Cheese Bowl</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">312 kcal · 28g prot · 22g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Breakfast</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">High Protein</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Card 2 -->
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Salmon Salad</div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Salmon Salad with Avocado</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">380 kcal · 32g prot · 18g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Lunch</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Low Carb</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Card 3 — selected for compare -->
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;background:var(--acc-l)">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px;position:relative">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Thai Green Curry</div>
+      <div style="position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center">
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Thai Green Curry</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">331 kcal · 11g prot · 25g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Dinner</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Card 4 -->
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Overnight Oats</div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Overnight Oats</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">298 kcal · 14g prot · 48g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Breakfast</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Quick</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Red Lentil Soup</div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Red Lentil Soup</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">245 kcal · 18g prot · 34g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Lunch</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Vegetarian</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Chicken Rice Bowl</div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Chicken & Rice Bowl</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">520 kcal · 44g prot · 52g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Dinner</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">High Protein</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Granola Bars</div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Homemade Granola Bars</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">189 kcal · 6g prot · 24g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Snack</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="mock-recipe-detail.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column">
+    <div style="aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:flex-end;padding:8px 10px 10px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg);opacity:0.18;line-height:1.05">Greek Yoghurt Parfait</div>
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--r);flex:1">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;line-height:1.3">Greek Yoghurt Parfait</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-bottom:6px">340 kcal · 22g prot · 38g carbs</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Breakfast</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;padding:2px 7px;background:var(--bg2);color:var(--m);border-radius:9999px">Quick</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<!-- Compare bar (2 selected) -->
+<div style="position:fixed;bottom:0;left:0;right:0;border-top:1px solid var(--r);background:var(--bg);display:flex;align-items:center;padding:0 20px;height:52px;gap:12px">
+  <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m)">Compare</span>
+  <div style="display:flex;align-items:center;gap:8px;flex:1">
+    <div style="border:1px solid var(--r);padding:4px 12px;display:flex;align-items:center;gap:8px">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">1 —</span>
+      <span style="font-size:13px;font-weight:600">Cottage Cheese Bowl</span>
+      <button style="background:none;border:none;cursor:pointer;color:var(--m);font-size:14px;line-height:1;padding:0 4px">×</button>
+    </div>
+    <div style="border:1px solid var(--r);padding:4px 12px;display:flex;align-items:center;gap:8px">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">2 —</span>
+      <span style="font-size:13px;font-weight:600">Thai Green Curry</span>
+      <button style="background:none;border:none;cursor:pointer;color:var(--m);font-size:14px;line-height:1;padding:0 4px">×</button>
+    </div>
+    <div style="border:1px dashed var(--r);padding:4px 12px;color:var(--m)">
+      <span style="font-family:'DM Mono',monospace;font-size:9px">+ Add recipe</span>
+    </div>
+  </div>
+  <button style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;background:var(--fg);color:var(--bg);border:none;padding:8px 20px;border-radius:9999px;cursor:pointer">Compare →</button>
+</div>
+<div style="height:52px"></div>
+
+</body>
+</html>

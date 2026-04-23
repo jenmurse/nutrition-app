@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure — Alt 4</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:  #5A9B6A;
+  --dark:  #1A1916;
+  --cream: #FAF8F4;
+  --navy:  #0A0D1A;
+  --muted: rgba(26,25,22,0.45);
+  --muted-text: #5E5C58;
+  --rule:  rgba(26,25,22,0.1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+body { background: var(--cream); color: var(--dark); overflow: hidden; height: 100dvh; }
+
+.scroll-wrap {
+  height: 100dvh; overflow-y: scroll;
+  scroll-snap-type: y mandatory; scrollbar-width: none;
+}
+.scroll-wrap::-webkit-scrollbar { display: none; }
+section { min-height: 100dvh; position: relative; overflow: hidden; scroll-snap-align: start; }
+section#s0 { scroll-snap-align: start; }
+section#s6 { scroll-snap-align: start; }
+
+/* ── HEADER ── */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: var(--cream); border-bottom: 1px solid var(--rule);
+}
+.header-inner {
+  height: 52px; display: flex; align-items: center; padding: 0 40px;
+}
+.header-brand {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: -0.02em; color: var(--dark);
+}
+.header-right { margin-left: auto; }
+.header-launch {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; background: var(--dark); color: var(--cream);
+  border: none; cursor: pointer; padding: 9px 20px; border-radius: 9999px;
+  transition: background 150ms, transform 160ms var(--ease-out);
+}
+.header-launch:hover { background: var(--blue); }
+.header-launch:active { transform: scale(0.97); }
+
+/* ── DOTS ── */
+.section-dots {
+  position: fixed; right: 24px;
+  top: 50%; transform: translateY(-50%);
+  z-index: 100; display: flex; flex-direction: column;
+  gap: 8px;
+}
+.dot-item {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(26,25,22,0.2);
+  transition: background 200ms, transform 200ms var(--ease-out); cursor: pointer;
+}
+.dot-item.active { background: var(--dark); transform: scale(1.5); }
+.section-dots.on-dark .dot-item { background: rgba(250,248,244,0.3); }
+.section-dots.on-dark .dot-item.active { background: var(--cream); transform: scale(1.5); }
+
+@keyframes reveal { to { opacity: 1; transform: none; } }
+
+/* ══ HERO ══ */
+.hero {
+  background: var(--cream);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding-top: 52px;
+  height: 100dvh;
+  scroll-snap-align: start;
+}
+.hero-inner {
+  text-align: center;
+  padding: 56px 40px 32px;
+  max-width: 680px;
+}
+.hero-h1 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(80px, 9vw, 140px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 0.97;
+  text-wrap: balance;
+  color: var(--dark); margin-bottom: 24px;
+  opacity: 0; transform: translateY(16px);
+  animation: reveal 600ms var(--ease-out) 180ms forwards;
+}
+.hero-h1 em { font-style: normal; color: var(--blue); }
+.feat-h2 em { font-style: normal; color: var(--blue); }
+.hero-tagline {
+  font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.65; color: var(--muted-text);
+  max-width: 52ch; margin: 0 auto 20px;
+  opacity: 0; transform: translateY(10px);
+  animation: reveal 500ms var(--ease-out) 300ms forwards;
+}
+.hero-actions {
+  display: flex; gap: 10px; justify-content: center;
+  opacity: 0; transform: translateY(8px);
+  animation: reveal 500ms var(--ease-out) 400ms forwards;
+}
+.hero-stat-strip {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid rgba(26,25,22,0.12); border-radius: 9999px;
+  padding: 10px 28px; margin: 0 auto 28px;
+  opacity: 0; transform: translateY(8px);
+  animation: reveal 500ms var(--ease-out) 380ms forwards;
+}
+.hss-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 20px; }
+.hss-val { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.03em; color: var(--dark); }
+.hss-lbl { font-family: 'DM Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-text); }
+.hss-div { width: 1px; height: 28px; background: rgba(26,25,22,0.12); }
+
+/* ══ BUTTONS ══ */
+.btn-primary {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 12px 24px; background: var(--dark); color: var(--cream);
+  border: 1.5px solid var(--dark); border-radius: 9999px; cursor: pointer;
+  transition: background 150ms, transform 160ms var(--ease-out);
+}
+.btn-primary:hover { background: var(--blue); border-color: var(--blue); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-ghost {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 12px 24px; background: transparent; color: var(--dark);
+  border: 1.5px solid rgba(26,25,22,0.25); border-radius: 9999px; cursor: pointer;
+  transition: border-color 150ms, color 150ms, transform 160ms var(--ease-out);
+}
+.btn-ghost:hover { border-color: var(--dark); }
+.btn-ghost:active { transform: scale(0.97); }
+
+/* ══ FEATURE SECTIONS ══ */
+.feat {
+  background: var(--cream); color: var(--dark);
+  display: grid; grid-template-columns: 1fr 1fr; padding-top: 52px;
+  min-height: 100dvh;
+  position: relative;
+}
+.feat.inv { background: var(--dark); color: var(--cream); }
+
+/* Vertical center line via pseudo-element */
+.feat::after {
+  content: ''; position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px; background: rgba(26,25,22,0.1);
+  pointer-events: none;
+}
+.feat.inv::after { background: rgba(250,248,244,0.1); }
+
+.feat-copy {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 64px 56px;
+  opacity: 0; transform: translateX(-20px);
+  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+}
+.feat.flip .feat-copy {
+  order: 2;
+  transform: translateX(20px);
+}
+.feat.revealed .feat-copy { opacity: 1; transform: none; }
+.feat-visual {
+  display: flex; align-items: center; justify-content: center;
+  padding: 56px 48px;
+  opacity: 0; transform: translateX(20px) scale(0.97);
+  transition: opacity 650ms var(--ease-out) 80ms, transform 650ms var(--ease-out) 80ms;
+}
+.feat.flip .feat-visual { order: 1; transform: translateX(-20px) scale(0.97); }
+.feat.revealed .feat-visual { opacity: 1; transform: none; }
+
+.feat-num {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue);
+  margin-bottom: 18px;
+}
+.feat.inv .feat-num { color: rgba(250,248,244,0.55); }
+.feat-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(34px, 3vw, 50px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.0; margin-bottom: 16px;
+  text-wrap: balance;
+}
+.feat-body {
+  font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.72;
+  max-width: 38ch; margin-bottom: 28px;
+  color: var(--muted-text); opacity: 1;
+}
+.feat.inv .feat-body { color: rgba(250,248,244,0.85); opacity: 1; }
+.feat-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.feat-tag {
+  font-family: 'DM Mono', monospace; font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border: 1px solid currentColor; border-radius: 9999px;
+  padding: 5px 12px; opacity: 0.4;
+}
+
+/* ══ STAT SECTIONS ══ */
+.feat-stat {
+  background: var(--cream); color: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100dvh; padding: 80px 40px;
+  border-top: 1px solid var(--rule);
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+  transform: translateY(24px);
+}
+.feat-stat.revealed { opacity: 1; transform: none; }
+.stat-inner { text-align: center; max-width: 680px; }
+.stat-eyebrow {
+  font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--blue); margin-bottom: 24px;
+}
+.stat-number {
+  font-family: 'DM Sans', sans-serif; font-size: clamp(100px, 16vw, 180px);
+  font-weight: 700; letter-spacing: -0.04em; line-height: 0.9;
+  color: var(--dark); margin-bottom: 0;
+}
+.stat-label {
+  font-family: 'DM Sans', sans-serif; font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700; letter-spacing: -0.03em; line-height: 1.0;
+  color: var(--dark); margin-bottom: 20px;
+}
+.stat-sub {
+  font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.7;
+  color: var(--muted-text); max-width: 48ch; margin: 0 auto;
+}
+
+/* Ingredient card for S2 */
+.stat-ingredient-card { border: 1px solid var(--rule); padding: 32px 40px; max-width: 400px; margin: 0 auto 8px; text-align: left; }
+.sic-cat { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); margin-bottom: 6px; }
+.sic-name { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--dark); margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.sic-cal-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.sic-cal-num { font-family: 'DM Sans', sans-serif; font-size: 72px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--dark); }
+.sic-cal-unit { font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted-text); line-height: 1.4; }
+.sic-macros { display: flex; gap: 24px; }
+.sic-m { display: flex; flex-direction: column; gap: 2px; }
+.sic-m-lbl { font-family: 'DM Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-text); }
+.sic-m-val { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--dark); }
+
+.feat-stat-dark { background: var(--dark); color: var(--cream); border-top: none; }
+.feat-stat-dark .stat-eyebrow { color: rgba(250,248,244,0.4); }
+.feat-stat-dark .stat-quote {
+  font-family: 'DM Sans', sans-serif; font-size: clamp(40px, 5.5vw, 72px);
+  font-weight: 700; letter-spacing: -0.03em; line-height: 1.05;
+  color: var(--cream); margin-bottom: 24px; text-wrap: balance;
+}
+.feat-stat-dark .stat-quote-sub {
+  font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.7;
+  color: rgba(250,248,244,0.8); max-width: 42ch; margin: 0 auto;
+}
+.feat-stat-dark .feat-tag { color: rgba(250,248,244,0.5); border-color: rgba(250,248,244,0.2); }
+
+/* ══ AI SECTION ══ */
+.feat-ai {
+  background: var(--navy); color: var(--cream);
+}
+.feat-ai .feat-num { color: rgba(250,248,244,0.5); }
+.feat-ai .feat-body { color: rgba(250,248,244,0.85); opacity: 1; }
+.feat-ai .feat-tag { color: rgba(250,248,244,0.85); border-color: rgba(250,248,244,0.4); }
+.feat-ai .feat-h2 em { font-style: normal; color: var(--blue); }
+
+/* ══ AI WORKFLOW (3-panel, alt-4 unique) ══ */
+.feat-ai-workflow {
+  display: grid;
+  grid-template-columns: 35fr 32fr 33fr;
+  min-height: 100dvh;
+  padding-top: 52px;
+  padding-right: 48px;
+}
+/* override the ::after center line for this 3-col layout */
+.feat-ai-workflow::after { display: none; }
+.feat-ai-workflow .aiw-copy {
+  padding: 64px 48px;
+  display: flex; flex-direction: column; justify-content: center;
+  opacity: 0; transform: translateX(-20px);
+  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+}
+.feat-ai-workflow.revealed .aiw-copy { opacity: 1; transform: none; }
+.aiw-claude {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 32px; position: relative;
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out) 100ms, transform 700ms var(--ease-out) 100ms;
+  transform: translateY(16px);
+}
+.feat-ai-workflow.revealed .aiw-claude { opacity: 1; transform: none; }
+.aiw-app {
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 40px;
+  opacity: 0; transform: translateX(20px) scale(0.97);
+  transition: opacity 700ms var(--ease-out) 160ms, transform 700ms var(--ease-out) 160ms;
+}
+.feat-ai-workflow.revealed .aiw-app { opacity: 1; transform: none; }
+
+/* Claude panel */
+.claude-panel {
+  width: 100%; max-width: 320px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(250,248,244,0.1);
+  border-radius: 8px; overflow: hidden;
+}
+.claude-header {
+  background: rgba(255,255,255,0.06); padding: 8px 12px;
+  display: flex; align-items: center; gap: 5px; border-bottom: 1px solid rgba(250,248,244,0.08);
+}
+.claude-dot { width: 8px; height: 8px; border-radius: 50%; }
+.claude-title {
+  font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: rgba(250,248,244,0.4); margin-left: 6px;
+}
+.claude-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.claude-msg.user { display: flex; justify-content: flex-end; }
+.claude-msg.assistant { display: flex; justify-content: flex-start; }
+.msg-bubble {
+  font-family: 'DM Sans', sans-serif; font-size: 10px; line-height: 1.5;
+  padding: 8px 12px; border-radius: 8px; max-width: 90%;
+}
+.user-bubble {
+  background: rgba(250,248,244,0.1); color: rgba(250,248,244,0.9);
+  border-radius: 8px 8px 2px 8px;
+}
+.assistant-bubble {
+  background: rgba(90,155,106,0.15); color: rgba(250,248,244,0.85);
+  border: 1px solid rgba(90,155,106,0.2); border-radius: 2px 8px 8px 8px;
+  font-size: 9.5px;
+}
+.swap-item { display: block; margin-top: 2px; }
+.swap-item strong { color: #6BCB77; }
+.claude-tool {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(250,248,244,0.06); border-radius: 4px;
+}
+.tool-icon { font-size: 10px; opacity: 0.6; }
+.tool-text { flex: 1; min-width: 0; }
+.tool-name {
+  font-family: 'DM Mono', monospace; font-size: 8.5px;
+  color: rgba(250,248,244,0.7); font-weight: 500;
+}
+.tool-args {
+  font-family: 'DM Mono', monospace; font-size: 7.5px;
+  color: rgba(250,248,244,0.35); margin-top: 1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tool-status.done {
+  font-size: 9px; color: #6BCB77; flex-shrink: 0;
+}
+.claude-saved {
+  font-family: 'DM Mono', monospace; font-size: 8px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: rgba(90,155,106,0.8);
+  text-align: center; padding: 6px;
+  border-top: 1px solid rgba(250,248,244,0.06); margin-top: 2px;
+}
+.mcp-label {
+  font-family: 'DM Mono', monospace; font-size: 8px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: rgba(250,248,244,0.25); margin-top: 12px;
+}
+
+/* ══ APP FRAMES ══ */
+.frame {
+  width: 100%; border: 1px solid rgba(26,25,22,0.12);
+  background: var(--cream); overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(26,25,22,0.08);
+}
+.frame.inv { border-color: rgba(250,248,244,0.12); background: var(--dark); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+.f-chrome {
+  height: 28px; background: #2E2C28;
+  display: flex; align-items: center; padding: 0 10px; gap: 5px;
+  flex-shrink: 0; border-radius: 8px 8px 0 0;
+}
+.f-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+.f-url { display: none; }
+.f-body {
+  background: #F5F4EF;
+  --bg: #F5F4EF; --bg-2: #EEEAE3; --bg-3: #E6E2D8;
+  --fg: #1A1916; --fg-2: #36342F; --muted: #6B6860; --rule: #D0CCC2;
+  --display: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+.frame.inv .f-body { background: #F5F4EF; }
+
+.f-nav {
+  height: 30px; display: flex; align-items: center; padding: 0 10px; gap: 8px;
+  border-bottom: 1px solid #D0CCC2; flex-shrink: 0; background: #F5F4EF;
+}
+.frame.inv .f-nav { border-bottom-color: rgba(26,25,22,0.1); background: #F5F4EF; }
+.f-brand { font-family:'DM Sans',sans-serif; font-size:9px; font-weight:600; letter-spacing:-0.02em; color:#1A1916; }
+.frame.inv .f-brand { color: #1A1916; }
+.f-nl { font-family:'DM Mono',monospace; font-size:6.5px; text-transform:uppercase; letter-spacing:0.08em; color:#6B6860; }
+.f-nl.on { color:#1A1916; border-bottom:1px solid #1A1916; padding-bottom:2px; }
+.frame.inv .f-nl { color:#6B6860; }
+.frame.inv .f-nl.on { color:#1A1916; border-bottom-color:#1A1916; }
+.f-ml { margin-left: auto; }
+.mb { height:2px; background:#D0CCC2; overflow:hidden; margin-top:3px; border-radius:9999px; }
+.mb-f { height:100%; background:var(--blue); border-radius:9999px; }
+.frame.inv .mb { background: #D0CCC2; }
+
+/* ══ CTA ══ */
+.sect-cta {
+  background: var(--dark); color: var(--cream);
+  display: flex; flex-direction: column;
+  padding: 52px 64px 0;
+  height: 100dvh;
+  scroll-snap-align: start;
+}
+.cta-inner {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: flex-end; padding-bottom: 72px;
+  align-items: flex-start;
+}
+.cta-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(52px, 5.5vw, 80px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 0.97; margin-bottom: 44px; max-width: 18ch;
+  text-wrap: balance;
+}
+.cta-h2 em { font-style: normal; color: var(--blue); }
+
+/* ── PLANNER VIEW ANIMATION ── */
+.planner-view-a, .planner-view-b {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  transition: opacity 900ms ease;
+}
+.planner-view-b { opacity: 0; }
+.cta-actions { display: flex; gap: 10px; }
+.btn-cta-sage {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 12px 24px; background: var(--blue); color: var(--cream);
+  border: 1.5px solid var(--blue); border-radius: 9999px; cursor: pointer;
+  transition: opacity 150ms, transform 160ms var(--ease-out);
+}
+.btn-cta-sage:hover { opacity: 0.9; }
+.btn-cta-sage:active { transform: scale(0.97); }
+.cta-footer {
+  padding: 20px 0;
+  margin: 0 -64px; padding-left: 64px; padding-right: 64px;
+  display: flex; justify-content: space-between;
+  font-family: 'DM Mono', monospace; font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.08em; color: rgba(250,248,244,0.3);
+}
+
+/* ══ SCREEN MOCKS ══ */
+.sc-dash { padding: 10px; }
+.sc-dash-name { font-family:'DM Sans',sans-serif; font-size:20px; font-weight:700; letter-spacing:-0.03em; color:var(--dark); margin-bottom:8px; }
+.sc-stat-row { display:flex; gap:4px; margin-bottom:6px; }
+.sc-stat { flex:1; border:1px solid rgba(26,25,22,0.1); padding:6px 7px; }
+.sc-s-lbl { font-family:'DM Mono',monospace; font-size:6px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:2px; }
+.sc-s-val { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; letter-spacing:-0.02em; color:var(--dark); }
+.sc-week-row { display:flex; gap:2px; padding-top:7px; border-top:1px solid rgba(26,25,22,0.08); }
+.sc-day { flex:1; text-align:center; }
+.sc-day-lbl { font-family:'DM Mono',monospace; font-size:5.5px; text-transform:uppercase; color:var(--muted); }
+.sc-day-n { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; color:var(--dark); }
+.sc-day-dot { width:4px; height:4px; border-radius:50%; background:rgba(26,25,22,0.12); margin:3px auto 0; }
+.sc-day-dot.f { background:var(--blue); }
+
+.sc-plan-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.sc-plan-day { border-right:1px solid rgba(26,25,22,0.08); padding:5px 4px; }
+.sc-plan-day:last-child { border-right:none; }
+.sc-p-abbr { font-family:'DM Mono',monospace; font-size:5px; text-transform:uppercase; color:var(--muted); }
+.sc-p-num { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:700; color:rgba(26,25,22,0.4); line-height:1; margin-top:1px; }
+.sc-p-kcal { font-family:'DM Mono',monospace; font-size:5px; color:var(--muted); margin-top:2px; }
+.sc-p-meal-type { font-family:'DM Mono',monospace; font-size:4.5px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+.sc-p-meal-name { font-family:'DM Sans',sans-serif; font-size:7px; color:var(--dark); line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px; }
+
+/* AI section mock — on dark inv bg */
+.sc-ai { padding:10px; }
+.sc-ai-recipe { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:-0.02em; color:var(--cream); margin-bottom:8px; }
+.sc-ai-hdr { font-family:'DM Mono',monospace; font-size:6.5px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(250,248,244,0.4); margin-bottom:6px; }
+.sc-ai-sug { border:1px solid rgba(250,248,244,0.12); padding:7px 9px; margin-bottom:5px; }
+.sc-ai-type { font-family:'DM Mono',monospace; font-size:6px; text-transform:uppercase; color:rgba(250,248,244,0.45); margin-bottom:2px; }
+.sc-ai-text { font-family:'DM Sans',sans-serif; font-size:9px; line-height:1.4; color:var(--cream); }
+.sc-ai-impact { font-family:'DM Mono',monospace; font-size:6px; color:rgba(250,248,244,0.4); margin-top:3px; }
+.sc-ai-btns { display:flex; gap:4px; padding:7px 10px; border-top:1px solid rgba(250,248,244,0.1); }
+.sc-ai-btn { font-family:'DM Mono',monospace; font-size:6px; text-transform:uppercase; padding:3px 8px; border:1px solid rgba(250,248,244,0.2); color:rgba(250,248,244,0.45); border-radius:9999px; }
+.sc-ai-btn.p { background:var(--cream); color:var(--dark); border-color:var(--cream); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <span class="header-brand">Good Measure</span>
+    <div class="header-right">
+      <button class="header-launch">Get Started ↗</button>
+    </div>
+  </div>
+</header>
+
+<nav class="section-dots" id="sectionDots" aria-label="Page sections">
+  <div class="dot-item active" data-section="0"></div>
+  <div class="dot-item" data-section="1"></div>
+  <div class="dot-item" data-section="2"></div>
+  <div class="dot-item" data-section="3"></div>
+  <div class="dot-item" data-section="4"></div>
+  <div class="dot-item" data-section="5"></div>
+  <div class="dot-item" data-section="6"></div>
+</nav>
+
+<div class="scroll-wrap" id="scrollWrap">
+
+  <!-- S0: HERO -->
+  <section class="hero" id="s0">
+    <div class="hero-inner">
+      <h1 class="hero-h1">Measure what<br><em>matters.</em></h1>
+      <p class="hero-tagline">Know exactly what's in everything you cook. Build recipes, plan the week, hit your targets, for every person in your household.</p>
+      <div class="hero-stat-strip">
+        <div class="hss-item"><span class="hss-val">2,000</span><span class="hss-lbl">daily target</span></div>
+        <div class="hss-div"></div>
+        <div class="hss-item"><span class="hss-val">847</span><span class="hss-lbl">recipes tracked</span></div>
+        <div class="hss-div"></div>
+        <div class="hss-item"><span class="hss-val">4</span><span class="hss-lbl">household members</span></div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-primary">Get Started ↗</button>
+        <button class="btn-ghost" onclick="document.getElementById('s1').scrollIntoView({behavior:'smooth'})">See how it works ↓</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- S1: DASHBOARD — cream, 50/50 -->
+  <section class="feat" id="s1">
+    <div class="feat-copy">
+      <div class="feat-num">01 / Dashboard</div>
+      <h2 class="feat-h2">At a glance.</h2>
+      <p class="feat-body">A snapshot of today's nutrition, meals, and this week's plan. Know where you stand the moment you open&nbsp;the&nbsp;app.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Stats</span><span class="feat-tag">Daily Meals</span>
+        <span class="feat-tag">Weekly View</span>
+      </div>
+    </div>
+    <div class="feat-visual">
+      <div class="frame" style="max-width:480px;height:340px;display:flex;flex-direction:column">
+        <div class="f-chrome"><div class="f-dot"></div><div class="f-dot"></div><div class="f-dot"></div><div class="f-url">goodmeasure.app</div></div>
+        <div class="f-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <div class="f-nav">
+            <span class="f-brand">Good Measure</span>
+            <span style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860;padding-bottom:3px;margin-top:5px;border-bottom:2px solid transparent">Planner</span>
+            <span style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860;padding-bottom:3px;margin-top:5px;border-bottom:2px solid transparent">Recipes</span>
+            <span style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860;padding-bottom:3px;margin-top:5px;border-bottom:2px solid transparent">Pantry</span>
+            <div style="margin-left:auto;display:flex">
+              <div style="width:16px;height:16px;border-radius:50%;background:#5A9B6A;display:flex;align-items:center;justify-content:center;font-size:6px;font-family:'DM Mono',monospace;color:#fff;font-weight:600">S</div>
+              <div style="width:16px;height:16px;border-radius:50%;background:#E84828;display:flex;align-items:center;justify-content:center;font-size:6px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;margin-left:-3px;border:2px solid #F5F4EF">M</div>
+            </div>
+          </div>
+          <div style="padding:16px 20px 0">
+            <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.14em;color:#6B6860;margin-bottom:8px">Tuesday, April 7, 2026</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.03em;line-height:1.05;color:#1A1916">Good morning,</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.03em;line-height:1.05;color:#5A9B6A;margin-bottom:12px">Sarah</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2">
+            <div style="padding:10px 14px;border-right:1px solid #D0CCC2">
+              <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860;margin-bottom:3px">Calories</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;line-height:1">1,023</div>
+              <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;margin:2px 0 5px">of 2,000</div>
+              <div style="height:2px;background:#D0CCC2;border-radius:9999px"><div style="height:100%;width:51%;background:#5A9B6A;border-radius:9999px"></div></div>
+            </div>
+            <div style="padding:10px 14px;border-right:1px solid #D0CCC2">
+              <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860;margin-bottom:3px">Protein</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;line-height:1">71<span style="font-size:10px;color:#6B6860;font-family:'DM Mono',monospace">g</span></div>
+              <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;margin:2px 0 5px">of 95 g</div>
+              <div style="height:2px;background:#D0CCC2;border-radius:9999px"><div style="height:100%;width:75%;background:#5A9B6A;border-radius:9999px"></div></div>
+            </div>
+            <div style="padding:10px 14px">
+              <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860;margin-bottom:3px">Carbs</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;line-height:1">65<span style="font-size:10px;color:#6B6860;font-family:'DM Mono',monospace">g</span></div>
+              <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;margin:2px 0 5px">of 225 g</div>
+              <div style="height:2px;background:#D0CCC2;border-radius:9999px"><div style="height:100%;width:29%;background:#5A9B6A;border-radius:9999px"></div></div>
+            </div>
+          </div>
+          <div style="padding:10px 20px 0">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+              <span style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;color:#6B6860">Today's key meals</span>
+              <span style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#5A9B6A">Open planner →</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+              <div style="padding-right:14px;border-right:1px solid #D0CCC2">
+                <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;padding-bottom:5px;border-bottom:1px solid #D0CCC2;margin-bottom:6px">01 · Breakfast</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:6px">Cottage Cheese Bowl</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6.5px;color:#5A9B6A">See recipe →</div>
+              </div>
+              <div style="padding:0 10px;border-right:1px solid #D0CCC2">
+                <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;padding-bottom:5px;border-bottom:1px solid #D0CCC2;margin-bottom:6px">02 · Lunch</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:6px">Salmon Salad</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6.5px;color:#5A9B6A">See recipe →</div>
+              </div>
+              <div style="padding-left:10px">
+                <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;padding-bottom:5px;border-bottom:1px solid #D0CCC2;margin-bottom:6px">03 · Dinner</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:6px">Thai Green Curry</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6.5px;color:#5A9B6A">See recipe →</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S2: PANTRY — ingredient card pull-quote -->
+  <section class="feat-stat" id="s2">
+    <div class="stat-inner">
+      <div class="stat-eyebrow">02 / Pantry</div>
+      <div class="stat-ingredient-card">
+        <div class="sic-cat">Legume</div>
+        <div class="sic-name">Black Beans, canned</div>
+        <div class="sic-cal-row">
+          <div class="sic-cal-num">119</div>
+          <div class="sic-cal-unit">kcal<br>per 100g</div>
+        </div>
+        <div class="sic-macros">
+          <div class="sic-m">
+            <div class="sic-m-lbl">Protein</div>
+            <div class="sic-m-val">7.6g</div>
+          </div>
+          <div class="sic-m">
+            <div class="sic-m-lbl">Carbs</div>
+            <div class="sic-m-val">20.4g</div>
+          </div>
+          <div class="sic-m">
+            <div class="sic-m-lbl">Fat</div>
+            <div class="sic-m-val">0.5g</div>
+          </div>
+          <div class="sic-m">
+            <div class="sic-m-lbl">Fibre</div>
+            <div class="sic-m-val">8.7g</div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-sub" style="margin-top:20px">Build your ingredient library via USDA lookup or manual entry. Every item you cook with, stored exactly, so recipes you build or import calculate accurate nutrition automatically.</div>
+      <div class="feat-tags" style="justify-content:center; margin-top: 28px;">
+        <span class="feat-tag">USDA lookup</span>
+        <span class="feat-tag">Custom units</span>
+        <span class="feat-tag">Per 100g · Per serving</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- S3: RECIPES — flip, ingredients tab -->
+  <section class="feat flip" id="s3">
+    <div class="feat-copy">
+      <div class="feat-num">03 / Recipes</div>
+      <h2 class="feat-h2">Import or build from scratch.</h2>
+      <p class="feat-body">Paste a URL, upload a file, or add ingredients one by one. Nutrition totals calculate live. No guesswork, ever.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">URL import</span>
+        <span class="feat-tag">Manual entry</span><span class="feat-tag">Live nutrition</span>
+      </div>
+    </div>
+    <div class="feat-visual">
+      <div class="frame" style="max-width:480px;height:360px;display:flex;flex-direction:column">
+        <div class="f-chrome"><div class="f-dot"></div><div class="f-dot"></div><div class="f-dot"></div><div class="f-url">goodmeasure.app/recipes/14</div></div>
+        <div class="f-body" style="flex:1;display:flex;overflow:hidden">
+          <div style="width:88px;flex-shrink:0;padding:12px 0;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#1A1916;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06);background:#EEEAE3"><span style="color:rgba(0,0,0,0.4);font-weight:700">01</span>Ingredients</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06)"><span style="color:rgba(0,0,0,0.2);font-weight:700">02</span>Nutrition</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06)"><span style="color:rgba(0,0,0,0.2);font-weight:700">03</span>Instructions</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06)"><span style="color:rgba(0,0,0,0.2);font-weight:700">04</span>Optimize</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px"><span style="color:rgba(0,0,0,0.2);font-weight:700">05</span>Meal Prep</div>
+          </div>
+          <div style="flex:1;overflow:hidden;padding:14px 16px">
+            <div style="display:flex;gap:14px;margin-bottom:12px">
+              <div style="flex:1">
+                <span style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:0.1em;padding:2px 8px;background:#EEEAE3;color:#6B6860;border-radius:9999px">Dinner</span>
+                <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;margin:5px 0 3px;line-height:1.1">Black Bean Chili</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:8px">4 servings · 20 min prep</div>
+              </div>
+              <div style="width:90px;flex-shrink:0">
+                <div style="width:100%;height:60px;background:#D0CCC2;border-radius:2px;overflow:hidden">
+                  <img src="/chili.png" alt="Black Bean Chili" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+                </div>
+              </div>
+            </div>
+            <!-- Ingredients list -->
+            <div style="border-top:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;overflow:hidden">
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.6fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Ingredient</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Amount</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Kcal</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.6fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">Black Beans</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px">800g</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#1A1916;padding:4px 5px">1,056</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.6fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">Olive Oil</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px">1 tbsp</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#1A1916;padding:4px 5px">119</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.6fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">Diced Tomatoes</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px">400g</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#1A1916;padding:4px 5px">72</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.6fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">Spices</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px">—</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#1A1916;padding:4px 5px">22</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.6fr;background:#EEEAE3">
+                <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:#36342F;padding:4px 5px;font-weight:500">Total</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px">4 servings</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#1A1916;padding:4px 5px;font-weight:600">1,269</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S4: AI OPTIMIZE — 3-panel workflow layout (ALT-4 UNIQUE) -->
+  <section class="feat feat-ai feat-ai-workflow" id="s4">
+
+    <!-- LEFT: copy -->
+    <div class="aiw-copy feat-copy">
+      <div class="feat-num">04 / Optimize</div>
+      <h2 class="feat-h2">Your AI <em>reads</em> the recipe.</h2>
+      <p class="feat-body">Connect your AI agent via MCP. It reads your recipes, evaluates them against your personal goals, suggests targeted swaps, and saves changes back automatically.</p>
+      <p class="feat-body">Batch meal prep. Optimize macros. Build weekly plans from scratch. The app is the data layer. Your AI does the reasoning.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">AI Agent</span>
+        <span class="feat-tag">MCP protocol</span>
+        <span class="feat-tag">Saves back automatically</span>
+      </div>
+    </div>
+
+    <!-- CENTER: Claude chat panel -->
+    <div class="aiw-claude">
+      <div class="claude-panel">
+        <div class="claude-header">
+          <div class="claude-dot" style="background:#FF6B6B"></div>
+          <div class="claude-dot" style="background:#FFD93D"></div>
+          <div class="claude-dot" style="background:#6BCB77"></div>
+          <span class="claude-title">Claude</span>
+        </div>
+        <div class="claude-body">
+          <!-- User message -->
+          <div class="claude-msg user">
+            <div class="msg-bubble user-bubble">Optimize Black Bean Chili for higher protein, lower fat</div>
+          </div>
+          <!-- Tool call 1 -->
+          <div class="claude-tool">
+            <div class="tool-icon">⚡</div>
+            <div class="tool-text">
+              <div class="tool-name">get_recipe</div>
+              <div class="tool-args">id: "black-bean-chili"</div>
+            </div>
+            <div class="tool-status done">✓</div>
+          </div>
+          <!-- Tool call 2 -->
+          <div class="claude-tool">
+            <div class="tool-icon">⚡</div>
+            <div class="tool-text">
+              <div class="tool-name">search_ingredients</div>
+              <div class="tool-args">query: "high protein swap olive oil"</div>
+            </div>
+            <div class="tool-status done">✓</div>
+          </div>
+          <!-- Claude response -->
+          <div class="claude-msg assistant">
+            <div class="msg-bubble assistant-bubble">
+              Found 3 optimizations:<br>
+              <span class="swap-item">— Olive oil ½ tbsp → <strong>−60 kcal</strong></span><br>
+              <span class="swap-item">— Low-sodium beans → <strong>−180mg sodium</strong></span><br>
+              <span class="swap-item">— Add Greek yogurt → <strong>+3g protein</strong></span>
+            </div>
+          </div>
+          <!-- Tool call 3 -->
+          <div class="claude-tool">
+            <div class="tool-icon">⚡</div>
+            <div class="tool-text">
+              <div class="tool-name">save_optimization_notes</div>
+              <div class="tool-args">recipe_id: "black-bean-chili"</div>
+            </div>
+            <div class="tool-status done">✓</div>
+          </div>
+          <div class="claude-saved">Saved to Good Measure ✓</div>
+        </div>
+      </div>
+      <!-- MCP connector label -->
+      <div class="mcp-label">via MCP</div>
+    </div>
+
+    <!-- RIGHT: App frame -->
+    <div class="aiw-app feat-visual">
+      <div class="frame" style="max-width:380px;height:340px;display:flex;flex-direction:column">
+        <div class="f-chrome"><div class="f-dot"></div><div class="f-dot"></div><div class="f-dot"></div><div class="f-url">goodmeasure.app/recipes/14</div></div>
+        <div class="f-body" style="flex:1;display:flex;overflow:hidden">
+          <div style="width:88px;flex-shrink:0;padding:12px 0;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06)"><span style="color:rgba(0,0,0,0.2);font-weight:700">01</span>Ingredients</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06)"><span style="color:rgba(0,0,0,0.2);font-weight:700">02</span>Nutrition</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06)"><span style="color:rgba(0,0,0,0.2);font-weight:700">03</span>Instructions</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#1A1916;padding:5px 12px;display:flex;gap:6px;border-bottom:1px solid rgba(0,0,0,0.06);background:#EEEAE3"><span style="color:rgba(0,0,0,0.4);font-weight:700">04</span>Optimize</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.07em;color:#6B6860;padding:5px 12px;display:flex;gap:6px"><span style="color:rgba(0,0,0,0.2);font-weight:700">05</span>Meal Prep</div>
+          </div>
+          <div style="flex:1;overflow:hidden;padding:14px 12px">
+            <div style="display:flex;gap:10px;margin-bottom:10px">
+              <div style="flex:1">
+                <span style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:0.1em;padding:2px 8px;background:#EEEAE3;color:#6B6860;border-radius:9999px">Dinner</span>
+                <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;margin:5px 0 3px;line-height:1.1">Black Bean Chili</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:6px">4 servings · 20 min prep</div>
+              </div>
+            </div>
+            <div style="border-top:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;overflow:hidden">
+              <div style="display:grid;grid-template-columns:1.1fr 0.8fr 1.2fr 0.5fr 0.5fr 0.5fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Ingredient</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Original</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Optimized</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Kcal</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Prot</div>
+                <div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;padding:3px 5px">Fat</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr 0.8fr 1.2fr 0.5fr 0.5fr 0.5fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">Olive oil</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px;text-decoration:line-through">1 tbsp</div>
+                <div style="font-size:8.5px;color:#5A9B6A;padding:4px 5px">½ tbsp</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#5A9B6A;padding:4px 5px">−60</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#D0CCC2;padding:4px 5px">—</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#5A9B6A;padding:4px 5px">−7g</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr 0.8fr 1.2fr 0.5fr 0.5fr 0.5fr;border-bottom:1px solid #D0CCC2">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">Beans</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#6B6860;padding:4px 5px;text-decoration:line-through">800g</div>
+                <div style="font-size:8.5px;color:#5A9B6A;padding:4px 5px">Low-sodium</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#D0CCC2;padding:4px 5px">—</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#D0CCC2;padding:4px 5px">—</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#D0CCC2;padding:4px 5px">—</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr 0.8fr 1.2fr 0.5fr 0.5fr 0.5fr">
+                <div style="font-size:8.5px;color:#1A1916;padding:4px 5px">No topping</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#D0CCC2;padding:4px 5px">—</div>
+                <div style="font-size:8.5px;color:#5A9B6A;padding:4px 5px">+ Greek yogurt</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#C45C3A;padding:4px 5px">+17</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#C45C3A;padding:4px 5px">+3g</div>
+                <div style="font-family:'DM Mono',monospace;font-size:7px;color:#D0CCC2;padding:4px 5px">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- S5: PLANNER + HOUSEHOLD — 50/50, Everyone multi-person grid -->
+  <section class="feat flip" id="s5">
+    <div class="feat-copy">
+      <div class="feat-num">05 / Planner</div>
+      <h2 class="feat-h2">One week.<br>Every person.<br>On target.</h2>
+      <p class="feat-body">A 7-day grid per person. Add meals, drag between days, watch nutrition totals update in real time. One shared pantry and recipe library. Everyone's plan, side by side.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Weekly grid</span><span class="feat-tag">Nutrition Summary</span>
+        <span class="feat-tag">Shared View</span>
+      </div>
+    </div>
+    <div class="feat-visual">
+      <div class="frame" style="max-width:520px;height:340px;display:flex;flex-direction:column">
+        <div class="f-chrome"><div class="f-dot"></div><div class="f-dot"></div><div class="f-dot"></div></div>
+        <div class="f-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <div class="f-nav"><span class="f-brand">Good Measure</span><span class="f-nl on">Planner</span><span class="f-nl">Recipes</span><span class="f-nl">Pantry</span></div>
+          <!-- Animated dual-view wrapper -->
+          <div style="flex:1;position:relative;overflow:hidden">
+
+            <!-- VIEW A: Sarah's single-person planner -->
+            <div class="planner-view-a" id="plannerViewA">
+              <div style="display:flex;align-items:center;gap:5px;padding:0 12px;height:34px;border-bottom:1px solid #D0CCC2;flex-shrink:0">
+                <span style="font-family:'DM Mono',monospace;font-size:7px;color:#36342F;letter-spacing:0.04em">Apr 5–11</span>
+                <div style="margin-left:auto;display:flex;gap:4px">
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:3px 9px;background:#5A9B6A;color:#fff;border-radius:9999px">+ New Plan</span>
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 6px;border:1.5px solid #1A1916;border-radius:9999px;color:#1A1916">Sarah</span>
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 6px;border:1px solid #D0CCC2;border-radius:9999px;color:#6B6860">Michael</span>
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 6px;border:1px solid #D0CCC2;border-radius:9999px;color:#6B6860">Everyone</span>
+                </div>
+              </div>
+              <div style="flex:1;display:grid;grid-template-columns:repeat(7,1fr);overflow:hidden">
+                <div style="border-right:1px solid #D0CCC2">
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">SUN</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">5</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:55%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                  <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin-bottom:1px">B</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Eggs &amp; Toast</div><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin:3px 0 1px">D</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">One-pan Fish</div></div>
+                </div>
+                <div style="border-right:1px solid #D0CCC2">
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">MON</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">6</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:81%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                  <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin-bottom:1px">B</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cottage Cheese</div><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin:3px 0 1px">D</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Thai Curry</div></div>
+                </div>
+                <div style="border-right:1px solid #D0CCC2;background:rgba(90,155,106,0.05)">
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#5A9B6A">TUE</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#5A9B6A;line-height:1;margin-top:1px">7</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:57%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                  <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin-bottom:1px">B</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cottage Cheese</div><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin:3px 0 1px">L</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Ginger Salmon</div><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin:3px 0 1px">D</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Curried Lentils</div></div>
+                </div>
+                <div style="border-right:1px solid #D0CCC2">
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">WED</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">8</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:15%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                  <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin-bottom:1px">B</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cottage Cheese</div></div>
+                </div>
+                <div style="border-right:1px solid #D0CCC2">
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">THU</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">9</div></div>
+                  <div style="padding:4px 5px"><span style="font-family:'DM Mono',monospace;font-size:6px;color:#6B6860">+ Add</span></div>
+                </div>
+                <div style="border-right:1px solid #D0CCC2">
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">FRI</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">10</div></div>
+                  <div style="padding:4px 5px"><span style="font-family:'DM Mono',monospace;font-size:6px;color:#6B6860">+ Add</span></div>
+                </div>
+                <div>
+                  <div style="padding:5px 5px 3px;border-bottom:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">SAT</div><div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">11</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:16%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                  <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:5.5px;text-transform:uppercase;color:#6B6860;margin-bottom:1px">D</div><div style="font-size:7.5px;color:#1A1916;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Shrimp Tacos</div></div>
+                </div>
+              </div>
+              <!-- Nutrition summary strip -->
+              <div style="border-top:1px solid #D0CCC2;display:grid;grid-template-columns:1fr 1fr 1fr;flex-shrink:0">
+                <div style="padding:7px 10px;border-right:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;margin-bottom:2px">Calories · Tue</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:-0.02em;color:#1A1916">1,142</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:57%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                <div style="padding:7px 10px;border-right:1px solid #D0CCC2"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;margin-bottom:2px">Protein</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:-0.02em;color:#1A1916">72g</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:76%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+                <div style="padding:7px 10px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860;margin-bottom:2px">Carbs</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:-0.02em;color:#1A1916">98g</div><div style="height:2px;background:#D0CCC2;border-radius:9999px;margin-top:3px"><div style="height:100%;width:44%;background:#5A9B6A;border-radius:9999px"></div></div></div>
+              </div>
+            </div>
+
+            <!-- VIEW B: Everyone / household view -->
+            <div class="planner-view-b" id="plannerViewB">
+              <div style="display:flex;align-items:center;gap:5px;padding:0 12px;height:34px;border-bottom:1px solid #D0CCC2;flex-shrink:0">
+                <span style="font-family:'DM Mono',monospace;font-size:7px;color:#36342F;letter-spacing:0.04em">Apr 5–11</span>
+                <div style="margin-left:auto;display:flex;gap:4px">
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:3px 9px;background:#5A9B6A;color:#fff;border-radius:9999px">+ New Plan</span>
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 6px;border:1px solid #D0CCC2;border-radius:9999px;color:#6B6860">Sarah</span>
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 6px;border:1px solid #D0CCC2;border-radius:9999px;color:#6B6860">Michael</span>
+                  <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 6px;border:1.5px solid #1A1916;border-radius:9999px;color:#1A1916">Everyone</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px repeat(7,1fr);border-bottom:1px solid #D0CCC2;flex-shrink:0">
+                <div style="padding:5px 8px"></div>
+                <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">SUN</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">5</div></div>
+                <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">MON</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">6</div></div>
+                <div style="padding:4px 5px;background:rgba(90,155,106,0.05)"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#5A9B6A">TUE</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#5A9B6A;line-height:1;margin-top:1px">7</div></div>
+                <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">WED</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">8</div></div>
+                <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">THU</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">9</div></div>
+                <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">FRI</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">10</div></div>
+                <div style="padding:4px 5px"><div style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#6B6860">SAT</div><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#6B6860;line-height:1;margin-top:1px">11</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px repeat(7,1fr);border-bottom:1px solid #D0CCC2;flex:1">
+                <div style="display:flex;align-items:flex-start;gap:4px;padding:6px 6px 6px 10px;border-right:1px solid #D0CCC2"><span style="width:6px;height:6px;border-radius:50%;background:#5A9B6A;flex-shrink:0;margin-top:2px"></span><span style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#36342F">Sarah</span></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Eggs &amp; Toast</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">One-pan Fish</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Cottage Cheese</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Thai Curry</div></div>
+                <div style="padding:5px 4px;background:rgba(90,155,106,0.04)"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Cottage Cheese</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Ginger Salmon</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Cottage Cheese</div></div>
+                <div style="padding:5px 4px"></div><div style="padding:5px 4px"></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Shrimp Tacos</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px repeat(7,1fr);border-bottom:1px solid #D0CCC2;flex:1">
+                <div style="display:flex;align-items:flex-start;gap:4px;padding:6px 6px 6px 10px;border-right:1px solid #D0CCC2"><span style="width:6px;height:6px;border-radius:50%;background:#E84828;flex-shrink:0;margin-top:2px"></span><span style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#36342F">Michael</span></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Overnight Oats</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Pasta Bol.</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Overnight Oats</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Thai Curry</div></div>
+                <div style="padding:5px 4px;background:rgba(90,155,106,0.04)"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Overnight Oats</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Thai Curry</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Overnight Oats</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Overnight Oats</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Overnight Oats</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Shrimp Tacos</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px repeat(7,1fr);flex:1">
+                <div style="display:flex;align-items:flex-start;gap:4px;padding:6px 6px 6px 10px;border-right:1px solid #D0CCC2"><span style="width:6px;height:6px;border-radius:50%;background:#7B5EA7;flex-shrink:0;margin-top:2px"></span><span style="font-family:'DM Mono',monospace;font-size:6px;text-transform:uppercase;color:#36342F">Lindsey</span></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Granola Bowl</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Veggie Curry</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Granola Bowl</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Pasta</div></div>
+                <div style="padding:5px 4px;background:rgba(90,155,106,0.04)"><div style="font-size:7.5px;color:#1A1916;line-height:1.3;margin-bottom:1px">Granola Bowl</div><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Stir Fry</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Grain Bowl</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Yogurt</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Greek Salad</div></div>
+                <div style="padding:5px 4px"><div style="font-size:7.5px;color:#1A1916;line-height:1.3">Tacos</div></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S6: CTA — dark, snap -->
+  <section class="sect-cta" id="s6">
+    <div class="cta-inner">
+      <h2 class="cta-h2">Start measuring<br>what <em>matters.</em></h2>
+      <div class="cta-actions">
+        <button class="btn-cta-sage">Get Started ↗</button>
+      </div>
+    </div>
+    <div class="cta-footer">
+      <span>© 2026 Made by Jen Murse</span>
+    </div>
+  </section>
+
+</div>
+
+<script>
+
+const scrollWrap = document.getElementById('scrollWrap');
+const sections = [...scrollWrap.querySelectorAll('section')];
+const dots = [...document.querySelectorAll('.dot-item')];
+const dotsNav = document.getElementById('sectionDots');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      const isDark = e.target.classList.contains('inv')
+        || e.target.classList.contains('sect-cta')
+        || e.target.classList.contains('feat-ai')
+        || e.target.classList.contains('feat-ai-workflow')
+        || e.target.classList.contains('feat-stat-dark');
+      dotsNav.classList.toggle('on-dark', isDark);
+      if (e.target.classList.contains('feat') || e.target.classList.contains('feat-stat')) {
+        e.target.classList.add('revealed');
+      }
+    }
+  });
+}, { root: scrollWrap, threshold: 0.4 });
+
+sections.forEach(s => observer.observe(s));
+dots.forEach((d, i) => d.addEventListener('click', () => sections[i].scrollIntoView({ behavior: 'smooth' })));
+
+// Planner view A/B crossfade
+const plannerViewA = document.getElementById('plannerViewA');
+const plannerViewB = document.getElementById('plannerViewB');
+if (plannerViewA && plannerViewB) {
+  let showingB = false;
+  setInterval(() => {
+    showingB = !showingB;
+    plannerViewA.style.opacity = showingB ? '0' : '1';
+    plannerViewB.style.opacity = showingB ? '1' : '0';
+  }, 3800);
+}
+
+// Animate hero numbers on load
+function animateCount(el, target, duration, delay) {
+  setTimeout(() => {
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target).toLocaleString();
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }, delay);
+}
+const heroCal = document.getElementById('hero-cal');
+const heroProt = document.getElementById('hero-prot');
+if (heroCal) animateCount(heroCal, 1023, 1200, 700);
+if (heroProt) animateCount(heroProt, 71, 1000, 900);
+
+// Animate progress bars with data-target
+document.querySelectorAll('.mb-f[data-target]').forEach(bar => {
+  setTimeout(() => { bar.style.width = bar.dataset.target + '%'; }, 100);
+});
+</script>
+</body>
+</html>

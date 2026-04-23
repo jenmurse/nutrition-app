@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Measure — Color System Proposal</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:    #F5F4EF;
+    --fg:    #1A1916;
+    --fg-2:  #3D3C38;
+    --muted: #6B6860;
+    --rule:  #D8D6CF;
+    --mono:  'Courier New', monospace;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #E0DED7;
+    color: var(--fg);
+    font-size: 14px;
+  }
+
+  /* ── Header ── */
+  .ph { background: var(--fg); color: #F5F4EF; padding: 28px 40px; }
+  .ph-eye { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #6B6860; margin-bottom: 6px; }
+  .ph h1  { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .ph p   { font-size: 12px; color: #9B9A96; line-height: 1.7; max-width: 760px; }
+  .ph p strong { color: #C8C6C0; }
+  .rule-box {
+    margin-top: 14px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11px;
+    color: #9B9A96;
+  }
+  .rule-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  /* ── Body ── */
+  .body { max-width: 1080px; margin: 0 auto; padding: 28px 40px 80px; display: flex; flex-direction: column; gap: 24px; }
+
+  /* ── Theme row ── */
+  .theme-row { border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .theme-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    background: var(--fg); color: #F5F4EF;
+    flex-wrap: wrap;
+  }
+  .th-swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .th-name { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
+  .th-from { font-family: var(--mono); font-size: 10px; color: #6B6860; }
+  .th-sep  { font-size: 12px; color: #4B4A46; }
+  .th-to   { font-family: var(--mono); font-size: 10px; color: #9B9A96; }
+  .badge { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 6px; border-radius: 100px; }
+  .pass  { background: rgba(46,125,50,0.35);  color: #a0e8a8; }
+  .warn  { background: rgba(200,150,0,0.3);   color: #ffe0a0; }
+  .nochange { background: rgba(255,255,255,0.1); color: #9B9A96; }
+
+  /* ── Compare grid ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; }
+  .col { background: var(--bg); }
+  .col.right { background: var(--bg); }
+  .col-head {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .col-head.before { color: #9B8070; background: #fdf9f7; border-right: 1px solid var(--rule); }
+  .col-head.after  { color: #3A6A4A; background: #f5fbf6; }
+  .col-head.after-warn { color: #8A5000; background: #fff8ee; }
+  .col-body {
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    border-right: 1px solid var(--rule);
+  }
+  .col-body.right { border-right: none; }
+
+  /* ── Components ── */
+  .c-label { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: #B8B6B0; margin-bottom: 3px; }
+
+  .app-bar { display: flex; align-items: center; gap: 5px; padding: 7px 10px; background: #fff; border: 1px solid var(--rule); border-radius: 4px; }
+  .bar-title { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-right: auto; }
+  .btn-fill { font-family: var(--mono); font-size: 7px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: none; cursor: default; white-space: nowrap; }
+  .person-btn { font-family: var(--mono); font-size: 7px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; padding: 4px 8px; border-radius: 100px; border: none; cursor: default; }
+
+  .plan-wrap { border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; font-size: 12px; }
+  .plan-inner { padding: 10px 12px; }
+  .plan-label { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1px; }
+  .plan-num { font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; margin-bottom: 3px; }
+  .plan-kcal { font-family: var(--mono); font-size: 8px; color: var(--muted); margin-bottom: 5px; }
+  .bar-track { height: 3px; background: #D8D6CF; border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+  .bar-fill  { height: 100%; border-radius: 2px; }
+  .plan-sec { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; margin-top: 6px; }
+  .plan-meal { font-size: 11px; font-weight: 600; color: var(--fg); margin-bottom: 1px; }
+  .plan-meal-kcal { font-family: var(--mono); font-size: 8px; color: var(--muted); }
+  .plan-add { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 7px; cursor: default; }
+
+  .dash-card { background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
+  .dash-eye  { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .dash-title { font-size: 13px; font-weight: 800; letter-spacing: -0.01em; color: var(--fg); margin-bottom: 7px; }
+  .dash-row  { display: flex; align-items: center; border-top: 1px solid var(--rule); padding: 5px 0; }
+  .dash-rl   { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); flex: 1; }
+  .dash-rv   { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--fg); }
+  .dash-link { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; cursor: default; margin-top: 7px; display: block; }
+
+  /* ── Token note strip ── */
+  .tok-strip {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 8px 16px;
+    background: #F0EEE8;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 8px; color: var(--muted);
+    align-items: center;
+  }
+  .tok { display: flex; align-items: center; gap: 4px; }
+  .tok-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .tok-sep { color: var(--rule); }
+
+  /* ── Coral 3-col ── */
+  .coral-compare { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .coral-col { background: var(--bg); }
+  .coral-col.opta { background: var(--bg); }
+  .coral-col.optb { background: var(--bg); }
+
+  /* ── No-change block ── */
+  .nc-block { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 16px 20px; display: flex; gap: 0; align-items: center; }
+  .nc-main { flex: 1; }
+  .nc-title { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 10px; }
+  .nc-items { display: flex; gap: 20px; }
+  .nc-item  { display: flex; align-items: center; gap: 9px; }
+  .nc-sw { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 7px; font-weight: 700; text-transform: uppercase; }
+  .nc-name { font-weight: 600; font-size: 12px; }
+  .nc-cr   { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .nc-note { border-left: 1px solid var(--rule); margin-left: 20px; padding-left: 20px; font-size: 12px; color: var(--muted); line-height: 1.7; width: 280px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="ph">
+  <div class="ph-eye">Good Measure · Color System — Final Proposal</div>
+  <h1>Column tint stays original. Date, bars, buttons, and text all unify to --accent-btn.</h1>
+  <p>The column background tint uses <strong>--accent</strong> (original vibrant color) at the same opacity as today — no change there. Everything else — date number, day label, bars, buttons, person switchers, text links — uses <strong>--accent-btn</strong>, the accessible version. One consistent interactive color per theme.</p>
+  <div class="rule-box">
+    <div class="rule-item">
+      <div class="rule-dot" style="background:#9B9A96"></div>
+      <span><strong style="color:#C8C6C0">--accent</strong> — column tint only → unchanged from today</span>
+    </div>
+    <div class="rule-item">
+      <div class="rule-dot" style="background:#5A9B6A"></div>
+      <span><strong style="color:#C8C6C0">--accent-btn</strong> — date label, date number, bars, buttons, person, text links, + Add → all unified</span>
+    </div>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- ══ CORAL ══ -->
+  <div class="theme-row">
+    <div class="theme-head">
+      <div class="th-swatch" style="background:#E84828"></div>
+      <div class="th-name">Coral</div>
+      <div class="th-from">#E84828</div>
+      <span class="badge warn" style="margin-left:4px">white text 3.9:1 ✗</span>
+      <span class="badge warn">dark text 4.5:1 ✓ barely</span>
+      <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+        <span style="font-family:var(--mono); font-size:9px; color:#9B9A96">Personal choice — two options</span>
+      </div>
+    </div>
+    <div class="coral-compare">
+
+      <!-- Current -->
+      <div class="coral-col">
+        <div class="col-head before">Current</div>
+        <div class="col-body">
+          <div>
+            <div class="c-label">Buttons &amp; person</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#E84828; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#E84828; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#E84828; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today column</div>
+            <div class="plan-wrap"><div style="background:rgba(232,72,40,0.09)"><div class="plan-inner">
+              <div class="plan-label" style="color:#E84828">Tue</div>
+              <div class="plan-num"   style="color:#E84828">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#E84828"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#E84828">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#E84828">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#E84828">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip">
+          <span class="tok"><span class="tok-dot" style="background:#E84828"></span>#E84828 on everything</span>
+        </div>
+      </div>
+
+      <!-- Option A: keep #E84828, dark text on buttons -->
+      <div class="coral-col opta">
+        <div class="col-head after-warn">Option A — keep #E84828, dark text on buttons <span class="badge warn" style="margin-left:4px">btn 4.5:1 ✓ barely · text 3.5:1 ✗</span></div>
+        <div class="col-body right">
+          <div>
+            <div class="c-label">Buttons — coral bg, dark text (4.5:1)</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#E84828; color:#1A1916">+ New Plan</button>
+              <button class="person-btn" style="background:#E84828; color:#1A1916">Jen</button>
+              <button class="person-btn" style="background:#E84828; color:#1A1916">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today — tint original · date + bar unified to #E84828</div>
+            <div class="plan-wrap"><div style="background:rgba(232,72,40,0.09)"><div class="plan-inner">
+              <div class="plan-label" style="color:#E84828">Tue</div>
+              <div class="plan-num"   style="color:#E84828">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#E84828"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#E84828">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard — #E84828 text (3.5:1 large only)</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#E84828">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#E84828">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip" style="background:#fff8ee;">
+          <span class="tok"><span class="tok-dot" style="background:#E84828"></span>--accent #E84828 → tint only</span>
+          <span class="tok-sep">·</span>
+          <span class="tok"><span class="tok-dot" style="background:#E84828"></span>--accent-btn #E84828 → date, bars, buttons, text (dark text on buttons)</span>
+          <span class="tok-sep">·</span>
+          <span style="color:#8A5000">small text links don't hit 4.5:1 — it's coral, your call</span>
+        </div>
+      </div>
+
+      <!-- Option B: #E04320 unified -->
+      <div class="coral-col optb">
+        <div class="col-head after-warn">Option B — #E04320 unified <span class="badge warn" style="margin-left:4px">white text 4.2:1 ✗ · dark text 4.2:1 ✗</span></div>
+        <div class="col-body right">
+          <div>
+            <div class="c-label">Buttons — #E04320, white text (4.2:1)</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#E04320; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#E04320; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#E04320; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today — tint stays original · date + bar → #E04320</div>
+            <div class="plan-wrap"><div style="background:rgba(232,72,40,0.09)"><div class="plan-inner">
+              <div class="plan-label" style="color:#E04320">Tue</div>
+              <div class="plan-num"   style="color:#E04320">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#E04320"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#E04320">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard — #E04320 text (3.8:1 large only)</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#E04320">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#E04320">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip" style="background:#FFF3EE;">
+          <span class="tok"><span class="tok-dot" style="background:#E84828"></span>--accent #E84828 → tint only (unchanged)</span>
+          <span class="tok-sep">·</span>
+          <span class="tok"><span class="tok-dot" style="background:#E04320"></span>--accent-btn #E04320 → date, bars, buttons, text</span>
+          <span class="tok-sep">·</span>
+          <span style="color:#8A5000">marginally darker than A, still doesn't pass — opt A is actually better (dark text = 4.5:1)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TERRA ══ -->
+  <div class="theme-row">
+    <div class="theme-head">
+      <div class="th-swatch" style="background:#C45C3A"></div>
+      <div class="th-name">Terra</div>
+      <div class="th-from">#C45C3A</div>
+      <div class="th-sep">→</div>
+      <div class="th-to">--accent-btn: #A84E30</div>
+      <span class="badge pass">btn 5.5:1 ✓</span>
+      <span class="badge pass">text 5.0:1 ✓</span>
+      <span class="badge pass">date/bars 5.5:1 ✓</span>
+    </div>
+    <div class="compare">
+      <div class="col">
+        <div class="col-head before">Current — #C45C3A everywhere</div>
+        <div class="col-body">
+          <div>
+            <div class="c-label">Buttons &amp; person</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#C45C3A; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#C45C3A; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#C45C3A; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today column</div>
+            <div class="plan-wrap"><div style="background:rgba(196,92,58,0.09)"><div class="plan-inner">
+              <div class="plan-label" style="color:#C45C3A">Tue</div>
+              <div class="plan-num"   style="color:#C45C3A">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#C45C3A"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#C45C3A">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#C45C3A">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#C45C3A">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip"><span class="tok"><span class="tok-dot" style="background:#C45C3A"></span>#C45C3A on everything</span></div>
+      </div>
+      <div class="col right">
+        <div class="col-head after">Tint only unchanged · Date, bars, buttons, text → #A84E30</div>
+        <div class="col-body right">
+          <div>
+            <div class="c-label">Buttons — #A84E30 (5.5:1 ✓)</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#A84E30; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#A84E30; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#A84E30; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today — tint original · date + bar → #A84E30</div>
+            <div class="plan-wrap"><div style="background:rgba(196,92,58,0.09)"><div class="plan-inner">
+              <div class="plan-label" style="color:#A84E30">Tue</div>
+              <div class="plan-num"   style="color:#A84E30">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#A84E30"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#A84E30">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard — #A84E30 (5.0:1 ✓)</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#A84E30">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#A84E30">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip" style="background:#F5EEE8;">
+          <span class="tok"><span class="tok-dot" style="background:#C45C3A"></span>--accent #C45C3A → tint only</span>
+          <span class="tok-sep">·</span>
+          <span class="tok"><span class="tok-dot" style="background:#A84E30"></span>--accent-btn #A84E30 → date, bars, buttons, text</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SAGE ══ -->
+  <div class="theme-row">
+    <div class="theme-head">
+      <div class="th-swatch" style="background:#5A9B6A"></div>
+      <div class="th-name">Sage</div>
+      <div class="th-from">#5A9B6A</div>
+      <div class="th-sep">→</div>
+      <div class="th-to">--accent-btn: #3A7A4E</div>
+      <span class="badge pass">btn 5.2:1 ✓</span>
+      <span class="badge pass">text 4.7:1 ✓</span>
+      <span class="badge pass">date/bars 5.2:1 ✓</span>
+    </div>
+    <div class="compare">
+      <div class="col">
+        <div class="col-head before">Current — #5A9B6A everywhere</div>
+        <div class="col-body">
+          <div>
+            <div class="c-label">Buttons &amp; person</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#5A9B6A; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#5A9B6A; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#5A9B6A; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today column</div>
+            <div class="plan-wrap"><div style="background:rgba(90,155,106,0.10)"><div class="plan-inner">
+              <div class="plan-label" style="color:#5A9B6A">Tue</div>
+              <div class="plan-num"   style="color:#5A9B6A">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#5A9B6A"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#5A9B6A">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#5A9B6A">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#5A9B6A">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip"><span class="tok"><span class="tok-dot" style="background:#5A9B6A"></span>#5A9B6A on everything</span></div>
+      </div>
+      <div class="col right">
+        <div class="col-head after">Tint only unchanged · Date, bars, buttons, text → #3A7A4E</div>
+        <div class="col-body right">
+          <div>
+            <div class="c-label">Buttons — #3A7A4E (5.2:1 ✓)</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#3A7A4E; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#3A7A4E; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#3A7A4E; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today — tint original · date + bar → #3A7A4E</div>
+            <div class="plan-wrap"><div style="background:rgba(90,155,106,0.10)"><div class="plan-inner">
+              <div class="plan-label" style="color:#3A7A4E">Tue</div>
+              <div class="plan-num"   style="color:#3A7A4E">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#3A7A4E"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#3A7A4E">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard — #3A7A4E</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#3A7A4E">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#3A7A4E">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip" style="background:#EBF3ED;">
+          <span class="tok"><span class="tok-dot" style="background:#5A9B6A"></span>--accent #5A9B6A → tint only</span>
+          <span class="tok-sep">·</span>
+          <span class="tok"><span class="tok-dot" style="background:#3A7A4E"></span>--accent-btn #3A7A4E → date, bars, buttons, text</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CERULEAN ══ -->
+  <div class="theme-row">
+    <div class="theme-head">
+      <div class="th-swatch" style="background:#2B90C8"></div>
+      <div class="th-name">Cerulean</div>
+      <div class="th-from">#2B90C8</div>
+      <div class="th-sep">→</div>
+      <div class="th-to">--accent-btn: #1A72A8</div>
+      <span class="badge pass">btn 5.2:1 ✓</span>
+      <span class="badge pass">text 4.8:1 ✓</span>
+      <span class="badge pass">date/bars 5.2:1 ✓</span>
+    </div>
+    <div class="compare">
+      <div class="col">
+        <div class="col-head before">Current — #2B90C8 everywhere</div>
+        <div class="col-body">
+          <div>
+            <div class="c-label">Buttons &amp; person</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#2B90C8; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#2B90C8; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#2B90C8; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today column</div>
+            <div class="plan-wrap"><div style="background:rgba(43,144,200,0.10)"><div class="plan-inner">
+              <div class="plan-label" style="color:#2B90C8">Tue</div>
+              <div class="plan-num"   style="color:#2B90C8">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#2B90C8"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#2B90C8">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#2B90C8">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#2B90C8">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip"><span class="tok"><span class="tok-dot" style="background:#2B90C8"></span>#2B90C8 on everything</span></div>
+      </div>
+      <div class="col right">
+        <div class="col-head after">Tint only unchanged · Date, bars, buttons, text → #1A72A8</div>
+        <div class="col-body right">
+          <div>
+            <div class="c-label">Buttons — #1A72A8 (5.2:1 ✓)</div>
+            <div class="app-bar">
+              <span class="bar-title">Planner</span>
+              <button class="btn-fill" style="background:#1A72A8; color:#fff">+ New Plan</button>
+              <button class="person-btn" style="background:#1A72A8; color:#fff">Jen</button>
+              <button class="person-btn" style="background:#1A72A8; color:#fff">Garth</button>
+            </div>
+          </div>
+          <div>
+            <div class="c-label">Today — tint original · date + bar → #1A72A8</div>
+            <div class="plan-wrap"><div style="background:rgba(43,144,200,0.10)"><div class="plan-inner">
+              <div class="plan-label" style="color:#1A72A8">Tue</div>
+              <div class="plan-num"   style="color:#1A72A8">14</div>
+              <div class="plan-kcal">542 kcal</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42%; background:#1A72A8"></div></div>
+              <div class="plan-sec">Breakfast</div>
+              <div class="plan-meal">Tuna "Pancake" w/Egg</div>
+              <div class="plan-meal-kcal">259 kcal</div>
+              <div class="plan-add" style="color:#1A72A8">+ Add</div>
+            </div></div></div>
+          </div>
+          <div>
+            <div class="c-label">Dashboard — #1A72A8 (4.8:1 ✓)</div>
+            <div class="dash-card">
+              <div class="dash-eye" style="color:#1A72A8">01 · Breakfast</div>
+              <div class="dash-title">Tuna "Pancake" w/Egg</div>
+              <div class="dash-row"><span class="dash-rl">Calories</span><span class="dash-rv">259</span></div>
+              <div class="dash-row"><span class="dash-rl">Protein</span><span class="dash-rv">29g</span></div>
+              <div class="dash-link" style="color:#1A72A8">See Recipe →</div>
+            </div>
+          </div>
+        </div>
+        <div class="tok-strip" style="background:#EAF2F8;">
+          <span class="tok"><span class="tok-dot" style="background:#2B90C8"></span>--accent #2B90C8 → tint only</span>
+          <span class="tok-sep">·</span>
+          <span class="tok"><span class="tok-dot" style="background:#1A72A8"></span>--accent-btn #1A72A8 → date, bars, buttons, text</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PLUM + SLATE ══ -->
+  <div class="nc-block">
+    <div class="nc-main">
+      <div class="nc-title">Plum &amp; Slate — no change needed</div>
+      <div class="nc-items">
+        <div class="nc-item">
+          <div class="nc-sw" style="background:#8B5A9E">Jen</div>
+          <div><div class="nc-name">Plum #8B5A9E</div><div class="nc-cr">btn 5.2 · text 4.7 · large 5.2 — all pass</div></div>
+        </div>
+        <div class="nc-item">
+          <div class="nc-sw" style="background:#5C7080">Jen</div>
+          <div><div class="nc-name">Slate #5C7080</div><div class="nc-cr">btn 5.2 · text 4.7 · large 5.2 — all pass</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nc-note">
+      Already pass every threshold. <code style="font-family:var(--mono); font-size:10px; background:#F0EEE8; padding:1px 4px; border-radius:2px;">--accent-btn = --accent</code> — same value, one color for everything. No visual change.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

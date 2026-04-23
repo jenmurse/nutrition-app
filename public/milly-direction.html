@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure — Milly Dent Direction</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white: #FFFFFF;
+  --black: #111111;
+  --mid:   #767676;
+  --rule:  rgba(17,17,17,0.14);
+  --rule-strong: rgba(17,17,17,0.85);
+  --accent: #5A9B6A;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* App screen colours stay warm */
+  --app-bg:   #F5F4EF;
+  --app-bg2:  #EEEAE3;
+  --app-fg:   #1A1916;
+  --app-rule: #D0CCC2;
+  --app-muted:#6B6860;
+  --app-green:#5A9B6A;
+}
+
+html { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+body { background: var(--white); color: var(--black); }
+
+/* ── HEADER ── */
+.site-header {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--white);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.header-inner {
+  height: 52px; display: flex; align-items: center;
+  padding: 0 48px; gap: 40px;
+}
+.header-brand {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: -0.02em; color: var(--black);
+}
+.header-nav {
+  display: flex; gap: 28px; margin-left: 0;
+}
+.header-nav a {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--mid); text-decoration: none;
+  transition: color 120ms;
+}
+.header-nav a:hover { color: var(--black); }
+.header-right { margin-left: auto; }
+.btn-pill-black {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; background: var(--black); color: var(--white);
+  border: none; cursor: pointer; padding: 9px 20px; border-radius: 9999px;
+  text-decoration: none; display: inline-block;
+  transition: background 150ms, transform 150ms var(--ease-out);
+}
+.btn-pill-black:hover { background: var(--accent); }
+.btn-pill-black:active { transform: scale(0.97); }
+
+/* ── HERO ── */
+.hero {
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 80px 48px 72px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: calc(100vh - 52px);
+}
+.hero-copy {
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding-right: 80px;
+  border-right: 1px solid var(--rule);
+}
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 24px;
+}
+.hero-h1 {
+  font-size: clamp(52px, 5.8vw, 88px); font-weight: 700;
+  letter-spacing: -0.025em; line-height: 0.97;
+  text-wrap: balance; color: var(--black);
+  margin-bottom: 24px;
+}
+.hero-tagline {
+  font-size: 15px; line-height: 1.68; color: var(--mid);
+  max-width: 42ch; margin-bottom: 36px;
+}
+.hero-actions { display: flex; gap: 12px; align-items: center; }
+.btn-ghost-black {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; background: transparent; color: var(--black);
+  border: 1px solid rgba(17,17,17,0.3); cursor: pointer; padding: 9px 20px;
+  border-radius: 9999px; transition: border-color 150ms;
+}
+.btn-ghost-black:hover { border-color: var(--black); }
+.hero-visual {
+  display: flex; align-items: center; justify-content: center;
+  padding-left: 64px;
+}
+
+/* ── APP FRAME ── */
+.frame {
+  width: 100%; border: 1px solid rgba(17,17,17,0.14);
+  background: var(--app-bg); overflow: hidden;
+  border-radius: 6px;
+  display: flex; flex-direction: column;
+}
+.f-chrome {
+  height: 26px; background: #2E2C28;
+  display: flex; align-items: center; padding: 0 10px; gap: 5px;
+  flex-shrink: 0; border-radius: 6px 6px 0 0;
+}
+.f-dot { width: 7px; height: 7px; border-radius: 50%; }
+.f-url {
+  font-family: 'DM Mono', monospace; font-size: 8px;
+  color: rgba(255,255,255,0.3); margin-left: 8px; letter-spacing: 0.04em;
+}
+.f-body { background: var(--app-bg); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.f-nav {
+  height: 30px; display: flex; align-items: center;
+  padding: 0 10px; gap: 8px;
+  border-bottom: 1px solid var(--app-rule); flex-shrink: 0;
+}
+.f-brand { font-family:'DM Sans',sans-serif; font-size:9px; font-weight:700; letter-spacing:-0.02em; color:var(--app-fg); }
+.f-nl { font-family:'DM Mono',monospace; font-size:6.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--app-muted); }
+.f-ml { margin-left: auto; }
+
+/* ── FEATURES (row layout) ── */
+.feat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--rule-strong);
+  min-height: 520px;
+}
+.feat-row.flip .feat-copy { order: 2; }
+.feat-row.flip .feat-visual { order: 1; border-right: 1px solid var(--rule); border-left: none; }
+.feat-copy {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 72px 64px;
+  border-right: 1px solid var(--rule);
+}
+.feat-row.flip .feat-copy { border-right: none; border-left: 1px solid var(--rule); }
+.feat-visual {
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 48px;
+  background: var(--white);
+}
+.feat-num {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 20px;
+}
+.feat-h2 {
+  font-size: clamp(28px, 3vw, 44px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.05;
+  text-wrap: balance; color: var(--black);
+  margin-bottom: 14px;
+}
+.feat-body {
+  font-size: 14px; line-height: 1.72; color: var(--mid);
+  max-width: 38ch; margin-bottom: 24px;
+}
+.feat-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.feat-tag {
+  font-family: 'DM Mono', monospace; font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--black); border: 1px solid rgba(17,17,17,0.25);
+  border-radius: 9999px; padding: 4px 12px;
+}
+
+/* ── CTA ── */
+.sect-cta {
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 120px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 480px;
+}
+.cta-copy {
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding-right: 80px;
+  border-right: 1px solid var(--rule);
+}
+.cta-h2 {
+  font-size: clamp(40px, 4.5vw, 64px); font-weight: 700;
+  letter-spacing: -0.025em; line-height: 1.0;
+  text-wrap: balance; color: var(--black);
+  margin-bottom: 36px;
+}
+.btn-pill-green {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; background: var(--accent); color: #fff;
+  border: none; cursor: pointer; padding: 12px 28px; border-radius: 9999px;
+  text-decoration: none; display: inline-block;
+  transition: opacity 150ms, transform 150ms var(--ease-out);
+  align-self: flex-start;
+}
+.btn-pill-green:hover { opacity: 0.88; }
+.cta-meta {
+  display: flex; flex-direction: column;
+  justify-content: center; padding-left: 80px;
+  gap: 32px;
+}
+.cta-stat {
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+}
+.cta-stat-num {
+  font-size: 40px; font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1; color: var(--black);
+  margin-bottom: 4px;
+}
+.cta-stat-label {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.10em; text-transform: uppercase; color: var(--mid);
+}
+
+/* ── FOOTER ── */
+footer {
+  padding: 20px 48px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--rule);
+}
+footer span {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.10em; color: var(--mid);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <span class="header-brand">Good Measure</span>
+    <nav class="header-nav">
+      <a href="#">Recipes</a>
+      <a href="#">Planner</a>
+      <a href="#">Pantry</a>
+    </nav>
+    <div class="header-right">
+      <a href="#" class="btn-pill-black">Get Started ↗</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">Nutrition tracking — 2026</p>
+    <h1 class="hero-h1">Measure what matters.</h1>
+    <p class="hero-tagline">Know exactly what's in everything you cook. Build recipes, plan the week, hit your targets — for every person in your household.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-pill-black">Get Started ↗</a>
+      <button class="btn-ghost-black">See how it works ↓</button>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="frame" style="width:100%;max-width:480px;height:360px">
+      <div class="f-chrome">
+        <div class="f-dot" style="background:#FF5F57"></div>
+        <div class="f-dot" style="background:#FFBD2E"></div>
+        <div class="f-dot" style="background:#28CA41"></div>
+        <div class="f-url">goodmeasure.app</div>
+      </div>
+      <div class="f-body">
+        <div class="f-nav">
+          <span class="f-brand">Good Measure</span>
+          <span class="f-nl">Planner</span>
+          <span class="f-nl">Recipes</span>
+          <span class="f-nl">Pantry</span>
+          <div class="f-ml" style="display:flex;align-items:center;gap:2px">
+            <div style="width:16px;height:16px;border-radius:50%;background:#5A9B6A;display:flex;align-items:center;justify-content:center;font-size:6px;font-family:'DM Mono',monospace;color:#fff;font-weight:600">S</div>
+            <div style="width:16px;height:16px;border-radius:50%;background:#E84828;display:flex;align-items:center;justify-content:center;font-size:6px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;margin-left:-3px;border:2px solid #F5F4EF">M</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px 0">
+          <div style="font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.14em;color:#6B6860;margin-bottom:6px">Tuesday, April 22, 2026</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.03em;line-height:1.0;color:#1A1916">Good morning,</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.03em;line-height:1.0;color:#5A9B6A;margin-bottom:10px">Sarah</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;flex-shrink:0">
+          <div style="padding:7px 12px;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Calories</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;line-height:1">1,023</div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;color:#6B6860;margin:2px 0 4px">of 2,000</div>
+            <div style="height:2px;background:#D0CCC2;border-radius:9999px;overflow:hidden"><div style="height:100%;width:51%;background:#5A9B6A;border-radius:9999px"></div></div>
+          </div>
+          <div style="padding:7px 12px;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Protein</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;line-height:1">71<span style="font-size:9px;color:#6B6860;font-family:'DM Mono',monospace">g</span></div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;color:#6B6860;margin:2px 0 4px">of 95g</div>
+            <div style="height:2px;background:#D0CCC2;border-radius:9999px;overflow:hidden"><div style="height:100%;width:75%;background:#5A9B6A;border-radius:9999px"></div></div>
+          </div>
+          <div style="padding:7px 12px">
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Carbs</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.03em;color:#1A1916;line-height:1">65<span style="font-size:9px;color:#6B6860;font-family:'DM Mono',monospace">g</span></div>
+            <div style="font-family:'DM Mono',monospace;font-size:6.5px;color:#6B6860;margin:2px 0 4px">of 225g</div>
+            <div style="height:2px;background:#D0CCC2;border-radius:9999px;overflow:hidden"><div style="height:100%;width:29%;background:#5A9B6A;border-radius:9999px"></div></div>
+          </div>
+        </div>
+        <div style="padding:8px 16px 0;flex:1;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860">Today's key meals</span>
+            <span style="font-family:'DM Mono',monospace;font-size:6.5px;color:#5A9B6A">Planner →</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+            <div style="padding-right:10px;border-right:1px solid #D0CCC2">
+              <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;color:#6B6860;padding-bottom:4px;border-bottom:1px solid #D0CCC2;margin-bottom:4px">01 · Breakfast</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:-0.02em;color:#1A1916;line-height:1.2">Cottage Cheese Bowl</div>
+            </div>
+            <div style="padding:0 10px;border-right:1px solid #D0CCC2">
+              <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;color:#6B6860;padding-bottom:4px;border-bottom:1px solid #D0CCC2;margin-bottom:4px">02 · Lunch</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:-0.02em;color:#1A1916;line-height:1.2">Salmon Salad</div>
+            </div>
+            <div style="padding-left:10px">
+              <div style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;color:#6B6860;padding-bottom:4px;border-bottom:1px solid #D0CCC2;margin-bottom:4px">03 · Dinner</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:-0.02em;color:#1A1916;line-height:1.2">Thai Green Curry</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEAT 01: Recipes -->
+<section class="feat-row">
+  <div class="feat-copy">
+    <div class="feat-num">01 / Recipes</div>
+    <h2 class="feat-h2">Every recipe, fully calculated.</h2>
+    <p class="feat-body">Build recipes from your pantry and see the complete nutrition picture — per serving, per 100g, for any household member's goals.</p>
+    <div class="feat-tags">
+      <span class="feat-tag">Ingredient scaling</span>
+      <span class="feat-tag">Serving control</span>
+      <span class="feat-tag">AI import</span>
+    </div>
+  </div>
+  <div class="feat-visual">
+    <!-- Recipe grid mockup -->
+    <div class="frame" style="width:100%;max-width:400px;height:300px">
+      <div class="f-chrome">
+        <div class="f-dot" style="background:#FF5F57"></div>
+        <div class="f-dot" style="background:#FFBD2E"></div>
+        <div class="f-dot" style="background:#28CA41"></div>
+        <div class="f-url">goodmeasure.app/recipes</div>
+      </div>
+      <div class="f-body">
+        <div class="f-nav">
+          <span class="f-brand">Good Measure</span>
+          <span class="f-nl">Planner</span>
+          <span class="f-nl on" style="color:#1A1916;border-bottom:1px solid #1A1916;padding-bottom:2px">Recipes</span>
+          <span class="f-nl">Pantry</span>
+          <div class="f-ml">
+            <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;background:#1A1916;color:#F5F4EF;padding:2px 8px;border-radius:9999px">+ New</span>
+          </div>
+        </div>
+        <!-- Toolbar -->
+        <div style="height:26px;display:flex;align-items:center;padding:0 10px;gap:5px;border-bottom:1px solid #D0CCC2;flex-shrink:0">
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 8px;background:#1A1916;color:#F5F4EF;border-radius:9999px">All</span>
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 8px;border:1px solid #D0CCC2;color:#6B6860;border-radius:9999px">High Protein</span>
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 8px;border:1px solid #D0CCC2;color:#6B6860;border-radius:9999px">Quick</span>
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;color:#6B6860;margin-left:auto">18 recipes</span>
+        </div>
+        <!-- Recipe grid -->
+        <div style="flex:1;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);gap:0">
+          <!-- Card 1 -->
+          <div style="border-right:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;overflow:hidden;display:flex;flex-direction:column">
+            <div style="flex:1;background:#E6E2D8;display:flex;align-items:flex-end;padding:4px 6px 6px;min-height:60px">
+              <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;opacity:0.22;line-height:1.1">Cottage Cheese Bowl</span>
+            </div>
+            <div style="padding:5px 6px 6px;border-top:1px solid #D0CCC2">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:600;color:#1A1916;margin-bottom:2px;line-height:1.2">Cottage Cheese Bowl</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5.5px;color:#6B6860">312 kcal · 28g protein</div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div style="border-right:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;overflow:hidden;display:flex;flex-direction:column">
+            <div style="flex:1;background:#E6E2D8;display:flex;align-items:flex-end;padding:4px 6px 6px;min-height:60px">
+              <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;opacity:0.22;line-height:1.1">Salmon Salad</span>
+            </div>
+            <div style="padding:5px 6px 6px;border-top:1px solid #D0CCC2">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:600;color:#1A1916;margin-bottom:2px;line-height:1.2">Salmon Salad</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5.5px;color:#6B6860">380 kcal · 32g protein</div>
+            </div>
+          </div>
+          <!-- Card 3 -->
+          <div style="border-bottom:1px solid #D0CCC2;overflow:hidden;display:flex;flex-direction:column">
+            <div style="flex:1;background:#E6E2D8;display:flex;align-items:flex-end;padding:4px 6px 6px;min-height:60px">
+              <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;opacity:0.22;line-height:1.1">Thai Green Curry</span>
+            </div>
+            <div style="padding:5px 6px 6px;border-top:1px solid #D0CCC2">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:600;color:#1A1916;margin-bottom:2px;line-height:1.2">Thai Green Curry</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5.5px;color:#6B6860">331 kcal · 11g protein</div>
+            </div>
+          </div>
+          <!-- Card 4 -->
+          <div style="border-right:1px solid #D0CCC2;overflow:hidden;display:flex;flex-direction:column">
+            <div style="flex:1;background:#E6E2D8;display:flex;align-items:flex-end;padding:4px 6px 6px;min-height:60px">
+              <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;opacity:0.22;line-height:1.1">Overnight Oats</span>
+            </div>
+            <div style="padding:5px 6px 6px;border-top:1px solid #D0CCC2">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:600;color:#1A1916;margin-bottom:2px;line-height:1.2">Overnight Oats</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5.5px;color:#6B6860">298 kcal · 14g protein</div>
+            </div>
+          </div>
+          <!-- Card 5 -->
+          <div style="border-right:1px solid #D0CCC2;overflow:hidden;display:flex;flex-direction:column">
+            <div style="flex:1;background:#E6E2D8;display:flex;align-items:flex-end;padding:4px 6px 6px;min-height:60px">
+              <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;opacity:0.22;line-height:1.1">Lentil Soup</span>
+            </div>
+            <div style="padding:5px 6px 6px;border-top:1px solid #D0CCC2">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:600;color:#1A1916;margin-bottom:2px;line-height:1.2">Lentil Soup</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5.5px;color:#6B6860">245 kcal · 18g protein</div>
+            </div>
+          </div>
+          <!-- Card 6 -->
+          <div style="overflow:hidden;display:flex;flex-direction:column">
+            <div style="flex:1;background:#E6E2D8;display:flex;align-items:flex-end;padding:4px 6px 6px;min-height:60px">
+              <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;opacity:0.22;line-height:1.1">Granola Bars</span>
+            </div>
+            <div style="padding:5px 6px 6px;border-top:1px solid #D0CCC2">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:600;color:#1A1916;margin-bottom:2px;line-height:1.2">Granola Bars</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5.5px;color:#6B6860">189 kcal · 6g protein</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEAT 02: Pantry -->
+<section class="feat-row flip">
+  <div class="feat-copy">
+    <div class="feat-num">02 / Pantry</div>
+    <h2 class="feat-h2">Build your ingredient library.</h2>
+    <p class="feat-body">Every ingredient you cook with, stored exactly how you use it. USDA lookup, custom units — your pantry powers every recipe's nutrition automatically.</p>
+    <div class="feat-tags">
+      <span class="feat-tag">USDA lookup</span>
+      <span class="feat-tag">Custom units</span>
+      <span class="feat-tag">Categories</span>
+    </div>
+  </div>
+  <div class="feat-visual">
+    <!-- Pantry grid mockup -->
+    <div class="frame" style="width:100%;max-width:400px;height:300px">
+      <div class="f-chrome">
+        <div class="f-dot" style="background:#FF5F57"></div>
+        <div class="f-dot" style="background:#FFBD2E"></div>
+        <div class="f-dot" style="background:#28CA41"></div>
+        <div class="f-url">goodmeasure.app/pantry</div>
+      </div>
+      <div class="f-body">
+        <div class="f-nav">
+          <span class="f-brand">Good Measure</span>
+          <span class="f-nl">Planner</span>
+          <span class="f-nl">Recipes</span>
+          <span class="f-nl on" style="color:#1A1916;border-bottom:1px solid #1A1916;padding-bottom:2px">Pantry</span>
+        </div>
+        <div style="height:26px;display:flex;align-items:center;padding:0 10px;gap:5px;border-bottom:1px solid #D0CCC2;flex-shrink:0">
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 8px;background:#1A1916;color:#F5F4EF;border-radius:9999px">All</span>
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 8px;border:1px solid #D0CCC2;color:#6B6860;border-radius:9999px">Produce</span>
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;text-transform:uppercase;padding:2px 8px;border:1px solid #D0CCC2;color:#6B6860;border-radius:9999px">Dairy</span>
+          <span style="font-family:'DM Mono',monospace;font-size:6.5px;color:#6B6860;margin-left:auto">156 items</span>
+        </div>
+        <div style="flex:1;overflow:hidden;display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+          <!-- Pantry cards -->
+          <div style="border-right:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Nuts &amp; Seeds</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Almond Butter</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">2 Tbsp (32g)</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">656</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <div style="border-right:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Produce</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Avocado</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">per 100g</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">160</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <div style="border-right:1px solid #D0CCC2;border-bottom:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Dairy &amp; Eggs</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Cottage Cheese</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">per 100g</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">98</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <div style="border-bottom:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Meat</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Salmon Fillet</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">per 100g</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">208</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <!-- Row 2 -->
+          <div style="border-right:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Grains</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Rolled Oats</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">per 100g</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">389</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <div style="border-right:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Oils &amp; Fats</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Olive Oil</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">1 Tbsp (14g)</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">119</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <div style="border-right:1px solid #D0CCC2;padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Legumes</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Red Lentils</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">per 100g dry</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">352</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+          <div style="padding:6px 7px;overflow:hidden">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6860;margin-bottom:2px">Baking</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:-0.02em;color:#1A1916;line-height:1.2;margin-bottom:2px">Honey</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #D0CCC2">1 Tbsp (21g)</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.04em;color:#1A1916;line-height:1">64</div>
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">kcal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEAT 03: Planner -->
+<section class="feat-row">
+  <div class="feat-copy">
+    <div class="feat-num">03 / Planner</div>
+    <h2 class="feat-h2">Plan the week before it starts.</h2>
+    <p class="feat-body">Drag recipes onto days, track every person's targets in real time. See the full week's nutrition at a glance — adjust before it matters.</p>
+    <div class="feat-tags">
+      <span class="feat-tag">Multi-person</span>
+      <span class="feat-tag">Weekly view</span>
+      <span class="feat-tag">Goal tracking</span>
+    </div>
+  </div>
+  <div class="feat-visual">
+    <!-- Planner mockup -->
+    <div class="frame" style="width:100%;max-width:400px;height:300px">
+      <div class="f-chrome">
+        <div class="f-dot" style="background:#FF5F57"></div>
+        <div class="f-dot" style="background:#FFBD2E"></div>
+        <div class="f-dot" style="background:#28CA41"></div>
+        <div class="f-url">goodmeasure.app/planner</div>
+      </div>
+      <div class="f-body">
+        <div class="f-nav">
+          <span class="f-brand">Good Measure</span>
+          <span class="f-nl on" style="color:#1A1916;border-bottom:1px solid #1A1916;padding-bottom:2px">Planner</span>
+          <span class="f-nl">Recipes</span>
+          <span class="f-nl">Pantry</span>
+          <div class="f-ml" style="display:flex;align-items:center;gap:2px">
+            <div style="width:14px;height:14px;border-radius:50%;background:#5A9B6A;display:flex;align-items:center;justify-content:center;font-size:5px;font-family:'DM Mono',monospace;color:#fff;font-weight:600">S</div>
+            <div style="width:14px;height:14px;border-radius:50%;background:#E84828;display:flex;align-items:center;justify-content:center;font-size:5px;font-family:'DM Mono',monospace;color:#fff;font-weight:600;margin-left:-2px;border:1.5px solid #F5F4EF">M</div>
+          </div>
+        </div>
+        <!-- Week strip -->
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #D0CCC2;flex-shrink:0">
+          <div style="padding:5px 4px;text-align:center;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">MON</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#6B6860;line-height:1;margin:1px 0">21</div>
+          </div>
+          <div style="padding:5px 4px;text-align:center;border-right:1px solid #D0CCC2;background:#F0EDE6">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#5A9B6A">TUE</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#5A9B6A;line-height:1;margin:1px 0">22</div>
+          </div>
+          <div style="padding:5px 4px;text-align:center;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">WED</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#6B6860;line-height:1;margin:1px 0">23</div>
+          </div>
+          <div style="padding:5px 4px;text-align:center;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">THU</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#6B6860;line-height:1;margin:1px 0">24</div>
+          </div>
+          <div style="padding:5px 4px;text-align:center;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">FRI</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#6B6860;line-height:1;margin:1px 0">25</div>
+          </div>
+          <div style="padding:5px 4px;text-align:center;border-right:1px solid #D0CCC2">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">SAT</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#6B6860;line-height:1;margin:1px 0">26</div>
+          </div>
+          <div style="padding:5px 4px;text-align:center">
+            <div style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;color:#6B6860">SUN</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#6B6860;line-height:1;margin:1px 0">27</div>
+          </div>
+        </div>
+        <!-- Meal rows -->
+        <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+          <!-- Breakfast row -->
+          <div style="border-bottom:1px solid #D0CCC2;display:grid;grid-template-columns:44px repeat(7,1fr);flex-shrink:0">
+            <div style="padding:5px 6px;border-right:1px solid #D0CCC2;display:flex;align-items:center">
+              <span style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.06em;color:#6B6860;writing-mode:vertical-lr;transform:rotate(180deg)">Breakfast</span>
+            </div>
+            <div style="padding:5px 4px;border-right:1px solid #D0CCC2;background:#EEEAE3">
+              <div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:600;color:#1A1916;line-height:1.2">Oats</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860">298 kcal</div>
+            </div>
+            <div style="padding:5px 4px;border-right:1px solid #D0CCC2;background:#EEEAE3">
+              <div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:600;color:#1A1916;line-height:1.2">Cc Bowl</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860">312 kcal</div>
+            </div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div></div>
+          </div>
+          <!-- Lunch row -->
+          <div style="border-bottom:1px solid #D0CCC2;display:grid;grid-template-columns:44px repeat(7,1fr);flex-shrink:0">
+            <div style="padding:5px 6px;border-right:1px solid #D0CCC2;display:flex;align-items:center">
+              <span style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.06em;color:#6B6860;writing-mode:vertical-lr;transform:rotate(180deg)">Lunch</span>
+            </div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="padding:5px 4px;border-right:1px solid #D0CCC2;background:#EEEAE3">
+              <div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:600;color:#1A1916;line-height:1.2">Salmon</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860">380 kcal</div>
+            </div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div></div>
+          </div>
+          <!-- Dinner row -->
+          <div style="display:grid;grid-template-columns:44px repeat(7,1fr);flex:1">
+            <div style="padding:5px 6px;border-right:1px solid #D0CCC2;display:flex;align-items:center">
+              <span style="font-family:'DM Mono',monospace;font-size:5px;text-transform:uppercase;letter-spacing:0.06em;color:#6B6860;writing-mode:vertical-lr;transform:rotate(180deg)">Dinner</span>
+            </div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="padding:5px 4px;border-right:1px solid #D0CCC2;background:#EEEAE3">
+              <div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:600;color:#1A1916;line-height:1.2">Curry</div>
+              <div style="font-family:'DM Mono',monospace;font-size:5px;color:#6B6860">331 kcal</div>
+            </div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div style="border-right:1px solid #D0CCC2"></div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="sect-cta">
+  <div class="cta-copy">
+    <h2 class="cta-h2">Start cooking with precision.</h2>
+    <a href="#" class="btn-pill-green">Get Started ↗</a>
+  </div>
+  <div class="cta-meta">
+    <div class="cta-stat">
+      <div class="cta-stat-num">100%</div>
+      <div class="cta-stat-label">Your data, your household</div>
+    </div>
+    <div class="cta-stat">
+      <div class="cta-stat-num">USDA</div>
+      <div class="cta-stat-label">Verified ingredient database</div>
+    </div>
+    <div class="cta-stat">
+      <div class="cta-stat-num">AI</div>
+      <div class="cta-stat-label">Recipe import & analysis</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>Good Measure — 2026</span>
+  <span>Nutrition tracking for people who cook</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure — Pantry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#FFFFFF; --bg2:#F4F4F4; --bg3:#E8E8E8;
+  --fg:#111111; --m:#777777; --r:#DDDDDD;
+  --acc:#5A9B6A; --acc-l:rgba(90,155,106,0.10);
+}
+html { font-family:'DM Sans',sans-serif; -webkit-font-smoothing:antialiased; background:var(--bg); color:var(--fg); }
+.tg { border-right:1px solid var(--r); border-bottom:1px solid var(--r); display:grid; }
+.tg > * { border-top:1px solid var(--r); border-left:1px solid var(--r); }
+.mnav { display:grid; grid-template-columns:auto 1fr auto; border-bottom:1px solid var(--r); height:44px; background:var(--bg); position:sticky; top:0; z-index:10; }
+.mnav-brand { display:flex; align-items:center; padding:0 20px; border-right:1px solid var(--r); font-size:13px; font-weight:700; letter-spacing:-0.02em; }
+.mnav-links { display:flex; align-items:center; padding:0 20px; gap:20px; }
+.mnav-link { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.10em; color:var(--m); text-decoration:none; }
+.mnav-link.on { color:var(--fg); border-bottom:1px solid var(--fg); padding-bottom:2px; }
+.mnav-right { display:flex; align-items:center; padding:0 16px; gap:4px; border-left:1px solid var(--r); }
+.avatar { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:8px; font-weight:600; color:#fff; }
+.page-nav-bar { display:flex; align-items:center; border-bottom:1px solid #111; background:#fff; position:sticky; top:44px; z-index:9; }
+.page-nav-bar a { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.10em; text-transform:uppercase; color:#777; text-decoration:none; padding:8px 16px; border-right:1px solid rgba(17,17,17,0.13); }
+.page-nav-bar a.here { color:#111; background:rgba(17,17,17,0.04); }
+
+/* Pantry card */
+.card { padding:12px 14px; display:flex; flex-direction:column; cursor:pointer; transition:background 120ms; }
+.card:hover { background:var(--bg2); }
+.card-cat { font-family:'DM Mono',monospace; font-size:8px; text-transform:uppercase; letter-spacing:0.10em; color:var(--m); margin-bottom:3px; }
+.card-name { font-size:13px; font-weight:700; letter-spacing:-0.02em; line-height:1.2; margin-bottom:2px; }
+.card-unit { font-family:'DM Mono',monospace; font-size:9px; color:var(--m); padding-bottom:8px; border-bottom:1px solid var(--r); margin-bottom:8px; }
+.card-kcal { font-size:28px; font-weight:700; letter-spacing:-0.04em; line-height:1; margin-bottom:1px; }
+.card-kcal-lbl { font-family:'DM Mono',monospace; font-size:8px; text-transform:uppercase; color:var(--m); margin-bottom:8px; }
+.card-macros { display:grid; grid-template-columns:1fr 1fr; gap:2px 8px; }
+.macro-row { font-family:'DM Mono',monospace; font-size:9px; color:var(--m); }
+.macro-row span { color:var(--fg); }
+</style>
+</head>
+<body>
+
+<nav class="mnav">
+  <div class="mnav-brand">Good Measure</div>
+  <div class="mnav-links">
+    <a href="mock-planner.html" class="mnav-link">Planner</a>
+    <a href="mock-recipes.html" class="mnav-link">Recipes</a>
+    <a href="mock-pantry.html" class="mnav-link on">Pantry</a>
+  </div>
+  <div class="mnav-right">
+    <div class="avatar" style="background:#5A9B6A">S</div>
+    <div class="avatar" style="background:#E84828;margin-left:-5px;border:2px solid var(--bg)">M</div>
+    <div class="avatar" style="background:#7B5EA7;margin-left:-5px;border:2px solid var(--bg)">L</div>
+  </div>
+</nav>
+
+<div class="page-nav-bar">
+  <a href="mock-dashboard.html">Dashboard</a>
+  <a href="mock-recipes.html">Recipes</a>
+  <a href="mock-recipe-detail.html">Recipe Detail</a>
+  <a href="mock-planner.html">Planner</a>
+  <a href="mock-pantry.html" class="here">Pantry</a>
+</div>
+
+<!-- Toolbar -->
+<div style="display:flex;align-items:stretch;height:40px;border-bottom:1px solid var(--r)">
+  <div style="display:flex;align-items:center;gap:6px;padding:0 20px;flex:1;border-right:1px solid var(--r)">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;background:var(--fg);color:var(--bg);border-radius:9999px;cursor:pointer">All</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Produce</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Meat</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Dairy</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Grains</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Nuts</span>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 14px;gap:8px;border-right:1px solid var(--r)">
+    <div style="border:1px solid var(--r);display:flex;align-items:center;padding:4px 10px;gap:6px">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="4.5" cy="4.5" r="3.5" stroke="#6B6860" stroke-width="1"/><line x1="7.5" y1="7.5" x2="10" y2="10" stroke="#6B6860" stroke-width="1" stroke-linecap="round"/></svg>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">Search ingredients…</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 14px;border-right:1px solid var(--r)">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">156 items</span>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 14px;border-right:1px solid var(--r)">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;border:1px solid var(--r);color:var(--m);border-radius:9999px;cursor:pointer">Sort: Name ↕</span>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 14px">
+    <button style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;background:var(--acc);color:#fff;border:none;padding:6px 16px;border-radius:9999px;cursor:pointer">+ New Ingredient</button>
+  </div>
+</div>
+
+<!-- Pantry grid: touching borders, 5 columns -->
+<div class="tg" style="grid-template-columns:repeat(5,1fr)">
+
+  <div class="card">
+    <div class="card-cat">Nuts &amp; Seeds</div>
+    <div class="card-name">Almond Butter</div>
+    <div class="card-unit">2 Tbsp / 32g</div>
+    <div class="card-kcal">656</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>56g</span></div>
+      <div class="macro-row">Sat fat <span>4.7g</span></div>
+      <div class="macro-row">Carbs <span>19g</span></div>
+      <div class="macro-row">Sugar <span>3g</span></div>
+      <div class="macro-row">Protein <span>19g</span></div>
+      <div class="macro-row">Fibre <span>6g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Produce</div>
+    <div class="card-name">Avocado</div>
+    <div class="card-unit">per 100g</div>
+    <div class="card-kcal">160</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>15g</span></div>
+      <div class="macro-row">Sat fat <span>2.1g</span></div>
+      <div class="macro-row">Carbs <span>9g</span></div>
+      <div class="macro-row">Sugar <span>1g</span></div>
+      <div class="macro-row">Protein <span>2g</span></div>
+      <div class="macro-row">Fibre <span>7g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Meat &amp; Seafood</div>
+    <div class="card-name">Chicken Breast</div>
+    <div class="card-unit">per 100g raw</div>
+    <div class="card-kcal">110</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>1.2g</span></div>
+      <div class="macro-row">Sat fat <span>0.3g</span></div>
+      <div class="macro-row">Carbs <span>0g</span></div>
+      <div class="macro-row">Sugar <span>0g</span></div>
+      <div class="macro-row">Protein <span>23g</span></div>
+      <div class="macro-row">Sodium <span>74mg</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Dairy &amp; Eggs</div>
+    <div class="card-name">Cottage Cheese</div>
+    <div class="card-unit">per 100g</div>
+    <div class="card-kcal">98</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>4.3g</span></div>
+      <div class="macro-row">Sat fat <span>1.8g</span></div>
+      <div class="macro-row">Carbs <span>3.4g</span></div>
+      <div class="macro-row">Sugar <span>2.7g</span></div>
+      <div class="macro-row">Protein <span>11g</span></div>
+      <div class="macro-row">Calcium <span>83mg</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Produce</div>
+    <div class="card-name">Baby Spinach</div>
+    <div class="card-unit">per 100g</div>
+    <div class="card-kcal">23</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>0.4g</span></div>
+      <div class="macro-row">Sat fat <span>0.1g</span></div>
+      <div class="macro-row">Carbs <span>3.6g</span></div>
+      <div class="macro-row">Sugar <span>0.4g</span></div>
+      <div class="macro-row">Protein <span>2.9g</span></div>
+      <div class="macro-row">Fibre <span>2.2g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Grains, Pasta &amp; Bread</div>
+    <div class="card-name">Rolled Oats</div>
+    <div class="card-unit">per 100g dry</div>
+    <div class="card-kcal">389</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>6.9g</span></div>
+      <div class="macro-row">Sat fat <span>1.2g</span></div>
+      <div class="macro-row">Carbs <span>66g</span></div>
+      <div class="macro-row">Sugar <span>1g</span></div>
+      <div class="macro-row">Protein <span>17g</span></div>
+      <div class="macro-row">Fibre <span>11g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Oils &amp; Fats</div>
+    <div class="card-name">Olive Oil</div>
+    <div class="card-unit">1 Tbsp / 14g</div>
+    <div class="card-kcal">119</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>14g</span></div>
+      <div class="macro-row">Sat fat <span>1.9g</span></div>
+      <div class="macro-row">Carbs <span>0g</span></div>
+      <div class="macro-row">Sugar <span>0g</span></div>
+      <div class="macro-row">Protein <span>0g</span></div>
+      <div class="macro-row">Vitamin E <span>2mg</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Legumes</div>
+    <div class="card-name">Red Lentils</div>
+    <div class="card-unit">per 100g dry</div>
+    <div class="card-kcal">352</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>1.1g</span></div>
+      <div class="macro-row">Sat fat <span>0.2g</span></div>
+      <div class="macro-row">Carbs <span>60g</span></div>
+      <div class="macro-row">Sugar <span>2g</span></div>
+      <div class="macro-row">Protein <span>26g</span></div>
+      <div class="macro-row">Fibre <span>11g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Meat &amp; Seafood</div>
+    <div class="card-name">Salmon Fillet</div>
+    <div class="card-unit">per 100g raw</div>
+    <div class="card-kcal">208</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>13g</span></div>
+      <div class="macro-row">Sat fat <span>2g</span></div>
+      <div class="macro-row">Carbs <span>0g</span></div>
+      <div class="macro-row">Sugar <span>0g</span></div>
+      <div class="macro-row">Protein <span>22g</span></div>
+      <div class="macro-row">Omega-3 <span>2.3g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Baking</div>
+    <div class="card-name">Honey</div>
+    <div class="card-unit">1 Tbsp / 21g</div>
+    <div class="card-kcal">64</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>0g</span></div>
+      <div class="macro-row">Sat fat <span>0g</span></div>
+      <div class="macro-row">Carbs <span>17g</span></div>
+      <div class="macro-row">Sugar <span>16g</span></div>
+      <div class="macro-row">Protein <span>0.1g</span></div>
+      <div class="macro-row">Fibre <span>0g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Dairy &amp; Eggs</div>
+    <div class="card-name">Greek Yoghurt</div>
+    <div class="card-unit">per 100g</div>
+    <div class="card-kcal">97</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>5g</span></div>
+      <div class="macro-row">Sat fat <span>3.2g</span></div>
+      <div class="macro-row">Carbs <span>3.6g</span></div>
+      <div class="macro-row">Sugar <span>3.4g</span></div>
+      <div class="macro-row">Protein <span>9g</span></div>
+      <div class="macro-row">Calcium <span>110mg</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Spices</div>
+    <div class="card-name">Cumin, ground</div>
+    <div class="card-unit">1 tsp / 2.5g</div>
+    <div class="card-kcal">8</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>0.5g</span></div>
+      <div class="macro-row">Sat fat <span>0g</span></div>
+      <div class="macro-row">Carbs <span>0.9g</span></div>
+      <div class="macro-row">Sugar <span>0g</span></div>
+      <div class="macro-row">Protein <span>0.4g</span></div>
+      <div class="macro-row">Iron <span>1.4mg</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Produce</div>
+    <div class="card-name">Cherry Tomatoes</div>
+    <div class="card-unit">per 100g</div>
+    <div class="card-kcal">18</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>0.2g</span></div>
+      <div class="macro-row">Sat fat <span>0g</span></div>
+      <div class="macro-row">Carbs <span>3.9g</span></div>
+      <div class="macro-row">Sugar <span>2.6g</span></div>
+      <div class="macro-row">Protein <span>0.9g</span></div>
+      <div class="macro-row">Vitamin C <span>14mg</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Grains, Pasta &amp; Bread</div>
+    <div class="card-name">Jasmine Rice</div>
+    <div class="card-unit">per 100g dry</div>
+    <div class="card-kcal">362</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>0.7g</span></div>
+      <div class="macro-row">Sat fat <span>0.2g</span></div>
+      <div class="macro-row">Carbs <span>80g</span></div>
+      <div class="macro-row">Sugar <span>0g</span></div>
+      <div class="macro-row">Protein <span>6.5g</span></div>
+      <div class="macro-row">Fibre <span>0.6g</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-cat">Nuts &amp; Seeds</div>
+    <div class="card-name">Chia Seeds</div>
+    <div class="card-unit">2 Tbsp / 28g</div>
+    <div class="card-kcal">138</div>
+    <div class="card-kcal-lbl">kcal</div>
+    <div class="card-macros">
+      <div class="macro-row">Fat <span>9g</span></div>
+      <div class="macro-row">Omega-3 <span>5g</span></div>
+      <div class="macro-row">Carbs <span>12g</span></div>
+      <div class="macro-row">Sugar <span>0g</span></div>
+      <div class="macro-row">Protein <span>5g</span></div>
+      <div class="macro-row">Fibre <span>10g</span></div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

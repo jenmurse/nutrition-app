@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FFFFFF;
+  --fg: #111111;
+  --m: #888;
+  --r: #D8D8D8;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+html { font-family: var(--sans); -webkit-font-smoothing: antialiased; background: var(--bg); color: var(--fg); }
+
+/* ── NAV ── */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 48px;
+  border-bottom: 1px solid var(--r);
+  position: sticky; top: 0; z-index: 100; background: var(--bg);
+}
+.nav-brand { font-size: 12px; font-weight: 600; letter-spacing: -0.01em; }
+.nav-r { display: flex; align-items: center; gap: 20px; }
+.nav-link { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--m); }
+.btn {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 18px; border-radius: 2px; cursor: pointer;
+  transition: background 120ms var(--ease), color 120ms var(--ease), transform 80ms var(--ease);
+  border: 1.5px solid var(--fg);
+}
+.btn:active { transform: scale(0.97); }
+.btn-f { background: var(--fg); color: #fff; }
+.btn-f:hover { background: transparent; color: var(--fg); }
+.btn-g { background: transparent; color: var(--fg); }
+.btn-g:hover { background: var(--fg); color: #fff; }
+.btn-inv { background: #fff; color: #111; border-color: #fff; font-size: 10px; padding: 13px 36px; }
+.btn-inv:hover { opacity: 0.85; }
+
+/* ── MARQUEE TICKER — both reference sites have this ──
+   Continuous scrolling text strip as a structural element.
+   On Milly it's below nav. On Public it's at the very top.
+   Creates energy + communicates what the product IS before
+   the user reads a single word of body copy. */
+.ticker-wrap {
+  overflow: hidden;
+  border-bottom: 1px solid var(--r);
+  height: 34px;
+  display: flex; align-items: center;
+  background: var(--bg);
+}
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker 28s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--m); padding: 0 32px; flex-shrink: 0;
+}
+.ticker-sep { color: var(--r); padding: 0 4px; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── HERO ──
+   Milly Dent approach: narrow left column with app category list
+   as a design element, single VERTICAL rule, large app screenshot
+   that fills the rest and clips off the right edge.
+   This is the key structural departure from a standard 2-col hero. */
+.hero {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 82px);
+  border-bottom: 1px solid var(--r);
+  overflow: hidden;
+}
+.hero-left {
+  padding: 48px 40px 48px 40px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--r);  /* THE vertical rule — Milly Dent */
+}
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--m); margin-bottom: 40px;
+}
+.hero-hl {
+  font-size: clamp(48px, 5.5vw, 76px);
+  font-weight: 500; letter-spacing: -0.03em; line-height: 0.92;
+  margin-bottom: 40px;
+}
+/* App category list — Milly's LIGHTING / TABLEWARE treatment:
+   the site's own categories become the hero text structure */
+.hero-cats {
+  display: flex; flex-direction: column;
+  margin-bottom: auto;
+}
+.hero-cat {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--m); padding: 12px 0; border-top: 1px solid var(--r);
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: color 120ms;
+}
+.hero-cat:hover { color: var(--fg); }
+.hero-cat.on { color: var(--fg); }
+.hero-cat-arrow { opacity: 0; transition: opacity 120ms; font-size: 10px; }
+.hero-cat:hover .hero-cat-arrow, .hero-cat.on .hero-cat-arrow { opacity: 1; }
+
+.hero-sub {
+  font-size: 13px; color: rgba(17,17,17,0.45); line-height: 1.65; margin-bottom: 28px;
+  padding-top: 32px; border-top: 1px solid var(--r);
+}
+.hero-btns { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+
+/* Right side: large app visual that bleeds off the edge.
+   Milly Dent's product photo treatment — not contained, just present. */
+.hero-right {
+  position: relative; overflow: hidden;
+  background: #FAFAFA;
+}
+.hero-app {
+  position: absolute;
+  top: 48px; left: 48px; right: -40px;  /* clips off right edge */
+  /* parallax applied via JS */
+}
+
+/* ── FEATURE SECTIONS ──
+   After the hero, sections flow continuously. No section borders.
+   Each introduced by a FULL-BLEED horizontal rule + large heading.
+   Narrow copy on the left, large visual fills the right.
+   The asymmetry (copy: ~25%, visual: ~75%) is the key editorial move. */
+.rule { width: 100%; height: 1px; background: var(--r); }
+.rule-heavy { width: 100%; height: 2px; background: var(--fg); }
+
+.feat {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  border-bottom: 1px solid var(--r);
+  min-height: 80vh;
+}
+.feat-r { grid-template-columns: 1fr 280px; }
+
+.feat-copy {
+  padding: 48px 40px;
+  border-right: 1px solid var(--r);  /* vertical rule maintained throughout */
+  display: flex; flex-direction: column; justify-content: center; gap: 16px;
+}
+.feat-copy-r {
+  border-right: none; border-left: 1px solid var(--r);
+}
+.feat-idx { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--m); }
+.feat-hl { font-size: clamp(32px, 4vw, 52px); font-weight: 500; letter-spacing: -0.025em; line-height: 0.93; }
+.feat-body { font-size: 13px; color: rgba(17,17,17,0.5); line-height: 1.7; }
+.feat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.feat-tag {
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 10px; border: 1px solid rgba(17,17,17,0.12); color: rgba(17,17,17,0.4); border-radius: 2px;
+}
+
+.feat-vis {
+  overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px;
+  background: #FAFAFA;
+}
+.feat-vis-r { background: #fff; }
+
+/* ── CTA ── */
+.cta { background: var(--fg); padding: 100px 40px 80px; }
+.cta-eyebrow { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 40px; display: flex; align-items: center; gap: 14px; }
+.cta-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: rgba(255,255,255,0.15); }
+.cta-hl { font-size: clamp(56px, 8vw, 110px); font-weight: 500; letter-spacing: -0.04em; line-height: 0.88; color: #FAFAFA; margin-bottom: 56px; }
+.cta-row { display: flex; align-items: center; gap: 32px; }
+.cta-legal { font-family: var(--mono); font-size: 8px; letter-spacing: 0.06em; color: rgba(255,255,255,0.2); margin-left: auto; }
+
+/* Entrance */
+.e { opacity: 0; transform: translateY(12px); transition: opacity 450ms var(--ease), transform 450ms var(--ease); }
+.e.in { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 80ms; }
+.d2 { transition-delay: 160ms; }
+.d3 { transition-delay: 240ms; }
+
+/* App frame mocks */
+.frame { border: 1px solid var(--r); background: var(--bg); overflow: hidden; box-shadow: 0 2px 24px rgba(0,0,0,0.07); }
+.fbar { height: 22px; background: #1C1C1E; display: flex; align-items: center; padding: 0 10px; gap: 5px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.fnav { height: 32px; border-bottom: 1px solid var(--r); display: flex; align-items: center; padding: 0 14px; justify-content: space-between; }
+.fb { font-size: 11px; font-weight: 700; letter-spacing: -0.01em; }
+.fl { font-family: var(--mono); font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--m); }
+.fl.on { color: var(--fg); border-bottom: 1px solid var(--fg); padding-bottom: 1px; }
+.flinks { display: flex; gap: 14px; }
+.fbody { padding: 12px; }
+
+.g  { display: grid; border: 1px solid var(--r); border-right: none; border-bottom: none; }
+.gc { border-right: 1px solid var(--r); border-bottom: 1px solid var(--r); padding: 6px 8px; }
+.gl { font-family: var(--mono); font-size: 5.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--m); margin-bottom: 2px; }
+.gv { font-size: 15px; font-weight: 700; letter-spacing: -0.03em; }
+.gvs { font-size: 9px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+.gsub { font-family: var(--mono); font-size: 5.5px; color: var(--m); margin-top: 1px; }
+.gn { font-size: 17px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.prog { height: 2px; background: var(--r); margin-top: 3px; }
+.pf { height: 100%; background: #5A9B6A; }
+
+.aif { border: 1px solid var(--r); background: #FAFAFA; overflow: hidden; box-shadow: 0 2px 24px rgba(0,0,0,0.06); }
+.aih { background: var(--fg); color: #FAF8F4; padding: 12px 14px; }
+.ait { font-family: var(--mono); font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,248,244,0.4); margin-bottom: 3px; }
+.aib { background: #fff; border: 1px solid var(--r); border-radius: 2px; padding: 10px 12px; margin: 10px; font-size: 12px; line-height: 1.55; color: rgba(17,17,17,0.65); }
+.air { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-top: 1px solid var(--r); }
+.airl { font-family: var(--mono); font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--m); }
+.airv { font-size: 12px; font-weight: 600; letter-spacing: -0.01em; }
+.aird { font-family: var(--mono); font-size: 8px; color: #5A9B6A; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-brand">Good Measure</span>
+  <div class="nav-r">
+    <span class="nav-link">Sign In</span>
+    <button class="btn btn-f">GET STARTED →</button>
+  </div>
+</nav>
+
+<!-- MARQUEE TICKER — Milly Dent has this, Public/Official has this.
+     It communicates product category immediately, creates energy,
+     and is a structural design element, not just decoration. -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <!-- repeated twice so the loop is seamless -->
+    <span class="ticker-item">Nutrition tracking</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Recipe optimization</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Pantry management</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">AI analysis</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Meal planning</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Good Measure</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Nutrition tracking</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Recipe optimization</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Pantry management</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">AI analysis</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Meal planning</span><span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">Good Measure</span><span class="ticker-item ticker-sep">·</span>
+  </div>
+</div>
+
+<!-- HERO — Milly Dent treatment:
+     Left: narrow column with headline + app category list as nav text
+     Vertical rule divides left from right
+     Right: large app screenshot, clips off the right edge -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow e">For home cooks</div>
+    <h1 class="hero-hl e d1">Measure<br>what<br>matters.</h1>
+
+    <!-- App categories as design element — Milly's LIGHTING/TABLEWARE/etc -->
+    <div class="hero-cats e d2">
+      <div class="hero-cat on">Planner <span class="hero-cat-arrow">→</span></div>
+      <div class="hero-cat">Recipes <span class="hero-cat-arrow">→</span></div>
+      <div class="hero-cat">Pantry <span class="hero-cat-arrow">→</span></div>
+      <div class="hero-cat">AI Analysis <span class="hero-cat-arrow">→</span></div>
+    </div>
+
+    <p class="hero-sub e d3">Know exactly what's in everything you cook. Track nutrition live, optimize recipes with AI, and plan your week.</p>
+    <div class="hero-btns e d3">
+      <button class="btn btn-f">GET STARTED ↗</button>
+      <button class="btn btn-g">HOW IT WORKS</button>
+    </div>
+  </div>
+
+  <!-- Right: app visual clips off edge — not centered, not contained -->
+  <div class="hero-right">
+    <div class="hero-app" id="heroApp">
+      <div class="frame">
+        <div class="fbar">
+          <div class="dot" style="background:#FF5F57"></div>
+          <div class="dot" style="background:#FFBC2E"></div>
+          <div class="dot" style="background:#28C840"></div>
+        </div>
+        <div class="fnav">
+          <span class="fb">Good Measure</span>
+          <div class="flinks"><span class="fl on">Planner</span><span class="fl">Recipes</span><span class="fl">Pantry</span></div>
+          <span class="fl">SIGN OUT</span>
+        </div>
+        <div class="fbody">
+          <div class="fl" style="font-size:6px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m);margin-bottom:3px">Tuesday, April 22, 2026</div>
+          <div style="font-size:18px;font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin-bottom:10px">Good afternoon, <span style="color:#5A9B6A">Sarah</span></div>
+          <div class="g" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">
+            <div class="gc"><div class="gl">Calories</div><div class="gv">1,023</div><div class="gsub">of 2,000</div><div class="prog"><div class="pf" style="width:51%"></div></div></div>
+            <div class="gc"><div class="gl">Protein</div><div class="gv">71g</div><div class="gsub">of 95g</div><div class="prog"><div class="pf" style="width:75%"></div></div></div>
+            <div class="gc"><div class="gl">Carbs</div><div class="gv">65g</div><div class="gsub">of 225g</div><div class="prog"><div class="pf" style="width:29%"></div></div></div>
+          </div>
+          <div class="fl" style="font-size:6px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;display:flex;justify-content:space-between"><span>Today's meals</span><span>Open Planner →</span></div>
+          <div class="g" style="grid-template-columns:repeat(3,1fr)">
+            <div class="gc"><div class="gl">01 · Breakfast</div><div class="gvs">Cottage Cheese Bowl</div><div class="gsub" style="margin-top:2px">312 kcal</div></div>
+            <div class="gc"><div class="gl">02 · Lunch</div><div class="gvs">Salmon Salad</div><div class="gsub" style="margin-top:2px">380 kcal</div></div>
+            <div class="gc"><div class="gl">03 · Dinner</div><div class="gvs">Thai Green Curry</div><div class="gsub" style="margin-top:2px">331 kcal</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── FEATURES — same vertical rule grid maintained throughout ── -->
+
+<div class="feat e">
+  <div class="feat-copy">
+    <div class="feat-idx">01 — Pantry</div>
+    <h2 class="feat-hl">Build your library.</h2>
+    <p class="feat-body">Every ingredient you cook with, stored exactly how you use it. USDA lookup, custom units, per-100g or per-serving.</p>
+    <div class="feat-tags">
+      <span class="feat-tag">USDA LOOKUP</span><span class="feat-tag">CUSTOM UNITS</span>
+    </div>
+  </div>
+  <div class="feat-vis">
+    <div id="para1">
+      <div class="frame" style="max-width:560px;width:100%">
+        <div class="fbar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FFBC2E"></div><div class="dot" style="background:#28C840"></div></div>
+        <div class="fnav"><span class="fb">Good Measure</span><div class="flinks"><span class="fl">Planner</span><span class="fl">Recipes</span><span class="fl on">Pantry</span></div><span class="fl">+ NEW</span></div>
+        <div class="fbody">
+          <div class="g" style="grid-template-columns:repeat(4,1fr)">
+            <div class="gc"><div class="gl">Nuts &amp; Seeds</div><div class="gvs">Almond Butter</div><div class="gn">656</div><div class="gsub">2 Tbsp / 32g</div></div>
+            <div class="gc"><div class="gl">Produce</div><div class="gvs">Avocado</div><div class="gn">160</div><div class="gsub">per 100g</div></div>
+            <div class="gc"><div class="gl">Meat &amp; Seafood</div><div class="gvs">Chicken Breast</div><div class="gn">110</div><div class="gsub">per 100g raw</div></div>
+            <div class="gc"><div class="gl">Dairy &amp; Eggs</div><div class="gvs">Cottage Cheese</div><div class="gn">98</div><div class="gsub">per 100g</div></div>
+            <div class="gc"><div class="gl">Produce</div><div class="gvs">Broccoli</div><div class="gn">23</div><div class="gsub">per 100g</div></div>
+            <div class="gc"><div class="gl">Grains</div><div class="gvs">Rolled Oats</div><div class="gn">389</div><div class="gsub">per 100g dry</div></div>
+            <div class="gc"><div class="gl">Dairy &amp; Eggs</div><div class="gvs">Greek Yogurt</div><div class="gn">97</div><div class="gsub">per 100g</div></div>
+            <div class="gc"><div class="gl">Spices</div><div class="gvs">Cumin, ground</div><div class="gn">8</div><div class="gsub">1 tsp / 2.5g</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="feat feat-r e">
+  <div class="feat-vis feat-vis-r">
+    <div id="para2">
+      <div class="frame" style="max-width:560px;width:100%">
+        <div class="fbar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FFBC2E"></div><div class="dot" style="background:#28C840"></div></div>
+        <div class="fnav"><span class="fb">Black Bean Chili</span><span class="fl">← Recipes</span></div>
+        <div class="fbody" style="display:grid;grid-template-columns:110px 1fr">
+          <div style="border-right:1px solid var(--r)">
+            <div style="padding:7px 10px;border-bottom:1px solid var(--r);font-family:var(--mono);font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:var(--fg);font-weight:500">01 Ingr.</div>
+            <div style="padding:7px 10px;border-bottom:1px solid var(--r);font-family:var(--mono);font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m)">02 Nutrition</div>
+            <div style="padding:7px 10px;border-bottom:1px solid var(--r);font-family:var(--mono);font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m)">03 Steps</div>
+            <div style="padding:7px 10px;border-bottom:1px solid var(--r);font-family:var(--mono);font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m)">04 Optimize</div>
+            <div style="padding:7px 10px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m)">05 Meal Prep</div>
+          </div>
+          <div style="padding:12px">
+            <div style="font-size:15px;font-weight:700;letter-spacing:-0.03em;margin-bottom:2px">Black Bean Chili</div>
+            <div class="fl" style="font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:var(--m);margin-bottom:10px">4 SRV · 420 KCAL</div>
+            <div class="g" style="grid-template-columns:40px 1fr">
+              <div class="gc"><div class="gsub">800g</div></div><div class="gc" style="font-size:9px">Black beans, drained</div>
+              <div class="gc"><div class="gsub">400g</div></div><div class="gc" style="font-size:9px">Crushed tomatoes</div>
+              <div class="gc"><div class="gsub">1 med</div></div><div class="gc" style="font-size:9px">Onion, diced</div>
+              <div class="gc"><div class="gsub">3 cl</div></div><div class="gc" style="font-size:9px">Garlic, minced</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-copy feat-copy-r">
+    <div class="feat-idx">02 — Recipes</div>
+    <h2 class="feat-hl">Import or build from scratch.</h2>
+    <p class="feat-body">Paste a URL, upload a file, or add ingredients one by one. Nutrition totals calculate live as you type.</p>
+    <div class="feat-tags">
+      <span class="feat-tag">URL IMPORT</span><span class="feat-tag">LIVE NUTRITION</span>
+    </div>
+  </div>
+</div>
+
+<div class="feat e">
+  <div class="feat-copy">
+    <div class="feat-idx">03 — AI Analysis</div>
+    <h2 class="feat-hl">Optimize every recipe.</h2>
+    <p class="feat-body">Claude AI suggests precise swaps to hit your macro targets — more protein, fewer calories. One click to apply.</p>
+    <div class="feat-tags">
+      <span class="feat-tag">SMART SWAPS</span><span class="feat-tag">MEAL PREP NOTES</span>
+    </div>
+  </div>
+  <div class="feat-vis">
+    <div id="para3">
+      <div class="aif" style="max-width:520px;width:100%">
+        <div class="aih"><div class="ait">AI ANALYSIS</div><div style="font-size:13px;font-weight:600;letter-spacing:-0.01em">Black Bean Chili</div></div>
+        <div class="aib">Your chili is well-balanced. To reach your 95g daily protein target, I suggest swapping 200g black beans for firm tofu — adding 16g protein per serving at only +12 kcal.</div>
+        <div class="air"><div class="airl">Protein / serving</div><div style="display:flex;align-items:center;gap:10px"><div class="airv">18g → 34g</div><div class="aird">+16g</div></div></div>
+        <div class="air"><div class="airl">Calories / serving</div><div style="display:flex;align-items:center;gap:10px"><div class="airv">420 → 432</div><div class="aird" style="color:rgba(17,17,17,0.3)">+12</div></div></div>
+        <div class="air" style="padding-bottom:14px"><div class="airl">Fiber / serving</div><div style="display:flex;align-items:center;gap:10px"><div class="airv">unchanged</div><div class="aird" style="color:rgba(17,17,17,0.25)">—</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rule-heavy"></div>
+<div class="cta e">
+  <div class="cta-eyebrow">Good Measure — Start now</div>
+  <h2 class="cta-hl e d1">Start measuring<br>what matters.</h2>
+  <div class="cta-row">
+    <button class="btn btn-inv e d2">GET STARTED ↗</button>
+    <span class="cta-legal e d2">© 2026 Good Measure · Made by Jen Murse</span>
+  </div>
+</div>
+
+
+<script>
+// Entrance
+const io = new IntersectionObserver(entries => {
+  entries.forEach(({ isIntersecting, target }) => { if (isIntersecting) target.classList.add('in'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.e').forEach(el => io.observe(el));
+
+// Parallax — feature visuals scroll at slightly different rate
+const pairs = [
+  { el: document.getElementById('heroApp'), speed: 0.06 },
+  { el: document.getElementById('para1'), speed: 0.08 },
+  { el: document.getElementById('para2'), speed: 0.08 },
+  { el: document.getElementById('para3'), speed: 0.08 },
+];
+let tick = false;
+window.addEventListener('scroll', () => {
+  if (tick) return;
+  requestAnimationFrame(() => {
+    const sy = window.scrollY;
+    pairs.forEach(({ el, speed }) => {
+      if (el) el.style.transform = `translateY(${sy * speed * -1}px)`;
+    });
+    tick = false;
+  });
+  tick = true;
+}, { passive: true });
+</script>
+</body>
+</html>

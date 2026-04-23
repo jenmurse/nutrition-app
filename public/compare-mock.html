@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Compare — Mock</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:    #F5F4EF;
+    --bg-2:  #EEEAE3;
+    --bg-3:  #E6E2D8;
+    --fg:    #1A1916;
+    --fg-2:  #36342F;
+    --muted: #6B6860;
+    --rule:  #D0CCC2;
+    --accent:     #5A9B6A;
+    --accent-btn: #3A7A4E;
+    --accent-l:   rgba(90,155,106,0.10);
+  }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .filter-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-chip:hover { color: var(--fg); }
+  .filter-chip.on { color: var(--fg); border-color: var(--rule); }
+  .toolbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .count { font-size: 9px; color: var(--muted); letter-spacing: 0.04em; margin-right: 4px; }
+  .ctrl-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ctrl-btn:hover { border-color: var(--fg); color: var(--fg); }
+  .ctrl-btn.on { background: var(--bg-3); color: var(--fg); }
+
+  .compare-toggle-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .compare-toggle-btn:hover { border-color: var(--fg); color: var(--fg); }
+  .compare-toggle-btn.active { background: var(--fg); border-color: var(--fg); color: #fff; }
+
+  .new-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 12px;
+    border: none;
+    background: var(--accent-btn);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  /* ── Compare mode banner ── */
+  .compare-banner {
+    height: 0;
+    overflow: hidden;
+    background: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: height 0.25s cubic-bezier(0.23,1,0.32,1);
+  }
+  .compare-banner.visible { height: 32px; }
+  .compare-banner-text {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .compare-banner-text strong { color: #fff; font-weight: 500; }
+  .compare-banner-exit {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .compare-banner-exit:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+
+  /* ── Grid ── */
+  .grid-wrap { padding: 32px 64px 120px; max-width: 1100px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--bg);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s;
+    user-select: none;
+  }
+  .card:hover { transform: translateY(-1px); }
+  body.compare-mode .card:not(.selected):hover {
+    outline: 2px dashed var(--rule);
+    outline-offset: -2px;
+  }
+  body.compare-mode .card:not(.selected):hover .card-img-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(90,155,106,0.05);
+    z-index: 1;
+  }
+  .card.selected .card-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(90,155,106,0.14);
+    z-index: 1;
+  }
+  .card.selected { outline: 2px solid var(--accent-btn); outline-offset: -2px; }
+  .card-img-wrap { aspect-ratio: 4/3; overflow: hidden; position: relative; background: var(--bg-3); }
+  .card-placeholder { width: 100%; height: 100%; display: flex; align-items: flex-end; padding: 14px 16px 22px; }
+  .card-placeholder span {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(18px, 2vw, 26px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--fg);
+    opacity: 0.18;
+  }
+  .card-compare-hint {
+    position: absolute;
+    top: 8px; right: 8px;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(26,25,22,0.6);
+    color: rgba(255,255,255,0.85);
+    padding: 3px 7px;
+    border-radius: 9999px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+    z-index: 3;
+    backdrop-filter: blur(4px);
+  }
+  body.compare-mode .card:not(.selected):hover .card-compare-hint { opacity: 1; }
+  .check-badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-btn);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.15s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 3;
+  }
+  .card.selected .check-badge { opacity: 1; transform: scale(1); }
+  .card-body { padding: 14px 16px 20px; }
+  .card-eyebrow { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .card-name { font-family: 'DM Serif Display', serif; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; color: var(--fg); }
+  .card-accent-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform-origin: left; transform: scaleX(0); transition: transform 0.3s cubic-bezier(0.23,1,0.32,1); }
+  .card:hover .card-accent-bar { transform: scaleX(1); }
+
+  /* ── Floating compare bar ── */
+  .compare-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--fg);
+    display: flex;
+    align-items: center;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.23,1,0.32,1), opacity 0.2s;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12);
+    white-space: nowrap;
+  }
+  .compare-bar.visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
+  .compare-bar-slots { display: flex; align-items: center; padding: 10px 16px; border-right: 1px solid rgba(255,255,255,0.12); gap: 0; }
+  .compare-slot {
+    width: 28px; height: 21px;
+    border-radius: 2px;
+    border: 1.5px dashed rgba(255,255,255,0.22);
+    margin-right: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .compare-slot:last-child { margin-right: 0; }
+  .compare-slot.filled { border-style: solid; }
+  .slot-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'DM Serif Display', serif; }
+  .compare-slot .remove-slot { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; cursor: pointer; transition: opacity 0.15s; }
+  .compare-slot:hover .remove-slot { opacity: 1; }
+  .compare-bar-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); padding: 0 14px; }
+  .compare-bar-label strong { color: rgba(255,255,255,0.9); }
+  .compare-go-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0 20px; height: 48px;
+    border: none; background: var(--accent-btn); color: #fff;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .compare-go-btn:hover { background: #2d6040; }
+  .compare-go-btn:disabled { opacity: 0.35; cursor: default; background: var(--accent-btn); }
+  .compare-clear-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0 14px; height: 48px;
+    border: none; border-right: 1px solid rgba(255,255,255,0.1);
+    background: transparent; color: rgba(255,255,255,0.38);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .compare-clear-btn:hover { color: rgba(255,255,255,0.8); }
+
+  /* ── Desktop/iPad only — hide all compare UI below 768px ── */
+  @media (max-width: 767px) {
+    .compare-toggle-btn,
+    .compare-banner,
+    .compare-bar,
+    .compare-overlay { display: none !important; }
+  }
+
+  /* ── Full-screen compare overlay ── */
+  .compare-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.23,1,0.32,1);
+  }
+  .compare-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Overlay header — matches app nav height/style */
+  .overlay-header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .overlay-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .overlay-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+    background: transparent; border: none;
+    cursor: pointer; transition: color 0.15s;
+    display: flex; align-items: center; gap: 5px;
+    padding: 0;
+  }
+  .overlay-back:hover { color: var(--fg); }
+  .overlay-title {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--fg); font-weight: 500;
+  }
+  .overlay-subtitle {
+    font-size: 9px; letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  /* Overlay body */
+  .overlay-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 64px 64px;
+  }
+
+  /* Recipe name headers */
+  .compare-header-row {
+    display: grid;
+    gap: 0;
+    margin-bottom: 32px;
+    padding-bottom: 0;
+  }
+  .compare-header-spacer { /* empty first cell */ }
+  .compare-recipe-header {
+    padding: 0 24px 20px 0;
+    border-bottom: 2px solid;
+  }
+  .recipe-header-thumb {
+    width: 56px;
+    aspect-ratio: 4/3;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-top: 3px solid;
+  }
+  .recipe-header-thumb-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+  }
+  .recipe-header-eyebrow {
+    font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .recipe-header-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px; line-height: 1.2; color: var(--fg);
+  }
+
+  /* Nutrient table */
+  .nutrient-table { display: grid; gap: 0; }
+  .nutrient-row-label {
+    font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); padding: 11px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center;
+  }
+  .nutrient-row-val {
+    padding: 11px 24px 11px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .val-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; opacity: 0; }
+  .val-dot.show { opacity: 1; }
+  .val-number { font-size: 14px; font-weight: 500; min-width: 38px; text-align: right; letter-spacing: -0.01em; }
+  .val-unit { font-size: 8px; color: var(--muted); letter-spacing: 0.06em; min-width: 22px; }
+  .val-bar-wrap { flex: 1; height: 3px; background: var(--bg-3); border-radius: 99px; overflow: hidden; min-width: 60px; }
+  .val-bar { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.23,1,0.32,1); }
+
+  /* Section label */
+  .section-label {
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    padding: 20px 0 8px;
+    grid-column: 1 / -1;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 0;
+  }
+
+  /* Legend */
+  .overlay-legend {
+    display: flex; align-items: center; gap: 20px;
+    padding: 20px 0 0;
+    border-top: 1px solid var(--rule);
+    margin-top: 16px;
+    grid-column: 1 / -1;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .legend-swatch { width: 10px; height: 3px; border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="filter-chip">All</button>
+  <button class="filter-chip">Breakfast</button>
+  <button class="filter-chip">Lunch</button>
+  <button class="filter-chip">Dinner</button>
+  <button class="filter-chip">Side</button>
+  <button class="filter-chip">Snack</button>
+  <button class="filter-chip on">Dessert</button>
+  <button class="filter-chip">Beverage</button>
+  <button class="filter-chip">♡ Favorites</button>
+  <div class="toolbar-right">
+    <span class="count">8 recipes</span>
+    <button class="ctrl-btn">Name ▾</button>
+    <button class="ctrl-btn">↑</button>
+    <button class="compare-toggle-btn" id="compareModeBtn">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="18" rx="1"/><rect x="14" y="3" width="8" height="18" rx="1"/></svg>
+      Compare
+    </button>
+    <button class="ctrl-btn on">Grid</button>
+    <button class="ctrl-btn">List</button>
+    <button class="new-btn">+ New</button>
+  </div>
+</div>
+
+<!-- Compare mode banner -->
+<div class="compare-banner" id="compareBanner">
+  <span class="compare-banner-text">Select up to <strong>4 recipes</strong> to compare nutrition</span>
+  <button class="compare-banner-exit" id="bannerExit">✕ Exit compare</button>
+</div>
+
+<!-- Recipe grid -->
+<div class="grid-wrap">
+  <div class="grid">
+    <div class="card" data-id="1" data-name="Lemon Olive Oil Cake" data-category="dessert" data-cal="320" data-fat="16" data-satfat="3" data-sodium="180" data-carbs="38" data-sugar="24" data-protein="5" data-fiber="1">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Lemon Olive Oil Cake</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Lemon Olive Oil Cake</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="2" data-name="Dark Chocolate Mousse" data-category="dessert" data-cal="210" data-fat="14" data-satfat="8" data-sodium="40" data-carbs="18" data-sugar="14" data-protein="4" data-fiber="3">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Dark Chocolate Mousse</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Dark Chocolate Mousse</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="3" data-name="Chia Seed Pudding" data-category="dessert" data-cal="180" data-fat="8" data-satfat="2" data-sodium="60" data-carbs="22" data-sugar="10" data-protein="6" data-fiber="9">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Chia Seed Pudding</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Chia Seed Pudding</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="4" data-name="Banana Bread" data-category="dessert" data-cal="280" data-fat="10" data-satfat="2" data-sodium="210" data-carbs="44" data-sugar="22" data-protein="4" data-fiber="2">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Banana Bread</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Banana Bread</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="5" data-name="Greek Yogurt Parfait" data-category="dessert" data-cal="190" data-fat="4" data-satfat="1" data-sodium="55" data-carbs="26" data-sugar="18" data-protein="12" data-fiber="2">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Greek Yogurt Parfait</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Greek Yogurt Parfait</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="6" data-name="Almond Flour Brownies" data-category="dessert" data-cal="240" data-fat="16" data-satfat="4" data-sodium="95" data-carbs="20" data-sugar="15" data-protein="6" data-fiber="3">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Almond Flour Brownies</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Almond Flour Brownies</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="7" data-name="Mango Sorbet" data-category="dessert" data-cal="120" data-fat="0" data-satfat="0" data-sodium="5" data-carbs="30" data-sugar="28" data-protein="1" data-fiber="2">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Mango Sorbet</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Mango Sorbet</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+    <div class="card" data-id="8" data-name="Ricotta Cheesecake" data-category="dessert" data-cal="350" data-fat="22" data-satfat="12" data-sodium="220" data-carbs="30" data-sugar="26" data-protein="9" data-fiber="0">
+      <div class="card-img-wrap"><div class="card-placeholder"><span>Ricotta Cheesecake</span></div><div class="check-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="card-compare-hint">+ Add to compare</div></div>
+      <div class="card-body"><div class="card-eyebrow">Dessert</div><div class="card-name">Ricotta Cheesecake</div></div>
+      <div class="card-accent-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating compare bar -->
+<div class="compare-bar" id="compareBar">
+  <button class="compare-clear-btn" id="clearBtn">Clear</button>
+  <div class="compare-bar-slots" id="barSlots"></div>
+  <div class="compare-bar-label" id="barLabel"><strong>0</strong> / 4 selected</div>
+  <button class="compare-go-btn" id="compareGoBtn" disabled>Compare →</button>
+</div>
+
+<!-- Full-screen compare overlay -->
+<div class="compare-overlay" id="compareOverlay">
+  <div class="overlay-header">
+    <div class="overlay-header-left">
+      <button class="overlay-back" id="overlayBack">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to recipes
+      </button>
+      <div style="width:1px;height:14px;background:var(--rule)"></div>
+      <span class="overlay-title">Nutrition Comparison</span>
+    </div>
+    <span class="overlay-subtitle" id="overlaySubtitle"></span>
+  </div>
+  <div class="overlay-body" id="overlayBody"></div>
+</div>
+
+<script>
+const MAX = 4;
+let compareMode = false;
+let selected = [];
+const COLORS = ['#3A7A4E', '#5B8DD9', '#C07018', '#9B5EA2'];
+
+const compareModeBtn  = document.getElementById('compareModeBtn');
+const compareBanner   = document.getElementById('compareBanner');
+const bannerExit      = document.getElementById('bannerExit');
+const compareBar      = document.getElementById('compareBar');
+const barSlots        = document.getElementById('barSlots');
+const barLabel        = document.getElementById('barLabel');
+const compareGoBtn    = document.getElementById('compareGoBtn');
+const clearBtn        = document.getElementById('clearBtn');
+const compareOverlay  = document.getElementById('compareOverlay');
+const overlayBack     = document.getElementById('overlayBack');
+const overlayBody     = document.getElementById('overlayBody');
+const overlaySubtitle = document.getElementById('overlaySubtitle');
+
+function enterCompareMode() {
+  compareMode = true;
+  document.body.classList.add('compare-mode');
+  compareModeBtn.classList.add('active');
+  compareBanner.classList.add('visible');
+}
+function exitCompareMode() {
+  compareMode = false;
+  document.body.classList.remove('compare-mode');
+  compareModeBtn.classList.remove('active');
+  compareBanner.classList.remove('visible');
+  selected = [];
+  document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+  updateBar();
+}
+compareModeBtn.addEventListener('click', () => compareMode ? exitCompareMode() : enterCompareMode());
+bannerExit.addEventListener('click', exitCompareMode);
+
+function getCardData(card) {
+  return { id: card.dataset.id, name: card.dataset.name, category: card.dataset.category,
+    cal: +card.dataset.cal, fat: +card.dataset.fat, satfat: +card.dataset.satfat,
+    sodium: +card.dataset.sodium, carbs: +card.dataset.carbs, sugar: +card.dataset.sugar,
+    protein: +card.dataset.protein, fiber: +card.dataset.fiber };
+}
+
+function updateBar() {
+  barSlots.innerHTML = '';
+  for (let i = 0; i < MAX; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'compare-slot' + (i < selected.length ? ' filled' : '');
+    if (i < selected.length) {
+      const d = selected[i];
+      const thumb = document.createElement('div');
+      thumb.className = 'slot-thumb';
+      thumb.style.cssText = `background:${COLORS[i]}28;color:${COLORS[i]}`;
+      thumb.textContent = d.name[0];
+      slot.style.borderColor = COLORS[i];
+      const rm = document.createElement('div');
+      rm.className = 'remove-slot';
+      rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      rm.addEventListener('click', e => { e.stopPropagation(); deselect(d.id); });
+      slot.append(thumb, rm);
+    }
+    barSlots.appendChild(slot);
+  }
+  barLabel.innerHTML = `<strong>${selected.length}</strong> / ${MAX} selected`;
+  compareGoBtn.disabled = selected.length < 2;
+  compareBar.classList.toggle('visible', selected.length > 0);
+}
+
+function deselect(id) {
+  document.querySelector(`.card[data-id="${id}"]`)?.classList.remove('selected');
+  selected = selected.filter(d => d.id !== id);
+  updateBar();
+}
+
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('click', () => {
+    if (!compareMode) return; // normal nav — do nothing in mock
+    const id = card.dataset.id;
+    if (card.classList.contains('selected')) {
+      deselect(id);
+    } else {
+      if (selected.length >= MAX) return;
+      card.classList.add('selected');
+      selected.push(getCardData(card));
+      updateBar();
+    }
+  });
+});
+
+clearBtn.addEventListener('click', () => {
+  selected = [];
+  document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+  updateBar();
+});
+
+compareGoBtn.addEventListener('click', openOverlay);
+overlayBack.addEventListener('click', closeOverlay);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
+
+function openOverlay() {
+  renderOverlay();
+  compareOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeOverlay() {
+  compareOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderOverlay() {
+  const cols = selected.length;
+  overlaySubtitle.textContent = `${cols} recipes · Dessert`;
+
+  const nutrients = [
+    { key: 'cal',    label: 'Calories',     unit: 'kcal', lowerIsBetter: true  },
+    { key: 'fat',    label: 'Fat',          unit: 'g',    lowerIsBetter: true  },
+    { key: 'satfat', label: 'Saturated Fat',unit: 'g',    lowerIsBetter: true  },
+    { key: 'sodium', label: 'Sodium',       unit: 'mg',   lowerIsBetter: true  },
+    { key: 'carbs',  label: 'Carbs',        unit: 'g',    lowerIsBetter: true  },
+    { key: 'sugar',  label: 'Sugar',        unit: 'g',    lowerIsBetter: true  },
+    { key: 'protein',label: 'Protein',      unit: 'g',    lowerIsBetter: false },
+    { key: 'fiber',  label: 'Fiber',        unit: 'g',    lowerIsBetter: false },
+  ];
+
+  const gridCols = `180px repeat(${cols}, 1fr)`;
+
+  let html = `<div style="display:grid;grid-template-columns:${gridCols};gap:0;max-width:960px;">`;
+
+  // Recipe headers
+  html += `<div></div>`;
+  selected.forEach((d, i) => {
+    html += `
+      <div class="compare-recipe-header" style="border-bottom-color:${COLORS[i]}">
+        <div class="recipe-header-thumb" style="border-top-color:${COLORS[i]}">
+          <div class="recipe-header-thumb-inner" style="background:${COLORS[i]}14;color:${COLORS[i]}">${d.name[0]}</div>
+        </div>
+        <div class="recipe-header-eyebrow">${d.category}</div>
+        <div class="recipe-header-name">${d.name}</div>
+      </div>`;
+  });
+
+  // Nutrient rows
+  nutrients.forEach(n => {
+    const vals = selected.map(d => d[n.key] ?? 0);
+    const maxVal = Math.max(...vals);
+    const minVal = Math.min(...vals);
+
+    // Label cell
+    html += `<div class="nutrient-row-label">${n.label}</div>`;
+
+    // Value cells
+    vals.forEach((v, i) => {
+      const pct = maxVal > 0 ? (v / maxVal) * 100 : 0;
+      const isBest = cols > 1 && (n.lowerIsBetter ? v === minVal : v === maxVal);
+      const isWorst = cols > 1 && (n.lowerIsBetter ? v === maxVal : v === minVal)
+        && vals.filter(x => x === (n.lowerIsBetter ? maxVal : minVal)).length < vals.length;
+      const numColor = isBest ? COLORS[i] : isWorst ? '#B02020' : 'var(--fg)';
+      html += `
+        <div class="nutrient-row-val">
+          <div class="val-dot ${isBest ? 'show' : ''}" style="background:${COLORS[i]}"></div>
+          <div class="val-number" style="color:${numColor}">${v}</div>
+          <div class="val-unit">${n.unit}</div>
+          <div class="val-bar-wrap">
+            <div class="val-bar" style="width:0%;background:${COLORS[i]};opacity:0.6" data-w="${pct}"></div>
+          </div>
+        </div>`;
+    });
+  });
+
+  // Legend
+  html += `<div class="overlay-legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-btn)"></div>best value</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#B02020"></div>highest (for lower-is-better)</div>
+  </div>`;
+
+  html += `</div>`;
+  overlayBody.innerHTML = html;
+
+  requestAnimationFrame(() => {
+    overlayBody.querySelectorAll('.val-bar').forEach(bar => {
+      bar.style.width = bar.dataset.w + '%';
+    });
+  });
+}
+</script>
+</body>
+</html>

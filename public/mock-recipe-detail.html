@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure — Recipe Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#FFFFFF; --bg2:#F4F4F4; --bg3:#E8E8E8;
+  --fg:#111111; --fg2:#333333; --m:#777777; --r:#DDDDDD;
+  --acc:#5A9B6A; --acc-l:rgba(90,155,106,0.10);
+  --ok:#5A9B6A; --ok-l:rgba(90,155,106,0.12);
+  --err:#B02020; --warn:#C07018;
+}
+html { font-family:'DM Sans',sans-serif; -webkit-font-smoothing:antialiased; background:var(--bg); color:var(--fg); }
+.tg { border-right:1px solid var(--r); border-bottom:1px solid var(--r); display:grid; }
+.tg > * { border-top:1px solid var(--r); border-left:1px solid var(--r); }
+.mnav { display:grid; grid-template-columns:auto 1fr auto; border-bottom:1px solid var(--r); height:44px; background:var(--bg); position:sticky; top:0; z-index:10; }
+.mnav-brand { display:flex; align-items:center; padding:0 20px; border-right:1px solid var(--r); font-size:13px; font-weight:700; letter-spacing:-0.02em; }
+.mnav-links { display:flex; align-items:center; padding:0 20px; gap:20px; }
+.mnav-link { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.10em; color:var(--m); text-decoration:none; }
+.mnav-link.on { color:var(--fg); border-bottom:1px solid var(--fg); padding-bottom:2px; }
+.mnav-right { display:flex; align-items:center; padding:0 16px; gap:4px; border-left:1px solid var(--r); }
+.avatar { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:8px; font-weight:600; color:#fff; }
+.page-nav-bar { display:flex; align-items:center; border-bottom:1px solid #111; background:#fff; position:sticky; top:44px; z-index:9; }
+.page-nav-bar a { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.10em; text-transform:uppercase; color:#777; text-decoration:none; padding:8px 16px; border-right:1px solid rgba(17,17,17,0.13); }
+.page-nav-bar a.here { color:#111; background:rgba(17,17,17,0.04); }
+.prog-bar { height:2px; background:var(--bg3); }
+.prog-fill { height:100%; background:var(--acc); }
+</style>
+</head>
+<body>
+
+<nav class="mnav">
+  <div class="mnav-brand">Good Measure</div>
+  <div class="mnav-links">
+    <a href="mock-planner.html" class="mnav-link">Planner</a>
+    <a href="mock-recipes.html" class="mnav-link on">Recipes</a>
+    <a href="mock-pantry.html" class="mnav-link">Pantry</a>
+  </div>
+  <div class="mnav-right">
+    <div class="avatar" style="background:#5A9B6A">S</div>
+    <div class="avatar" style="background:#E84828;margin-left:-5px;border:2px solid var(--bg)">M</div>
+    <div class="avatar" style="background:#7B5EA7;margin-left:-5px;border:2px solid var(--bg)">L</div>
+  </div>
+</nav>
+
+<div class="page-nav-bar">
+  <a href="mock-dashboard.html">Dashboard</a>
+  <a href="mock-recipes.html">Recipes</a>
+  <a href="mock-recipe-detail.html" class="here">Recipe Detail</a>
+  <a href="mock-planner.html">Planner</a>
+  <a href="mock-pantry.html">Pantry</a>
+</div>
+
+<!-- Back + actions bar -->
+<div style="display:flex;align-items:stretch;height:36px;border-bottom:1px solid var(--r)">
+  <a href="mock-recipes.html" style="display:flex;align-items:center;padding:0 20px;border-right:1px solid var(--r);font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m);text-decoration:none;gap:6px">
+    ← Recipes
+  </a>
+  <div style="flex:1"></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:0 16px;border-left:1px solid var(--r)">
+    <button style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;background:transparent;color:var(--m);border:1px solid var(--r);padding:4px 12px;border-radius:9999px;cursor:pointer">Edit</button>
+    <button style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;background:var(--acc);color:#fff;border:none;padding:4px 12px;border-radius:9999px;cursor:pointer">+ Add to Planner</button>
+  </div>
+</div>
+
+<!-- Recipe header -->
+<div style="padding:28px 28px 20px;border-bottom:1px solid var(--r)">
+  <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--m);margin-bottom:10px">Dinner · 4 servings · 45 min</div>
+  <div style="font-size:clamp(32px,4vw,56px);font-weight:700;letter-spacing:-0.03em;line-height:1.0;text-wrap:balance;margin-bottom:12px">Thai Green Curry</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;background:var(--bg2);color:var(--m);border-radius:9999px">Gluten-free</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;background:var(--bg2);color:var(--m);border-radius:9999px">Dairy-free</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;padding:3px 12px;background:var(--bg2);color:var(--m);border-radius:9999px">High protein</span>
+  </div>
+</div>
+
+<!-- Nutrition summary: touching border grid -->
+<div class="tg" style="grid-template-columns:repeat(5,1fr)">
+  <div style="padding:16px 20px">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m);margin-bottom:6px">Calories</div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1">331</div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-top:2px">per serving</div>
+  </div>
+  <div style="padding:16px 20px">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m);margin-bottom:6px">Protein</div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1">11<span style="font-size:18px;color:var(--m);font-family:'DM Mono',monospace">g</span></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-top:2px">of 95g goal · 12%</div>
+    <div class="prog-bar" style="margin-top:6px"><div class="prog-fill" style="width:12%"></div></div>
+  </div>
+  <div style="padding:16px 20px">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m);margin-bottom:6px">Carbs</div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1">25<span style="font-size:18px;color:var(--m);font-family:'DM Mono',monospace">g</span></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-top:2px">of 225g goal · 11%</div>
+    <div class="prog-bar" style="margin-top:6px"><div class="prog-fill" style="width:11%"></div></div>
+  </div>
+  <div style="padding:16px 20px">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m);margin-bottom:6px">Fat</div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1">18<span style="font-size:18px;color:var(--m);font-family:'DM Mono',monospace">g</span></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-top:2px">of 65g goal · 28%</div>
+    <div class="prog-bar" style="margin-top:6px"><div class="prog-fill" style="width:28%"></div></div>
+  </div>
+  <div style="padding:16px 20px">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.10em;color:var(--m);margin-bottom:6px">Fibre</div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1">4<span style="font-size:18px;color:var(--m);font-family:'DM Mono',monospace">g</span></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m);margin-top:2px">per serving</div>
+  </div>
+</div>
+
+<!-- Two-column: ingredients + full nutrition -->
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--r)">
+
+  <!-- LEFT: Ingredients -->
+  <div style="border-right:1px solid var(--r)">
+    <div style="padding:10px 20px;border-bottom:1px solid var(--r);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--m)">Ingredients · 8 items</span>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">4 servings</span>
+    </div>
+    <!-- Ingredient table: tgrid -->
+    <div class="tg" style="grid-template-columns:1fr auto auto auto">
+      <!-- Header -->
+      <div style="padding:7px 16px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:var(--m)">Ingredient</span></div>
+      <div style="padding:7px 12px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:var(--m)">Qty</span></div>
+      <div style="padding:7px 12px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:var(--m)">Unit</span></div>
+      <div style="padding:7px 12px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:var(--m)">Kcal</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Green curry paste</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">2</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">Tbsp</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">42</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Coconut milk, full fat</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">400</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">mL</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">704</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Chicken breast</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">400</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">g</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">440</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Thai eggplant</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">200</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">g</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">35</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Fish sauce</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">1</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">Tbsp</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">6</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Jasmine rice, dry</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">160</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">g</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">579</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Kaffir lime leaves</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">4</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">leaves</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">2</span></div>
+
+      <div style="padding:9px 16px;display:flex;align-items:center"><span style="font-size:13px;font-weight:500">Olive oil</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">1</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--m)">Tbsp</span></div>
+      <div style="padding:9px 12px;display:flex;align-items:center"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">119</span></div>
+
+      <!-- Total row -->
+      <div style="padding:9px 16px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--m)">Total (4 servings)</span></div>
+      <div style="background:var(--bg2)"></div>
+      <div style="background:var(--bg2)"></div>
+      <div style="padding:9px 12px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--fg)">1,927</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Full nutrition breakdown -->
+  <div>
+    <div style="padding:10px 20px;border-bottom:1px solid var(--r)">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--m)">Nutrition per serving</span>
+    </div>
+    <div class="tg" style="grid-template-columns:1fr auto auto">
+      <div style="padding:7px 16px;background:var(--bg2)"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--m)">Nutrient</span></div>
+      <div style="padding:7px 14px;background:var(--bg2);text-align:right"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--m)">Amount</span></div>
+      <div style="padding:7px 14px;background:var(--bg2);text-align:right"><span style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--m)">% Goal</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Energy</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">331 kcal</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">17%</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Protein</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">11 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">12%</span></div>
+
+      <div style="padding:9px 16px;padding-left:28px"><span style="font-size:12px;color:var(--m)">— of which essential AAs</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">4.8 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">—</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Total Fat</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">18 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">28%</span></div>
+
+      <div style="padding:9px 16px;padding-left:28px"><span style="font-size:12px;color:var(--m)">— Saturated fat</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">12 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--warn)">60%</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Total Carbs</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">25 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">11%</span></div>
+
+      <div style="padding:9px 16px;padding-left:28px"><span style="font-size:12px;color:var(--m)">— Fibre</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">4 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">—</span></div>
+
+      <div style="padding:9px 16px;padding-left:28px"><span style="font-size:12px;color:var(--m)">— Sugar</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">6 g</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">—</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Sodium</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">680 mg</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--warn)">30%</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Potassium</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">520 mg</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">15%</span></div>
+
+      <div style="padding:9px 16px"><span style="font-size:13px;font-weight:600">Iron</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--fg)">2.4 mg</span></div>
+      <div style="padding:9px 14px;text-align:right"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--m)">13%</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Prep notes -->
+<div style="padding:10px 20px;border-bottom:1px solid var(--r)">
+  <span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--m)">Prep notes</span>
+</div>
+<div style="padding:20px 28px;border-bottom:1px solid var(--r);max-width:72ch">
+  <p style="font-size:14px;line-height:1.75;color:var(--fg2)">Heat oil in a large wok or pan over medium-high heat. Add curry paste and fry for 2 minutes until fragrant. Add chicken and cook until sealed. Pour in coconut milk and add lime leaves. Simmer 15 minutes. Add eggplant and fish sauce. Cook a further 5 minutes. Serve over steamed jasmine rice.</p>
+</div>
+
+</body>
+</html>

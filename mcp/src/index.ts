@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.2.0',
+  version: '1.3.0',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -452,6 +452,251 @@ storage instructions, or reheating guidance. The notes should be in markdown for
       const message = err instanceof Error ? err.message : String(err);
       return {
         content: [{ type: 'text' as const, text: `Failed to save meal prep notes: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: list_people ─────────────────────────────────────────────────────────
+
+server.tool(
+  'list_people',
+  `List all people in the user's Good Measure household.
+Use this to find the person_id before calling get_person_goals or when you need
+to know who's in the household.`,
+  {},
+  async () => {
+    try {
+      const people = await apiFetch('/api/mcp/people') as {
+        id: number;
+        name: string;
+        color: string;
+        role: string;
+      }[];
+
+      if (people.length === 0) {
+        return { content: [{ type: 'text' as const, text: 'No people in this household yet.' }] };
+      }
+
+      const lines = people.map((p) => `• [id:${p.id}] ${p.name} (${p.role})`);
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${people.length} ${people.length === 1 ? 'person' : 'people'} in the household:\n\n${lines.join('\n')}`,
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to list people: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: get_person_goals ────────────────────────────────────────────────────
+
+server.tool(
+  'get_person_goals',
+  `Get a person's baseline daily nutrition goals (calories, macros, micros).
+Returns low and high targets per nutrient. Use this to understand what the person
+is aiming for before suggesting recipe optimizations or analyzing their meal plan.
+Get the person_id from list_people.`,
+  {
+    person_id: z.number().int().positive().describe('Person id from list_people'),
+  },
+  async ({ person_id }) => {
+    try {
+      const data = await apiFetch(`/api/mcp/people/${person_id}/goals`) as {
+        person: { id: number; name: string } | null;
+        goals: { nutrient: string; unit: string; lowGoal: number | null; highGoal: number | null }[];
+      };
+
+      if (!data.person) {
+        return { content: [{ type: 'text' as const, text: `Person ${person_id} not found.` }], isError: true };
+      }
+
+      if (data.goals.length === 0) {
+        return {
+          content: [{
+            type: 'text' as const,
+            text: `${data.person.name} has no nutrition goals set yet.`,
+          }],
+        };
+      }
+
+      const lines = data.goals.map((g) => {
+        const range =
+          g.lowGoal != null && g.highGoal != null ? `${g.lowGoal}–${g.highGoal}`
+          : g.lowGoal != null ? `≥ ${g.lowGoal}`
+          : g.highGoal != null ? `≤ ${g.highGoal}`
+          : '—';
+        return `  • ${g.nutrient}: ${range} ${g.unit}`;
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${data.person.name}'s daily goals:\n\n${lines.join('\n')}`,
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to get goals: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: list_meal_plans ─────────────────────────────────────────────────────
+
+server.tool(
+  'list_meal_plans',
+  `List recent meal plans in the user's household.
+Each meal plan represents one week for one person. Use this to find the meal_plan_id
+before calling get_meal_plan_week. Optionally filter by person_id.`,
+  {
+    person_id: z.number().int().positive().optional().describe('Optional: only return meal plans for this person'),
+  },
+  async ({ person_id }) => {
+    try {
+      const qs = person_id ? `?personId=${person_id}` : '';
+      const plans = await apiFetch(`/api/mcp/meal-plans${qs}`) as {
+        id: number;
+        weekStartDate: string;
+        personId: number | null;
+        personName: string | null;
+        mealCount: number;
+      }[];
+
+      if (plans.length === 0) {
+        return { content: [{ type: 'text' as const, text: 'No meal plans found.' }] };
+      }
+
+      const lines = plans.map((p) => {
+        const week = p.weekStartDate.slice(0, 10);
+        const owner = p.personName ?? 'Household';
+        return `• [id:${p.id}] Week of ${week} — ${owner} (${p.mealCount} meals)`;
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${plans.length} meal plan${plans.length === 1 ? '' : 's'}:\n\n${lines.join('\n')}`,
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to list meal plans: ${message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: get_meal_plan_week ──────────────────────────────────────────────────
+
+server.tool(
+  'get_meal_plan_week',
+  `Get a full week of meals for a meal plan, grouped by day, with daily nutrition
+totals and effective goals. Use this to analyze how a person's week is tracking
+against their targets, suggest meal swaps, or identify gaps. Get the meal_plan_id
+from list_meal_plans.`,
+  {
+    meal_plan_id: z.number().int().positive().describe('Meal plan id from list_meal_plans'),
+  },
+  async ({ meal_plan_id }) => {
+    try {
+      const data = await apiFetch(`/api/mcp/meal-plans/${meal_plan_id}`) as {
+        id: number;
+        weekStartDate: string;
+        person: { id: number; name: string } | null;
+        days: {
+          date: string;
+          meals: {
+            mealType: string;
+            servings: number;
+            recipe?: { id: number; name: string };
+            ingredient?: { id: number; name: string; quantity: number | null; unit: string | null };
+            notes: string | null;
+          }[];
+        }[];
+        weeklySummary: {
+          dailyNutritions: {
+            date: string;
+            dayOfWeek: string;
+            totalNutrients: {
+              nutrientId: number;
+              displayName: string;
+              unit: string;
+              value: number;
+              lowGoal?: number | null;
+              highGoal?: number | null;
+            }[];
+          }[];
+        };
+      };
+
+      const owner = data.person?.name ?? 'Household';
+      const weekStart = data.weekStartDate.slice(0, 10);
+
+      // Key nutrients to surface (filter for signal vs noise)
+      const KEY_NUTRIENTS = new Set(['Calories','Protein','Carbs','Carbohydrates','Fat','Fiber','Sugar','Sodium']);
+
+      const dailyByDate: Record<string, typeof data.weeklySummary.dailyNutritions[number]> = {};
+      for (const d of data.weeklySummary?.dailyNutritions ?? []) {
+        const key = typeof d.date === 'string' ? d.date.slice(0, 10) : new Date(d.date).toISOString().slice(0, 10);
+        dailyByDate[key] = d;
+      }
+
+      // Per-day output
+      const daySections = data.days.map((day) => {
+        const mealLines = day.meals.length === 0
+          ? ['  (no meals logged)']
+          : day.meals.map((m) => {
+              if (m.recipe) {
+                const srv = m.servings !== 1 ? ` × ${m.servings}` : '';
+                return `  • ${m.mealType}: ${m.recipe.name}${srv} [recipe:${m.recipe.id}]`;
+              }
+              if (m.ingredient) {
+                const qty = m.ingredient.quantity != null ? `${m.ingredient.quantity} ${m.ingredient.unit ?? ''} ` : '';
+                return `  • ${m.mealType}: ${qty}${m.ingredient.name} [ing:${m.ingredient.id}]`;
+              }
+              return `  • ${m.mealType}: (empty)`;
+            });
+
+        const summary = dailyByDate[day.date];
+        const totalsLines = (summary?.totalNutrients ?? [])
+          .filter((n) => KEY_NUTRIENTS.has(n.displayName) && n.value > 0)
+          .map((n) => {
+            const goalStr = n.highGoal != null ? ` / ${n.highGoal}${n.unit}`
+              : n.lowGoal != null ? ` (target ≥ ${n.lowGoal}${n.unit})`
+              : ` ${n.unit}`;
+            return `    ${n.displayName}: ${n.value}${goalStr}`;
+          });
+
+        return [`${day.date}:`, ...mealLines, ...(totalsLines.length ? ['  Totals:', ...totalsLines] : [])].join('\n');
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: [
+            `Meal plan #${data.id} — ${owner}, week of ${weekStart}`,
+            '',
+            ...daySections,
+          ].join('\n\n'),
+        }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Failed to get meal plan week: ${message}` }],
         isError: true,
       };
     }
