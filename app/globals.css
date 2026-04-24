@@ -376,7 +376,7 @@ input[type="number"]:focus {
 .ed-btn-text:hover { color: var(--fg); }
 .ed-btn-text.is-active { color: var(--fg); }
 
-.sort-control { display: inline-flex; align-items: baseline; gap: 10px; }
+.sort-control { display: inline-flex; align-items: center; gap: 10px; }
 .sort-field {
   background: none; border: 0; padding: 3px 0 2px;
   font-family: var(--mono); font-size: 9px; font-weight: 500;
@@ -386,7 +386,7 @@ input[type="number"]:focus {
   transition: color 0.15s ease; white-space: nowrap;
 }
 .sort-field:hover { color: var(--fg); }
-.sort-caret { display: inline-block; font-size: 8px; line-height: 1; position: relative; top: -1px; }
+.sort-caret { display: inline-block; font-size: 11px; line-height: 1; position: relative; top: -1px; }
 .sort-dir {
   background: none; border: 0; padding: 2px;
   font-family: var(--mono); font-size: 11px; line-height: 1;
@@ -514,9 +514,11 @@ input[type="number"]:focus {
 }
 .recipe-grid-item:nth-child(4n)        { border-right: 0; }
 .recipe-grid-item:nth-last-child(-n+4) { border-bottom: 0; }
-/* Edge columns align with toolbar/nav (40px outer padding) */
-.recipe-grid-item:nth-child(4n+1) { padding-left: 40px; }
-.recipe-grid-item:nth-child(4n)   { padding-right: 40px; }
+/* Edge columns: text aligns with toolbar/nav at 40px; photos use uniform 24px so all heights match */
+.recipe-grid-item:nth-child(4n+1) .recipe-grid-item__cat,
+.recipe-grid-item:nth-child(4n+1) .recipe-grid-item__name { padding-left: 16px; }
+.recipe-grid-item:nth-child(4n) .recipe-grid-item__cat,
+.recipe-grid-item:nth-child(4n) .recipe-grid-item__name   { padding-right: 16px; }
 /* Bottom-edge hover rule */
 .recipe-grid-item::after {
   content: '';
@@ -582,14 +584,23 @@ input[type="number"]:focus {
 /* 3-column at narrower desktop — matches pantry grid */
 @media (max-width: 1023px) {
   .recipe-grid { grid-template-columns: repeat(3, 1fr); }
-  /* reset 4-col border + padding rules */
-  .recipe-grid-item:nth-child(4n)        { border-right: 1px solid var(--rule); padding-right: 24px; }
+  /* reset 4-col border rules */
+  .recipe-grid-item:nth-child(4n)        { border-right: 1px solid var(--rule); }
   .recipe-grid-item:nth-last-child(-n+4) { border-bottom: 1px solid var(--rule); }
-  .recipe-grid-item:nth-child(4n+1)      { padding-left: 24px; }
+  /* reset 4-col text padding */
+  .recipe-grid-item:nth-child(4n+1) .recipe-grid-item__cat,
+  .recipe-grid-item:nth-child(4n+1) .recipe-grid-item__name { padding-left: 0; }
+  .recipe-grid-item:nth-child(4n) .recipe-grid-item__cat,
+  .recipe-grid-item:nth-child(4n) .recipe-grid-item__name   { padding-right: 0; }
   /* apply 3-col rules */
-  .recipe-grid-item:nth-child(3n)        { border-right: 0; padding-right: 40px; }
-  .recipe-grid-item:nth-child(3n+1)      { padding-left: 40px; }
+  .recipe-grid-item:nth-child(3n)        { border-right: 0; }
+  .recipe-grid-item:nth-child(3n+1)      { }
   .recipe-grid-item:nth-last-child(-n+3) { border-bottom: 0; }
+  /* 3-col edge text padding */
+  .recipe-grid-item:nth-child(3n+1) .recipe-grid-item__cat,
+  .recipe-grid-item:nth-child(3n+1) .recipe-grid-item__name { padding-left: 16px; }
+  .recipe-grid-item:nth-child(3n) .recipe-grid-item__cat,
+  .recipe-grid-item:nth-child(3n) .recipe-grid-item__name   { padding-right: 16px; }
 }
 
 /* ── Recipe List (BRIEF-08) ──────────────────────────────────────── */
@@ -1700,8 +1711,7 @@ input[type="number"]:focus {
 }
 
 .wk-day-col {
-  opacity: 0;
-  animation: plannerColIn 380ms ease-out calc(var(--col-i, 0) * 45ms) both;
+  opacity: 1;
 }
 
 @keyframes evRowIn { from { opacity:0; } to { opacity:1; } }
