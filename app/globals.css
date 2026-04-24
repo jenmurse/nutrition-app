@@ -388,16 +388,20 @@ input[type="number"]:focus {
   color: var(--muted); cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s ease;
+  /* Use flex so the inline-block caret doesn't inflate the text line-box
+     and drop the label's baseline relative to neighboring .ed-btn-text items */
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .sort-field:hover { color: var(--fg); }
 .sort-caret {
-  display: inline-block;
+  display: block;
   width: 0; height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 5px solid currentColor;
-  margin-left: 5px;
-  vertical-align: middle;
+  flex-shrink: 0;
   position: relative;
   top: -1px;
 }
