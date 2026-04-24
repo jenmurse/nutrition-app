@@ -523,10 +523,10 @@ function RecipesPage() {
                 aria-label="Sort recipes by"
                 aria-expanded={sortOpen}
                 aria-haspopup="listbox"
-                className="ed-btn-text relative pr-[22px]"
+                className="ed-btn-text flex items-center gap-[5px]"
               >
                 {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
-                <span className="absolute right-[4px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+                <span className="inline-block border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[3px]" />
               </button>
               {sortOpen && (
                 <div
