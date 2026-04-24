@@ -5221,7 +5221,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .auth-split { grid-template-columns: 1fr; min-height: 0; }
   .auth-left {
     border-right: none;
-    border-bottom: 1px solid var(--rule);
+    border-bottom: none;
     padding: 24px 24px 32px;
     display: block;
   }
