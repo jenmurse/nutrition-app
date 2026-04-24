@@ -23,9 +23,11 @@
     --accent-l:   rgba(17,17,17,0.08);
     --accent-fg:  #fff;
 
-    /* Primary CTA / destructive — always neutral, never theme-reactive */
-    --primary:            var(--fg);
-    --primary-ink:        var(--bg);
+    /* Primary CTA / destructive — always neutral, never theme-reactive.
+       Named --cta (not --primary) to avoid collision with the Tailwind/shadcn
+       --primary HSL token defined further down in this :root block. */
+    --cta:                var(--fg);
+    --cta-ink:            var(--bg);
     --destructive-border: var(--rule);
     --destructive-ink:    var(--fg-2);
 
@@ -307,12 +309,12 @@ input[type="number"]:focus {
 .ed-btn:active { transform: scale(0.97); }
 
 /* Primary — filled black, neutral (not theme-reactive) */
-.ed-btn.primary { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
-.ed-btn.primary:hover { opacity: 0.9; border-color: var(--primary); }
+.ed-btn.primary { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
+.ed-btn.primary:hover { opacity: 0.9; border-color: var(--cta); }
 
 /* Danger — neutral grey outline; reserve saturated red for confirm-modal destructives */
 .ed-btn.danger { color: var(--destructive-ink); border-color: var(--destructive-border); }
-.ed-btn.danger:hover { background: var(--fg); color: var(--primary-ink); border-color: var(--fg); }
+.ed-btn.danger:hover { background: var(--fg); color: var(--cta-ink); border-color: var(--fg); }
 
 /* Ghost — no border, muted text */
 .ed-btn.ghost { border-color: transparent; color: var(--muted); }
@@ -749,7 +751,7 @@ input[type="number"]:focus {
 
 .pl-new-btn {
   font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
-  background:var(--primary); color:var(--primary-ink); border:none; padding:4px 10px;
+  background:var(--cta); color:var(--cta-ink); border:none; padding:4px 10px;
   border-radius: var(--radius-pill);
   cursor:pointer; transition:opacity 0.15s; white-space:nowrap; flex-shrink:0;
 }
@@ -815,7 +817,7 @@ input[type="number"]:focus {
 
 .pl-create-btn {
   font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
-  background:var(--primary); color:var(--primary-ink); border:none; padding:6px 16px;
+  background:var(--cta); color:var(--cta-ink); border:none; padding:6px 16px;
   border-radius: var(--radius-pill);
   cursor:pointer; transition:opacity 0.15s, transform 100ms var(--ease-out); white-space:nowrap;
 }
@@ -1207,7 +1209,7 @@ input[type="number"]:focus {
 .pl-swap-savings { font-family:var(--mono); font-size:9px; color:var(--ok); margin-top:2px; margin-bottom:10px; }
 
 .pl-swap-btn { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: var(--radius-pill); color:var(--muted); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out); }
-.pl-swap-btn:hover { border-color:var(--primary); color:var(--primary); }
+.pl-swap-btn:hover { border-color:var(--cta); color:var(--cta); }
 .pl-swap-btn:active { transform:scale(0.97); }
 
 .pl-recs-section { margin-top:0; }
@@ -1218,7 +1220,7 @@ input[type="number"]:focus {
 .pl-rec-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.5; }
 .pl-rec-kcal { font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:2px; }
 
-.pl-add-btn { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--primary); border-radius: var(--radius-pill); color:var(--primary); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
+.pl-add-btn { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--cta); border-radius: var(--radius-pill); color:var(--cta); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
 .pl-add-btn:hover { background:color-mix(in srgb, var(--fg) 8%, var(--bg)); }
 .pl-add-btn:active { transform:scale(0.97); }
 
@@ -1450,7 +1452,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .mob-filter-btn::before { content: ''; position: absolute; inset: -5px; }
 .mob-filter-btn:active { opacity: 0.7; }
-.mob-filter-btn.active { color: var(--primary); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
+.mob-filter-btn.active { color: var(--cta); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
 
 /* Small dot indicator — replaces numeric badge */
 .mob-filter-dot {
@@ -1460,7 +1462,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--cta);
 }
 
 .mob-filter-badge {
@@ -1470,8 +1472,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--cta);
+  color: var(--cta-ink);
   font-size: 9px;
   font-family: var(--font-mono);
   border-radius: var(--radius-pill);
@@ -1497,7 +1499,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .mob-tb-icon::before { content: ''; position: absolute; inset: -5px; }
 .mob-tb-icon:active { opacity: 0.7; }
-.mob-tb-icon.on { color: var(--primary); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
+.mob-tb-icon.on { color: var(--cta); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
 
 /* View toggle group — joined as a pair with slight gap */
 .mob-view-group {
@@ -1561,8 +1563,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: color 0.15s, background 0.15s;
 }
 .set-mob-jump-btn.on {
-  color: var(--primary-ink);
-  background: var(--primary);
+  color: var(--cta-ink);
+  background: var(--cta);
 }
 
 /* Meal type picker grid — mobile needs safe-area bottom, desktop covered by parent padding */
@@ -1650,7 +1652,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
-  color: var(--primary);
+  color: var(--cta);
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -1696,8 +1698,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-chip.on {
-  color: var(--primary-ink);
-  background: var(--primary);
+  color: var(--cta-ink);
+  background: var(--cta);
 }
 .mob-sheet-chip:active { opacity: 0.75; }
 
@@ -1723,8 +1725,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-sort-btn.on {
-  color: var(--primary-ink);
-  background: var(--primary);
+  color: var(--cta-ink);
+  background: var(--cta);
 }
 .mob-sheet-sort-btn:active { opacity: 0.75; }
 
@@ -1747,8 +1749,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-dir-btn.on {
-  color: var(--primary-ink);
-  background: var(--primary);
+  color: var(--cta-ink);
+  background: var(--cta);
 }
 .mob-sheet-dir-btn:active { opacity: 0.75; }
 
@@ -1757,8 +1759,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   width: calc(100% - 40px);
   margin: 16px 20px;
   height: 36px;
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--cta);
+  color: var(--cta-ink);
   border: 0;
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
@@ -1885,9 +1887,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .shop-toggle-btn.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--primary-ink);
+  background: var(--cta);
+  border-color: var(--cta);
+  color: var(--cta-ink);
 }
 .shop-toggle-btn:active { opacity: 0.8; }
 .shop-close-btn {
@@ -1950,12 +1952,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: border-color 0.12s, background 0.12s;
   position: relative;
 }
-.shop-checkbox--active { border-color: var(--primary); }
-.shop-checkbox--checked { background: var(--primary); }
+.shop-checkbox--active { border-color: var(--cta); }
+.shop-checkbox--checked { background: var(--cta); }
 .shop-checkbox-dash {
   width: 8px;
   height: 1.5px;
-  background: var(--primary-ink);
+  background: var(--cta-ink);
   border-radius: 1px;
   display: block;
 }
@@ -1987,8 +1989,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: border-color 0.12s, background 0.12s;
 }
 .shop-item-checkbox.checked {
-  border-color: var(--primary);
-  background: var(--primary);
+  border-color: var(--cta);
+  background: var(--cta);
 }
 .shop-item-text {
   font-size: 13px;
@@ -2034,9 +2036,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Hairline button style same as mobile */
   .mob-search-input { background: var(--bg-2); border: 1px solid var(--rule); }
   .mob-filter-btn { background: transparent; border: 1px solid var(--rule); color: var(--muted); }
-  .mob-filter-btn.active { background: color-mix(in srgb, var(--fg) 10%, var(--bg)); color: var(--primary); border-color: var(--primary); }
+  .mob-filter-btn.active { background: color-mix(in srgb, var(--fg) 10%, var(--bg)); color: var(--cta); border-color: var(--cta); }
   .mob-tb-icon { background: transparent; border: 1px solid var(--rule); }
-  .mob-tb-icon.on { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+  .mob-tb-icon.on { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
 }
 
 /* ── Medium breakpoint — tablet / small laptop (641–1280px) ─────── */
@@ -2417,8 +2419,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-filter-btn.active {
     background: color-mix(in srgb, var(--fg) 10%, var(--bg)) !important;
-    color: var(--primary) !important;
-    border-color: var(--primary) !important;
+    color: var(--cta) !important;
+    border-color: var(--cta) !important;
   }
 
   .mob-tb-icon {
@@ -2426,9 +2428,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     border: 1px solid var(--rule) !important;
   }
   .mob-tb-icon.on {
-    background: var(--primary) !important;
-    color: var(--primary-ink) !important;
-    border-color: var(--primary) !important;
+    background: var(--cta) !important;
+    color: var(--cta-ink) !important;
+    border-color: var(--cta) !important;
   }
 
   /* ── Card grids: 1 column on mobile ── */

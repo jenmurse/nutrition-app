@@ -547,7 +547,7 @@ export default function RecipeDetailPage() {
                       <button key={n} onClick={() => setScale(n)}
                         className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
                           scale === n
-                            ? "bg-[var(--accent)] text-[var(--primary-ink)] border-[var(--accent)]"
+                            ? "bg-[var(--accent)] text-[var(--cta-ink)] border-[var(--accent)]"
                             : "bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]"
                         }`}
                         aria-pressed={scale === n}
@@ -596,7 +596,7 @@ export default function RecipeDetailPage() {
                   return (
                     <div className="flex items-center justify-between gap-3 px-3 py-2 mb-4 bg-[var(--bg-2)] text-[13px] text-[var(--muted)] leading-[1.5]">
                       <span>Nutrition is partial — {missingCount} ingredient{missingCount > 1 ? "s" : ""} {missingCount > 1 ? "don't" : "doesn't"} have data yet.</span>
-                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--primary)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
+                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--cta)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
                     </div>
                   );
                 })()}

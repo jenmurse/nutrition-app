@@ -498,7 +498,7 @@ function RecipesPage() {
                     onClick={() => toggleTag(tag)}
                   >
                     {tag}
-                    {selectedTags.includes(tag) && <span className="text-[var(--primary)]">✓</span>}
+                    {selectedTags.includes(tag) && <span className="text-[var(--cta)]">✓</span>}
                   </button>
                 ))}
                 <div className="border-t border-[var(--rule)] my-[3px]" aria-hidden="true" />
@@ -777,8 +777,8 @@ function RecipesPage() {
                     {/* Compare selected overlay */}
                     {compareMode && compareIds.includes(recipe.id) && (
                       <>
-                        <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--primary)', outlineOffset: '-2px' }} />
-                        <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--primary)' }}>
+                        <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--cta)', outlineOffset: '-2px' }} />
+                        <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--cta)' }}>
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                       </>
@@ -938,7 +938,7 @@ function RecipesPage() {
         <button
           onClick={() => compareIds.length >= 2 && setCompareOpen(true)}
           disabled={compareIds.length < 2}
-          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--primary)] text-[var(--primary-ink)] cursor-pointer transition-[opacity] hover:opacity-80 disabled:opacity-35 disabled:cursor-default"
+          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--cta)] text-[var(--cta-ink)] cursor-pointer transition-[opacity] hover:opacity-80 disabled:opacity-35 disabled:cursor-default"
           aria-label="Open nutrition comparison"
         >Compare →</button>
       </div>
@@ -977,7 +977,7 @@ function RecipesPage() {
                   const category = r.tags?.split(",")[0]?.trim();
                   return (
                     <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
-                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3', borderTop: '3px solid var(--primary)' }}>
+                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3', borderTop: '3px solid var(--cta)' }}>
                         {r.image
                           ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
                           : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>

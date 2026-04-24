@@ -228,7 +228,7 @@ export default function BulkIngredientImport({
         {error && <div className="text-[var(--error)] text-[11px]">{error}</div>}
         <button
           onClick={handleParse}
-          className="w-full px-4 py-2 bg-[var(--primary)] text-[var(--primary-ink)] hover:opacity-90 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+          className="w-full px-4 py-2 bg-[var(--cta)] text-[var(--cta-ink)] hover:opacity-90 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
         >
           Parse & Preview
         </button>
@@ -296,7 +296,7 @@ export default function BulkIngredientImport({
               <button
                 onClick={handleImport}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-[var(--primary)] text-[var(--primary-ink)] hover:opacity-90 disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--cta)] text-[var(--cta-ink)] hover:opacity-90 disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
               >
                 {loading ? "Importing..." : "Import All"}
               </button>

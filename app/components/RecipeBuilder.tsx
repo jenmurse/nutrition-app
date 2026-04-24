@@ -1037,7 +1037,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           }}
                           className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedFocus.includes(g.nutrientId)
-                              ? "bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-ink)]"
+                              ? "bg-[var(--cta)] border-[var(--cta)] text-[var(--cta-ink)]"
                               : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
                           }`}>{g.nutrient.displayName}</button>
                       ))}
