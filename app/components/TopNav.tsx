@@ -37,7 +37,7 @@ export default function TopNav() {
       {/* Brand */}
       <Link
         href="/home"
-        className="font-serif text-[13px] text-[var(--fg)] no-underline tracking-[-0.02em] hover:text-[var(--accent)] transition-colors duration-150"
+        className="font-serif text-[13px] text-[var(--fg)] no-underline tracking-[-0.02em] hover:opacity-70 transition-opacity duration-150"
         style={{ marginRight: 36 }}
       >
         <BrandName />

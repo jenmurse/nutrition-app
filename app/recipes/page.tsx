@@ -517,16 +517,15 @@ function RecipesPage() {
             </button>
 
             {/* Sort group */}
-            <div ref={sortRef} className="flex items-center gap-[2px] relative">
+            <div ref={sortRef} className="relative">
               <button
                 onClick={() => setSortOpen(!sortOpen)}
                 aria-label="Sort recipes by"
                 aria-expanded={sortOpen}
                 aria-haspopup="listbox"
-                className="ed-btn-text flex items-center gap-[5px]"
+                className="ed-btn-text"
               >
-                {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
-                <span className="inline-block border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[3px]" />
+                {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"} {sortDir === "asc" ? "↑" : "↓"}
               </button>
               {sortOpen && (
                 <div
@@ -540,7 +539,11 @@ function RecipesPage() {
                       key={opt.key}
                       role="option"
                       aria-selected={sortBy === opt.key}
-                      onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
+                      onClick={() => {
+                        if (sortBy === opt.key) setSortDir(prev => prev === "asc" ? "desc" : "asc");
+                        else setSortBy(opt.key);
+                        setSortOpen(false);
+                      }}
                       className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                         sortBy === opt.key
                           ? "text-[var(--fg)] bg-transparent"
@@ -550,11 +553,6 @@ function RecipesPage() {
                   ))}
                 </div>
               )}
-              <button
-                onClick={() => setSortDir(prev => prev === "asc" ? "desc" : "asc")}
-                aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
-                className="ed-btn-text"
-              >{sortDir === "asc" ? "↑" : "↓"}</button>
             </div>
 
             {/* Grid/List toggle */}

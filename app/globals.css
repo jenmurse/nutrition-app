@@ -15,7 +15,7 @@
     --fg:    #111111;   /* primary text */
     --fg-2:  #333333;   /* secondary text (body, descriptions) */
     --muted: #777777;   /* muted text (labels, hints) */
-    --rule:  #DDDDDD;   /* hairlines, borders, dividers */
+    --rule:  #D0CCC2;   /* hairlines, borders, dividers */
 
     /* Accent — default black (brand), overridden per person theme */
     --accent:     #111111;
