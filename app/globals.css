@@ -5028,13 +5028,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 40px;
+  padding: 18px clamp(24px, 5vw, 56px);
+  background: var(--bg);
   border-bottom: 1px solid var(--rule);
 }
-.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg); text-decoration: none; }
+.auth-nav-logo { font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
+.auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
   font-family: var(--mono);
-  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--fg); text-decoration: none;
 }
 .auth-nav-link:hover { color: var(--muted); }
@@ -5209,7 +5211,28 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 @media (max-width: 760px) {
   .auth-split { grid-template-columns: 1fr; min-height: 0; }
-  .auth-left { border-right: none; border-bottom: 1px solid var(--rule); padding: 40px 28px; }
-  .auth-right { padding: 40px 28px; }
-  .auth-nav { padding: 16px 24px; }
+  .auth-left {
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 28px 20px 24px;
+    display: block;
+  }
+  .auth-left-spacer { display: none; }
+  .auth-eyebrow { margin-bottom: 16px; }
+  .auth-headline {
+    font-size: clamp(28px, 8vw, 36px);
+    line-height: 1.1;
+    margin: 0 0 14px;
+  }
+  .auth-lede { font-size: 13px; line-height: 1.55; }
+  .auth-lede br { display: none; }
+  .auth-right { padding: 24px 20px 32px; }
+  .auth-tabs { margin-bottom: 22px; }
+  .auth-field { margin-bottom: 16px; }
+  .auth-submit { padding: 11px 14px; margin: 6px 0 14px; }
+  .auth-oauth { padding: 11px 14px; }
+  .auth-or { margin: 2px 0 12px; }
+  .auth-nav { padding: 14px 20px; }
+  .auth-nav-logo { font-size: 13px; }
+  .auth-nav-link { font-size: 9px; letter-spacing: 0.14em; }
 }
