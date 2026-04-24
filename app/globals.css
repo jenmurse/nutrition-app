@@ -380,30 +380,31 @@ input[type="number"]:focus {
 .ed-btn-text.is-active { color: var(--fg); }
 
 .sort-control { display: inline-flex; align-items: center; gap: 10px; }
+/* .sort-field is intentionally identical to .ed-btn-text so the label
+   shares a baseline with neighboring toolbar buttons. The caret is
+   positioned absolutely so it can't inflate the button's line-box. */
 .sort-field {
-  background: none; border: 0; padding: 0;
+  position: relative;
+  background: none; border: 0;
+  padding: 0 13px 0 0;
   font-family: var(--sans); font-size: 9px; font-weight: 500;
   line-height: 1;
   text-transform: uppercase; letter-spacing: 0.14em;
   color: var(--muted); cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s ease;
-  /* Use flex so the inline-block caret doesn't inflate the text line-box
-     and drop the label's baseline relative to neighboring .ed-btn-text items */
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
 }
 .sort-field:hover { color: var(--fg); }
 .sort-caret {
-  display: block;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 0; height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 5px solid currentColor;
-  flex-shrink: 0;
-  position: relative;
-  top: -1px;
+  pointer-events: none;
 }
 .sort-dir {
   background: none; border: 0; padding: 2px;
