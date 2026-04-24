@@ -872,7 +872,7 @@ const MealPlansPage = () => {
   }
 
   return (
-    <div className="flex h-full flex-col animate-page-enter">
+    <div className="flex h-full flex-col">
       {/* Editorial toolbar */}
       <div className="pl-toolbar">
         {/* Week range */}
