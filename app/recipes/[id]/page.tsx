@@ -488,7 +488,7 @@ export default function RecipeDetailPage() {
                 try { domain = new URL(recipe.sourceApp).hostname.replace(/^www\./, ''); } catch {}
                 return (
                   <div className="font-mono text-[9px] text-[var(--muted)] mt-3">
-                    Source: <a href={recipe.sourceApp} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] no-underline border-b border-transparent hover:border-[var(--accent)] transition-colors">{domain} →</a>
+                    Source: <a href={recipe.sourceApp} target="_blank" rel="noopener noreferrer" className="text-[var(--fg)] no-underline border-b border-transparent hover:border-[var(--fg)] transition-colors">{domain} →</a>
                   </div>
                 );
               })()}
@@ -511,7 +511,7 @@ export default function RecipeDetailPage() {
                   aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                   aria-pressed={isFavorited}
                 >
-                  <span aria-hidden="true" className={`fav-mark${isFavorited ? " rcp-heart-on" : ""}`} style={{ fontSize: 18, lineHeight: 1 }}>{isFavorited ? "★" : "☆"}</span>
+                  <span aria-hidden="true" className={`fav-mark${isFavorited ? " rcp-heart-on" : ""}`} style={{ fontSize: 14, lineHeight: 1, verticalAlign: "middle" }}>{isFavorited ? "●" : "○"}</span>
                 </button>
               </div>
             </div>

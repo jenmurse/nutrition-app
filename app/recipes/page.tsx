@@ -424,7 +424,7 @@ function RecipesPage() {
               onClick={() => setShowFavorites(prev => !prev)}
               aria-pressed={showFavorites}
             >
-              <span aria-hidden="true" className="text-[11px] leading-none">{showFavorites ? "★" : "☆"}</span>
+              <span aria-hidden="true" className="fav-dot-filter">{showFavorites ? "●" : "○"}</span>
               Favorites
             </button>
           </div>
@@ -492,7 +492,7 @@ function RecipesPage() {
                   }`}
                   onClick={() => setShowFavorites(prev => !prev)}
                 >
-                  <span aria-hidden="true" className="text-[11px] leading-none">{showFavorites ? "★" : "☆"}</span>
+                  <span aria-hidden="true" className="fav-dot-filter">{showFavorites ? "●" : "○"}</span>
                   <span className="flex-1">Favorites</span>
                   {showFavorites && <span className="text-[var(--fg)]">✓</span>}
                 </button>
@@ -685,7 +685,7 @@ function RecipesPage() {
                   onClick={() => setShowFavorites(prev => !prev)}
                   aria-pressed={showFavorites}
                 >
-                  <span aria-hidden="true" className="text-[11px] leading-none">{showFavorites ? "★" : "☆"}</span>
+                  <span aria-hidden="true" className="fav-dot-filter">{showFavorites ? "●" : "○"}</span>
                   Favorites
                 </button>
               </div>
@@ -790,7 +790,7 @@ function RecipesPage() {
                       )}
                       <div className="rcp-card-name font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
                         {recipe.name}
-                        {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">★</span></>}
+                        {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
                       </div>
                       {recipe.isComplete === false && (
                         <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
@@ -835,7 +835,7 @@ function RecipesPage() {
                     )}
                     <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">
                       {recipe.name}
-                      {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">★</span></>}
+                      {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
                     </span>
                   </div>
                   {/* Accent bar on hover */}

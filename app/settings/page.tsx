@@ -767,8 +767,8 @@ const SettingsPage = () => {
                       aria-selected={isActive}
                       className="px-[16px] py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
                       style={{
-                        background: isActive ? 'var(--accent-btn)' : 'var(--bg-2)',
-                        color: isActive ? 'var(--accent-fg)' : 'var(--muted)',
+                        background: isActive ? 'var(--cta)' : 'var(--bg-2)',
+                        color: isActive ? 'var(--cta-ink)' : 'var(--muted)',
                         borderRadius: 'var(--radius-pill)',
                       }}
                       aria-label={`Goals for ${person.name}`}
@@ -1045,7 +1045,7 @@ const SettingsPage = () => {
                   `List my recipes from ${APP_NAME} and tell me which ones are highest in protein.`,
                   `You are a chef with a background in nutrition. Get my recipe for [recipe name]. Optimize it to reduce saturated fat while preserving flavor. Show a before/after comparison, then save the updated version back to ${APP_NAME}.`,
                 ].map((prompt, i) => (
-                  <div key={i} className="border-l-2 border-[var(--accent)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic mb-[8px]">
+                  <div key={i} className="border-l-2 border-[var(--fg)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic mb-[8px]">
                     &ldquo;{prompt}&rdquo;
                   </div>
                 ))}
