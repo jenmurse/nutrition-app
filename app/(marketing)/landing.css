@@ -296,10 +296,10 @@
 }
 .mkt .pq-eyebrow .rt { color: var(--fg); }
 .mkt .pq-type {
-  font-size: clamp(40px,5.5vw,64px);
+  font-size: 72px;
   font-weight: 500;
   letter-spacing: -0.045em;
-  line-height: 0.95;
+  line-height: 1.05;
   color: var(--fg);
   text-wrap: balance;
 }
@@ -351,8 +351,8 @@
 
 /* ─── MOTION LAYER — word/line units ─── */
 
-/* Premise anchor scroll-margin so nav doesn't overlap */
-#premise-anchor { scroll-margin-top: 80px; }
+/* Premise anchor: nav height + breathing room */
+#premise-anchor { scroll-margin-top: 120px; }
 
 /* Manifesto lines */
 .mkt .ml { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io); }
@@ -397,6 +397,10 @@
   .mkt .ch-split.reverse .ch-vis { order: 2; }
   .mkt .ch-text { padding-bottom: 0; }
   .mkt .ch-vis-sticky { position: static; }
+}
+
+@media (max-width: 900px) {
+  .mkt .pq-type { font-size: 56px; }
 }
 
 /* Mobile */

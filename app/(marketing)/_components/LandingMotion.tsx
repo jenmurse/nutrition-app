@@ -17,20 +17,6 @@ function inView(el: HTMLElement, container: HTMLElement, margin = 0.08): boolean
   return elTop < containerH * (1 - margin) && elTop + el.offsetHeight > 0;
 }
 
-/* Smooth scroll with custom duration and ease-in-out-cubic */
-function smoothScrollTo(container: HTMLElement, targetY: number, duration: number) {
-  const startY = container.scrollTop;
-  const delta = targetY - startY;
-  const startTime = performance.now();
-  const tick = (now: number) => {
-    const t = Math.min((now - startTime) / duration, 1);
-    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    container.scrollTop = startY + delta * eased;
-    if (t < 1) requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
-}
-
 /* Count up a numeric value in an element */
 function countUp(el: HTMLElement, finalText: string, duration: number) {
   const match = finalText.match(/^([↓↑]?\s*)([\d.]+)(.*)/);
@@ -68,17 +54,12 @@ export default function LandingMotion() {
     const container = document.querySelector<HTMLElement>(".mkt");
     if (!container) return;
 
-    // ── "See how it works" custom scroll ──
+    // ── "See how it works" native smooth scroll ──
     const seeHow = document.querySelector<HTMLElement>(".mkt .js-see-how");
     if (seeHow) {
       seeHow.addEventListener("click", (e) => {
         e.preventDefault();
-        const target = document.querySelector<HTMLElement>("#premise-anchor");
-        if (!target) return;
-        const containerRect = container.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        const scrollTarget = container.scrollTop + (targetRect.top - containerRect.top) - 80;
-        smoothScrollTo(container, scrollTarget, 550);
+        document.querySelector("#premise-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
 
