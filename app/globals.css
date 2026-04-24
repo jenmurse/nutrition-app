@@ -368,6 +368,7 @@ input[type="number"]:focus {
   font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
+  line-height: 1;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--muted);
@@ -382,10 +383,11 @@ input[type="number"]:focus {
 .sort-field {
   background: none; border: 0; padding: 0;
   font-family: var(--sans); font-size: 9px; font-weight: 500;
+  line-height: 1;
   text-transform: uppercase; letter-spacing: 0.14em;
   color: var(--muted); cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s ease; white-space: nowrap;
+  transition: color 0.15s ease;
 }
 .sort-field:hover { color: var(--fg); }
 .sort-caret {
@@ -394,11 +396,8 @@ input[type="number"]:focus {
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 5px solid currentColor;
-  margin-left: 4px;
+  margin-left: 5px;
   vertical-align: middle;
-  font-size: 0;
-  line-height: 0;
-  color: transparent;
   position: relative;
   top: -1px;
 }

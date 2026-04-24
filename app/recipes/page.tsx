@@ -527,7 +527,7 @@ function RecipesPage() {
                   className="sort-field"
                 >
                   {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
-                  <span className="sort-caret" aria-hidden="true">▾</span>
+                  <span className="sort-caret" aria-hidden="true" />
                 </button>
                 {sortOpen && (
                   <div
