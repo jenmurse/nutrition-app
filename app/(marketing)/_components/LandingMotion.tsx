@@ -10,8 +10,6 @@ import { useEffect } from "react";
    ─────────────────────────────────────────────────────────────────────────
 */
 
-const EASE_OUT = "cubic-bezier(0.23,1,0.32,1)";
-
 /* Is el visible within the .mkt scroll container? */
 function inView(el: HTMLElement, container: HTMLElement, margin = 0.08): boolean {
   const elTop = el.getBoundingClientRect().top;
@@ -19,34 +17,18 @@ function inView(el: HTMLElement, container: HTMLElement, margin = 0.08): boolean
   return elTop < containerH * (1 - margin) && elTop + el.offsetHeight > 0;
 }
 
-/* Split a line span into individual .hw word spans for stagger animation */
-function splitLineIntoWords(lineSpan: HTMLElement): HTMLElement[] {
-  const tokens: (HTMLElement | Text)[] = [];
-  lineSpan.childNodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      (node.textContent ?? "").split(/(\s+)/).forEach((part) => {
-        if (!part) return;
-        if (/^\s+$/.test(part)) {
-          tokens.push(document.createTextNode(part));
-        } else {
-          const s = document.createElement("span");
-          s.className = "hw";
-          s.textContent = part;
-          tokens.push(s);
-        }
-      });
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const w = document.createElement("span");
-      w.className = "hw hw-accent";
-      w.appendChild(node.cloneNode(true));
-      tokens.push(w);
-    }
-  });
-  lineSpan.innerHTML = "";
-  tokens.forEach((t) => lineSpan.appendChild(t));
-  return tokens.filter(
-    (t): t is HTMLElement => t instanceof HTMLElement && t.classList.contains("hw")
-  );
+/* Smooth scroll with custom duration and cubic-out easing */
+function smoothScrollTo(container: HTMLElement, targetY: number, duration: number) {
+  const startY = container.scrollTop;
+  const delta = targetY - startY;
+  const startTime = performance.now();
+  const tick = (now: number) => {
+    const t = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    container.scrollTop = startY + delta * eased;
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 /* Count up a numeric value in an element */
@@ -77,7 +59,7 @@ export default function LandingMotion() {
     if (prefersReduced) {
       document
         .querySelectorAll<HTMLElement>(
-          ".mkt .r, .mkt .hero-type-reveal, .mkt .hero-bottom-reveal, .mkt .ml, .mkt .pql, .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta"
+          ".mkt .r, .mkt .ml, .mkt .pql, .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta"
         )
         .forEach((el) => el.classList.add("in"));
       return;
@@ -86,47 +68,21 @@ export default function LandingMotion() {
     const container = document.querySelector<HTMLElement>(".mkt");
     if (!container) return;
 
-    // ── 1. Hero word-by-word reveal (fires immediately on mount) ──
-    const h1 = document.querySelector<HTMLElement>(".mkt .hero-type-reveal");
-    if (h1) {
-      const existing = Array.from(h1.querySelectorAll<HTMLElement>(".hw"));
-      const allWords: HTMLElement[] =
-        existing.length > 0
-          ? existing
-          : (() => {
-              const lines = Array.from(h1.children).filter(
-                (el): el is HTMLElement => el instanceof HTMLElement
-              );
-              const words: HTMLElement[] = [];
-              lines.forEach((line) => words.push(...splitLineIntoWords(line)));
-              return words;
-            })();
-
-      allWords.forEach((word) => {
-        word.style.opacity = "0";
-        word.style.transform = "translateY(18px)";
-        word.style.transition = `opacity 580ms ${EASE_OUT}, transform 580ms ${EASE_OUT}`;
+    // ── "See how it works" custom scroll ──
+    const seeHow = document.querySelector<HTMLElement>(".mkt .js-see-how");
+    if (seeHow) {
+      seeHow.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = document.querySelector<HTMLElement>(".mkt .manifesto");
+        if (!target) return;
+        const containerRect = container.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const scrollTarget = container.scrollTop + (targetRect.top - containerRect.top) - 64;
+        smoothScrollTo(container, scrollTarget, 800);
       });
-      h1.style.opacity = "1";
-
-      let wordIdx = 0;
-      allWords.forEach((word) => {
-        const isAccent = word.classList.contains("hw-accent");
-        const delay = 20 + wordIdx * 50 + (isAccent ? 80 : 0);
-        wordIdx++;
-        setTimeout(() => {
-          word.style.opacity = "1";
-          word.style.transform = "translateY(0)";
-        }, delay);
-      });
-
-      const heroBottom = document.querySelector<HTMLElement>(".mkt .hero-bottom-reveal");
-      if (heroBottom) {
-        setTimeout(() => heroBottom.classList.add("in"), 20 + allWords.length * 50 + 180);
-      }
     }
 
-    // ── 2–8. Scroll-triggered reveals ──
+    // ── Scroll-triggered reveals ──
 
     // Tracks whether each reveal has already fired (avoids re-firing)
     const revealed = new WeakSet<Element>();

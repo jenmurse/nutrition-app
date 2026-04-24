@@ -3,7 +3,6 @@ const PHRASES = [
   "Calculated, not estimated",
   "Optimized by AI",
   "Built for people who cook",
-  "Made in San Francisco",
 ];
 
 export default function Ticker() {

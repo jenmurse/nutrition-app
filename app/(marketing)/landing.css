@@ -141,7 +141,7 @@
 }
 .mkt .manifesto-eyebrow .rt { color: var(--fg); }
 .mkt .manifesto-type {
-  font-size: clamp(38px,6vw,88px);
+  font-size: clamp(40px,6vw,72px);
   font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 1.08;
@@ -296,7 +296,7 @@
 }
 .mkt .pq-eyebrow .rt { color: var(--fg); }
 .mkt .pq-type {
-  font-size: clamp(52px,10vw,148px);
+  font-size: clamp(36px,5vw,56px);
   font-weight: 500;
   letter-spacing: -0.045em;
   line-height: 0.95;
@@ -351,14 +351,8 @@
 
 /* ─── MOTION LAYER — word/line units ─── */
 
-/* Hero — hidden until JS splits words and animates them */
-.mkt .hero-type-reveal { opacity: 0; }
-.mkt .hero-type span { display: block; }
-/* JS-injected word spans — initial opacity set by JS, not CSS, so WAAPI wins */
-.mkt .hero-type .hw { display: inline; }
-/* Hero bottom below the h1 */
-.mkt .hero-bottom-reveal { opacity: 0; transform: translateY(16px); transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io); }
-.mkt .hero-bottom-reveal.in { opacity: 1; transform: translateY(0); }
+/* Manifesto scroll-margin so nav doesn't overlap on anchor scroll */
+.mkt .manifesto { scroll-margin-top: 64px; }
 
 /* Manifesto lines */
 .mkt .ml { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io); }
@@ -380,9 +374,6 @@
 @media (prefers-reduced-motion: reduce) {
   .mkt .r { opacity: 1; transform: none; transition: none; }
   .mkt .tick-track { animation: none; }
-  .mkt .hero-type-reveal { opacity: 1; }
-  .mkt .hero-type .hw { opacity: 1; }
-  .mkt .hero-bottom-reveal { opacity: 1; transform: none; transition: none; }
   .mkt .ml { opacity: 1; transform: none; transition: none; }
   .mkt .pql { opacity: 1; transform: none; transition: none; }
   .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta { opacity: 1; transform: none; transition: none; }
@@ -391,9 +382,6 @@
 /* No-JS fallback — everything visible */
 @media (scripting: none) {
   .mkt .r { opacity: 1; transform: none; }
-  .mkt .hero-type-reveal { opacity: 1; }
-  .mkt .hero-type .hw { opacity: 1; }
-  .mkt .hero-bottom-reveal { opacity: 1; transform: none; }
   .mkt .ml { opacity: 1; transform: none; }
   .mkt .pql { opacity: 1; transform: none; }
   .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta { opacity: 1; transform: none; }
@@ -491,7 +479,7 @@
   .mkt .opt-note { font-size: 10.5px; max-width: none; }
 
   .mkt .pq { padding: 100px var(--pad); }
-  .mkt .pq-type { font-size: clamp(40px,11vw,64px); line-height: 1; }
+  .mkt .pq-type { font-size: clamp(28px,8vw,44px); line-height: 1; }
 
   .mkt .close { padding: 96px var(--pad) 80px; }
   .mkt .close-grid { grid-template-columns: 1fr; gap: 32px; }

@@ -5,8 +5,7 @@ export default function LandingFooter() {
         © 2026 · Made by{" "}
         <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer">
           Jen Murse
-        </a>{" "}
-        · San Francisco
+        </a>
       </div>
       <div>
         <a href="mailto:jenmurse@gmail.com">Contact</a>

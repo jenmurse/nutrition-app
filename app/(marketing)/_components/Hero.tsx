@@ -6,7 +6,7 @@ export default function Hero() {
         <div className="rt">A nutrition &amp; meal planning tool</div>
       </div>
 
-      <h1 className="hero-type hero-type-reveal">
+      <h1 className="hero-type r">
         <span>A nutrition app</span>
         <span className="thin">for people who</span>
         <span>
@@ -14,7 +14,7 @@ export default function Hero() {
         </span>
       </h1>
 
-      <div className="hero-bottom hero-bottom-reveal">
+      <div className="hero-bottom r d1">
         <p className="hero-lede">
           For years I ran my household on two tools: a spreadsheet for nutrition,
           a recipe app for dinner. Neither one knew about the other.{" "}
@@ -30,7 +30,7 @@ export default function Hero() {
           <a href="/login?signup=1" className="btn">
             Get Started <span className="arr" aria-hidden="true">↗</span>
           </a>
-          <a href="#manifesto" className="btn ghost">
+          <a href="#manifesto" className="btn ghost js-see-how">
             See how it works
           </a>
         </div>
