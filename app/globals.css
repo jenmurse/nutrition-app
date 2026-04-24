@@ -5233,13 +5233,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     margin: 0 0 16px;
   }
   .auth-lede { font-size: 13px; line-height: 1.55; margin-bottom: 0; }
-  .auth-right { padding: 24px 24px 32px; }
-  .auth-tabs { margin-bottom: 24px; }
-  .auth-field { margin-bottom: 16px; }
-  .auth-input { padding: 4px 0 6px; }
-  .auth-submit { padding: 11px 14px; margin: 4px 0 16px; }
-  .auth-oauth { padding: 11px 14px; }
-  .auth-or { margin: 4px 0 12px; }
+  .auth-right { padding: 20px 24px 28px; }
+  .auth-tabs { margin-bottom: 18px; }
+  .auth-label { margin-bottom: 4px; }
+  .auth-label-row { margin-bottom: 4px; }
+  .auth-field { margin-bottom: 12px; }
+  .auth-input { padding: 2px 0 4px; font-size: 13px; line-height: 1.3; }
+  .auth-submit { padding: 10px 14px; margin: 4px 0 12px; }
+  .auth-oauth { padding: 10px 14px; }
+  .auth-or { margin: 2px 0 10px; }
   .auth-nav { padding: 14px 20px; min-height: 56px; }
   .auth-nav-logo { font-size: 13px; }
   .auth-nav-link { font-size: 9px; letter-spacing: 0.14em; }
