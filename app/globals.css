@@ -842,7 +842,7 @@ input[type="number"]:focus {
 
 .wk-day-name { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
 
-.wk-day-num { font-family:var(--display); font-size:28px; font-weight:700; letter-spacing:-0.02em; color:var(--fg-2); line-height:1; margin-top:3px; font-variant-numeric:tabular-nums; }
+.wk-day-num { font-family:var(--font-sans); font-size:28px; font-weight:700; letter-spacing:-0.02em; color:var(--fg-2); line-height:1; margin-top:3px; font-variant-numeric:tabular-nums; }
 
 .wk-day-col.today .wk-day-name { color:var(--accent-btn); }
 .wk-day-col.today .wk-day-num { color:var(--accent-btn); }
@@ -1011,7 +1011,7 @@ input[type="number"]:focus {
 }
 
 .pl-day-strip-num {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
   color: var(--fg-2);
@@ -1104,7 +1104,7 @@ input[type="number"]:focus {
 }
 
 .ev-dnum {
-  font-family:var(--display); font-size:28px; font-weight:700;
+  font-family:var(--font-sans); font-size:28px; font-weight:700;
   letter-spacing:-0.02em; color:var(--fg-2); line-height:1; margin-top:3px;
   font-variant-numeric:tabular-nums;
 }
@@ -1173,7 +1173,7 @@ input[type="number"]:focus {
 .pl-side-person-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
 
 .pl-kcal-hero { margin-bottom:4px; }
-.pl-kcal-num { font-family:var(--display); font-size:36px; font-weight:700; letter-spacing:-0.03em; line-height:1; font-variant-numeric:tabular-nums; }
+.pl-kcal-num { font-family:var(--font-sans); font-size:36px; font-weight:700; letter-spacing:-0.03em; line-height:1; font-variant-numeric:tabular-nums; }
 .pl-kcal-unit { font-family:var(--mono); font-size:9px; color:var(--muted); margin-left:4px; vertical-align:baseline; }
 .pl-kcal-sub { font-family:var(--mono); font-size:9px; color:var(--muted); margin-bottom:4px; }
 .pl-kcal-bar { height:3px; background:var(--rule); overflow:hidden; margin-bottom:20px; }
@@ -1259,7 +1259,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* ── Dashboard mobile chrome bar (hidden on desktop) ─────────────── */
 .hm-mob-chrome { display: none; }
 .hm-mob-brand {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -1528,7 +1528,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .rd-mob-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -2721,7 +2721,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding: 48px var(--pad) 44px;
 }
 .lp-split-brand {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -2768,7 +2768,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: rgba(255,255,255,0.6);
 }
 .lp-nav-brand {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: -0.02em;
@@ -2843,7 +2843,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-top: 28px;
 }
 .lp-headline {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: clamp(44px, 5.5vw, 60px);
   letter-spacing: -0.035em;
@@ -3088,7 +3088,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   pointer-events: auto;
 }
 .lp-fs-desc-title {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.015em;
@@ -3152,7 +3152,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-col-copy {}
 .lp-col-visual {}
 .lp-section-headline {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: clamp(26px, 3.2vw, 44px);
   letter-spacing: -0.03em;
@@ -3231,7 +3231,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   gap: 4px;
 }
 .lp-mockup-total-val {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -3345,7 +3345,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   text-align: center;
 }
 .lp-cta-headline {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-weight: 800;
   font-size: clamp(36px, 5.5vw, 72px);
   letter-spacing: -0.035em;
@@ -3428,7 +3428,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 8px;
 }
 .rbd-recipe-title {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: clamp(20px, 2.4vw, 28px);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -3448,14 +3448,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 16px;
 }
 .rbd-section-num {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 700;
   color: var(--rule);
   flex-shrink: 0;
 }
 .rbd-section-label {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -3908,7 +3908,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-s-headline {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: clamp(64px, 7vw, 104px);
   font-weight: 700;
   letter-spacing: -0.04em;
@@ -4064,7 +4064,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-feat-h2 {
-  font-family: var(--display);
+  font-family: var(--font-sans);
   font-size: clamp(30px, 3.2vw, 50px);
   font-weight: 700;
   letter-spacing: -0.04em;
