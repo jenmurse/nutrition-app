@@ -5127,13 +5127,19 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .auth-label-link:hover { color: var(--fg); }
 .auth-input {
+  display: block;
   width: 100%;
   background: none; border: none;
   border-bottom: 1px solid var(--rule);
   padding: 4px 0 6px;
   font-family: var(--sans);
   font-size: 13px; color: var(--fg);
+  line-height: 1.4;
   outline: none; border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: auto;
+  margin: 0;
 }
 .auth-input:focus { border-bottom-color: var(--fg); }
 .auth-input.password { letter-spacing: 0.15em; }
