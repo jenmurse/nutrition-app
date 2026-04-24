@@ -1126,12 +1126,15 @@ const MealPlansPage = () => {
           {/* Person chips */}
           {persons.length > 1 && mealPlans.length > 0 && (
             <>
+              <div className="pl-chip-sep" />
+              <div className="pl-person-chips">
               {persons.map((p) => {
                 const isActive = viewMode === 'personal' && selectedPersonId === p.id;
                 return (
                   <button
                     key={p.id}
                     className={`pl-person-chip ${isActive ? 'on' : ''}`}
+                    style={{ borderColor: isActive ? (p.color || 'var(--fg)') : undefined }}
                     onClick={() => {
                       const wasEveryone = viewMode === 'both';
                       setViewMode('personal');
@@ -1155,7 +1158,10 @@ const MealPlansPage = () => {
                     }}
                     aria-pressed={isActive}
                     aria-label={p.name}
-                  >{p.name}</button>
+                  >
+                    <span className="pl-person-chip-dot" style={{ background: p.color || 'var(--accent)' }} aria-hidden="true" />
+                    {p.name}
+                  </button>
                 );
               })}
               <button
@@ -1164,6 +1170,7 @@ const MealPlansPage = () => {
                 aria-pressed={viewMode === 'both'}
                 aria-label="Everyone"
               >Everyone</button>
+              </div>
             </>
           )}
         </div>

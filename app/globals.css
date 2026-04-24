@@ -1156,8 +1156,8 @@ input[type="number"]:focus {
 .pl-main::-webkit-scrollbar { display:none; }
 
 .pl-toolbar {
-  display:flex; align-items:center; gap:10px; padding:0 var(--pad);
-  height:var(--filter-h); flex-shrink:0; border-bottom:1px solid var(--rule);
+  display:flex; align-items:center; gap:20px; padding:0 40px;
+  height:44px; flex-shrink:0; border-bottom:1px solid var(--rule);
   background:var(--bg); position:sticky; top:0; z-index:20;
   transition:background 0.5s;
 }
@@ -1182,14 +1182,17 @@ input[type="number"]:focus {
   background:none; border:1px solid var(--rule); color:var(--muted);
   padding:4px 10px; cursor:pointer; position:relative; white-space:nowrap;
   border-radius: var(--radius-pill);
+  display:inline-flex; align-items:center; gap:5px;
   transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
 }
 .pl-person-chip::before { content:''; position:absolute; inset:-10px -4px; }
 .pl-person-chip:hover { color:var(--fg); }
 .pl-person-chip:active { transform:scale(0.97); }
-.pl-person-chip.on { color:var(--fg); border-color:var(--fg); }
+.pl-person-chip.on { color:var(--fg); }
+.pl-person-chip-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.pl-person-chips { display:flex; align-items:center; gap:8px; }
 
-.pl-right-group { display:flex; gap:5px; align-items:center; margin-left:auto; }
+.pl-right-group { display:flex; gap:18px; align-items:center; margin-left:auto; }
 
 .pl-nut-chip {
   font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
