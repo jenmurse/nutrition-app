@@ -443,13 +443,13 @@ export default function RecipeDetailPage() {
             key={s.id}
             onClick={() => scrollToSection(s.id)}
             className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
-              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--accent)]"
+              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--cta)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
           >
             <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
-              activeSection === s.id ? "text-[var(--accent)]" : "text-[var(--rule)]"
+              activeSection === s.id ? "text-[var(--cta)]" : "text-[var(--rule)]"
             }`}>{s.n}</span>
             {s.label}
           </button>
@@ -547,7 +547,7 @@ export default function RecipeDetailPage() {
                       <button key={n} onClick={() => setScale(n)}
                         className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
                           scale === n
-                            ? "bg-[var(--accent)] text-[var(--cta-ink)] border-[var(--accent)]"
+                            ? "bg-[var(--cta)] text-[var(--cta-ink)] border-[var(--cta)]"
                             : "bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]"
                         }`}
                         aria-pressed={scale === n}

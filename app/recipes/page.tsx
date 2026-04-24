@@ -178,24 +178,6 @@ function RecipesPage() {
   const updateSort = (key: string) => setSortBy((key || "name") as SortKey);
   const updateDir = (dir: string) => setSortDir((dir || "asc") as "asc" | "desc");
 
-  const toggleFavorite = async (recipeId: number, currentlyFavorited: boolean, e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    // Optimistic update
-    setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: !currentlyFavorited } : r));
-    try {
-      const res = await fetch(`/api/recipes/${recipeId}/favorite`, { method: currentlyFavorited ? "DELETE" : "POST" });
-      if (!res.ok) {
-        setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: currentlyFavorited } : r));
-      } else {
-        clientCache.delete("/api/recipes");
-        clientCache.delete("/api/recipes?slim=true");
-      }
-    } catch {
-      setRecipes(prev => prev.map(r => r.id === recipeId ? { ...r, isFavorited: currentlyFavorited } : r));
-    }
-  };
-
   const isNutrientSort = (key: string) => key !== "name";
 
   const loadRecipes = async () => {
@@ -442,9 +424,7 @@ function RecipesPage() {
               onClick={() => setShowFavorites(prev => !prev)}
               aria-pressed={showFavorites}
             >
-              <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
+              <span aria-hidden="true" className="text-[11px] leading-none">{showFavorites ? "★" : "☆"}</span>
               Favorites
             </button>
           </div>
@@ -512,11 +492,9 @@ function RecipesPage() {
                   }`}
                   onClick={() => setShowFavorites(prev => !prev)}
                 >
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
+                  <span aria-hidden="true" className="text-[11px] leading-none">{showFavorites ? "★" : "☆"}</span>
                   <span className="flex-1">Favorites</span>
-                  {showFavorites && <span className="text-[var(--err)]">✓</span>}
+                  {showFavorites && <span className="text-[var(--fg)]">✓</span>}
                 </button>
               </div>
             )}
@@ -707,9 +685,7 @@ function RecipesPage() {
                   onClick={() => setShowFavorites(prev => !prev)}
                   aria-pressed={showFavorites}
                 >
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
+                  <span aria-hidden="true" className="text-[11px] leading-none">{showFavorites ? "★" : "☆"}</span>
                   Favorites
                 </button>
               </div>
@@ -814,25 +790,14 @@ function RecipesPage() {
                       )}
                       <div className="rcp-card-name font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
                         {recipe.name}
+                        {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">★</span></>}
                       </div>
                       {recipe.isComplete === false && (
                         <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                       )}
                     </div>
                     {/* Accent bar on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
-                    {/* Favorite star */}
-                    <button
-                      onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
-                      className={`rcp-fav-btn absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 text-white transition-opacity duration-150 ${
-                        recipe.isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                      }`}
-                      style={{ backdropFilter: "blur(4px)" }}
-                      aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
-                      aria-pressed={!!recipe.isFavorited}
-                    >
-                      <span aria-hidden="true" className={`fav-mark${recipe.isFavorited ? " rcp-heart-on" : ""}`}>{recipe.isFavorited ? "★" : "☆"}</span>
-                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--fg)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
                   </div>
                 );
               })}
@@ -868,24 +833,16 @@ function RecipesPage() {
                     {category && (
                       <span className="rcp-list-eyebrow font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                     )}
-                    <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{recipe.name}</span>
+                    <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">
+                      {recipe.name}
+                      {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">★</span></>}
+                    </span>
                   </div>
                   {/* Accent bar on hover */}
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--fg)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
                   {recipe.isComplete === false && (
                     <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
                   )}
-                  {/* Favorite star */}
-                  <button
-                    onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
-                    className={`rcp-fav-btn shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-[var(--fg)] transition-opacity duration-150 ${
-                      recipe.isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                    }`}
-                    aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
-                    aria-pressed={!!recipe.isFavorited}
-                  >
-                    <span aria-hidden="true" className={`fav-mark${recipe.isFavorited ? " rcp-heart-on" : ""}`}>{recipe.isFavorited ? "★" : "☆"}</span>
-                  </button>
                 </div>
               );
             })}
