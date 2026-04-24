@@ -779,8 +779,7 @@ function RecipesPage() {
                   {category && <div className="recipe-grid-item__cat">{category}</div>}
                   <h3 className="recipe-grid-item__name">
                     {recipe.name}
-                    {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
-                  </h3>
+                                      </h3>
                   {recipe.isComplete === false && (
                     <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                   )}
@@ -818,8 +817,7 @@ function RecipesPage() {
                   <div className="recipe-list-row__main">
                     <span className="recipe-list-row__name">
                       {recipe.name}
-                      {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
-                    </span>
+                                          </span>
                     {category && <span className="recipe-list-row__cat">{category}</span>}
                     {recipe.isComplete === false && (
                       <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] flex-shrink-0">incomplete</span>

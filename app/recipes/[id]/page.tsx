@@ -505,13 +505,14 @@ export default function RecipeDetailPage() {
                   aria-label="Delete recipe">Delete</button>
                 <button
                   onClick={toggleFavorite}
-                  className={`rcp-fav-btn w-8 h-8 flex items-center justify-center rounded-full border-0 bg-transparent cursor-pointer transition-colors duration-150 ${
+                  className={`rcp-fav-btn rcp-fav-btn--labeled inline-flex items-center gap-[8px] border-0 bg-transparent cursor-pointer transition-colors duration-150 ${
                     isFavorited ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
                   }`}
                   aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                   aria-pressed={isFavorited}
                 >
-                  <span aria-hidden="true" className={`fav-mark${isFavorited ? " rcp-heart-on" : ""}`} style={{ fontSize: 14, lineHeight: 1, verticalAlign: "middle" }}>{isFavorited ? "●" : "○"}</span>
+                  <span aria-hidden="true" className={`fav-mark${isFavorited ? " rcp-heart-on" : ""}`} style={{ fontSize: 14, lineHeight: 1 }}>{isFavorited ? "●" : "○"}</span>
+                  <span className="font-mono text-[9px] font-medium tracking-[0.14em] uppercase">Favorite</span>
                 </button>
               </div>
             </div>
