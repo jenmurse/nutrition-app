@@ -64,6 +64,8 @@
     --error-border:   var(--err);
 
     /* Typography */
+    --sans: var(--font-sans), 'DM Sans', -apple-system, system-ui, sans-serif;
+    --mono: var(--font-mono), 'DM Mono', ui-monospace, monospace;
     --display-font:     var(--font-sans);
     --display-weight:   700;
     --display-tracking: -0.02em;
@@ -292,7 +294,7 @@ input[type="number"]:focus {
 /* ── Editorial Button System ──────────────────────────────────────── */
 /* Base: font-mono 9px, uppercase, 8px 20px padding, border on --rule */
 .ed-btn {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -329,7 +331,7 @@ input[type="number"]:focus {
   border: 0;
   border-radius: 0;
   padding: 8px 14px;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -348,7 +350,7 @@ input[type="number"]:focus {
   border: 1px solid var(--rule);
   border-radius: 0;
   padding: 8px 14px;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -363,7 +365,7 @@ input[type="number"]:focus {
   background: none;
   border: 0;
   padding: 0;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -379,7 +381,7 @@ input[type="number"]:focus {
 .sort-control { display: inline-flex; align-items: center; gap: 10px; }
 .sort-field {
   background: none; border: 0; padding: 0;
-  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  font-family: var(--sans); font-size: 9px; font-weight: 500;
   text-transform: uppercase; letter-spacing: 0.14em;
   color: var(--muted); cursor: pointer;
   white-space: nowrap;
@@ -402,14 +404,14 @@ input[type="number"]:focus {
 }
 .sort-dir {
   background: none; border: 0; padding: 2px;
-  font-family: var(--mono); font-size: 11px; line-height: 1;
+  font-family: var(--sans); font-size: 11px; line-height: 1;
   color: var(--muted); cursor: pointer;
   transition: color 0.15s ease;
 }
 .sort-dir:hover { color: var(--fg); }
 
 .ed-chip {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -435,7 +437,7 @@ input[type="number"]:focus {
   align-items: center;
 }
 .ed-toggle button {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
