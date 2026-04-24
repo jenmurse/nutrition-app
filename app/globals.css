@@ -523,7 +523,7 @@ input[type="number"]:focus {
   row-gap: 0;
 }
 .recipe-grid-item {
-  padding: 24px 24px 32px;
+  padding: 0 24px 32px;
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   background: none;
