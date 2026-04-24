@@ -999,7 +999,7 @@ const SettingsPage = () => {
                     ? <><strong className="text-[var(--fg)]">Your token is pre-filled below.</strong> Copy the block and paste it into your config file.</>
                     : 'Generate a token in step 1 to pre-fill your token in the block below.'}
                 </p>
-                <div className="bg-[var(--bg-2)] px-[20px] py-[16px] relative overflow-x-auto">
+                <div className="bg-[var(--bg-2)] rounded-none px-[20px] py-[16px] relative overflow-x-auto">
                   <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
                   <button
                     onClick={() => {
@@ -1027,7 +1027,7 @@ const SettingsPage = () => {
   }
 }`}</pre>
                 </div>
-                <div className="border-l-2 border-[var(--rule)] px-[14px] py-[10px] mt-[12px] text-[12px] text-[var(--muted)] leading-[1.6]">
+                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[12px] text-[var(--muted)] leading-[1.6]">
                   <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, in the command line above, replace <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
                 </div>
               </div>
@@ -1082,7 +1082,7 @@ const SettingsPage = () => {
                 {/* Drag-drop zone */}
                 <label
                   htmlFor="import-file"
-                  className="flex flex-col items-center justify-center bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer hover:border-[var(--accent)] transition-colors"
+                  className="flex flex-col items-center justify-center bg-[var(--bg-2)] rounded-none border border-dashed border-[var(--rule)] cursor-pointer hover:border-[var(--accent)] transition-colors"
                   style={{ padding: 24, maxWidth: 400 }}
                   aria-label="Drop JSON file or click to browse"
                 >
