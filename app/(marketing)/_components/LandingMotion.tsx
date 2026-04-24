@@ -17,14 +17,14 @@ function inView(el: HTMLElement, container: HTMLElement, margin = 0.08): boolean
   return elTop < containerH * (1 - margin) && elTop + el.offsetHeight > 0;
 }
 
-/* Smooth scroll with custom duration and cubic-out easing */
+/* Smooth scroll with custom duration and ease-in-out-cubic */
 function smoothScrollTo(container: HTMLElement, targetY: number, duration: number) {
   const startY = container.scrollTop;
   const delta = targetY - startY;
   const startTime = performance.now();
   const tick = (now: number) => {
     const t = Math.min((now - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3);
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     container.scrollTop = startY + delta * eased;
     if (t < 1) requestAnimationFrame(tick);
   };
@@ -73,12 +73,12 @@ export default function LandingMotion() {
     if (seeHow) {
       seeHow.addEventListener("click", (e) => {
         e.preventDefault();
-        const target = document.querySelector<HTMLElement>(".mkt .manifesto");
+        const target = document.querySelector<HTMLElement>("#premise-anchor");
         if (!target) return;
         const containerRect = container.getBoundingClientRect();
         const targetRect = target.getBoundingClientRect();
-        const scrollTarget = container.scrollTop + (targetRect.top - containerRect.top) - 64;
-        smoothScrollTo(container, scrollTarget, 800);
+        const scrollTarget = container.scrollTop + (targetRect.top - containerRect.top) - 80;
+        smoothScrollTo(container, scrollTarget, 550);
       });
     }
 

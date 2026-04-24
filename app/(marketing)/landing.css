@@ -171,7 +171,7 @@
 
 .mkt .ch-text { display: flex; flex-direction: column; gap: 40px; padding-bottom: 15vh; }
 .mkt .ch-h {
-  font-size: clamp(36px,5vw,64px);
+  font-size: clamp(32px,4.5vw,52px);
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.02;
@@ -296,7 +296,7 @@
 }
 .mkt .pq-eyebrow .rt { color: var(--fg); }
 .mkt .pq-type {
-  font-size: clamp(36px,5vw,56px);
+  font-size: clamp(40px,5.5vw,64px);
   font-weight: 500;
   letter-spacing: -0.045em;
   line-height: 0.95;
@@ -351,8 +351,8 @@
 
 /* ─── MOTION LAYER — word/line units ─── */
 
-/* Manifesto scroll-margin so nav doesn't overlap on anchor scroll */
-.mkt .manifesto { scroll-margin-top: 64px; }
+/* Premise anchor scroll-margin so nav doesn't overlap */
+#premise-anchor { scroll-margin-top: 80px; }
 
 /* Manifesto lines */
 .mkt .ml { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io); }

@@ -1,7 +1,7 @@
 export default function Manifesto() {
   return (
-    <section className="manifesto" id="manifesto">
-      <div className="manifesto-eyebrow ml">
+    <section className="manifesto">
+      <div className="manifesto-eyebrow ml" id="premise-anchor">
         <span>§ Premise</span>
       </div>
 
