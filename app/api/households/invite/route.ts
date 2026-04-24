@@ -6,7 +6,7 @@ import { withAuth } from "@/lib/apiUtils";
  * GET /api/households/invite — list all invites for the active household
  */
 export const GET = withAuth(async (auth, request: Request) => {
-  const { origin } = new URL(request.url);
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
 
   const invites = await prisma.householdInvite.findMany({
     where: { householdId: auth.householdId },
@@ -51,7 +51,7 @@ export const POST = withAuth(async (auth, request: Request) => {
     },
   });
 
-  const { origin } = new URL(request.url);
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const url = `${origin}/login?invite=${invite.token}`;
 
   return NextResponse.json({
