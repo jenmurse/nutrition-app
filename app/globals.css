@@ -213,15 +213,16 @@
   }
 
   *:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--fg);
     outline-offset: 2px;
+    border-radius: inherit;
   }
 
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
     outline: none;
-    /* inputs use border-color: var(--accent) on focus instead */
+    /* inputs use border-color change on focus instead */
   }
 
   input[type="checkbox"] {
@@ -342,7 +343,7 @@ input[type="number"]:focus {
   outline: none;
   transition: border-color 0.2s;
 }
-.ed-input:focus, .ed-select:focus, .ed-textarea:focus { border-color: var(--accent); }
+.ed-input:focus, .ed-select:focus, .ed-textarea:focus { border-color: var(--fg); }
 .ed-input::placeholder, .ed-textarea::placeholder { color: var(--muted); opacity: 0.6; }
 .ed-select {
   -webkit-appearance: none;
@@ -778,7 +779,7 @@ input[type="number"]:focus {
   background:transparent; border:none; border-bottom:1px solid var(--rule);
   padding:3px 0; outline:none; transition:border-color 0.2s;
 }
-.pl-create-date:focus { border-color:var(--accent); }
+.pl-create-date:focus { border-color:var(--fg); }
 
 .pl-copy-wrap { position:relative; }
 
@@ -791,7 +792,7 @@ input[type="number"]:focus {
   background-repeat:no-repeat; background-position:right 0 center;
   transition:border-color 0.2s;
 }
-.pl-copy-btn:focus { border-color:var(--accent); }
+.pl-copy-btn:focus { border-color:var(--fg); }
 
 .pl-copy-menu {
   position:absolute; top:calc(100% + 4px); left:0;
@@ -2428,7 +2429,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     background: transparent !important;
     border: 1px solid var(--rule) !important;
   }
-  .mob-search-input:focus { border-color: var(--accent) !important; }
+  .mob-search-input:focus { border-color: var(--fg) !important; }
 
   .mob-filter-btn {
     background: transparent !important;
