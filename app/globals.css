@@ -386,7 +386,17 @@ input[type="number"]:focus {
   transition: color 0.15s ease; white-space: nowrap;
 }
 .sort-field:hover { color: var(--fg); }
-.sort-caret { display: inline-block; font-size: 11px; line-height: 1; position: relative; top: -1px; }
+.sort-caret {
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  margin-left: 2px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
 .sort-dir {
   background: none; border: 0; padding: 2px;
   font-family: var(--mono); font-size: 11px; line-height: 1;
