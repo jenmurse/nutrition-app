@@ -126,7 +126,7 @@
 }
 .mkt .btn:hover { background: var(--bg); color: var(--fg); }
 .mkt .btn:active { transform: scale(0.98); }
-.mkt .btn.ghost { background: transparent; color: var(--fg); border-color: var(--rule-ink); }
+.mkt .btn.ghost { background: transparent; color: var(--fg); border-color: var(--rule); }
 .mkt .btn.ghost:hover { background: var(--fg); color: var(--bg); }
 .mkt .btn .arr { display: inline-block; transition: transform 250ms var(--ease); }
 .mkt .btn:hover .arr { transform: translate(3px,-3px); }

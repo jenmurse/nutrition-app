@@ -890,7 +890,7 @@ const MealPlansPage = () => {
         {mealPlans.length > 1 && selectedPlan && viewMode === 'personal' && (
           <>
             <button
-              className="pl-nav-btn"
+              className="ed-btn-text"
               onClick={() => {
                 const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                 if (idx < mealPlans.length - 1) {
@@ -902,7 +902,7 @@ const MealPlansPage = () => {
               aria-label="Previous week"
             >&#8249; Prev</button>
             <button
-              className="pl-nav-btn"
+              className="ed-btn-text"
               onClick={() => {
                 const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                 if (idx > 0) {
@@ -916,7 +916,7 @@ const MealPlansPage = () => {
           </>
         )}
         <button
-          className="pl-nav-btn pl-this-week-btn"
+          className="ed-btn-text pl-this-week-btn"
           onClick={() => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -1061,7 +1061,7 @@ const MealPlansPage = () => {
           {/* Edit mode controls */}
           {selectedPlan && viewMode === 'personal' && !editMode && (
             <button
-              className="pl-nav-btn"
+              className="ed-btn-text"
               onClick={() => setEditMode(true)}
               aria-label="Edit meals"
             >Edit</button>
@@ -1107,7 +1107,7 @@ const MealPlansPage = () => {
           {/* Nutrition toggle */}
           {selectedPlan && viewMode !== 'both' && (
             <button
-              className={`pl-nut-chip ${summaryPanelOpen ? 'on' : ''}`}
+              className={`ed-btn-text ${summaryPanelOpen ? 'is-active' : ''}`}
               onClick={() => {
                 const opening = !summaryPanelOpen;
                 setSummaryPanelOpen(opening);

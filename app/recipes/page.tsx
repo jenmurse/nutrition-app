@@ -517,42 +517,46 @@ function RecipesPage() {
             </button>
 
             {/* Sort group */}
-            <div ref={sortRef} className="relative">
-              <button
-                onClick={() => setSortOpen(!sortOpen)}
-                aria-label="Sort recipes by"
-                aria-expanded={sortOpen}
-                aria-haspopup="listbox"
-                className="ed-btn-text"
-              >
-                {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"} {sortDir === "asc" ? "↑" : "↓"}
-              </button>
-              {sortOpen && (
-                <div
-                  role="listbox"
-                  aria-label="Sort options"
-                  className="absolute left-0 top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
-                  style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+            <div ref={sortRef} className="sort-control">
+              <div className="relative">
+                <button
+                  onClick={() => setSortOpen(!sortOpen)}
+                  aria-label="Sort recipes by"
+                  aria-expanded={sortOpen}
+                  aria-haspopup="listbox"
+                  className="sort-field"
                 >
-                  {sortOptions.map(opt => (
-                    <button
-                      key={opt.key}
-                      role="option"
-                      aria-selected={sortBy === opt.key}
-                      onClick={() => {
-                        if (sortBy === opt.key) setSortDir(prev => prev === "asc" ? "desc" : "asc");
-                        else setSortBy(opt.key);
-                        setSortOpen(false);
-                      }}
-                      className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
-                        sortBy === opt.key
-                          ? "text-[var(--fg)] bg-transparent"
-                          : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
-                      }`}
-                    >{opt.label}</button>
-                  ))}
-                </div>
-              )}
+                  {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
+                  <span className="sort-caret" aria-hidden="true">▾</span>
+                </button>
+                {sortOpen && (
+                  <div
+                    role="listbox"
+                    aria-label="Sort options"
+                    className="absolute left-0 top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
+                    style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+                  >
+                    {sortOptions.map(opt => (
+                      <button
+                        key={opt.key}
+                        role="option"
+                        aria-selected={sortBy === opt.key}
+                        onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
+                        className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                          sortBy === opt.key
+                            ? "text-[var(--fg)] bg-transparent"
+                            : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                        }`}
+                      >{opt.label}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setSortDir(prev => prev === "asc" ? "desc" : "asc")}
+                aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
+                className="sort-dir"
+              >{sortDir === "asc" ? "↑" : "↓"}</button>
             </div>
 
             {/* Grid/List toggle */}
