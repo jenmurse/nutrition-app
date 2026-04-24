@@ -498,7 +498,7 @@ function RecipesPage() {
                     onClick={() => toggleTag(tag)}
                   >
                     {tag}
-                    {selectedTags.includes(tag) && <span className="text-[var(--accent-btn)]">✓</span>}
+                    {selectedTags.includes(tag) && <span className="text-[var(--primary)]">✓</span>}
                   </button>
                 ))}
                 <div className="border-t border-[var(--rule)] my-[3px]" aria-hidden="true" />
@@ -777,8 +777,8 @@ function RecipesPage() {
                     {/* Compare selected overlay */}
                     {compareMode && compareIds.includes(recipe.id) && (
                       <>
-                        <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--accent-btn)', outlineOffset: '-2px' }} />
-                        <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--accent-btn)' }}>
+                        <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--primary)', outlineOffset: '-2px' }} />
+                        <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--primary)' }}>
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                       </>
@@ -821,21 +821,17 @@ function RecipesPage() {
                     </div>
                     {/* Accent bar on hover */}
                     <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--accent)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
-                    {/* Favorite heart */}
+                    {/* Favorite star */}
                     <button
                       onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
-                      className={`rcp-fav-btn absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-[color,opacity,background] duration-150 ${
-                        recipe.isFavorited
-                          ? "text-[var(--err)] bg-black/20 opacity-100"
-                          : "text-white bg-black/20 opacity-0 group-hover:opacity-100"
+                      className={`rcp-fav-btn absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 text-white transition-opacity duration-150 ${
+                        recipe.isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                       }`}
                       style={{ backdropFilter: "blur(4px)" }}
                       aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
                       aria-pressed={!!recipe.isFavorited}
                     >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill={recipe.isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={recipe.isFavorited ? "rcp-heart-on" : ""}>
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                      </svg>
+                      <span aria-hidden="true" className={`fav-mark${recipe.isFavorited ? " rcp-heart-on" : ""}`}>{recipe.isFavorited ? "★" : "☆"}</span>
                     </button>
                   </div>
                 );
@@ -879,20 +875,16 @@ function RecipesPage() {
                   {recipe.isComplete === false && (
                     <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
                   )}
-                  {/* Favorite heart */}
+                  {/* Favorite star */}
                   <button
                     onClick={(e) => toggleFavorite(recipe.id, !!recipe.isFavorited, e)}
-                    className={`rcp-fav-btn shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-[color,opacity] duration-150 ${
-                      recipe.isFavorited
-                        ? "text-[var(--err)] opacity-100"
-                        : "text-[var(--muted)] opacity-0 group-hover:opacity-100"
+                    className={`rcp-fav-btn shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-[var(--fg)] transition-opacity duration-150 ${
+                      recipe.isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                     }`}
                     aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
                     aria-pressed={!!recipe.isFavorited}
                   >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill={recipe.isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={recipe.isFavorited ? "rcp-heart-on" : ""}>
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
+                    <span aria-hidden="true" className={`fav-mark${recipe.isFavorited ? " rcp-heart-on" : ""}`}>{recipe.isFavorited ? "★" : "☆"}</span>
                   </button>
                 </div>
               );
@@ -946,7 +938,7 @@ function RecipesPage() {
         <button
           onClick={() => compareIds.length >= 2 && setCompareOpen(true)}
           disabled={compareIds.length < 2}
-          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--accent-btn)] text-[var(--accent-fg)] cursor-pointer transition-[opacity] hover:opacity-80 disabled:opacity-35 disabled:cursor-default"
+          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--primary)] text-[var(--primary-ink)] cursor-pointer transition-[opacity] hover:opacity-80 disabled:opacity-35 disabled:cursor-default"
           aria-label="Open nutrition comparison"
         >Compare →</button>
       </div>
@@ -985,7 +977,7 @@ function RecipesPage() {
                   const category = r.tags?.split(",")[0]?.trim();
                   return (
                     <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
-                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3', borderTop: '3px solid var(--accent-btn)' }}>
+                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3', borderTop: '3px solid var(--primary)' }}>
                         {r.image
                           ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
                           : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>

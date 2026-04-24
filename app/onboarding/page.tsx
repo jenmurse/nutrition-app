@@ -465,7 +465,7 @@ export default function OnboardingPage() {
                 </div>
 
                 <div className="px-[14px] py-[11px] bg-[var(--accent-l)] mb-6">
-                  <p className="font-sans text-[13px] text-[var(--accent-btn)] leading-[1.5]">
+                  <p className="font-sans text-[13px] text-[var(--primary)] leading-[1.5]">
                     Your theme tints buttons, links, and highlights throughout the app. Each household member gets their own.
                   </p>
                 </div>
@@ -589,7 +589,7 @@ export default function OnboardingPage() {
                       />
                       <button
                         onClick={copyInvite}
-                        className="px-4 py-[8px] bg-[var(--accent-btn)] text-[var(--accent-fg)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-[opacity,transform] duration-150 shrink-0"
+                        className="px-4 py-[8px] bg-[var(--primary)] text-[var(--primary-ink)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-[opacity,transform] duration-150 shrink-0"
                         aria-label="Copy invite link"
                       >
                         {inviteCopied ? "Copied" : "Copy"}
@@ -662,7 +662,7 @@ export default function OnboardingPage() {
                   <button
                     onClick={handleImport}
                     disabled={!recipeUrl.trim() || importStatus === "loading" || importStatus === "success"}
-                    className="px-5 py-[8px] bg-[var(--accent-btn)] text-[var(--accent-fg)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 shrink-0"
+                    className="px-5 py-[8px] bg-[var(--primary)] text-[var(--primary-ink)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 shrink-0"
                     aria-label="Import recipe"
                   >
                     Import
