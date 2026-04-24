@@ -290,11 +290,13 @@ function IngredientsPage() {
           </div>
 
           {/* Right side controls */}
-          <div className="list-controls flex gap-[5px] items-center ml-auto">
+          <div className="list-controls flex gap-[18px] items-center ml-auto">
             {/* Count */}
             <span className="ed-count">
               <strong>{filteredIngredients.length}</strong> item{filteredIngredients.length !== 1 ? "s" : ""}
             </span>
+
+            <div className="ed-toolbar-sep" aria-hidden="true" />
 
             {/* Grid/List toggle */}
             <div className="ed-toggle" role="group" aria-label="View mode">
@@ -465,7 +467,7 @@ function IngredientsPage() {
           </div>
         ) : (
           /* ── List View — staggered animation, mockup styling ── */
-          <div key={`list-${viewMode}-${foodFilter}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+          <div key={`list-${viewMode}-${foodFilter}`}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
               const category = ingredient.category || (ingredient.isMealItem ? "ITEM" : "INGREDIENT");
@@ -480,7 +482,6 @@ function IngredientsPage() {
                   aria-label={ingredient.name}
                   className="ing-list-row flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
                   style={{
-                    padding: "10px 0",
                     animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`,
                   }}
                 >

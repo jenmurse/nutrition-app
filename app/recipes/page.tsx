@@ -498,22 +498,21 @@ function RecipesPage() {
           </div>
 
           {/* Right side controls */}
-          <div className="list-controls flex gap-[5px] items-center ml-auto">
+          <div className="list-controls flex gap-[18px] items-center ml-auto">
             {/* Recipe count */}
             <span className="ed-count">
               <strong>{filteredRecipes.length}</strong> recipe{filteredRecipes.length !== 1 ? "s" : ""}
             </span>
 
+            <div className="ed-toolbar-sep" aria-hidden="true" />
+
             {/* Compare toggle — desktop/iPad only */}
             <button
               onClick={() => compareMode ? exitCompareMode() : setCompareMode(true)}
-              className={`cmp-mode-btn ed-btn-text flex items-center gap-[5px]${compareMode ? " is-active" : ""}`}
+              className={`cmp-mode-btn ed-btn-text${compareMode ? " is-active" : ""}`}
               aria-pressed={compareMode}
               aria-label={compareMode ? "Exit compare mode" : "Enter compare mode"}
             >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="2" y="3" width="8" height="18" rx="1"/><rect x="14" y="3" width="8" height="18" rx="1"/>
-              </svg>
               Compare
             </button>
 
@@ -777,7 +776,7 @@ function RecipesPage() {
           </div>
         ) : (
           /* ── List View (BRIEF-08) ── */
-          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="max-w-[1100px] mx-auto">
+          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`}>
             {sortedRecipes.map((recipe, idx) => {
               const macros = getCardMacros(recipe);
               const category = recipe.tags?.split(",")[0]?.trim();
