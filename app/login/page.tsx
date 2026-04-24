@@ -4,43 +4,58 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { BrandName } from "@/app/components/BrandName";
+
+type Mode = "signin" | "signup" | "forgot";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setModeState] = useState<Mode>("signin");
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const [inviteHousehold, setInviteHousehold] = useState<string | null>(null);
   const supabase = createClient();
   const searchParams = useSearchParams();
 
-  // Clear any person theme on auth screens
   useEffect(() => {
     delete document.documentElement.dataset.theme;
   }, []);
 
   useEffect(() => {
     const signup = searchParams.get("signup");
-    if (signup) setMode("signup");
+    const modeParam = searchParams.get("mode");
+    const invite = searchParams.get("invite");
+    if (modeParam === "forgot") setModeState("forgot");
+    else if (signup || invite) setModeState("signup");
   }, [searchParams]);
 
   useEffect(() => {
     const invite = searchParams.get("invite");
     if (invite) {
       setInviteToken(invite);
-      // Store in cookie so it persists through OAuth redirect
       document.cookie = `invite_token=${invite}; path=/; max-age=3600; SameSite=Lax`;
-      // Fetch household name for display
       fetch(`/api/households/invite/info?token=${invite}`)
         .then((r) => r.ok ? r.json() : null)
         .then((d) => { if (d?.householdName) setInviteHousehold(d.householdName); })
         .catch(() => {});
     }
   }, [searchParams]);
+
+  const setMode = (next: Mode) => {
+    setModeState(next);
+    setError("");
+    setNotice("");
+    const params = new URLSearchParams(window.location.search);
+    if (next === "signup") { params.set("signup", "1"); params.delete("mode"); }
+    else if (next === "forgot") { params.set("mode", "forgot"); params.delete("signup"); }
+    else { params.delete("signup"); params.delete("mode"); }
+    const qs = params.toString();
+    window.history.replaceState(null, "", `/login${qs ? `?${qs}` : ""}`);
+  };
 
   const getInviteParam = () => {
     const token = inviteToken || getCookie("invite_token");
@@ -56,7 +71,6 @@ function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirect through callback to trigger provisioning
       window.location.href = `/auth/callback${getInviteParam()}`;
     }
   };
@@ -64,6 +78,10 @@ function LoginPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (password !== confirmPassword) {
+      setError("Passwords don't match.");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -73,11 +91,20 @@ function LoginPage() {
         data: { full_name: firstName.trim() || undefined },
       },
     });
-    if (error) {
-      setError(error.message);
-    } else {
-      setError("Check your email for a confirmation link.");
-    }
+    if (error) setError(error.message);
+    else setNotice("Check your email for a confirmation link.");
+    setLoading(false);
+  };
+
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+    if (error) setError(error.message);
+    else setNotice("Check your email for a reset link.");
     setLoading(false);
   };
 
@@ -90,139 +117,202 @@ function LoginPage() {
     if (error) setError(error.message);
   };
 
+  const copy = {
+    signin: {
+      eyebrow: "§ Sign in",
+      headline: <>Pick up where you <em>left&nbsp;off.</em></>,
+      lede: <>Your pantry, your recipes, the week you were planning.<br />All measured to the&nbsp;gram.</>,
+      submit: "Sign in",
+      submitLoading: "Signing in…",
+    },
+    signup: {
+      eyebrow: "§ Create account",
+      headline: <>Cook the way you <em>actually&nbsp;cook.</em></>,
+      lede: <>Build your pantry once. Plan a week against it.<br />Let the math take care of&nbsp;itself.</>,
+      submit: "Create account",
+      submitLoading: "Creating account…",
+    },
+    forgot: {
+      eyebrow: "§ Reset password",
+      headline: <>Forgot? It <em>happens.</em></>,
+      lede: <>Enter the email tied to your account and we&rsquo;ll send a reset link.</>,
+      submit: "Send reset link",
+      submitLoading: "Sending…",
+    },
+  }[mode];
+
   return (
-    <div className="min-h-screen flex items-start sm:items-center justify-center bg-[var(--bg)] px-5 pt-[72px] sm:pt-0">
-      <div className="w-full max-w-[360px]">
-        {/* Brand */}
-        <div className="mb-10 text-center">
-          <Link href="/" aria-label="Back to home">
-            <h1 className="font-serif text-[16px] font-bold text-[var(--fg)] leading-none tracking-[-0.02em] hover:opacity-70 transition-opacity duration-150">
-              <BrandName />
-            </h1>
-          </Link>
-        </div>
+    <div>
+      <nav className="auth-nav">
+        <Link href="/" className="auth-nav-logo">Good Measure</Link>
+        <Link href="/" className="auth-nav-link">← Back</Link>
+      </nav>
 
-        {/* Invite banner */}
-        {inviteHousehold && (
-          <div className="mb-6 p-3 bg-[var(--accent-l)]" role="status" aria-live="polite">
-            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--fg)]">
-              You{"\u2019"}ve been invited to join <strong>{inviteHousehold}</strong>
-            </p>
-          </div>
-        )}
-
-        {/* Mode tabs */}
-        <div className="flex border border-[var(--rule)] mb-8 rounded-pill overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setMode("signin")}
-            className={`flex-1 font-mono text-[9px] uppercase tracking-[0.1em] py-2 text-center transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
-              mode === "signin"
-                ? "bg-[var(--bg-2)] text-[var(--fg)]"
-                : "bg-transparent text-[var(--muted)] hover:text-[var(--fg)]"
-            }`}
-            aria-label="Switch to sign in"
-          >
-            Sign in
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("signup")}
-            className={`flex-1 font-mono text-[9px] uppercase tracking-[0.1em] py-2 text-center transition-[color,background] duration-[120ms] border-0 cursor-pointer ${
-              mode === "signup"
-                ? "bg-[var(--bg-2)] text-[var(--fg)]"
-                : "bg-transparent text-[var(--muted)] hover:text-[var(--fg)]"
-            }`}
-            aria-label="Switch to create account"
-          >
-            Create account
-          </button>
-        </div>
-
-        {/* Email/password form */}
-        <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-5">
-          {mode === "signup" && (
-            <div>
-              <label className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="firstName">
-                Name
-              </label>
-              <input
-                id="firstName"
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-                autoComplete="given-name"
-                className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
-                placeholder="Your name"
-              />
-            </div>
-          )}
+      <main className="auth-split">
+        <section className="auth-left">
+          <div className="auth-left-spacer" />
           <div>
-            <label className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="email">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
-              placeholder="you@example.com"
-            />
+            <div className="auth-eyebrow">{copy.eyebrow}</div>
+            <h1 className="auth-headline">{copy.headline}</h1>
+            <p className="auth-lede">{copy.lede}</p>
           </div>
+          <div className="auth-left-spacer" />
+        </section>
 
-          <div>
-            <label className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] block mb-[6px]" htmlFor="password">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              className="w-full border-0 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] outline-none focus:border-[var(--accent)] transition-colors"
-              placeholder={mode === "signin" ? "••••••••" : "Choose a password"}
-            />
+        <section className="auth-right">
+          <div className="auth-form-wrap">
+            {mode !== "forgot" && (
+              <div className="auth-tabs" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "signin"}
+                  className={`auth-tab ${mode === "signin" ? "active" : ""}`}
+                  onClick={() => setMode("signin")}
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "signup"}
+                  className={`auth-tab ${mode === "signup" ? "active" : ""}`}
+                  onClick={() => setMode("signup")}
+                >
+                  Create account
+                </button>
+              </div>
+            )}
+
+            {inviteHousehold && mode === "signup" && (
+              <div className="auth-invite-banner" role="status" aria-live="polite">
+                You&rsquo;ve been invited to join <strong>{inviteHousehold}</strong>
+              </div>
+            )}
+
+            {mode === "forgot" ? (
+              <form onSubmit={handleForgot}>
+                <label className="auth-field">
+                  <span className="auth-label">Email</span>
+                  <input
+                    className="auth-input"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    aria-label="Email"
+                  />
+                </label>
+                {error && <p className="auth-error" role="alert">{error}</p>}
+                {notice && <p className="auth-notice" role="status">{notice}</p>}
+                <button type="submit" className="auth-submit" disabled={loading}>
+                  {loading ? copy.submitLoading : copy.submit}
+                </button>
+                <button type="button" className="auth-back-link" onClick={() => setMode("signin")}>
+                  ← Back to sign in
+                </button>
+              </form>
+            ) : (
+              <>
+                <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp}>
+                  {mode === "signup" && (
+                    <label className="auth-field">
+                      <span className="auth-label">Name</span>
+                      <input
+                        className="auth-input"
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                        autoComplete="given-name"
+                        aria-label="Name"
+                      />
+                    </label>
+                  )}
+
+                  <label className="auth-field">
+                    <span className="auth-label">Email</span>
+                    <input
+                      className="auth-input"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoComplete="email"
+                      aria-label="Email"
+                    />
+                  </label>
+
+                  <div className="auth-field">
+                    {mode === "signin" ? (
+                      <div className="auth-label-row">
+                        <span className="auth-label" style={{ marginBottom: 0 }}>Password</span>
+                        <button
+                          type="button"
+                          className="auth-label-link"
+                          onClick={() => setMode("forgot")}
+                        >
+                          Forgot
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="auth-label">Password</span>
+                    )}
+                    <input
+                      className="auth-input password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                      aria-label="Password"
+                    />
+                  </div>
+
+                  {mode === "signup" && (
+                    <label className="auth-field">
+                      <span className="auth-label">Confirm password</span>
+                      <input
+                        className="auth-input password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                        aria-label="Confirm password"
+                      />
+                    </label>
+                  )}
+
+                  {error && <p className="auth-error" role="alert">{error}</p>}
+                  {notice && <p className="auth-notice" role="status">{notice}</p>}
+
+                  <button type="submit" className="auth-submit" disabled={loading}>
+                    {loading ? copy.submitLoading : copy.submit}
+                  </button>
+                </form>
+
+                <div className="auth-or">
+                  <div className="auth-or-rule" />
+                  <span className="auth-or-text">Or</span>
+                  <div className="auth-or-rule" />
+                </div>
+
+                <button type="button" className="auth-oauth" onClick={handleGoogle}>
+                  <svg width="13" height="13" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.13 4.13 0 0 1-1.79 2.71v2.26h2.9c1.7-1.56 2.69-3.86 2.69-6.62Z" />
+                    <path fill="#34A853" d="M9 18c2.43 0 4.46-.81 5.95-2.18l-2.9-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.7H.96v2.33A9 9 0 0 0 9 18Z" />
+                    <path fill="#FBBC05" d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.04l3-2.33Z" />
+                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A8.94 8.94 0 0 0 9 0 9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58Z" />
+                  </svg>
+                  Continue with Google
+                </button>
+              </>
+            )}
           </div>
-
-          {error && (
-            <p className="font-mono text-[11px] text-[var(--error)]" role="alert">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="ed-btn primary w-full disabled:opacity-50"
-          >
-            {loading
-              ? mode === "signin" ? "Signing in…" : "Creating account…"
-              : mode === "signin" ? "Sign in" : "Create account"}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 border-t border-[var(--rule)]" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">or</span>
-          <div className="flex-1 border-t border-[var(--rule)]" />
-        </div>
-
-        {/* Google OAuth */}
-        <button
-          type="button"
-          onClick={handleGoogle}
-          className="w-full border border-[var(--rule)] bg-transparent py-[8px] px-5 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] rounded-pill hover:border-[var(--fg)] active:scale-[0.97] transition-[border-color,transform] duration-150 cursor-pointer text-center"
-        >
-          Continue with Google
-        </button>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
