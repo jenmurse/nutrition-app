@@ -468,7 +468,7 @@ export default function RecipeDetailPage() {
               {tags.length > 0 && (
                 <div className="flex gap-[6px] mb-4">
                   {tags.map(tag => (
-                    <span key={tag} className="rd-tag font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[10px] bg-[var(--bg-2)] text-[var(--muted)]">{tag}</span>
+                    <span key={tag} className="rd-tag font-mono text-[9px] tracking-[0.12em] uppercase py-[4px] px-[10px]">{tag}</span>
                   ))}
                 </div>
               )}
@@ -716,7 +716,7 @@ export default function RecipeDetailPage() {
                     ) : (
                       <>
                         <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
-                        <div className="text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
+                        <div className="text-[13px] leading-[1.7] text-[var(--fg-2)] mb-6 whitespace-pre-wrap select-all" style={{ borderLeft: "2px solid var(--rule)", padding: "16px 0 16px 20px" }}>{prompt}</div>
                         <div className="flex items-center gap-[10px] mb-6">
                           <button
                             onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("optimization"); setTimeout(() => setCopiedPrompt(null), 2000); }}
@@ -787,7 +787,7 @@ export default function RecipeDetailPage() {
                     ) : (
                       <>
                         <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>
-                        <div className="text-[13px] leading-[1.65] text-[var(--fg-2)] bg-[var(--bg-2)] p-[16px] mb-6 whitespace-pre-wrap select-all">{prompt}</div>
+                        <div className="text-[13px] leading-[1.7] text-[var(--fg-2)] mb-6 whitespace-pre-wrap select-all" style={{ borderLeft: "2px solid var(--rule)", padding: "16px 0 16px 20px" }}>{prompt}</div>
                         <div className="flex items-center gap-[10px] mb-6">
                           <button
                             onClick={() => { navigator.clipboard.writeText(prompt); setCopiedPrompt("mealPrep"); setTimeout(() => setCopiedPrompt(null), 2000); }}

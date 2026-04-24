@@ -1708,10 +1708,10 @@ input[type="number"]:focus {
 .pl-warn-section { margin-bottom:20px; }
 .pl-warn-label { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
 
-.warn-chips { display:flex; flex-direction:column; gap:5px; }
-.warn-chip { background:var(--warn-l); font-family:var(--mono); font-size:9px; letter-spacing:0.06em; color:var(--warn-fg); padding:5px 10px; }
+.warn-chips { display:flex; flex-direction:column; gap:8px; }
+.warn-chip { background:none; border-radius:0; border-left:2px solid var(--warn); font-family:var(--mono); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:var(--warn-fg); padding:4px 0 4px 12px; }
 [data-theme="dark"] .warn-chip { color:var(--warn); }
-.err-chip { background:var(--err-l); font-family:var(--mono); font-size:9px; letter-spacing:0.06em; color:var(--err); padding:5px 10px; }
+.err-chip { background:none; border-radius:0; border-left:2px solid var(--err); font-family:var(--mono); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; color:var(--err); padding:4px 0 4px 12px; }
 
 .pl-over-section { margin-bottom:20px; }
 .pl-over-title { font-family:var(--sans); font-size:13px; font-weight:500; color:var(--fg); margin-bottom:4px; display:flex; align-items:baseline; justify-content:space-between; }
@@ -2137,7 +2137,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .rd-mob-header { display: none; }
 
 /* Recipe detail: tag chips */
-.rd-tag { border-radius: var(--radius-pill); }
+.rd-tag { border: 1px solid var(--rule); border-radius: 0; background: none; color: var(--fg-2); }
 .rd-mob-back {
   display: flex;
   align-items: center;
