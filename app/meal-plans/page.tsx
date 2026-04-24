@@ -1568,14 +1568,18 @@ const MealPlansPage = () => {
               })()}
             </div>
             {shopItems.length > 0 && (
-              <button className="mob-sheet-done" onClick={handleShareList}>
-                Share
-              </button>
+              <div className="shop-footer">
+                <button className="mob-sheet-done" onClick={handleShareList}>
+                  Share
+                </button>
+              </div>
             )}
             {shopItems.length === 0 && !shopLoading && (
-              <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)}>
-                Close
-              </button>
+              <div className="shop-footer">
+                <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)}>
+                  Close
+                </button>
+              </div>
             )}
           </div>
         </>,

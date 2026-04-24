@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
+import React, { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
 import { RecipeEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
@@ -508,12 +508,16 @@ function RecipesPage() {
 
             {/* Compare toggle — desktop/iPad only */}
             <button
-              onClick={() => compareMode ? exitCompareMode() : setCompareMode(true)}
+              onClick={() => {
+                if (!compareMode) { setCompareMode(true); return; }
+                if (compareIds.length >= 2) { setCompareOpen(true); return; }
+                exitCompareMode();
+              }}
               className={`cmp-mode-btn ed-btn-text${compareMode ? " is-active" : ""}`}
               aria-pressed={compareMode}
-              aria-label={compareMode ? "Exit compare mode" : "Enter compare mode"}
+              aria-label={compareMode ? (compareIds.length >= 2 ? "Open nutrition comparison" : "Exit compare mode") : "Enter compare mode"}
             >
-              Compare
+              {compareMode && compareIds.length > 0 ? `Compare (${compareIds.length})` : 'Compare'}
             </button>
 
             {/* Sort group */}
@@ -597,17 +601,35 @@ function RecipesPage() {
         </div>
       </div>
 
-      {/* ── Compare mode banner ── */}
-      <div className={`cmp-banner${compareMode ? " open" : ""}`} aria-hidden={!compareMode}>
-        <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-white/60">
-          Select up to <strong className="text-white font-medium">4 recipes</strong> to compare nutrition
-        </span>
-        <button
-          onClick={exitCompareMode}
-          className="font-mono text-[9px] tracking-[0.08em] uppercase text-white/50 border border-white/20 py-[2px] px-[8px] bg-transparent cursor-pointer transition-colors hover:text-white hover:border-white/50"
-          aria-label="Exit compare mode"
-        >✕ Exit</button>
-      </div>
+      {/* ── Compare mode subrow ── */}
+      {compareMode && (
+        <div className="compare-strip" role="region" aria-label="Compare selection">
+          <div className="compare-strip-label">
+            {compareIds.length === 0
+              ? <>Select up to <strong>4 recipes</strong> to compare nutrition</>
+              : <><strong>{compareIds.length}</strong> of 4 selected</>
+            }
+          </div>
+          <div className="compare-strip-slots" aria-hidden="true">
+            {[1,2,3,4].map(n => (
+              <div key={n} className={`slot${n <= compareIds.length ? ' filled' : ''}`}>{n}</div>
+            ))}
+          </div>
+          <div className="compare-strip-sep" aria-hidden="true" />
+          {compareIds.length > 0 && (
+            <button className="ed-btn-text" onClick={() => setCompareIds([])} aria-label="Clear compare selection">Clear</button>
+          )}
+          <button className="ed-btn-text" onClick={exitCompareMode} aria-label="Exit compare mode">Exit</button>
+          <button
+            className="compare-strip-cta"
+            disabled={compareIds.length < 2}
+            onClick={() => setCompareOpen(true)}
+            aria-label="Open nutrition comparison"
+          >
+            Compare →
+          </button>
+        </div>
+      )}
 
       {/* ── Mobile Filter Sheet ── */}
       {filterSheetOpen && (
@@ -734,29 +756,19 @@ function RecipesPage() {
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
                   aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
-                  className={`recipe-grid-item group${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 4 ? " opacity-40" : ""}`}
+                  className={`recipe-grid-item group${compareMode && compareIds.includes(recipe.id) ? " is-selected" : ""}${compareMode && !compareIds.includes(recipe.id) ? " is-selectable" : ""}${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 4 ? " opacity-40" : ""}`}
                   style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
-                  {/* Compare selected overlay */}
-                  {compareMode && compareIds.includes(recipe.id) && (
-                    <>
-                      <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--fg)', outlineOffset: '-2px' }} />
-                      <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--fg)' }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    </>
-                  )}
-                  {/* Compare hover hint */}
-                  {compareMode && !compareIds.includes(recipe.id) && compareIds.length < 4 && (
-                    <div className="absolute top-2 right-2 font-mono text-[8px] tracking-[0.08em] uppercase bg-black/60 text-white/80 px-[7px] py-[3px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" style={{ backdropFilter: 'blur(4px)' }}>
-                      + Add
-                    </div>
-                  )}
                   {/* Photo */}
                   <div
                     className={`recipe-grid-item__photo${recipe.image ? "" : " is-ghost"}`}
                     style={recipe.image ? { backgroundImage: `url(${recipe.image})` } : undefined}
                   >
+                    {compareMode && (
+                      <div className="check-mark" aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    )}
                     {!recipe.image && (
                       <span className="ghost-title">
                         {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
@@ -827,72 +839,20 @@ function RecipesPage() {
         )}
       </div>
 
-      {/* ── Floating compare bar ── */}
-      <div className={`cmp-bar${compareMode && compareIds.length > 0 ? " open" : ""}`} role="region" aria-label="Compare selection">
-        {/* Clear */}
-        <button
-          onClick={() => setCompareIds([])}
-          className="font-mono text-[9px] tracking-[0.08em] uppercase text-white/40 bg-transparent border-0 border-r border-white/10 px-[14px] h-[48px] cursor-pointer transition-colors hover:text-white/80"
-          aria-label="Clear compare selection"
-        >Clear</button>
-        {/* Slots */}
-        <div className="flex items-center gap-[6px] px-[14px] border-r border-white/10">
-          {[0, 1, 2, 3].map(i => {
-            const rid = compareIds[i];
-            const recipe = rid ? recipes.find(r => r.id === rid) : null;
-            return (
-              <div
-                key={i}
-                className="w-[28px] h-[21px] rounded-[2px] flex items-center justify-center overflow-hidden relative"
-                style={{ border: recipe ? '1.5px solid rgba(255,255,255,0.5)' : '1.5px dashed rgba(255,255,255,0.2)' }}
-              >
-                {recipe && (
-                  <>
-                    <span className="font-mono text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.7)', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {i + 1}
-                    </span>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleCompareRecipe(rid); }}
-                      className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer border-0"
-                      aria-label={`Remove ${recipe.name} from comparison`}
-                    >
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        {/* Count */}
-        <div className="font-mono text-[9px] tracking-[0.08em] uppercase text-white/40 px-[14px]">
-          <strong className="text-white/90">{compareIds.length}</strong> / 4 selected
-        </div>
-        {/* Compare button */}
-        <button
-          onClick={() => compareIds.length >= 2 && setCompareOpen(true)}
-          disabled={compareIds.length < 2}
-          className="font-mono text-[9px] tracking-[0.1em] uppercase h-[48px] px-[20px] border-0 bg-[var(--cta)] text-[var(--cta-ink)] cursor-pointer transition-[opacity] hover:opacity-80 disabled:opacity-35 disabled:cursor-default"
-          aria-label="Open nutrition comparison"
-        >Compare →</button>
-      </div>
-
       {/* ── Full-screen compare overlay ── */}
       <div className={`cmp-overlay${compareOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Nutrition comparison">
         {/* Header */}
-        <div className="flex items-center justify-between px-[40px] border-b border-[var(--rule)] shrink-0" style={{ height: 'var(--nav-h)' }}>
-          <div className="flex items-center gap-[16px]">
-            <button
-              onClick={() => setCompareOpen(false)}
-              className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer transition-colors hover:text-[var(--fg)] flex items-center gap-[5px] p-0"
-              aria-label="Back to recipes"
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-              Back to recipes
-            </button>
-            <div className="w-[1px] h-[14px] bg-[var(--rule)]" aria-hidden="true" />
-            <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)]">Nutrition Comparison</span>
-          </div>
+        <div className="cmp-nav">
+          <button
+            type="button"
+            onClick={() => setCompareOpen(false)}
+            className="cmp-nav-back"
+            aria-label="Back to recipes"
+          >
+            ‹ Back to Recipes
+          </button>
+          <div className="cmp-nav-sep" aria-hidden="true" />
+          <span className="cmp-nav-title">Nutrition Comparison</span>
         </div>
 
         {/* Body */}
@@ -911,7 +871,7 @@ function RecipesPage() {
                   const category = r.tags?.split(",")[0]?.trim();
                   return (
                     <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
-                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3', borderTop: '3px solid var(--cta)' }}>
+                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3' }}>
                         {r.image
                           ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
                           : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>
@@ -930,24 +890,24 @@ function RecipesPage() {
                 {/* Nutrient rows */}
                 {COMPARE_NUTRIENTS.map(n => {
                   const vals = compareRecipes.map(r => getCompareValue(r, n.keys));
-                  const maxVal = Math.max(...vals);
+                  const winner = n.lowerIsBetter ? Math.min(...vals) : Math.max(...vals);
                   return (
-                    <>
+                    <React.Fragment key={`row-${n.label}`}>
                       {/* Label */}
-                      <div key={`lbl-${n.label}`} className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] flex items-center" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 0' }}>
+                      <div className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] flex items-center" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 0' }}>
                         {n.label}
                       </div>
                       {/* Values */}
                       {vals.map((v, i) => {
-                        const pct = maxVal > 0 ? (v / maxVal) * 100 : 0;
+                        const isWinner = v === winner && vals.some((x, j) => j !== i) /* avoid marking when only one */;
                         return (
-                          <div key={`val-${n.label}-${i}`} className="flex items-baseline gap-[3px]" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 0' }}>
-                            <span className="font-sans text-[20px] font-bold tabular-nums text-[var(--fg)]" style={{ letterSpacing: '-0.02em' }}>{v}</span>
-                            <span className="font-mono text-[8px] tracking-[0.06em] text-[var(--muted)]">{n.unit}</span>
+                          <div key={`val-${n.label}-${i}`} className={`cmp-value${isWinner ? ' lo' : ''}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 0' }}>
+                            <span className="cmp-num tabular-nums">{v}</span>
+                            <span className="cmp-unit">{n.unit}</span>
                           </div>
                         );
                       })}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </div>
