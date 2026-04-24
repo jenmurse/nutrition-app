@@ -349,14 +349,54 @@
 .mkt .r.d2 { transition-delay: 160ms; }
 .mkt .r.d3 { transition-delay: 240ms; }
 
+/* ─── MOTION LAYER — word/line units ─── */
+
+/* Hero — hidden until JS splits words and animates them */
+.mkt .hero-type-reveal { opacity: 0; }
+.mkt .hero-type span { display: block; }
+/* JS-injected word spans — initial opacity set by JS, not CSS, so WAAPI wins */
+.mkt .hero-type .hw { display: inline; }
+/* Hero bottom below the h1 */
+.mkt .hero-bottom-reveal { opacity: 0; transform: translateY(16px); transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io); }
+.mkt .hero-bottom-reveal.in { opacity: 1; transform: translateY(0); }
+
+/* Manifesto lines */
+.mkt .ml { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io); }
+.mkt .ml.in { opacity: 1; transform: translateY(0); }
+
+/* Pull-quote lines */
+.mkt .pql { display: block; opacity: 0; transform: scale(0.98) translateY(12px); transform-origin: left center; transition: opacity 800ms var(--ease-io), transform 800ms var(--ease-io); }
+.mkt .pql.in { opacity: 1; transform: scale(1) translateY(0); }
+
+/* Close section elements */
+.mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 700ms var(--ease-io), transform 700ms var(--ease-io);
+}
+.mkt .cl-h.in, .mkt .cl-body.in, .mkt .cl-sig.in, .mkt .cl-cta.in {
+  opacity: 1; transform: translateY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mkt .r { opacity: 1; transform: none; transition: none; }
   .mkt .tick-track { animation: none; }
+  .mkt .hero-type-reveal { opacity: 1; }
+  .mkt .hero-type .hw { opacity: 1; }
+  .mkt .hero-bottom-reveal { opacity: 1; transform: none; transition: none; }
+  .mkt .ml { opacity: 1; transform: none; transition: none; }
+  .mkt .pql { opacity: 1; transform: none; transition: none; }
+  .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta { opacity: 1; transform: none; transition: none; }
 }
 
-/* No-JS fallback — reveals always visible */
+/* No-JS fallback — everything visible */
 @media (scripting: none) {
   .mkt .r { opacity: 1; transform: none; }
+  .mkt .hero-type-reveal { opacity: 1; }
+  .mkt .hero-type .hw { opacity: 1; }
+  .mkt .hero-bottom-reveal { opacity: 1; transform: none; }
+  .mkt .ml { opacity: 1; transform: none; }
+  .mkt .pql { opacity: 1; transform: none; }
+  .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta { opacity: 1; transform: none; }
 }
 
 /* ─── RESPONSIVE ─── */

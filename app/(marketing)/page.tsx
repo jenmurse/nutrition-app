@@ -8,7 +8,7 @@ import ChapterWeek from "./_components/ChapterWeek";
 import PullQuote from "./_components/PullQuote";
 import Close from "./_components/Close";
 import LandingFooter from "./_components/LandingFooter";
-import RevealScript from "./_components/RevealScript";
+import LandingMotion from "./_components/LandingMotion";
 import "./landing.css";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default function MarketingLanding() {
       <PullQuote />
       <Close />
       <LandingFooter />
-      <RevealScript />
+      <LandingMotion />
     </div>
   );
 }
