@@ -232,10 +232,7 @@ function IngredientsPage() {
   return (
     <div className="h-full flex flex-col">
       {/* ── Filter Bar ── */}
-      <div
-        className="list-toolbar flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
-        style={{ height: "var(--filter-h)" }}
-      >
+      <div className="ed-toolbar list-toolbar">
         {/* ── Mobile toolbar — CSS shows on mobile only ── */}
         <div className="mob-tb">
           <div className="relative flex-1 min-w-0">
@@ -274,31 +271,19 @@ function IngredientsPage() {
           <div className="list-tags">
           <button
             onClick={() => setFoodFilter('all')}
-            className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-              foodFilter === 'all'
-                ? "text-[var(--fg)] border-[var(--rule)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-            }`}
+            className={`ed-chip${foodFilter === 'all' ? " is-active" : ""}`}
             aria-label="Show all ingredients"
             aria-pressed={foodFilter === 'all'}
           >All</button>
           <button
             onClick={() => setFoodFilter('foods')}
-            className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-              foodFilter === 'foods'
-                ? "text-[var(--fg)] border-[var(--rule)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-            }`}
+            className={`ed-chip${foodFilter === 'foods' ? " is-active" : ""}`}
             aria-label="Show only items"
             aria-pressed={foodFilter === 'foods'}
           >Items</button>
           <button
             onClick={() => setFoodFilter('ingredients')}
-            className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap active:scale-[0.97] ${
-              foodFilter === 'ingredients'
-                ? "text-[var(--fg)] border-[var(--rule)]"
-                : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-            }`}
+            className={`ed-chip${foodFilter === 'ingredients' ? " is-active" : ""}`}
             aria-label="Show only ingredients"
             aria-pressed={foodFilter === 'ingredients'}
           >Ingredients</button>
@@ -307,46 +292,42 @@ function IngredientsPage() {
           {/* Right side controls */}
           <div className="list-controls flex gap-[5px] items-center ml-auto">
             {/* Count */}
-            <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
-              {filteredIngredients.length} item{filteredIngredients.length !== 1 ? "s" : ""}
+            <span className="ed-count">
+              <strong>{filteredIngredients.length}</strong> item{filteredIngredients.length !== 1 ? "s" : ""}
             </span>
 
             {/* Grid/List toggle */}
-            <div className="flex border border-[var(--rule)] overflow-hidden rounded-pill transition-colors hover:border-[var(--fg)]">
+            <div className="ed-toggle" role="group" aria-label="View mode">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
-                  viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-                }`}
+                className={viewMode === "grid" ? "is-active" : ""}
                 aria-label="Grid view"
                 aria-pressed={viewMode === "grid"}
               >Grid</button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
-                  viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-                }`}
+                className={viewMode === "list" ? "is-active" : ""}
                 aria-label="List view"
                 aria-pressed={viewMode === "list"}
               >List</button>
             </div>
 
             {/* Search */}
-            <input
-              ref={searchRef}
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => updateSearchParam("search", e.target.value)}
-              aria-label="Search ingredients"
-              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-[border-color] focus:border-[var(--accent)]"
-              style={{ width: 180 }}
-            />
+            <div className="ed-search">
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => updateSearchParam("search", e.target.value)}
+                aria-label="Search ingredients"
+              />
+            </div>
 
             {/* + Add */}
             <button
               onClick={() => router.push("/ingredients/create")}
-              className="pl-new-btn"
+              className="ed-btn-primary"
               aria-label="Add new ingredient"
             >+ Add</button>
           </div>

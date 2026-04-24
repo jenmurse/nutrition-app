@@ -327,10 +327,7 @@ function RecipesPage() {
   return (
     <div className="h-full flex flex-col">
       {/* ── Filter Bar ── */}
-      <div
-        className="list-toolbar flex items-center gap-[4px] px-[var(--pad)] shrink-0 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-10"
-        style={{ height: "var(--filter-h)" }}
-      >
+      <div className="ed-toolbar list-toolbar">
         {/* ── Mobile toolbar — CSS shows on mobile only ── */}
         <div className="mob-tb">
           <div className="relative flex-1 min-w-0">
@@ -394,33 +391,21 @@ function RecipesPage() {
           <div className="desk-chips">
             {/* All */}
             <button
-              className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
-                selectedTags.length === 0 && !showFavorites
-                  ? "text-[var(--fg)] border-[var(--rule)]"
-                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-              }`}
+              className={`ed-chip${selectedTags.length === 0 && !showFavorites ? " is-active" : ""}`}
               onClick={() => { setSelectedTags([]); setShowFavorites(false); }}
               aria-pressed={selectedTags.length === 0 && !showFavorites}
             >All</button>
             {availableTags.map(tag => (
               <button
                 key={tag}
-                className={`filter-chip font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
-                  selectedTags.includes(tag)
-                    ? "text-[var(--fg)] border-[var(--rule)]"
-                    : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-                }`}
+                className={`ed-chip${selectedTags.includes(tag) ? " is-active" : ""}`}
                 onClick={() => toggleTag(tag)}
                 aria-pressed={selectedTags.includes(tag)}
               >{tag}</button>
             ))}
             {/* Favorites */}
             <button
-              className={`filter-chip flex items-center gap-[5px] font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border cursor-pointer transition-colors whitespace-nowrap shrink-0 active:scale-[0.97] ${
-                showFavorites
-                  ? "text-[var(--fg)] border-[var(--rule)]"
-                  : "text-[var(--muted)] border-transparent hover:text-[var(--fg)]"
-              }`}
+              className={`ed-chip flex items-center gap-[5px]${showFavorites ? " is-active" : ""}`}
               onClick={() => setShowFavorites(prev => !prev)}
               aria-pressed={showFavorites}
             >
@@ -503,18 +488,14 @@ function RecipesPage() {
           {/* Right side controls */}
           <div className="list-controls flex gap-[5px] items-center ml-auto">
             {/* Recipe count */}
-            <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] whitespace-nowrap mr-[6px] tabular-nums">
-              {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? "s" : ""}
+            <span className="ed-count">
+              <strong>{filteredRecipes.length}</strong> recipe{filteredRecipes.length !== 1 ? "s" : ""}
             </span>
 
             {/* Compare toggle — desktop/iPad only */}
             <button
               onClick={() => compareMode ? exitCompareMode() : setCompareMode(true)}
-              className={`cmp-mode-btn font-mono text-[9px] tracking-[0.08em] uppercase py-[3px] px-[10px] border cursor-pointer transition-colors flex items-center gap-[5px] ${
-                compareMode
-                  ? "bg-[var(--bg-3)] border-[var(--fg)] text-[var(--fg)]"
-                  : "border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
-              }`}
+              className={`cmp-mode-btn ed-btn-text flex items-center gap-[5px]${compareMode ? " is-active" : ""}`}
               aria-pressed={compareMode}
               aria-label={compareMode ? "Exit compare mode" : "Enter compare mode"}
             >
@@ -525,22 +506,22 @@ function RecipesPage() {
             </button>
 
             {/* Sort group */}
-            <div ref={sortRef} className="flex border border-[var(--rule)] relative transition-colors hover:border-[var(--fg)]">
+            <div ref={sortRef} className="flex items-center gap-[2px] relative">
               <button
                 onClick={() => setSortOpen(!sortOpen)}
                 aria-label="Sort recipes by"
                 aria-expanded={sortOpen}
                 aria-haspopup="listbox"
-                className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+                className="ed-btn-text relative pr-[16px]"
               >
                 {sortOptions.find(o => o.key === sortBy)?.label ?? "Name"}
-                <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
+                <span className="absolute right-[2px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
               </button>
               {sortOpen && (
                 <div
                   role="listbox"
                   aria-label="Sort options"
-                  className="absolute left-[-1px] top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
+                  className="absolute left-0 top-[calc(100%+2px)] min-w-[120px] bg-[var(--bg)] border border-[var(--rule)] z-[200] py-[3px] dropdown-enter"
                   style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
                 >
                   {sortOptions.map(opt => (
@@ -561,46 +542,42 @@ function RecipesPage() {
               <button
                 onClick={() => setSortDir(prev => prev === "asc" ? "desc" : "asc")}
                 aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
-                className="font-mono text-[11px] text-[var(--muted)] bg-transparent border-0 py-[3px] px-[7px] cursor-pointer transition-colors flex items-center leading-none shrink-0 hover:bg-[var(--bg-3)] hover:text-[var(--fg)] active:scale-[0.97]"
+                className="ed-btn-text"
               >{sortDir === "asc" ? "↑" : "↓"}</button>
             </div>
 
             {/* Grid/List toggle */}
-            <div className="flex border border-[var(--rule)] overflow-hidden rounded-pill transition-colors hover:border-[var(--fg)]">
+            <div className="ed-toggle" role="group" aria-label="View mode">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 border-r border-[var(--rule)] cursor-pointer transition-colors ${
-                  viewMode === "grid" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-                }`}
+                className={viewMode === "grid" ? "is-active" : ""}
                 aria-label="Grid view"
                 aria-pressed={viewMode === "grid"}
               >Grid</button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`font-mono text-[9px] tracking-[0.1em] uppercase py-[3px] px-[9px] border-0 cursor-pointer transition-colors ${
-                  viewMode === "list" ? "bg-[var(--bg-3)] text-[var(--fg)]" : "bg-transparent text-[var(--muted)] hover:bg-[var(--bg-3)] hover:text-[var(--fg)]"
-                }`}
+                className={viewMode === "list" ? "is-active" : ""}
                 aria-label="List view"
                 aria-pressed={viewMode === "list"}
               >List</button>
             </div>
 
             {/* Search */}
-            <input
-              ref={searchRef}
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search recipes"
-              className="font-mono text-[9px] tracking-[0.04em] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] py-[3px] px-[9px] outline-none transition-[border-color] focus:border-[var(--accent)]"
-              style={{ width: 180 }}
-            />
+            <div className="ed-search">
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search recipes"
+              />
+            </div>
 
             {/* + New */}
             <button
               onClick={() => router.push("/recipes/create")}
-              className="pl-new-btn"
+              className="ed-btn-primary"
               aria-label="Create new recipe"
             >+ New</button>
           </div>
