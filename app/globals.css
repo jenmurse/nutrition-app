@@ -382,7 +382,7 @@ input[type="number"]:focus {
   font-family: var(--mono); font-size: 9px; font-weight: 500;
   text-transform: uppercase; letter-spacing: 0.14em;
   color: var(--muted); cursor: pointer;
-  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap;
   transition: color 0.15s ease; white-space: nowrap;
 }
 .sort-field:hover { color: var(--fg); }
@@ -392,8 +392,11 @@ input[type="number"]:focus {
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 5px solid currentColor;
-  margin-left: 2px;
+  margin-left: 4px;
   vertical-align: middle;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
   position: relative;
   top: -1px;
 }
