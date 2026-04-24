@@ -7,9 +7,9 @@
     /* ── Editorial Design System Tokens ─────────────────────────────────── */
 
     /* Surfaces */
-    --bg:    #FFFFFF;   /* primary background */
-    --bg-2:  #F4F4F4;   /* secondary surface (inputs, cards) */
-    --bg-3:  #E8E8E8;   /* tertiary surface (hover, tags) */
+    --bg:    #F5F4EF;   /* paper — primary background */
+    --bg-2:  #EEEAE3;   /* secondary surface (inputs, cards) */
+    --bg-3:  #E6E2D8;   /* tertiary surface (hover, tags) */
 
     /* Foreground */
     --fg:    #111111;   /* primary text */
