@@ -18,7 +18,7 @@ export default function Close() {
           </p>
           <div className="close-sig">— Jen Murse, Good Measure</div>
           <div className="close-cta">
-            <a href="/login" className="btn">
+            <a href="/login?signup=1" className="btn">
               Get Started <span className="arr" aria-hidden="true">↗</span>
             </a>
           </div>

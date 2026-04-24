@@ -81,19 +81,23 @@
 .mkt section { padding: 0 var(--pad); position: relative; }
 .mkt .wrap { max-width: 1360px; margin: 0 auto; }
 
+/* ─── SMOOTH SCROLL (landing only) ─── */
+.mkt { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { .mkt { scroll-behavior: auto; } }
+
 /* ─── HERO ─── */
-.mkt .hero { padding: 80px var(--pad) 96px; border-bottom: 1px solid var(--rule); }
+.mkt .hero { padding: 48px var(--pad) 64px; border-bottom: 1px solid var(--rule); }
 .mkt .hero-meta {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--mute);
-  margin-bottom: 80px;
+  margin-bottom: 48px;
 }
 .mkt .hero-meta .c { color: var(--fg); }
 .mkt .hero-meta .rt { justify-self: end; text-align: right; }
 
 .mkt .hero-type {
-  font-size: clamp(56px,11.5vw,168px);
+  font-size: clamp(48px,7.5vw,88px);
   font-weight: 500;
   letter-spacing: -0.045em;
   line-height: 0.9;
@@ -105,8 +109,8 @@
 .mkt .hero-type .thin { font-weight: 500; }
 
 .mkt .hero-bottom {
-  display: grid; grid-template-columns: 1.5fr 1fr; gap: 64px; align-items: end;
-  margin-top: 88px;
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: end;
+  margin-top: 56px;
 }
 .mkt .hero-lede { max-width: 52ch; font-size: 16px; line-height: 1.6; color: var(--fg-2); }
 .mkt .hero-lede strong { color: var(--fg); font-weight: 500; }
@@ -377,7 +381,8 @@
   .mkt .nav-right { gap: 14px; }
   .mkt .nav-right a { font-size: 9px; letter-spacing: 0.14em; }
   .mkt .nav-right a.cta { padding: 8px 12px; }
-  .mkt .nav-right a:nth-child(2) { display: none; }
+  /* Hide Sign In on narrow screens — keep only CTA */
+  .mkt .nav-right a:not(.cta) { display: none; }
 
   .mkt .tick { padding: 9px 0; font-size: 9px; letter-spacing: 0.16em; }
 

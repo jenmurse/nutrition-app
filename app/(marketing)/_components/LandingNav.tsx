@@ -10,9 +10,8 @@ export default function LandingNav() {
         <span>Good Measure</span>
       </a>
       <div className="nav-right">
-        <a href="#manifesto">About</a>
         <a href="/login">Sign in</a>
-        <a href="/login" className="cta">
+        <a href="/login?signup=1" className="cta">
           Get Started <span className="arr" aria-hidden="true">↗</span>
         </a>
       </div>
