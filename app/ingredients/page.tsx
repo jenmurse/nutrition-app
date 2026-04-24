@@ -401,50 +401,40 @@ function IngredientsPage() {
             </div>
           </div>
         ) : viewMode === "grid" ? (
-          /* ── Card Grid — shared borders, staggered animation ── */
-          <div
-            key={`grid-${viewMode}-${foodFilter}`}
-            className="ing-grid grid md:grid-cols-3 lg:grid-cols-4 max-w-[1100px] mx-auto"
-            style={{ gap: 0, padding: "0 64px" }}
-          >
+          /* ── Ruled Grid (BRIEF-07) ── */
+          <div key={`grid-${viewMode}-${foodFilter}`} className="pantry-grid">
             {sortedIngredients.map((ingredient, idx) => {
-              const nutrition = getFullNutrition(ingredient);
-              const category = ingredient.category || (ingredient.isMealItem ? "ITEM" : "INGREDIENT");
+              const n = getFullNutrition(ingredient);
+              const category = ingredient.category || (ingredient.isMealItem ? "Item" : "Ingredient");
               const unitContext = ingredient.customUnitName
                 ? `${ingredient.customUnitAmount || 1} ${ingredient.customUnitName}${ingredient.customUnitGrams ? ` (${ingredient.customUnitGrams}g)` : ""}`
                 : "per 100g";
-              const nutrientRows: { label: string; value: string; unit: string }[] = nutrition ? [
-                { label: "CALORIES", value: nutrition.calories ? formatNutrient(nutrition.calories.value) : "0", unit: "" },
-                { label: "FAT", value: nutrition.fat ? formatNutrient(nutrition.fat.value) : "0", unit: nutrition.fat?.unit || "g" },
-                { label: "SATURATED FAT", value: nutrition.saturatedFat ? formatNutrient(nutrition.saturatedFat.value) : "0", unit: nutrition.saturatedFat?.unit || "g" },
-                { label: "SODIUM", value: nutrition.sodium ? formatNutrient(nutrition.sodium.value) : "0", unit: nutrition.sodium?.unit || "mg" },
-                { label: "CARBS", value: nutrition.carbs ? formatNutrient(nutrition.carbs.value) : "0", unit: nutrition.carbs?.unit || "g" },
-                { label: "SUGAR", value: nutrition.sugar ? formatNutrient(nutrition.sugar.value) : "0", unit: nutrition.sugar?.unit || "g" },
-                { label: "PROTEIN", value: nutrition.protein ? formatNutrient(nutrition.protein.value) : "0", unit: nutrition.protein?.unit || "g" },
-                { label: "FIBER", value: nutrition.fiber ? formatNutrient(nutrition.fiber.value) : "0", unit: nutrition.fiber?.unit || "g" },
-              ] : [];
-              // Shared border logic: every card gets border-right + border-bottom; first in row gets border-left
-              const isFirstInRow = idx % 4 === 0;
+              const nutRows = [
+                { label: "Calories", val: n?.calories ? formatNutrient(n.calories.value) : "0", unit: "" },
+                { label: "Fat",      val: n?.fat ? formatNutrient(n.fat.value) : "0",           unit: n?.fat?.unit || "g" },
+                { label: "Sat Fat",  val: n?.saturatedFat ? formatNutrient(n.saturatedFat.value) : "0", unit: n?.saturatedFat?.unit || "g" },
+                { label: "Sodium",   val: n?.sodium ? formatNutrient(n.sodium.value) : "0",     unit: n?.sodium?.unit || "mg" },
+                { label: "Carbs",    val: n?.carbs ? formatNutrient(n.carbs.value) : "0",       unit: n?.carbs?.unit || "g" },
+                { label: "Sugar",    val: n?.sugar ? formatNutrient(n.sugar.value) : "0",       unit: n?.sugar?.unit || "g" },
+                { label: "Protein",  val: n?.protein ? formatNutrient(n.protein.value) : "0",   unit: n?.protein?.unit || "g" },
+                { label: "Fiber",    val: n?.fiber ? formatNutrient(n.fiber.value) : "0",       unit: n?.fiber?.unit || "g" },
+              ];
               return (
-                <div
+                <article
                   key={ingredient.id}
-                  data-cursor="card"
+                  className="pantry-item group"
                   role="button"
                   tabIndex={0}
                   onClick={() => router.push(`/ingredients/${ingredient.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
                   aria-label={ingredient.name}
-                  className={`relative group cursor-pointer transition-colors duration-150 hover:bg-[var(--bg-2)] active:scale-[0.98] border-r border-b border-[var(--rule)]${isFirstInRow ? " border-l" : ""}`}
-                  style={{
-                    padding: 20,
-                    animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both`,
-                  } as React.CSSProperties}
+                  style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
                   {/* Action buttons */}
                   <div className="ing-card-actions absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
-                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors rounded-full"
+                      className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
                       aria-label={`Edit ${ingredient.name}`}
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -458,30 +448,18 @@ function IngredientsPage() {
                     </button>
                   </div>
 
-                  {/* Category badge */}
-                  <div className="font-mono text-[7.5px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
-                  {/* Name */}
-                  <div className="font-serif text-[clamp(15px,1.4vw,18px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]" style={{ textWrap: "balance" }}>
-                    {ingredient.name}
-                  </div>
-                  {/* Unit context */}
-                  <div className="font-mono text-[8.5px] text-[var(--muted)] tracking-[0.04em] mb-[14px]">
-                    {unitContext}
-                  </div>
-                  {nutrition && (
-                    <div className="flex flex-col">
-                      {nutrientRows.map((row) => (
-                        <div
-                          key={row.label}
-                          className="flex items-baseline justify-between py-[5px] border-t border-[var(--rule)]"
-                        >
-                          <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">{row.label}</span>
-                          <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{row.value}{row.unit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  <div className="pantry-item__cat">{category}</div>
+                  <h3 className="pantry-item__name">{ingredient.name}</h3>
+                  <div className="pantry-item__unit">{unitContext}</div>
+                  <dl className="pantry-item__nut">
+                    {nutRows.map(row => (
+                      <>
+                        <dt key={`dt-${row.label}`}>{row.label}</dt>
+                        <dd key={`dd-${row.label}`}>{row.val}{row.unit && <span className="u">{row.unit}</span>}</dd>
+                      </>
+                    ))}
+                  </dl>
+                </article>
               );
             })}
           </div>

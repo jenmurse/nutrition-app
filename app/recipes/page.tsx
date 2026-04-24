@@ -210,6 +210,18 @@ function RecipesPage() {
     }
   };
 
+  // Load full data when list view is active (to show per-row nutrition values)
+  useEffect(() => {
+    if (viewMode !== 'list') return;
+    const fullCached = clientCache.get<RecipeSummary[]>('/api/recipes');
+    if (fullCached) { setRecipes(fullCached); return; }
+    fetch("/api/recipes").then(r => r.json()).then((data) => {
+      const list: RecipeSummary[] = Array.isArray(data) ? data : [];
+      clientCache.set('/api/recipes', list);
+      setRecipes(list);
+    }).catch(console.error);
+  }, [viewMode]);
+
   // When a nutrient sort is active and we only have slim data, upgrade to full
   useEffect(() => {
     if (!isNutrientSort(sortBy)) return;
@@ -708,118 +720,105 @@ function RecipesPage() {
             </div>
           </div>
         ) : viewMode === "grid" ? (
-          /* ── Card Grid ── */
-          <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "32px 64px 48px" }}>
-            <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4" style={{ gridAutoRows: "auto" }}>
-              {sortedRecipes.map((recipe, idx) => {
-                const macros = getCardMacros(recipe);
-                const category = recipe.tags?.split(",")[0]?.trim();
-                return (
-                  <div
-                    key={recipe.id}
-                    data-cursor="card"
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
-                    aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
-                    aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
-                    className={`bg-[var(--bg)] cursor-pointer relative group transition-transform duration-200 ${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 4 ? "opacity-40" : ""}`}
-                    style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
-                  >
-                    {/* Compare selected overlay */}
-                    {compareMode && compareIds.includes(recipe.id) && (
-                      <>
-                        <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--cta)', outlineOffset: '-2px' }} />
-                        <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--cta)' }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                      </>
-                    )}
-                    {/* Compare hover hint */}
-                    {compareMode && !compareIds.includes(recipe.id) && compareIds.length < 4 && (
-                      <div className="absolute top-2 right-2 font-mono text-[8px] tracking-[0.08em] uppercase bg-black/60 text-white/80 px-[7px] py-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" style={{ backdropFilter: 'blur(4px)' }}>
-                        + Add
-                      </div>
-                    )}
-                    {/* Image */}
-                    <div className="overflow-hidden relative" style={{ aspectRatio: "4/3" }}>
-                      {recipe.image ? (
-                        <img
-                          src={recipe.image}
-                          alt={recipe.name}
-                          className="w-full h-full object-cover block transition-transform duration-[600ms]"
-                          style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }}
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-[var(--bg-3)] flex items-end overflow-hidden" style={{ padding: '14px 16px 22px' }}>
-                          <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] opacity-[0.18] block">
-                            {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {/* Info */}
-                    <div style={{ padding: "16px 18px 24px" }}>
-                      {category && (
-                        <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{category}</div>
-                      )}
-                      <div className="rcp-card-name font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>
-                        {recipe.name}
-                        {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
-                      </div>
-                      {recipe.isComplete === false && (
-                        <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
-                      )}
-                    </div>
-                    {/* Accent bar on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--fg)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* ── List View ── */
-          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="rcp-grid max-w-[1100px] mx-auto" style={{ padding: "0 64px" }}>
+          /* ── Ruled Grid (BRIEF-09) ── */
+          <div key={`grid-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="recipe-grid">
             {sortedRecipes.map((recipe, idx) => {
-              const macros = getCardMacros(recipe);
               const category = recipe.tags?.split(",")[0]?.trim();
               return (
-                <div
+                <article
                   key={recipe.id}
-                  data-cursor="card"
                   role="button"
                   tabIndex={0}
                   onClick={() => compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
                   aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
-                  className="rcp-list-row flex items-center gap-[14px] border-b border-[var(--rule)] cursor-pointer group relative"
-                  style={{ padding: "10px 0", animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: 'var(--accent-l)' } : {}) }}
+                  className={`recipe-grid-item group${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 4 ? " opacity-40" : ""}`}
+                  style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
-                  {/* Thumbnail — 4:3 */}
-                  <div className="overflow-hidden shrink-0 bg-[var(--bg-3)]" style={{ width: 64, aspectRatio: '4/3' }}>
-                    {recipe.image ? (
-                      <img src={recipe.image} alt="" className="w-full h-full object-cover block" />
-                    ) : null}
+                  {/* Compare selected overlay */}
+                  {compareMode && compareIds.includes(recipe.id) && (
+                    <>
+                      <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'var(--accent-l)', outline: '2px solid var(--fg)', outlineOffset: '-2px' }} />
+                      <div className="absolute top-2 left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20" style={{ background: 'var(--fg)' }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    </>
+                  )}
+                  {/* Compare hover hint */}
+                  {compareMode && !compareIds.includes(recipe.id) && compareIds.length < 4 && (
+                    <div className="absolute top-2 right-2 font-mono text-[8px] tracking-[0.08em] uppercase bg-black/60 text-white/80 px-[7px] py-[3px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" style={{ backdropFilter: 'blur(4px)' }}>
+                      + Add
+                    </div>
+                  )}
+                  {/* Photo */}
+                  <div
+                    className={`recipe-grid-item__photo${recipe.image ? "" : " is-ghost"}`}
+                    style={recipe.image ? { backgroundImage: `url(${recipe.image})` } : undefined}
+                  >
+                    {!recipe.image && (
+                      <span className="ghost-title">
+                        {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
+                      </span>
+                    )}
+                  </div>
+                  {/* Category + name */}
+                  {category && <div className="recipe-grid-item__cat">{category}</div>}
+                  <h3 className="recipe-grid-item__name">
+                    {recipe.name}
+                    {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
+                  </h3>
+                  {recipe.isComplete === false && (
+                    <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          /* ── List View (BRIEF-08) ── */
+          <div key={`list-${viewMode}-${selectedTags.join(',')}-${sortBy}-${sortDir}`} className="max-w-[1100px] mx-auto">
+            {sortedRecipes.map((recipe, idx) => {
+              const macros = getCardMacros(recipe);
+              const category = recipe.tags?.split(",")[0]?.trim();
+              const kcal  = macros ? Math.round(macros.kcal)    : null;
+              const fat   = macros ? Math.round(macros.fat)     : null;
+              const carbs = macros ? Math.round(macros.carbs)   : null;
+              const prot  = macros ? Math.round(macros.protein) : null;
+              return (
+                <div
+                  key={recipe.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
+                  aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
+                  aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
+                  className="recipe-list-row"
+                  style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: 'var(--accent-l)' } : {}) }}
+                >
+                  {/* Thumbnail */}
+                  <div className="recipe-list-row__thumb">
+                    {recipe.image && <img src={recipe.image} alt="" className="w-full h-full object-cover block" />}
                   </div>
                   {/* Name + category */}
-                  <div className="rcp-list-info flex-1 min-w-0 flex items-baseline gap-[12px]">
-                    {category && (
-                      <span className="rcp-list-eyebrow font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] shrink-0">{category}</span>
-                    )}
-                    <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">
+                  <div className="recipe-list-row__main">
+                    <span className="recipe-list-row__name">
                       {recipe.name}
                       {recipe.isFavorited && <>{"\u00A0"}<span className="fav-mark-inline" aria-label="Favorited">●</span></>}
                     </span>
+                    {category && <span className="recipe-list-row__cat">{category}</span>}
+                    {recipe.isComplete === false && (
+                      <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] flex-shrink-0">incomplete</span>
+                    )}
                   </div>
-                  {/* Accent bar on hover */}
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--fg)] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)" }} />
-                  {recipe.isComplete === false && (
-                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] shrink-0">incomplete</span>
-                  )}
+                  {/* Nutrition values */}
+                  <div className="recipe-list-row__vals">
+                    <span>{kcal ?? "—"}<span className="u">kcal</span></span>
+                    <span>{fat ?? "—"}<span className="u">g fat</span></span>
+                    <span>{carbs ?? "—"}<span className="u">g carbs</span></span>
+                    <span>{prot ?? "—"}<span className="u">g prot</span></span>
+                  </div>
                 </div>
               );
             })}
