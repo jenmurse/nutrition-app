@@ -1785,7 +1785,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .list-toolbar { overflow: visible; }
 
 /* Option A: chips row fills remaining space + scrolls; controls stay pinned right */
-.list-tags { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.list-tags { display: flex; align-items: center; gap: 20px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .list-tags::-webkit-scrollbar { display: none; }
 .list-controls { flex-shrink: 0; }
 
