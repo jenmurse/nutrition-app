@@ -466,9 +466,9 @@ export default function RecipeDetailPage() {
             <div>
               {/* Tags */}
               {tags.length > 0 && (
-                <div className="flex gap-[6px] mb-4">
+                <div className="flex gap-[12px] mb-4 font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">
                   {tags.map(tag => (
-                    <span key={tag} className="rd-tag font-mono text-[9px] tracking-[0.12em] uppercase py-[4px] px-[10px]">{tag}</span>
+                    <span key={tag}>{tag}</span>
                   ))}
                 </div>
               )}
@@ -683,7 +683,7 @@ export default function RecipeDetailPage() {
               {editingNotes === "optimization" ? (
                 <>
                   <textarea
-                    className="w-full min-h-[400px] text-[13px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] p-[14px] outline-none resize-y font-sans"
+                    className="rd-notes-textarea"
                     placeholder="Paste optimization notes here (markdown supported)..."
                     value={notesText}
                     onChange={(e) => setNotesText(e.target.value)}
@@ -754,7 +754,7 @@ export default function RecipeDetailPage() {
               {editingNotes === "mealPrep" ? (
                 <>
                   <textarea
-                    className="w-full min-h-[400px] text-[13px] leading-[1.65] text-[var(--fg)] bg-[var(--bg-2)] border border-[var(--rule)] p-[14px] outline-none resize-y font-sans"
+                    className="rd-notes-textarea"
                     placeholder="Paste meal prep analysis here (markdown supported)..."
                     value={notesText}
                     onChange={(e) => setNotesText(e.target.value)}

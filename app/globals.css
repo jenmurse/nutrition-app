@@ -2136,8 +2136,24 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Recipe detail mobile sticky header — hidden on desktop */
 .rd-mob-header { display: none; }
 
-/* Recipe detail: tag chips */
-.rd-tag { border: 1px solid var(--rule); border-radius: 0; background: none; color: var(--fg-2); }
+/* Recipe detail: notes textareas — match prompt block treatment */
+.rd-notes-textarea {
+  width: 100%;
+  background: none;
+  border: none;
+  border-left: 2px solid var(--rule);
+  border-radius: 0;
+  padding: 16px 0 16px 20px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--fg);
+  line-height: 1.7;
+  resize: vertical;
+  min-height: 400px;
+  outline: none;
+}
+.rd-notes-textarea:focus { border-left-color: var(--fg); }
+.rd-notes-textarea::placeholder { color: var(--muted); }
 .rd-mob-back {
   display: flex;
   align-items: center;
