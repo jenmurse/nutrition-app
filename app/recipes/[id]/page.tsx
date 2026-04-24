@@ -505,15 +505,13 @@ export default function RecipeDetailPage() {
                   aria-label="Delete recipe">Delete</button>
                 <button
                   onClick={toggleFavorite}
-                  className={`rcp-fav-btn w-8 h-8 flex items-center justify-center rounded-full border-0 bg-transparent cursor-pointer transition-[color,background] duration-150 ${
-                    isFavorited ? "text-[#ef4444]" : "text-[var(--muted)] hover:text-[#ef4444]"
+                  className={`rcp-fav-btn w-8 h-8 flex items-center justify-center rounded-full border-0 bg-transparent cursor-pointer transition-colors duration-150 ${
+                    isFavorited ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
                   }`}
                   aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                   aria-pressed={isFavorited}
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isFavorited ? "rcp-heart-on" : ""}>
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
+                  <span aria-hidden="true" className={`fav-mark${isFavorited ? " rcp-heart-on" : ""}`} style={{ fontSize: 18, lineHeight: 1 }}>{isFavorited ? "★" : "☆"}</span>
                 </button>
               </div>
             </div>
@@ -549,7 +547,7 @@ export default function RecipeDetailPage() {
                       <button key={n} onClick={() => setScale(n)}
                         className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
                           scale === n
-                            ? "bg-[var(--accent)] text-[var(--accent-fg)] border-[var(--accent)]"
+                            ? "bg-[var(--accent)] text-[var(--primary-ink)] border-[var(--accent)]"
                             : "bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]"
                         }`}
                         aria-pressed={scale === n}
@@ -598,7 +596,7 @@ export default function RecipeDetailPage() {
                   return (
                     <div className="flex items-center justify-between gap-3 px-3 py-2 mb-4 bg-[var(--bg-2)] text-[13px] text-[var(--muted)] leading-[1.5]">
                       <span>Nutrition is partial — {missingCount} ingredient{missingCount > 1 ? "s" : ""} {missingCount > 1 ? "don't" : "doesn't"} have data yet.</span>
-                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent-btn)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
+                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--primary)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
                     </div>
                   );
                 })()}
