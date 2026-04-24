@@ -379,7 +379,19 @@ input[type="number"]:focus {
 .ed-btn-text:hover { color: var(--fg); }
 .ed-btn-text.is-active { color: var(--fg); }
 
-.sort-control { display: inline-flex; align-items: center; gap: 10px; }
+.sort-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1;
+}
+.sort-dropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 2px);
+  z-index: 200;
+}
 /* .sort-field is intentionally identical to .ed-btn-text so the label
    shares a baseline with neighboring toolbar buttons. The caret is
    positioned absolutely so it can't inflate the button's line-box. */
