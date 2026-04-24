@@ -558,9 +558,11 @@ input[type="number"]:focus {
   background-size: cover;
   background-position: center;
   border-radius: 0;
-  margin-bottom: 18px;
+  margin: 0 -24px 18px;
   overflow: hidden;
 }
+.recipe-grid-item:nth-child(4n+1) .recipe-grid-item__photo { margin-left: -40px; }
+.recipe-grid-item:nth-child(4n)   .recipe-grid-item__photo { margin-right: -40px; }
 .recipe-grid-item__photo .check-mark {
   position: absolute;
   top: 12px; left: 12px;
@@ -625,6 +627,11 @@ input[type="number"]:focus {
   .recipe-grid-item:nth-child(3n)        { border-right: 0; padding-right: 40px; }
   .recipe-grid-item:nth-child(3n+1)      { padding-left: 40px; }
   .recipe-grid-item:nth-last-child(-n+3) { border-bottom: 0; }
+  /* photo edge-to-edge per cell so heights match */
+  .recipe-grid-item:nth-child(4n+1) .recipe-grid-item__photo,
+  .recipe-grid-item:nth-child(4n)   .recipe-grid-item__photo { margin-left: -24px; margin-right: -24px; }
+  .recipe-grid-item:nth-child(3n+1) .recipe-grid-item__photo { margin-left: -40px; margin-right: -24px; }
+  .recipe-grid-item:nth-child(3n)   .recipe-grid-item__photo { margin-left: -24px; margin-right: -40px; }
 }
 
 /* ── Recipe List (BRIEF-08) ──────────────────────────────────────── */
