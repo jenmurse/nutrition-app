@@ -1126,7 +1126,6 @@ const MealPlansPage = () => {
           {/* Person chips */}
           {persons.length > 1 && mealPlans.length > 0 && (
             <>
-              <div className="pl-chip-sep" />
               <div className="pl-person-chips">
               {persons.map((p) => {
                 const isActive = viewMode === 'personal' && selectedPersonId === p.id;

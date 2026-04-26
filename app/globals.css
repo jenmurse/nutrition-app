@@ -651,6 +651,33 @@ input[type="number"]:focus {
   .recipe-grid-item:nth-child(3n)   .recipe-grid-item__photo { margin-left: -24px; margin-right: -40px; }
 }
 
+/* Mobile recipe grid — 1 column, edge-to-edge photos */
+@media (max-width: 767px) {
+  .recipe-grid {
+    grid-template-columns: 1fr;
+  }
+  /* Reset all nth-child border/padding rules from wider breakpoints */
+  .recipe-grid-item,
+  .recipe-grid-item:nth-child(n) {
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 0 0 16px;
+  }
+  .recipe-grid-item:last-child { border-bottom: none; }
+  .recipe-grid-item:nth-last-child(-n+3),
+  .recipe-grid-item:nth-last-child(-n+4) { border-bottom: 1px solid var(--rule); }
+  .recipe-grid-item:last-child { border-bottom: none; }
+  /* Photo: full width, no side margins needed */
+  .recipe-grid-item__photo,
+  .recipe-grid-item:nth-child(n) .recipe-grid-item__photo {
+    margin: 0 0 12px;
+    aspect-ratio: 4 / 3;
+  }
+  /* Cat + name padding */
+  .recipe-grid-item__cat,
+  .recipe-grid-item__name { padding-left: 16px; padding-right: 16px; }
+}
+
 /* ── Recipe List (BRIEF-08) ──────────────────────────────────────── */
 
 .recipe-list-row {
@@ -723,6 +750,40 @@ input[type="number"]:focus {
   font-size: 9px;
   color: var(--muted);
   margin-left: 2px;
+}
+
+/* Mobile list — image + name only, edge-to-edge thumb */
+@media (max-width: 767px) {
+  .recipe-list-row {
+    grid-template-columns: 72px 1fr;
+    padding: 0 0 0 0;
+    gap: 0;
+  }
+  .recipe-list-row__thumb {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+  }
+  .recipe-list-row__main {
+    padding: 0 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    justify-content: center;
+    min-height: 72px;
+  }
+  .recipe-list-row__name {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.4;
+  }
+  .recipe-list-row__cat { display: none; }
+  .recipe-list-row__vals { display: none; }
+  /* Remove hover ink bar on touch */
+  .recipe-list-row::after { display: none; }
 }
 
 /* ── Pantry Grid (BRIEF-07) ──────────────────────────────────────── */
@@ -1009,7 +1070,7 @@ input[type="number"]:focus {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--pad);
-  height: var(--filter-h);
+  height: var(--nav-h);
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.06em;
