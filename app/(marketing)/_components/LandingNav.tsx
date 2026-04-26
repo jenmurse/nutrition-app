@@ -5,10 +5,7 @@ export default function LandingNav() {
         <span>Good Measure</span>
       </a>
       <div className="nav-right">
-        <a href="/login">Sign in</a>
-        <a href="/login?signup=1" className="cta">
-          Get Started <span className="arr" aria-hidden="true">↗</span>
-        </a>
+        <a href="/login" className="nav-signin">Sign in</a>
       </div>
     </nav>
   );

@@ -592,7 +592,7 @@ function RecipesPage() {
             {/* + New */}
             <button
               onClick={() => router.push("/recipes/create")}
-              className="ed-btn-primary"
+              className="ed-btn-outline"
               aria-label="Create new recipe"
             >+ New</button>
           </div>

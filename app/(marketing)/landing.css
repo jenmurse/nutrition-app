@@ -61,10 +61,8 @@
 .mkt .nav-logo-serif:hover { opacity: 0.7; }
 .mkt .nav-right { display: flex; gap: 28px; align-items: center; }
 .mkt .nav-right a { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg); }
-.mkt .nav-right a.cta { padding: 10px 18px; border: 1px solid var(--rule-ink); background: var(--fg); color: var(--bg); transition: background 180ms var(--ease), color 180ms var(--ease); font-size: 10px; letter-spacing: 0.16em; }
-.mkt .nav-right a.cta:hover { background: var(--bg); color: var(--fg); }
-.mkt .nav-right a.cta .arr { margin-left: 6px; display: inline-block; transition: transform 200ms var(--ease); }
-.mkt .nav-right a.cta:hover .arr { transform: translate(2px,-2px); }
+.mkt .nav-signin { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.mkt .nav-signin:hover { color: var(--fg); }
 
 /* ─── TICKER ─── */
 .mkt .tick {
@@ -414,9 +412,7 @@
   .mkt .nav-logo svg { width: 16px; height: 16px; }
   .mkt .nav-right { gap: 14px; }
   .mkt .nav-right a { font-size: 9px; letter-spacing: 0.14em; }
-  .mkt .nav-right a.cta { padding: 8px 12px; }
-  /* Hide Sign In on narrow screens — keep only CTA */
-  .mkt .nav-right a:not(.cta) { display: none; }
+  .mkt .nav-signin { font-size: 9px; letter-spacing: 0.14em; }
 
   .mkt .tick { padding: 9px 0; font-size: 9px; letter-spacing: 0.16em; }
 
