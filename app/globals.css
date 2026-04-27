@@ -1316,7 +1316,7 @@ input[type="number"]:focus {
 .pl-person-chip:active { transform:scale(0.97); }
 .pl-person-chip.on { color:var(--fg); border-bottom-color: var(--fg); }
 .pl-person-chip-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-.pl-person-chips { display:flex; align-items:center; gap:8px; margin-left:16px; }
+.pl-person-chips { display:flex; align-items:center; gap:14px; margin-left:16px; }
 
 .pl-right-group { display:flex; gap:18px; align-items:center; margin-left:auto; }
 
