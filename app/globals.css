@@ -1392,7 +1392,7 @@ input[type="number"]:focus {
 
 .pl-create-btn {
   font-family:var(--mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
-  background:transparent; color:var(--fg); border:1px solid var(--rule); padding:8px 16px;
+  background:transparent; color:var(--fg); border:1px solid var(--rule); padding:6px 14px;
   border-radius: 0;
   cursor:pointer; transition:border-color 0.15s, transform 100ms var(--ease-out); white-space:nowrap;
 }
@@ -3295,7 +3295,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-sheet .pl-create-date { font-size: 16px; }
   .add-meal-sheet .pl-person-chip { font-size: 11px; }
   .add-meal-sheet .pl-cancel-btn { font-size: 11px; }
-  .add-meal-sheet .pl-create-btn { font-size: 11px; padding: 10px 20px; }
+  .add-meal-sheet .pl-create-btn { font-size: 11px; padding: 8px 18px; }
 
 
   /* Day strip: shadow separator instead of hairline */
