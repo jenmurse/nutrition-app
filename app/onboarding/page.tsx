@@ -151,11 +151,34 @@ export default function OnboardingPage() {
   /* ── Complete onboarding ────────────────────────────────────────────── */
   const completeOnboarding = async () => {
     if (!selectedPerson) return;
+
+    // 1. Rename household if user changed it
+    if (householdName.trim()) {
+      const res = await fetch("/api/households", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: householdName.trim() }),
+      });
+      if (!res.ok) console.error("[onboarding] household rename failed:", await res.text());
+    }
+
+    // 2. Create any pending household members (sequential to avoid race conditions)
+    for (const member of pendingMembers) {
+      const res = await fetch("/api/persons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: member.name }),
+      });
+      if (!res.ok) console.error("[onboarding] member create failed:", member.name, await res.text());
+    }
+
+    // 3. Mark onboarding complete
     await fetch(`/api/persons/${selectedPerson.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ onboardingComplete: true }),
     });
+
     await refreshPersons();
     router.push("/home");
   };
