@@ -1016,11 +1016,17 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {persons.map((p) => (
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                          className={`font-mono text-[9px] tracking-[0.08em] uppercase pb-[2px] bg-transparent border-0 border-b-[1.5px] cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[9px] tracking-[0.08em] uppercase cursor-pointer transition-colors active:scale-[0.97] bg-transparent border-0 ${
                             guidedPersonId === p.id
-                              ? "text-[var(--fg)] border-b-[var(--fg)]"
-                              : "text-[var(--muted)] border-b-transparent hover:text-[var(--fg)]"
-                          }`} style={{ borderBottomStyle: 'solid' }}>{p.name}</button>
+                              ? "text-[var(--fg)]"
+                              : "text-[var(--muted)] hover:text-[var(--fg)]"
+                          }`}
+                          style={{
+                            borderRadius: '9999px',
+                            padding: '4px 10px',
+                            boxShadow: guidedPersonId === p.id ? '0 0 0 1.5px var(--fg)' : '0 0 0 1.5px transparent',
+                            transition: 'color 0.15s, box-shadow 0.15s',
+                          }}>{p.name}</button>
                       ))}
                     </div>
                   </>
@@ -1035,11 +1041,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             setGuidedFocus((prev) => prev.includes(g.nutrientId) ? prev.filter((x) => x !== g.nutrientId) : [...prev, g.nutrientId]);
                             if (guidedFocus.includes(g.nutrientId)) setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
                           }}
-                          className={`font-mono text-[9px] tracking-[0.08em] uppercase pb-[2px] bg-transparent border-0 border-b-[1.5px] cursor-pointer transition-colors active:scale-[0.97] ${
-                            guidedFocus.includes(g.nutrientId)
-                              ? "text-[var(--fg)] border-b-[var(--fg)]"
-                              : "text-[var(--muted)] border-b-transparent hover:text-[var(--fg)]"
-                          }`} style={{ borderBottomStyle: 'solid' }}>{g.nutrient.displayName}</button>
+                          className={`rb-focus-chip ${guidedFocus.includes(g.nutrientId) ? 'is-active' : ''}`}
+                        >{g.nutrient.displayName}</button>
                       ))}
                     </div>
                   </>

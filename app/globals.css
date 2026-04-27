@@ -1285,10 +1285,10 @@ input[type="number"]:focus {
   font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:none; border:1px solid var(--rule); color:var(--muted);
   padding:4px 10px; cursor:pointer; white-space:nowrap; flex-shrink:0;
-  border-radius: var(--radius-pill);
-  transition:color 0.15s, transform 100ms var(--ease-out);
+  border-radius: 0;
+  transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
 }
-.pl-nav-btn:hover { color:var(--fg); }
+.pl-nav-btn:hover { color:var(--fg); border-color:var(--fg); }
 .pl-nav-btn:active { transform:scale(0.97); }
 
 .pl-chip-group { display:flex; gap:4px; align-items:center; }
@@ -4145,6 +4145,35 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--fg);
   border-color: var(--fg);
 }
+
+/* ── Recipe builder: nutrition guidance chips ───────────────────────────── */
+.rb-focus-chip {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+}
+.rb-focus-chip::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: var(--fg);
+  transform: scaleX(0);
+  transition: transform 0.15s var(--ease-out);
+}
+.rb-focus-chip:hover { color: var(--fg); }
+.rb-focus-chip.is-active { color: var(--fg); }
+.rb-focus-chip.is-active::after { transform: scaleX(1); }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /* RecipeBuilderDemo — .rbd-*                                                  */
