@@ -122,13 +122,10 @@ function LoginPage() {
     setLoading(false);
   };
 
-  const handleGoogle = async () => {
+  const handleGoogle = () => {
     setError("");
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback${getInviteParam()}` },
-    });
-    if (error) setError(error.message);
+    const invite = inviteToken || getCookie("invite_token");
+    window.location.href = `/api/auth/google${invite ? `?invite=${invite}` : ""}`;
   };
 
   const copy = {
