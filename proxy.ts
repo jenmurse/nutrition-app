@@ -14,6 +14,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
+  // Let the OAuth callback route handle itself — running getUser() here
+  // interferes with the PKCE code verifier cookie and causes exchangeCodeForSession
+  // to fail on first sign-in.
+  if (request.nextUrl.pathname === "/auth/callback") {
+    return NextResponse.next();
+  }
+
   // Create response with forwarded request headers (we'll add user ID later)
   const requestHeaders = new Headers(request.headers);
   let response = NextResponse.next({
