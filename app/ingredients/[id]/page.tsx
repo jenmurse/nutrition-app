@@ -7,6 +7,7 @@ import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import { clientCache } from "@/lib/clientCache";
 import ContextualTip from "../../components/ContextualTip";
+import EmptyState from "../../components/EmptyState";
 import type { Nutrient } from "@/types";
 
 /* ── Types ── */
@@ -540,17 +541,13 @@ export default function IngredientDetailPage() {
   if (!ingredient) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center space-y-3">
-          <div className="font-serif text-[20px] text-[var(--fg)]">
-            Ingredient not found
-          </div>
-          <Link
-            href="/ingredients"
-            className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--accent)] no-underline hover:text-[var(--fg)] transition-colors"
-          >
-            &larr; Back to pantry
-          </Link>
-        </div>
+        <EmptyState
+          eyebrow="§ INGREDIENT NOT FOUND"
+          headline="Nothing here."
+          lede="This ingredient may have been deleted or the link is broken."
+          ctaLabel="← BACK TO PANTRY"
+          ctaHref="/ingredients"
+        />
       </div>
     );
   }

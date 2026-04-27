@@ -10,6 +10,7 @@ import { clientCache } from "@/lib/clientCache";
 import { marked } from "marked";
 import { APP_NAME } from "@/lib/brand";
 import ContextualTip from "../../components/ContextualTip";
+import EmptyState from "../../components/EmptyState";
 import Link from "next/link";
 import type { Goal } from "@/types";
 
@@ -353,10 +354,13 @@ export default function RecipeDetailPage() {
   if (!recipe) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center space-y-3">
-          <div className="font-serif text-[20px] text-[var(--fg)]">Recipe not found</div>
-          <button onClick={() => router.push("/recipes")} className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--accent)] bg-transparent border-0 cursor-pointer hover:text-[var(--fg)]">← Back to recipes</button>
-        </div>
+        <EmptyState
+          eyebrow="§ RECIPE NOT FOUND"
+          headline="Nothing here."
+          lede="This recipe may have been deleted or the link is broken."
+          ctaLabel="← BACK TO RECIPES"
+          ctaHref="/recipes"
+        />
       </div>
     );
   }
