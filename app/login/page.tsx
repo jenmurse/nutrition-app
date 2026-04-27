@@ -62,13 +62,27 @@ function LoginPage() {
     return token ? `?invite=${token}` : "";
   };
 
+  const friendlyError = (msg: string): string => {
+    if (msg.includes("Password should contain") || msg.includes("password"))
+      return "Password needs at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 special character (!@#$%^&*).";
+    if (msg.includes("sending confirmation email") || msg.includes("sending an email"))
+      return "Couldn\u2019t send a confirmation email. Try again in a moment, or sign in with Google.";
+    if (msg.includes("already registered") || msg.includes("already been registered") || msg.includes("User already registered"))
+      return "An account with this email already exists. Try signing in instead.";
+    if (msg.includes("Invalid login credentials") || msg.includes("invalid_credentials"))
+      return "Email or password is incorrect.";
+    if (msg.includes("Email not confirmed"))
+      return "Check your email and click the confirmation link first.";
+    return msg;
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setError(error.message);
+      setError(friendlyError(error.message));
       setLoading(false);
     } else {
       window.location.href = `/auth/callback${getInviteParam()}`;
@@ -79,7 +93,7 @@ function LoginPage() {
     e.preventDefault();
     setError("");
     if (password !== confirmPassword) {
-      setError("Passwords don't match.");
+      setError("Passwords don\u2019t match.");
       return;
     }
     setLoading(true);
@@ -91,7 +105,7 @@ function LoginPage() {
         data: { full_name: firstName.trim() || undefined },
       },
     });
-    if (error) setError(error.message);
+    if (error) setError(friendlyError(error.message));
     else setNotice("Check your email for a confirmation link.");
     setLoading(false);
   };
@@ -103,7 +117,7 @@ function LoginPage() {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
-    if (error) setError(error.message);
+    if (error) setError(friendlyError(error.message));
     else setNotice("Check your email for a reset link.");
     setLoading(false);
   };
