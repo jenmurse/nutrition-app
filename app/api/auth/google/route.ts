@@ -7,10 +7,16 @@ export async function GET(request: Request) {
   const inviteToken = searchParams.get("invite");
 
   const forwardedHost = request.headers.get("x-forwarded-host");
+  console.log("[api/auth/google] request.url origin:", origin, "x-forwarded-host:", forwardedHost);
+
   const redirectBase =
     forwardedHost && process.env.NODE_ENV !== "development"
       ? `https://${forwardedHost}`
       : origin;
+
+  // The host the browser sees — used as explicit cookie domain so Set-Cookie isn't
+  // attributed to Railway's internal hostname.
+  const publicHost = forwardedHost ?? new URL(redirectBase).hostname;
 
   const cookieStore = await cookies();
   const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
@@ -48,17 +54,18 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${redirectBase}/login?error=auth`);
   }
 
-  // Redirect to Google OAuth — set PKCE verifier cookie with explicit known-good attributes.
-  // Bypass Supabase's options entirely (they may have bad maxAge/secure values).
-  console.log("[api/auth/google] setting cookies:", pendingCookies.map(c => ({ name: c.name, options: c.options })));
+  // Redirect to Google OAuth — set PKCE verifier with explicit domain so it's
+  // attributed to the public host (www.withgoodmeasure.com), not Railway's internal hostname.
+  console.log("[api/auth/google] publicHost:", publicHost, "setting cookies:", pendingCookies.map(c => c.name));
   const response = NextResponse.redirect(data.url);
   pendingCookies.forEach(({ name, value }) => {
     response.cookies.set(name, value, {
       path: "/",
+      domain: publicHost,
       httpOnly: true,
       secure: true,
       sameSite: "lax",
-      maxAge: 60 * 10, // 10 minutes — enough to complete OAuth flow
+      maxAge: 60 * 10,
     });
   });
 
