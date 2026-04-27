@@ -48,14 +48,17 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${redirectBase}/login?error=auth`);
   }
 
-  // Redirect to Google OAuth — pendingCookies carries the PKCE verifier.
-  // Force path='/' so the cookie is sent back on /auth/callback (not just /api/auth/).
-  console.log("[api/auth/google] setting cookies:", pendingCookies.map(c => c.name));
+  // Redirect to Google OAuth — set PKCE verifier cookie with explicit known-good attributes.
+  // Bypass Supabase's options entirely (they may have bad maxAge/secure values).
+  console.log("[api/auth/google] setting cookies:", pendingCookies.map(c => ({ name: c.name, options: c.options })));
   const response = NextResponse.redirect(data.url);
-  pendingCookies.forEach(({ name, value, options }) => {
+  pendingCookies.forEach(({ name, value }) => {
     response.cookies.set(name, value, {
-      ...(options as Parameters<typeof response.cookies.set>[2]),
       path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 60 * 10, // 10 minutes — enough to complete OAuth flow
     });
   });
 
