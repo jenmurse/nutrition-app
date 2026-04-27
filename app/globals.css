@@ -1959,6 +1959,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   gap: 16px;
   background: var(--bg-2);
   flex-shrink: 0;
+  overflow: hidden;
+  transform-origin: top;
+  animation: stripIn 260ms cubic-bezier(0.0, 0.0, 0.2, 1) both;
+}
+@keyframes stripIn {
+  from { opacity: 0; height: 0; }
+  to   { opacity: 1; height: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .compare-strip { animation: none; }
 }
 .compare-strip-label {
   font-family: var(--font-mono);
@@ -2013,11 +2023,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .compare-strip-cta:not(:disabled):hover { opacity: 0.88; }
 
 /* Compare toolbar button — baseline-anchored underline (matches GRID/LIST in .ed-toggle).
-   Reserve the underline space on the base state so .is-active doesn't shift the text. */
+   Reserve the underline space on the base state so .is-active doesn't shift the text.
+   line-height inherits (~1.2) to match .ed-toggle button vertical box. */
 .cmp-mode-btn {
   padding: 3px 0 2px;
   border-bottom: 1.5px solid transparent;
-  line-height: 1;
+  line-height: 1.2;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .cmp-mode-btn.is-active {
@@ -2770,6 +2781,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   from { opacity: 0; transform: translateX(24px); }
   to   { opacity: 1; transform: translateX(0); }
 }
+@keyframes pageExitRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(24px); }
+}
 .pl-shop-overlay {
   position: fixed;
   inset: 0;
@@ -2780,8 +2795,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   overflow: hidden;
   animation: pageEnterRight var(--motion-page-enter) both;
 }
+.pl-shop-overlay.is-closing {
+  animation: pageExitRight var(--motion-page-exit) both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .pl-shop-overlay { animation: none; }
+  .pl-shop-overlay,
+  .pl-shop-overlay.is-closing { animation: none; }
 }
 
 .pl-shop-anchor {
@@ -2904,8 +2923,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   overflow: hidden;
   animation: pageEnterRight var(--motion-page-enter) both;
 }
+.pl-add-overlay.is-closing {
+  animation: pageExitRight var(--motion-page-exit) both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .pl-add-overlay { animation: none; }
+  .pl-add-overlay,
+  .pl-add-overlay.is-closing { animation: none; }
 }
 
 .pl-add-anchor {

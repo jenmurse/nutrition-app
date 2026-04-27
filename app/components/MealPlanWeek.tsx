@@ -231,6 +231,17 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [closingMealType, setClosingMealType] = useState(false);
   const [closingRecipePicker, setClosingRecipePicker] = useState(false);
   const [mealTypeContentVisible, setMealTypeContentVisible] = useState(false);
+  const [addOverlayClosing, setAddOverlayClosing] = useState(false);
+  const closeAddOverlay = () => {
+    setAddOverlayClosing(true);
+    setTimeout(() => {
+      setMealTypeDropdownOpen(false);
+      setItemTypeTabOpen(null);
+      setSelectedDate(null);
+      setSelectedDayMeal(null);
+      setAddOverlayClosing(false);
+    }, 280);
+  };
 
   // Block all interaction on newly opened sheets by rendering a transparent
   // overlay div on top. This is a physical DOM blocker — no event handling
@@ -700,17 +711,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       )}
 
       {(mealTypeDropdownOpen || itemTypeTabOpen) && (selectedDate || selectedDayMeal) && createPortal(
-        <div className="pl-add-overlay" role="dialog" aria-modal="true" aria-label="Add meal">
+        <div className={`pl-add-overlay${addOverlayClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true" aria-label="Add meal">
           {/* Anchor row */}
           <div className="pl-add-anchor">
             {!itemTypeTabOpen ? (
               <button
                 type="button"
                 className="ed-btn-text"
-                onClick={() => {
-                  setMealTypeDropdownOpen(false);
-                  setSelectedDate(null);
-                }}
+                onClick={closeAddOverlay}
               >← Back to planner</button>
             ) : (
               <button

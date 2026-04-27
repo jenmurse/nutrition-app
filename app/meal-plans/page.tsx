@@ -371,6 +371,11 @@ const MealPlansPage = () => {
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
   const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
   const [shopSheetOpen, setShopSheetOpen] = useState(false);
+  const [shopClosing, setShopClosing] = useState(false);
+  const closeShopOverlay = () => {
+    setShopClosing(true);
+    setTimeout(() => { setShopSheetOpen(false); setShopClosing(false); }, 280);
+  };
   const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string; category: string }[]>([]);
   const [shopLoading, setShopLoading] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
@@ -1483,13 +1488,13 @@ const MealPlansPage = () => {
 
       {/* Shopping list — full-screen editorial overlay */}
       {shopSheetOpen && createPortal(
-        <div className="pl-shop-overlay open" role="dialog" aria-modal="true" aria-label="Shopping list">
+        <div className={`pl-shop-overlay${shopClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true" aria-label="Shopping list">
           {/* Anchor row */}
           <div className="pl-shop-anchor">
             <button
               type="button"
               className="pl-shop-back ed-btn-text"
-              onClick={() => setShopSheetOpen(false)}
+              onClick={() => closeShopOverlay()}
             >← Back to planner</button>
             <span className="pl-shop-sep" aria-hidden="true" />
             <span className="pl-shop-label">Shopping list</span>
