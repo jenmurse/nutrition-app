@@ -355,7 +355,7 @@ Returns all ingredients with their default unit and calorie info.`,
         name: string;
         defaultUnit: string;
         source: string;
-        nutrientValues: { value: number; nutrient: { displayName: string; unit: string } }[];
+        nutrientValues?: { value: number; nutrient: { displayName: string; unit: string } }[];
       }[];
 
       if (ingredients.length === 0) {
@@ -364,13 +364,19 @@ Returns all ingredients with their default unit and calorie info.`,
         };
       }
 
+      // The list endpoint (no ?q) intentionally trims nutrientValues — only
+      // search responses include them. Render the lighter line in that case.
       const lines = ingredients.map((ing) => {
-        const calEntry = ing.nutrientValues.find((n) =>
+        const nutrients = ing.nutrientValues;
+        if (!nutrients) {
+          return `• [id:${ing.id}] ${ing.name} (${ing.defaultUnit})`;
+        }
+        const calEntry = nutrients.find((n) =>
           n.nutrient.displayName.toLowerCase().includes('calor') ||
           n.nutrient.displayName.toLowerCase().includes('energy')
         );
         const calInfo = calEntry ? ` — ${Math.round(calEntry.value)} ${calEntry.nutrient.unit}/100g` : '';
-        const hasNutrition = ing.nutrientValues.length > 0;
+        const hasNutrition = nutrients.length > 0;
         return `• [id:${ing.id}] ${ing.name} (${ing.defaultUnit}${calInfo})${hasNutrition ? '' : ' [no nutrition data]'}`;
       });
 
