@@ -76,10 +76,12 @@ async function provisionUser(
   user: { id: string; email?: string; user_metadata?: Record<string, unknown> },
   inviteToken: string | null
 ): Promise<boolean> {
+  console.log("[provisionUser] start — supabaseId:", user.id, "email:", user.email);
   let person = await prisma.person.findUnique({
     where: { supabaseId: user.id },
     include: { householdMembers: { where: { active: true } } },
   });
+  console.log("[provisionUser] findUnique by supabaseId:", person ? `found id=${person.id}` : "null");
 
   let invite = null;
   if (inviteToken) {
@@ -98,6 +100,7 @@ async function provisionUser(
       where: { email: user.email },
       include: { householdMembers: { where: { active: true } } },
     });
+    console.log("[provisionUser] findFirst by email:", byEmail ? `found id=${byEmail.id}` : "null");
     if (byEmail) {
       person = await prisma.person.update({
         where: { id: byEmail.id },
@@ -106,6 +109,8 @@ async function provisionUser(
       });
     }
   }
+
+  console.log("[provisionUser] person after lookups:", person ? `id=${person.id} onboardingComplete=${person.onboardingComplete}` : "null — will create");
 
   if (!person) {
     // New user — create Person, Household, and HouseholdMember
@@ -142,6 +147,7 @@ async function provisionUser(
       });
     }
 
+    console.log("[provisionUser] created person id:", person.id, "onboardingComplete:", person.onboardingComplete);
     return true; // new user always needs onboarding
   }
 
@@ -189,5 +195,6 @@ async function provisionUser(
     return true;
   }
 
+  console.log("[provisionUser] existing person id:", person.id, "onboardingComplete:", person.onboardingComplete, "-> returning", !person.onboardingComplete);
   return !person.onboardingComplete;
 }
