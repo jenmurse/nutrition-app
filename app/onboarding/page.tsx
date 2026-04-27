@@ -162,14 +162,29 @@ export default function OnboardingPage() {
       if (!res.ok) console.error("[onboarding] household rename failed:", await res.text());
     }
 
-    // 2. Create any pending household members (sequential to avoid race conditions)
+    // 2. Create any pending household members (sequential to avoid race conditions).
+    //    Each member is an account-holder by default (tracked-only is a Settings-only
+    //    distinction), so we also create an invite tied to their Person record.
+    //    Invite creation is fail-soft — a missing invite is recoverable later in Settings.
     for (const member of pendingMembers) {
       const res = await fetch("/api/persons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: member.name }),
       });
-      if (!res.ok) console.error("[onboarding] member create failed:", member.name, await res.text());
+      if (!res.ok) {
+        console.error("[onboarding] member create failed:", member.name, await res.text());
+        continue;
+      }
+      const newPerson = await res.json();
+      const inviteRes = await fetch("/api/households/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ forPersonId: newPerson.id }),
+      });
+      if (!inviteRes.ok) {
+        console.error("[onboarding] invite create failed:", member.name, await inviteRes.text());
+      }
     }
 
     // 3. Mark onboarding complete
@@ -229,17 +244,19 @@ export default function OnboardingPage() {
         {/* ── Centered column — chrome + content share this container ── */}
         <div className={`ob-col ${stepColModifier}`.trim()}>
 
-          {/* Chrome row — not animated, aligns to column edges */}
-          <div className="ob-chrome">
-            <BrandName className="ob-wordmark" />
-            <span
-              className="ob-counter"
-              aria-hidden={!showCounter}
-              style={{ visibility: showCounter ? "visible" : "hidden" }}
-            >
-              {counterLabel[step] ?? ""}
-            </span>
-          </div>
+          {/* Chrome row — not animated, aligns to column edges.
+              Bookend variant (Welcome, Complete): wordmark centered, no counter.
+              Wizard variant (Profile, Household, Goals): wordmark left + counter right. */}
+          {showCounter ? (
+            <div className="ob-chrome">
+              <BrandName className="ob-wordmark" />
+              <span className="ob-counter">{counterLabel[step] ?? ""}</span>
+            </div>
+          ) : (
+            <div className="ob-chrome ob-chrome--center">
+              <BrandName className="ob-wordmark" />
+            </div>
+          )}
 
           {/* Step content — key triggers remount animation */}
           <div key={step} className={animClass}>

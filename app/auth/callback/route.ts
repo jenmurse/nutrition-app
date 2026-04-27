@@ -94,6 +94,26 @@ async function provisionUser(
     }
   }
 
+  // Targeted-invite path: the invite was generated for a specific Person record.
+  // Attach the redeeming user to that record so we don't create a duplicate Person.
+  if (!person && invite?.forPersonId) {
+    const target = await prisma.person.findUnique({
+      where: { id: invite.forPersonId },
+      include: { householdMembers: { where: { active: true } } },
+    });
+    if (target) {
+      console.log("[provisionUser] attaching redeemer to invite target person id:", target.id);
+      person = await prisma.person.update({
+        where: { id: target.id },
+        data: {
+          supabaseId: user.id,
+          email: user.email ?? target.email,
+        },
+        include: { householdMembers: { where: { active: true } } },
+      });
+    }
+  }
+
   // Email fallback — guard against Supabase issuing a new UID for the same email
   if (!person && user.email) {
     const byEmail = await prisma.person.findFirst({

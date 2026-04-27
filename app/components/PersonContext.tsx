@@ -9,6 +9,7 @@ export interface Person {
   color: string;
   theme: string;
   onboardingComplete?: boolean;
+  trackedOnly?: boolean; // true = nutrition tracked, no login (e.g., children)
   dismissedTips: string[]; // parsed from JSON string in DB
 }
 

@@ -5321,12 +5321,18 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 /* Top chrome */
-/* Chrome sits inside the centered column — aligns to its edges */
+/* Chrome sits inside the centered column — aligns to its edges.
+   Two variants:
+   - Default (wizard steps): wordmark left, counter right
+   - .ob-chrome--center (Welcome, Complete): wordmark only, centered */
 .ob-chrome {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
+  padding-bottom: 32px;
+}
+.ob-chrome--center {
+  justify-content: center;
 }
 
 .ob-wordmark {

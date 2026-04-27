@@ -38,6 +38,8 @@ interface Invite {
   id: number;
   token: string;
   url: string;
+  forPersonId: number | null;
+  inviteSentAt: string | null;
   createdAt: string;
   expiresAt: string;
   usedAt: string | null;
@@ -115,13 +117,14 @@ const SettingsPage = () => {
   const [householdNameSaving, setHouseholdNameSaving] = useState(false);
   const [memberRoles, setMemberRoles] = useState<Record<number, string>>({});
   const [invites, setInvites] = useState<Invite[]>([]);
-  const [inviting, setInviting] = useState(false);
-  const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
-  // Add member
+  // Add member — unified form (name + theme + trackedOnly)
   const [addingPerson, setAddingPerson] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newTheme, setNewTheme] = useState<string>('sage');
+  const [newTrackedOnly, setNewTrackedOnly] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
+  const [copiedInviteId, setCopiedInviteId] = useState<number | null>(null);
 
   // API key
   const [hasApiKey, setHasApiKey] = useState(false);
@@ -335,25 +338,59 @@ const SettingsPage = () => {
     }
   };
 
-  const handleInvite = async () => {
-    setInviting(true);
-    try {
-      const res = await fetch('/api/households/invite', { method: 'POST' });
-      if (!res.ok) return;
-      const data = await res.json();
-      await navigator.clipboard.writeText(data.url);
-      setCopiedToken(data.token);
-      setTimeout(() => setCopiedToken(null), 3000);
-      await loadInvites();
-    } finally {
-      setInviting(false);
-    }
+  // Copy an existing invite link for a member, marking it as sent.
+  const handleCopyMemberInvite = async (invite: Invite) => {
+    await navigator.clipboard.writeText(invite.url);
+    setCopiedInviteId(invite.id);
+    setTimeout(() => setCopiedInviteId(null), 2500);
+    // Mark as sent (idempotent on the server). Refresh list so dashboard checklist
+    // / convert actions reflect the new state.
+    await fetch(`/api/households/invite/${invite.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sent: true }),
+    });
+    await loadInvites();
   };
 
-  const handleCopyInvite = async (url: string, token: string) => {
-    await navigator.clipboard.writeText(url);
-    setCopiedToken(token);
-    setTimeout(() => setCopiedToken(null), 3000);
+  // Generate an invite for a tracked-only person being converted to account-holder.
+  const handleInviteToJoin = async (personId: number) => {
+    // Flip trackedOnly back to false first
+    await fetch(`/api/persons/${personId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackedOnly: false }),
+    });
+    const res = await fetch('/api/households/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ forPersonId: personId }),
+    });
+    if (!res.ok) {
+      toast.error('Failed to create invite');
+      return;
+    }
+    await refreshPersons();
+    await loadInvites();
+  };
+
+  // Convert an account-holder (with pending invite) back to tracked-only.
+  // Revokes the pending invite and flips trackedOnly = true.
+  const handleMakeTrackedOnly = async (personId: number, pendingInviteId: number | null) => {
+    if (!await dialog.confirm(
+      'Convert this member to tracked-only? Their pending invite will be revoked. They can still have meals tracked, but won\u2019t be able to log in.',
+      { confirmLabel: 'Convert', danger: true }
+    )) return;
+    if (pendingInviteId !== null) {
+      await fetch(`/api/households/invite/${pendingInviteId}`, { method: 'DELETE' });
+    }
+    await fetch(`/api/persons/${personId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackedOnly: true }),
+    });
+    await refreshPersons();
+    await loadInvites();
   };
 
   const loadMcpToken = useCallback(async () => {
@@ -499,13 +536,28 @@ const SettingsPage = () => {
       const res = await fetch('/api/persons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName.trim() }),
+        body: JSON.stringify({
+          name: newName.trim(),
+          theme: newTheme,
+          trackedOnly: newTrackedOnly,
+        }),
       });
-      if (res.ok) {
-        await refreshPersons();
-        setAddingPerson(false);
-        setNewName('');
+      if (!res.ok) return;
+      const newPerson = await res.json();
+      // Auto-create an invite for account-holders. Tracked-only members get no invite.
+      if (!newTrackedOnly) {
+        await fetch('/api/households/invite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forPersonId: newPerson.id }),
+        });
       }
+      await refreshPersons();
+      await loadInvites();
+      setAddingPerson(false);
+      setNewName('');
+      setNewTheme('sage');
+      setNewTrackedOnly(false);
     } finally {
       setAddSaving(false);
     }
@@ -591,12 +643,25 @@ const SettingsPage = () => {
               </div>
             </div>
 
-            {/* Member list — full width */}
+            {/* Member list — full width.
+                Each row shows invite status when applicable:
+                - Owner: OWNER tag, no invite UI
+                - Account-holder w/ pending invite: COPY INVITE LINK
+                - Account-holder w/ redeemed invite: ✓ JOINED {date}
+                - Tracked-only: TRACKED ONLY mono label
+                Convert actions (MAKE TRACKED ONLY / INVITE TO JOIN) live as
+                small secondary affordances on non-owner rows. */}
             <div>
-                {/* Member rows */}
                 {persons.map((person) => {
                   const role = memberRoles[person.id];
                   const isSaving = savingThemeId === person.id;
+                  const pendingInvite = invites.find(
+                    (i) => i.forPersonId === person.id && !i.usedAt && !i.expired
+                  ) ?? null;
+                  const redeemedInvite = invites.find(
+                    (i) => i.forPersonId === person.id && i.usedAt
+                  ) ?? null;
+                  const isOwner = role === 'owner';
                   return (
                     <div key={person.id} className="set-person-row flex items-center gap-[12px] py-[12px] border-b border-[var(--rule)]">
                       <span
@@ -605,25 +670,67 @@ const SettingsPage = () => {
                         aria-hidden="true"
                       />
                       <span className="text-[13px] text-[var(--fg)] font-medium">{person.name}</span>
-                      {role && (
-                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">{role}</span>
-                      )}
-                      {role !== 'owner' && (
+
+                      {/* Status pill — owner / tracked-only / joined / pending */}
+                      {isOwner ? (
+                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">
+                          Owner
+                        </span>
+                      ) : person.trackedOnly ? (
+                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">
+                          Tracked Only
+                        </span>
+                      ) : redeemedInvite ? (
+                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">
+                          ✓ Joined {new Date(redeemedInvite.usedAt!).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </span>
+                      ) : pendingInvite ? (
                         <button
-                          onClick={async () => {
-                            if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
-                            const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
-                            if (res.ok) { await refreshPersons(); } else {
-                              const data = await res.json();
-                              toast.error(data.error || 'Failed to remove person');
-                            }
-                          }}
-                          className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
-                          aria-label={`Remove ${person.name}`}
+                          onClick={() => handleCopyMemberInvite(pendingInvite)}
+                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity"
+                          aria-label={`Copy invite link for ${person.name}`}
                         >
-                          Remove
+                          {copiedInviteId === pendingInvite.id ? 'Copied!' : 'Copy Invite Link'}
                         </button>
+                      ) : null}
+
+                      {/* Convert + Remove actions — non-owner only */}
+                      {!isOwner && (
+                        <div className="flex items-center gap-[10px] ml-[4px]">
+                          {person.trackedOnly ? (
+                            <button
+                              onClick={() => handleInviteToJoin(person.id)}
+                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--cta)] bg-transparent border-0 cursor-pointer transition-colors"
+                              aria-label={`Invite ${person.name} to join`}
+                            >
+                              Invite to Join
+                            </button>
+                          ) : pendingInvite && !redeemedInvite ? (
+                            <button
+                              onClick={() => handleMakeTrackedOnly(person.id, pendingInvite.id)}
+                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+                              aria-label={`Make ${person.name} tracked only`}
+                            >
+                              Make Tracked Only
+                            </button>
+                          ) : null}
+                          <button
+                            onClick={async () => {
+                              if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
+                              const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
+                              if (res.ok) { await refreshPersons(); await loadInvites(); } else {
+                                const data = await res.json();
+                                toast.error(data.error || 'Failed to remove person');
+                              }
+                            }}
+                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
+                            aria-label={`Remove ${person.name}`}
+                          >
+                            Remove
+                          </button>
+                        </div>
                       )}
+
                       <div className="set-theme-chips flex items-center gap-[6px] ml-auto" role="radiogroup" aria-label={`Theme color for ${person.name}`}>
                         {THEMES.map((t) => {
                           const isActive = (person.theme || 'sage') === t.name;
@@ -654,8 +761,11 @@ const SettingsPage = () => {
                     </div>
                   );
                 })}
-                {/* Add / Invite buttons */}
-                <div className="set-invite-btns pt-[12px] flex gap-[8px] flex-wrap">
+
+                {/* Unified Add Member — name, theme, tracked-only toggle.
+                    Default flow creates a Person AND a HouseholdInvite tied to that
+                    Person. Tracked-only members skip the invite. */}
+                <div className="set-add-member pt-[16px]">
                   {!addingPerson ? (
                     <button
                       onClick={() => setAddingPerson(true)}
@@ -663,89 +773,93 @@ const SettingsPage = () => {
                       aria-label="Add a household member"
                     >+ Add Member</button>
                   ) : (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddPerson(); if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); } }}
-                        placeholder="Name" autoFocus
-                        className="bg-[var(--bg-2)] border border-[var(--rule)] px-3 py-2 font-mono text-[11px] text-[var(--fg)] w-[160px] focus:outline-none focus:border-[var(--accent)]"
-                        aria-label="New member name" />
-                      <button onClick={handleAddPerson} disabled={!newName.trim() || addSaving}
-                        className="ed-btn primary disabled:opacity-40">
-                        {addSaving ? 'Adding…' : 'Add'}
-                      </button>
-                      <button onClick={() => { setAddingPerson(false); setNewName(''); }}
-                        className="ed-btn ghost">Cancel</button>
+                    <div className="flex flex-col gap-[12px] py-[12px] px-[16px] border border-[var(--rule)] rounded-md bg-[var(--bg-2)]" style={{ maxWidth: 480 }}>
+                      <div>
+                        <div className="ed-label mb-[6px]">Name</div>
+                        <input
+                          type="text"
+                          value={newName}
+                          onChange={(e) => setNewName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleAddPerson();
+                            if (e.key === 'Escape') { setAddingPerson(false); setNewName(''); }
+                          }}
+                          placeholder="Name"
+                          autoFocus
+                          className="w-full bg-[var(--bg)] border border-[var(--rule)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] focus:outline-none focus:border-[var(--accent)]"
+                          aria-label="New member name"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="ed-label mb-[6px]">Theme</div>
+                        <div className="flex items-center gap-[6px]" role="radiogroup" aria-label="Theme color">
+                          {THEMES.map((t) => {
+                            const isActive = newTheme === t.name;
+                            return (
+                              <button
+                                key={t.name}
+                                type="button"
+                                onClick={() => setNewTheme(t.name)}
+                                title={t.label}
+                                className="w-[20px] h-[20px] rounded-full border-0 cursor-pointer p-0 transition-transform hover:scale-[1.15] active:scale-95 flex items-center justify-center"
+                                style={{
+                                  background: t.hex,
+                                  boxShadow: isActive ? `0 0 0 2px var(--bg-2), 0 0 0 3.5px ${t.hex}` : 'none',
+                                }}
+                                aria-label={`${t.label}${isActive ? ' (current)' : ''}`}
+                                role="radio"
+                                aria-checked={isActive}
+                              >
+                                {isActive && (
+                                  <svg width="7" height="5" viewBox="0 0 8 6" fill="none" aria-hidden="true">
+                                    <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <label className="flex items-start gap-[8px] cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newTrackedOnly}
+                          onChange={(e) => setNewTrackedOnly(e.target.checked)}
+                          aria-label="Tracked only"
+                          className="mt-[2px]"
+                        />
+                        <div>
+                          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)]">Tracked Only (no login)</div>
+                          <div className="text-[12px] text-[var(--muted)] leading-[1.5] mt-[2px]">
+                            Use for children or members who won&rsquo;t have their own account.
+                          </div>
+                        </div>
+                      </label>
+
+                      <div className="flex gap-[8px] justify-end">
+                        <button
+                          onClick={() => {
+                            setAddingPerson(false);
+                            setNewName('');
+                            setNewTheme('sage');
+                            setNewTrackedOnly(false);
+                          }}
+                          className="ed-btn ghost"
+                        >Cancel</button>
+                        <button
+                          onClick={handleAddPerson}
+                          disabled={!newName.trim() || addSaving}
+                          className="ed-btn primary disabled:opacity-40"
+                        >
+                          {addSaving ? 'Adding…' : 'Add'}
+                        </button>
+                      </div>
                     </div>
                   )}
-                  <button onClick={handleInvite} disabled={inviting}
-                    className="ed-btn disabled:opacity-40"
-                    aria-label="Generate invite link">
-                    {inviting ? 'Generating…' : '+ Invite Link'}
-                  </button>
                 </div>
               </div>
-
-            {/* ── Invite Links table ── */}
-            {invites.length > 0 && (
-              <div className="set-invite-wrap mt-[32px]">
-                <div className="ed-label mb-[10px]">Invite Links</div>
-                <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 12 }}>
-                  <thead>
-                    <tr>
-                      {['URL', 'Status', 'Created', 'Redeemed', ''].map((h, i) => (
-                        <th key={i} className="ed-label text-left font-normal py-[8px] border-b border-[var(--rule)]"
-                          style={i === 4 ? { width: 80 } : i >= 1 && i <= 3 ? { width: 80 } : undefined}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invites.map((inv) => {
-                      const status = inv.usedAt ? 'redeemed' : inv.expired ? 'expired' : 'active';
-                      return (
-                        <tr key={inv.id} className="border-b border-[var(--rule)]">
-                          <td className="font-mono text-[11px] text-[var(--fg)] py-[8px]" title={inv.url}>
-                            {inv.url.replace(/^https?:\/\//, '')}
-                          </td>
-                          <td className={`font-mono text-[11px] py-[8px] ${status === 'active' ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                          </td>
-                          <td className="font-mono text-[11px] text-[var(--muted)] py-[8px]">
-                            {new Date(inv.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
-                          </td>
-                          <td className="font-mono text-[11px] text-[var(--muted)] py-[8px]">
-                            {inv.usedAt ? new Date(inv.usedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
-                          </td>
-                          <td className="text-right py-[8px]">
-                            {status === 'active' ? (
-                              <button
-                                className="ed-btn danger"
-                                aria-label="Revoke invite"
-                                onClick={async () => {
-                                  if (!await dialog.confirm('Revoke this invite link?', { confirmLabel: 'Revoke', danger: true })) return;
-                                  const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
-                                  if (res.ok) await loadInvites();
-                                  else toast.error('Failed to revoke invite');
-                                }}
-                              >Revoke</button>
-                            ) : (
-                              <button
-                                className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] text-[11px] cursor-pointer hover:text-[var(--err)] hover:border-[var(--err)] transition-colors ml-auto rounded-full"
-                                aria-label="Remove expired invite"
-                                onClick={async () => {
-                                  const res = await fetch(`/api/households/invite/${inv.id}`, { method: 'DELETE' });
-                                  if (res.ok) await loadInvites();
-                                  else toast.error('Failed to remove invite');
-                                }}
-                              >×</button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
 
           {/* ════════════════════════════════════════════════════════════════════

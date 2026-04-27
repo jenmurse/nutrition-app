@@ -47,6 +47,10 @@ export const PUT = withAuth(async (auth, request: Request, { params }: Ctx) => {
     data.dismissedTips = JSON.stringify(body.dismissedTips);
   }
 
+  if (body.trackedOnly !== undefined) {
+    data.trackedOnly = Boolean(body.trackedOnly);
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }

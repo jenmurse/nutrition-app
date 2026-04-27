@@ -34,13 +34,15 @@ model Person {
   color        String   @default("#5C9169")
   theme        String   @default("sage")
   onboardingComplete Boolean @default(true)
+  trackedOnly  Boolean  @default(false) // true = nutrition tracked, no login (e.g., children)
   dismissedTips String  @default("[]") // JSON array of dismissed tip IDs
   createdAt    DateTime @default(now())
 
   mealPlans            MealPlan[]
   globalNutritionGoals GlobalNutritionGoal[]
   householdMembers     HouseholdMember[]
-  createdInvites       HouseholdInvite[]
+  createdInvites       HouseholdInvite[] @relation("InviteCreator")
+  invitesForMe         HouseholdInvite[] @relation("InviteTarget")
   recipeFavorites      RecipeFavorite[]
 }
 
@@ -77,19 +79,26 @@ model HouseholdMember {
   @@index([householdId])
 }
 
-// Invite tokens for joining a household
+// Invite tokens for joining a household.
+// forPersonId points at the existing Person record this invite is meant to claim.
+// When the invite is redeemed, the redeeming user links to that Person (no new record created).
 model HouseholdInvite {
   id           Int       @id @default(autoincrement())
   householdId  Int
   token        String    @unique @default(uuid())
-  createdBy    Int       // personId
+  createdBy    Int       // personId who generated the invite
+  forPersonId  Int?      // personId this invite is meant for (null = legacy/generic invite)
+  inviteSentAt DateTime? // when the user copied/shared the link (used by dashboard checklist)
   createdAt    DateTime  @default(now())
   expiresAt    DateTime
   usedAt       DateTime?
   usedBy       Int?      // personId who redeemed
 
   household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  creator      Person    @relation(fields: [createdBy], references: [id])
+  creator      Person    @relation("InviteCreator", fields: [createdBy], references: [id])
+  forPerson    Person?   @relation("InviteTarget", fields: [forPersonId], references: [id], onDelete: Cascade)
+
+  @@index([forPersonId])
 }
 
 // Ingredients with basic info (household-scoped)
