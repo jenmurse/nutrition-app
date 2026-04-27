@@ -33,7 +33,7 @@ model Person {
   name         String
   color        String   @default("#5C9169")
   theme        String   @default("sage")
-  onboardingComplete Boolean @default(true)
+  onboardingComplete Boolean @default(false)
   trackedOnly  Boolean  @default(false) // true = nutrition tracked, no login (e.g., children)
   dismissedTips String  @default("[]") // JSON array of dismissed tip IDs
   createdAt    DateTime @default(now())

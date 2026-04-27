@@ -184,7 +184,7 @@ export default function Home() {
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   // Dashboard stat preferences from settings
-  const [enabledStats, setEnabledStats] = useState<string[]>(['calories', 'protein', 'carbs']);
+  const [enabledStats, setEnabledStats] = useState<string[]>([]);
   useEffect(() => {
     try {
       const stored = localStorage.getItem('dashboard-stats');
@@ -316,7 +316,7 @@ export default function Home() {
           )}
 
           {/* Getting started checklist */}
-          <div style={{ padding: `16px var(--pad) 0` }}>
+          <div style={{ padding: `16px var(--pad) 32px` }}>
             <GettingStartedCard />
           </div>
 
@@ -336,33 +336,46 @@ export default function Home() {
 
           {/* Stats strip */}
           <div className="hm-stats-border border-t border-[var(--rule)]">
-            <div className="hm-stats-strip" style={{ padding: `0 var(--pad)` }}>
-              {statEntries.map((stat, idx) => {
-                const delay = 350 + idx * 80;
-                return (
-                  <div
-                    key={stat.key}
-                    className="hm-stat-item"
-                    style={{
-                      opacity: 0,
-                      animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
-                    }}
-                  >
-                    <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
-                    <div className="hm-stat-value font-serif text-[28px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
-                      {formatVal(stat.value)}
-                      {stat.unit && <span className="hm-stat-unit text-[13px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+            {statEntries.length === 0 ? (
+              <div style={{ padding: `20px var(--pad)`, borderLeft: '2px solid var(--rule)', marginLeft: 'var(--pad)' }}>
+                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">§ Dashboard stats</div>
+                <div className="font-sans text-[13px] text-[var(--fg-2)] mb-[12px]">Choose 3 stats to track here.</div>
+                <Link
+                  href="/settings#dashboard"
+                  className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
+                >
+                  Choose stats →
+                </Link>
+              </div>
+            ) : (
+              <div className="hm-stats-strip" style={{ padding: `0 var(--pad)` }}>
+                {statEntries.map((stat, idx) => {
+                  const delay = 350 + idx * 80;
+                  return (
+                    <div
+                      key={stat.key}
+                      className="hm-stat-item"
+                      style={{
+                        opacity: 0,
+                        animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
+                      }}
+                    >
+                      <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
+                      <div className="hm-stat-value font-serif text-[28px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                        {formatVal(stat.value)}
+                        {stat.unit && <span className="hm-stat-unit text-[13px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+                      </div>
+                      <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
+                        of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
+                      </div>
+                      <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[var(--fg)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                      </div>
                     </div>
-                    <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
-                      of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
-                    </div>
-                    <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
-                      <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 

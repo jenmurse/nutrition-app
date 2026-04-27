@@ -84,7 +84,7 @@ function RecipesPage() {
   }, [searchQuery, selectedTags, showFavorites, sortBy, sortDir]);
 
   // Dashboard stat preferences — used to show matching stats on mobile cards
-  const [enabledStats, setEnabledStats] = useState<string[]>(['calories', 'protein', 'carbs']);
+  const [enabledStats, setEnabledStats] = useState<string[]>([]);
   useEffect(() => {
     try {
       const stored = localStorage.getItem('dashboard-stats');
