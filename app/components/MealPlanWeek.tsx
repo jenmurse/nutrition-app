@@ -75,6 +75,7 @@ interface MealPlanWeekProps {
   recipeCaloriesMap?: Record<number, number>;
   mealLogCaloriesMap?: Record<number, number>;
   onRefreshIngredients?: () => void;
+  personName?: string;
 }
 
 /* ── Drag-and-drop sub-components (desktop only) ── */
@@ -204,6 +205,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   recipeCaloriesMap = {},
   mealLogCaloriesMap = {},
   onRefreshIngredients,
+  personName,
 }) => {
   const router = useRouter();
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
@@ -697,97 +699,110 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         </div>
       )}
 
-      {mealTypeDropdownOpen && selectedDate && !itemTypeTabOpen && createPortal(
-        <div
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
-          style={{ animation: closingMealType ? 'backdropOut 180ms ease both' : undefined }}
-          onClick={closeMealTypeSheet}
-        >
-          <div
-            className="w-full sm:max-w-sm bg-[var(--bg)] border-t sm:border border-[var(--rule)] relative"
-            style={{ animation: closingMealType ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {sheetTouchBlocked && <div className="absolute inset-0 z-50" aria-hidden="true" />}
-            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-1" aria-hidden="true" />
-            <div className="flex items-center justify-between border-b border-[var(--rule)] px-5 pb-3 pt-3">
-              <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Select meal type</span>
+      {(mealTypeDropdownOpen || itemTypeTabOpen) && (selectedDate || selectedDayMeal) && createPortal(
+        <div className="pl-add-overlay" role="dialog" aria-modal="true" aria-label="Add meal">
+          {/* Anchor row */}
+          <div className="pl-add-anchor">
+            {!itemTypeTabOpen ? (
               <button
-                className="font-mono text-[13px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition bg-transparent border-0 cursor-pointer"
-                onClick={closeMealTypeSheet}
-                aria-label="Close"
-              >✕</button>
-            </div>
-
-            {mealTypeContentVisible && (
-              <div className="pl-meal-type-grid flex flex-col">
-                {availableMealTypes.map((mealType) => (
-                  <button
-                    key={mealType}
-                    type="button"
-                    className="text-left px-5 py-[11px] border-b border-[var(--rule-faint)] last:border-b-0 bg-transparent hover:bg-[var(--bg-2)] transition-colors active:scale-[0.99] cursor-pointer"
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleSelectMealType(mealType);
-                    }}
-                    onClick={() => handleSelectMealType(mealType)}
-                    aria-label={mealType}
-                  >
-                    <span className="font-sans text-[13px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
-                  </button>
-                ))}
-              </div>
+                type="button"
+                className="ed-btn-text"
+                onClick={() => {
+                  setMealTypeDropdownOpen(false);
+                  setSelectedDate(null);
+                }}
+              >← Back to planner</button>
+            ) : (
+              <button
+                type="button"
+                className="ed-btn-text"
+                onClick={() => {
+                  // Step 2 ← Step 1
+                  setItemTypeTabOpen(null);
+                  setSelectedDayMeal(null);
+                  setIngredientSearchTerm('');
+                  setRecipeSearchTerm('');
+                  setRecipeFilterTags([]);
+                  setPendingRecipeId(null);
+                  setPendingIngredientId(null);
+                  setMealTypeDropdownOpen(true);
+                }}
+              >← Back</button>
             )}
+            <span className="pl-add-sep" aria-hidden="true" />
+            <span className="pl-add-label">Add meal</span>
+            {itemTypeTabOpen && selectedDayMeal && (
+              <>
+                <span className="pl-add-sep" aria-hidden="true" />
+                <button
+                  type="button"
+                  className="pl-add-crumb"
+                  onClick={() => {
+                    setItemTypeTabOpen(null);
+                    setSelectedDayMeal(null);
+                    setMealTypeDropdownOpen(true);
+                  }}
+                >{selectedDayMeal.mealType}</button>
+              </>
+            )}
+            <div className="pl-add-anchor-right">
+              {(() => {
+                const d = selectedDayMeal?.date || selectedDate;
+                if (!d) return null;
+                const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
+                return (
+                  <span className="pl-add-meta">
+                    {dStr}{personName ? ` · ${personName.toUpperCase()}` : ''}
+                  </span>
+                );
+              })()}
+            </div>
           </div>
-        </div>,
-        document.body
-      )}
 
-      {itemTypeTabOpen && selectedDayMeal && createPortal(
-        <div
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 sm:px-4"
-          style={{ animation: closingRecipePicker ? 'backdropOut 180ms ease both' : undefined }}
-          onClick={closeRecipePickerSheet}
-        >
-          <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:max-h-[90vh] relative overflow-hidden"
-            style={{ animation: closingRecipePicker ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100vh - 80px)', display: 'grid', gridTemplateRows: 'auto auto 1fr auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {sheetTouchBlocked && <div className="absolute inset-0 z-50" aria-hidden="true" />}
-            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-1" aria-hidden="true" />
-            <div className="flex items-center justify-between border-b border-[var(--rule)] px-5 py-3 sm:px-6 shrink-0">
-              <div className="flex gap-5 items-center">
-                <button
-                  onClick={() => setItemTypeTabOpen('recipe')}
-                  className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors pb-[3px] ${
-                    itemTypeTabOpen === 'recipe'
-                      ? 'text-[var(--fg)] shadow-[0_1.5px_0_var(--fg)]'
-                      : 'text-[var(--muted)] hover:text-[var(--fg)]'
-                  }`}
-                >
-                  Recipes
-                </button>
-                <button
-                  onClick={() => setItemTypeTabOpen('ingredient')}
-                  className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors pb-[3px] ${
-                    itemTypeTabOpen === 'ingredient'
-                      ? 'text-[var(--fg)] shadow-[0_1.5px_0_var(--fg)]'
-                      : 'text-[var(--muted)] hover:text-[var(--fg)]'
-                  }`}
-                >
-                  Items
-                </button>
-              </div>
+          {/* Step 1 — pick a meal type */}
+          {!itemTypeTabOpen && selectedDate && (
+            <div key="step-1" className="pl-add-step pl-add-step--in pl-add-body">
+              <div className="pl-add-eyebrow">§ Step one</div>
+              <h1 className="pl-add-title">Pick a meal type.</h1>
+              <p className="pl-add-sub">Then choose what fills it.</p>
+              <ul className="pl-add-mtlist">
+                {availableMealTypes.map((mealType, idx) => (
+                  <li key={mealType}>
+                    <button
+                      type="button"
+                      className="pl-add-mtrow"
+                      onClick={() => handleSelectMealType(mealType)}
+                    >
+                      <span className="pl-add-mtnum">{String(idx + 1).padStart(2, '0')}</span>
+                      <span className="pl-add-mtname">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                      <span className="pl-add-mtarrow" aria-hidden="true">→</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Step 2 — pick the recipe */}
+          {itemTypeTabOpen && selectedDayMeal && (
+          <div key="step-2" className="pl-add-step pl-add-step--in pl-add-body pl-add-body--step2">
+            <div className="pl-add-eyebrow">§ Step two</div>
+            <h1 className="pl-add-title">Pick a {selectedDayMeal.mealType}.</h1>
+
+            <div className="ed-toggle pl-add-tabs">
               <button
-                className="font-mono text-[13px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition bg-transparent border-0 cursor-pointer"
-                onClick={closeRecipePickerSheet}
-                aria-label="Close"
-              >✕</button>
+                type="button"
+                onClick={() => setItemTypeTabOpen('recipe')}
+                className={itemTypeTabOpen === 'recipe' ? 'is-active' : ''}
+              >Recipes</button>
+              <button
+                type="button"
+                onClick={() => setItemTypeTabOpen('ingredient')}
+                className={itemTypeTabOpen === 'ingredient' ? 'is-active' : ''}
+              >Items</button>
             </div>
 
-            <div className="overflow-y-auto min-h-0 px-5 py-4 sm:px-6">
+            <div className="pl-add-scroll">
               {itemTypeTabOpen === 'recipe' ? (
                 <>
                   {/* Search + servings controls */}
@@ -1032,6 +1047,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               </div>
             </div>
           </div>
+          )}
         </div>,
         document.body
       )}

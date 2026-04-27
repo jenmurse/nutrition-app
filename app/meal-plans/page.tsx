@@ -1481,41 +1481,60 @@ const MealPlansPage = () => {
         );
       })()}
 
-      {/* Shopping list sheet */}
+      {/* Shopping list — full-screen editorial overlay */}
       {shopSheetOpen && createPortal(
-        <>
-          <div className="mob-sheet-backdrop mob-sheet-backdrop--above-nav" onClick={() => setShopSheetOpen(false)} aria-hidden="true" />
-          <div className="mob-sheet pl-shop-sheet" role="dialog" aria-modal="true" aria-label="Shopping list">
-            <div className="mob-sheet-handle" aria-hidden="true" />
-            <div className="shop-header">
-              <div>
-                <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">Shopping List</div>
-                {selectedPlan && (() => {
-                  const s = parseUTCDate(selectedPlan.weekStartDate);
-                  const e = new Date(s); e.setDate(e.getDate() + 6);
-                  const range = s.getMonth() === e.getMonth()
-                    ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
-                    : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-                  return <div className="font-sans text-[13px] text-[var(--muted)]">{range}</div>;
-                })()}
-              </div>
-              <div className="shop-header-actions">
-                {checkedItems.size > 0 && (
-                  <button
-                    className={`shop-toggle-btn${hideChecked ? ' active' : ''}`}
-                    onClick={() => setHideChecked(h => !h)}
-                  >
-                    {hideChecked ? 'Show all' : 'Hide completed'}
-                  </button>
-                )}
+        <div className="pl-shop-overlay open" role="dialog" aria-modal="true" aria-label="Shopping list">
+          {/* Anchor row */}
+          <div className="pl-shop-anchor">
+            <button
+              type="button"
+              className="pl-shop-back ed-btn-text"
+              onClick={() => setShopSheetOpen(false)}
+            >← Back to planner</button>
+            <span className="pl-shop-sep" aria-hidden="true" />
+            <span className="pl-shop-label">Shopping list</span>
+            <div className="pl-shop-anchor-right">
+              {shopItems.length > 0 && (
+                <span className="pl-shop-meta">{shopItems.length} {shopItems.length === 1 ? 'item' : 'items'}</span>
+              )}
+              {checkedItems.size > 0 && (
                 <button
-                  className="shop-close-btn"
-                  onClick={() => setShopSheetOpen(false)}
-                  aria-label="Close shopping list"
-                >✕</button>
-              </div>
+                  type="button"
+                  className={`ed-btn-text${hideChecked ? ' is-active' : ''}`}
+                  onClick={() => setHideChecked(h => !h)}
+                >{hideChecked ? 'Show all' : 'Hide completed'}</button>
+              )}
+              {shopItems.length > 0 && (
+                <button type="button" className="ed-btn-text" onClick={handleShareList}>Share</button>
+              )}
             </div>
-            <div className="shop-list-body">
+          </div>
+
+          {/* Body */}
+          <div className="pl-shop-body">
+            {selectedPlan && (() => {
+              const s = parseUTCDate(selectedPlan.weekStartDate);
+              const e = new Date(s); e.setDate(e.getDate() + 6);
+              const range = s.getMonth() === e.getMonth()
+                ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()} – ${e.getDate()}`
+                : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}`;
+              const recipeCount = new Set((selectedPlan.mealLogs || []).filter(m => m.recipe).map(m => m.recipe!.id)).size;
+              const peopleNames = persons.map(p => p.name).filter(Boolean);
+              const peopleStr = peopleNames.length === 0 ? '' : peopleNames.length === 1 ? peopleNames[0] : peopleNames.length === 2 ? `${peopleNames[0]} and ${peopleNames[1]}` : `${peopleNames.slice(0, -1).join(', ')} and ${peopleNames[peopleNames.length - 1]}`;
+              return (
+                <>
+                  <div className="pl-shop-eyebrow">§ {range}</div>
+                  <h1 className="pl-shop-title">A week of meals.</h1>
+                  {recipeCount > 0 && (
+                    <p className="pl-shop-sub">
+                      Built from {recipeCount} {recipeCount === 1 ? 'recipe' : 'recipes'}{peopleStr ? ` across ${peopleStr}'s ${peopleNames.length === 1 ? 'plan' : 'plans'}` : ''}.
+                    </p>
+                  )}
+                </>
+              );
+            })()}
+
+            <div className="pl-shop-grid">
               {shopLoading ? (
                 <div className="shop-empty">Loading…</div>
               ) : shopItems.length === 0 ? (
@@ -1552,7 +1571,7 @@ const MealPlansPage = () => {
                 };
 
                 return (
-                  <div>
+                  <>
                     {sortedCats.map(cat => {
                       const allItems = groups.get(cat)!;
                       const items = hideChecked ? allItems.filter(i => !checkedItems.has(`${i.name}-${i.unit}`)) : allItems;
@@ -1562,9 +1581,9 @@ const MealPlansPage = () => {
                       const allChecked = catKeys.every(k => checkedItems.has(k));
                       const someChecked = catKeys.some(k => checkedItems.has(k));
                       return (
-                        <div key={cat}>
+                        <div key={cat} className="pl-shop-cat">
                           <div
-                            className="shop-cat-header"
+                            className="shop-cat-header pl-shop-cat-header"
                             onClick={() => {
                               setCheckedItems(prev => {
                                 const n = new Set(prev);
@@ -1580,6 +1599,7 @@ const MealPlansPage = () => {
                               {!allChecked && someChecked && <span className="shop-checkbox-dash" />}
                             </span>
                             <span className="shop-cat-label">{catLabel}</span>
+                            <span className="pl-shop-cat-count">{allItems.length}</span>
                           </div>
                           <ul className="shop-items">
                             {items.map((item, i) => {
@@ -1612,26 +1632,12 @@ const MealPlansPage = () => {
                         </div>
                       );
                     })}
-                  </div>
+                  </>
                 );
               })()}
             </div>
-            {shopItems.length > 0 && (
-              <div className="shop-footer">
-                <button className="mob-sheet-done" onClick={handleShareList}>
-                  Share
-                </button>
-              </div>
-            )}
-            {shopItems.length === 0 && !shopLoading && (
-              <div className="shop-footer">
-                <button className="mob-sheet-done" onClick={() => setShopSheetOpen(false)}>
-                  Close
-                </button>
-              </div>
-            )}
           </div>
-        </>,
+        </div>,
         document.body
       )}
 
@@ -1684,6 +1690,7 @@ const MealPlansPage = () => {
                 recipeCaloriesMap={selectedPlan.recipeCaloriesMap}
                 mealLogCaloriesMap={selectedPlan.mealLogCaloriesMap}
                 onRefreshIngredients={fetchIngredients}
+                personName={persons.find((p) => p.id === selectedPersonId)?.name}
               />
             </div>
 
