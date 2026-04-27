@@ -14,10 +14,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
-  // Let the OAuth callback route handle itself — running getUser() here
-  // interferes with the PKCE code verifier cookie and causes exchangeCodeForSession
-  // to fail on first sign-in.
-  if (request.nextUrl.pathname === "/auth/callback") {
+  // Let auth routes handle themselves — running getUser() here interferes with
+  // PKCE code verifier cookies and causes exchangeCodeForSession to fail.
+  if (
+    request.nextUrl.pathname === "/auth/callback" ||
+    request.nextUrl.pathname.startsWith("/api/auth/")
+  ) {
     return NextResponse.next();
   }
 
