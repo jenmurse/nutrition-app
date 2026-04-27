@@ -43,36 +43,36 @@ export async function GET(request: Request) {
     }
   );
 
+  // Determine redirect target: onboarding for new users, home for returning
+  let redirectUrl = `${redirectBase}/home`;
+
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
       console.error("OAuth code exchange error:", error);
       return NextResponse.redirect(`${redirectBase}/login?error=auth`);
     }
-  }
 
-  // Determine redirect target: onboarding for new users, home for returning
-  let redirectUrl = `${redirectBase}/home`;
-
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Use the user from the exchange result directly — calling getUser() after
+    // exchangeCodeForSession doesn't reliably see the newly set session cookies
+    // within the same request, so it can return null even on success.
+    const user = data.user;
     if (user) {
-      await provisionUser(user, inviteToken);
+      try {
+        await provisionUser(user, inviteToken);
 
-      const person = await prisma.person.findUnique({
-        where: { supabaseId: user.id },
-        select: { onboardingComplete: true },
-      });
-      if (person && !person.onboardingComplete) {
-        redirectUrl = `${redirectBase}/onboarding`;
+        const person = await prisma.person.findUnique({
+          where: { supabaseId: user.id },
+          select: { onboardingComplete: true },
+        });
+        if (person && !person.onboardingComplete) {
+          redirectUrl = `${redirectBase}/onboarding`;
+        }
+      } catch (err) {
+        console.error("Auth callback error:", err);
+        // Don't block — fall through to /home
       }
     }
-  } catch (err) {
-    console.error("Auth callback error:", err);
-    // Don't block — fall through to /home
   }
 
   // Build the redirect and attach the session cookies so the browser has
