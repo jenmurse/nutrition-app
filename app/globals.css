@@ -5321,12 +5321,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 /* Top chrome */
+/* Chrome sits inside the centered column — aligns to its edges */
 .ob-chrome {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 32px;
-  flex-shrink: 0;
+  margin-bottom: 32px;
 }
 
 .ob-wordmark {
@@ -5345,13 +5345,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
 }
 
-/* Step content wrapper — flex center */
+/* Step body — flex center, column is the only child */
 .ob-body {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 24px;
+  padding: 0;
 }
 
 /* Step animation — key-based remount triggers this */
@@ -5367,16 +5367,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ob-step-fwd { animation: ob-slide-in-fwd 260ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 .ob-step-back { animation: ob-slide-in-back 260ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 
-/* Content column */
+/* Content column — contains chrome + animated step content */
 .ob-col {
   width: 100%;
   max-width: 480px;
-  padding: 56px 40px;
+  padding: 24px 40px 56px;
 }
-.ob-col--welcome  { padding: 80px 40px; }
+.ob-col--welcome  { padding-bottom: 80px; }
 .ob-col--household { max-width: 520px; }
 .ob-col--goals    { max-width: 560px; }
-.ob-col--complete { padding: 88px 40px; }
+.ob-col--complete { padding-bottom: 88px; }
 
 /* Eyebrow */
 .ob-eyebrow {
@@ -5531,6 +5531,32 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ob-member-action:hover { opacity: 0.6; }
 .ob-member-action--copied { color: var(--ok); }
 
+/* Remove button — visible on row hover only */
+.ob-member-remove {
+  font-size: 10px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.ob-member-row--removable:hover .ob-member-remove { opacity: 1; }
+.ob-member-remove:hover { color: var(--fg); }
+
+/* Settings hint below members list */
+.ob-members-hint {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 16px;
+  text-align: left;
+}
+
 .ob-member-inline-input {
   flex: 1;
   background: transparent;
@@ -5645,14 +5671,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Mobile */
 @media (max-width: 760px) {
-  .ob-chrome { padding: 14px 24px; }
-
   .ob-col {
     max-width: 100%;
-    padding: 40px 24px;
+    padding: 16px 24px 40px;
   }
-  .ob-col--welcome  { padding: 56px 24px; }
-  .ob-col--complete { padding: 56px 24px; }
+  .ob-col--welcome  { padding-bottom: 56px; }
+  .ob-col--complete { padding-bottom: 56px; }
 
   .ob-swatches { gap: 8px; }
 

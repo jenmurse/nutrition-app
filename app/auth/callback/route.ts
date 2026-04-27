@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
@@ -15,9 +16,32 @@ export async function GET(request: Request) {
       ? `https://${forwardedHost}`
       : origin;
 
-  // Use a single Supabase client for the entire handler so cookie mutations
-  // from exchangeCodeForSession are visible to subsequent getUser() calls.
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+
+  // Collect cookies that exchangeCodeForSession wants to set so we can
+  // attach them explicitly to the redirect response. NextResponse.redirect()
+  // creates a fresh Response — cookies written via the next/headers cookie
+  // store don't automatically transfer to it, causing the session to be
+  // missing when the middleware checks the next request.
+  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          // Write to the cookie store so getUser() works in this same request
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+          // Also capture for the redirect response
+          pendingCookies.push(...cookiesToSet);
+        },
+      },
+    }
+  );
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -27,7 +51,9 @@ export async function GET(request: Request) {
     }
   }
 
-  // Auto-provision: ensure Person, Household, HouseholdMember exist
+  // Determine redirect target: onboarding for new users, home for returning
+  let redirectUrl = `${redirectBase}/home`;
+
   try {
     const {
       data: { user },
@@ -35,35 +61,32 @@ export async function GET(request: Request) {
 
     if (user) {
       await provisionUser(user, inviteToken);
-    }
-  } catch (err) {
-    console.error("Auto-provision error:", err);
-    // Don't block login on provisioning errors
-  }
 
-  // Check if user needs onboarding
-  try {
-    const {
-      data: { user: currentUser },
-    } = await supabase.auth.getUser();
-    if (currentUser) {
       const person = await prisma.person.findUnique({
-        where: { supabaseId: currentUser.id },
+        where: { supabaseId: user.id },
         select: { onboardingComplete: true },
       });
       if (person && !person.onboardingComplete) {
-        return NextResponse.redirect(`${redirectBase}/onboarding`);
+        redirectUrl = `${redirectBase}/onboarding`;
       }
     }
-  } catch {
-    // Don't block on onboarding check failures
+  } catch (err) {
+    console.error("Auth callback error:", err);
+    // Don't block — fall through to /home
   }
 
-  return NextResponse.redirect(`${redirectBase}/home`);
+  // Build the redirect and attach the session cookies so the browser has
+  // them when it follows the redirect (fixing the first-login bounce to /login).
+  const response = NextResponse.redirect(redirectUrl);
+  pendingCookies.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+  });
+
+  return response;
 }
 
 async function provisionUser(
-  user: { id: string; email?: string; user_metadata?: Record<string, any> },
+  user: { id: string; email?: string; user_metadata?: Record<string, unknown> },
   inviteToken: string | null
 ) {
   // Check if Person record exists for this Supabase user
@@ -105,8 +128,8 @@ async function provisionUser(
   if (!person) {
     // Genuinely new user — create Person record
     const displayName =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
+      (user.user_metadata?.full_name as string) ||
+      (user.user_metadata?.name as string) ||
       user.email?.split("@")[0] ||
       "New User";
 
@@ -137,7 +160,7 @@ async function provisionUser(
     } else {
       // Create their own household
       const household = await prisma.household.create({
-        data: { name: `${displayName}'s Kitchen` },
+        data: { name: `${displayName}\u2019s Kitchen` },
       });
       await prisma.householdMember.create({
         data: {
@@ -150,13 +173,11 @@ async function provisionUser(
     }
   } else if (invite) {
     // Existing user with a valid invite — switch households
-    // Deactivate current household memberships
     await prisma.householdMember.updateMany({
       where: { personId: person.id, active: true },
       data: { active: false },
     });
 
-    // Check if already a member of invite's household
     const existingMembership = await prisma.householdMember.findUnique({
       where: {
         personId_householdId: {
@@ -187,7 +208,8 @@ async function provisionUser(
       data: { usedAt: new Date(), usedBy: person.id },
     });
   }
-  // Existing user without invite — check they still have an active household
+
+  // Existing user without invite — ensure they have an active household
   if (!invite && person.householdMembers.length === 0) {
     const displayName = person.name || user.email?.split("@")[0] || "User";
     const household = await prisma.household.create({
@@ -201,7 +223,6 @@ async function provisionUser(
         role: "owner",
       },
     });
-    // Reset onboarding so they go through setup again
     await prisma.person.update({
       where: { id: person.id },
       data: { onboardingComplete: false },
