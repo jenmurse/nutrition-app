@@ -355,7 +355,13 @@ const MealPlansPage = () => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [analysisRefreshKey, setAnalysisRefreshKey] = useState(0);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
-  const [newWeekStartDate, setNewWeekStartDate] = useState('');
+  const [newWeekStartDate, setNewWeekStartDate] = useState(() => {
+    const today = new Date();
+    const d = new Date(today);
+    d.setDate(today.getDate() - today.getDay());
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().slice(0, 10);
+  });
   const [creatingPlan, setCreatingPlan] = useState(false);
   const [planJustCreated, setPlanJustCreated] = useState(false);
   const showCreateForm = !planJustCreated && searchParams?.get("showForm") === "true";
@@ -365,6 +371,8 @@ const MealPlansPage = () => {
   const [copyFromPlanId, setCopyFromPlanId] = useState<string>('');
   const [copyMenuOpen, setCopyMenuOpen] = useState(false);
   const copyRef = useRef<HTMLDivElement>(null);
+  const [weekStartMenuOpen, setWeekStartMenuOpen] = useState(false);
+  const weekStartRef = useRef<HTMLDivElement>(null);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
   const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
   const [shopSheetOpen, setShopSheetOpen] = useState(false);
@@ -437,6 +445,29 @@ const MealPlansPage = () => {
     if (copyMenuOpen) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [copyMenuOpen]);
+
+  // Close week-start dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (weekStartRef.current && !weekStartRef.current.contains(e.target as Node)) setWeekStartMenuOpen(false);
+    };
+    if (weekStartMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [weekStartMenuOpen]);
+
+  // Generate ~16 Sundays centered on today (-4 weeks to +12 weeks)
+  const sundayOptions = (() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const thisSunday = new Date(today);
+    thisSunday.setDate(today.getDate() - dayOfWeek);
+    thisSunday.setHours(0, 0, 0, 0);
+    return Array.from({ length: 16 }, (_, i) => {
+      const d = new Date(thisSunday);
+      d.setDate(thisSunday.getDate() + (i - 4) * 7);
+      return d.toISOString().slice(0, 10);
+    });
+  })();
 
   // Close mobile people dropdown on outside click
   useEffect(() => {
@@ -1182,11 +1213,7 @@ const MealPlansPage = () => {
         onSubmit={async (e) => {
           e.preventDefault();
           if (!newWeekStartDate) return;
-          // Snap to nearest Sunday (day 0) to ensure weeks always start on Sunday
-          const picked = new Date(newWeekStartDate + 'T00:00:00');
-          const dayOfWeek = picked.getDay();
-          if (dayOfWeek !== 0) picked.setDate(picked.getDate() - dayOfWeek);
-          const snappedDate = picked.toISOString().slice(0, 10);
+          const snappedDate = newWeekStartDate;
           setCreatingPlan(true);
           try {
             const res = await fetch('/api/meal-plans', {
@@ -1231,14 +1258,42 @@ const MealPlansPage = () => {
         }}
       >
         <span className="pl-create-label">Week Start</span>
-        <input
-          type="date"
-          className="pl-create-date"
-          value={newWeekStartDate}
-          onChange={(e) => setNewWeekStartDate(e.target.value)}
-          required
-          aria-label="Week start date"
-        />
+        <div className="pl-copy-wrap" ref={weekStartRef}>
+          <button
+            type="button"
+            className="pl-copy-btn"
+            onClick={() => setWeekStartMenuOpen(o => !o)}
+            aria-expanded={weekStartMenuOpen}
+            aria-haspopup="listbox"
+            aria-label="Select week start date"
+          >
+            {newWeekStartDate
+              ? (() => {
+                  const d = new Date(newWeekStartDate + 'T00:00:00');
+                  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                })()
+              : 'Select week'}
+          </button>
+          <div className={`pl-copy-menu ${weekStartMenuOpen ? 'open' : ''}`} role="listbox" aria-label="Week start options">
+            {sundayOptions.map(dateStr => {
+              const d = new Date(dateStr + 'T00:00:00');
+              const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+              const isToday = dateStr === sundayOptions[4]; // this week
+              return (
+                <button
+                  key={dateStr}
+                  type="button"
+                  className={newWeekStartDate === dateStr ? 'on' : ''}
+                  onClick={() => { setNewWeekStartDate(dateStr); setWeekStartMenuOpen(false); }}
+                  role="option"
+                  aria-selected={newWeekStartDate === dateStr}
+                >
+                  {label}{isToday ? ' · This week' : ''}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <span className="pl-create-label">Copy From</span>
         <div className="pl-copy-wrap" ref={copyRef}>
           <button
