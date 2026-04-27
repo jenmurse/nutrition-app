@@ -1016,11 +1016,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {persons.map((p) => (
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                          className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[9px] tracking-[0.08em] uppercase pb-[2px] bg-transparent border-0 border-b-[1.5px] cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedPersonId === p.id
-                              ? "bg-[var(--accent-btn)] border-[var(--accent-btn)] text-[var(--accent-fg)]"
-                              : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
-                          }`}>{p.name}</button>
+                              ? "text-[var(--fg)] border-b-[var(--fg)]"
+                              : "text-[var(--muted)] border-b-transparent hover:text-[var(--fg)]"
+                          }`} style={{ borderBottomStyle: 'solid' }}>{p.name}</button>
                       ))}
                     </div>
                   </>
@@ -1035,11 +1035,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             setGuidedFocus((prev) => prev.includes(g.nutrientId) ? prev.filter((x) => x !== g.nutrientId) : [...prev, g.nutrientId]);
                             if (guidedFocus.includes(g.nutrientId)) setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
                           }}
-                          className={`font-mono text-[9px] tracking-[0.08em] uppercase py-[5px] px-3 border rounded-pill cursor-pointer transition-colors active:scale-[0.97] ${
+                          className={`font-mono text-[9px] tracking-[0.08em] uppercase pb-[2px] bg-transparent border-0 border-b-[1.5px] cursor-pointer transition-colors active:scale-[0.97] ${
                             guidedFocus.includes(g.nutrientId)
-                              ? "bg-[var(--cta)] border-[var(--cta)] text-[var(--cta-ink)]"
-                              : "bg-transparent border-[var(--rule)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]"
-                          }`}>{g.nutrient.displayName}</button>
+                              ? "text-[var(--fg)] border-b-[var(--fg)]"
+                              : "text-[var(--muted)] border-b-transparent hover:text-[var(--fg)]"
+                          }`} style={{ borderBottomStyle: 'solid' }}>{g.nutrient.displayName}</button>
                       ))}
                     </div>
                   </>
@@ -1066,8 +1066,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             {Math.round(current * 10) / 10}{g.nutrient.unit} / {Math.round(goal)}{g.nutrient.unit}
                           </span>
                         </div>
-                        <div className="h-[3px] bg-[var(--rule)] rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${fillCls}`} style={{ width: `${pct}%` }} />
+                        <div className="h-[2px] bg-[var(--rule)] overflow-hidden">
+                          <div className={`h-full ${fillCls}`} style={{ width: `${pct}%` }} />
                         </div>
                         {isFocused && guidedFocus.includes(g.nutrientId) && (
                           <div className="flex items-center gap-[6px] mt-[5px]">
@@ -1075,7 +1075,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                             <input type="number" min="0" value={focusCaps[g.nutrientId] ?? ""}
                               onChange={(e) => setFocusCaps((prev) => ({ ...prev, [g.nutrientId]: e.target.value }))}
                               placeholder={String(Math.round(baseGoal))}
-                              className="w-14 font-mono text-[9px] border border-[var(--rule)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--accent)]" />
+                              className="w-14 font-mono text-[9px] border border-[var(--rule)] bg-transparent px-[6px] py-[2px] text-[var(--fg)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--fg)]" />
                             <span className="font-mono text-[9px] text-[var(--muted)]">{g.nutrient.unit}</span>
                             {focusCaps[g.nutrientId] && (
                               <button type="button" onClick={() => setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; })}
