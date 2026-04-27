@@ -1392,11 +1392,11 @@ input[type="number"]:focus {
 
 .pl-create-btn {
   font-family:var(--mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
-  background:var(--fg); color:var(--bg); border:none; padding:8px 16px;
+  background:transparent; color:var(--fg); border:1px solid var(--rule); padding:8px 16px;
   border-radius: 0;
-  cursor:pointer; transition:opacity 0.15s, transform 100ms var(--ease-out); white-space:nowrap;
+  cursor:pointer; transition:border-color 0.15s, transform 100ms var(--ease-out); white-space:nowrap;
 }
-.pl-create-btn:hover { opacity:0.85; }
+.pl-create-btn:hover { border-color:var(--fg); }
 .pl-create-btn:active { transform:scale(0.97); }
 .pl-create-btn:disabled { opacity:0.5; cursor:default; }
 
