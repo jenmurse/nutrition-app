@@ -1,92 +1,56 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { BrandName } from "@/app/components/BrandName";
 import { usePersonContext } from "@/app/components/PersonContext";
 import { THEMES, themeHex } from "@/lib/themes";
-import { APP_TAGLINE } from "@/lib/brand";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
-type GoalPreset = {
+type GoalId = "maintain" | "lean" | "build" | "custom";
+
+type PendingMember = {
   id: string;
-  label: string;
-  desc: string;
-  icon: React.ReactNode;
-  kcal: number | null;
+  name: string;
+  inviteUrl: string | null;
+  copied: boolean;
 };
-
-type ImportStatus = "idle" | "loading" | "success" | "error";
-
-const TOTAL_STEPS = 6;
 
 /* ─── Goal presets ───────────────────────────────────────────────────────── */
 
-const GOAL_PRESETS: GoalPreset[] = [
-  {
-    id: "balanced",
-    label: "Balanced",
-    desc: "General health, maintenance",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 20v-6M6 20V10M18 20V4" />
-      </svg>
-    ),
-    kcal: 2000,
-  },
-  {
-    id: "active",
-    label: "Active",
-    desc: "Higher protein, more fuel",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-      </svg>
-    ),
-    kcal: 2500,
-  },
-  {
-    id: "mindful",
-    label: "Mindful",
-    desc: "Lighter, focused portions",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z" />
-        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-      </svg>
-    ),
-    kcal: 1600,
-  },
+const GOAL_PRESETS: { id: GoalId; label: string; desc: string; detail: string }[] = [
+  { id: "maintain", label: "MAINTAIN", desc: "Stay where you are.",   detail: "2,000 KCAL · BALANCED" },
+  { id: "lean",     label: "LEAN OUT", desc: "Modest deficit.",        detail: "1,700 KCAL · HIGH PROTEIN" },
+  { id: "build",    label: "BUILD",    desc: "Lean gain.",             detail: "2,400 KCAL · HIGH PROTEIN" },
+  { id: "custom",   label: "CUSTOM",   desc: "Set my own.",            detail: "CONFIGURE LATER" },
 ];
 
-/* ─── Preset goal values (nutrient name → { low, high }) ─────────────── */
-
 const GOAL_VALUES: Record<string, Record<string, { low?: number; high?: number }>> = {
-  balanced: {
+  maintain: {
     calories: { low: 1800, high: 2200 },
-    protein: { low: 50, high: 150 },
-    fat: { low: 44, high: 78 },
-    carbs: { low: 225, high: 325 },
-    fiber: { low: 25 },
-    sodium: { high: 2300 },
+    protein:  { low: 50,   high: 150  },
+    fat:      { low: 44,   high: 78   },
+    carbs:    { low: 225,  high: 325  },
+    fiber:    { low: 25 },
+    sodium:   { high: 2300 },
   },
-  active: {
-    calories: { low: 2300, high: 2700 },
-    protein: { low: 100, high: 200 },
-    fat: { low: 56, high: 97 },
-    carbs: { low: 280, high: 400 },
-    fiber: { low: 30 },
-    sodium: { high: 2300 },
+  lean: {
+    calories: { low: 1500, high: 1900 },
+    protein:  { low: 100,  high: 180  },
+    fat:      { low: 40,   high: 65   },
+    carbs:    { low: 150,  high: 230  },
+    fiber:    { low: 25 },
+    sodium:   { high: 2000 },
   },
-  mindful: {
-    calories: { low: 1400, high: 1800 },
-    protein: { low: 50, high: 130 },
-    fat: { low: 35, high: 62 },
-    carbs: { low: 175, high: 260 },
-    fiber: { low: 25 },
-    sodium: { high: 2000 },
+  build: {
+    calories: { low: 2200, high: 2600 },
+    protein:  { low: 130,  high: 210  },
+    fat:      { low: 56,   high: 97   },
+    carbs:    { low: 260,  high: 380  },
+    fiber:    { low: 30 },
+    sodium:   { high: 2300 },
   },
+  custom: {},
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -95,74 +59,48 @@ const GOAL_VALUES: Record<string, Record<string, { low?: number; high?: number }
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { persons, selectedPerson, refreshPersons } = usePersonContext();
+  const { selectedPerson, refreshPersons } = usePersonContext();
 
   /* ── Step state ──────────────────────────────────────────────────────── */
+  // 0 = Welcome, 1 = Profile, 2 = Household, 3 = Goals, 4 = Complete
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<"fwd" | "back">("fwd");
-  const [animating, setAnimating] = useState(false);
-  const stepRef = useRef<HTMLDivElement>(null);
 
-  /* ── Step 1: Profile ────────────────────────────────────────────────── */
+  /* ── Profile step ────────────────────────────────────────────────────── */
   const [userName, setUserName] = useState("");
   const [selectedTheme, setSelectedTheme] = useState("sage");
 
-  /* ── Step 2: Household ──────────────────────────────────────────────── */
-  const [inviteUrl, setInviteUrl] = useState("");
-  const [inviteCopied, setInviteCopied] = useState(false);
-  const [inviteGenerating, setInviteGenerating] = useState(false);
+  /* ── Household step ──────────────────────────────────────────────────── */
+  const [householdName, setHouseholdName] = useState("");
+  const [pendingMembers, setPendingMembers] = useState<PendingMember[]>([]);
+  const [addingMember, setAddingMember] = useState(false);
+  const [newMemberName, setNewMemberName] = useState("");
+  const copyTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
-  /* ── Step 3: Goals ──────────────────────────────────────────────────── */
-  const [selectedGoal, setSelectedGoal] = useState("active");
+  /* ── Goals step ──────────────────────────────────────────────────────── */
+  const [selectedGoal, setSelectedGoal] = useState<GoalId>("maintain");
 
-  /* ── Step 4: Recipe import ──────────────────────────────────────────── */
-  const [recipeUrl, setRecipeUrl] = useState("");
-  const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
-  const [importResult, setImportResult] = useState<{ name: string; servings: number; ingredients: number } | null>(null);
-  const [importError, setImportError] = useState("");
-
-  /* ── Step 5: Completion checklist animation ─────────────────────────── */
-  const [checklistRevealed, setChecklistRevealed] = useState(0);
-
-  /* ── Seed profile from PersonContext ─────────────────────────────────── */
+  /* ── Seed from PersonContext ─────────────────────────────────────────── */
   useEffect(() => {
     if (selectedPerson && !userName) {
       setUserName(selectedPerson.name);
       setSelectedTheme(selectedPerson.theme || "sage");
+      setHouseholdName(`${selectedPerson.name}\u2019s household`);
     }
-  }, [selectedPerson]);
+  }, [selectedPerson]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Navigation ─────────────────────────────────────────────────────── */
-  const nav = useCallback(
-    (to: number, dir: "fwd" | "back") => {
-      if (animating) return;
-      setDirection(dir);
-      setAnimating(true);
-      // Start exit animation, then switch step
-      setTimeout(() => {
-        setStep(to);
-        setAnimating(false);
-        // Trigger completion checklist stagger on final step
-        if (to === 5) {
-          let count = 0;
-          const items = getChecklistItems();
-          const interval = setInterval(() => {
-            count++;
-            setChecklistRevealed(count);
-            if (count >= items.length) clearInterval(interval);
-          }, 110);
-        }
-      }, 200);
-    },
-    [animating]
-  );
+  const nav = useCallback((to: number, dir: "fwd" | "back") => {
+    setDirection(dir);
+    setStep(to);
+  }, []);
 
   /* ── Apply theme live ───────────────────────────────────────────────── */
   const applyThemeLive = (themeName: string) => {
     document.documentElement.dataset.theme = themeName || "sage";
   };
 
-  /* ── Step 1: Save profile ───────────────────────────────────────────── */
+  /* ── Save profile ───────────────────────────────────────────────────── */
   const saveProfile = async () => {
     if (!selectedPerson) return;
     const hex = themeHex(selectedTheme);
@@ -179,46 +117,54 @@ export default function OnboardingPage() {
     await refreshPersons();
   };
 
-  /* ── Step 2: Generate invite link ────────────────────────────────────── */
-  const generateInvite = async () => {
-    setInviteGenerating(true);
+  /* ── Add household member ────────────────────────────────────────────── */
+  const addMember = async () => {
+    const name = newMemberName.trim();
+    if (!name) return;
+    const id = crypto.randomUUID();
+    const member: PendingMember = { id, name, inviteUrl: null, copied: false };
+    setPendingMembers(prev => [...prev, member]);
+    setNewMemberName("");
+    setAddingMember(false);
     try {
       const res = await fetch("/api/households/invite", { method: "POST" });
       if (res.ok) {
         const data = await res.json();
-        setInviteUrl(data.url);
+        setPendingMembers(prev =>
+          prev.map(m => m.id === id ? { ...m, inviteUrl: data.url } : m)
+        );
       }
-    } finally {
-      setInviteGenerating(false);
-    }
+    } catch {}
   };
 
-  const copyInvite = async () => {
-    if (!inviteUrl) return;
-    await navigator.clipboard.writeText(inviteUrl);
-    setInviteCopied(true);
-    setTimeout(() => setInviteCopied(false), 3000);
+  /* ── Copy invite link ────────────────────────────────────────────────── */
+  const copyInvite = async (member: PendingMember) => {
+    if (!member.inviteUrl) return;
+    await navigator.clipboard.writeText(member.inviteUrl);
+    if (copyTimers.current[member.id]) clearTimeout(copyTimers.current[member.id]);
+    setPendingMembers(prev =>
+      prev.map(m => m.id === member.id ? { ...m, copied: true } : m)
+    );
+    copyTimers.current[member.id] = setTimeout(() => {
+      setPendingMembers(prev =>
+        prev.map(m => m.id === member.id ? { ...m, copied: false } : m)
+      );
+    }, 2500);
   };
 
-  /* ── Step 3: Save nutrition goals ───────────────────────────────────── */
+  /* ── Save goals ─────────────────────────────────────────────────────── */
   const saveGoals = async () => {
-    if (!selectedPerson) return;
+    if (!selectedPerson || selectedGoal === "custom") return;
     const preset = GOAL_VALUES[selectedGoal];
-    if (!preset) return;
-
-    // Fetch nutrient list to map names → IDs
+    if (!preset || Object.keys(preset).length === 0) return;
     const res = await fetch("/api/nutrients");
     if (!res.ok) return;
     const nutrients: { id: number; name: string }[] = await res.json();
-
     const goals: Record<number, { lowGoal?: number; highGoal?: number }> = {};
     for (const n of nutrients) {
       const val = preset[n.name];
-      if (val) {
-        goals[n.id] = { lowGoal: val.low, highGoal: val.high };
-      }
+      if (val) goals[n.id] = { lowGoal: val.low, highGoal: val.high };
     }
-
     await fetch("/api/nutrition-goals", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -226,66 +172,7 @@ export default function OnboardingPage() {
     });
   };
 
-  /* ── Step 4: Import recipe ──────────────────────────────────────────── */
-  const handleImport = async () => {
-    if (!recipeUrl.trim()) return;
-    setImportStatus("loading");
-    setImportError("");
-    try {
-      const res = await fetch("/api/recipes/import/url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: recipeUrl.trim() }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setImportError(data.error || "Failed to import recipe");
-        setImportStatus("error");
-        return;
-      }
-      const recipe = await res.json();
-      // Save the recipe without unmatched ingredients — user resolves them in the recipe editor.
-      // Only include ingredients that have a valid ingredientId (already matched to pantry).
-      const matchedIngredients = (recipe.ingredients || []).filter(
-        (ing: any) => ing.ingredientId && !isNaN(Number(ing.ingredientId))
-      );
-      const saveRes = await fetch("/api/recipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: recipe.name,
-          servingSize: recipe.servingSize,
-          servingUnit: recipe.servingUnit,
-          instructions: recipe.instructions,
-          sourceApp: recipe.sourceApp,
-          tags: recipe.tags,
-          prepTime: recipe.prepTime,
-          cookTime: recipe.cookTime,
-          image: recipe.image,
-          isComplete: matchedIngredients.length > 0,
-          ingredients: matchedIngredients,
-        }),
-      });
-      if (saveRes.ok) {
-        const saved = await saveRes.json();
-        const totalParsed = recipe.ingredients?.length ?? 0;
-        setImportResult({
-          name: saved.name,
-          servings: saved.servingSize,
-          ingredients: totalParsed,
-        });
-        setImportStatus("success");
-      } else {
-        setImportError("Imported but failed to save");
-        setImportStatus("error");
-      }
-    } catch {
-      setImportError("Network error — check the URL and try again");
-      setImportStatus("error");
-    }
-  };
-
-  /* ── Step 5: Complete onboarding ────────────────────────────────────── */
+  /* ── Complete onboarding ────────────────────────────────────────────── */
   const completeOnboarding = async () => {
     if (!selectedPerson) return;
     await fetch(`/api/persons/${selectedPerson.id}`, {
@@ -293,510 +180,309 @@ export default function OnboardingPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ onboardingComplete: true }),
     });
-    // Refresh context so onboardingComplete is true before navigating,
-    // otherwise the home page redirect check fires with the stale false value.
     await refreshPersons();
     router.push("/home");
   };
 
-  /* ── Checklist items for step 5 ─────────────────────────────────────── */
-  const getChecklistItems = () => {
-    const items: { text: string; note: string; done: boolean }[] = [
-      {
-        text: "Profile",
-        note: `${userName || "—"} · ${THEMES.find((t) => t.name === selectedTheme)?.label ?? "Sage"} theme`,
-        done: true,
-      },
-      {
-        text: "Household",
-        note: inviteUrl ? "Invite link created \u2014 check Settings to manage" : `Just ${userName} for now`,
-        done: true,
-      },
-      {
-        text: "Nutrition goals",
-        note: `${GOAL_PRESETS.find((g) => g.id === selectedGoal)?.label} · ${GOAL_PRESETS.find((g) => g.id === selectedGoal)?.kcal?.toLocaleString()} kcal target`,
-        done: true,
-      },
-      {
-        text: importResult ? "Recipe imported" : "Import a recipe",
-        note: importResult ? `${importResult.name} · ${importResult.ingredients} ingredients` : "Skipped — you can import later",
-        done: !!importResult,
-      },
-      {
-        text: "Create your first week\u2019s plan",
-        note: "From the dashboard",
-        done: false,
-      },
-    ];
-    return items;
-  };
-
-  /* ── Handle "Continue" per step ─────────────────────────────────────── */
+  /* ── Handle CONTINUE per step ───────────────────────────────────────── */
   const handleContinue = async () => {
     if (step === 1) await saveProfile();
-    if (step === 2) await saveGoals(); // Goals is now step 2
+    if (step === 3) await saveGoals();
     nav(step + 1, "fwd");
   };
 
-  /* ── Progress dots ──────────────────────────────────────────────────── */
-  const ProgressDots = () => (
-    <div className="flex items-center gap-[6px]">
-      {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-        <div
-          key={i}
-          className="h-[5px] rounded-full transition-all duration-[350ms]"
-          style={{
-            width: i === step ? 22 : 5,
-            background: i <= step ? "var(--accent)" : "var(--rule)",
-            opacity: i < step ? 0.4 : 1,
-            transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
-          }}
-        />
-      ))}
-    </div>
-  );
+  /* ── Step counter ───────────────────────────────────────────────────── */
+  const counterLabel: Record<number, string> = { 1: "01 / 03", 2: "02 / 03", 3: "03 / 03" };
+  const showCounter = step >= 1 && step <= 3;
 
-  /* ── Step animation class ───────────────────────────────────────────── */
-  const stepAnimClass = animating
-    ? direction === "fwd"
-      ? "opacity-0 translate-y-[-8px]"   // forward: exit upward
-      : "opacity-0 translate-y-[8px]"    // backward: exit downward
-    : "opacity-100 translate-y-0";
+  /* ── Theme hex helper ───────────────────────────────────────────────── */
+  const getThemeHex = (name: string) =>
+    THEMES.find(t => t.name === name)?.hex ?? "#5A9B6A";
+
+  /* ── Animation class ────────────────────────────────────────────────── */
+  const animClass = direction === "fwd" ? "ob-step-fwd" : "ob-step-back";
 
   /* ═══════════════════════════════════════════════════════════════════════
      Render
      ═══════════════════════════════════════════════════════════════════════ */
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-[var(--bg)] overflow-y-auto py-8 sm:py-0">
-      <div
-        className="w-full max-w-[580px] mx-4 my-auto"
-        ref={stepRef}
-      >
-        <div
-          className="bg-[var(--bg)] border border-[var(--rule)] p-6 sm:p-[44px] transition-[opacity,transform] duration-[320ms]"
-          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+    <div className="ob-page">
+
+      {/* ── Top chrome ────────────────────────────────────────────────── */}
+      <div className="ob-chrome">
+        <span className="ob-wordmark">Good Measure</span>
+        <span
+          className="ob-counter"
+          aria-hidden={!showCounter}
+          style={{ visibility: showCounter ? "visible" : "hidden" }}
         >
-          {/* Card top: brand + progress + step counter */}
-          <div className="flex items-center justify-between mb-8">
-            <span className="font-serif text-[16px] text-[var(--fg)] tracking-[-0.02em]">
-              <BrandName />
-            </span>
-            <div className="flex items-center gap-3">
-              <ProgressDots />
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
-                {step + 1}/{TOTAL_STEPS}
-              </span>
-            </div>
-          </div>
-
-          {/* Step content with animation */}
-          <div className={`transition-[opacity,transform] duration-[320ms] ${stepAnimClass}`} style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}>
-
-            {/* ── Step 0: Welcome ────────────────────────────────────── */}
-            {step === 0 && (
-              <div>
-                <h1 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-3">
-                  Know what{"\u2019"}s in your week.
-                </h1>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Build recipes, plan your meals, and track your nutrition against your goals. Your dashboard updates in real time. Setup takes about two minutes.
-                </p>
-                <button
-                  onClick={() => nav(1, "fwd")}
-                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                  aria-label="Begin setup"
-                >
-                  Let{"\u2019"}s get set up
-                </button>
-                <button
-                  onClick={() => nav(5, "fwd")}
-                  className="w-full mt-3 py-2 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] bg-transparent border-0 cursor-pointer hover:text-[var(--fg)] transition-colors"
-                  aria-label="Skip setup"
-                >
-                  Skip and explore on my own
-                </button>
-              </div>
-            )}
-
-            {/* ── Step 1: Profile ────────────────────────────────────── */}
-            {step === 1 && (
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Profile</div>
-                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  Make it yours.
-                </h2>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Pick a name and a theme color. This changes the look of the whole app — you can always update it later in Settings.
-                </p>
-
-                {/* Name input */}
-                <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] block mb-2">Your name</label>
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  className="w-full border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] bg-transparent focus:outline-none focus:border-[var(--accent)] transition-colors mb-5"
-                  aria-label="Your name"
-                />
-
-                {/* Theme picker */}
-                <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] block mb-3">Theme color</label>
-                <div className="flex flex-wrap gap-[12px] mb-5">
-                  {THEMES.map((t) => {
-                    const isActive = selectedTheme === t.name;
-                    return (
-                      <button
-                        key={t.name}
-                        onClick={() => {
-                          setSelectedTheme(t.name);
-                          applyThemeLive(t.name);
-                        }}
-                        className="w-[26px] h-[26px] rounded-full border-0 cursor-pointer p-0 transition-transform duration-150 hover:scale-[1.18] active:scale-95"
-                        style={{
-                          background: t.hex,
-                          boxShadow: isActive ? `0 0 0 2.5px var(--bg), 0 0 0 4.5px ${t.hex}` : "none",
-                        }}
-                        aria-label={t.label}
-                        aria-pressed={isActive}
-                      />
-                    );
-                  })}
-                </div>
-
-                <div className="px-[14px] py-[11px] bg-[var(--accent-l)] mb-6">
-                  <p className="font-sans text-[13px] text-[var(--cta)] leading-[1.5]">
-                    Your theme tints buttons, links, and highlights throughout the app. Each household member gets their own.
-                  </p>
-                </div>
-
-                {/* Nav buttons */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => nav(0, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
-                    aria-label="Go back"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                    aria-label="Continue to household"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Step 2: Nutrition Goals ────────────────────────────── */}
-            {step === 2 && (
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Nutrition Goals</div>
-                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  Set a direction.
-                </h2>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Pick a starting point — you can fine-tune every nutrient later in Settings.
-                </p>
-
-                <div className="grid grid-cols-3 gap-[10px] mb-6">
-                  {GOAL_PRESETS.map((g) => {
-                    const isSelected = selectedGoal === g.id;
-                    return (
-                      <button
-                        key={g.id}
-                        onClick={() => setSelectedGoal(g.id)}
-                        className="flex flex-col p-5 border cursor-pointer bg-transparent text-left transition-[border-color,transform] duration-150 hover:border-[var(--fg-2)] active:scale-[0.98]"
-                        style={{
-                          borderColor: isSelected ? "var(--accent)" : "var(--rule)",
-                          background: isSelected ? "var(--accent-l)" : "transparent",
-                        }}
-                        aria-pressed={isSelected}
-                      >
-                        <div className="font-serif text-[16px] font-bold text-[var(--fg)] mb-1">{g.label}</div>
-                        <div className="font-sans text-[13px] text-[var(--muted)] mb-2">{g.desc}</div>
-                        <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--accent)] mt-auto">
-                          {g.kcal?.toLocaleString()} kcal / day
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="font-sans text-[11px] text-[var(--muted)] leading-[1.5] mb-6">You can fine-tune protein, fat, carbs, sodium and more in Settings any time.</p>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => nav(1, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
-                    aria-label="Go back"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                    aria-label="Continue to household"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Step 3: Household ──────────────────────────────────── */}
-            {step === 3 && (
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Your Household</div>
-                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  Does anyone else cook with you?
-                </h2>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Recipes and pantry are shared across the household. Meal plans and nutrition goals are personal to each person.
-                </p>
-
-                {/* Current user card */}
-                <div className="flex items-center gap-3 px-4 py-3 mb-4" style={{ background: "var(--accent-l)" }}>
-                  <div
-                    className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0"
-                    style={{ background: themeHex(selectedTheme) }}
-                    aria-hidden="true"
-                  >
-                    {(userName || "?").charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-sans text-[13px] font-medium text-[var(--fg)]">{userName || "You"}</div>
-                    <div className="font-sans text-[11px] text-[var(--muted)]">That{"\u2019"}s you</div>
-                  </div>
-                </div>
-
-                {/* Invite link section */}
-                {inviteUrl ? (
-                  <div
-                    className="border border-[var(--rule)] p-4 mb-4"
-                    style={{ animation: "fadeUp 300ms cubic-bezier(0.23, 1, 0.32, 1)" }}
-                  >
-                    <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Invite link</div>
-                    <div className="flex gap-2 mb-3">
-                      <input
-                        type="text"
-                        readOnly
-                        value={inviteUrl}
-                        className="flex-1 border-0 border-b border-[var(--rule)] px-0 py-[6px] font-mono text-[11px] text-[var(--fg)] bg-transparent focus:outline-none"
-                        aria-label="Invite link"
-                        onClick={(e) => (e.target as HTMLInputElement).select()}
-                      />
-                      <button
-                        onClick={copyInvite}
-                        className="px-4 py-[8px] bg-[var(--cta)] text-[var(--cta-ink)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-[opacity,transform] duration-150 shrink-0"
-                        aria-label="Copy invite link"
-                      >
-                        {inviteCopied ? "Copied" : "Copy"}
-                      </button>
-                    </div>
-                    <p className="font-sans text-[11px] text-[var(--muted)] leading-[1.5]">
-                      Send this to the person you want to invite. The link expires in 7 days. You can always find it again in Settings.
-                    </p>
-                  </div>
-                ) : (
-                  <button
-                    onClick={generateInvite}
-                    disabled={inviteGenerating}
-                    className="w-full flex items-center gap-3 px-4 py-3 border border-dashed border-[var(--rule)] bg-transparent cursor-pointer hover:border-[var(--rule-strong)] hover:bg-[rgba(0,0,0,0.01)] transition-colors mb-4 disabled:opacity-50"
-                    aria-label="Generate invite link for a household member"
-                  >
-                    <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center bg-[var(--bg-subtle)]">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                      </svg>
-                    </div>
-                    <span className="font-sans text-[13px] text-[var(--muted)]">
-                      {inviteGenerating ? "Generating link\u2026" : "Invite someone to your household"}
-                    </span>
-                  </button>
-                )}
-
-                {/* Nav buttons */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => nav(2, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
-                    aria-label="Go back"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleContinue}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                    aria-label="Continue to nutrition goals"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Step 4: First Recipe ───────────────────────────────── */}
-            {step === 4 && (
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">First Recipe</div>
-                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  Import a recipe you already love.
-                </h2>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Paste any recipe blog URL — Good Measure will pull the ingredients and nutrition data automatically.
-                </p>
-
-                <label className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] block mb-2">Recipe URL</label>
-                <div className="flex gap-2 mb-4">
-                  <input
-                    type="url"
-                    value={recipeUrl}
-                    onChange={(e) => setRecipeUrl(e.target.value)}
-                    placeholder="https://..."
-                    disabled={importStatus === "loading" || importStatus === "success"}
-                    className="flex-1 border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] bg-transparent focus:outline-none focus:border-[var(--accent)] transition-colors placeholder:text-[var(--muted)] placeholder:opacity-60 disabled:opacity-50"
-                    aria-label="Recipe URL"
-                  />
-                  <button
-                    onClick={handleImport}
-                    disabled={!recipeUrl.trim() || importStatus === "loading" || importStatus === "success"}
-                    className="px-5 py-[8px] bg-[var(--cta)] text-[var(--cta-ink)] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer hover:opacity-[0.88] active:scale-[0.97] transition-all duration-150 disabled:opacity-40 shrink-0"
-                    aria-label="Import recipe"
-                  >
-                    Import
-                  </button>
-                </div>
-
-                {/* Import status area */}
-                <div
-                  className="px-[14px] py-[12px] mb-6 transition-[border-color] duration-[300ms]"
-                  style={{
-                    background:
-                      importStatus === "success" ? "var(--accent-l)" :
-                      importStatus === "error" ? "var(--error-light)" :
-                      importStatus === "loading" ? "var(--bg-subtle)" : "var(--bg-subtle)",
-                    borderColor:
-                      importStatus === "success" ? "var(--accent)" :
-                      importStatus === "error" ? "var(--error-border)" : "var(--rule)",
-                    border: importStatus === "loading" ? "1px dashed var(--rule)" : "1px solid var(--rule-faint)",
-                  }}
-                >
-                  {importStatus === "idle" && (
-                    <p className="font-sans text-[13px] text-[var(--muted)]">
-                      Paste a recipe URL and click Import
-                    </p>
-                  )}
-                  {importStatus === "loading" && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full" style={{ animation: "spin 0.9s linear infinite" }} />
-                      <p className="font-sans text-[13px] text-[var(--muted)]">Extracting ingredients…</p>
-                    </div>
-                  )}
-                  {importStatus === "success" && importResult && (
-                    <div className="flex items-center gap-3">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <p className="font-sans text-[13px] text-[var(--fg)]">
-                        {importResult.name} · {importResult.servings} servings · {importResult.ingredients} ingredients matched
-                      </p>
-                    </div>
-                  )}
-                  {importStatus === "error" && (
-                    <p className="font-sans text-[13px] text-[var(--error)]">{importError}</p>
-                  )}
-                </div>
-
-                {/* Nav buttons */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => nav(3, "back")}
-                    className="px-6 py-[12px] font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border-0 bg-transparent cursor-pointer hover:text-[var(--fg)] transition-colors"
-                    aria-label="Go back"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={() => nav(5, "fwd")}
-                    className="flex-1 py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                    aria-label={importResult ? "Continue to finish" : "Skip and finish"}
-                  >
-                    {importResult ? "Continue" : "Skip"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Step 5: Complete ───────────────────────────────────── */}
-            {step === 5 && (
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">Setup Complete</div>
-                <h2 className="font-serif text-[28px] tracking-[-0.025em] text-[var(--fg)] leading-[1.1] mb-2">
-                  You{"\u2019"}re set.
-                </h2>
-                <p className="font-sans text-[16px] text-[var(--muted)] leading-[1.5] mb-6" style={{ textWrap: "pretty" }}>
-                  Here{"\u2019"}s what we set up. You can change any of this in Settings.
-                </p>
-
-                {/* Checklist */}
-                <div className="flex flex-col gap-0 mb-6">
-                  {getChecklistItems().map((item, i) => {
-                    const visible = i < checklistRevealed;
-                    return (
-                      <div
-                        key={i}
-                        className="flex items-center gap-3 py-[10px] border-b border-[var(--rule-faint)] last:border-b-0 transition-[opacity,transform] duration-[320ms]"
-                        style={{
-                          opacity: visible ? 1 : 0,
-                          transform: visible ? "translateY(0)" : "translateY(8px)",
-                          transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
-                        }}
-                      >
-                        <div
-                          className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
-                          style={{
-                            background: item.done ? "var(--accent)" : "var(--rule)",
-                          }}
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="font-sans text-[13px] text-[var(--fg)]">{item.text}</span>
-                          <span className="font-sans text-[11px] text-[var(--muted)] ml-2">{item.note}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <button
-                  onClick={completeOnboarding}
-                  className="w-full py-[12px] px-6 bg-[var(--fg)] text-[var(--bg)] font-sans text-[13px] font-medium border-0 cursor-pointer hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-[140ms]"
-                  aria-label="Open the app"
-                >
-                  Open Good Measure
-                </button>
-              </div>
-            )}
-
-          </div>
-        </div>
+          {counterLabel[step] ?? ""}
+        </span>
       </div>
 
-      {/* Keyframe animations */}
-      <style jsx>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      {/* ── Step body ─────────────────────────────────────────────────── */}
+      <div className="ob-body">
+        <div key={step} className={animClass}>
+
+          {/* ── Welcome (step 0) ──────────────────────────────────────── */}
+          {step === 0 && (
+            <div className="ob-col ob-col--welcome">
+              <div className="ob-eyebrow">§ WELCOME</div>
+              <h1 className="ob-headline ob-headline--welcome">
+                Measure what <em>matters.</em>
+              </h1>
+              <p className="ob-lede">
+                A nutrition tracker built around real recipes,<br />
+                real households, and the way you actually cook.
+              </p>
+              <div className="ob-actions ob-actions--center">
+                <button
+                  className="ob-cta"
+                  onClick={() => nav(1, "fwd")}
+                  aria-label="Begin setup"
+                >
+                  GET STARTED →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Profile (step 1) ──────────────────────────────────────── */}
+          {step === 1 && (
+            <div className="ob-col">
+              <div className="ob-eyebrow">§ YOUR PROFILE</div>
+              <h1 className="ob-headline">Pick your color.</h1>
+              <p className="ob-lede">
+                Your color marks what&rsquo;s yours across the app.<br />
+                Avatar, planner column, the accent on this page.
+              </p>
+
+              <label className="ob-label" htmlFor="ob-name">NAME</label>
+              <input
+                id="ob-name"
+                className="ob-input"
+                type="text"
+                value={userName}
+                onChange={e => setUserName(e.target.value)}
+                aria-label="Your name"
+              />
+
+              <label className="ob-label" style={{ marginTop: 20 }}>THEME</label>
+              <div className="ob-swatches" role="group" aria-label="Theme color">
+                {THEMES.map(t => (
+                  <button
+                    key={t.name}
+                    className="ob-swatch"
+                    style={{
+                      background: t.hex,
+                      boxShadow: selectedTheme === t.name
+                        ? `0 0 0 2px var(--bg), 0 0 0 3.5px var(--fg)`
+                        : "none",
+                    }}
+                    onClick={() => { setSelectedTheme(t.name); applyThemeLive(t.name); }}
+                    aria-label={t.label}
+                    aria-pressed={selectedTheme === t.name}
+                  />
+                ))}
+              </div>
+
+              <div className="ob-actions">
+                <button className="ob-back" onClick={() => nav(0, "back")}>← BACK</button>
+                <button className="ob-cta" onClick={handleContinue}>CONTINUE</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Household (step 2) ────────────────────────────────────── */}
+          {step === 2 && (
+            <div className="ob-col ob-col--household">
+              <div className="ob-eyebrow">§ YOUR HOUSEHOLD</div>
+              <h1 className="ob-headline">Who else is eating?</h1>
+              <p className="ob-lede">
+                Add the people you&rsquo;re planning meals for.<br />
+                Each gets their own goals, plan, and color.
+              </p>
+
+              <label className="ob-label" htmlFor="ob-household-name">HOUSEHOLD NAME</label>
+              <input
+                id="ob-household-name"
+                className="ob-input"
+                type="text"
+                value={householdName}
+                onChange={e => setHouseholdName(e.target.value)}
+                aria-label="Household name"
+              />
+
+              <div className="ob-members" role="list" aria-label="Household members">
+                <div className="ob-label" style={{ marginTop: 20, marginBottom: 12 }}>MEMBERS</div>
+
+                {/* Current user — not removable */}
+                <div className="ob-member-row" role="listitem">
+                  <span
+                    className="ob-member-dot"
+                    style={{ background: getThemeHex(selectedTheme) }}
+                    aria-hidden="true"
+                  />
+                  <span className="ob-member-name">{userName || "You"}</span>
+                  <span className="ob-member-you">YOU</span>
+                </div>
+
+                {/* Pending invited members */}
+                {pendingMembers.map(member => (
+                  <div key={member.id} className="ob-member-row" role="listitem">
+                    <span
+                      className="ob-member-dot"
+                      style={{ background: "var(--rule)" }}
+                      aria-hidden="true"
+                    />
+                    <span className="ob-member-name">{member.name}</span>
+                    {member.inviteUrl ? (
+                      <button
+                        className={`ob-member-action${member.copied ? " ob-member-action--copied" : ""}`}
+                        onClick={() => copyInvite(member)}
+                        aria-label={`Copy invite link for ${member.name}`}
+                      >
+                        {member.copied
+                          ? `✓ COPIED — SEND TO ${member.name.toUpperCase()}`
+                          : "COPY INVITE LINK"}
+                      </button>
+                    ) : (
+                      <span className="ob-member-you">GENERATING…</span>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add another person */}
+                {addingMember ? (
+                  <div className="ob-member-row" role="listitem">
+                    <span className="ob-member-dot ob-member-dot--dashed" aria-hidden="true" />
+                    <input
+                      className="ob-member-inline-input"
+                      type="text"
+                      placeholder="Name"
+                      value={newMemberName}
+                      onChange={e => setNewMemberName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") addMember();
+                        if (e.key === "Escape") { setAddingMember(false); setNewMemberName(""); }
+                      }}
+                      autoFocus
+                      aria-label="New member name"
+                    />
+                    <button
+                      className="ob-member-action"
+                      onClick={addMember}
+                      aria-label="Confirm add member"
+                    >
+                      + ADD
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className="ob-member-row ob-member-row--placeholder"
+                    onClick={() => setAddingMember(true)}
+                    role="listitem"
+                    tabIndex={0}
+                    onKeyDown={e => e.key === "Enter" && setAddingMember(true)}
+                    aria-label="Add another person"
+                  >
+                    <span className="ob-member-dot ob-member-dot--dashed" aria-hidden="true" />
+                    <span className="ob-member-name ob-member-muted">Add another person…</span>
+                    <button
+                      className="ob-member-action"
+                      onClick={e => { e.stopPropagation(); setAddingMember(true); }}
+                      aria-label="Add a household member"
+                      tabIndex={-1}
+                    >
+                      + ADD
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="ob-actions">
+                <button className="ob-back" onClick={() => nav(1, "back")}>← BACK</button>
+                <button className="ob-cta" onClick={() => nav(3, "fwd")}>CONTINUE</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Goals (step 3) ────────────────────────────────────────── */}
+          {step === 3 && (
+            <div className="ob-col ob-col--goals">
+              <div className="ob-eyebrow">§ DAILY GOALS</div>
+              <h1 className="ob-headline">A starting point.</h1>
+              <p className="ob-lede">
+                Pick a preset close to what you&rsquo;re after.<br />
+                Tune the exact numbers later in Settings.
+              </p>
+
+              <div className="ob-goal-grid" role="group" aria-label="Goal presets">
+                {GOAL_PRESETS.map(preset => (
+                  <button
+                    key={preset.id}
+                    className={`ob-goal-card${selectedGoal === preset.id ? " ob-goal-card--selected" : ""}`}
+                    onClick={() => setSelectedGoal(preset.id)}
+                    aria-pressed={selectedGoal === preset.id}
+                  >
+                    <span className="ob-goal-card-label">{preset.label}</span>
+                    <span className="ob-goal-card-desc">{preset.desc}</span>
+                    <span className="ob-goal-card-detail">{preset.detail}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="ob-actions">
+                <button className="ob-back" onClick={() => nav(2, "back")}>← BACK</button>
+                <button className="ob-cta" onClick={handleContinue}>FINISH →</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Complete (step 4) ─────────────────────────────────────── */}
+          {step === 4 && (
+            <div className="ob-col ob-col--complete">
+              <div className="ob-check-icon" aria-hidden="true">
+                <svg
+                  width="56"
+                  height="56"
+                  viewBox="0 0 56 56"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="28" cy="28" r="26.25" stroke="var(--fg)" strokeWidth="1.5" />
+                  <polyline
+                    points="17,28 25,36 39,20"
+                    stroke="var(--fg)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div className="ob-eyebrow">§ READY</div>
+              <h1 className="ob-headline ob-headline--complete">
+                You&rsquo;re all <em>set.</em>
+              </h1>
+              <p className="ob-lede">
+                Now let&rsquo;s add a recipe or two.<br />
+                The dashboard has a checklist to walk you through it.
+              </p>
+              <div className="ob-actions ob-actions--center">
+                <button
+                  className="ob-cta"
+                  onClick={completeOnboarding}
+                  aria-label="Go to dashboard"
+                >
+                  GO TO DASHBOARD →
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
     </div>
   );
 }
