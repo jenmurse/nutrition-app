@@ -1098,13 +1098,13 @@ const MealPlansPage = () => {
             <>
               <span className="pl-range" style={{ paddingRight: 0 }}>{selectedMealIds.size} sel</span>
               <button
-                className="pl-nav-btn"
+                className="pl-nav-btn pl-nav-btn--destroy"
                 disabled={selectedMealIds.size === 0}
                 onClick={handleDeleteSelected}
                 aria-label="Delete selected meals"
               >Delete</button>
               <button
-                className="pl-nav-btn"
+                className="pl-nav-btn pl-nav-btn--destroy"
                 onClick={async () => {
                   if (!selectedPlan) return;
                   if (!await dialog.confirm('Delete this entire plan? This cannot be undone.', { confirmLabel: 'Delete plan', danger: true })) return;

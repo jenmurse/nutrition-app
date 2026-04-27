@@ -1290,6 +1290,7 @@ input[type="number"]:focus {
 }
 .pl-nav-btn:hover { color:var(--fg); border-color:var(--fg); }
 .pl-nav-btn:active { transform:scale(0.97); }
+.pl-nav-btn--destroy:hover { background:var(--fg); color:var(--bg); border-color:var(--fg); }
 
 .pl-chip-group { display:flex; gap:4px; align-items:center; }
 .pl-chip-sep { width:1px; height:14px; background:var(--rule); flex-shrink:0; margin:0 6px; }
@@ -1308,7 +1309,7 @@ input[type="number"]:focus {
 .pl-person-chip:active { transform:scale(0.97); }
 .pl-person-chip.on { color:var(--fg); border-bottom-color: var(--fg); }
 .pl-person-chip-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-.pl-person-chips { display:flex; align-items:center; gap:8px; }
+.pl-person-chips { display:flex; align-items:center; gap:8px; margin-left:16px; }
 
 .pl-right-group { display:flex; gap:18px; align-items:center; margin-left:auto; }
 
@@ -4174,6 +4175,26 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .rb-focus-chip:hover { color: var(--fg); }
 .rb-focus-chip.is-active { color: var(--fg); }
 .rb-focus-chip.is-active::after { transform: scaleX(1); }
+
+/* Nutrition guidance focus checkbox */
+.rb-focus-checkbox {
+  appearance: none; -webkit-appearance: none;
+  width: 12px; height: 12px; border: 1px solid var(--rule);
+  border-radius: 0; background: transparent; cursor: pointer;
+  position: relative; transition: background 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+}
+.rb-focus-checkbox:checked {
+  background: var(--fg); border-color: var(--fg);
+}
+.rb-focus-checkbox:checked::after {
+  content: '';
+  position: absolute; top: 1px; left: 3px;
+  width: 4px; height: 7px;
+  border: 1.5px solid var(--bg); border-top: 0; border-left: 0;
+  transform: rotate(45deg);
+}
+.rb-focus-checkbox:focus-visible { outline: 2px solid var(--fg); outline-offset: 1px; }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /* RecipeBuilderDemo — .rbd-*                                                  */

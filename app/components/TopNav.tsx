@@ -95,7 +95,7 @@ export default function TopNav() {
           href="/settings"
           className={`nav-settings flex items-center justify-center no-underline transition-[color,transform] duration-150 hover:rotate-[30deg] ${
             pathname?.startsWith("/settings")
-              ? "text-[var(--accent)]"
+              ? "text-[var(--fg)]"
               : "text-[var(--muted)] hover:text-[var(--fg)]"
           }`}
           style={{ padding: 4 }}

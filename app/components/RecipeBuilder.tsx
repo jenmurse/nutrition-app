@@ -1024,8 +1024,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                           style={{
                             borderRadius: '9999px',
                             padding: '4px 10px',
-                            boxShadow: guidedPersonId === p.id ? '0 0 0 1.5px var(--fg)' : '0 0 0 1.5px transparent',
-                            transition: 'color 0.15s, box-shadow 0.15s',
+                            border: guidedPersonId === p.id ? '1.5px solid var(--fg)' : '1px solid var(--rule)',
+                            transition: 'color 0.15s, border-color 0.15s',
                           }}>{p.name}</button>
                       ))}
                     </div>
@@ -1034,16 +1034,27 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 {guidedPersonId && personGoals.length > 0 && (
                   <>
                     <div className="ed-label" style={{ marginBottom: 8 }}>Focus</div>
-                    <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
-                      {personGoals.filter((g) => (g.highGoal ?? g.lowGoal ?? 0) > 0).map((g) => (
-                        <button key={g.nutrientId}
-                          onClick={() => {
-                            setGuidedFocus((prev) => prev.includes(g.nutrientId) ? prev.filter((x) => x !== g.nutrientId) : [...prev, g.nutrientId]);
-                            if (guidedFocus.includes(g.nutrientId)) setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
-                          }}
-                          className={`rb-focus-chip ${guidedFocus.includes(g.nutrientId) ? 'is-active' : ''}`}
-                        >{g.nutrient.displayName}</button>
-                      ))}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', maxWidth: 480, marginBottom: 16 }}>
+                      {personGoals.filter((g) => (g.highGoal ?? g.lowGoal ?? 0) > 0).map((g) => {
+                        const checked = guidedFocus.includes(g.nutrientId);
+                        return (
+                          <label key={g.nutrientId}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--rule)', padding: '6px 0', cursor: 'pointer' }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                setGuidedFocus((prev) => prev.includes(g.nutrientId) ? prev.filter((x) => x !== g.nutrientId) : [...prev, g.nutrientId]);
+                                if (checked) setFocusCaps((prev) => { const next = { ...prev }; delete next[g.nutrientId]; return next; });
+                              }}
+                              className="rb-focus-checkbox"
+                              style={{ flexShrink: 0 }}
+                            />
+                            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg-2)]">{g.nutrient.displayName}</span>
+                          </label>
+                        );
+                      })}
                     </div>
                   </>
                 )}

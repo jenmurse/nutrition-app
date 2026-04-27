@@ -735,7 +735,7 @@ const SettingsPage = () => {
                                 toast.error(data.error || 'Failed to remove person');
                               }
                             }}
-                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--error)] bg-transparent border-0 cursor-pointer transition-colors"
+                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
                             aria-label={`Remove ${person.name}`}
                           >
                             Remove
