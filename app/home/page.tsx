@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { usePersonContext } from "../components/PersonContext";
 import { clientCache } from "@/lib/clientCache";
 import GettingStartedCard from "../components/GettingStartedCard";
-import { CalendarEmptyIcon, MealsEmptyIcon } from "../components/EmptyStateIcons";
+import EmptyState from "../components/EmptyState";
 import { BrandName } from "../components/BrandName";
 import ContextualTip from "../components/ContextualTip";
 
@@ -392,34 +392,26 @@ export default function Home() {
         ) : !weekPlanId ? (
           <div style={{ padding: `56px var(--pad) 72px` }}>
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">This week</div>
-            <div className="empty-state">
-              <div className="empty-state-glyph" aria-hidden="true"><CalendarEmptyIcon /></div>
-              <div className="empty-state-label">No plan this week</div>
-              <Link
-                href="/meal-plans"
-                className="empty-state-action"
-                aria-label="Create a meal plan for this week"
-              >
-                + Create plan →
-              </Link>
-            </div>
+            <EmptyState
+              eyebrow="§ NO PLAN THIS WEEK"
+              headline="A blank week."
+              lede={<>Drop in recipes for the days ahead<br />and the nutrition math handles itself.</>}
+              ctaLabel="+ CREATE PLAN →"
+              ctaHref="/meal-plans"
+            />
           </div>
 
         ) : !todayData || todayMeals.length === 0 ? (
           <>
             <div style={{ padding: `56px var(--pad) 72px` }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">Today</div>
-              <div className="empty-state">
-                <div className="empty-state-glyph" aria-hidden="true">·</div>
-                <div className="empty-state-label">Nothing logged today</div>
-                <Link
-                  href={`/meal-plans?planId=${weekPlanId}`}
-                  className="empty-state-action"
-                  aria-label="Open meal plan to log meals"
-                >
-                  Open planner →
-                </Link>
-              </div>
+              <EmptyState
+                eyebrow="§ NOTHING TODAY"
+                headline="No meals logged."
+                lede={<>Open the planner to add meals<br />for today.</>}
+                ctaLabel="OPEN PLANNER →"
+                ctaHref={`/meal-plans?planId=${weekPlanId}`}
+              />
             </div>
 
             {/* This Week — show even when no meals today (hidden on mobile) */}
@@ -518,16 +510,13 @@ export default function Home() {
                   ))}
                 </div>
               ) : (
-                <div className="empty-state">
-                  <div className="empty-state-glyph" aria-hidden="true"><MealsEmptyIcon /></div>
-                  <div className="empty-state-label">Nothing logged today</div>
-                  <Link
-                    href={`/meal-plans?planId=${weekPlanId}`}
-                    className="empty-state-action"
-                  >
-                    + Add meals →
-                  </Link>
-                </div>
+                <EmptyState
+                  eyebrow="§ NOTHING TODAY"
+                  headline="No meals logged."
+                  lede={<>Open the planner to add meals<br />for today.</>}
+                  ctaLabel="+ ADD MEALS →"
+                  ctaHref={`/meal-plans?planId=${weekPlanId}`}
+                />
               )}
             </div>
 

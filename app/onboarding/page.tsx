@@ -266,7 +266,7 @@ export default function OnboardingPage() {
               <>
                 <div className="ob-eyebrow">§ WELCOME</div>
                 <h1 className="ob-headline ob-headline--welcome">
-                  Measure what <em>matters.</em>
+                  Measure what matters.
                 </h1>
                 <p className="ob-lede">
                   A nutrition tracker built around real recipes,<br />
@@ -495,7 +495,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="ob-eyebrow">§ READY</div>
                 <h1 className="ob-headline ob-headline--complete">
-                  You&rsquo;re all <em>set.</em>
+                  You&rsquo;re all set.
                 </h1>
                 <p className="ob-lede">{completeLede()}</p>
                 <div className="ob-actions ob-actions--center">

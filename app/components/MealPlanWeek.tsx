@@ -704,28 +704,28 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={closeMealTypeSheet}
         >
           <div
-            className="w-full sm:max-w-lg bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:p-6 sm:my-4 rounded-t-[20px] sm:rounded-[16px] relative"
+            className="w-full sm:max-w-sm bg-[var(--bg)] border-t sm:border border-[var(--rule)] relative"
             style={{ animation: closingMealType ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both' }}
             onClick={(e) => e.stopPropagation()}
           >
             {sheetTouchBlocked && <div className="absolute inset-0 z-50" aria-hidden="true" />}
-            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
-            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 pb-4 pt-2 sm:px-0 sm:pt-0 mb-2">
-              <h3 className="font-sans text-[16px] font-semibold text-[var(--fg)]">Select meal type</h3>
+            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-1" aria-hidden="true" />
+            <div className="flex items-center justify-between border-b border-[var(--rule)] px-5 pb-3 pt-3">
+              <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Select meal type</span>
               <button
-                className="text-[16px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
+                className="font-mono text-[13px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition bg-transparent border-0 cursor-pointer"
                 onClick={closeMealTypeSheet}
                 aria-label="Close"
               >✕</button>
             </div>
 
             {mealTypeContentVisible && (
-              <div className="pl-meal-type-grid grid grid-cols-2 gap-0 px-5 sm:px-0">
+              <div className="pl-meal-type-grid flex flex-col">
                 {availableMealTypes.map((mealType) => (
                   <button
                     key={mealType}
                     type="button"
-                    className="text-left py-3 px-2 rounded-md transition-colors hover:bg-[var(--bg-2)] active:scale-[0.98]"
+                    className="text-left px-5 py-[11px] border-b border-[var(--rule-faint)] last:border-b-0 bg-transparent hover:bg-[var(--bg-2)] transition-colors active:scale-[0.99] cursor-pointer"
                     onTouchEnd={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -734,7 +734,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                     onClick={() => handleSelectMealType(mealType)}
                     aria-label={mealType}
                   >
-                    <span className="font-sans text-[16px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                    <span className="font-sans text-[13px] text-[var(--fg)]">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
                   </button>
                 ))}
               </div>
@@ -751,19 +751,19 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           onClick={closeRecipePickerSheet}
         >
           <div
-            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] rounded-t-[20px] sm:rounded-[16px] sm:max-h-[90vh] relative overflow-hidden"
+            className="add-meal-sheet w-full max-w-2xl bg-[var(--bg)] border-t sm:border border-[var(--rule)] sm:max-h-[90vh] relative overflow-hidden"
             style={{ animation: closingRecipePicker ? 'sheetDown 180ms cubic-bezier(0.32, 0.72, 0, 1) both' : 'sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both', maxHeight: 'calc(100vh - 80px)', display: 'grid', gridTemplateRows: 'auto auto 1fr auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             {sheetTouchBlocked && <div className="absolute inset-0 z-50" aria-hidden="true" />}
-            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-2" aria-hidden="true" />
-            <div className="flex items-center justify-between border-b border-[var(--rule-faint)] px-5 py-4 sm:p-6 shrink-0">
+            <div className="sm:hidden w-10 h-1 bg-[var(--rule)] rounded-full mx-auto mt-3 mb-1" aria-hidden="true" />
+            <div className="flex items-center justify-between border-b border-[var(--rule)] px-5 py-3 sm:px-6 shrink-0">
               <div className="flex gap-5 items-center">
                 <button
                   onClick={() => setItemTypeTabOpen('recipe')}
-                  className={`text-[13px] font-mono uppercase tracking-[0.08em] transition-colors pb-[3px] ${
+                  className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors pb-[3px] ${
                     itemTypeTabOpen === 'recipe'
-                      ? 'text-[var(--fg)] shadow-[0_2px_0_var(--accent)]'
+                      ? 'text-[var(--fg)] shadow-[0_1.5px_0_var(--fg)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
@@ -771,9 +771,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
                 <button
                   onClick={() => setItemTypeTabOpen('ingredient')}
-                  className={`text-[13px] font-mono uppercase tracking-[0.08em] transition-colors pb-[3px] ${
+                  className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors pb-[3px] ${
                     itemTypeTabOpen === 'ingredient'
-                      ? 'text-[var(--fg)] shadow-[0_2px_0_var(--accent)]'
+                      ? 'text-[var(--fg)] shadow-[0_1.5px_0_var(--fg)]'
                       : 'text-[var(--muted)] hover:text-[var(--fg)]'
                   }`}
                 >
@@ -781,7 +781,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 </button>
               </div>
               <button
-                className="text-[16px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition p-2 -mr-2"
+                className="font-mono text-[13px] leading-none text-[var(--muted)] hover:text-[var(--fg)] transition bg-transparent border-0 cursor-pointer"
                 onClick={closeRecipePickerSheet}
                 aria-label="Close"
               >✕</button>

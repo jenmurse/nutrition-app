@@ -1120,59 +1120,40 @@ input[type="number"]:focus {
 .notif-info    { background: var(--bg-2);   color: var(--muted); border-bottom-color: var(--rule); }
 .notif-info    .notif-bar-dot { background: var(--muted); }
 
-/* ── Empty state — typographic glyph ─────────────────────────── */
-.empty-state {
+/* ── Empty state — editorial typographic treatment (Brief 17) ─── */
+.es-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 56px 24px;
-  border-top: 1px solid var(--rule);
+  padding: 80px 32px;
 }
-.empty-state-pane {
-  border-top: none;
-  min-height: 200px;
-}
-.empty-state-glyph {
-  color: var(--rule);
-  margin-bottom: 16px;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.empty-state-label {
+.es-eyebrow {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 14px;
+  margin: 0 0 24px;
 }
-.empty-state-context {
+.es-headline {
+  font-family: var(--sans);
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--fg);
+  margin: 0 0 20px;
+}
+.es-lede {
   font-family: var(--sans);
   font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
-  margin-bottom: 18px;
-  max-width: 240px;
+  line-height: 1.7;
+  color: var(--fg-2);
+  max-width: 40ch;
+  margin: 0 0 40px;
 }
-.empty-state-action {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg);
-  text-decoration: none;
-  cursor: pointer;
-  background: none;
-  border: 1px solid var(--rule);
-  padding: 7px 16px;
-  border-radius: var(--radius-pill);
-  transition: border-color 0.15s;
-}
-.empty-state-action:hover { border-color: var(--fg); }
 
 @keyframes loading-breathe {
   0%, 100% { opacity: 0.35; }
@@ -1315,16 +1296,17 @@ input[type="number"]:focus {
 
 .pl-person-chip {
   font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
-  background:none; border:1px solid var(--rule); color:var(--muted);
-  padding:4px 10px; cursor:pointer; position:relative; white-space:nowrap;
-  border-radius: var(--radius-pill);
+  background:none; border:none; color:var(--muted);
+  padding:3px 0 2px; cursor:pointer; position:relative; white-space:nowrap;
+  border-radius: 0;
+  border-bottom: 1.5px solid transparent;
   display:inline-flex; align-items:center; gap:5px;
   transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
 }
 .pl-person-chip::before { content:''; position:absolute; inset:-10px -4px; }
 .pl-person-chip:hover { color:var(--fg); }
 .pl-person-chip:active { transform:scale(0.97); }
-.pl-person-chip.on { color:var(--fg); }
+.pl-person-chip.on { color:var(--fg); border-bottom-color: var(--fg); }
 .pl-person-chip-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
 .pl-person-chips { display:flex; align-items:center; gap:8px; }
 
@@ -1332,15 +1314,15 @@ input[type="number"]:focus {
 
 .pl-nut-chip {
   font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
-  background:none; border:1px solid var(--rule); color:var(--muted);
-  padding:4px 10px; cursor:pointer; white-space:nowrap; position:relative;
-  border-radius: var(--radius-pill);
+  background:none; border:none; color:var(--muted);
+  padding:3px 0 2px; cursor:pointer; white-space:nowrap; position:relative;
+  border-bottom: 1.5px solid transparent;
   transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
 }
 .pl-nut-chip::before { content:''; position:absolute; inset:-10px -4px; }
-.pl-nut-chip:hover { color:var(--fg); border-color:var(--muted); }
+.pl-nut-chip:hover { color:var(--fg); }
 .pl-nut-chip:active { transform:scale(0.97); }
-.pl-nut-chip.on { color:var(--fg); border-color:var(--fg); }
+.pl-nut-chip.on { color:var(--fg); border-bottom-color: var(--fg); }
 
 .pl-new-btn {
   font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase;
@@ -1409,19 +1391,18 @@ input[type="number"]:focus {
 .pl-create-actions { display:flex; gap:8px; margin-left:auto; align-items:center; }
 
 .pl-create-btn {
-  font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
-  background:var(--cta); color:var(--cta-ink); border:none; padding:6px 16px;
-  border-radius: var(--radius-pill);
+  font-family:var(--mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
+  background:var(--fg); color:var(--bg); border:none; padding:8px 16px;
+  border-radius: 0;
   cursor:pointer; transition:opacity 0.15s, transform 100ms var(--ease-out); white-space:nowrap;
 }
-.pl-create-btn:hover { opacity:0.88; }
+.pl-create-btn:hover { opacity:0.85; }
 .pl-create-btn:active { transform:scale(0.97); }
 .pl-create-btn:disabled { opacity:0.5; cursor:default; }
 
 .pl-cancel-btn {
-  font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
-  background:none; border:none; color:var(--muted); padding:4px 16px;
-  border-radius: var(--radius-pill);
+  font-family:var(--mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
+  background:none; border:none; color:var(--muted); padding:8px 0;
   cursor:pointer; transition:color 0.15s;
 }
 .pl-cancel-btn:hover { color:var(--fg); }
@@ -2869,8 +2850,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Small labels: bump minimum to 10px for readability ─────────── */
   .ed-label { font-size: 11px; }
-  .empty-state-label, .empty-state-action { font-size: 11px; }
-  .pl-day-strip-name { font-size: 11px; }
+  .es-eyebrow { font-size: 10px; }
+.pl-day-strip-name { font-size: 11px; }
 
   /* "This week" header: tighten top gap */
   .hm-thisweek-hdr { padding-top: 16px !important; }
@@ -3312,12 +3293,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-sheet .meal-chip-kcal { font-size: 11px; margin-top: 2px; }
   .add-meal-sheet .pl-create-label { font-size: 11px; }
   .add-meal-sheet .pl-create-date { font-size: 16px; }
-  .add-meal-sheet .pl-person-chip { font-size: 11px; padding: 6px 12px; }
-  .add-meal-sheet .pl-cancel-btn { font-size: 13px; padding: 10px 20px; }
-  .add-meal-sheet .pl-create-btn { font-size: 13px; padding: 10px 20px; }
+  .add-meal-sheet .pl-person-chip { font-size: 11px; }
+  .add-meal-sheet .pl-cancel-btn { font-size: 11px; }
+  .add-meal-sheet .pl-create-btn { font-size: 11px; padding: 10px 20px; }
 
-  /* Confirm dialog: pill buttons on mobile */
-  [role="dialog"] button { border-radius: var(--radius-pill); }
 
   /* Day strip: shadow separator instead of hairline */
   .pl-day-strip {

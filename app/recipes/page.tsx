@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
-import { RecipeEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
+import EmptyState from "@/app/components/EmptyState";
 
 type RecipeSummary = {
   id: number;
@@ -721,24 +721,21 @@ function RecipesPage() {
           </div>
         ) : sortedRecipes.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="empty-state empty-state-pane">
-              <div className="empty-state-glyph" aria-hidden="true">
-                {recipes.length === 0 ? <RecipeEmptyIcon /> : <NoMatchesIcon />}
-              </div>
-              <div className="empty-state-label">
-                {recipes.length === 0 ? "No recipes yet" : "No matches"}
-              </div>
-              <div className="empty-state-context">
-                {recipes.length === 0 ? "Create a recipe from scratch or import one." : "Try adjusting your filters."}
-              </div>
-              {recipes.length === 0 && (
-                <button
-                  onClick={() => router.push("/recipes/create")}
-                  className="empty-state-action"
-                  aria-label="Create first recipe"
-                >+ New recipe →</button>
-              )}
-            </div>
+            {recipes.length === 0 ? (
+              <EmptyState
+                eyebrow="§ NO RECIPES YET"
+                headline="An empty library."
+                lede={<>Build it from scratch, or import recipes<br />you already love.</>}
+                ctaLabel="+ NEW RECIPE →"
+                onCta={() => router.push("/recipes/create")}
+              />
+            ) : (
+              <EmptyState
+                eyebrow="§ NO MATCHES"
+                headline="Nothing matches that."
+                lede={<>Try a different search, or clear the filters<br />to see everything.</>}
+              />
+            )}
           </div>
         ) : viewMode === "grid" ? (
           /* ── Ruled Grid (BRIEF-09) ── */

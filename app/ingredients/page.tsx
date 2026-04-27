@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
 import { toast } from "@/lib/toast";
-import { PantryEmptyIcon, NoMatchesIcon } from "@/app/components/EmptyStateIcons";
+import EmptyState from "@/app/components/EmptyState";
 import { dialog } from "@/lib/dialog";
 import type { Nutrient } from "@/types";
 
@@ -383,24 +383,21 @@ function IngredientsPage() {
           </div>
         ) : sortedIngredients.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="empty-state empty-state-pane">
-              <div className="empty-state-glyph" aria-hidden="true">
-                {ingredients.length === 0 ? <PantryEmptyIcon /> : <NoMatchesIcon />}
-              </div>
-              <div className="empty-state-label">
-                {ingredients.length === 0 ? "No ingredients yet" : "No matches"}
-              </div>
-              <div className="empty-state-context">
-                {ingredients.length === 0 ? "Add an ingredient or food to get started." : "Try adjusting your filters."}
-              </div>
-              {ingredients.length === 0 && (
-                <button
-                  onClick={() => router.push("/ingredients/create")}
-                  className="empty-state-action"
-                  aria-label="Add first ingredient"
-                >+ Add ingredient →</button>
-              )}
-            </div>
+            {ingredients.length === 0 ? (
+              <EmptyState
+                eyebrow="§ NO INGREDIENTS YET"
+                headline="An empty pantry."
+                lede={<>Add what you cook with often,<br />or look it up as you go.</>}
+                ctaLabel="+ ADD INGREDIENT →"
+                onCta={() => router.push("/ingredients/create")}
+              />
+            ) : (
+              <EmptyState
+                eyebrow="§ NO MATCHES"
+                headline="Nothing matches that."
+                lede={<>Try a different search, or clear the filters<br />to see everything.</>}
+              />
+            )}
           </div>
         ) : viewMode === "grid" ? (
           /* ── Ruled Grid (BRIEF-07) ── */

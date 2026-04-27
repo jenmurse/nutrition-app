@@ -8,7 +8,7 @@ import MealPlanDndWrapper from '@/app/components/MealPlanDndWrapper';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
 import { usePersonContext, Person } from '@/app/components/PersonContext';
 import { dialog } from '@/lib/dialog';
-import { CalendarEmptyIcon, SelectPlanIcon } from '@/app/components/EmptyStateIcons';
+import EmptyState from '@/app/components/EmptyState';
 import { toast } from '@/lib/toast';
 import { clientCache } from '@/lib/clientCache';
 
@@ -1782,32 +1782,25 @@ const MealPlansPage = () => {
           </>
         ) : (
           <div className="pl-main" style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <div className="empty-state empty-state-pane">
-              {mealPlans.length === 0 ? (
-                <>
-                  <div className="empty-state-glyph" aria-hidden="true"><CalendarEmptyIcon /></div>
-                  <div className="empty-state-label">
-                    {selectedPerson ? `No plans for ${selectedPerson.name}` : 'No meal plans yet'}
-                  </div>
-                  <div className="empty-state-context">Create a weekly meal plan to start tracking your nutrition.</div>
-                  <button
-                    className="empty-state-action"
-                    onClick={() => {
-                      const params = new URLSearchParams(searchParams?.toString());
-                      params.set("showForm", "true");
-                      router.push(`/meal-plans?${params.toString()}`);
-                    }}
-                    aria-label="Create a new plan"
-                  >+ Create plan →</button>
-                </>
-              ) : (
-                <>
-                  <div className="empty-state-glyph" aria-hidden="true"><SelectPlanIcon /></div>
-                  <div className="empty-state-label">Select a plan</div>
-                  <div className="empty-state-context">Use the controls above to navigate between plans.</div>
-                </>
-              )}
-            </div>
+            {mealPlans.length === 0 ? (
+              <EmptyState
+                eyebrow="§ NO PLAN THIS WEEK"
+                headline="A blank week."
+                lede={<>Drop in recipes for the days ahead<br />and the nutrition math handles itself.</>}
+                ctaLabel="+ CREATE PLAN →"
+                onCta={() => {
+                  const params = new URLSearchParams(searchParams?.toString());
+                  params.set("showForm", "true");
+                  router.push(`/meal-plans?${params.toString()}`);
+                }}
+              />
+            ) : (
+              <EmptyState
+                eyebrow="§ SELECT A PLAN"
+                headline="Nothing selected."
+                lede={<>Use the controls above to navigate<br />between your plans.</>}
+              />
+            )}
           </div>
         )}
       </div>
