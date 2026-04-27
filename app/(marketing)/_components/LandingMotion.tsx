@@ -5,16 +5,16 @@ import { useEffect } from "react";
 /* ─────────────────────────────────────────────────────────────────────────
    LANDING MOTION LAYER
    All animations respect prefers-reduced-motion.
-   Scroll-triggered via .mkt scroll event (not IntersectionObserver) so
-   it works correctly with .mkt as the scroll container.
+   Scroll-triggered via window scroll (native document scroll — not a div
+   scroll container) so iOS Safari momentum scroll works correctly.
    ─────────────────────────────────────────────────────────────────────────
 */
 
-/* Is el visible within the .mkt scroll container? */
-function inView(el: HTMLElement, container: HTMLElement, margin = 0.08): boolean {
+/* Is el visible within the viewport? */
+function inView(el: HTMLElement, margin = 0.08): boolean {
   const elTop = el.getBoundingClientRect().top;
-  const containerH = container.getBoundingClientRect().height;
-  return elTop < containerH * (1 - margin) && elTop + el.offsetHeight > 0;
+  const vh = window.innerHeight;
+  return elTop < vh * (1 - margin) && elTop + el.offsetHeight > 0;
 }
 
 /* Count up a numeric value in an element */
@@ -52,7 +52,7 @@ export default function LandingMotion() {
     }
 
     const container = document.querySelector<HTMLElement>(".mkt");
-    if (!container) return;
+    // container still used for parallax DOM queries, but scroll is on window
 
     // ── "See how it works" native smooth scroll ──
     const seeHow = document.querySelector<HTMLElement>(".mkt .js-see-how");
@@ -71,7 +71,7 @@ export default function LandingMotion() {
     function checkReveals() {
       // 2. Basic .r reveals
       document.querySelectorAll<HTMLElement>(".mkt .r:not(.in)").forEach((el) => {
-        if (inView(el, container) && !revealed.has(el)) {
+        if (inView(el) && !revealed.has(el)) {
           revealed.add(el);
           el.classList.add("in");
         }
@@ -80,7 +80,7 @@ export default function LandingMotion() {
       // 3. Manifesto lines
       const maniLines = document.querySelectorAll<HTMLElement>(".mkt .manifesto .ml:not(.in)");
       if (maniLines.length && !revealed.has(maniLines[0])) {
-        if (inView(maniLines[0], container, 0.15)) {
+        if (inView(maniLines[0], 0.15)) {
           revealed.add(maniLines[0]);
           Array.from(maniLines).forEach((line, i) => {
             const isPayoff = line.classList.contains("pay");
@@ -92,7 +92,7 @@ export default function LandingMotion() {
       // 4. Pull-quote lines
       const pqLines = document.querySelectorAll<HTMLElement>(".mkt .pql:not(.in)");
       if (pqLines.length && !revealed.has(pqLines[0])) {
-        if (inView(pqLines[0], container, 0.1)) {
+        if (inView(pqLines[0], 0.1)) {
           revealed.add(pqLines[0]);
           Array.from(pqLines).forEach((line, i) => {
             setTimeout(() => line.classList.add("in"), i * 200);
@@ -104,7 +104,7 @@ export default function LandingMotion() {
       document.querySelectorAll<HTMLElement>(".mkt .ch-caption").forEach((caption) => {
         if (revealed.has(caption)) return;
         const figure = caption.previousElementSibling as HTMLElement | null;
-        if (figure && inView(figure, container, 0)) {
+        if (figure && inView(figure, 0)) {
           revealed.add(caption);
           setTimeout(() => {
             caption.style.opacity = "1";
@@ -115,7 +115,7 @@ export default function LandingMotion() {
 
       // 6. Optimization table count-up
       const table = document.querySelector<HTMLElement>(".mkt .opt-table");
-      if (table && !revealed.has(table) && inView(table, container, 0.05)) {
+      if (table && !revealed.has(table) && inView(table, 0.05)) {
         revealed.add(table);
         const dataRows = Array.from(
           table.querySelectorAll<HTMLElement>(".opt-trow:not(.hd)")
@@ -145,7 +145,7 @@ export default function LandingMotion() {
 
       // 7. Close section
       const clH = document.querySelector<HTMLElement>(".mkt .cl-h:not(.in)");
-      if (clH && !revealed.has(clH) && inView(clH, container, 0.1)) {
+      if (clH && !revealed.has(clH) && inView(clH, 0.1)) {
         revealed.add(clH);
         clH.classList.add("in");
         ([
@@ -162,7 +162,7 @@ export default function LandingMotion() {
 
     // ── Figure parallax (desktop only) ──
     if (window.matchMedia("(min-width: 1100px)").matches) {
-      container.addEventListener("scroll", () => {
+      window.addEventListener("scroll", () => {
         document.querySelectorAll<HTMLElement>(".mkt .ch").forEach((ch) => {
           const sticky = ch.querySelector<HTMLElement>(".ch-vis-sticky");
           if (!sticky) return;
@@ -184,10 +184,10 @@ export default function LandingMotion() {
 
     // ── Run once on mount for above-fold elements, then on scroll ──
     checkReveals();
-    container.addEventListener("scroll", checkReveals, { passive: true });
+    window.addEventListener("scroll", checkReveals, { passive: true });
 
     return () => {
-      container.removeEventListener("scroll", checkReveals);
+      window.removeEventListener("scroll", checkReveals);
     };
   }, []);
 

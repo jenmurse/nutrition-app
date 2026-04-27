@@ -2,7 +2,7 @@
 
 A household nutrition tracker for building ingredient libraries, creating recipes, and planning weekly meals against personal nutrition goals.
 
-**Live**: good-measure.vercel.app
+**Live**: withgoodmeasure.com
 
 ---
 
@@ -14,7 +14,7 @@ A household nutrition tracker for building ingredient libraries, creating recipe
 | **Styling** | Tailwind CSS 4 + CSS custom properties (editorial design system) |
 | **Database** | Supabase PostgreSQL via Prisma ORM |
 | **Auth** | Supabase Auth (email/password + Google OAuth) |
-| **Hosting** | Vercel — SFO1 region (colocated with Supabase us-west-1) |
+| **Hosting** | Railway — push to `main` auto-deploys |
 | **APIs** | USDA FoodData Central (nutrition lookup) |
 | **AI** | Claude via MCP — `good-measure-mcp` npm package (no in-app API calls) |
 | **MCP** | Custom Node.js stdio server in `mcp/` — published as `good-measure-mcp` |

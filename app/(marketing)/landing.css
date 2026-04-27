@@ -29,8 +29,10 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 1.55;
-  height: 100%;
-  overflow-y: auto;
+  min-height: 100svh;
+  /* No overflow-y: auto — native document scroll handles this.
+     The app shell sets body + main to overflow-hidden; MarketingScrollFix
+     adds data-marketing to <html> which overrides that in globals.css. */
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

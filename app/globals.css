@@ -148,6 +148,21 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Marketing pages — restore native document scroll.
+     The app shell locks body + main to overflow-hidden so each page
+     manages its own scroll pane. The landing page needs to undo that
+     so iOS Safari can use native momentum scroll on the document. */
+  html[data-marketing],
+  html[data-marketing] body,
+  html[data-marketing] main {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: unset !important;
+  }
+  html[data-marketing] {
+    overflow-y: auto !important;
+  }
+
   /* Thin scrollbar — 3px track, rule-colored thumb */
   * {
     scrollbar-width: thin; /* Firefox */
