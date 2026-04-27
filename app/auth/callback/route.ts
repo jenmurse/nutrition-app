@@ -36,6 +36,7 @@ export async function GET(request: Request) {
   let redirectUrl = `${redirectBase}/home`;
 
   if (code) {
+    console.log("[auth/callback] cookies present:", cookieStore.getAll().map(c => c.name));
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
       console.error("[auth/callback] code exchange error:", error);

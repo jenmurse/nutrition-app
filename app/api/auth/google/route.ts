@@ -48,11 +48,15 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${redirectBase}/login?error=auth`);
   }
 
-  // Redirect to Google OAuth — pendingCookies carries the PKCE verifier
-  // as a proper Set-Cookie header so it survives the redirect chain.
+  // Redirect to Google OAuth — pendingCookies carries the PKCE verifier.
+  // Force path='/' so the cookie is sent back on /auth/callback (not just /api/auth/).
+  console.log("[api/auth/google] setting cookies:", pendingCookies.map(c => c.name));
   const response = NextResponse.redirect(data.url);
   pendingCookies.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+    response.cookies.set(name, value, {
+      ...(options as Parameters<typeof response.cookies.set>[2]),
+      path: "/",
+    });
   });
 
   return response;
