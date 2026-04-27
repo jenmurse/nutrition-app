@@ -77,12 +77,17 @@ export default function GettingStartedCard() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!data) return;
-        // Dashboard stats are in localStorage — only complete when exactly 3 are selected
+        // Dashboard stats are in localStorage — only complete when the user has
+        // explicitly configured them (_configured: true) AND chosen exactly 3.
+        // This guards against pre-fix auto-written defaults counting as "done".
         try {
           const stored = localStorage.getItem('dashboard-stats');
           if (stored) {
             const parsed = JSON.parse(stored);
-            data.hasDashboardStats = Array.isArray(parsed.enabledStats) && parsed.enabledStats.length === 3;
+            data.hasDashboardStats =
+              parsed._configured === true &&
+              Array.isArray(parsed.enabledStats) &&
+              parsed.enabledStats.length === 3;
           } else {
             data.hasDashboardStats = false;
           }

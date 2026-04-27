@@ -152,6 +152,18 @@ const SettingsPage = () => {
     setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
   }, []);
 
+  // Scroll to section on initial load if a hash is present in the URL
+  // e.g. /settings#mcp → scrolls to set-sec-mcp
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+    const slug = hash.slice(1);
+    const sectionId = `set-sec-${slug}`;
+    // Delay to let the page finish rendering before attempting scroll
+    const t = setTimeout(() => scrollToSection(sectionId), 120);
+    return () => clearTimeout(t);
+  }, []);
+
   // Load nutrients once
   useEffect(() => {
     fetch('/api/nutrients')
@@ -301,7 +313,9 @@ const SettingsPage = () => {
 
   const saveDashboardStats = (updated: DashboardStats) => {
     setDashboardStats(updated);
-    localStorage.setItem('dashboard-stats', JSON.stringify(updated));
+    // _configured: true marks that the user has explicitly saved stat preferences.
+    // GettingStartedCard requires this flag so auto-written defaults don't count.
+    localStorage.setItem('dashboard-stats', JSON.stringify({ ...updated, _configured: true }));
   };
 
   const toggleDashboardStat = (key: string) => {
