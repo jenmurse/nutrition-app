@@ -34,7 +34,7 @@ const TASKS: Task[] = [
   { id: "recipe", text: "Import your first recipe", note: "", href: "/recipes", checkKey: "hasRecipe" },
   { id: "pantry", text: "Add your first ingredient", note: "", href: "/ingredients", checkKey: "hasIngredient" },
   { id: "plan", text: "Plan your first week", note: "", href: "/meal-plans", checkKey: "hasMealPlan" },
-  { id: "dashboard", text: "Choose 3 dashboard stats", note: "", href: "/settings#dashboard", checkKey: "hasDashboardStats" },
+  { id: "dashboard", text: "Customize your dashboard stats", note: "", href: "/settings#dashboard", checkKey: "hasDashboardStats" },
 ];
 
 // Optional tasks shown below the main list — not counted toward completion
