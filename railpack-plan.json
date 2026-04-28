@@ -1,0 +1,18 @@
+{
+  "cache": [
+    { "id": "npm", "paths": ["/root/.npm"] }
+  ],
+  "steps": {
+    "install": {
+      "commands": ["npm ci"],
+      "cache": ["npm"]
+    },
+    "build": {
+      "commands": ["npm run build"],
+      "cache": ["npm"]
+    }
+  },
+  "deploy": {
+    "startCommand": "npm run start"
+  }
+}
