@@ -3725,13 +3725,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .ing-list-actions button {
     width: 44px !important;
     height: 44px !important;
-    border-radius: 50% !important;
+    border-radius: 0 !important;
   }
   /* Ingredient grid card action buttons */
   .ing-card-actions button {
     width: 36px !important;
     height: 36px !important;
-    border-radius: 50% !important;
+    border-radius: 0 !important;
   }
 
   /* ── Planner toolbar: match recipes/pantry toolbar (shadow, no hairline) ── */

@@ -989,7 +989,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 pb-4 sm:px-6 flex items-center gap-4">
+            <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4">
               {/* Also add to other people — left side */}
               {otherPersonPlans.length > 0 && (
                 <div className="flex items-center gap-3 flex-wrap flex-1">
