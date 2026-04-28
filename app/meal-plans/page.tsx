@@ -1089,8 +1089,6 @@ const MealPlansPage = () => {
             aria-label="New plan"
           >+ New Plan</button>
 
-          <div className="pl-chip-sep" />
-
           {/* Edit mode controls */}
           {selectedPlan && viewMode === 'personal' && !editMode && (
             <button
@@ -1499,9 +1497,6 @@ const MealPlansPage = () => {
             <span className="pl-shop-sep" aria-hidden="true" />
             <span className="pl-shop-label">Shopping list</span>
             <div className="pl-shop-anchor-right">
-              {shopItems.length > 0 && (
-                <span className="pl-shop-meta">{shopItems.length} {shopItems.length === 1 ? 'item' : 'items'}</span>
-              )}
               {checkedItems.size > 0 && (
                 <button
                   type="button"
@@ -1530,11 +1525,6 @@ const MealPlansPage = () => {
                 <>
                   <div className="pl-shop-eyebrow">§ {range}</div>
                   <h1 className="pl-shop-title">A week of meals.</h1>
-                  {recipeCount > 0 && (
-                    <p className="pl-shop-sub">
-                      Built from {recipeCount} {recipeCount === 1 ? 'recipe' : 'recipes'}{peopleStr ? ` across ${peopleStr}'s ${peopleNames.length === 1 ? 'plan' : 'plans'}` : ''}.
-                    </p>
-                  )}
                 </>
               );
             })()}
