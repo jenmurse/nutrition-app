@@ -252,8 +252,8 @@
   }
 
   ::selection {
-    background: var(--accent);
-    color: var(--accent-text);
+    background: var(--fg);
+    color: var(--bg);
   }
 
   *:focus {
@@ -1035,7 +1035,15 @@ input[type="number"]:focus {
 
 /* Page entrance — subtle slide-up + fade for page transitions */
 .animate-page-enter {
-  animation: contentEnter 400ms var(--ease-out) both;
+  animation: contentEnter 420ms var(--ease-out) both;
+}
+
+@keyframes countTick {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-count-tick {
+  animation: countTick 240ms var(--ease-out) both;
 }
 
 /* Tabular numbers on all mono text — prevents layout shift on live values */
@@ -1527,7 +1535,7 @@ input[type="number"]:focus {
   padding:12px 6px 24px; cursor:pointer;
   transition:color 120ms ease-out, transform 80ms ease-out;
 }
-.wk-add-btn:hover { color:var(--accent-btn); }
+.wk-add-btn:hover { color:var(--fg); }
 .wk-add-btn:active { transform:scale(0.97); }
 
 /* ── Drag-and-drop ── */
@@ -2396,7 +2404,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0 0 env(safe-area-inset-bottom, 0);
-  animation: sheetUp 250ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation: sheetUp 360ms var(--ease-out) both;
 }
 @keyframes sheetUp {
   from { transform: translateY(100%); }
@@ -5835,37 +5843,35 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex-direction: column;
 }
 
-/* Top chrome */
-/* Chrome sits inside the centered column — aligns to its edges.
-   Two variants:
-   - Default (wizard steps): wordmark left, counter right
-   - .ob-chrome--center (Welcome, Complete): wordmark only, centered */
-.ob-chrome {
+/* Full-width top bar — sits above ob-body, spans the page */
+.ob-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 20px;
+  padding: 0 40px;
+  height: 48px;
   border-bottom: 1px solid var(--rule);
-  margin-bottom: 32px;
-}
-.ob-chrome--center {
-  justify-content: center;
+  flex-shrink: 0;
 }
 
+.ob-topbar-left,
+.ob-topbar-right {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Wordmark in step content (Welcome, Complete bookend screens) */
 .ob-wordmark {
   font-family: var(--sans);
   font-weight: 700;
   font-size: 18px;
   letter-spacing: -0.02em;
   color: var(--fg);
-}
-
-.ob-counter {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
+  display: block;
+  margin-bottom: 40px;
 }
 
 /* Step body — flex center, column is the only child */

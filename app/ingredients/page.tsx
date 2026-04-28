@@ -376,7 +376,7 @@ function IngredientsPage() {
       >+</button>
 
       {/* ── Content ── */}
-      <div className="list-scroll flex-1 overflow-y-auto">
+      <div className="list-scroll flex-1 overflow-y-auto animate-page-enter">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading ingredients...</div>

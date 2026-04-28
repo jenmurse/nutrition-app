@@ -1637,7 +1637,7 @@ const MealPlansPage = () => {
       )}
 
       {/* Main Content */}
-      <div className="pl-wrap" style={{ flex: 1, minHeight: 0 }}>
+      <div className="pl-wrap animate-page-enter" style={{ flex: 1, minHeight: 0 }}>
         {viewMode === 'both' && selectedPlan ? (
           <BothView persons={persons} weekStartDate={selectedPlan.weekStartDate} />
         ) : selectedPlan ? (
@@ -1738,7 +1738,7 @@ const MealPlansPage = () => {
                     {calorieNutrient && (
                       <>
                         <div className="pl-kcal-hero">
-                          <span className="pl-kcal-num">{Math.round(calorieNutrient.value).toLocaleString()}</span>
+                          <span key={Math.round(calorieNutrient.value)} className="pl-kcal-num animate-count-tick">{Math.round(calorieNutrient.value).toLocaleString()}</span>
                           <span className="pl-kcal-unit">kcal</span>
                         </div>
                         {calorieGoal && (
@@ -1766,7 +1766,7 @@ const MealPlansPage = () => {
                             <div key={nutrient.nutrientId} className="nut-row">
                               <div className="nut-row-top">
                                 <span className="nut-name">{nutrient.displayName}</span>
-                                <span className="nut-val">
+                                <span key={nutrient.value} className="nut-val animate-count-tick">
                                   {formatVal(nutrient.value)} / {formatVal(goal ?? 0)}{unitSuffix}
                                   {goal ? <span className="nut-pct"> · {pct}%</span> : null}
                                 </span>

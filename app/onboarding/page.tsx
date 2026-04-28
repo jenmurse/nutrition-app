@@ -227,8 +227,7 @@ export default function OnboardingPage() {
   };
 
   /* ── Derived values ─────────────────────────────────────────────────── */
-  const counterLabel: Record<number, string> = { 1: "01 / 03", 2: "02 / 03", 3: "03 / 03" };
-  const showCounter = step >= 1 && step <= 3;
+  const stepLabel = ['WELCOME', 'STEP 01 / 03', 'STEP 02 / 03', 'STEP 03 / 03', 'READY'][step] ?? '';
   const animClass = direction === "fwd" ? "ob-step-fwd" : "ob-step-back";
   const stepColModifier = ["ob-col--welcome", "", "ob-col--household", "ob-col--goals", "ob-col--complete"][step] ?? "";
   const getThemeHex = (name: string) => THEMES.find(t => t.name === name)?.hex ?? "#5A9B6A";
@@ -239,24 +238,17 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob-page">
+
+      {/* Full-width top bar */}
+      <div className="ob-topbar">
+        <span className="ob-topbar-left">§ Onboarding</span>
+        <span className="ob-topbar-right">{stepLabel}</span>
+      </div>
+
       <div className="ob-body">
 
-        {/* ── Centered column — chrome + content share this container ── */}
+        {/* ── Centered column ── */}
         <div className={`ob-col ${stepColModifier}`.trim()}>
-
-          {/* Chrome row — not animated, aligns to column edges.
-              Bookend variant (Welcome, Complete): wordmark centered, no counter.
-              Wizard variant (Profile, Household, Goals): wordmark left + counter right. */}
-          {showCounter ? (
-            <div className="ob-chrome">
-              <BrandName className="ob-wordmark" />
-              <span className="ob-counter">{counterLabel[step] ?? ""}</span>
-            </div>
-          ) : (
-            <div className="ob-chrome ob-chrome--center">
-              <BrandName className="ob-wordmark" />
-            </div>
-          )}
 
           {/* Step content — key triggers remount animation */}
           <div key={step} className={animClass}>
@@ -264,6 +256,7 @@ export default function OnboardingPage() {
             {/* ── Welcome (step 0) ──────────────────────────────────── */}
             {step === 0 && (
               <>
+                <BrandName className="ob-wordmark" />
                 <div className="ob-eyebrow">§ WELCOME</div>
                 <h1 className="ob-headline ob-headline--welcome">
                   Measure what matters.
@@ -474,6 +467,7 @@ export default function OnboardingPage() {
             {/* ── Complete (step 4) ─────────────────────────────────── */}
             {step === 4 && (
               <>
+                <BrandName className="ob-wordmark" />
                 <div className="ob-check-icon" aria-hidden="true">
                   <svg
                     width="56"
