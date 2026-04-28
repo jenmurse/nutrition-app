@@ -63,7 +63,7 @@ export default function ContextualTip({ tipId, label, children }: ContextualTipP
       {/* Dismiss button */}
       <button
         onClick={handleDismiss}
-        className="w-[16px] h-[16px] flex items-center justify-center shrink-0 bg-transparent border-0 cursor-pointer text-[var(--muted)] hover:text-[var(--fg)] transition-colors rounded-full"
+        className="w-[16px] h-[16px] flex items-center justify-center shrink-0 bg-transparent border-0 cursor-pointer text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
         aria-label={`Dismiss ${label} tip`}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

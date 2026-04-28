@@ -287,7 +287,7 @@ function SortableStepRow({ id, idx, step, onChangeStep, onRemoveStep }: {
           <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
         </svg>
       </div>
-      <textarea className="flex-1 font-sans text-[13px] text-[var(--fg)] bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 outline-none resize-none transition-[border-color] duration-200 focus:border-[var(--accent)]"
+      <textarea className="flex-1 font-sans text-[13px] text-[var(--fg)] bg-transparent border-0 border-b border-[var(--rule)] py-[6px] px-0 outline-none resize-none transition-[border-color] duration-200 focus:border-[var(--fg)]"
         style={{ minHeight: 40 }} rows={2} placeholder={`Step ${idx + 1}…`} value={step}
         onChange={(e) => onChangeStep(idx, e.target.value)} aria-label={`Step ${idx + 1}`} />
       <button className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors shrink-0"

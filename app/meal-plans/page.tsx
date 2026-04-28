@@ -1382,7 +1382,7 @@ const MealPlansPage = () => {
                   </div>
                   <button
                     onClick={() => setMobNutSheetOpen(false)}
-                    className="w-[44px] h-[44px] flex items-center justify-center rounded-full text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-[8px]"
+                    className="w-[44px] h-[44px] flex items-center justify-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-[8px]"
                     aria-label="Close nutrition summary"
                   >✕</button>
                 </div>
@@ -1394,8 +1394,8 @@ const MealPlansPage = () => {
                     {Math.round(calorieNutrient.value).toLocaleString()}
                     {calorieGoal > 0 && <span className="font-mono text-[13px] text-[var(--muted)] font-normal ml-2">/ {Math.round(calorieGoal).toLocaleString()}</span>}
                   </div>
-                  <div className="h-[3px] bg-[var(--rule)] mt-[12px] relative overflow-hidden rounded-full">
-                    <div className="absolute inset-0 bg-[var(--accent)] rounded-full" style={{ width: `${caloriePct}%`, transition: 'width 0.6s var(--ease-out)' }} />
+                  <div className="h-[3px] bg-[var(--rule)] mt-[12px] relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[var(--accent)]" style={{ width: `${caloriePct}%`, transition: 'width 0.6s var(--ease-out)' }} />
                   </div>
                 </div>
               )}

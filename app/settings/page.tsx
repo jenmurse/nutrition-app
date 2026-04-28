@@ -611,7 +611,7 @@ const SettingsPage = () => {
             className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
               i < JUMP_SECTIONS.length - 1 ? 'border-b border-[var(--rule)]' : ''
             } ${
-              activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--cta)]'
+              activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--fg)]'
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
@@ -645,7 +645,7 @@ const SettingsPage = () => {
                     onChange={(e) => { if (!editingHouseholdName) { setHouseholdNameDraft(e.target.value); setEditingHouseholdName(true); } else { setHouseholdNameDraft(e.target.value); } }}
                     onFocus={() => { if (!editingHouseholdName) { setHouseholdNameDraft(householdName); setEditingHouseholdName(true); } }}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHouseholdName(); if (e.key === 'Escape') setEditingHouseholdName(false); }}
-                    className="w-full bg-transparent border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--accent)]"
+                    className="w-full bg-transparent border-0 border-b border-[var(--rule)] px-0 py-[6px] font-sans text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--fg)]"
                     aria-label="Household name"
                   />
                 </div>
@@ -714,7 +714,7 @@ const SettingsPage = () => {
                           {person.trackedOnly ? (
                             <button
                               onClick={() => handleInviteToJoin(person.id)}
-                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--cta)] bg-transparent border-0 cursor-pointer transition-colors"
+                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
                               aria-label={`Invite ${person.name} to join`}
                             >
                               Invite to Join
@@ -787,7 +787,7 @@ const SettingsPage = () => {
                       aria-label="Add a household member"
                     >+ Add Member</button>
                   ) : (
-                    <div className="flex flex-col gap-[12px] py-[12px] px-[16px] border border-[var(--rule)] rounded-md bg-[var(--bg-2)]" style={{ maxWidth: 480 }}>
+                    <div className="flex flex-col gap-[12px] py-[12px] px-[16px] border border-[var(--rule)] bg-[var(--bg-2)]" style={{ maxWidth: 480 }}>
                       <div>
                         <div className="ed-label mb-[6px]">Name</div>
                         <input
@@ -800,7 +800,7 @@ const SettingsPage = () => {
                           }}
                           placeholder="Name"
                           autoFocus
-                          className="w-full bg-[var(--bg)] border border-[var(--rule)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] focus:outline-none focus:border-[var(--accent)]"
+                          className="w-full bg-[var(--bg)] border border-[var(--rule)] px-3 py-2 font-sans text-[13px] text-[var(--fg)] focus:outline-none focus:border-[var(--fg)]"
                           aria-label="New member name"
                         />
                       </div>
@@ -934,7 +934,7 @@ const SettingsPage = () => {
                                 value={goals[nutrient.id]?.lowGoal ?? ''}
                                 onChange={(e) => handleGoalChange(nutrient.id, 'lowGoal', e.target.value)}
                                 step="0.1"
-                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
                                 style={{ width: 56, fontSize: 13 }}
                                 aria-label={`${nutrient.displayName} minimum`}
                               />
@@ -945,7 +945,7 @@ const SettingsPage = () => {
                                 value={goals[nutrient.id]?.highGoal ?? ''}
                                 onChange={(e) => handleGoalChange(nutrient.id, 'highGoal', e.target.value)}
                                 step="0.1"
-                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--placeholder)]"
+                                className="border-0 border-b border-[var(--rule)] px-0 py-[2px] font-mono text-[var(--fg)] bg-transparent text-right rounded-none focus:outline-none focus:border-[var(--fg)] placeholder:text-[var(--placeholder)]"
                                 style={{ width: 56, fontSize: 13 }}
                                 aria-label={`${nutrient.displayName} maximum`}
                               />
@@ -1025,7 +1025,7 @@ const SettingsPage = () => {
             <SectionHeader number="04" title="MCP Integration" />
 
             {isTouchDevice && (
-              <p className="text-[13px] text-[var(--muted)] leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md mb-[32px]">
+              <p className="text-[13px] text-[var(--muted)] leading-[1.6] bg-[var(--bg-2)] px-3 py-2 mb-[32px]">
                 MCP integration requires a desktop AI assistant like Claude or Cursor. You can still generate a token here — connect it from your computer.
               </p>
             )}

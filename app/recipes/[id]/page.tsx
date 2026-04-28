@@ -385,7 +385,7 @@ export default function RecipeDetailPage() {
                 const container = document.getElementById("rf-edit-scroll");
                 if (el && container) container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
               }}
-              className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--accent)]`}
+              className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--fg)]`}
               style={i === 0 ? { paddingTop: 0 } : undefined}
               aria-label={`Jump to ${s.label}`}
             >
@@ -447,7 +447,7 @@ export default function RecipeDetailPage() {
             key={s.id}
             onClick={() => scrollToSection(s.id)}
             className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
-              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--cta)]"
+              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
@@ -631,8 +631,8 @@ export default function RecipeDetailPage() {
                           </span>
                         </div>
                         {target > 0 && (
-                          <div className="h-[3px] bg-[var(--rule)] rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full transition-[width] duration-700 ${fillClass}`} style={{ width: `${Math.min(pct, 100)}%`, transitionTimingFunction: "var(--ease-out)" }} />
+                          <div className="h-[3px] bg-[var(--rule)] overflow-hidden">
+                            <div className={`h-full transition-[width] duration-700 ${fillClass}`} style={{ width: `${Math.min(pct, 100)}%`, transitionTimingFunction: "var(--ease-out)" }} />
                           </div>
                         )}
                       </div>
@@ -716,7 +716,7 @@ export default function RecipeDetailPage() {
                 return (
                   <div>
                     {isTouchDevice ? (
-                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature works with any MCP-compatible AI assistant on a desktop. Notes you generate there will appear here automatically.</p>
+                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2">This feature works with any MCP-compatible AI assistant on a desktop. Notes you generate there will appear here automatically.</p>
                     ) : (
                       <>
                         <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
@@ -787,7 +787,7 @@ export default function RecipeDetailPage() {
                 return (
                   <div>
                     {isTouchDevice ? (
-                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2 rounded-md">This feature works with any MCP-compatible AI assistant on a desktop. Notes you generate there will appear here automatically.</p>
+                      <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6] bg-[var(--bg-2)] px-3 py-2">This feature works with any MCP-compatible AI assistant on a desktop. Notes you generate there will appear here automatically.</p>
                     ) : (
                       <>
                         <p className="text-[13px] text-[var(--muted)] mb-4 leading-[1.6]">Copy this prompt into any MCP-connected AI assistant.</p>

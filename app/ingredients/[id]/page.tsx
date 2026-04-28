@@ -571,7 +571,7 @@ export default function IngredientDetailPage() {
             key={s.id}
             onClick={() => scrollToSection(s.id)}
             className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
-              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--cta)]"
+              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
