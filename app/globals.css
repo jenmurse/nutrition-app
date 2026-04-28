@@ -3251,7 +3251,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px var(--pad) 0;
+    padding: calc(14px + env(safe-area-inset-top)) var(--pad) 0;
     flex-shrink: 0;
   }
   .hm-mob-persons { display: flex; align-items: center; gap: 6px; }
@@ -5612,10 +5612,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px clamp(24px, 5vw, 56px);
+  padding: calc(18px + env(safe-area-inset-top)) clamp(24px, 5vw, 56px) 18px;
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
-  min-height: 68px;
+  min-height: calc(68px + env(safe-area-inset-top));
   box-sizing: border-box;
 }
 .auth-nav-logo { font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
@@ -5848,10 +5848,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
-  height: 48px;
+  padding: env(safe-area-inset-top) 40px 0;
+  min-height: calc(48px + env(safe-area-inset-top));
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .ob-topbar-left,
