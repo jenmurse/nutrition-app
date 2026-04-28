@@ -587,6 +587,9 @@ input[type="number"]:focus {
   grid-template-columns: repeat(4, 1fr);
   column-gap: 0;
   row-gap: 0;
+  /* Closing hairline below the last row. Cells in the last row strip their
+     own border-bottom (rule below) so there's no doubling. */
+  border-bottom: 1px solid var(--rule);
 }
 .recipe-grid-item {
   padding: 0 24px 32px;
@@ -846,6 +849,9 @@ input[type="number"]:focus {
   grid-template-columns: repeat(4, 1fr);
   column-gap: 0;
   row-gap: 0;
+  /* Closing hairline below the last row. Cells in the last row strip their
+     own border-bottom (rule below) so there's no doubling. */
+  border-bottom: 1px solid var(--rule);
 }
 
 .pantry-item {
