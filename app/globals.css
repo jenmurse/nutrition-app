@@ -3237,6 +3237,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Marketing pages restore native scroll + pull-to-refresh */
   html[data-marketing],
   html[data-marketing] body { overscroll-behavior-y: auto !important; }
+
+  /* Safe-area for the iOS status bar applied once at the layout level —
+     pushes every page's top chrome below the notch / status bar without
+     each page needing its own env(safe-area-inset-top) padding.
+     Onboarding bypasses this (position:fixed inset:0) and handles its
+     own safe-area on .ob-topbar. */
+  body > div > main {
+    padding-top: env(safe-area-inset-top);
+    box-sizing: border-box;
+  }
   /* Settings scroll container: clear fixed bottom nav */
   #settings-scroll-container {
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px);
@@ -3250,8 +3260,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .detail-content  { padding: 32px var(--pad) calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px) var(--pad) !important; }
 
   /* Mobile chrome bar (logo + person switcher).
-     Sticky so it stays pinned at the top of the viewport regardless of scroll
-     (page scroll otherwise drags it under the iOS status bar). */
+     Sticky so it stays pinned at the top of the (now safe-area-padded)
+     scroll container regardless of scroll. Safe-area is handled by main. */
   .hm-mob-chrome {
     position: sticky;
     top: 0;
@@ -3260,7 +3270,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: calc(env(safe-area-inset-top) + 14px) var(--pad) 14px;
+    padding: 14px var(--pad);
     flex-shrink: 0;
   }
   .hm-mob-persons { display: flex; align-items: center; gap: 6px; }
@@ -5621,10 +5631,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: calc(18px + env(safe-area-inset-top)) clamp(24px, 5vw, 56px) 18px;
+  padding: 18px clamp(24px, 5vw, 56px);
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
-  min-height: calc(68px + env(safe-area-inset-top));
+  min-height: 68px;
   box-sizing: border-box;
 }
 .auth-nav-logo { font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
