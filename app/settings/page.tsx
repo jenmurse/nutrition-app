@@ -599,7 +599,7 @@ const SettingsPage = () => {
       {/* ─── Fixed jump nav ─── */}
       <nav
         className="detail-jump-nav fixed z-50 flex flex-col"
-        style={{ left: 'var(--pad)', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'contentEnter 400ms var(--ease-out) both' }}
+        style={{ left: '40px', top: 'calc(var(--nav-h) + 48px)', width: 140, opacity: 0, animation: 'contentEnter 400ms var(--ease-out) both' }}
         aria-label="Settings sections"
       >
         {JUMP_SECTIONS.map((s, i) => (

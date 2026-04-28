@@ -377,7 +377,7 @@ export default function RecipeDetailPage() {
     return (
       <div className="h-full relative">
         {/* Jump Nav — outside animated wrapper */}
-        <nav className="detail-jump-nav fixed z-50 flex flex-col" style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
+        <nav className="detail-jump-nav fixed z-50 flex flex-col" style={{ left: "40px", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
           {EDIT_SECTIONS.map((s, i) => (
             <button key={s.id}
               onClick={() => {
@@ -439,7 +439,7 @@ export default function RecipeDetailPage() {
       {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
         className="detail-jump-nav fixed z-50 flex flex-col"
-        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
+        style={{ left: "40px", top: "calc(var(--nav-h) + 48px)", width: 140 }}
         aria-label="Jump to section"
       >
         {JUMP_SECTIONS.map((s, i) => (

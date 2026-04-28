@@ -300,7 +300,7 @@ export default function CreateIngredientPage() {
       {/* ── Jump Nav (fixed left — outside animated wrapper to avoid transform containment) ── */}
       <nav
         className="detail-jump-nav fixed z-50 flex flex-col"
-        style={{ left: "var(--pad)", top: "calc(var(--nav-h) + 48px)", width: 140 }}
+        style={{ left: "40px", top: "calc(var(--nav-h) + 48px)", width: 140 }}
         aria-label="Pantry form navigation"
       >
         {JUMP_SECTIONS.map((s, i) => (

@@ -362,8 +362,8 @@ input[type="number"]:focus {
 .ed-btn.primary:hover { opacity: 0.88; }
 
 /* Danger — ink fill, destructive verb as label. No red fill ever. */
-.ed-btn.danger { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-.ed-btn.danger:hover { opacity: 0.88; }
+.ed-btn.danger { background: none; color: var(--fg); border-color: var(--rule); }
+.ed-btn.danger:hover { border-color: var(--fg); opacity: 1; }
 
 /* Ghost — no border, no horizontal padding, underline reveals on hover */
 .ed-btn.ghost {
@@ -1339,7 +1339,7 @@ input[type="number"]:focus {
 .pl-nav-btn {
   font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
   background:none; border:1px solid var(--rule); color:var(--muted);
-  padding:4px 10px; cursor:pointer; white-space:nowrap; flex-shrink:0;
+  padding:6px 10px; cursor:pointer; white-space:nowrap; flex-shrink:0;
   border-radius: 0;
   transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out);
 }
@@ -2201,7 +2201,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   color: var(--fg);
   font-family: var(--font-mono);
   font-size: 13px;
@@ -2486,7 +2486,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
   background: var(--bg-2);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -2513,7 +2513,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
   background: var(--bg-2);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -2537,7 +2537,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
   background: var(--bg-2);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -2556,7 +2556,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--cta);
   color: var(--cta-ink);
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -3845,7 +3845,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   /* ── Planner: person dropdown matches toolbar element sizing ── */
-  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 34px !important; border-radius: var(--radius-pill); }
+  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 34px !important; border-radius: 0; }
 
   /* ── Settings: household member rows wrap theme chips below ── */
   .set-person-row { flex-wrap: wrap; }
