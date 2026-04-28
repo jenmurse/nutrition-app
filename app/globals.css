@@ -558,7 +558,7 @@ input[type="number"]:focus {
 
 .ed-toolbar {
   border-bottom: 1px solid var(--rule);
-  padding: 0 40px;
+  padding: 0 var(--pad);
   display: flex;
   align-items: center;
   height: 44px;
@@ -1328,7 +1328,7 @@ input[type="number"]:focus {
 .pl-main::-webkit-scrollbar { display:none; }
 
 .pl-toolbar {
-  display:flex; align-items:center; gap:20px; padding:0 40px;
+  display:flex; align-items:center; gap:20px; padding:0 var(--pad);
   height:44px; flex-shrink:0; border-bottom:1px solid var(--rule);
   background:var(--bg); position:sticky; top:0; z-index:20;
   transition:background 0.5s;
@@ -3004,7 +3004,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   align-items: center;
   gap: 16px;
   height: 44px;
-  padding: 0 40px;
+  padding: 0 var(--pad);
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
 }
@@ -3062,8 +3062,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   overflow-y: auto;
 }
 .pl-add-body--step2 {
-  padding-bottom: 0;
-  overflow: hidden;
+  padding-bottom: 48px;
+  overflow-y: auto;
 }
 @keyframes stepIn {
   from { opacity: 0; transform: translateX(16px); }
@@ -3090,8 +3090,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--fg);
-  margin: 0 0 8px;
-  text-transform: capitalize;
+  margin: 0 0 32px;
 }
 .pl-add-sub {
   font-size: 13px;
@@ -3116,9 +3115,19 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s ease;
+  position: relative;
 }
-.pl-add-mtrow:hover { background: var(--bg-2); }
+.pl-add-mtrow::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--fg);
+  transition: width 0.2s var(--ease-out);
+}
+.pl-add-mtrow:hover::after { width: 100%; }
 .pl-add-mtrow:hover .pl-add-mtarrow { color: var(--fg); transform: translateX(2px); }
 .pl-add-mtnum {
   font-family: var(--font-mono);
@@ -3143,11 +3152,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: color 0.15s ease, transform 0.15s ease;
 }
 
-.pl-add-tabs { margin-bottom: 20px; }
+.pl-add-tabs { margin-bottom: 32px; }
 .pl-add-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   padding-bottom: 24px;
 }
 

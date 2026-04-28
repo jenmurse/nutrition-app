@@ -772,7 +772,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             <div key="step-1" className="pl-add-step pl-add-step--in pl-add-body">
               <div className="pl-add-eyebrow">§ Step one</div>
               <h1 className="pl-add-title">Pick a meal type.</h1>
-              <p className="pl-add-sub">Then choose what fills it.</p>
               <ul className="pl-add-mtlist">
                 {availableMealTypes.map((mealType, idx) => (
                   <li key={mealType}>
@@ -844,7 +843,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   </div>
 
                   {/* Tag filter chips */}
-                  <div className="flex flex-wrap gap-[6px] mb-4 items-center">
+                  <div className="flex flex-wrap gap-[10px] mb-4 items-center">
                     {availableRecipeTags.map((tag) => (
                       <button
                         key={tag}
@@ -990,12 +989,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
               )}
             </div>
 
-            <div className="border-t border-[var(--rule-faint)] px-5 pt-3 pb-3 sm:p-6 bg-[var(--bg)]">
-              {/* Also add to other people */}
+            <div className="border-t border-[var(--rule-faint)] px-5 pt-4 pb-4 sm:px-6 flex items-center gap-4">
+              {/* Also add to other people — left side */}
               {otherPersonPlans.length > 0 && (
-                <div className="mb-3 flex flex-col gap-2">
+                <div className="flex items-center gap-3 flex-wrap flex-1">
                   <span className="pl-create-label">Also add to</span>
-                  <div className="flex items-center gap-4 flex-wrap">
                   {otherPersonPlans.map((op) => (
                     <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
                       <input
@@ -1015,10 +1013,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       </span>
                     </label>
                   ))}
-                  </div>
                 </div>
               )}
-              <div className="flex gap-3 justify-end">
+              {/* Buttons — right side */}
+              <div className="flex gap-3 ml-auto">
                 <button
                   className="pl-cancel-btn"
                   onClick={() => {
