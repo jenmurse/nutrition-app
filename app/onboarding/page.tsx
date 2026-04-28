@@ -194,6 +194,7 @@ export default function OnboardingPage() {
       body: JSON.stringify({ onboardingComplete: true }),
     });
 
+    localStorage.removeItem('dashboard-stats');
     await refreshPersons();
     router.push("/home");
   };
@@ -227,7 +228,7 @@ export default function OnboardingPage() {
   };
 
   /* ── Derived values ─────────────────────────────────────────────────── */
-  const stepLabel = ['WELCOME', 'STEP 01 / 03', 'STEP 02 / 03', 'STEP 03 / 03', 'READY'][step] ?? '';
+  const stepLabel = ['WELCOME', 'STEP · 01 / 03', 'STEP · 02 / 03', 'STEP · 03 / 03', 'READY'][step] ?? '';
   const animClass = direction === "fwd" ? "ob-step-fwd" : "ob-step-back";
   const stepColModifier = ["ob-col--welcome", "", "ob-col--household", "ob-col--goals", "ob-col--complete"][step] ?? "";
   const getThemeHex = (name: string) => THEMES.find(t => t.name === name)?.hex ?? "#5A9B6A";
@@ -467,7 +468,6 @@ export default function OnboardingPage() {
             {/* ── Complete (step 4) ─────────────────────────────────── */}
             {step === 4 && (
               <>
-                <BrandName className="ob-wordmark" />
                 <div className="ob-check-icon" aria-hidden="true">
                   <svg
                     width="56"
