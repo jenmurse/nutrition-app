@@ -1,12 +1,20 @@
 // Module-level confirmation dialog — no React context needed.
-// Usage: const ok = await dialog.confirm("Delete this?"); if (!ok) return;
+// Usage: const ok = await dialog.confirm({ title: "Delete?", body: "This can't be undone." });
 
 export type DialogState = {
   id: string;
-  message: string;
+  title: string;
+  body?: string;
   confirmLabel?: string;
   danger?: boolean;
   resolve: (value: boolean) => void;
+};
+
+type ConfirmOptions = {
+  title: string;
+  body?: string;
+  confirmLabel?: string;
+  danger?: boolean;
 };
 
 type Listener = (state: DialogState | null) => void;
@@ -19,9 +27,9 @@ function notify() {
 }
 
 export const dialog = {
-  confirm(message: string, options?: { confirmLabel?: string; danger?: boolean }): Promise<boolean> {
+  confirm(options: ConfirmOptions): Promise<boolean> {
     return new Promise((resolve) => {
-      current = { id: `${Date.now()}`, message, ...options, resolve };
+      current = { id: `${Date.now()}`, ...options, resolve };
       notify();
     });
   },

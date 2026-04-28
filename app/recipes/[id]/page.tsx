@@ -218,7 +218,7 @@ export default function RecipeDetailPage() {
 
   const handleDelete = async () => {
     if (!recipe) return;
-    if (!await dialog.confirm(`Delete recipe "${recipe.name}"?`, { confirmLabel: "Delete", danger: true })) return;
+    if (!await dialog.confirm({ title: `Delete "${recipe.name}"?`, body: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
     try {
       const r = await fetch(`/api/recipes/${recipe.id}`, { method: "DELETE" });
       if (r.ok) {

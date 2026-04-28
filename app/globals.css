@@ -3778,11 +3778,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* +ADD button: give it a proper bordered look */
   .pl-mobile-day .wk-add-btn {
     border: 1px solid var(--rule) !important;
-    border-radius: var(--radius-pill) !important;
-    color: var(--accent-btn) !important;
+    border-radius: 0 !important;
+    color: var(--fg) !important;
     margin-top: 12px !important;
   }
-  .pl-mobile-day .wk-add-btn:active { border-color: var(--accent-btn) !important; }
+  .pl-mobile-day .wk-add-btn:active { border-color: var(--fg) !important; }
 
   /* Planner mobile nutrition button — visible only on mobile */
   .pl-mob-nut-btn { display: flex; }

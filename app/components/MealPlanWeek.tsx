@@ -427,7 +427,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   };
 
   const handleRemoveMeal = async (mealId: number) => {
-    if (!await dialog.confirm('Remove this meal from the plan?', { confirmLabel: 'Remove', danger: true })) return;
+    if (!await dialog.confirm({ title: 'Remove this meal?', body: "This can't be undone.", confirmLabel: 'Remove', danger: true })) return;
 
     try {
       await onRemoveMeal(mealId);

@@ -663,7 +663,7 @@ const MealPlansPage = () => {
   };
 
   const handleDeleteMealPlan = async (planId: number) => {
-    if (!await dialog.confirm('Delete this meal plan? All meals will be removed.', { confirmLabel: 'Delete', danger: true })) return;
+    if (!await dialog.confirm({ title: 'Delete this plan?', body: "All meals will be removed. This can't be undone.", confirmLabel: 'Delete', danger: true })) return;
     try {
       const response = await fetch(`/api/meal-plans/${planId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete meal plan');
@@ -879,7 +879,7 @@ const MealPlansPage = () => {
 
   const handleDeleteSelected = async () => {
     if (selectedMealIds.size === 0) return;
-    if (!await dialog.confirm(`Remove ${selectedMealIds.size} item${selectedMealIds.size !== 1 ? 's' : ''} from the plan?`, { confirmLabel: 'Remove', danger: true })) return;
+    if (!await dialog.confirm({ title: `Remove ${selectedMealIds.size} meal${selectedMealIds.size !== 1 ? 's' : ''}?`, body: "This can't be undone.", confirmLabel: 'Remove', danger: true })) return;
     for (const id of selectedMealIds) await handleRemoveMeal(id);
     setSelectedMealIds(new Set());
     setEditMode(false);
@@ -1110,7 +1110,7 @@ const MealPlansPage = () => {
                 className="pl-nav-btn pl-nav-btn--destroy"
                 onClick={async () => {
                   if (!selectedPlan) return;
-                  if (!await dialog.confirm('Delete this entire plan? This cannot be undone.', { confirmLabel: 'Delete plan', danger: true })) return;
+                  if (!await dialog.confirm({ title: 'Delete this plan?', body: "This can't be undone.", confirmLabel: 'Delete plan', danger: true })) return;
                   const deletedId = selectedPlan.id;
                   await fetch(`/api/meal-plans/${deletedId}`, { method: 'DELETE' });
                   // Update state immediately — don't wait for refetch

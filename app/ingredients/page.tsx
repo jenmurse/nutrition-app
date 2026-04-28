@@ -216,7 +216,7 @@ function IngredientsPage() {
   const sortedIngredients = [...filteredIngredients].sort((a, b) => a.name.localeCompare(b.name));
 
   async function handleDelete(ingredient: Ingredient) {
-    if (!await dialog.confirm(`Delete "${ingredient.name}"?`, { confirmLabel: "Delete", danger: true })) return;
+    if (!await dialog.confirm({ title: `Delete "${ingredient.name}"?`, body: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
     try {
       const res = await fetch(`/api/ingredients/${ingredient.id}`, { method: "DELETE" });
       if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Delete failed"); }

@@ -389,10 +389,12 @@ const SettingsPage = () => {
   // Convert an account-holder (with pending invite) back to tracked-only.
   // Revokes the pending invite and flips trackedOnly = true.
   const handleMakeTrackedOnly = async (personId: number, pendingInviteId: number | null) => {
-    if (!await dialog.confirm(
-      'Convert this member to tracked-only? Their pending invite will be revoked. They can still have meals tracked, but won\u2019t be able to log in.',
-      { confirmLabel: 'Convert', danger: true }
-    )) return;
+    if (!await dialog.confirm({
+      title: 'Convert to tracked-only?',
+      body: "Their pending invite will be revoked. They can still have meals tracked, but won\u2019t be able to log in.",
+      confirmLabel: 'Convert',
+      danger: true,
+    })) return;
     if (pendingInviteId !== null) {
       await fetch(`/api/households/invite/${pendingInviteId}`, { method: 'DELETE' });
     }
@@ -429,7 +431,7 @@ const SettingsPage = () => {
   };
 
   const handleRevokeMcpToken = async () => {
-    if (!await dialog.confirm('Revoke this token? Any configured MCP servers will stop working until you generate a new one.', { confirmLabel: 'Revoke', danger: true })) return;
+    if (!await dialog.confirm({ title: 'Revoke this token?', body: 'Any configured MCP servers will stop working until you generate a new one.', confirmLabel: 'Revoke', danger: true })) return;
     setRevokingMcpToken(true);
     try {
       await fetch('/api/mcp/token', { method: 'DELETE' });
@@ -482,7 +484,7 @@ const SettingsPage = () => {
   };
 
   const handleRemoveApiKey = async () => {
-    if (!await dialog.confirm('Remove the API key? AI analysis will fall back to mock data.', { confirmLabel: 'Remove', danger: true })) return;
+    if (!await dialog.confirm({ title: 'Remove the API key?', body: 'AI analysis will fall back to mock data.', confirmLabel: 'Remove', danger: true })) return;
     await fetch('/api/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -516,7 +518,7 @@ const SettingsPage = () => {
 
   const handleImport = async () => {
     if (!importFile) return;
-    if (!await dialog.confirm('This will permanently overwrite all household data with the contents of this backup. Continue?', { confirmLabel: 'Overwrite', danger: true })) return;
+    if (!await dialog.confirm({ title: 'Overwrite household data?', body: "This will permanently replace all household data with the contents of this backup. This can't be undone.", confirmLabel: 'Overwrite', danger: true })) return;
     setImportLoading(true);
     setImportResult(null);
     try {
@@ -728,7 +730,7 @@ const SettingsPage = () => {
                           ) : null}
                           <button
                             onClick={async () => {
-                              if (!await dialog.confirm(`Remove ${person.name} from the household? Their meal plans and goals will be deleted.`, { confirmLabel: 'Remove', danger: true })) return;
+                              if (!await dialog.confirm({ title: `Remove ${person.name}?`, body: "Their meal plans and goals will be deleted. This can't be undone.", confirmLabel: 'Remove', danger: true })) return;
                               const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
                               if (res.ok) { await refreshPersons(); await loadInvites(); } else {
                                 const data = await res.json();

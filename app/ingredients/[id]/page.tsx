@@ -298,7 +298,9 @@ export default function IngredientDetailPage() {
   const handleDelete = async () => {
     if (!ingredient) return;
     if (
-      !(await dialog.confirm(`Delete "${ingredient.name}"?`, {
+      !(await dialog.confirm({
+        title: `Delete "${ingredient.name}"?`,
+        body: "This can't be undone.",
         confirmLabel: "Delete",
         danger: true,
       }))

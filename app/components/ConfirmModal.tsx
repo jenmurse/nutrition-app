@@ -10,15 +10,11 @@ export default function ConfirmModal() {
 
   if (!state) return null;
 
-  const eyebrowColor = state.danger
-    ? "var(--status-error-ink)"
-    : "var(--muted)";
-
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="confirm-message"
+      aria-labelledby="confirm-title"
       className="fixed inset-0 z-[10000] flex items-center justify-center"
       style={{ background: "rgba(0,0,0,0.4)" }}
       onClick={() => dialog._resolve(false)}
@@ -36,37 +32,38 @@ export default function ConfirmModal() {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Eyebrow */}
-        <div
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: "9px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: eyebrowColor,
-            marginBottom: "16px",
-          }}
-        >
-          § {state.confirmLabel ?? "Confirm"}
-        </div>
-
-        {/* Message */}
-        <p
-          id="confirm-message"
+        {/* Title */}
+        <h2
+          id="confirm-title"
           style={{
             fontFamily: "var(--sans)",
-            fontSize: "13px",
-            fontWeight: 400,
-            color: "var(--fg-2)",
-            lineHeight: 1.6,
-            marginBottom: "28px",
+            fontSize: "24px",
+            fontWeight: 700,
+            color: "var(--fg)",
+            lineHeight: 1.2,
+            marginBottom: state.body ? "12px" : "28px",
           }}
         >
-          {state.message}
-        </p>
+          {state.title}
+        </h2>
 
-        {/* Actions — confirm on right, cancel on left */}
+        {/* Body */}
+        {state.body && (
+          <p
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: "13px",
+              fontWeight: 400,
+              color: "var(--fg-2)",
+              lineHeight: 1.6,
+              marginBottom: "28px",
+            }}
+          >
+            {state.body}
+          </p>
+        )}
+
+        {/* Actions */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px" }}>
           <button
             onClick={() => dialog._resolve(false)}
