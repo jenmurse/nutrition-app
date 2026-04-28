@@ -118,7 +118,7 @@ export default function RootLayout({
             </Suspense>
 
             {/* Main Content Area — overflow-hidden so each page manages its own scroll panes */}
-            <main className="flex-1 overflow-hidden">
+            <main className="app-main flex-1 overflow-hidden">
               {children}
             </main>
 

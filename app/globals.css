@@ -3241,10 +3241,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Safe-area for the iOS status bar applied once at the layout level —
      pushes every page's top chrome below the notch / status bar without
      each page needing its own env(safe-area-inset-top) padding.
-     Onboarding bypasses this (position:fixed inset:0) and handles its
-     own safe-area on .ob-topbar. */
-  body > div > main {
-    padding-top: env(safe-area-inset-top);
+     max() with a 24px floor so we still get clearance when iOS reports
+     0 for env(safe-area-inset-top) (e.g. cross-app handoffs from Gmail,
+     URL-bar collapse states). Onboarding bypasses this (position:fixed
+     inset:0) and handles its own safe-area on .ob-topbar. */
+  main.app-main {
+    padding-top: max(env(safe-area-inset-top), 24px);
     box-sizing: border-box;
   }
   /* Settings scroll container: clear fixed bottom nav */
