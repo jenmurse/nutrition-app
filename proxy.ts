@@ -18,6 +18,7 @@ export async function proxy(request: NextRequest) {
   // PKCE code verifier cookies and causes exchangeCodeForSession to fail.
   if (
     request.nextUrl.pathname === "/auth/callback" ||
+    request.nextUrl.pathname === "/auth/confirm" ||
     request.nextUrl.pathname.startsWith("/api/auth/")
   ) {
     return NextResponse.next();
