@@ -360,10 +360,10 @@ export default function Home() {
                         animation: `hmFadeUp 500ms var(--ease-out) ${delay}ms both`,
                       }}
                     >
-                      <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
-                      <div className="hm-stat-value font-serif text-[28px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                      <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
+                      <div className="hm-stat-value font-sans text-[36px] font-medium tracking-[-0.018em] tabular-nums text-[var(--fg)] leading-none">
                         {formatVal(stat.value)}
-                        {stat.unit && <span className="hm-stat-unit text-[13px] text-[var(--muted)] ml-1">{stat.unit}</span>}
+                        {stat.unit && <span className="hm-stat-unit font-mono text-[11px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                       </div>
                       <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
                         of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}

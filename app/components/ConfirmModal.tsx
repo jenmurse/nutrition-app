@@ -10,39 +10,74 @@ export default function ConfirmModal() {
 
   if (!state) return null;
 
+  const eyebrowColor = state.danger
+    ? "var(--status-error-ink)"
+    : "var(--muted)";
+
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-message"
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/30"
+      className="fixed inset-0 z-[10000] flex items-center justify-center"
+      style={{ background: "rgba(0,0,0,0.4)" }}
       onClick={() => dialog._resolve(false)}
       onKeyDown={(e) => { if (e.key === "Escape") dialog._resolve(false); }}
     >
       <div
-        className="bg-[var(--bg)] border border-[var(--rule)] w-[90%] max-w-[480px] animate-fade-in"
-        style={{ padding: "32px 28px" }}
+        className="animate-fade-in"
+        style={{
+          background: "var(--bg)",
+          border: "1px solid var(--fg)",
+          borderRadius: 0,
+          width: "90%",
+          maxWidth: "440px",
+          padding: "32px",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Eyebrow */}
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: "9px",
+            fontWeight: 500,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: eyebrowColor,
+            marginBottom: "16px",
+          }}
+        >
+          § {state.confirmLabel ?? "Confirm"}
+        </div>
+
+        {/* Message */}
         <p
           id="confirm-message"
-          className="font-sans text-[13px] text-[var(--fg)] leading-[1.6] mb-6"
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "13px",
+            fontWeight: 400,
+            color: "var(--fg-2)",
+            lineHeight: 1.6,
+            marginBottom: "28px",
+          }}
         >
           {state.message}
         </p>
-        <div className="flex items-center justify-end gap-3">
+
+        {/* Actions — confirm on right, cancel on left */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px" }}>
           <button
             onClick={() => dialog._resolve(false)}
             autoFocus
-            className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors active:scale-[0.97]"
-            style={{ padding: "8px 14px" }}
+            className="ed-btn"
           >
             Cancel
           </button>
           <button
             onClick={() => dialog._resolve(true)}
-            className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] bg-transparent border border-[var(--rule)] hover:border-[var(--fg)] cursor-pointer transition-colors active:scale-[0.97]"
-            style={{ padding: "8px 14px" }}
+            className="ed-btn primary"
           >
             {state.confirmLabel ?? "Confirm"}
           </button>

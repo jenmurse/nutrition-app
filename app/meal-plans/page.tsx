@@ -1438,11 +1438,11 @@ const MealPlansPage = () => {
                         const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
                         const chipClass = isAboveMax ? 'err-chip' : 'warn-chip';
                         const label = isBelowMin
-                          ? `\u26A0 ${n.displayName} -${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
+                          ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
                           : isAboveMax
-                          ? `\u26A0 ${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
-                          : `\u26A0 ${n.displayName} outside target`;
-                        return <div key={n.nutrientId} className={chipClass}>{label}</div>;
+                          ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
+                          : `${n.displayName} outside target`;
+                        return <div key={n.nutrientId} className={chipClass}><span className="status-pill-dot" />{label}</div>;
                       })}
                     </div>
                   </div>
@@ -1799,11 +1799,11 @@ const MealPlansPage = () => {
                             const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
                             const chipClass = isAboveMax ? 'err-chip' : 'warn-chip';
                             const label = isBelowMin
-                              ? `\u26A0 ${n.displayName} -${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
+                              ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
                               : isAboveMax
-                              ? `\u26A0 ${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
-                              : `\u26A0 ${n.displayName} outside target`;
-                            return <div key={n.nutrientId} className={chipClass}>{label}</div>;
+                              ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
+                              : `${n.displayName} outside target`;
+                            return <div key={n.nutrientId} className={chipClass}><span className="status-pill-dot" />{label}</div>;
                           })}
                         </div>
                       </div>

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { APP_NAME } from "@/lib/brand";
 import { SEO } from "@/lib/seo";
-import { DM_Sans, DM_Mono } from "next/font/google";
+import { DM_Sans, DM_Mono, Instrument_Serif } from "next/font/google";
 
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
@@ -23,6 +23,13 @@ const dmMono = DM_Mono({
   weight: ['300', '400', '500'],
   subsets: ["latin"],
   variable: '--font-mono',
+});
+
+const instrumentSerif = Instrument_Serif({
+  weight: ['400'],
+  style: ['italic'],
+  subsets: ["latin"],
+  variable: '--serif-display',
 });
 
 
@@ -98,7 +105,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${dmMono.variable} font-sans h-screen overflow-hidden`} style={{ height: '100dvh' }}>
+      <body className={`${dmSans.variable} ${dmMono.variable} ${instrumentSerif.variable} font-sans h-screen overflow-hidden`} style={{ height: '100dvh' }}>
         {/* FOUC prevention: apply stored theme synchronously before React hydration */}
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}` }} />
         <PersonProvider>

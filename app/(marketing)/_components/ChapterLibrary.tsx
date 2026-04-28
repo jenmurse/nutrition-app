@@ -63,7 +63,7 @@ export default function ChapterLibrary() {
       <div className="ch-split">
         <div className="ch-text r">
           <h3 className="ch-h">
-            Every ingredient, <em>to the gram</em>.
+            Every ingredient, to the <em>gram</em>.
             <br />
             Every recipe, calculated.
           </h3>

@@ -99,15 +99,15 @@
 .mkt .hero-meta .rt { justify-self: end; text-align: right; }
 
 .mkt .hero-type {
-  font-size: clamp(48px,7.5vw,88px);
+  font-size: clamp(48px,7.5vw,96px);
   font-weight: 500;
-  letter-spacing: -0.045em;
-  line-height: 0.9;
+  letter-spacing: -0.03em;
+  line-height: 1;
   color: var(--fg);
   text-wrap: balance;
 }
 .mkt .hero-type span { display: block; }
-.mkt .hero-type em { font-style: normal; color: var(--accent); font-weight: 500; }
+.mkt .hero-type em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .hero-type .thin { font-weight: 500; }
 
 .mkt .hero-bottom {
@@ -145,14 +145,14 @@
 .mkt .manifesto-type {
   font-size: clamp(40px,6vw,72px);
   font-weight: 400;
-  letter-spacing: -0.025em;
-  line-height: 1.08;
+  letter-spacing: -0.03em;
+  line-height: 1;
   max-width: 22ch;
   text-wrap: balance;
 }
 .mkt .manifesto-type span { display: block; }
 .mkt .manifesto-type .pay { font-weight: 500; color: var(--fg); }
-.mkt .manifesto-type .pay em { font-style: normal; color: var(--accent); font-weight: 500; }
+.mkt .manifesto-type .pay em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .manifesto-type .set { font-weight: 500; color: var(--fg); }
 
 /* ─── CHAPTER SPLIT ─── */
@@ -175,12 +175,12 @@
 .mkt .ch-h {
   font-size: clamp(32px,4.5vw,52px);
   font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
   max-width: 15ch;
   text-wrap: balance;
 }
-.mkt .ch-h em { font-style: normal; color: var(--accent); font-weight: 500; }
+.mkt .ch-h em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .ch-p { font-size: 15.5px; line-height: 1.7; color: var(--fg-2); max-width: 44ch; text-wrap: pretty; }
 .mkt .ch-p + .ch-p { margin-top: -16px; }
 
@@ -300,13 +300,13 @@
 .mkt .pq-type {
   font-size: 72px;
   font-weight: 500;
-  letter-spacing: -0.045em;
-  line-height: 1.05;
+  letter-spacing: -0.03em;
+  line-height: 1;
   color: var(--fg);
   text-wrap: balance;
 }
 .mkt .pq-type span { display: block; }
-.mkt .pq-type .a em { font-style: normal; color: var(--accent); font-weight: 500; }
+.mkt .pq-type .a em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .pq-type .b { font-weight: 500; }
 
 /* ─── CLOSE ─── */

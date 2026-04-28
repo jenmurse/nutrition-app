@@ -12,17 +12,12 @@ export default function Toaster() {
   useEffect(() => {
     return toast.subscribe((toasts) => {
       if (toasts.length === 0) return;
-      // Show the latest toast, replacing any current one
       const next = toasts[toasts.length - 1];
       if (timerRef.current) clearTimeout(timerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       setHiding(false);
       setCurrent(next);
-
-      // Auto-dismiss: success after 4s, info after 4s, error never auto-dismisses
-      if (next.type !== "error") {
-        timerRef.current = setTimeout(() => dismiss(), 4000);
-      }
+      timerRef.current = setTimeout(() => dismiss(), 4000);
     });
   }, []);
 
@@ -44,7 +39,6 @@ export default function Toaster() {
 
   return (
     <>
-      {/* Screen-reader announcement */}
       <div
         aria-live={current.type === "error" ? "assertive" : "polite"}
         aria-atomic="true"
@@ -53,31 +47,34 @@ export default function Toaster() {
         {current.message}
       </div>
 
-      {/* Notification bar — fixed below nav, full width */}
       <div
         className={`notif-bar ${typeClass}${hiding ? " notif-hiding" : ""}`}
         role="status"
         style={{
           position: "fixed",
-          top: "var(--nav-h)",
+          bottom: "24px",
           left: 0,
           right: 0,
-          zIndex: 200,
+          marginInline: "auto",
+          width: "fit-content",
+          zIndex: 400,
         }}
       >
         <div className="notif-bar-text">
           <div className="notif-bar-dot" aria-hidden="true" />
           <span>{current.message}</span>
         </div>
-        <div className="notif-bar-right">
-          <button
-            className="notif-bar-dismiss"
-            onClick={dismiss}
-            aria-label="Dismiss notification"
-          >
-            Dismiss
-          </button>
-        </div>
+        {current.undo && (
+          <div className="notif-bar-right">
+            <button
+              className="notif-bar-undo"
+              onClick={() => { current.undo!(); dismiss(); }}
+              aria-label="Undo"
+            >
+              Undo
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

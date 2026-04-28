@@ -312,9 +312,8 @@ export default function OnboardingPage() {
                       className="ob-swatch"
                       style={{
                         background: t.hex,
-                        boxShadow: selectedTheme === t.name
-                          ? `0 0 0 2px var(--bg), 0 0 0 3.5px var(--fg)`
-                          : "none",
+                        outline: selectedTheme === t.name ? "2px solid var(--fg)" : "none",
+                        outlineOffset: "2px",
                       }}
                       onClick={() => { setSelectedTheme(t.name); applyThemeLive(t.name); }}
                       aria-label={t.label}

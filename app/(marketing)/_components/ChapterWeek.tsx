@@ -98,7 +98,7 @@ export default function ChapterWeek() {
             <br />
             Every person.
             <br />
-            <em>The whole matrix.</em>
+            The whole <em>matrix.</em>
           </h3>
 
           <p className="ch-p">

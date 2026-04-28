@@ -3,10 +3,16 @@
 
 export type ToastType = "success" | "error" | "info";
 
+export interface ToastOptions {
+  undo?: () => void;
+  duration?: number;
+}
+
 export interface ToastMessage {
   id: string;
   message: string;
   type: ToastType;
+  undo?: () => void;
 }
 
 type Listener = (toasts: ToastMessage[]) => void;
@@ -19,18 +25,19 @@ function notify() {
 }
 
 export const toast = {
-  success(message: string) { add(message, "success"); },
-  error(message: string)   { add(message, "error"); },
-  info(message: string)    { add(message, "info"); },
-  subscribe(fn: Listener)  { listeners.add(fn); return () => { listeners.delete(fn); }; },
+  success(message: string, opts?: ToastOptions) { add(message, "success", opts); },
+  error(message: string, opts?: ToastOptions)   { add(message, "error", opts); },
+  info(message: string, opts?: ToastOptions)    { add(message, "info", opts); },
+  subscribe(fn: Listener) { listeners.add(fn); return () => { listeners.delete(fn); }; },
 };
 
-function add(message: string, type: ToastType) {
+function add(message: string, type: ToastType, opts?: ToastOptions) {
   const id = `${Date.now()}-${Math.random()}`;
-  toasts = [...toasts, { id, message, type }];
+  toasts = [...toasts, { id, message, type, undo: opts?.undo }];
   notify();
+  const duration = opts?.duration ?? 4000;
   setTimeout(() => {
     toasts = toasts.filter((t) => t.id !== id);
     notify();
-  }, type === "error" ? 5000 : 3000);
+  }, duration);
 }

@@ -10,7 +10,7 @@ export default function Manifesto() {
         <span className="ml set">Most recipe apps store what you&apos;ll cook.</span>
         <span className="ml pay">Good Measure plans one</span>
         <span className="ml pay">
-          against <em>the other</em>.
+          against the <em>other</em>.
         </span>
       </h2>
     </section>
