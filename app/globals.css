@@ -1865,8 +1865,8 @@ input[type="number"]:focus {
 .pl-rec-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.5; }
 .pl-rec-kcal { font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:2px; }
 
-.pl-add-btn { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--cta); border-radius: var(--radius-pill); color:var(--cta); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:background 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
-.pl-add-btn:hover { background:color-mix(in srgb, var(--fg) 8%, var(--bg)); }
+.pl-add-btn { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: 0; color:var(--fg); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:border-color 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
+.pl-add-btn:hover { border-color:var(--fg); }
 .pl-add-btn:active { transform:scale(0.97); }
 
 /* Nutrient rows (shared) */
@@ -2220,7 +2220,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -2230,7 +2230,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .mob-filter-btn::before { content: ''; position: absolute; inset: -5px; }
 .mob-filter-btn:active { opacity: 0.7; }
-.mob-filter-btn.active { color: var(--cta); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
+.mob-filter-btn.active { color: var(--fg); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
 
 /* Small dot indicator — replaces numeric badge */
 .mob-filter-dot {
@@ -2267,7 +2267,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -2277,7 +2277,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .mob-tb-icon::before { content: ''; position: absolute; inset: -5px; }
 .mob-tb-icon:active { opacity: 0.7; }
-.mob-tb-icon.on { color: var(--cta); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
+.mob-tb-icon.on { color: var(--fg); background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
 
 /* View toggle group — joined as a pair with slight gap */
 .mob-view-group {
@@ -2492,8 +2492,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-chip.on {
-  color: var(--cta-ink);
-  background: var(--cta);
+  color: var(--bg);
+  background: var(--fg);
 }
 .mob-sheet-chip:active { opacity: 0.75; }
 
@@ -2519,8 +2519,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-sort-btn.on {
-  color: var(--cta-ink);
-  background: var(--cta);
+  color: var(--bg);
+  background: var(--fg);
 }
 .mob-sheet-sort-btn:active { opacity: 0.75; }
 
@@ -2543,8 +2543,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-dir-btn.on {
-  color: var(--cta-ink);
-  background: var(--cta);
+  color: var(--bg);
+  background: var(--fg);
 }
 .mob-sheet-dir-btn:active { opacity: 0.75; }
 
@@ -2553,8 +2553,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   width: calc(100% - 40px);
   margin: 16px 20px;
   height: 36px;
-  background: var(--cta);
-  color: var(--cta-ink);
+  background: var(--fg);
+  color: var(--bg);
   border: 0;
   border-radius: 0;
   font-family: var(--font-mono);
@@ -2612,7 +2612,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: none;
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -3174,7 +3174,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   height: 34px;
   background: var(--bg-3);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -3193,9 +3193,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Hairline button style same as mobile */
   .mob-search-input { background: var(--bg-2); border: 1px solid var(--rule); }
   .mob-filter-btn { background: transparent; border: 1px solid var(--rule); color: var(--muted); }
-  .mob-filter-btn.active { background: color-mix(in srgb, var(--fg) 10%, var(--bg)); color: var(--cta); border-color: var(--cta); }
+  .mob-filter-btn.active { background: color-mix(in srgb, var(--fg) 10%, var(--bg)); color: var(--fg); border-color: var(--fg); }
   .mob-tb-icon { background: transparent; border: 1px solid var(--rule); }
-  .mob-tb-icon.on { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
+  .mob-tb-icon.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 }
 
 /* ── Medium breakpoint — tablet / small laptop (641–1280px) ─────── */
