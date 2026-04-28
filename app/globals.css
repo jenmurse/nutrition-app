@@ -1502,9 +1502,8 @@ input[type="number"]:focus {
   padding:7px 8px; margin-bottom:4px; cursor:default; position:relative; overflow:hidden;
   transition:background 150ms ease-out, transform 80ms ease-out;
 }
-.meal-chip::after {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
-  background:var(--accent); transform:scaleX(0); transform-origin:left;
+.meal-chip::after {  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--fg); transform:scaleX(0); transform-origin:left;
   transition:transform 180ms var(--ease-out);
 }
 .meal-chip:hover { background:var(--bg-2); }

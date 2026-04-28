@@ -156,7 +156,7 @@ function DraggableMealChip({
         userSelect: 'none',
         touchAction: editMode ? undefined : 'none',
       }}
-      className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && isSelected ? ' bg-[var(--err-l)]' : ''}`}
+      className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && isSelected ? ' bg-[var(--bg-2)]' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         if (editMode) {
