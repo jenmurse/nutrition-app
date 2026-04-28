@@ -1403,9 +1403,13 @@ input[type="number"]:focus {
 .pl-new-btn:hover { border-color:var(--fg); }
 .pl-new-btn:active { transform:scale(0.97); }
 
-/* Inline create-plan row */
+/* Inline create-plan row.
+   Left padding: 44px aligns "Week Start" with the toolbar's "Meal Plans"
+     (.pl-range has 4px of its own padding-left, so toolbar text starts at 44).
+   Right padding: 40px aligns the Cancel button's right edge with the
+     "+ New Plan" button's outer border above. */
 .pl-create-row {
-  display:flex; align-items:center; gap:12px; padding:0 var(--pad);
+  display:flex; align-items:center; gap:12px; padding:0 40px 0 44px;
   height:0; min-height:0; overflow:hidden; opacity:0;
   border-bottom:1px solid transparent;
   background:var(--bg-2);
