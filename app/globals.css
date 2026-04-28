@@ -3234,6 +3234,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* ── Prevent content bleeding behind bottom nav / Safari toolbar ── */
   /* overscroll-behavior stops rubber-band from revealing content below */
   html, body { overscroll-behavior-y: none; }
+  /* Marketing pages restore native scroll + pull-to-refresh */
+  html[data-marketing],
+  html[data-marketing] body { overscroll-behavior-y: auto !important; }
   /* Settings scroll container: clear fixed bottom nav */
   #settings-scroll-container {
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px);
@@ -5632,6 +5635,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--fg); text-decoration: none;
 }
 .auth-nav-link:hover { color: var(--muted); }
+
+/* Page wrapper: fills the parent <main> (which is overflow-hidden) and
+   owns its own scroll so the form can scroll on viewports too short to
+   fit it (mobile especially). */
+.auth-page {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 .auth-split {
   display: grid;

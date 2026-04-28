@@ -160,7 +160,7 @@ function LoginPage() {
   }[mode];
 
   return (
-    <div>
+    <div className="auth-page">
       <nav className="auth-nav">
         <Link href="/" className="auth-nav-logo">Good Measure</Link>
         <Link href="/" className="auth-nav-link">← Back</Link>
