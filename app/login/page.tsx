@@ -97,7 +97,7 @@ function LoginPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -105,8 +105,15 @@ function LoginPage() {
         data: { full_name: firstName.trim() || undefined },
       },
     });
-    if (error) setError(friendlyError(error.message));
-    else setNotice("Check your email for a confirmation link.");
+    if (error) {
+      setError(friendlyError(error.message));
+    } else if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      // Supabase email-enumeration protection: existing email returns success
+      // with an empty identities array instead of an error. Surface it.
+      setError("An account with this email already exists. Try signing in instead.");
+    } else {
+      setNotice("Check your email for a confirmation link.");
+    }
     setLoading(false);
   };
 

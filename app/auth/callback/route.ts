@@ -34,33 +34,51 @@ export async function GET(request: Request) {
   );
 
   let redirectUrl = `${redirectBase}/home`;
+  let user: { id: string; email?: string; user_metadata?: Record<string, unknown> } | null = null;
 
   if (code) {
     console.log("[auth/callback] cookies present:", cookieStore.getAll().map(c => c.name));
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      console.error("[auth/callback] code exchange error:", error);
-      return NextResponse.redirect(`${redirectBase}/login?error=auth`);
+      // PKCE exchange can fail when the email link opens in a different browser
+      // context than signup (e.g. mobile mail client → external browser) and the
+      // code verifier cookie isn't available. Don't bail yet — Supabase's verify
+      // endpoint may have already established a session via cookies. Fall through
+      // to the getUser() check below.
+      console.error("[auth/callback] code exchange error (will fall back to getUser):", error);
+    } else {
+      user = data.user ?? data.session?.user ?? null;
+      console.log("[auth/callback] exchanged user id:", user?.id ?? "NULL", "email:", user?.email ?? "NULL");
     }
+  }
 
-    const user = data.user ?? data.session?.user ?? null;
-    console.log("[auth/callback] user id:", user?.id ?? "NULL", "email:", user?.email ?? "NULL");
+  // Fallback: no code, or exchange failed/returned no user. If a session exists
+  // via cookies (Supabase's verify endpoint, or sign-in flow that redirected here),
+  // still provision so the Person row gets created and onboarding routing works.
+  if (!user) {
+    const { data: { user: existingUser } } = await supabase.auth.getUser();
+    if (existingUser) {
+      user = existingUser as typeof user;
+      console.log("[auth/callback] fallback getUser found user id:", existingUser.id);
+    }
+  }
 
-    if (user) {
-      try {
-        const needsOnboarding = await provisionUser(user, inviteToken);
-        console.log("[auth/callback] needsOnboarding:", needsOnboarding, "-> redirecting to:", needsOnboarding ? "/onboarding" : "/home");
-        if (needsOnboarding) {
-          redirectUrl = `${redirectBase}/onboarding`;
-        }
-      } catch (err) {
-        console.error("[auth/callback] provisionUser threw:", err);
-        // Provisioning failed — send to onboarding so the user isn't stranded at /home with no person record
+  if (user) {
+    try {
+      const needsOnboarding = await provisionUser(user, inviteToken);
+      console.log("[auth/callback] needsOnboarding:", needsOnboarding, "-> redirecting to:", needsOnboarding ? "/onboarding" : "/home");
+      if (needsOnboarding) {
         redirectUrl = `${redirectBase}/onboarding`;
       }
-    } else {
-      console.error("[auth/callback] exchangeCodeForSession returned no user (session:", data.session?.user?.id ?? "NULL", ")");
+    } catch (err) {
+      console.error("[auth/callback] provisionUser threw:", err);
+      // Provisioning failed — send to onboarding so the user isn't stranded at /home with no person record
+      redirectUrl = `${redirectBase}/onboarding`;
     }
+  } else if (code) {
+    // We had a code but couldn't establish any session at all — auth genuinely failed.
+    console.error("[auth/callback] no user from code exchange or fallback getUser");
+    return NextResponse.redirect(`${redirectBase}/login?error=auth`);
   }
 
   const response = NextResponse.redirect(redirectUrl);

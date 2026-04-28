@@ -1,21 +1,35 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { withAuth } from "@/lib/apiUtils";
+import { getAuthenticatedHousehold } from "@/lib/auth";
 import { themeHex } from "@/lib/themes";
 
-export const GET = withAuth(async (auth) => {
+export async function GET() {
+  const auth = await getAuthenticatedHousehold();
+  // Authenticated Supabase user with no Person row yet (e.g. provisioning gap):
+  // return an empty list with onboardingComplete:false so the client routes them
+  // to /onboarding instead of stranding them on /home.
+  if ("error" in auth) {
+    if (auth.status === 403) {
+      return NextResponse.json({
+        persons: [],
+        currentPersonId: null,
+        onboardingComplete: false,
+      });
+    }
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
   const persons = await prisma.person.findMany({
     where: { householdMembers: { some: { householdId: auth.householdId } } },
     orderBy: { id: "asc" },
   });
-  // Include the authenticated user's own personId and onboarding status
   const currentPerson = persons.find((p) => p.id === auth.personId);
   return NextResponse.json({
     persons,
     currentPersonId: auth.personId,
     onboardingComplete: currentPerson?.onboardingComplete ?? true,
   });
-});
+}
 
 /**
  * POST /api/persons — create a household member.
