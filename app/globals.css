@@ -3246,12 +3246,18 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .detail-jump-nav { display: none !important; }
   .detail-content  { padding: 32px var(--pad) calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px) var(--pad) !important; }
 
-  /* Mobile chrome bar (logo + person switcher) */
+  /* Mobile chrome bar (logo + person switcher).
+     Sticky so it stays pinned at the top of the viewport regardless of scroll
+     (page scroll otherwise drags it under the iOS status bar). */
   .hm-mob-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: calc(14px + env(safe-area-inset-top)) var(--pad) 0;
+    padding: calc(env(safe-area-inset-top) + 14px) var(--pad) 14px;
     flex-shrink: 0;
   }
   .hm-mob-persons { display: flex; align-items: center; gap: 6px; }
@@ -5837,7 +5843,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ══════════════════════════════════════════════════════════════ */
 
 .ob-page {
-  min-height: 100dvh;
+  /* Lock to viewport so iOS Safari's "scroll input into view" behavior
+     (triggered by autoFocus on inputs) can't push the topbar under the
+     status bar. Only .ob-body scrolls internally if content overflows. */
+  position: fixed;
+  inset: 0;
   background: var(--bg);
   display: flex;
   flex-direction: column;
@@ -5848,11 +5858,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: env(safe-area-inset-top) 40px 0;
+  padding: calc(env(safe-area-inset-top) + 4px) 40px 4px;
   min-height: calc(48px + env(safe-area-inset-top));
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
   box-sizing: border-box;
+  background: var(--bg);
 }
 
 .ob-topbar-left,
@@ -5876,13 +5887,17 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 40px;
 }
 
-/* Step body — flex center, column is the only child */
+/* Step body — flex center, column is the only child.
+   overflow-y:auto so any iOS auto-scroll for focused inputs scrolls here,
+   not the document — keeps the topbar locked under the status bar. */
 .ob-body {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Step animation — key-based remount triggers this */
