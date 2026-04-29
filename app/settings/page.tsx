@@ -893,12 +893,7 @@ const SettingsPage = () => {
                       onClick={() => setGoalsPersonId(person.id)}
                       role="tab"
                       aria-selected={isActive}
-                      className="px-[16px] py-[6px] font-mono text-[9px] uppercase tracking-[0.1em] border-0 cursor-pointer transition-colors"
-                      style={{
-                        background: isActive ? 'var(--cta)' : 'var(--bg-2)',
-                        color: isActive ? 'var(--cta-ink)' : 'var(--muted)',
-                        borderRadius: 'var(--radius-pill)',
-                      }}
+                      className={`set-person-chip${isActive ? " on" : ""}`}
                       aria-label={`Goals for ${person.name}`}
                     >
                       {person.name}

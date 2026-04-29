@@ -551,7 +551,6 @@ input[type="number"]:focus {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-  margin-top: -1px;
 }
 .ed-count strong { color: var(--fg); font-weight: 500; }
 
@@ -603,10 +602,10 @@ input[type="number"]:focus {
 /* Edge columns: text and photo both align with toolbar at 40px */
 .recipe-grid-item:nth-child(4n+1) { padding-left: 40px; }
 .recipe-grid-item:nth-child(4n)   { padding-right: 40px; }
-/* Compare mode — selected state: sharp outline, no fill */
+/* Compare mode — selected state: exterior ring, never clips the photo bleed */
 .recipe-grid-item.is-selected {
-  outline: 2px solid var(--fg);
-  outline-offset: -2px;
+  box-shadow: 0 0 0 2px var(--fg);
+  z-index: 1;
 }
 .recipe-grid-item.is-selected::after { display: none; }
 /* Bottom-edge hover rule */
@@ -2294,6 +2293,27 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Settings / recipe detail mobile section jump — hidden on desktop */
 .set-mob-jump { display: none; }
 
+/* Settings: Daily Goals person tab chips */
+.set-person-chip {
+  padding: 8px 0 6px;
+  background: none;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.set-person-chip.on {
+  color: var(--fg);
+  border-bottom-color: var(--fg);
+}
+
 /* Recipe detail mobile sticky header — hidden on desktop */
 .rd-mob-header { display: none; }
 
@@ -2342,10 +2362,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .set-mob-jump-btn {
   white-space: nowrap;
-  padding: 6px 12px;
-  background: var(--bg-2);
+  padding: 8px 0 6px;
+  background: none;
   border: none;
-  border-radius: var(--radius-sm);
+  border-bottom: 1.5px solid transparent;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
@@ -2354,11 +2374,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   cursor: pointer;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s;
 }
 .set-mob-jump-btn.on {
-  color: var(--cta-ink);
-  background: var(--cta);
+  color: var(--fg);
+  border-bottom-color: var(--fg);
 }
 
 /* Meal type picker grid — mobile needs safe-area bottom, desktop covered by parent padding */
@@ -2473,27 +2493,27 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .mob-sheet-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
 }
 
 .mob-sheet-chip {
-  height: 36px;
-  padding: 0 16px;
+  padding: 8px 0 6px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: var(--bg-2);
+  background: none;
   border: none;
+  border-bottom: 1.5px solid transparent;
   border-radius: 0;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-chip.on {
-  color: var(--bg);
-  background: var(--fg);
+  color: var(--fg);
+  border-bottom-color: var(--fg);
 }
 .mob-sheet-chip:active { opacity: 0.75; }
 
@@ -2501,50 +2521,52 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .mob-sheet-sort-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 16px;
   margin-bottom: 10px;
 }
 .mob-sheet-sort-btn {
-  height: 36px;
+  padding: 8px 0 6px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: var(--bg-2);
+  background: none;
   border: none;
+  border-bottom: 1.5px solid transparent;
   border-radius: 0;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-sort-btn.on {
-  color: var(--bg);
-  background: var(--fg);
+  color: var(--fg);
+  border-bottom-color: var(--fg);
 }
 .mob-sheet-sort-btn:active { opacity: 0.75; }
 
 .mob-sheet-dir-row {
   display: flex;
-  gap: 8px;
+  gap: 16px;
 }
 .mob-sheet-dir-btn {
   flex: 1;
-  height: 36px;
+  padding: 8px 0 6px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--muted);
-  background: var(--bg-2);
+  background: none;
   border: none;
+  border-bottom: 1.5px solid transparent;
   border-radius: 0;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .mob-sheet-dir-btn.on {
-  color: var(--bg);
-  background: var(--fg);
+  color: var(--fg);
+  border-bottom-color: var(--fg);
 }
 .mob-sheet-dir-btn:active { opacity: 0.75; }
 
@@ -3112,6 +3134,28 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .ing-list-macros > span:nth-child(4),
   .ing-list-macros > span:nth-child(6),
   .ing-list-macros > span:nth-child(8) { display: none; }
+}
+
+/* ── Recipe detail: scale chips ─────────────────────────────────── */
+.scale-chip {
+  font: 400 9px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  border-radius: 0;
+  color: var(--muted);
+  padding: 8px 4px;
+  position: relative;
+  cursor: pointer;
+  transition: color 120ms var(--ease-out);
+  line-height: 1.2;
+}
+.scale-chip:hover { color: var(--fg); }
+.scale-chip.active {
+  color: var(--fg);
+  border-bottom-color: var(--fg);
 }
 
 /* ── Mobile breakpoint — 640px ───────────────────────────────────── */
@@ -3696,7 +3740,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Settings: jump bar compact chips ── */
   .set-mob-jump { gap: 6px !important; padding: 10px 16px 8px !important; }
-  .set-mob-jump-btn { padding: 5px 9px !important; font-size: 11px !important; }
+  .set-mob-jump-btn { padding: 6px 0 4px !important; font-size: 11px !important; }
 
   /* ── Settings: reduce section spacing on mobile ── */
   [id^="set-sec-"] { padding-top: 20px !important; padding-bottom: 28px !important; }
@@ -3762,29 +3806,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   #rd-scroll-container { overflow-x: hidden; }
   #pf-scroll-container { overflow-x: hidden; }
 
-  /* ── Recipe detail: scale chips (mobile only) ── */
-  .scale-chip {
-    font: 400 9px var(--font-mono) !important;
-    letter-spacing: 0.14em !important;
-    text-transform: uppercase !important;
-    background: none !important;
-    border: none !important;
-    border-bottom: 1.5px solid transparent !important; /* reserves underline space — prevents layout shift on activate */
-    border-radius: 0 !important;
-    color: var(--muted) !important;
-    padding: 8px 4px !important;
-    position: relative;
-    cursor: pointer;
-    transition: color 120ms var(--ease-out) !important;
-    line-height: 1.2;
-  }
-  .scale-chip:hover { color: var(--fg) !important; }
-  .scale-chip.active {
-    color: var(--fg) !important;
-    border-bottom-color: var(--fg) !important;
-    background: none !important;
-  }
-  /* Hit area expansion */
+  /* ── Recipe detail: scale chips — expanded touch hit area (mobile only) ── */
   .scale-chip::before {
     content: '';
     position: absolute;
