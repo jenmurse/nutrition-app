@@ -497,26 +497,29 @@ export default function RecipeDetailPage() {
                 );
               })()}
               {/* Actions */}
-              <div className="flex gap-[10px] mt-6 items-center">
-                <button onClick={handleEditClick} disabled={editLoading}
-                  className="ed-btn disabled:opacity-50"
-                  aria-label="Edit recipe">{editLoading ? "Loading…" : "Edit"}</button>
-                <button onClick={handleDuplicate}
-                  className="ed-btn"
-                  aria-label="Duplicate recipe">Duplicate</button>
-                <button onClick={handleDelete}
-                  className="ed-btn danger"
-                  aria-label="Delete recipe">Delete</button>
+              <div className="flex flex-col" style={{ marginTop: 24, gap: 16 }}>
+                {/* Row 1: edit / duplicate / delete */}
+                <div className="flex gap-[10px] items-center">
+                  <button onClick={handleEditClick} disabled={editLoading}
+                    className="ed-btn disabled:opacity-50"
+                    aria-label="Edit recipe">{editLoading ? "Loading…" : "Edit"}</button>
+                  <button onClick={handleDuplicate}
+                    className="ed-btn"
+                    aria-label="Duplicate recipe">Duplicate</button>
+                  <button onClick={handleDelete}
+                    className="ed-btn danger"
+                    aria-label="Delete recipe">Delete</button>
+                </div>
+                {/* Row 2: favorite */}
                 <button
                   onClick={toggleFavorite}
-                  className={`rcp-fav-btn favorite-btn${isFavorited ? " is-on" : ""} inline-flex items-center gap-[8px] border-0 bg-transparent cursor-pointer transition-colors duration-150 ${
-                    isFavorited ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
-                  }`}
+                  className={`rcp-fav-btn favorite-btn${isFavorited ? " is-on" : ""}`}
                   aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                   aria-pressed={isFavorited}
                 >
-                  {isFavorited && <span aria-hidden="true">★</span>}
-                  <span className="font-mono text-[9px] font-medium tracking-[0.14em] uppercase">{isFavorited ? "Favorited" : "Favorite"}</span>
+                  {isFavorited ? (
+                    <>★ Favorited<span className="favorite-remove"> · Remove</span></>
+                  ) : "Add to Favorites"}
                 </button>
               </div>
             </div>

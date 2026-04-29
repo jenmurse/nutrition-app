@@ -406,7 +406,7 @@ function RecipesPage() {
               onClick={() => setShowFavorites(prev => !prev)}
               aria-pressed={showFavorites}
             >
-              <span aria-hidden="true" className="fav-dot-filter">{showFavorites ? "●" : "○"}</span>
+              <span aria-hidden="true">★</span>
               Favorites
             </button>
           </div>
@@ -474,7 +474,7 @@ function RecipesPage() {
                   }`}
                   onClick={() => setShowFavorites(prev => !prev)}
                 >
-                  <span aria-hidden="true" className="fav-dot-filter">{showFavorites ? "●" : "○"}</span>
+                  <span aria-hidden="true">★</span>
                   <span className="flex-1">Favorites</span>
                   {showFavorites && <span className="text-[var(--fg)]">✓</span>}
                 </button>
@@ -680,7 +680,7 @@ function RecipesPage() {
                   onClick={() => setShowFavorites(prev => !prev)}
                   aria-pressed={showFavorites}
                 >
-                  <span aria-hidden="true" className="fav-dot-filter">{showFavorites ? "●" : "○"}</span>
+                  <span aria-hidden="true">★</span>
                   Favorites
                 </button>
               </div>

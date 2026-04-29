@@ -2570,8 +2570,27 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Recipe card stats: mobile hidden by default, shown on mobile via MQ */
 .rcp-card-stats-mob { display: none; }
 
-/* Recipe favorite star button */
+/* Recipe favorite button */
 .rcp-fav-btn { -webkit-tap-highlight-color: transparent; }
+.favorite-btn {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  transition: color 120ms var(--ease-out);
+}
+.favorite-btn.is-on { color: var(--fg); }
+.favorite-btn:hover  { color: var(--fg); }
+.favorite-remove {
+  color: var(--muted);
+  margin-left: 6px;
+}
 .fav-mark {
   font-family: var(--font-sans);
   font-size: 16px;
@@ -3827,24 +3846,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     inset: -10px -4px;
   }
 
-  /* ── Recipe detail: favorite button (mobile only) ── */
-  .favorite-btn {
-    font: 400 9px var(--font-mono) !important;
-    letter-spacing: 0.14em !important;
-    text-transform: uppercase !important;
-    color: var(--muted) !important;
-    background: none !important;
-    border: 0 !important;
-    padding: 8px 4px !important;
-    cursor: pointer;
-    transition: color 120ms var(--ease-out) !important;
-    display: inline-flex !important;
-    align-items: center;
-    gap: 4px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .favorite-btn:hover { color: var(--fg) !important; }
-  .favorite-btn.is-on { color: var(--fg) !important; }
 }
 
 /* ── Prevent hover accent bar from lingering after tap ───────────── */
