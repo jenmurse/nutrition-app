@@ -44,6 +44,9 @@ function AddMealInner() {
   const weekStart = params?.get('weekStart') ?? '';
   const personParam = params?.get('person') ?? '';
 
+  // Prevent browser auto-focusing first interactive element on mount
+  useEffect(() => { (document.activeElement as HTMLElement)?.blur(); }, []);
+
   // Parse date from URL
   const selectedDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
 
@@ -226,7 +229,7 @@ function AddMealInner() {
   const dateLabel = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="animate-page-enter">
+    <div className="h-full overflow-y-auto animate-page-enter">
       {step === 'mealType' ? (
         <div className="pl-add-body">
           <div className="pl-add-eyebrow">§ Step one · {dateLabel.toUpperCase()}</div>
@@ -296,12 +299,12 @@ function AddMealInner() {
                     />
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-[10px] mb-4 items-center">
+                <div className="flex gap-[10px] mb-4 items-center overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {RECIPE_TAGS.map(tag => (
                     <button
                       key={tag}
                       type="button"
-                      className={`pl-person-chip ${recipeFilterTags.includes(tag) ? 'on' : ''}`}
+                      className={`pl-person-chip flex-shrink-0 ${recipeFilterTags.includes(tag) ? 'on' : ''}`}
                       onClick={() =>
                         setRecipeFilterTags(prev =>
                           prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
@@ -311,7 +314,7 @@ function AddMealInner() {
                     >{tag}</button>
                   ))}
                   {recipeFilterTags.length > 0 && (
-                    <button type="button" className="pl-cancel-btn" onClick={() => setRecipeFilterTags([])}>
+                    <button type="button" className="pl-cancel-btn flex-shrink-0" onClick={() => setRecipeFilterTags([])}>
                       clear
                     </button>
                   )}
