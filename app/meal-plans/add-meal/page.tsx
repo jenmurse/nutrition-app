@@ -144,7 +144,6 @@ function AddMealInner() {
   const handleSelectMealType = (mealType: string) => {
     setSelectedMealType(mealType);
     setStep('picker');
-    setRecipeFilterTags([mealType.toLowerCase()]);
   };
 
   const goBack = () => {
