@@ -2874,21 +2874,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   from { opacity: 1; transform: translateX(0); }
   to   { opacity: 0; transform: translateX(24px); }
 }
-.pl-shop-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: contentEnter 420ms var(--ease-out) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pl-shop-overlay { animation: none; }
-}
-
-
 .pl-shop-body {
   flex: 1;
   min-height: 0;
@@ -2946,7 +2931,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   letter-spacing: 0.14em;
   color: var(--muted);
 }
-.pl-shop-overlay .shop-empty {
+.shop-empty {
   grid-column: 1 / -1;
   padding: 40px 0;
   font-size: 13px;
@@ -2954,20 +2939,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   text-align: center;
 }
 
-/* ── Add Meal — full-screen editorial overlay ──────────────────────────── */
-.pl-add-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  animation: contentEnter 420ms var(--ease-out) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pl-add-overlay { animation: none; }
-}
+/* ── Add Meal page ──────────────────────────────────────────────────────── */
 
 
 .pl-add-body {

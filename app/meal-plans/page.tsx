@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
 import MealPlanDndWrapper from '@/app/components/MealPlanDndWrapper';
 import SmartSuggestionsPanel from '@/app/components/SmartSuggestionsPanel';
@@ -11,7 +12,6 @@ import { dialog } from '@/lib/dialog';
 import EmptyState from '@/app/components/EmptyState';
 import { toast } from '@/lib/toast';
 import { clientCache } from '@/lib/clientCache';
-import { useBottomRailSlot } from '@/app/components/BottomRailContext';
 
 /** Parse a UTC date string as a local Date preserving the calendar date.
  *  e.g. "2026-03-22T00:00:00.000Z" → local Date for March 22 midnight,
@@ -348,8 +348,6 @@ const MealPlansPage = () => {
   const { persons, selectedPerson, selectedPersonId, setSelectedPersonId } = usePersonContext();
 
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -372,29 +370,8 @@ const MealPlansPage = () => {
   const [sundayOptions, setSundayOptions] = useState<string[]>([]);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
   const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
-  const [shopSheetOpen, setShopSheetOpen] = useState(false);
-  const [shopClosing, setShopClosing] = useState(false);
-  const closeShopOverlay = () => {
-    setShopClosing(true);
-    setTimeout(() => { setShopSheetOpen(false); setShopClosing(false); }, 280);
-  };
-  const [shopItems, setShopItems] = useState<{ name: string; qty: number; unit: string; category: string }[]>([]);
-  const [shopLoading, setShopLoading] = useState(false);
-  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
-  const [hideChecked, setHideChecked] = useState(false);
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
-
-  const { setRightSlot, setOverlayClose } = useBottomRailSlot();
-
-  // Find other person's plan for the current week (for "also add to" checkbox)
-  const otherPersonPlanId = (() => {
-    if (!selectedPlan || !selectedPersonId || persons.length < 2) return undefined;
-    // This requires knowing other persons' plans — we'll fetch them on the fly in MealPlanWeek
-    // We store them in allPersonPlans
-    return undefined; // populated below via allPersonPlans
-  })();
-  const [allPersonPlansForWeek, setAllPersonPlansForWeek] = useState<MealPlan[]>([]);
 
   const prevPersonId = useRef<number | null>(null);
 
@@ -412,33 +389,6 @@ const MealPlansPage = () => {
       console.error('Error fetching meal plan details:', error);
       if (!cached) toast.error('Failed to load meal plan details');
     }
-  }, []);
-
-  // Fetch all persons' plans for the current week (for "also add to" feature)
-  const fetchAllPersonPlansForWeek = useCallback(async (weekStartDate: string) => {
-    if (persons.length < 2) return;
-    const weekStart = parseUTCDate(weekStartDate);
-    try {
-      const all = await Promise.all(
-        persons.map(async (p) => {
-          const res = await fetch(`/api/meal-plans?personId=${p.id}`);
-          if (!res.ok) return [];
-          const plans: MealPlan[] = await res.json();
-          return plans.filter((pl) => {
-            const d = parseUTCDate(pl.weekStartDate);
-            return d.getTime() === weekStart.getTime();
-          });
-        })
-      );
-      setAllPersonPlansForWeek(all.flat());
-    } catch {
-      // non-critical
-    }
-  }, [persons]);
-
-  useEffect(() => {
-    fetchRecipes();
-    fetchIngredients();
   }, []);
 
   // Close copy-from dropdown on outside click
@@ -609,28 +559,16 @@ const MealPlansPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlanId]);
 
-  // Fetch other persons' plans using weekStartDate from the plan list (not detail)
+  // Handle ?openSheet=nutrition from toolbar
   useEffect(() => {
-    if (mealPlans.length > 0 && selectedPlanId) {
-      const plan = mealPlans.find((p) => p.id === selectedPlanId);
-      if (plan) fetchAllPersonPlansForWeek(plan.weekStartDate);
-    }
-  }, [mealPlans, selectedPlanId, fetchAllPersonPlansForWeek]);
-
-  // Handle ?openSheet=shopping|nutrition from mobile menu
-  useEffect(() => {
-    if (!openSheetParam || !selectedPlan) return;
+    if (openSheetParam !== 'nutrition' || !selectedPlan) return;
     const params = new URLSearchParams(searchParams?.toString());
     params.delete('openSheet');
     const qs = params.toString();
     router.replace(`/meal-plans${qs ? '?' + qs : ''}`);
-    if (openSheetParam === 'shopping') {
-      openShoppingList();
-    } else if (openSheetParam === 'nutrition') {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      setSelectedDay(today);
-      setMobNutSheetOpen(true);
-    }
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    setSelectedDay(today);
+    setMobNutSheetOpen(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSheetParam, selectedPlan?.id]);
 
@@ -650,38 +588,6 @@ const MealPlansPage = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlan?.id]);
-
-  const fetchRecipes = async () => {
-    const cached = clientCache.get<Recipe[]>('/api/recipes');
-    if (cached) { setRecipes(cached); return; }
-    try {
-      const response = await fetch('/api/recipes');
-      if (!response.ok) throw new Error('Failed to fetch recipes');
-      const data = await response.json();
-      const list = Array.isArray(data) ? data : [];
-      clientCache.set('/api/recipes', list);
-      setRecipes(list);
-    } catch (error) {
-      console.error('Error fetching recipes:', error);
-      setRecipes([]);
-    }
-  };
-
-  const fetchIngredients = async () => {
-    const cached = clientCache.get<Ingredient[]>('/api/ingredients?slim=true');
-    if (cached) { setIngredients(cached); return; }
-    try {
-      const response = await fetch('/api/ingredients?slim=true');
-      if (!response.ok) throw new Error('Failed to fetch ingredients');
-      const data = await response.json();
-      const list = Array.isArray(data) ? data : [];
-      clientCache.set('/api/ingredients?slim=true', list);
-      setIngredients(list);
-    } catch (error) {
-      console.error('Error fetching ingredients:', error);
-      setIngredients([]);
-    }
-  };
 
   const handleDeleteMealPlan = async (planId: number) => {
     if (!await dialog.confirm({ title: 'Delete this plan?', body: "All meals will be removed. This can't be undone.", confirmLabel: 'Delete', danger: true })) return;
@@ -753,38 +659,6 @@ const MealPlansPage = () => {
     setAnalysisRefreshKey(k => k + 1);
   };
 
-  const handleAddIngredientMeal = async (
-    date: Date,
-    mealType: string,
-    ingredientId: number,
-    quantity: number,
-    unit: string,
-    alsoAddToPlanIds?: number[]
-  ) => {
-    const planId = selectedPlanId ?? selectedPlan?.id;
-    if (!planId) { toast.error('No meal plan selected'); return; }
-    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const body = { ingredientId, quantity, unit, date: dateStr, mealType };
-    const newMeal = await addMealToPlan(planId, body);
-    if (alsoAddToPlanIds) {
-      for (const otherPlanId of alsoAddToPlanIds) {
-        await addMealToPlan(otherPlanId, body);
-      }
-    }
-    // Optimistic: add meal to local state immediately
-    setSelectedPlan(prev => prev ? {
-      ...prev,
-      mealLogs: [...(prev.mealLogs || []), newMeal].sort((a: MealLog, b: MealLog) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime() || (a.position ?? 0) - (b.position ?? 0)
-      ),
-    } : prev);
-    toast.success('Ingredient added successfully!');
-
-    // Background refresh for nutrition recalc (non-blocking)
-    fetchMealPlanDetails(planId);
-    setAnalysisRefreshKey(k => k + 1);
-  };
-
   const handleRemoveMeal = async (mealId: number) => {
     if (!selectedPlanId) return;
     try {
@@ -833,83 +707,6 @@ const MealPlansPage = () => {
     }
   };
 
-  function fmtQty(n: number): string {
-    if (n === Math.floor(n)) return String(Math.floor(n));
-    return Number(n.toFixed(2)).toString();
-  }
-
-  const openShoppingList = async () => {
-    setShopSheetOpen(true);
-    if (!selectedPlan) return;
-    // Load checked state: prefer server value, fall back to localStorage
-    try {
-      if (selectedPlan.shoppingChecked) {
-        setCheckedItems(new Set(JSON.parse(selectedPlan.shoppingChecked) as string[]));
-      } else {
-        const saved = localStorage.getItem(`shopping-checked-${selectedPlan.id}`);
-        setCheckedItems(saved ? new Set(JSON.parse(saved) as string[]) : new Set());
-      }
-    } catch { setCheckedItems(new Set()); }
-    setShopLoading(true);
-    try {
-      const res = await fetch(`/api/meal-plans/${selectedPlan.id}/shopping-list`);
-      const data = await res.json();
-      setShopItems(Array.isArray(data.items) ? data.items : []);
-    } catch {
-      toast.error('Failed to load shopping list');
-    } finally {
-      setShopLoading(false);
-    }
-  };
-
-  const handleShareList = async () => {
-    if (!selectedPlan) return;
-    const s = parseUTCDate(selectedPlan.weekStartDate);
-    const e = new Date(s); e.setDate(e.getDate() + 6);
-    const range = s.getMonth() === e.getMonth()
-      ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
-      : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const SHARE_CAT_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains, Pasta & Bread','Legumes','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
-    const unchecked = shopItems.filter(item => !checkedItems.has(`${item.name}-${item.unit}`));
-    const sorted = [...unchecked].sort((a, b) => {
-      const ac = a.category || ''; const bc = b.category || '';
-      const ai = SHARE_CAT_ORDER.indexOf(ac); const bi = SHARE_CAT_ORDER.indexOf(bc);
-      const aIdx = ai === -1 ? 999 : ai; const bIdx = bi === -1 ? 999 : bi;
-      if (aIdx !== bIdx) return aIdx - bIdx;
-      return a.name.localeCompare(b.name);
-    });
-    const lines = sorted.map(item => `${item.name} (${fmtQty(item.qty)} ${item.unit})`).join('\n');
-    const text = `Shopping List — ${range}\n\n${lines}`;
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try { await navigator.share({ title: 'Shopping List', text }); } catch { /* cancelled */ }
-    } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        toast.success('Copied to clipboard');
-      } catch { toast.error('Could not copy'); }
-    }
-  };
-
-  // useLayoutEffect so slot is set before first paint — prevents 02/04 PLANNER flash
-  const handleShareRef = useRef(handleShareList);
-  handleShareRef.current = handleShareList;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const closeShopRef = useRef(closeShopOverlay);
-  closeShopRef.current = closeShopOverlay;
-  useLayoutEffect(() => {
-    if (shopSheetOpen) {
-      setRightSlot(
-        <button type="button" className="mob-rail-action" onClick={() => handleShareRef.current()}>Share</button>
-      );
-      setOverlayClose(() => () => closeShopRef.current());
-    } else {
-      setRightSlot(null);
-      setOverlayClose(null);
-    }
-    return () => { setRightSlot(null); setOverlayClose(null); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shopSheetOpen]);
-
   const toggleSelectMeal = (id: number) => {
     setSelectedMealIds((prev) => {
       const next = new Set(prev);
@@ -925,17 +722,6 @@ const MealPlansPage = () => {
     setSelectedMealIds(new Set());
     setEditMode(false);
   };
-
-  // Find other people's plans for the same week (for "also add to" feature)
-  const otherPersonPlans = selectedPlan && selectedPersonId
-    ? allPersonPlansForWeek
-        .filter((p) => p.personId !== selectedPersonId && p.personId !== null)
-        .map((p) => {
-          const person = persons.find((per) => per.id === p.personId);
-          return person ? { personId: person.id, planId: p.id, name: person.name } : null;
-        })
-        .filter((x): x is { personId: number; planId: number; name: string } => x !== null)
-    : [];
 
   if (loading && selectedPersonId !== null) {
     return (
@@ -1017,18 +803,16 @@ const MealPlansPage = () => {
         >This Week</button>
 
         {/* Shopping list button */}
-        {selectedPlan && (
-          <button
-            className="pl-cart-btn"
-            onClick={openShoppingList}
-            aria-label="View shopping list"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-            </svg>
-          </button>
-        )}
+        <Link
+          href="/shopping"
+          className="pl-cart-btn"
+          aria-label="View shopping list"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+        </Link>
 
 
 
@@ -1542,135 +1326,6 @@ const MealPlansPage = () => {
         );
       })()}
 
-      {/* Shopping list — full-screen editorial overlay */}
-      {shopSheetOpen && createPortal(
-        <div className={`pl-shop-overlay${shopClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true" aria-label="Shopping list">
-          {/* Body */}
-          <div className="pl-shop-body">
-            {selectedPlan && (() => {
-              const s = parseUTCDate(selectedPlan.weekStartDate);
-              const e = new Date(s); e.setDate(e.getDate() + 6);
-              const range = s.getMonth() === e.getMonth()
-                ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()} – ${e.getDate()}`
-                : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}`;
-              const recipeCount = new Set((selectedPlan.mealLogs || []).filter(m => m.recipe).map(m => m.recipe!.id)).size;
-              const peopleNames = persons.map(p => p.name).filter(Boolean);
-              const peopleStr = peopleNames.length === 0 ? '' : peopleNames.length === 1 ? peopleNames[0] : peopleNames.length === 2 ? `${peopleNames[0]} and ${peopleNames[1]}` : `${peopleNames.slice(0, -1).join(', ')} and ${peopleNames[peopleNames.length - 1]}`;
-              return (
-                <>
-                  <div className="pl-shop-eyebrow">§ {range}</div>
-                  <h1 className="pl-shop-title">A week of meals.</h1>
-                </>
-              );
-            })()}
-
-            <div className="pl-shop-grid">
-              {shopLoading ? (
-                <div className="shop-empty">Loading…</div>
-              ) : shopItems.length === 0 ? (
-                <div className="shop-empty">No ingredients in this week&apos;s plan</div>
-              ) : (() => {
-                const CATEGORY_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Grains, Pasta & Bread','Legumes','Baking','Nuts & Seeds','Spices & Seasonings','Condiments & Sauces','Oils & Fats','Frozen','Canned & Jarred','Beverages','Alcohol','Snacks'];
-                const groups = new Map<string, typeof shopItems>();
-                for (const item of shopItems) {
-                  const cat = item.category || '';
-                  if (!groups.has(cat)) groups.set(cat, []);
-                  groups.get(cat)!.push(item);
-                }
-                const sortedCats = [...groups.keys()].sort((a, b) => {
-                  if (!a) return 1;
-                  if (!b) return -1;
-                  const ai = CATEGORY_ORDER.indexOf(a);
-                  const bi = CATEGORY_ORDER.indexOf(b);
-                  if (ai === -1 && bi === -1) return a.localeCompare(b);
-                  if (ai === -1) return 1;
-                  if (bi === -1) return -1;
-                  return ai - bi;
-                });
-
-                const saveChecked = (newSet: Set<string>) => {
-                  const arr = [...newSet];
-                  if (selectedPlan) {
-                    try { localStorage.setItem(`shopping-checked-${selectedPlan.id}`, JSON.stringify(arr)); } catch {}
-                    fetch(`/api/meal-plans/${selectedPlan.id}/shopping-checked`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ checked: arr }),
-                    }).then(() => clientCache.delete(`/api/meal-plans/${selectedPlan.id}`)).catch(console.error);
-                  }
-                };
-
-                return (
-                  <>
-                    {sortedCats.map(cat => {
-                      const allItems = groups.get(cat)!;
-                      const items = hideChecked ? allItems.filter(i => !checkedItems.has(`${i.name}-${i.unit}`)) : allItems;
-                      if (items.length === 0) return null;
-                      const catLabel = cat || 'Other';
-                      const catKeys = allItems.map(i => `${i.name}-${i.unit}`);
-                      const allChecked = catKeys.every(k => checkedItems.has(k));
-                      const someChecked = catKeys.some(k => checkedItems.has(k));
-                      return (
-                        <div key={cat} className="pl-shop-cat">
-                          <div
-                            className="shop-cat-header pl-shop-cat-header"
-                            onClick={() => {
-                              setCheckedItems(prev => {
-                                const n = new Set(prev);
-                                if (allChecked) { catKeys.forEach(k => n.delete(k)); }
-                                else { catKeys.forEach(k => n.add(k)); }
-                                saveChecked(n);
-                                return n;
-                              });
-                            }}
-                          >
-                            <span className={`shop-checkbox${allChecked ? ' shop-checkbox--active shop-checkbox--checked' : someChecked ? ' shop-checkbox--active' : ''}`}>
-                              {allChecked && <svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                              {!allChecked && someChecked && <span className="shop-checkbox-dash" />}
-                            </span>
-                            <span className="shop-cat-label">{catLabel}</span>
-                            <span className="pl-shop-cat-count">{allItems.length}</span>
-                          </div>
-                          <ul className="shop-items">
-                            {items.map((item, i) => {
-                              const itemKey = `${item.name}-${item.unit}`;
-                              const checked = checkedItems.has(itemKey);
-                              return (
-                                <li
-                                  key={i}
-                                  className="shop-item"
-                                  onClick={() => {
-                                    setCheckedItems(prev => {
-                                      const n = new Set(prev);
-                                      checked ? n.delete(itemKey) : n.add(itemKey);
-                                      saveChecked(n);
-                                      return n;
-                                    });
-                                  }}
-                                >
-                                  <span className={`shop-item-checkbox${checked ? ' checked' : ''}`}>
-                                    {checked && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                                  </span>
-                                  <span className={`shop-item-text${checked ? ' checked' : ''}`}>
-                                    <span className="shop-item-qty">{fmtQty(item.qty)} {item.unit} </span>
-                                    {item.name}
-                                  </span>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      );
-                    })}
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
       {/* Main Content */}
       <div className="pl-wrap animate-page-enter" style={{ flex: 1, minHeight: 0 }}>
         {viewMode === 'both' && selectedPlan ? (
@@ -1703,10 +1358,6 @@ const MealPlansPage = () => {
                     dayNutrients: day.totalNutrients,
                   })) || []
                 }
-                recipes={recipes}
-                ingredients={ingredients}
-                onAddRecipeMeal={handleAddRecipeMeal}
-                onAddIngredientMeal={handleAddIngredientMeal}
                 onRemoveMeal={handleRemoveMeal}
                 onError={(msg) => toast.error(msg)}
                 selectedDay={(summaryPanelOpen || mobNutSheetOpen) ? selectedDay : null}
@@ -1716,10 +1367,8 @@ const MealPlansPage = () => {
                 editMode={editMode}
                 selectedMealIds={selectedMealIds}
                 onToggleMealSelect={toggleSelectMeal}
-                otherPersonPlans={otherPersonPlans}
                 recipeCaloriesMap={selectedPlan.recipeCaloriesMap}
                 mealLogCaloriesMap={selectedPlan.mealLogCaloriesMap}
-                onRefreshIngredients={fetchIngredients}
                 personName={persons.find((p) => p.id === selectedPersonId)?.name}
                 personColor={persons.find((p) => p.id === selectedPersonId)?.color}
                 onNavigatePrevWeek={mealPlans.length > 1 && selectedPlan ? () => {

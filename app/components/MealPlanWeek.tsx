@@ -1,14 +1,10 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from '@/lib/toast';
 import { dialog } from '@/lib/dialog';
-import { clientCache } from '@/lib/clientCache';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { useBottomRailSlot } from './BottomRailContext';
 
 interface Recipe {
   id: number;
@@ -60,10 +56,6 @@ interface MealPlanWeekProps {
   mealPlanId: number;
   weekStartDate: Date;
   days: DayMeals[];
-  recipes: Recipe[];
-  ingredients: Ingredient[];
-  onAddRecipeMeal: (date: Date, mealType: string, recipeId: number, servings: number, alsoAddToPlanIds?: number[]) => Promise<void>;
-  onAddIngredientMeal: (date: Date, mealType: string, ingredientId: number, quantity: number, unit: string, alsoAddToPlanIds?: number[]) => Promise<void>;
   onRemoveMeal: (mealId: number) => Promise<void>;
   onError?: (message: string) => void;
   isLoading?: boolean;
@@ -72,10 +64,8 @@ interface MealPlanWeekProps {
   editMode?: boolean;
   selectedMealIds?: Set<number>;
   onToggleMealSelect?: (id: number) => void;
-  otherPersonPlans?: { personId: number; planId: number; name: string }[];
   recipeCaloriesMap?: Record<number, number>;
   mealLogCaloriesMap?: Record<number, number>;
-  onRefreshIngredients?: () => void;
   personName?: string;
   personColor?: string;
   onNavigatePrevWeek?: () => void;
@@ -194,10 +184,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   mealPlanId,
   weekStartDate,
   days,
-  recipes,
-  ingredients,
-  onAddRecipeMeal,
-  onAddIngredientMeal,
   onRemoveMeal,
   onError,
   isLoading = false,
@@ -206,10 +192,8 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   editMode = false,
   selectedMealIds = new Set(),
   onToggleMealSelect,
-  otherPersonPlans = [],
   recipeCaloriesMap = {},
   mealLogCaloriesMap = {},
-  onRefreshIngredients,
   personName,
   personColor,
   onNavigatePrevWeek,
@@ -217,94 +201,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   onOpenNutrition,
 }) => {
   const router = useRouter();
-  const [selectedDayMeal, setSelectedDayMeal] = useState<{
-    date: Date;
-    mealType: string;
-  } | null>(null);
-  const [mealTypeDropdownOpen, setMealTypeDropdownOpen] = useState(false);
-  const [itemTypeTabOpen, setItemTypeTabOpen] = useState<'recipe' | 'ingredient' | null>(null);
-  const [recipeDropdownOpen, setRecipeDropdownOpen] = useState(false);
-  const [ingredientDropdownOpen, setIngredientDropdownOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [addingMealLoading, setAddingMealLoading] = useState(false);
-  const [selectedServings, setSelectedServings] = useState('1');
-  const [selectedQuantity, setSelectedQuantity] = useState('100');
-  const [selectedUnit, setSelectedUnit] = useState('g');
-  const [ingredientSearchTerm, setIngredientSearchTerm] = useState('');
-  const [pendingRecipeId, setPendingRecipeId] = useState<number | null>(null);
-  const [pendingIngredientId, setPendingIngredientId] = useState<number | null>(null);
-  const [newFoodName, setNewFoodName] = useState('');
-  const [creatingFood, setCreatingFood] = useState(false);
-  const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
-  const [sheetTouchBlocked, setSheetTouchBlocked] = useState(false);
-  const [closingMealType, setClosingMealType] = useState(false);
-  const [closingRecipePicker, setClosingRecipePicker] = useState(false);
-  const [mealTypeContentVisible, setMealTypeContentVisible] = useState(false);
-  const [addOverlayClosing, setAddOverlayClosing] = useState(false);
-  const closeAddOverlay = () => {
-    setAddOverlayClosing(true);
-    setTimeout(() => {
-      setMealTypeDropdownOpen(false);
-      setItemTypeTabOpen(null);
-      setSelectedDate(null);
-      setSelectedDayMeal(null);
-      setAddOverlayClosing(false);
-    }, 280);
-  };
-
-  // Bottom rail right-slot: show date/person status when add-meal overlay is open
-  const { setRightSlot, setOverlayClose } = useBottomRailSlot();
-  const closeAddOverlayRef = useRef(closeAddOverlay);
-  closeAddOverlayRef.current = closeAddOverlay;
-  useLayoutEffect(() => {
-    const overlayOpen = mealTypeDropdownOpen || !!itemTypeTabOpen;
-    if (overlayOpen) {
-      const d = selectedDayMeal?.date || selectedDate;
-      const dStr = d
-        ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()
-        : null;
-      setRightSlot(
-        <span className="mob-rail-status">
-          {dStr}{personName ? ` · ${personName.toUpperCase()}` : ''}
-        </span>
-      );
-      setOverlayClose(() => () => closeAddOverlayRef.current());
-    } else {
-      setRightSlot(null);
-      setOverlayClose(null);
-    }
-    return () => { setRightSlot(null); setOverlayClose(null); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mealTypeDropdownOpen, itemTypeTabOpen, selectedDate, selectedDayMeal, personName]);
-
-  // Block all interaction on newly opened sheets by rendering a transparent
-  // overlay div on top. This is a physical DOM blocker — no event handling
-  // tricks needed. Removed after 500ms.
-  const blockSheetTouches = () => {
-    setSheetTouchBlocked(true);
-    setTimeout(() => setSheetTouchBlocked(false), 500);
-  };
-
-  // Animate sheet out before unmounting (Emil: exit faster than enter)
-  const closeMealTypeSheet = () => {
-    setClosingMealType(true);
-    setMealTypeContentVisible(false);
-    setTimeout(() => {
-      setClosingMealType(false);
-      setMealTypeDropdownOpen(false);
-      setSelectedDate(null);
-    }, 180);
-  };
-
-  const closeRecipePickerSheet = () => {
-    setClosingRecipePicker(true);
-    setTimeout(() => {
-      setClosingRecipePicker(false);
-      setItemTypeTabOpen(null);
-      setSelectedDayMeal(null);
-      setIngredientSearchTerm('');
-    }, 180);
-  };
 
   // Ghost click buster: track last touchend time on +Add buttons to ignore
   // iOS Safari's synthetic click that fires ~300ms after touchend
@@ -334,131 +230,11 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
   const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
 
-  const handleCreateQuickFood = async () => {
-    if (!newFoodName.trim()) return;
-    setCreatingFood(true);
-    try {
-      const res = await fetch('/api/ingredients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newFoodName.trim(), isMealItem: true, defaultUnit: 'g' }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.error || 'Failed to create food');
-        return;
-      }
-      toast.success(`${newFoodName.trim()} added`);
-      setNewFoodName('');
-      clientCache.delete('/api/ingredients?slim=true');
-      onRefreshIngredients?.();
-    } catch {
-      toast.error('Failed to create food');
-    } finally {
-      setCreatingFood(false);
-    }
-  };
-
   const handleAddMealClick = (date: Date) => {
-    setSelectedDate(date);
-    blockSheetTouches();
-    setMealTypeDropdownOpen(true);
-    setMealTypeContentVisible(false);
-    setTimeout(() => setMealTypeContentVisible(true), 350);
-  };
-
-  const handleSelectMealType = (mealType: string) => {
-    if (!selectedDate) return;
-    setSelectedDayMeal({ date: selectedDate, mealType });
-    setMealTypeDropdownOpen(false);
-    blockSheetTouches();
-    setItemTypeTabOpen('recipe');
-    setRecipeFilterTags([mealType.toLowerCase()]);
-  };
-
-  const handleSelectRecipe = async (recipeId: number) => {
-    if (!selectedDayMeal) return;
-
-    const recipe = recipes.find((r) => r.id === recipeId);
-    if (recipe && recipe.isComplete === false) {
-      toast.error('This recipe is incomplete. Please finish adding ingredients before using it in a meal plan.');
-      return;
-    }
-
-    setAddingMealLoading(true);
-    try {
-      const parsedServings = parseFloat(selectedServings);
-      if (!Number.isFinite(parsedServings) || parsedServings <= 0) {
-        toast.error('Please enter a valid number of servings');
-        setAddingMealLoading(false);
-        return;
-      }
-      await onAddRecipeMeal(
-        selectedDayMeal.date,
-        selectedDayMeal.mealType,
-        recipeId,
-        parsedServings,
-        alsoAddToPlanIds.size > 0 ? Array.from(alsoAddToPlanIds) : undefined
-      );
-      setPendingRecipeId(null);
-      setSelectedServings('1');
-      setAlsoAddToPlanIds(new Set());
-      setSelectedDayMeal(null);
-      setItemTypeTabOpen(null);
-      setRecipeDropdownOpen(false);
-      setRecipeSearchTerm('');
-      setRecipeFilterTags([]);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to add meal';
-      console.error('Error adding meal:', error);
-      if (onError) {
-        onError(errorMessage);
-      } else {
-        toast.error(errorMessage);
-      }
-    } finally {
-      setAddingMealLoading(false);
-    }
-  };
-
-  const handleSelectIngredient = async (ingredientId: number) => {
-    if (!selectedDayMeal) return;
-
-    const normalizedQuantity = parseFloat(selectedQuantity);
-    if (!Number.isFinite(normalizedQuantity) || normalizedQuantity <= 0) {
-      toast.error('Please enter a valid quantity');
-      return;
-    }
-
-    setAddingMealLoading(true);
-    try {
-      await onAddIngredientMeal(
-        selectedDayMeal.date,
-        selectedDayMeal.mealType,
-        ingredientId,
-        normalizedQuantity,
-        selectedUnit,
-        alsoAddToPlanIds.size > 0 ? Array.from(alsoAddToPlanIds) : undefined
-      );
-      setPendingIngredientId(null);
-      setAlsoAddToPlanIds(new Set());
-      setSelectedDayMeal(null);
-      setItemTypeTabOpen(null);
-      setIngredientDropdownOpen(false);
-      setSelectedQuantity('100');
-      setSelectedUnit('g');
-      setIngredientSearchTerm('');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to add meal';
-      console.error('Error adding meal:', error);
-      if (onError) {
-        onError(errorMessage);
-      } else {
-        toast.error(errorMessage);
-      }
-    } finally {
-      setAddingMealLoading(false);
-    }
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const weekStartStr = `${weekStartDate.getFullYear()}-${String(weekStartDate.getMonth() + 1).padStart(2, '0')}-${String(weekStartDate.getDate()).padStart(2, '0')}`;
+    const personQ = personName ? `&person=${encodeURIComponent(personName)}` : '';
+    router.push(`/meal-plans/add-meal?planId=${mealPlanId}&date=${dateStr}&weekStart=${weekStartStr}${personQ}`);
   };
 
   const handleRemoveMeal = async (mealId: number) => {
@@ -470,29 +246,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       console.error('Error removing meal:', error);
     }
   };
-
-  const [recipeSearchTerm, setRecipeSearchTerm] = useState('');
-  const [recipeFilterTags, setRecipeFilterTags] = useState<string[]>([]);
-  const availableRecipeTags = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
-
-  const filteredRecipes = useMemo(() => {
-    let result = recipes;
-    // Search filter
-    if (recipeSearchTerm) {
-      const term = recipeSearchTerm.toLowerCase();
-      result = result.filter((r) => r.name.toLowerCase().includes(term));
-    }
-    // Tag filter — initially set to the meal type when the modal opens,
-    // but the user can toggle tags freely (deselect to see all, or pick a different category)
-    if (recipeFilterTags.length > 0) {
-      result = result.filter((r) => {
-        if (!r.tags) return false;
-        const tags = r.tags.split(',').map((t) => t.trim().toLowerCase());
-        return recipeFilterTags.some((ft) => tags.includes(ft));
-      });
-    }
-    return result;
-  }, [recipes, recipeSearchTerm, recipeFilterTags]);
 
   const isToday = (date: Date) => {
     const today = new Date();
@@ -767,298 +520,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         </div>
       )}
 
-      {(mealTypeDropdownOpen || itemTypeTabOpen) && (selectedDate || selectedDayMeal) && createPortal(
-        <div className={`pl-add-overlay${addOverlayClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true" aria-label="Add meal">
-          {/* Step 1 — pick a meal type */}
-          {!itemTypeTabOpen && selectedDate && (
-            <div key="step-1" className="pl-add-step pl-add-step--in pl-add-body">
-              <div className="pl-add-eyebrow">§ Step one</div>
-              <h1 className="pl-add-title">Pick a meal type.</h1>
-              <ul className="pl-add-mtlist">
-                {availableMealTypes.map((mealType, idx) => (
-                  <li key={mealType}>
-                    <button
-                      type="button"
-                      className="pl-add-mtrow"
-                      onClick={() => handleSelectMealType(mealType)}
-                    >
-                      <span className="pl-add-mtnum">{String(idx + 1).padStart(2, '0')}</span>
-                      <span className="pl-add-mtname">{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
-                      <span className="pl-add-mtarrow" aria-hidden="true">→</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Step 2 — pick the recipe */}
-          {itemTypeTabOpen && selectedDayMeal && (
-          <div key="step-2" className="pl-add-step pl-add-step--in pl-add-body pl-add-body--step2">
-            <div className="pl-add-eyebrow">§ Step two</div>
-            <h1 className="pl-add-title">Pick a {selectedDayMeal.mealType}.</h1>
-
-            <div className="ed-toggle pl-add-tabs">
-              <button
-                type="button"
-                onClick={() => setItemTypeTabOpen('recipe')}
-                className={itemTypeTabOpen === 'recipe' ? 'is-active' : ''}
-              >Recipes</button>
-              <button
-                type="button"
-                onClick={() => setItemTypeTabOpen('ingredient')}
-                className={itemTypeTabOpen === 'ingredient' ? 'is-active' : ''}
-              >Items</button>
-            </div>
-
-            <div className="pl-add-scroll">
-              {itemTypeTabOpen === 'recipe' ? (
-                <>
-                  {/* Search + servings controls */}
-                  <div className="flex flex-wrap items-center gap-3 mb-3">
-                    <div className="flex-1 flex items-center gap-2 min-w-[180px]">
-                      <label className="pl-create-label" htmlFor="recipe-search">Search</label>
-                      <input
-                        id="recipe-search"
-                        type="text"
-                        placeholder="Find recipe..."
-                        className="pl-create-date"
-                        style={{ flex: 1 }}
-                        value={recipeSearchTerm}
-                        onChange={(e) => setRecipeSearchTerm(e.target.value)}
-                        aria-label="Search recipes"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="pl-create-label" htmlFor="meal-servings">Servings</label>
-                      <input
-                        id="meal-servings"
-                        type="number"
-                        min={0.25}
-                        step={0.25}
-                        className="pl-create-date"
-                        style={{ width: 60 }}
-                        value={selectedServings}
-                        onChange={(e) => setSelectedServings(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Tag filter chips */}
-                  <div className="flex flex-wrap gap-[10px] mb-4 items-center">
-                    {availableRecipeTags.map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        className={`pl-person-chip ${recipeFilterTags.includes(tag) ? 'on' : ''}`}
-                        onClick={() =>
-                          setRecipeFilterTags((prev) =>
-                            prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-                          )
-                        }
-                        aria-pressed={recipeFilterTags.includes(tag)}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                    {recipeFilterTags.length > 0 && (
-                      <button
-                        type="button"
-                        className="pl-cancel-btn"
-                        onClick={() => setRecipeFilterTags([])}
-                      >
-                        clear
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid gap-0 md:grid-cols-2">
-                    {filteredRecipes.length === 0 ? (
-                      <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
-                        No recipes match this meal type
-                      </div>
-                    ) : (
-                      filteredRecipes.map((recipe) => (
-                        <button
-                          key={recipe.id}
-                          type="button"
-                          className={`meal-chip text-left ${
-                            recipe.isComplete === false
-                              ? 'cursor-not-allowed opacity-50'
-                              : pendingRecipeId === recipe.id
-                              ? 'bg-[var(--bg-2)]'
-                              : ''
-                          }`}
-                          onClick={
-                            addingMealLoading || !recipe.isComplete
-                              ? undefined
-                              : () => setPendingRecipeId(recipe.id)
-                          }
-                          title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
-                          disabled={addingMealLoading}
-                          aria-label={recipe.name}
-                        >
-                          <span className="meal-chip-name">{recipe.name}</span>
-                          <span className="meal-chip-kcal">
-                            {recipe.servingSize} {recipe.servingUnit}
-                            {!recipe.isComplete && ' · Incomplete'}
-                          </span>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex flex-wrap gap-3 mb-4">
-                    <div className="flex-1 flex items-center gap-2 min-w-max">
-                      <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
-                      <input
-                        id="ingredient-search"
-                        type="text"
-                        placeholder="Find item..."
-                        className="pl-create-date"
-                        style={{ flex: 1 }}
-                        value={ingredientSearchTerm}
-                        onChange={(e) => setIngredientSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="pl-create-label" htmlFor="ingredient-quantity">Quantity</label>
-                      <input
-                        id="ingredient-quantity"
-                        type="number"
-                        min={0.01}
-                        step={0.1}
-                        className="pl-create-date"
-                        style={{ width: 60 }}
-                        value={selectedQuantity}
-                        onChange={(e) => setSelectedQuantity(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="pl-create-label" htmlFor="ingredient-unit">Unit</label>
-                      <input
-                        id="ingredient-unit"
-                        type="text"
-                        className="pl-create-date"
-                        style={{ width: 60 }}
-                        value={selectedUnit}
-                        onChange={(e) => setSelectedUnit(e.target.value)}
-                        placeholder="g, ml, etc."
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-0 md:grid-cols-2">
-                    {ingredients.filter(ing =>
-                      ing.isMealItem && ing.name.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
-                    ).length === 0 ? (
-                      <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
-                        {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No items available' : 'No items match your search'}
-                      </div>
-                    ) : (
-                      ingredients.filter(ing =>
-                        ing.isMealItem && ing.name.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
-                      ).map((ingredient) => (
-                        <button
-                          key={ingredient.id}
-                          type="button"
-                          onClick={() => {
-                            const unit = ingredient.customUnitName || ingredient.defaultUnit;
-                            const qty = ingredient.customUnitName ? '1' : selectedQuantity;
-                            setSelectedUnit(unit);
-                            setSelectedQuantity(qty);
-                            setPendingIngredientId(ingredient.id);
-                          }}
-                          disabled={addingMealLoading}
-                          className={`meal-chip text-left ${
-                            pendingIngredientId === ingredient.id ? 'bg-[var(--bg-2)]' : ''
-                          }`}
-                          aria-label={ingredient.name}
-                        >
-                          <span className="meal-chip-name">{ingredient.name}</span>
-                          <span className="meal-chip-kcal">
-                            {ingredient.customUnitName
-                              ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
-                              : `per ${ingredient.defaultUnit}`}
-                          </span>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4">
-              {/* Also add to other people — left side */}
-              {otherPersonPlans.length > 0 && (
-                <div className="flex items-center gap-3 flex-wrap flex-1">
-                  <span className="pl-create-label">Also add to</span>
-                  {otherPersonPlans.map((op) => (
-                    <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={alsoAddToPlanIds.has(op.planId)}
-                        onChange={(e) => {
-                          const next = new Set(alsoAddToPlanIds);
-                          if (e.target.checked) next.add(op.planId);
-                          else next.delete(op.planId);
-                          setAlsoAddToPlanIds(next);
-                        }}
-                        className="w-[14px] h-[14px]"
-                        aria-label={`Also add to ${op.name}'s plan`}
-                      />
-                      <span className="font-mono text-[11px] text-[var(--muted)]">
-                        {op.name}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-              {/* Buttons — right side */}
-              <div className="flex gap-3 ml-auto">
-                <button
-                  className="pl-cancel-btn"
-                  onClick={() => {
-                    setItemTypeTabOpen(null);
-                    setSelectedDayMeal(null);
-                    setIngredientSearchTerm('');
-                    setRecipeSearchTerm('');
-                    setRecipeFilterTags([]);
-                    setPendingRecipeId(null);
-                    setPendingIngredientId(null);
-                    setAlsoAddToPlanIds(new Set());
-                  }}
-                  aria-label="Cancel"
-                >
-                  Cancel
-                </button>
-                <button
-                  className="pl-create-btn"
-                  disabled={
-                    addingMealLoading ||
-                    (itemTypeTabOpen === 'recipe' ? !pendingRecipeId : !pendingIngredientId)
-                  }
-                  onClick={() => {
-                    if (itemTypeTabOpen === 'recipe' && pendingRecipeId) {
-                      handleSelectRecipe(pendingRecipeId);
-                    } else if (pendingIngredientId) {
-                      handleSelectIngredient(pendingIngredientId);
-                    }
-                  }}
-                  aria-label="Add to plan"
-                >
-                  {addingMealLoading ? 'Adding...' : 'Add to Plan'}
-                </button>
-              </div>
-            </div>
-          </div>
-          )}
-        </div>,
-        document.body
-      )}
     </>
   );
 };

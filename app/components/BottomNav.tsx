@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { useBottomRailSlot } from "./BottomRailContext";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 
 const SECTIONS = [
   { href: "/home",        label: "Home",     idx: 1 },
@@ -19,11 +18,23 @@ function isActive(href: string, pathname: string) {
   return href === "/home" ? pathname === "/home" : pathname.startsWith(href);
 }
 
+function AddMealStatus() {
+  const params = useSearchParams();
+  const date = params?.get("date");
+  const person = params?.get("person");
+  if (!date) return null;
+  const d = new Date(date + "T00:00:00");
+  const dStr = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
+  return (
+    <span className="mob-rail-status">
+      {dStr}{person ? ` · ${person.toUpperCase()}` : ""}
+    </span>
+  );
+}
+
 export default function BottomNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { rightSlot, overlayClose } = useBottomRailSlot();
-  const isOverlay = overlayClose !== null;
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
@@ -41,8 +52,11 @@ export default function BottomNav() {
 
   if (!pathname || HIDDEN.has(pathname)) return null;
 
+  const isShopping = pathname === "/shopping";
+  const isAddMeal = pathname === "/meal-plans/add-meal";
+
   const current = SECTIONS.find(s => isActive(s.href, pathname));
-  const indexLabel = current?.idx != null
+  const indexLabel = !isShopping && !isAddMeal && current?.idx != null
     ? `${String(current.idx).padStart(2, "0")}/${String(TOTAL).padStart(2, "0")} — ${current.label}`
     : null;
 
@@ -57,9 +71,25 @@ export default function BottomNav() {
         >
           Menu
         </button>
-        {rightSlot ?? (indexLabel && (
+
+        {isShopping && (
+          <button
+            type="button"
+            className="mob-rail-action"
+            onClick={() => window.dispatchEvent(new CustomEvent("shopping:share"))}
+            aria-label="Share shopping list"
+          >Share</button>
+        )}
+
+        {isAddMeal && (
+          <Suspense fallback={null}>
+            <AddMealStatus />
+          </Suspense>
+        )}
+
+        {indexLabel && (
           <span className="mob-rail-index" aria-current="page">{indexLabel}</span>
-        ))}
+        )}
       </nav>
 
       {menuOpen && (
@@ -85,17 +115,18 @@ export default function BottomNav() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  className={`mob-menu-item${!isOverlay && isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
-                  aria-current={!isOverlay && isActive(s.href, pathname) ? "page" : undefined}
-                  onClick={() => { overlayClose?.(); setMenuOpen(false); }}
+                  className={`mob-menu-item${isActive(s.href, pathname) && !isShopping && !isAddMeal ? " mob-menu-item--active" : ""}`}
+                  aria-current={isActive(s.href, pathname) && !isShopping && !isAddMeal ? "page" : undefined}
+                  onClick={() => setMenuOpen(false)}
                 >
                   {s.label}
                 </Link>
               ))}
               <Link
-                href="/meal-plans?openSheet=shopping"
-                className="mob-menu-item"
-                onClick={() => { overlayClose?.(); setMenuOpen(false); }}
+                href="/shopping"
+                className={`mob-menu-item${isShopping ? " mob-menu-item--active" : ""}`}
+                aria-current={isShopping ? "page" : undefined}
+                onClick={() => setMenuOpen(false)}
               >
                 Shopping
               </Link>
@@ -103,9 +134,9 @@ export default function BottomNav() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  className={`mob-menu-item${!isOverlay && isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
-                  aria-current={!isOverlay && isActive(s.href, pathname) ? "page" : undefined}
-                  onClick={() => { overlayClose?.(); setMenuOpen(false); }}
+                  className={`mob-menu-item${isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
+                  aria-current={isActive(s.href, pathname) ? "page" : undefined}
+                  onClick={() => setMenuOpen(false)}
                 >
                   {s.label}
                 </Link>
