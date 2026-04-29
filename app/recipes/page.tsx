@@ -71,6 +71,12 @@ function RecipesPage() {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const categoryRef = useRef<HTMLDivElement>(null);
 
+  // Prevent browser navigation from leaving focus on first list item
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   // Sync filter state → URL (no router navigation, no Suspense trigger)
   useEffect(() => {
     const params = new URLSearchParams();

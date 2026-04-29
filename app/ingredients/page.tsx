@@ -112,6 +112,12 @@ function IngredientsPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
+  // Prevent browser navigation from leaving focus on first list item
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   // Filter sheet (mobile bottom sheet)
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   useEffect(() => {

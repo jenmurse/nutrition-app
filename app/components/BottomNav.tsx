@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { dialog } from "@/lib/dialog";
 
 const SECTIONS = [
-  { href: "/home",        label: "Home",     idx: 1 },
-  { href: "/meal-plans",  label: "Planner",  idx: 2 },
-  { href: "/recipes",     label: "Recipes",  idx: 3 },
-  { href: "/ingredients", label: "Pantry",   idx: 4 },
-  { href: "/settings",    label: "Settings", idx: null },
+  { href: "/home",        label: "HOME"     },
+  { href: "/meal-plans",  label: "PLANNER"  },
+  { href: "/recipes",     label: "RECIPES"  },
+  { href: "/ingredients", label: "PANTRY"   },
+  { href: "/settings",    label: "SETTINGS" },
 ];
-const TOTAL = 4;
 const HIDDEN: Set<string> = new Set(["/", "/login", "/preview", "/onboarding", "/landing"]);
 
 function isActive(href: string, pathname: string) {
@@ -56,9 +57,24 @@ export default function BottomNav() {
   const isAddMeal = pathname === "/meal-plans/add-meal";
 
   const current = SECTIONS.find(s => isActive(s.href, pathname));
-  const indexLabel = !isShopping && !isAddMeal && current?.idx != null
-    ? `${String(current.idx).padStart(2, "0")}/${String(TOTAL).padStart(2, "0")} — ${current.label}`
-    : null;
+  const sectionLabel = !isShopping && !isAddMeal && current ? current.label : null;
+
+  const handleSignOut = async () => {
+    const confirmed = await dialog.confirm({
+      title: "Sign out?",
+      body: "You'll need to sign in again to access your data.",
+      confirmLabel: "Sign out",
+      danger: false,
+    });
+    if (!confirmed) return;
+    setMenuOpen(false);
+    sessionStorage.removeItem("selectedPersonId");
+    localStorage.removeItem("theme");
+    document.documentElement.removeAttribute("data-theme");
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
 
   return (
     <>
@@ -69,7 +85,7 @@ export default function BottomNav() {
           aria-expanded={menuOpen}
           aria-haspopup="dialog"
         >
-          Menu
+          MENU
         </button>
 
         {isShopping && (
@@ -78,7 +94,7 @@ export default function BottomNav() {
             className="mob-rail-action"
             onClick={() => window.dispatchEvent(new CustomEvent("shopping:share"))}
             aria-label="Share shopping list"
-          >Share</button>
+          >SHARE</button>
         )}
 
         {isAddMeal && (
@@ -87,8 +103,8 @@ export default function BottomNav() {
           </Suspense>
         )}
 
-        {indexLabel && (
-          <span className="mob-rail-index" aria-current="page">{indexLabel}</span>
+        {sectionLabel && (
+          <span className="mob-rail-index" aria-current="page">{sectionLabel}</span>
         )}
       </nav>
 
@@ -119,7 +135,7 @@ export default function BottomNav() {
                   aria-current={isActive(s.href, pathname) && !isShopping && !isAddMeal ? "page" : undefined}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {s.label}
+                  {s.label.charAt(0) + s.label.slice(1).toLowerCase()}
                 </Link>
               ))}
               <Link
@@ -138,10 +154,17 @@ export default function BottomNav() {
                   aria-current={isActive(s.href, pathname) ? "page" : undefined}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {s.label}
+                  {s.label.charAt(0) + s.label.slice(1).toLowerCase()}
                 </Link>
               ))}
             </nav>
+            <hr className="mob-menu-divider" />
+            <button
+              className="mob-menu-signout"
+              onClick={handleSignOut}
+            >
+              Sign out
+            </button>
           </div>
         </div>
       )}

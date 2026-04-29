@@ -52,6 +52,12 @@ export default function ShoppingPage() {
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [hideChecked, setHideChecked] = useState(false);
 
+  // Prevent browser navigation from leaving focus on first list item
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   useEffect(() => {
     if (!selectedPersonId) return;
     let cancelled = false;

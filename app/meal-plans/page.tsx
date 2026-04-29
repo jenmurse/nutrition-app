@@ -347,6 +347,12 @@ const MealPlansPage = () => {
   const selectedPlanId = searchParams?.get("planId") ? Number(searchParams.get("planId")) : null;
   const { persons, selectedPerson, selectedPersonId, setSelectedPersonId } = usePersonContext();
 
+  // Prevent browser navigation from leaving focus on first list item
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1264,20 +1264,6 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          {/* ════════════════════════════════════════════════════════════════════
-              SIGN OUT — mobile only
-              ════════════════════════════════════════════════════════════════════ */}
-          <div className="md:hidden" style={{ padding: '40px 0 24px' }}>
-            <div className="h-px bg-[var(--rule)] mb-[32px]" />
-            <button
-              onClick={handleSignOut}
-              className="ed-btn danger w-full py-[12px]"
-              aria-label="Sign out of your account"
-            >
-              Sign Out
-            </button>
-          </div>
-
         </div>
       </div>
     </div>

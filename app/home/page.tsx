@@ -88,6 +88,12 @@ export default function Home() {
   const router = useRouter();
   const { selectedPersonId, selectedPerson, persons, setSelectedPersonId, onboardingComplete } = usePersonContext();
 
+  // Prevent browser navigation from leaving focus on first list item
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   // Redirect to onboarding if not completed
   useEffect(() => {
     if (!onboardingComplete) {
