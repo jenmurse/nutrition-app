@@ -1,6 +1,7 @@
 # Step 2 — Linework + Radius Audit
 
-**Status:** Audit pass · April 28, 2026
+**Status:** In progress · April 28, 2026
+**Briefs landed:** 2A ✓ · 2B ✓ · 2B.1 ✓ · 2B.2 ✓ · 2C → · 2D → · 2E ☐ · 2F ☐ · 2G ☐
 **Output of:** Step 2 of the design pass (master-plan.md)
 **Source for:** the implementation brief that follows
 
@@ -42,7 +43,7 @@ What goes into design-system.md after Step 2 lands:
 | **Pill exceptions kept:** `.hm-mob-person-chip` (mobile dashboard person tabs) and `.mob-filter-badge` (notification count badge). Everything else sharp. | enforcement §1 |
 | `var(--accent)` / `var(--cta)` / `var(--accent-l)` reserved for identity markers only — NEVER on focus borders, hover states, selection backgrounds, or `::selection`. | enforcement §2 |
 | Easing is always `var(--ease-out)` = `cubic-bezier(0.23, 1, 0.32, 1)`. Never `linear`, `ease-in-out`, or `ease-in` for UI. | enforcement §3 |
-| Locked durations: {120, 240, 280, 320, 360, 420}ms. Any deviation is a bug unless intentional. | enforcement §3 |
+| Mobile back-link copy is always `← BACK`. Never `← BACK TO X`. Page eyebrow + title provide context. | Locked Apr 28, Brief 2D |
 
 ---
 
@@ -64,7 +65,7 @@ For each surface: **current** describes what's shipping (from the screenshots), 
 
 **Current:** "Menu" text label left, "NN/NN — SECTION" mono right. Sharp hairline above. No corner issues. This is the editorial rail (Option B) we locked.
 
-**Target:** Same. Plus on child screens (New Recipe, New Pantry Item, Add Meal, Shopping), child screens carry their own `← BACK TO X` row at the top while the rail stays constant.
+**Target:** Same. Plus on child screens (New Recipe, New Pantry Item, Add Meal, Shopping), child screens carry their own `← BACK` row at the top while the rail stays constant. Note: back-link copy is always `← BACK` — not `← BACK TO X`. Page eyebrow + title provide context; the back link navigates only.
 
 **Change:** No linework changes. IA-only changes are tracked in Step 4.
 
@@ -99,16 +100,20 @@ For each surface: **current** describes what's shipping (from the screenshots), 
 - Date range left ("APR 26 – MAY 2") · prev/next arrows · cart icon (filled `--bg-3` rounded tile) · chart icon (filled `--bg-3` rounded tile) · person chip pill right
 - No `+ NEW PLAN` button anywhere
 
-**Target (two-row toolbar — locked):**
-- Row 1 (44px): Date range · prev/next labels · person chip pill (right)
-- Row 2 (44px): SHOPPING › · NUTRITION › · `+ NEW PLAN` outlined (right)
-- Total toolbar height ~88px
+**Target (single-row toolbar — locked after Briefs 2B, 2B.1, 2B.2):**
+- Single row (44px): date range left · person chip pill + `+ NEW PLAN` outlined button right
+- PREV/NEXT dropped — week navigation via swipe on day strip
+- SHOPPING moved to menu sheet (reachable from multiple entry points)
+- NUTRITION moved to day-header (contextual to day/person — `VIEW NUTRITION ›` below kcal bar)
+- Person chip height matches toolbar button height (pill shape stays — identity exception)
 
 **Change items:**
-- **D-1** Cart and chart icons become text labels: `SHOPPING ›` and `NUTRITION ›`. Style: DM Mono 9px UPPERCASE, no border, no fill, hover `var(--fg)`.
-- **D-2** Add `+ NEW PLAN` button as `.btn-outline` (sharp outlined, `var(--rule)` border) — not filled — matching the desktop planner toolbar. Filled black is reserved for the single primary CTA per page; `+ NEW PLAN` is secondary.
-- **D-3** Toolbar wraps to two rows. Row 1 holds locator/identity (where you are, who you are). Row 2 holds actions (what you can do). Hairline divider between the rows.
-- **D-4** Person chip pill stays in Row 1 right side (locked identity exception).
+- **D-1** Cart and chart icons removed. SHOPPING goes to menu sheet. NUTRITION goes to day-header.
+- **D-2** Add `+ NEW PLAN` button as `.btn-outline` (sharp outlined, `var(--rule)` border) — not filled.
+- **D-3** Single-row toolbar. No two-row layout.
+- **D-4** Person chip pill stays right side (locked identity exception). Height tightened to match buttons.
+- **D-5** Swipe left/right on day strip = next/prev week.
+- **D-6** `VIEW NUTRITION ›` link below kcal bar on single-person views. Hidden on Everyone view.
 
 ---
 
@@ -337,11 +342,13 @@ This is what gets sent to implementation. Each line is a single, scoped change.
 - **C-4** FAB removed; `+ NEW` text button in toolbar
 - **C-5** Toolbar height/padding verified to spec
 
-### Mobile planner toolbar (3d) — two-row layout
-- **D-1** Cart and chart icons → text labels (SHOPPING ›, NUTRITION ›)
-- **D-2** Add `+ NEW PLAN` outlined button (not filled) — matches desktop
-- **D-3** Toolbar wraps to two rows: row 1 = locator/identity, row 2 = actions
-- **D-4** Person chip stays Row 1 right (identity exception)
+### Mobile planner toolbar (3d) — single-row layout
+- **D-1** Cart/chart icons removed; SHOPPING → menu sheet; NUTRITION → day-header
+- **D-2** Add `+ NEW PLAN` outlined button (not filled)
+- **D-3** Single row 44px — no two-row layout
+- **D-4** Person chip stays right (identity exception); height matched to buttons
+- **D-5** Swipe on day strip = week navigation
+- **D-6** `VIEW NUTRITION ›` below kcal bar, single-person views only
 
 ### Mobile recipe detail (3f)
 - **F-1** Remove circle prefix on FAVORITE
@@ -349,11 +356,11 @@ This is what gets sent to implementation. Each line is a single, scoped change.
 
 ### Mobile recipe form (3g)
 - **G-1** Strip rounded borders on native `<select>` dropdowns
-- **G-2** Add `← BACK TO RECIPES` row (covered in Step 4 IA, but stays here for tracking)
+- **G-2** Add `← BACK` row (covered in Step 4 IA, but stays here for tracking)
 
 ### Mobile pantry form (3h)
 - **H-1** Same as G-1
-- **H-2** Add `← BACK TO PANTRY` row (Step 4 IA)
+- **H-2** Add `← BACK` row (Step 4 IA)
 
 ### Auth (3i)
 - **I-1** Form half background `var(--bg)` (Step 7 surface, dependency tracked here)

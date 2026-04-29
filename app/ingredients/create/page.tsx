@@ -325,6 +325,8 @@ export default function CreateIngredientPage() {
       <div id="pf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
         <div className="form-back-row">
           <a href="/ingredients" className="back-link">← Back</a>
+          <span className="form-back-sep" aria-hidden="true" />
+          <span className="form-back-title">New Pantry Item</span>
         </div>
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}

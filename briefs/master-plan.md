@@ -41,10 +41,20 @@ These are settled. Don't relitigate without a strong reason.
 - ✓ **Moves to Menu sheet.** Last item below Settings in the menu list. Removes the bottom-of-Settings burial.
 
 ### Menu rail behavior (mobile)
-- ✓ **Stays constant on every screen** as global orientation. Child screens (New Recipe, New Pantry Item, Add Meal, Shopping) carry their own `← BACK TO X` row at top, mirroring shopping list pattern. Bottom rail keeps `Menu | NN/NN — SECTION` always.
+- ✓ **Stays constant on every screen** as global orientation. Child screens (New Recipe, New Pantry Item, Add Meal, Shopping) carry their own `← BACK` row at top. Bottom rail keeps `Menu | NN/NN — SECTION` always.
+
+### Mobile back-link copy
+- ✓ **Always `← BACK`.** Page eyebrow + title provide orientation; the back link's only job is to navigate one step up. `← BACK TO X` labels are wrong on screens reachable from multiple entry points and redundant everywhere else. Applies to all mobile back-row links. Desktop breadcrumb patterns unaffected.
 
 ### + NEW PLAN placement (mobile)
-- ✓ **Planner toolbar, right side.** Sharp black, mirrors desktop placement.
+- ✓ **Planner toolbar, right side.** Outlined (not filled), mirrors desktop pattern. Filled black reserved for single primary CTA per page.
+
+### Mobile planner toolbar (final shape)
+- ✓ **Single row:** date range left, person chip + `+ NEW PLAN` right. 44px.
+- ✓ **PREV/NEXT dropped.** Week navigation via swipe on day strip. Date range text stays as editorial locator.
+- ✓ **SHOPPING in menu sheet.** Reachable from multiple entry points; menu sheet is the right home.
+- ✓ **NUTRITION on day-header.** Contextual to day + person. `VIEW NUTRITION ›` link below kcal bar on single-person views. Hidden on Everyone view. Not in menu sheet.
+- ✓ **Person chip height** matches toolbar button height. Pill shape locked (identity exception); height is not.
 
 ### Wordmark direction
 - ✓ **`good · measure` lowercase, dot center, dot is the favicon/app-icon/OG mark.** Solo wordmark, no separate mark needed. Dot color: ink (B&W only — never theme color in the wordmark). Specs and final variation TBD in Step 1.
@@ -414,4 +424,12 @@ Drafted in creative-direction.md. Walk through each.
 | Apr 28 | **App icon (PWA-bound)**: 18% dot ratio, iOS-spec corner radius, maskable variant | 1 |
 | Apr 28 | **Mark = dot, isolated** — no separate logo mark; dot inside wordmark IS the mark | 1 |
 | Apr 28 | **HTML brand sheet abandoned** — CSS abstraction broke the wordmark render. Kept original visual reference + markdown spec instead. Tune the dot CSS value at integration time, against visual reference. | 1 |
+| Apr 28 | **Brief 2A landed** — Mobile recipes/pantry toolbar: `.ed-search` hairline, text toggle GRID/LIST, text FILTER, FAB removed, `+ NEW` / `+ ADD` outlined buttons | 2 |
+| Apr 28 | **Brief 2B landed** — Mobile planner toolbar rebuilt as two-row; cart/chart icons → text labels; `+ NEW PLAN` outlined added | 2 |
+| Apr 28 | **Brief 2B.1 landed** — Planner toolbar collapsed to single row; SHOPPING moved to menu sheet; NUTRITION moved to day-header `VIEW NUTRITION ›`; `+ NEW PLAN` mobile flow stacked inputs; Shopping back link genericized | 2 |
+| Apr 28 | **Brief 2B.2 landed** — PREV/NEXT dropped from mobile planner toolbar; swipe-on-day-strip for week nav; person chip height matched to toolbar buttons; `← BACK` rule applied to Shopping; NUTRITION chevron encoding fixed | 2 |
+| Apr 28 | **Mobile back-link rule locked** — Always `← BACK` on mobile. Page eyebrow + title provide context. `← BACK TO X` labels retired. Applies to all mobile back-row links; desktop unaffected. | 2 / 4 |
+| Apr 28 | **NUTRITION placement locked** — Contextual to day/person; `VIEW NUTRITION ›` below kcal bar on single-person planner view. Not in menu sheet. Hidden on Everyone view. | 2 |
+| Apr 28 | **SHOPPING placement locked** — In menu sheet (reachable from multiple entry points). Removed from planner toolbar. | 2 |
+| Apr 28 | **Planner toolbar mobile/desktop fully split** — `.pl-toolbar` desktop-only; `.pl-mob-toolbar` mobile-only. Future changes must touch both. | 2 |
 

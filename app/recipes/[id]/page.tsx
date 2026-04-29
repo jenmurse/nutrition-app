@@ -398,6 +398,8 @@ export default function RecipeDetailPage() {
         <div id="rf-edit-scroll" className="h-full overflow-y-auto animate-page-enter">
           <div className="form-back-row">
             <a href="/recipes" className="back-link">← Back</a>
+            <span className="form-back-sep" aria-hidden="true" />
+            <span className="form-back-title">Edit Recipe</span>
           </div>
           <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
