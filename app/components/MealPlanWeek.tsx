@@ -263,7 +263,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         : null;
       setRightSlot(
         <span className="mob-rail-status">
-          {personColor && <span className="mob-rail-dot" style={{ background: personColor }} aria-hidden="true" />}
           {dStr}{personName ? ` · ${personName.toUpperCase()}` : ''}
         </span>
       );

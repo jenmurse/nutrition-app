@@ -894,7 +894,7 @@ const MealPlansPage = () => {
   const handleShareRef = useRef(handleShareList);
   handleShareRef.current = handleShareList;
   useEffect(() => {
-    if (shopSheetOpen && shopItems.length > 0) {
+    if (shopSheetOpen) {
       setRightSlot(
         <button type="button" className="mob-rail-action" onClick={() => handleShareRef.current()}>Share</button>
       );
@@ -903,7 +903,7 @@ const MealPlansPage = () => {
     }
     return () => setRightSlot(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shopSheetOpen, shopItems.length]);
+  }, [shopSheetOpen]);
 
   const toggleSelectMeal = (id: number) => {
     setSelectedMealIds((prev) => {

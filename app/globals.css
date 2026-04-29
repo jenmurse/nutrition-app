@@ -1474,7 +1474,7 @@ input[type="number"]:focus {
 }
 .pl-create-btn:hover { opacity:0.85; }
 .pl-create-btn:active { transform:scale(0.97); }
-.pl-create-btn:disabled { opacity:0.5; cursor:default; }
+.pl-create-btn:disabled { opacity:0.4; cursor:default; }
 
 .pl-cancel-btn {
   font-family:var(--mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
@@ -2882,14 +2882,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: pageEnterRight var(--motion-page-enter) both;
-}
-.pl-shop-overlay.is-closing {
-  animation: pageExitRight var(--motion-page-exit) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pl-shop-overlay,
-  .pl-shop-overlay.is-closing { animation: none; }
 }
 
 
@@ -2967,14 +2959,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  animation: pageEnterRight var(--motion-page-enter) both;
-}
-.pl-add-overlay.is-closing {
-  animation: pageExitRight var(--motion-page-exit) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pl-add-overlay,
-  .pl-add-overlay.is-closing { animation: none; }
 }
 
 
@@ -3288,13 +3272,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     align-items: center;
     gap: 5px;
   }
-  .mob-rail-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
   /* Fullscreen menu overlay */
   .mob-menu-overlay {
     position: fixed;
