@@ -3335,11 +3335,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-menu-item--active { color: var(--fg); }
   .mob-menu-item:last-child { border-bottom: none; }
-  .mob-menu-divider {
-    border: 0;
-    border-top: 1px solid var(--rule);
-    margin: 24px 20px 0;
-  }
   .mob-menu-signout {
     display: block;
     width: 100%;
@@ -3352,6 +3347,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     color: var(--fg-2);
     background: none;
     border: 0;
+    border-top: 1px solid var(--rule);
     padding: 20px 20px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;

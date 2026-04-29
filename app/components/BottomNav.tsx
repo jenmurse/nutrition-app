@@ -163,7 +163,6 @@ export default function BottomNav() {
                 </Link>
               ))}
             </nav>
-            <hr className="mob-menu-divider" />
             <button
               className="mob-menu-signout"
               onClick={handleSignOut}
