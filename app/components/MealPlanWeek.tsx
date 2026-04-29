@@ -567,7 +567,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       className="wk-day-nut-link"
                       onClick={() => onOpenNutrition(new Date(day.date))}
                       aria-label="View nutrition for this day"
-                    >View Nutrition \u203a</button>
+                    >View Nutrition &#8250;</button>
                   )}
                 </div>
 
