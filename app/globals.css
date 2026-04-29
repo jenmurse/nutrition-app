@@ -3227,6 +3227,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     z-index: 350;
   }
   .mob-rail-menu {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-family: var(--mono);
     font-size: 9px;
     font-weight: 400;
@@ -3238,6 +3241,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     cursor: pointer;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
+  }
+  .menu-rail-glyph {
+    width: 10px;
+    height: 8px;
+    flex-shrink: 0;
   }
   .mob-rail-index {
     font-family: var(--mono);
@@ -3326,6 +3334,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     transition: color 200ms var(--ease);
   }
   .mob-menu-item--active { color: var(--fg); }
+  .mob-menu-item:last-child { border-bottom: none; }
   .mob-menu-divider {
     border: 0;
     border-top: 1px solid var(--rule);

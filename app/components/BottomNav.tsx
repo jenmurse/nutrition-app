@@ -85,6 +85,11 @@ export default function BottomNav() {
           aria-expanded={menuOpen}
           aria-haspopup="dialog"
         >
+          <svg className="menu-rail-glyph" viewBox="0 0 10 8" aria-hidden="true">
+            <line x1="0" y1="1" x2="10" y2="1" stroke="currentColor" strokeWidth="1"/>
+            <line x1="0" y1="4" x2="10" y2="4" stroke="currentColor" strokeWidth="1"/>
+            <line x1="0" y1="7" x2="10" y2="7" stroke="currentColor" strokeWidth="1"/>
+          </svg>
           MENU
         </button>
 
