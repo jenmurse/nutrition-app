@@ -226,7 +226,7 @@ function AddMealInner() {
   const dateLabel = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="flex h-full flex-col animate-page-enter">
+    <div className="animate-page-enter">
       {step === 'mealType' ? (
         <div className="pl-add-body">
           <div className="pl-add-eyebrow">§ Step one · {dateLabel.toUpperCase()}</div>
@@ -246,13 +246,6 @@ function AddMealInner() {
               </li>
             ))}
           </ul>
-          <div style={{ paddingTop: 32 }}>
-            <button
-              type="button"
-              className="pl-cancel-btn"
-              onClick={goBack}
-            >← Back to Planner</button>
-          </div>
         </div>
       ) : (
         <div className="pl-add-body pl-add-body--step2">
