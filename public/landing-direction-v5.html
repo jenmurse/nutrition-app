@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Good Measure</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M32,32H0V0h32v32ZM1.38,30.62h29.25V1.38H1.38v29.25h0Z' fill='%231A1916'/><rect x='9.09' y='6.8' width='3.2' height='18.4' fill='%231A1916'/><rect x='19.74' y='6.8' width='3.2' height='18.4' fill='%231A1916'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════
+   GOOD MEASURE — LANDING v5
+   Editorial direction. Sage accent, paper ground, committed linework.
+   ════════════════════════════════════════════════════════════ */
+
+:root{
+  --bg:#F5F4EF;
+  --bg-2:#EEEAE3;
+  --fg:#1A1916;
+  --fg-2:#36342F;
+  --mute:#6B6860;
+  --rule:#D0CCC2;
+  --rule-ink:#1A1916;
+  --accent:#5A9B6A;           /* SAGE — matches app */
+  --accent-l:rgba(90,155,106,0.10);
+
+  --sans:'DM Sans',-apple-system,system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+
+  --ease:cubic-bezier(0.23,1,0.32,1);
+  --ease-io:cubic-bezier(0.77,0,0.175,1);
+
+  --pad:clamp(24px,5vw,56px);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+body{overflow-x:hidden;font-size:14px;line-height:1.55;}
+::selection{background:var(--fg);color:var(--bg);}
+
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
+
+/* ─── UTILITY ─── */
+.mono{font-family:var(--mono);}
+.upper{text-transform:uppercase;letter-spacing:0.14em;}
+.kicker{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);}
+.kicker.ink{color:var(--fg);}
+
+/* ─── NAV ─── */
+.nav{
+  position:sticky;top:0;z-index:50;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px var(--pad);
+  background:var(--bg);
+  border-bottom:1px solid var(--rule);
+}
+.nav-logo{display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:14px;letter-spacing:-0.03em;}
+.nav-logo svg{flex:none;display:block;}
+.nav-right{display:flex;gap:28px;align-items:center;}
+.nav-right a{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg);}
+.nav-right a.cta{padding:10px 18px;border:1px solid var(--rule-ink);background:var(--fg);color:var(--bg);transition:background 180ms var(--ease),color 180ms var(--ease);font-size:10px;letter-spacing:0.16em;}
+.nav-right a.cta:hover{background:var(--bg);color:var(--fg);}
+.nav-right a.cta .arr{margin-left:6px;display:inline-block;transition:transform 200ms var(--ease);}
+.nav-right a.cta:hover .arr{transform:translate(2px,-2px);}
+
+/* ─── TICKER ─── */
+.tick{
+  border-bottom:1px solid var(--rule);
+  padding:11px 0;
+  overflow:hidden;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--fg);
+}
+.tick-track{display:flex;gap:0;white-space:nowrap;width:max-content;animation:tick 52s linear infinite;}
+@keyframes tick{from{transform:translate3d(0,0,0);}to{transform:translate3d(-50%,0,0);}}
+.tick span{padding:0 28px;}
+.tick span::before{content:'—';margin-right:28px;color:var(--mute);}
+
+/* ─── SECTION SHELL ─── */
+section{padding:0 var(--pad);position:relative;}
+.wrap{max-width:1360px;margin:0 auto;}
+
+/* ═══════════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════════ */
+.hero{padding:80px var(--pad) 96px;border-bottom:1px solid var(--rule);}
+.hero-meta{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  margin-bottom:80px;
+}
+.hero-meta .c{color:var(--fg);}
+.hero-meta .r{justify-self:end;text-align:right;}
+
+.hero-type{
+  font-size:clamp(56px,11.5vw,168px);
+  font-weight:500;
+  letter-spacing:-0.045em;
+  line-height:0.9;
+  color:var(--fg);
+  text-wrap:balance;
+}
+.hero-type span{display:block;}
+.hero-type em{font-style:normal;color:var(--accent);font-weight:500;}
+.hero-type .thin{font-weight:500;}
+
+.hero-bottom{
+  display:grid;grid-template-columns:1.5fr 1fr;gap:64px;align-items:end;
+  margin-top:88px;
+}
+.hero-lede{max-width:52ch;font-size:16px;line-height:1.6;color:var(--fg-2);}
+.hero-lede strong{color:var(--fg);font-weight:500;}
+.hero-ctas{display:flex;gap:12px;justify-self:end;flex-wrap:wrap;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 18px;
+  background:var(--fg);color:var(--bg);
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
+  border:1px solid var(--fg);
+  transition:background 200ms var(--ease),color 200ms var(--ease),transform 160ms var(--ease);
+}
+.btn:hover{background:var(--bg);color:var(--fg);}
+.btn:active{transform:scale(0.98);}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--rule-ink);}
+.btn.ghost:hover{background:var(--fg);color:var(--bg);}
+.btn .arr{display:inline-block;transition:transform 250ms var(--ease);}
+.btn:hover .arr{transform:translate(3px,-3px);}
+
+/* ═══════════════════════════════════════════════════════════
+   MANIFESTO — the thesis. Sits alone. No image.
+   ═══════════════════════════════════════════════════════════ */
+.manifesto{
+  padding:160px var(--pad);
+  border-bottom:1px solid var(--rule);
+  position:relative;
+}
+.manifesto-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  margin-bottom:56px;
+  display:flex;justify-content:space-between;
+}
+.manifesto-eyebrow .r{color:var(--fg);}
+.manifesto-type{
+  font-size:clamp(38px,6vw,88px);
+  font-weight:400;
+  letter-spacing:-0.025em;
+  line-height:1.08;
+  max-width:22ch;
+  text-wrap:balance;
+}
+.manifesto-type span{display:block;}
+.manifesto-type .pay{font-weight:500;color:var(--fg);}
+.manifesto-type .pay em{font-style:normal;color:var(--accent);font-weight:500;}
+.manifesto-type .set{font-weight:500;color:var(--fg);}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER SPLIT — sticky right image, scrolling left text
+   Public Official move, with ruled linework.
+   ═══════════════════════════════════════════════════════════ */
+.ch{
+  padding:120px var(--pad) 140px;
+  border-bottom:1px solid var(--rule);
+  position:relative;
+}
+.ch-head{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  margin-bottom:80px;
+}
+.ch-head .n{color:var(--fg);}
+.ch-head .r{justify-self:end;}
+
+.ch-split{
+  display:grid;grid-template-columns:1.05fr 1fr;gap:88px;
+  align-items:start;
+}
+.ch-split.wide-viz{grid-template-columns:0.85fr 1.2fr;gap:72px;}
+.ch-split.reverse .ch-text{order:2;}
+.ch-split.reverse .ch-vis{order:1;}
+
+.ch-text{display:flex;flex-direction:column;gap:40px;padding-bottom:15vh;}
+.ch-h{
+  font-size:clamp(36px,5vw,64px);
+  font-weight:500;
+  letter-spacing:-0.03em;
+  line-height:1.02;
+  max-width:15ch;
+  text-wrap:balance;
+}
+.ch-h em{font-style:normal;color:var(--accent);font-weight:500;}
+.ch-p{
+  font-size:15.5px;
+  line-height:1.7;
+  color:var(--fg-2);
+  max-width:44ch;
+  text-wrap:pretty;
+}
+.ch-p + .ch-p{margin-top:-16px;}
+
+.ch-vis{position:relative;}
+.ch-vis-sticky{position:sticky;top:100px;display:flex;flex-direction:column;gap:32px;}
+.ch-caption{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  margin-top:-20px;
+  padding-top:2px;
+  white-space:nowrap;
+}
+.ch-caption > span:last-child{white-space:normal;text-align:right;}
+
+/* ═══════════════════════════════════════════════════════════
+   INTERFACE IMAGES — no browser chrome, no shadow, just ruled frames
+   The app looks like a printed page, not a macOS window.
+   ═══════════════════════════════════════════════════════════ */
+.iface{
+  background:var(--bg);
+  border:1px solid var(--rule);
+  padding:18px;
+  position:relative;
+}
+.iface.tall{min-height:380px;}
+.iface-top{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:14px;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--mute);
+}
+.iface-top .on{color:var(--fg);}
+.iface-top .on.acc{color:var(--accent);}
+.lg{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:-0.02em;color:var(--fg);text-transform:none;}
+.iface-tabs{display:flex;gap:18px;}
+
+/* ── Pantry grid ── */
+.pan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin-top:16px;}
+.pan-cell{padding:14px 14px 14px 0;border-bottom:1px solid var(--rule);}
+.pan-cell:nth-child(2n){padding-left:14px;border-left:1px solid var(--rule);padding-right:0;}
+.pan-cell:nth-last-child(-n+2){border-bottom:none;}
+.pan-cat{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);}
+.pan-name{font-size:13px;font-weight:600;letter-spacing:-0.01em;margin:4px 0 2px;line-height:1.2;}
+.pan-serv{font-family:var(--mono);font-size:9px;color:var(--mute);letter-spacing:0.02em;}
+.pan-rows{margin-top:10px;display:flex;flex-direction:column;gap:5px;}
+.pan-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;}
+.pan-row .l{text-transform:uppercase;color:var(--mute);}
+.pan-row .v{color:var(--fg);}
+
+/* ── Recipe detail ── */
+.rec{margin-top:16px;}
+.rec-head{display:flex;justify-content:space-between;align-items:start;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--rule);}
+.rec-ttl{font-size:22px;font-weight:700;letter-spacing:-0.025em;line-height:1.05;}
+.rec-meta{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);text-align:right;line-height:1.6;}
+.rec-meta .r1{color:var(--fg);font-size:14px;font-family:var(--sans);font-weight:600;letter-spacing:-0.02em;display:block;text-transform:none;}
+.rec-meta .r2{display:block;}
+
+.rec-body{display:grid;grid-template-columns:1fr 1px 1fr;gap:0;margin-top:16px;}
+.rec-col{padding:0 14px;}
+.rec-col:first-child{padding-left:0;}
+.rec-col:last-child{padding-right:0;}
+.rec-div{background:var(--rule);}
+.rec-h{font-size:10px;font-weight:600;letter-spacing:-0.01em;margin-bottom:10px;}
+.rec-ing{display:grid;grid-template-columns:auto 1fr;gap:10px;font-family:var(--mono);font-size:9px;padding:6px 0;border-bottom:1px solid var(--rule);letter-spacing:0.02em;}
+.rec-ing:last-child{border-bottom:none;}
+.rec-ing .q{color:var(--mute);white-space:nowrap;}
+.rec-ing .n{font-family:var(--sans);font-size:10px;color:var(--fg);font-weight:500;letter-spacing:-0.005em;}
+
+.rec-nut{display:flex;flex-direction:column;gap:7px;}
+.rec-nrow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;font-family:var(--mono);font-size:9px;letter-spacing:0.04em;padding:4px 0;border-bottom:1px solid var(--rule);}
+.rec-nrow:last-child{border-bottom:none;}
+.rec-nrow .l{text-transform:uppercase;color:var(--mute);}
+.rec-nrow .v{color:var(--fg);}
+.rec-nrow .bar{width:40px;height:2px;background:var(--rule);position:relative;}
+.rec-nrow .bar::after{content:'';position:absolute;left:0;top:0;height:100%;background:var(--accent);width:60%;}
+.rec-nrow.hi .bar::after{width:90%;}
+.rec-nrow.lo .bar::after{width:35%;}
+
+/* ── Planner grid ── */
+.plan{margin-top:16px;display:grid;grid-template-columns:repeat(7,1fr);gap:0;border-left:1px solid var(--rule);}
+.plan-strip{display:none;}
+.plan-col{padding:12px 10px;border-right:1px solid var(--rule);min-height:280px;position:relative;}
+.plan-col.on{background:transparent;}
+.plan-day{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.plan-day .d{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);}
+.plan-day .n{font-size:20px;font-weight:700;letter-spacing:-0.02em;line-height:1;color:var(--fg);}
+.plan-col.on .plan-day .n{color:var(--fg);}
+.plan-kcal{font-family:var(--mono);font-size:8px;letter-spacing:0.04em;color:var(--mute);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--rule);word-break:break-word;}
+.plan-meal{margin-top:8px;}
+.plan-meal .t{font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);margin-bottom:2px;}
+.plan-meal .n{font-size:9.5px;font-weight:500;letter-spacing:-0.005em;line-height:1.25;color:var(--fg);}
+.plan-meal .k{font-family:var(--mono);font-size:7.5px;color:var(--mute);margin-top:1px;letter-spacing:0.02em;}
+
+/* ── AI optimization notes — editorial document style ── */
+.opt{margin-top:16px;padding:0;}
+.opt-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
+.opt-h .ttl{font-size:13px;font-weight:700;letter-spacing:-0.02em;}
+.opt-h .ttl .check{color:var(--accent);margin-left:6px;}
+.opt-h .tag{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);}
+.opt-eyebrow{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);margin-bottom:10px;}
+.opt-note{font-size:11px;line-height:1.55;color:var(--fg-2);margin-bottom:12px;max-width:56ch;}
+.opt-note b{font-weight:600;color:var(--fg);}
+.opt-note .swap{font-weight:600;color:var(--fg);}
+.opt-note .swap .arr{color:var(--accent);margin:0 4px;font-weight:400;}
+.opt-table{margin-top:14px;border-top:1px solid var(--rule);}
+.opt-trow{display:grid;grid-template-columns:1.2fr 1fr 1fr 0.9fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:9px;letter-spacing:0.04em;}
+.opt-trow.hd{font-size:7.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);padding:8px 0 8px;}
+.opt-trow .nut{font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:-0.005em;text-transform:none;color:var(--fg);}
+.opt-trow.hd .nut{font-family:var(--mono);font-size:7.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);font-weight:400;}
+.opt-trow .old{color:var(--mute);}
+.opt-trow .new{color:var(--fg);}
+.opt-trow .chg{color:var(--accent);}
+.opt-trow .chg.none{color:var(--mute);}
+
+/* ═══════════════════════════════════════════════════════════
+   PULL-QUOTE — replaces the old stats spread
+   ═══════════════════════════════════════════════════════════ */
+.pq{
+  padding:180px var(--pad);
+  text-align:left;
+  border-bottom:1px solid var(--rule);
+  position:relative;
+}
+.pq-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  margin-bottom:56px;
+  display:flex;justify-content:space-between;
+}
+.pq-eyebrow .r{color:var(--fg);}
+.pq-type{
+  font-size:clamp(52px,10vw,148px);
+  font-weight:500;
+  letter-spacing:-0.045em;
+  line-height:0.95;
+  color:var(--fg);
+  text-wrap:balance;
+}
+.pq-type span{display:block;}
+.pq-type .a em{font-style:normal;color:var(--accent);font-weight:500;}
+.pq-type .b{font-weight:500;}
+
+/* ═══════════════════════════════════════════════════════════
+   CLOSE — quiet invitation
+   ═══════════════════════════════════════════════════════════ */
+.close{
+  padding:160px var(--pad) 120px;
+  position:relative;
+}
+.close-head{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  margin-bottom:72px;
+}
+.close-head .n{color:var(--fg);}
+.close-head .r{justify-self:end;}
+.close-grid{
+  display:grid;grid-template-columns:1.2fr 1fr;gap:96px;
+  align-items:start;
+}
+.close-h{
+  font-size:clamp(28px,3.6vw,44px);
+  font-weight:500;
+  letter-spacing:-0.02em;
+  line-height:1.15;
+  text-wrap:balance;
+  max-width:22ch;
+}
+.close-body{
+  max-width:40ch;
+  font-size:15px;
+  line-height:1.7;
+  color:var(--fg-2);
+}
+.close-body p + p{margin-top:18px;}
+.close-sig{
+  margin-top:32px;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--fg);
+}
+.close-cta{margin-top:40px;}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+.foot{
+  padding:40px var(--pad);
+  border-top:1px solid var(--rule);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mute);
+  gap:16px;
+}
+.foot a{color:var(--fg);}
+
+/* ═══════════════════════════════════════════════════════════
+   REVEAL — subtle, not decorative
+   ═══════════════════════════════════════════════════════════ */
+.r{opacity:0;transform:translateY(20px);transition:opacity 800ms var(--ease-io),transform 800ms var(--ease-io);}
+.r.in{opacity:1;transform:translateY(0);}
+.r.d1{transition-delay:80ms;}
+.r.d2{transition-delay:160ms;}
+.r.d3{transition-delay:240ms;}
+
+@media (prefers-reduced-motion:reduce){
+  .r{opacity:1;transform:none;transition:none;}
+  .tick-track{animation:none;}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tablet — sticky figures become inline */
+@media (max-width:1100px){
+  .ch-split{grid-template-columns:1fr;gap:56px;}
+  .ch-split.wide-viz{grid-template-columns:1fr;gap:56px;}
+  .ch-split.reverse .ch-text{order:1;}
+  .ch-split.reverse .ch-vis{order:2;}
+  .ch-text{padding-bottom:0;}
+  .ch-vis-sticky{position:static;}
+}
+
+/* Mobile — proper phone layout */
+@media (max-width:760px){
+  :root{
+    --pad:20px;
+  }
+  body{font-size:13.5px;}
+
+  .nav{padding:14px var(--pad);}
+  .nav-logo{font-size:13px;}
+  .nav-logo svg{width:16px;height:16px;}
+  .nav-right{gap:14px;}
+  .nav-right a{font-size:9px;letter-spacing:0.14em;}
+  .nav-right a.cta{padding:8px 12px;}
+  /* Hide Sign in on narrow screens — keep About + CTA */
+  .nav-right a:nth-child(2){display:none;}
+
+  /* Ticker type down */
+  .tick{padding:9px 0;font-size:9px;letter-spacing:0.16em;}
+
+  /* Hero */
+  .hero{padding:40px var(--pad) 56px;}
+  .hero-meta{grid-template-columns:1fr 1fr;gap:4px;margin-bottom:40px;font-size:9px;}
+  .hero-type{font-size:clamp(44px,12vw,68px);line-height:0.95;}
+  .hero-bottom{grid-template-columns:1fr;gap:28px;margin-top:48px;align-items:start;}
+  .hero-lede{font-size:15px;line-height:1.6;}
+  .hero-ctas{justify-self:start;width:100%;}
+  .hero-ctas .btn{flex:1;justify-content:center;padding:14px 16px;font-size:9px;}
+
+  /* Sections */
+  .manifesto,.ch,.pq,.close{padding-top:72px;padding-bottom:72px;}
+  .ch-head,.manifesto-eyebrow,.pq-eyebrow,.close-head{grid-template-columns:1fr;gap:4px;margin-bottom:40px;font-size:9px;}
+  .ch-head .r,.manifesto-eyebrow .r,.pq-eyebrow .r,.close-head .r{justify-self:start;}
+  .ch-head{display:flex;gap:6px;}
+  .ch-head .r::before{content:'·';margin-right:6px;color:var(--mute);}
+
+  /* Manifesto */
+  .manifesto-type{font-size:clamp(28px,7.5vw,40px);line-height:1.1;max-width:none;}
+
+  /* Chapter */
+  .ch-split{gap:40px;}
+  .ch-text{gap:28px;}
+  .ch-h{font-size:clamp(28px,7.5vw,40px);max-width:none;}
+  .ch-p{font-size:14.5px;line-height:1.65;max-width:none;}
+  .ch-p + .ch-p{margin-top:-8px;}
+
+  /* Interface mocks — reflow for narrow screens */
+  .iface{padding:12px;}
+  .iface-top{font-size:8px;padding-bottom:10px;}
+  .iface-top .lg{font-size:10px;}
+  .iface-tabs{gap:12px;}
+
+  /* Pantry grid — stays 2 col but tighter */
+  .pan-cell{padding:10px 10px 10px 0;}
+  .pan-cell:nth-child(2n){padding-left:10px;}
+  .pan-name{font-size:11.5px;}
+  .pan-rows{gap:4px;}
+
+  /* Recipe detail — stack into single column, keep ingredients above nutrition */
+  .rec-body{grid-template-columns:1fr;}
+  .rec-col{padding:14px 0;}
+  .rec-col:first-child{padding-top:0;}
+  .rec-div{width:100%;height:1px;}
+  .rec-ttl{font-size:18px;max-width:none;}
+  .rec-meta .r1{font-size:12px;}
+
+  /* Planner — date strip + single active day on mobile */
+  .plan{display:block;border-left:none;}
+  .plan-strip{
+    display:flex;border-bottom:1px solid var(--rule);
+    scrollbar-width:none;
+  }
+  .plan-strip::-webkit-scrollbar{display:none;}
+  .plan-strip-day{
+    flex:1;padding:8px 0;font-family:var(--mono);font-size:9px;
+    letter-spacing:0.10em;text-transform:uppercase;color:var(--mute);
+    text-align:center;line-height:1.4;
+    border-right:1px solid var(--rule);
+  }
+  .plan-strip-day:last-child{border-right:none;}
+  .plan-strip-day.on{color:var(--fg);font-weight:500;}
+  .plan-strip-day .sn{font-size:7px;display:block;}
+  .plan-col{display:none;padding:14px 12px;border-right:none;border-bottom:none;min-height:auto;}
+  .plan-col.on{display:block;}
+  .plan-col.on .plan-day{display:none;}
+  .plan-col.on .plan-kcal{display:none;}
+  .plan-strip-day.on{color:var(--fg);font-weight:700;}
+  .plan-day .n{font-size:16px;}
+
+  /* Optimization — table columns compress */
+  .opt-trow{grid-template-columns:1fr 1fr 1fr 0.9fr;gap:6px;font-size:8px;}
+  .opt-trow .nut{font-size:9px;}
+  .opt-note{font-size:10.5px;max-width:none;}
+
+  /* Pull-quote */
+  .pq{padding:100px var(--pad);}
+  .pq-type{font-size:clamp(40px,11vw,64px);line-height:1;}
+
+  /* Close */
+  .close{padding:96px var(--pad) 80px;}
+  .close-grid{grid-template-columns:1fr;gap:32px;}
+  .close-h{font-size:clamp(22px,5.8vw,30px);max-width:none;}
+  .close-body{font-size:14.5px;max-width:none;}
+
+  /* Footer */
+  .foot{padding:28px var(--pad);font-size:9px;}
+}
+
+/* Extra tight — small phones */
+@media (max-width:380px){
+  .hero-type{font-size:42px;}
+  .manifesto-type{font-size:28px;}
+  .ch-h{font-size:28px;}
+  .pq-type{font-size:40px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav">
+  <a href="#" class="nav-logo" aria-label="Good Measure — home">
+    <svg width="18" height="18" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M32,32H0V0h32v32ZM1.38,30.62h29.25V1.38H1.38v29.25h0Z" fill="currentColor"/>
+      <rect x="9.09" y="6.8" width="3.2" height="18.4" fill="currentColor"/>
+      <rect x="19.74" y="6.8" width="3.2" height="18.4" fill="currentColor"/>
+    </svg>
+    <span>Good Measure</span>
+  </a>
+  <div class="nav-right">
+    <a href="#">About</a>
+    <a href="#">Sign in</a>
+    <a href="#" class="cta">Get Started <span class="arr">↗</span></a>
+  </div>
+</nav>
+
+<!-- ═══════════ TICKER ═══════════ -->
+<div class="tick" aria-hidden="true">
+  <div class="tick-track">
+    <span>Measured to the gram</span>
+    <span>Calculated, not estimated</span>
+    <span>Optimized by AI</span>
+    <span>Built for people who cook</span>
+    <span>Made in San Francisco</span>
+    <span>Measured to the gram</span>
+    <span>Calculated, not estimated</span>
+    <span>Optimized by AI</span>
+    <span>Built for people who cook</span>
+    <span>Made in San Francisco</span>
+  </div>
+</div>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <div class="hero-meta">
+    <div class="c">Good Measure</div>
+    <div class="r">A nutrition &amp; meal planning tool</div>
+  </div>
+
+  <h1 class="hero-type r">
+    <span>A nutrition app</span>
+    <span class="thin">for people who</span>
+    <span><em>actually</em> cook.</span>
+  </h1>
+
+  <div class="hero-bottom r d1">
+    <p class="hero-lede">
+      For years I ran my household on two tools: a spreadsheet for nutrition, a recipe app for dinner. Neither one knew about the other. <strong>Good Measure is the version of that setup where the two halves finally talk.</strong> Your pantry, your recipes, your week — measured to the gram, planned as a system, optimized by an AI that reads the whole week instead of one meal at a time.
+    </p>
+    <div class="hero-ctas">
+      <a href="#" class="btn">Get Started <span class="arr">↗</span></a>
+      <a href="#manifesto" class="btn ghost">See how it works</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ MANIFESTO ═══════════ -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto-eyebrow">
+    <span>§ Premise</span>
+  </div>
+
+  <h2 class="manifesto-type r">
+    <span class="set">Most nutrition apps log what you ate.</span>
+    <span class="set">Most recipe apps store what you'll cook.</span>
+    <span class="pay">Good Measure plans one</span>
+    <span class="pay">against <em>the other</em>.</span>
+  </h2>
+</section>
+
+<!-- ═══════════ CHAPTER 01 — THE LIBRARY ═══════════ -->
+<section class="ch" id="library">
+  <div class="ch-head">
+    <div><span class="n">01 · The Library</span></div>
+    <div class="r">Pantry + Recipes</div>
+  </div>
+
+  <div class="ch-split">
+    <div class="ch-text r">
+      <h3 class="ch-h">Every ingredient, <em>to the gram</em>.<br>Every recipe, calculated.</h3>
+
+      <p class="ch-p">
+        Every ingredient you cook with lives in a pantry you build once. Pull nutrition from USDA for the things that have it — produce, spices, the half of your kitchen that doesn't come with a label — and enter the rest by hand from the package in front of you. Custom units too: one almond, one egg, one of whatever you actually reach for. Measured once, lives forever.
+      </p>
+
+      <p class="ch-p">
+        Recipes are built on top of that library, which means nutrition isn't estimated — it's calculated. Change the olive oil from two tablespoons to one and the whole card updates. Scale to six servings and every number scales with it. Import from a URL, paste from a markdown file, or build from scratch. The numbers follow the ingredients.
+      </p>
+    </div>
+
+    <div class="ch-vis">
+      <div class="ch-vis-sticky">
+        <!-- Pantry grid -->
+        <div class="iface">
+          <div class="iface-top">
+            <div class="lg">Good Measure</div>
+            <div class="iface-tabs">
+              <span>Planner</span><span>Recipes</span><span class="on">Pantry</span>
+            </div>
+            <div>224 items</div>
+          </div>
+
+          <div class="pan-grid">
+            <div class="pan-cell">
+              <div class="pan-cat">Nuts &amp; Seeds</div>
+              <div class="pan-name">Almond butter</div>
+              <div class="pan-serv">2 Tbsp · 32 g</div>
+              <div class="pan-rows">
+                <div class="pan-row"><span class="l">kcal</span><span class="v">197</span></div>
+                <div class="pan-row"><span class="l">fat</span><span class="v">18 g</span></div>
+                <div class="pan-row"><span class="l">carbs</span><span class="v">6 g</span></div>
+                <div class="pan-row"><span class="l">protein</span><span class="v">7 g</span></div>
+              </div>
+            </div>
+            <div class="pan-cell">
+              <div class="pan-cat">Baking</div>
+              <div class="pan-name">Almond flour</div>
+              <div class="pan-serv">¼ cup · 28 g</div>
+              <div class="pan-rows">
+                <div class="pan-row"><span class="l">kcal</span><span class="v">160</span></div>
+                <div class="pan-row"><span class="l">fat</span><span class="v">14 g</span></div>
+                <div class="pan-row"><span class="l">carbs</span><span class="v">6 g</span></div>
+                <div class="pan-row"><span class="l">protein</span><span class="v">6 g</span></div>
+              </div>
+            </div>
+            <div class="pan-cell">
+              <div class="pan-cat">Produce</div>
+              <div class="pan-name">Avocado</div>
+              <div class="pan-serv">1 medium · 150 g</div>
+              <div class="pan-rows">
+                <div class="pan-row"><span class="l">kcal</span><span class="v">240</span></div>
+                <div class="pan-row"><span class="l">fat</span><span class="v">22 g</span></div>
+                <div class="pan-row"><span class="l">carbs</span><span class="v">13 g</span></div>
+                <div class="pan-row"><span class="l">protein</span><span class="v">3 g</span></div>
+              </div>
+            </div>
+            <div class="pan-cell">
+              <div class="pan-cat">Pantry</div>
+              <div class="pan-name">Black beans</div>
+              <div class="pan-serv">½ cup · 120 g</div>
+              <div class="pan-rows">
+                <div class="pan-row"><span class="l">kcal</span><span class="v">114</span></div>
+                <div class="pan-row"><span class="l">fat</span><span class="v">0.5 g</span></div>
+                <div class="pan-row"><span class="l">carbs</span><span class="v">20 g</span></div>
+                <div class="pan-row"><span class="l">protein</span><span class="v">8 g</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ch-caption">
+          <span>Fig. 01 · Pantry</span>
+          <span>Measured to the gram</span>
+        </div>
+
+        <!-- Recipe detail -->
+        <div class="iface">
+          <div class="iface-top">
+            <div class="lg">Good Measure</div>
+            <div class="iface-tabs">
+              <span>Planner</span><span class="on">Recipes</span><span>Pantry</span>
+            </div>
+            <div>Dessert</div>
+          </div>
+
+          <div class="rec">
+            <div class="rec-head">
+              <div class="rec-ttl">Almond Croissant Bars</div>
+              <div class="rec-meta">
+                <span class="r1">9 Servings</span>
+                <span class="r2">per-serving values</span>
+              </div>
+            </div>
+
+            <div class="rec-body">
+              <div class="rec-col">
+                <div class="rec-h">Ingredients</div>
+                <div class="rec-ing"><span class="q">1 cup</span><span class="n">Almond flour</span></div>
+                <div class="rec-ing"><span class="q">2.25 cup</span><span class="n">Oats, raw</span></div>
+                <div class="rec-ing"><span class="q">1.25 cup</span><span class="n">Cashew milk</span></div>
+                <div class="rec-ing"><span class="q">0.25 cup</span><span class="n">Maple syrup</span></div>
+                <div class="rec-ing"><span class="q">1 tsp</span><span class="n">Almond extract</span></div>
+                <div class="rec-ing"><span class="q">4 Tbsp</span><span class="n">Butter</span></div>
+              </div>
+
+              <div class="rec-div"></div>
+
+              <div class="rec-col">
+                <div class="rec-h">Nutrition</div>
+                <div class="rec-nut">
+                  <div class="rec-nrow"><span class="l">Calories</span><span class="bar"></span><span class="v">380</span></div>
+                  <div class="rec-nrow lo"><span class="l">Fat</span><span class="bar"></span><span class="v">14 g</span></div>
+                  <div class="rec-nrow"><span class="l">Carbs</span><span class="bar"></span><span class="v">56 g</span></div>
+                  <div class="rec-nrow hi"><span class="l">Sugar</span><span class="bar"></span><span class="v">12 g</span></div>
+                  <div class="rec-nrow"><span class="l">Protein</span><span class="bar"></span><span class="v">11 g</span></div>
+                  <div class="rec-nrow lo"><span class="l">Fiber</span><span class="bar"></span><span class="v">7 g</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ch-caption">
+          <span>Fig. 02 · Recipe</span>
+          <span>Calculated, not estimated</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CHAPTER 02 — THE WEEK ═══════════ -->
+<section class="ch" id="week">
+  <div class="ch-head">
+    <div><span class="n">02 · The Week</span></div>
+    <div class="r">Planner + AI</div>
+  </div>
+
+  <div class="ch-split reverse wide-viz">
+    <div class="ch-text r">
+      <h3 class="ch-h">One week.<br>Every person.<br><em>The whole matrix.</em></h3>
+
+      <p class="ch-p">
+        Good Measure was built for how people actually cook, whether it's for one person or a household. My husband and I cook out of the same kitchen but we have different bodies and different goals, so every person in the household has their own plan, their own targets, their own week — running against the shared recipe library. Drag a meal onto Tuesday; it counts for one person. Each plan stands on its own, and the shopping list builds itself from there.
+      </p>
+
+      <p class="ch-p">
+        The AI part is the one I'm most proud of. Good Measure connects to Claude (or any MCP-compatible agent) so you can hand it a goal — "more protein at breakfast," "keep Thursday under 1,800 calories, don't touch dinner" — and it reads your whole week, suggests swaps from your actual pantry, and writes the changes back. Instead of optimizing a single recipe in isolation, it sees the matrix.
+      </p>
+    </div>
+
+    <div class="ch-vis">
+      <div class="ch-vis-sticky">
+        <!-- Planner -->
+        <div class="iface">
+          <div class="iface-top">
+            <div class="lg">Good Measure</div>
+            <div class="iface-tabs">
+              <span class="on">Planner</span><span>Recipes</span><span>Pantry</span>
+            </div>
+            <div>Apr 19–25</div>
+          </div>
+
+          <div class="plan">
+            <div class="plan-strip" aria-hidden="true">
+              <div class="plan-strip-day"><span class="sn">Sun</span>19</div>
+              <div class="plan-strip-day"><span class="sn">Mon</span>20</div>
+              <div class="plan-strip-day"><span class="sn">Tue</span>21</div>
+              <div class="plan-strip-day"><span class="sn">Wed</span>22</div>
+              <div class="plan-strip-day on"><span class="sn">Thu</span>23</div>
+              <div class="plan-strip-day"><span class="sn">Fri</span>24</div>
+              <div class="plan-strip-day"><span class="sn">Sat</span>25</div>
+            </div>
+            <div class="plan-col">
+              <div class="plan-day"><span class="d">Sun</span><span class="n">19</span></div>
+              <div class="plan-kcal">1,824<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Trout Salad</div>
+                <div class="k">498 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Roasted Cauliflower and Lentils</div>
+                <div class="k">764 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Snack</div>
+                <div class="n">Protein Blondies</div>
+                <div class="k">199 kcal</div>
+              </div>
+            </div>
+            <div class="plan-col">
+              <div class="plan-day"><span class="d">Mon</span><span class="n">20</span></div>
+              <div class="plan-kcal">1,540<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Trout Salad</div>
+                <div class="k">498 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Pan-seared Salmon</div>
+                <div class="k">561 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Side</div>
+                <div class="n">Mushrooms and Leeks</div>
+                <div class="k">118 kcal</div>
+              </div>
+            </div>
+            <div class="plan-col">
+              <div class="plan-day"><span class="d">Tue</span><span class="n">21</span></div>
+              <div class="plan-kcal">1,602<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Tuna Salad</div>
+                <div class="k">596 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Noodle Bowl</div>
+                <div class="k">528 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dessert</div>
+                <div class="n">Protein Blondies</div>
+                <div class="k">115 kcal</div>
+              </div>
+            </div>
+            <div class="plan-col">
+              <div class="plan-day"><span class="d">Wed</span><span class="n">22</span></div>
+              <div class="plan-kcal">1,617<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Salmon Salad</div>
+                <div class="k">578 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Noodle Bowl</div>
+                <div class="k">676 kcal</div>
+              </div>
+            </div>
+            <div class="plan-col on">
+              <div class="plan-day"><span class="d">Thu</span><span class="n">23</span></div>
+              <div class="plan-kcal">1,522<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Trout Salad</div>
+                <div class="k">498 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Pan-seared Salmon</div>
+                <div class="k">561 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dessert</div>
+                <div class="n">Protein Blondies</div>
+                <div class="k">115 kcal</div>
+              </div>
+            </div>
+            <div class="plan-col">
+              <div class="plan-day"><span class="d">Fri</span><span class="n">24</span></div>
+              <div class="plan-kcal">1,720<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Salmon Salad</div>
+                <div class="k">578 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Roasted Cauliflower and Lentils</div>
+                <div class="k">662 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Snack</div>
+                <div class="n">Protein Blondies</div>
+                <div class="k">117 kcal</div>
+              </div>
+            </div>
+            <div class="plan-col">
+              <div class="plan-day"><span class="d">Sat</span><span class="n">25</span></div>
+              <div class="plan-kcal">1,680<br>kcal</div>
+              <div class="plan-meal">
+                <div class="t">Breakfast</div>
+                <div class="n">Overnight Oats</div>
+                <div class="k">363 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Lunch</div>
+                <div class="n">Trout Salad</div>
+                <div class="k">498 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dinner</div>
+                <div class="n">Pan-seared Salmon</div>
+                <div class="k">561 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Side</div>
+                <div class="n">Mushrooms and Leeks</div>
+                <div class="k">118 kcal</div>
+              </div>
+              <div class="plan-meal">
+                <div class="t">Dessert</div>
+                <div class="n">Protein Blondies</div>
+                <div class="k">140 kcal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ch-caption">
+          <span>Fig. 03 · Week</span>
+          <span>A single person's plan</span>
+        </div>
+
+        <!-- AI Optimization notes — editorial document style -->
+        <div class="iface">
+          <div class="iface-top">
+            <div class="lg">Good Measure</div>
+            <div class="iface-tabs">
+              <span>Planner</span><span class="on">Recipes</span><span>Pantry</span>
+            </div>
+            <div>Optimization Notes</div>
+          </div>
+
+          <div class="opt">
+            <div class="opt-h">
+              <div class="ttl">Current Best Version <span class="check">✓</span></div>
+              <div class="tag">AI · claude</div>
+            </div>
+
+            <div class="opt-eyebrow">Changes from original (id:25)</div>
+
+            <p class="opt-note">
+              <span class="swap">Cherry tomatoes 200g <span class="arr">→</span> Canned diced, no salt (200g).</span> Better sauce body, lower natural sugar, consistent year-round. Saves ~2g sugar per serving.
+            </p>
+
+            <p class="opt-note">
+              <span class="swap">Onion: 200g <span class="arr">→</span> 100g.</span> Halved from original. Onion is the primary sugar driver here. Ginger, garlic, and spices carry the flavor. Saves ~3g sugar per serving.
+            </p>
+
+            <p class="opt-note">
+              <b>Cashew milk retained.</b> Fairlife Fat-Free was trialled in id:107 but pushed sugar to 12.7g and sodium to 513mg per serving. Cashew remains correct for this recipe.
+            </p>
+
+            <div class="opt-eyebrow" style="margin-top:18px;">Nutrition Comparison (per serving)</div>
+
+            <div class="opt-table">
+              <div class="opt-trow hd"><span class="nut">Nutrient</span><span>Original id:25</span><span>This version</span><span>Change</span></div>
+              <div class="opt-trow"><span class="nut">Calories</span><span class="old">729 kcal</span><span class="new">661 kcal</span><span class="chg">↓ 68 kcal</span></div>
+              <div class="opt-trow"><span class="nut">Fat</span><span class="old">21.3 g</span><span class="new">20.9 g</span><span class="chg none">—</span></div>
+              <div class="opt-trow"><span class="nut">Sodium</span><span class="old">217 mg</span><span class="new">233 mg</span><span class="chg none">—</span></div>
+              <div class="opt-trow"><span class="nut">Sugar</span><span class="old">10.9 g</span><span class="new">7.75 g</span><span class="chg">↓ 3.2 g ✓</span></div>
+              <div class="opt-trow"><span class="nut">Protein</span><span class="old">49.2 g</span><span class="new">48.4 g</span><span class="chg none">—</span></div>
+              <div class="opt-trow" style="border-bottom:none;"><span class="nut">Fiber</span><span class="old">17.0 g</span><span class="new">15.4 g</span><span class="chg none">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ch-caption">
+          <span>Fig. 04 · Optimize</span>
+          <span>Editorial notes, not just numbers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ PULL-QUOTE ═══════════ -->
+<section class="pq">
+  <div class="pq-eyebrow">
+    <span>§ Method</span>
+  </div>
+
+  <h2 class="pq-type r">
+    <span class="a">Cook by <em>the gram</em>.</span>
+    <span class="b">Plan by the week.</span>
+  </h2>
+</section>
+
+<!-- ═══════════ CLOSE ═══════════ -->
+<section class="close">
+  <div class="close-head">
+    <div><span class="n">§ Invitation</span></div>
+  </div>
+
+  <div class="close-grid">
+    <h3 class="close-h r">
+      If this sounds like how you'd want to cook, I'd like you to try it.
+    </h3>
+
+    <div class="close-body r d1">
+      <p>
+        Good Measure is early, and it's mine first — I cook from it every day. I'm sharing it now with people who want more control over what ends up on the plate, and who don't mind that it's still finding its shape. If that's you, come in.
+      </p>
+      <div class="close-sig">
+        — Jen Murse, Good Measure
+      </div>
+      <div class="close-cta">
+        <a href="#" class="btn">Get Started <span class="arr">↗</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="foot">
+  <div>© 2026 · Made by <a href="#">Jen Murse</a> · San Francisco</div>
+  <div><a href="#">Contact</a></div>
+</footer>
+
+<script>
+/* ─── reveal observer ─── */
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) {
+    document.querySelectorAll('.r').forEach(el => el.classList.add('in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+  document.querySelectorAll('.r').forEach(el => io.observe(el));
+})();
+</script>
+</body>
+</html>

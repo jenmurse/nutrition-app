@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 416.71 69.55">
+  <!-- Generator: Adobe Illustrator 30.2.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 1)  -->
+  <defs>
+    <style>
+      .st0 {
+        font-family: DMSans-SemiBold, 'DM Sans';
+        font-size: 48px;
+        font-weight: 600;
+        isolation: isolate;
+        letter-spacing: -.03em;
+      }
+    </style>
+  </defs>
+  <path id="frame" d="M68.93,67.45H3.22V1.74h65.71v65.71ZM6.06,64.62h60.06V4.57H6.06v60.06h0v-.02Z"/>
+  <g>
+    <rect id="tick-left" x="21.59" y="17.34" width="6" height="34.5"/>
+    <rect id="tick-right" x="44.57" y="17.34" width="6" height="34.5"/>
+    <rect id="tick-right1" data-name="tick-right" x="33.08" y="17.34" width="6" height="17.94"/>
+  </g>
+  <text id="wordmark" class="st0" transform="translate(83.65 51.33)"><tspan x="0" y="0">Good Measure</tspan></text>
+</svg>

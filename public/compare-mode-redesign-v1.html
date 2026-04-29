@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1400" />
+<title>Good Measure — Compare mode redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:    #F5F4EF;
+    --bg-2:  #EEEAE3;
+    --bg-3:  #E6E2D8;
+    --fg:    #1A1916;
+    --fg-2:  #36342F;
+    --muted: #6B6860;
+    --rule:  #C8C3B8;
+    --accent: #E84828;
+    --sel-border: #1A1916; /* selected tile border */
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono { font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .frame { padding: 64px 0 120px; }
+  .pad   { padding: 0 40px; }
+
+  .intro {
+    padding: 0 40px 48px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 72px;
+  }
+  .intro h1 {
+    font-size: 26px; font-weight: 700; letter-spacing: -0.02em;
+    margin: 0 0 14px; line-height: 1.1;
+  }
+  .intro p { font-size: 14px; color: var(--fg-2); max-width: 760px; margin: 0 0 8px; line-height: 1.65; }
+
+  .mock-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 40px 18px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .mock-label .caption { color: var(--fg); font-weight: 500; }
+  .mock-label .note    { color: var(--muted); font-weight: 400; }
+
+  .mock {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 72px;
+  }
+
+  .note-below {
+    padding: 20px 40px 0;
+    margin-bottom: 72px;
+    font-size: 12px; color: var(--fg-2); line-height: 1.65; max-width: 820px;
+  }
+  .note-below strong { color: var(--fg); }
+
+  /* ---- Nav ---- */
+  .app-nav {
+    height: 50px; border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center;
+    padding: 0 40px; gap: 32px; font-size: 13px;
+  }
+  .app-nav .brand { font-weight: 700; letter-spacing: -0.02em; }
+  .app-nav .tabs {
+    display: flex; gap: 22px;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+  }
+  .app-nav .tabs a { color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
+  .app-nav .tabs a.on { color: var(--fg); border-bottom-color: var(--fg); }
+  .app-nav .spacer { flex: 1; }
+  .app-nav .right { display: flex; align-items: center; gap: 14px; }
+  .avatar {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'DM Mono', monospace; font-size: 8px; font-weight: 500;
+  }
+  .avatar.jen   { background: #E84828; outline: 1.5px solid var(--bg); box-shadow: 0 0 0 1.5px var(--fg); }
+  .avatar.garth { background: #5A9B6A; }
+  .util { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); text-decoration: none; }
+
+  /* ---- Toolbar ---- */
+  .tb {
+    border-bottom: 1px solid var(--rule);
+    padding: 0 40px;
+    display: flex; align-items: center;
+    height: 44px; gap: 20px;
+  }
+  .tb-chips {
+    flex: 1; display: flex; align-items: baseline; gap: 20px;
+    overflow-x: hidden; white-space: nowrap;
+  }
+  .tb-right { flex-shrink: 0; display: flex; align-items: baseline; gap: 20px; }
+
+  .chip {
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+    border: 0; background: none; padding: 3px 0 2px; cursor: pointer;
+    border-bottom: 1.5px solid transparent;
+  }
+  .chip.on { color: var(--fg); border-bottom-color: var(--fg); }
+
+  .count {
+    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .count strong { color: var(--fg); font-weight: 500; }
+
+  .tb-sep { width: 1px; background: var(--rule); height: 16px; align-self: center; margin: 0 2px; }
+
+  .text-btn {
+    background: none; border: 0; padding: 3px 0 2px;
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); cursor: pointer;
+  }
+  .text-btn:hover { color: var(--fg); }
+  .text-btn.active { color: var(--fg); border-bottom: 1.5px solid var(--fg); }
+
+  .toggle { display: flex; gap: 14px; align-items: baseline; }
+  .toggle a {
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+    text-decoration: none; padding: 3px 0 2px; border-bottom: 1.5px solid transparent;
+  }
+  .toggle a.on { color: var(--fg); border-bottom-color: var(--fg); }
+
+  .search input {
+    border: 0; border-bottom: 1px solid var(--rule); background: transparent;
+    padding: 4px 2px; font-family: 'DM Sans', sans-serif; font-size: 12px;
+    width: 140px; color: var(--fg); outline: none;
+  }
+  .search input::placeholder {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+  }
+
+  .btn-primary {
+    background: var(--fg); color: var(--bg); border: 0; border-radius: 0;
+    padding: 8px 14px; font-family: 'DM Mono', monospace; font-size: 9px;
+    font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em;
+    cursor: pointer; flex-shrink: 0;
+  }
+
+  /* ---- Compare mode toolbar strip (replaces dark banner) ---- */
+  .compare-strip {
+    border-bottom: 1px solid var(--rule);
+    padding: 0 40px;
+    height: 36px;
+    display: flex; align-items: center; gap: 20px;
+    background: var(--bg-2);
+  }
+  .compare-strip-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+    flex: 1;
+  }
+  .compare-strip-label strong { color: var(--fg); }
+  .compare-strip-slots {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .slot {
+    width: 20px; height: 20px;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted);
+  }
+  .slot.filled {
+    background: var(--fg); color: var(--bg); border-color: var(--fg);
+  }
+  .compare-strip .text-btn { color: var(--muted); }
+  .compare-strip-cta {
+    background: var(--fg); color: var(--bg); border: 0; border-radius: 0;
+    padding: 6px 14px; font-family: 'DM Mono', monospace; font-size: 9px;
+    font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em;
+    cursor: pointer; opacity: 0.4; pointer-events: none;
+  }
+  .compare-strip-cta.ready { opacity: 1; pointer-events: auto; }
+
+  /* ---- Recipe grid ---- */
+  .rgrid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+  }
+  .rgrid-item {
+    padding: 24px 24px 32px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    position: relative; cursor: pointer;
+  }
+  .rgrid-item:nth-child(4n)        { border-right: 0; }
+  .rgrid-item:nth-last-child(-n+4) { border-bottom: 0; }
+
+  .rgrid-photo {
+    aspect-ratio: 1 / 1; background: var(--bg-2);
+    background-size: cover; background-position: center;
+    margin-bottom: 18px; position: relative;
+  }
+  .rgrid-ghost {
+    display: flex; align-items: flex-end; justify-content: flex-start;
+    padding: 20px;
+  }
+  .rgrid-ghost span {
+    color: var(--rule); font-size: 24px; font-weight: 600;
+    letter-spacing: -0.015em; line-height: 1.1;
+  }
+  .rgrid-cat {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px;
+  }
+  .rgrid-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; }
+
+  /* Selection state — BORDER ONLY, no fill tint */
+  .rgrid-item.selected {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+  .check-mark {
+    position: absolute; top: 12px; left: 12px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--fg); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    opacity: 0; transition: opacity 0.1s ease;
+  }
+  .rgrid-item.selected .check-mark { opacity: 1; }
+  .rgrid-item.selectable:not(.selected):hover .check-mark {
+    opacity: 0.3;
+  }
+
+  /* ---- Comparison chart ---- */
+  .cmp-nav {
+    height: 44px; border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; padding: 0 40px; gap: 20px;
+  }
+  .cmp-nav a {
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .cmp-nav a:hover { color: var(--fg); }
+  .cmp-nav-sep { width: 1px; background: var(--rule); height: 16px; align-self: center; }
+  .cmp-nav-title {
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 400;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+  }
+
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 160px repeat(4, 1fr);
+  }
+  .cmp-header-row {
+    display: contents;
+  }
+  .cmp-recipe-header {
+    padding: 32px 24px 24px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .cmp-recipe-header:last-child { border-right: 0; }
+  .cmp-recipe-header:first-child { border-right: 1px solid var(--rule); }
+
+  .cmp-thumb {
+    width: 80px; height: 60px;
+    background: var(--bg-2); background-size: cover; background-position: center;
+    margin-bottom: 16px;
+    /* NO border on the photo — that was a bug */
+  }
+  .cmp-thumb.ghost {
+    display: flex; align-items: flex-end; padding: 8px;
+  }
+  .cmp-thumb.ghost span {
+    font-size: 11px; font-weight: 600; color: var(--rule); line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .cmp-recipe-cat {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px;
+  }
+  .cmp-recipe-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; }
+
+  .cmp-row {
+    display: contents;
+  }
+  .cmp-label {
+    padding: 18px 24px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);
+  }
+  .cmp-value {
+    padding: 18px 24px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: baseline; gap: 3px;
+  }
+  .cmp-value:last-child { border-right: 0; }
+  .cmp-num { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .cmp-unit { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); }
+
+  /* Default values are de-emphasized; .lo = lowest = winner, shown prominently */
+  .cmp-value .cmp-num { color: var(--muted); font-weight: 400; font-size: 20px; }
+  .cmp-value .cmp-unit { color: var(--muted); opacity: 0.6; }
+  .cmp-value.lo .cmp-num { color: var(--fg); font-weight: 700; font-size: 22px; }
+  .cmp-value.lo .cmp-unit { color: var(--muted); opacity: 1; }
+  .cmp-value.lo::after {
+    content: '↓';
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    align-self: flex-end;
+    margin-left: 4px;
+    margin-bottom: 5px;
+  }
+
+  /* last row no bottom border */
+  .cmp-label.last,
+  .cmp-value.last { border-bottom: 0; }
+
+  /* ---- Row for bottom of comparison label col ---- */
+  .cmp-empty {
+    padding: 18px 24px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .cmp-empty.last { border-bottom: 0; }
+
+  /* ---- Shopping list modal fixes (for completeness) ---- */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26, 25, 22, 0.4); /* full viewport coverage, slightly warm dark */
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: var(--bg); border-radius: 0; /* sharp */
+    width: 640px; max-height: 80vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 28px 32px 16px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .modal-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .modal-date { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .modal-close {
+    background: none; border: 0; cursor: pointer; color: var(--muted);
+    font-size: 18px; line-height: 1; padding: 4px; margin-top: -4px;
+  }
+  .modal-close:hover { color: var(--fg); }
+  .modal-actions {
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-body { flex: 1; overflow-y: auto; }
+  .list-section-head {
+    padding: 14px 32px 8px;
+    font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+    border-bottom: 1px solid var(--rule);
+  }
+  .list-row {
+    padding: 14px 32px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+  }
+  .list-row:last-child { border-bottom: 0; }
+  .list-row.done { color: var(--muted); text-decoration: line-through; }
+  .list-check {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1.5px solid var(--rule);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: none;
+  }
+  .list-row.done .list-check {
+    background: var(--fg); border-color: var(--fg); color: var(--bg);
+    font-size: 10px;
+  }
+  .list-qty { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .list-name { font-size: 14px; font-weight: 500; }
+  .modal-footer {
+    padding: 20px 32px;
+    border-top: 1px solid var(--rule);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+<div class="pad">
+<div class="intro">
+  <div class="mono" style="font-size:10px; color:var(--muted); letter-spacing:0.18em; margin-bottom:18px;">§ COMPARE MODE REDESIGN · MOCK V1</div>
+  <h1>Compare mode — three states.</h1>
+  <p>The current compare mode uses two separate chrome layers: a dark announcement banner above the grid and a floating pill below it. Both are structural problems — neither is anchored to the app's ruled system, and the numbered slots in the pill look like mobile pagination in a desktop UI.</p>
+  <p>The redesign collapses everything into a single slim subrow beneath the toolbar. No dark banner. No floating pill. The toolbar's COMPARE button gains a count when items are selected, and the COMPARE action lives in the subrow where you can see your selection state. Selected tiles show a border, no fill tint.</p>
+</div>
+</div>
+
+
+<!-- ============================================================= -->
+<!-- STATE 1 — IDLE (no compare mode) -->
+<!-- ============================================================= -->
+<div class="mock-label">
+  <span class="caption">STATE 1 — IDLE · Compare is a text button</span>
+  <span class="note">Normal toolbar, COMPARE in the right group like any other control</span>
+</div>
+
+<div class="mock">
+  <nav class="app-nav">
+    <div class="brand">Good Measure</div>
+    <div class="tabs"><a href="#">Planner</a><a href="#" class="on">Recipes</a><a href="#">Pantry</a></div>
+    <div class="spacer"></div>
+    <div class="right">
+      <span class="avatar jen">J</span><span class="avatar garth">G</span>
+      <a class="util" href="#">Sign out</a>
+    </div>
+  </nav>
+  <div class="tb">
+    <div class="tb-chips">
+      <button class="chip on">All</button>
+      <button class="chip">Breakfast</button>
+      <button class="chip">Lunch</button>
+      <button class="chip">Dinner</button>
+      <button class="chip">Side</button>
+      <button class="chip">Snack</button>
+      <button class="chip">Dessert</button>
+      <button class="chip">Beverage</button>
+      <button class="chip">★ Favorites</button>
+    </div>
+    <div class="tb-right">
+      <span class="count"><strong>64</strong> recipes</span>
+      <div class="tb-sep"></div>
+      <button class="text-btn">Compare</button>
+      <button class="text-btn" style="display:inline-flex;align-items:baseline;gap:4px;">Name<span style="font-size:8px;position:relative;top:-1px;">▾</span></button>
+      <button class="text-btn">↑</button>
+      <div class="toggle"><a href="#" class="on">Grid</a><a href="#">List</a></div>
+      <div class="search"><input placeholder="Search"></div>
+      <button class="btn-primary">+ New</button>
+    </div>
+  </div>
+  <div class="rgrid">
+    <div class="rgrid-item"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars</div></div>
+    <div class="rgrid-item"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars (Optimized v2)</div></div>
+    <div class="rgrid-item"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars (Optimized)</div></div>
+    <div class="rgrid-item"><div class="rgrid-photo rgrid-ghost"><span>Almond Croissant Blondies</span></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Blondies</div></div>
+  </div>
+</div>
+
+
+<!-- ============================================================= -->
+<!-- STATE 2A — SELECTING (0 selected) -->
+<!-- ============================================================= -->
+<div class="mock-label">
+  <span class="caption">STATE 2A — SELECTION MODE · 0 of 4 selected</span>
+  <span class="note">Slim subrow replaces dark banner · no floating pill · COMPARE disabled until 2+ selected</span>
+</div>
+
+<div class="mock">
+  <nav class="app-nav">
+    <div class="brand">Good Measure</div>
+    <div class="tabs"><a href="#">Planner</a><a href="#" class="on">Recipes</a><a href="#">Pantry</a></div>
+    <div class="spacer"></div>
+    <div class="right"><span class="avatar jen">J</span><span class="avatar garth">G</span><a class="util" href="#">Sign out</a></div>
+  </nav>
+  <div class="tb">
+    <div class="tb-chips">
+      <button class="chip on">All</button>
+      <button class="chip">Breakfast</button>
+      <button class="chip">Lunch</button>
+      <button class="chip">Dinner</button>
+      <button class="chip">Side</button>
+    </div>
+    <div class="tb-right">
+      <span class="count"><strong>64</strong> recipes</span>
+      <div class="tb-sep"></div>
+      <button class="text-btn active">Compare</button>
+      <button class="text-btn" style="display:inline-flex;align-items:baseline;gap:4px;">Name<span style="font-size:8px;position:relative;top:-1px;">▾</span></button>
+      <button class="text-btn">↑</button>
+      <div class="toggle"><a href="#" class="on">Grid</a><a href="#">List</a></div>
+      <div class="search"><input placeholder="Search"></div>
+      <button class="btn-primary">+ New</button>
+    </div>
+  </div>
+
+  <!-- THE NEW SUBROW — replaces the dark banner -->
+  <div class="compare-strip">
+    <div class="compare-strip-label">Select up to <strong>4 recipes</strong> to compare nutrition</div>
+    <div class="compare-strip-slots">
+      <div class="slot">1</div>
+      <div class="slot">2</div>
+      <div class="slot">3</div>
+      <div class="slot">4</div>
+    </div>
+    <div class="tb-sep"></div>
+    <button class="text-btn">Exit</button>
+    <button class="compare-strip-cta">Compare →</button>
+  </div>
+
+  <div class="rgrid">
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars (Optimized v2)</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars (Optimized)</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo rgrid-ghost"><div class="check-mark">✓</div><span>Almond Croissant Blondies</span></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Blondies</div></div>
+  </div>
+</div>
+
+
+<!-- ============================================================= -->
+<!-- STATE 2B — SELECTING (3 selected) -->
+<!-- ============================================================= -->
+<div class="mock-label">
+  <span class="caption">STATE 2B — SELECTION MODE · 3 of 4 selected</span>
+  <span class="note">Slots fill as recipes are selected · COMPARE activates at 2+ · selected tile = fg border, no tint</span>
+</div>
+
+<div class="mock">
+  <nav class="app-nav">
+    <div class="brand">Good Measure</div>
+    <div class="tabs"><a href="#">Planner</a><a href="#" class="on">Recipes</a><a href="#">Pantry</a></div>
+    <div class="spacer"></div>
+    <div class="right"><span class="avatar jen">J</span><span class="avatar garth">G</span><a class="util" href="#">Sign out</a></div>
+  </nav>
+  <div class="tb">
+    <div class="tb-chips">
+      <button class="chip on">All</button>
+      <button class="chip">Breakfast</button>
+      <button class="chip">Lunch</button>
+      <button class="chip">Dinner</button>
+      <button class="chip">Side</button>
+    </div>
+    <div class="tb-right">
+      <span class="count"><strong>64</strong> recipes</span>
+      <div class="tb-sep"></div>
+      <button class="text-btn active">Compare (3)</button>
+      <button class="text-btn" style="display:inline-flex;align-items:baseline;gap:4px;">Name<span style="font-size:8px;position:relative;top:-1px;">▾</span></button>
+      <button class="text-btn">↑</button>
+      <div class="toggle"><a href="#" class="on">Grid</a><a href="#">List</a></div>
+      <div class="search"><input placeholder="Search"></div>
+      <button class="btn-primary">+ New</button>
+    </div>
+  </div>
+
+  <div class="compare-strip">
+    <div class="compare-strip-label"><strong>3</strong> of 4 selected</div>
+    <div class="compare-strip-slots">
+      <div class="slot filled">1</div>
+      <div class="slot filled">2</div>
+      <div class="slot filled">3</div>
+      <div class="slot">4</div>
+    </div>
+    <div class="tb-sep"></div>
+    <button class="text-btn">Clear</button>
+    <button class="text-btn">Exit</button>
+    <button class="compare-strip-cta ready">Compare →</button>
+  </div>
+
+  <div class="rgrid">
+    <div class="rgrid-item selectable selected"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars (Optimized v2)</div></div>
+    <div class="rgrid-item selectable selected"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Bars (Optimized)</div></div>
+    <div class="rgrid-item selectable selected"><div class="rgrid-photo rgrid-ghost"><div class="check-mark">✓</div><span>Almond Croissant Blondies</span></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Almond Croissant Blondies</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dinner</div><div class="rgrid-name">Baked Catfish</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Black Bean Avocado Brownies</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Black Bean Cherry Avocado Brownies</div></div>
+    <div class="rgrid-item selectable"><div class="rgrid-photo" style="background-image:url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80')"><div class="check-mark">✓</div></div><div class="rgrid-cat">Dessert</div><div class="rgrid-name">Brown Butter Banana Bread GF Cookies</div></div>
+  </div>
+</div>
+
+<div class="note-below">
+  <p><strong>Selection mode:</strong> The dark banner is gone. Instead a slim 36px subrow sits between the toolbar and the grid — same warm paper bg but slightly shifted to `var(--bg-2)` so it reads as a secondary layer. Left side shows the count or instruction. Right side has four slots that fill as recipes are selected, plus Clear, Exit, and the Compare → CTA. The CTA is disabled (opacity 40%) until at least 2 recipes are selected.</p>
+  <p><strong>Selected tiles:</strong> `outline: 2px solid var(--fg)` — no tinted background fill. The cream tint in the current build was vestigial card-thinking. The editorial register uses line-weight not fills to communicate state. Hovering an unselected tile in compare mode shows a ghost checkmark at 30% opacity as a tap affordance hint.</p>
+  <p><strong>COMPARE in toolbar:</strong> When selection mode is active, COMPARE stays in the toolbar but activates — it gets the fg color and underline treatment and shows a count in parens when anything's selected: `COMPARE (3)`. This means users can also trigger comparison from the toolbar control, not just from the subrow CTA. Both do the same thing.</p>
+</div>
+
+
+<!-- ============================================================= -->
+<!-- STATE 3 — COMPARISON CHART -->
+<!-- ============================================================= -->
+<div class="mock-label">
+  <span class="caption">STATE 3 — COMPARISON CHART · No border artifacts on photos</span>
+  <span class="note">The chart itself was already correct — fix is removing the black top border on photos</span>
+</div>
+
+<div class="mock">
+  <div class="cmp-nav">
+    <a href="#">‹ Back to Recipes</a>
+    <div class="cmp-nav-sep"></div>
+    <span class="cmp-nav-title">Nutrition Comparison</span>
+  </div>
+
+  <div class="cmp-grid">
+
+    <!-- Header row -->
+    <div class="cmp-recipe-header" style="border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); padding: 32px 24px 24px;">
+      <!-- empty label column header -->
+    </div>
+    <div class="cmp-recipe-header">
+      <div class="cmp-thumb" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=200&q=80')"></div>
+      <div class="cmp-recipe-cat">Dessert</div>
+      <div class="cmp-recipe-name">Almond Croissant Bars (Optimized)</div>
+    </div>
+    <div class="cmp-recipe-header">
+      <div class="cmp-thumb" style="background-image:url('https://images.unsplash.com/photo-1558326567-98166e232c9c?auto=format&fit=crop&w=200&q=80')"></div>
+      <div class="cmp-recipe-cat">Dessert</div>
+      <div class="cmp-recipe-name">Almond Croissant Bars (Optimized v2)</div>
+    </div>
+    <div class="cmp-recipe-header">
+      <div class="cmp-thumb ghost"><span>Almond Flour Lemon</span></div>
+      <div class="cmp-recipe-cat">Dessert</div>
+      <div class="cmp-recipe-name">Almond Flour Lemon Bars</div>
+    </div>
+    <div class="cmp-recipe-header" style="border-right:0;">
+      <div class="cmp-thumb" style="background-image:url('https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=200&q=80')"></div>
+      <div class="cmp-recipe-cat">Dessert</div>
+      <div class="cmp-recipe-name">Black Bean Cherry Avocado Brownies</div>
+    </div>
+
+    <!-- Data rows -->
+    <div class="cmp-label">Calories</div>
+    <div class="cmp-value"><span class="cmp-num">315</span><span class="cmp-unit">kcal</span></div>
+    <div class="cmp-value"><span class="cmp-num">379</span><span class="cmp-unit">kcal</span></div>
+    <div class="cmp-value lo"><span class="cmp-num">137</span><span class="cmp-unit">kcal</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">95</span><span class="cmp-unit">kcal</span></div>
+
+    <div class="cmp-label">Fat</div>
+    <div class="cmp-value"><span class="cmp-num">15</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value"><span class="cmp-num">24</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value lo"><span class="cmp-num">10</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">3</span><span class="cmp-unit">g</span></div>
+
+    <div class="cmp-label">Sat Fat</div>
+    <div class="cmp-value lo"><span class="cmp-num">2</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value"><span class="cmp-num">5</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value"><span class="cmp-num">4</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">1</span><span class="cmp-unit">g</span></div>
+
+    <div class="cmp-label">Sodium</div>
+    <div class="cmp-value lo"><span class="cmp-num">23</span><span class="cmp-unit">mg</span></div>
+    <div class="cmp-value lo"><span class="cmp-num">2</span><span class="cmp-unit">mg</span></div>
+    <div class="cmp-value"><span class="cmp-num">49</span><span class="cmp-unit">mg</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">53</span><span class="cmp-unit">mg</span></div>
+
+    <div class="cmp-label">Carbs</div>
+    <div class="cmp-value"><span class="cmp-num">34</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value"><span class="cmp-num">30</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value lo"><span class="cmp-num">7</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">13</span><span class="cmp-unit">g</span></div>
+
+    <div class="cmp-label">Sugar</div>
+    <div class="cmp-value"><span class="cmp-num">9</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value"><span class="cmp-num">11</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value lo"><span class="cmp-num">5</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">7</span><span class="cmp-unit">g</span></div>
+
+    <div class="cmp-label">Protein</div>
+    <div class="cmp-value"><span class="cmp-num">11</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value"><span class="cmp-num">13</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value lo"><span class="cmp-num">4</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value" style="border-right:0;"><span class="cmp-num">3</span><span class="cmp-unit">g</span></div>
+
+    <div class="cmp-label last">Fiber</div>
+    <div class="cmp-value last"><span class="cmp-num">6</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value last"><span class="cmp-num">7</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value last lo"><span class="cmp-num">2</span><span class="cmp-unit">g</span></div>
+    <div class="cmp-value last" style="border-right:0;"><span class="cmp-num">3</span><span class="cmp-unit">g</span></div>
+
+  </div>
+</div>
+
+<div class="note-below">
+  <p><strong>Comparison chart:</strong> The chart structure was already nearly right — ruled rows, tabular numbers, mono labels. Two changes: (1) the black top border on photo thumbnails is removed — it was a CSS artifact, probably a `border-top` on the image container that shouldn't be there. (2) I added a subtle "lowest value" highlight on each row — the lowest number gets slightly stronger color (full `var(--fg)` instead of the lighter default). This is a small functional enhancement that makes the comparison actually useful: you can scan down a row and instantly see which recipe wins on each metric. It's optional — easy to drop if you prefer all values equal weight.</p>
+  <p>The ghost thumbnail (Almond Flour Lemon Bars) uses the same bottom-left text treatment as the recipe grid — consistent with the rest of the app.</p>
+  <p><strong>What I didn't change:</strong> The overall chart structure, type sizes, column widths, row heights, the BACK TO RECIPES nav, and the NUTRITION COMPARISON page title. These are already correct and don't need touching.</p>
+</div>
+
+
+</div>
+</body>
+</html>

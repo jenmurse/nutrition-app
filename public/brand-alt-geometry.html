@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Good Measure — Alt Mark Geometry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F4EF;--fg:#1A1916;--fg-2:#36342F;--mute:#6B6860;--rule:#D0CCC2;
+  --sans:'DM Sans',-apple-system,sans-serif;--mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;}
+body{padding:56px clamp(24px,5vw,80px);max-width:1320px;margin:0 auto;}
+
+.head{margin-bottom:56px;padding-bottom:32px;border-bottom:1px solid var(--rule);}
+.head .k{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;}
+.head h1{font-size:clamp(28px,3.6vw,40px);font-weight:500;letter-spacing:-0.025em;line-height:1.08;max-width:28ch;margin-bottom:16px;}
+.head p{font-size:15px;line-height:1.65;color:var(--fg-2);max-width:62ch;margin-bottom:12px;}
+.head p strong{color:var(--fg);font-weight:500;}
+
+/* 5-column comparison table */
+.table{border:1px solid var(--rule);margin-top:32px;}
+.row{display:grid;grid-template-columns:120px repeat(5,1fr);border-bottom:1px solid var(--rule);}
+.row:last-child{border-bottom:none;}
+.row.header{background:var(--fg);color:var(--bg);}
+.cell{padding:20px 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+.cell:last-child{border-right:none;}
+.row.header .cell{border-right-color:rgba(255,255,255,0.2);}
+.lbl{padding:20px 16px;border-right:1px solid var(--rule);display:flex;align-items:center;font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);}
+.mark-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mute);text-align:center;line-height:1.4;}
+.row.header .mark-lbl{color:rgba(255,255,255,0.6);}
+.fav{border:1px solid var(--rule);padding:2px;background:#fff;display:inline-flex;}
+.row.header .fav{border-color:rgba(255,255,255,0.3);}
+
+svg{display:block;}
+
+/* Nav row */
+.nav-row{border-bottom:1px solid var(--rule);display:grid;grid-template-columns:120px repeat(5,1fr);}
+.nav-cell{padding:14px 12px;border-right:1px solid var(--rule);display:flex;align-items:center;gap:5px;}
+.nav-cell:last-child{border-right:none;}
+.nav-cell span{font-family:var(--sans);font-weight:600;font-size:12px;letter-spacing:-0.025em;white-space:nowrap;}
+.nav-cell .lbl-small{font-family:var(--mono);font-size:8px;color:var(--mute);letter-spacing:0.1em;text-transform:uppercase;}
+
+.sec{padding:48px 0;border-bottom:1px solid var(--rule);}
+.sec-head .l{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg);margin-bottom:12px;}
+
+.verdict{padding:48px 0;}
+.verdict p{max-width:58ch;font-size:15px;line-height:1.7;color:var(--fg-2);margin-bottom:16px;}
+.verdict p strong{color:var(--fg);font-weight:500;}
+
+@media (max-width:900px){
+  body{padding:32px 20px;}
+  .row,.nav-row{grid-template-columns:80px repeat(3,1fr);}
+  .row .cell:nth-child(n+5),.nav-row .nav-cell:nth-child(n+5){display:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="k">§ Alt mark · geometry tuning</div>
+  <h1>Five variants. One question: which survives at 16px?</h1>
+  <p>
+    The alt mark's three ticks merge at small scale because gaps ≈ tick width. The fix is wider gaps, thinner center tick, or both. Five variants below — read the favicon row first.
+  </p>
+  <p>
+    <strong>The variable being tuned:</strong> gap-to-tick ratio. At original the ratio is ~0.9:1 (gap slightly narrower than tick). Target is at least 1.5:1 for the gaps to read as space at 16px.
+  </p>
+</header>
+
+<!--
+  GEOMETRY NOTES per variant (all in 32×32 viewBox):
+
+  A — Original (current alt)
+    outer ticks: w=2.74, x=9.39 / x=19.88
+    center tick: w=2.74, h=8.19 (half), x=14.63
+    gaps: 2.50 / 2.51 — ratio ~0.9:1
+
+  B — Wider stance, same tick widths
+    push outers to edges: x=8.0 / x=21.26
+    center stays x=14.63
+    gaps: 14.63−(8.0+2.74)=3.89 / 21.26−(14.63+2.74)=3.89 — ratio ~1.4:1
+
+  C — Wider stance + thinner center
+    outer: w=2.74 at x=8.0 / x=21.26
+    center: w=1.6, x=15.2
+    gaps: 15.2−(8.0+2.74)=4.46 / 21.26−(15.2+1.6)=4.46 — ratio ~1.6:1
+
+  D — Same stance as B, much thinner center (hairline feel)
+    outer: w=2.74 at x=8.0 / x=21.26
+    center: w=1.0, x=15.5
+    gaps: 4.76 each — ratio ~1.7:1
+
+  E — Widest, thinned outer ticks too
+    outer: w=2.2 at x=7.5 / x=22.3
+    center: w=1.6, x=15.1
+    gaps: 15.1−(7.5+2.2)=5.4 / 22.3−(15.1+1.6)=5.6 — ratio ~2.5:1
+-->
+
+<div class="table">
+
+  <!-- HEADER -->
+  <div class="row header">
+    <div class="cell" style="align-items:flex-start;padding:16px;">
+      <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.6;">Scale</span>
+    </div>
+    <div class="cell">
+      <div class="mark-lbl">A · Original<br>gap 2.5 / tick 2.74<br>ratio 0.9:1</div>
+    </div>
+    <div class="cell">
+      <div class="mark-lbl">B · Wider stance<br>gap 3.9 / tick 2.74<br>ratio 1.4:1</div>
+    </div>
+    <div class="cell">
+      <div class="mark-lbl">C · Wide + thin center<br>gap 4.5 / center 1.6<br>ratio 1.6:1</div>
+    </div>
+    <div class="cell">
+      <div class="mark-lbl">D · Hairline center<br>gap 4.8 / center 1.0<br>ratio 1.7:1</div>
+    </div>
+    <div class="cell">
+      <div class="mark-lbl">E · Widest + thin all<br>gap 5.5 / outer 2.2<br>ratio 2.5:1</div>
+    </div>
+  </div>
+
+  <!-- 160px display -->
+  <div class="row">
+    <div class="lbl">Display<br>160px</div>
+    <div class="cell">
+      <svg width="160" height="160" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="9.39" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="19.88" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="160" height="160" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="160" height="160" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="15.20" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="160" height="160" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="15.50" y="8.12" width="1.00" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="160" height="160" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="7.50" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+        <rect x="22.30" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+        <rect x="15.10" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 48px section -->
+  <div class="row">
+    <div class="lbl">Section<br>48px</div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="9.39" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="19.88" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="15.20" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="15.50" y="8.12" width="1.00" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="7.50" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+        <rect x="22.30" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+        <rect x="15.10" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 18px nav -->
+  <div class="row">
+    <div class="lbl">Nav<br>18px</div>
+    <div class="cell">
+      <svg width="18" height="18" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="9.39" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="19.88" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="18" height="18" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="18" height="18" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="15.20" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="18" height="18" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+        <rect x="15.50" y="8.12" width="1.00" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="cell">
+      <svg width="18" height="18" viewBox="0 0 32 32">
+        <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+        <rect x="7.50" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+        <rect x="22.30" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+        <rect x="15.10" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 16px favicon — THE CRITICAL ROW -->
+  <div class="row" style="background:rgba(0,0,0,0.02);">
+    <div class="lbl" style="color:var(--fg);font-weight:500;">Favicon<br>16px<br>★ critical</div>
+    <div class="cell">
+      <div class="fav">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+          <rect x="9.39" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="19.88" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="fav">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+          <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="fav">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+          <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="15.20" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="fav">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+          <rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/>
+          <rect x="15.50" y="8.12" width="1.00" height="8.19" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="fav">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/>
+          <rect x="7.50" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+          <rect x="22.30" y="8.12" width="2.20" height="15.75" fill="currentColor"/>
+          <rect x="15.10" y="8.12" width="1.60" height="8.19" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Nav row in context -->
+<div style="margin-top:48px;">
+  <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg);margin-bottom:16px;">§ In a real nav — each variant</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;">
+
+  <div style="border:1px solid var(--rule);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;">
+      <svg width="18" height="18" viewBox="0 0 32 32"><path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/><rect x="9.39" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="19.88" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/></svg>
+      <span style="font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:-0.03em;">Good Measure</span>
+    </span>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);">A · original</span>
+  </div>
+
+  <div style="border:1px solid var(--rule);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;">
+      <svg width="18" height="18" viewBox="0 0 32 32"><path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/><rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="14.63" y="8.12" width="2.74" height="8.19" fill="currentColor"/></svg>
+      <span style="font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:-0.03em;">Good Measure</span>
+    </span>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);">B · wider stance</span>
+  </div>
+
+  <div style="border:1px solid var(--rule);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;">
+      <svg width="18" height="18" viewBox="0 0 32 32"><path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/><rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="15.20" y="8.12" width="1.60" height="8.19" fill="currentColor"/></svg>
+      <span style="font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:-0.03em;">Good Measure</span>
+    </span>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);">C · wide + thin center</span>
+  </div>
+
+  <div style="border:1px solid var(--rule);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;">
+      <svg width="18" height="18" viewBox="0 0 32 32"><path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/><rect x="8.00" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="21.26" y="8.12" width="2.74" height="15.75" fill="currentColor"/><rect x="15.50" y="8.12" width="1.00" height="8.19" fill="currentColor"/></svg>
+      <span style="font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:-0.03em;">Good Measure</span>
+    </span>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);">D · hairline center</span>
+  </div>
+
+  <div style="border:1px solid var(--rule);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;">
+      <svg width="18" height="18" viewBox="0 0 32 32"><path d="M32,32H0V0h32v32ZM1.30,30.70h29.40V1.30H1.30v29.40Z" fill="currentColor"/><rect x="7.50" y="8.12" width="2.20" height="15.75" fill="currentColor"/><rect x="22.30" y="8.12" width="2.20" height="15.75" fill="currentColor"/><rect x="15.10" y="8.12" width="1.60" height="8.19" fill="currentColor"/></svg>
+      <span style="font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:-0.03em;">Good Measure</span>
+    </span>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);">E · widest, thin all</span>
+  </div>
+
+</div>
+
+<div class="verdict" style="margin-top:48px;">
+  <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg);margin-bottom:20px;">§ My read</div>
+  <p>
+    <strong>C is the likely answer.</strong> Wider outer stance (x=8.0/21.26) gives the gaps real room. Thinner center tick (1.6 vs 2.74) makes the midpoint marker read as a different kind of element — a reference notch, not a third full tick. The M-shape reads clearly at display, the ruler-midpoint idea survives to section size, and the favicon lands as two dominant ticks with a small marker between them.
+  </p>
+  <p>
+    <strong>D (hairline center) is cleaner at favicon</strong> — the 1.0px center tick may disappear at 16px, which is actually fine since the favicon would then just be two bars (readable), not three elements of varying weight. Trade-off: at display size a 1-unit hairline looks deliberately delicate, which either reads as refined or as fragile depending on your view.
+  </p>
+  <p>
+    <strong>B fails</strong> — wider stance without thinning the center just spreads the same problem. Three ticks of equal width at any gap still read as noise when small.
+  </p>
+  <p>
+    <strong>E is overcorrected</strong> — the thinner outer ticks undercut the match to the wordmark stem weight. The mark starts to look feathery beside "Good Measure" at 600.
+  </p>
+  <p>
+    Pick C or D. Then take the geometry into Illustrator, fine-tune the proportions by eye, and send the SVG back. I'll apply it everywhere.
+  </p>
+</div>
+
+</body>
+</html>

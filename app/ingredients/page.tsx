@@ -235,34 +235,30 @@ function IngredientsPage() {
       <div className="ed-toolbar list-toolbar">
         {/* ── Mobile toolbar — CSS shows on mobile only ── */}
         <div className="mob-tb">
-          <div className="relative flex-1 min-w-0">
-            <svg className="absolute left-[10px] top-1/2 -translate-y-1/2 pointer-events-none text-[var(--muted)]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
+          {/* Search */}
+          <div className="ed-search">
             <input
               ref={searchRef}
               type="search"
-              placeholder="Search pantry…"
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => updateSearchParam("search", e.target.value)}
               aria-label="Search ingredients"
-              className="mob-search-input mob-search-input--icon"
             />
           </div>
           {/* Filter */}
           <button
             onClick={() => setFilterSheetOpen(true)}
-            className={`mob-filter-btn${activeFilterCount > 0 ? " active" : ""}`}
+            className={`mob-filter-text${activeFilterCount > 0 ? " active" : ""}`}
             aria-label={`Filter${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
             aria-haspopup="dialog"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="4" y1="6" x2="20" y2="6"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>
-              <line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
-              <line x1="4" y1="18" x2="20" y2="18"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
-            </svg>
-            {activeFilterCount > 0 && <span className="mob-filter-dot" aria-hidden="true" />}
-          </button>
+          >Filter{activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}</button>
+          {/* + ADD */}
+          <button
+            onClick={() => router.push("/ingredients/create")}
+            className="ed-btn-outline"
+            aria-label="Add new ingredient"
+          >+ Add</button>
         </div>
 
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
@@ -367,13 +363,6 @@ function IngredientsPage() {
           </div>
         </>
       )}
-
-      {/* ── FAB (mobile only) ── */}
-      <button
-        className="mob-fab"
-        onClick={() => router.push("/ingredients/create")}
-        aria-label="Add new ingredient"
-      >+</button>
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto animate-page-enter">

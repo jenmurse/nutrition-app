@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Good Measure — Favicon
+  Same geometry as canonical mark. Safe at 16×16 because
+  band thickness (1.38) survives pixel-rounding as a filled path.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <title>Good Measure favicon</title>
+
+  <g id="mark">
+    <path id="frame"
+          d="M32,32H0V0h32v32ZM1.38,30.62h29.25V1.38H1.38v29.25h0Z"
+          fill="currentColor"/>
+
+    <rect id="tick-left"
+          x="9.09" y="6.8" width="3.2" height="18.4"
+          fill="currentColor"/>
+
+    <rect id="tick-right"
+          x="19.74" y="6.8" width="3.2" height="18.4"
+          fill="currentColor"/>
+  </g>
+</svg>

@@ -342,58 +342,43 @@ function RecipesPage() {
       <div className="ed-toolbar list-toolbar">
         {/* ── Mobile toolbar — CSS shows on mobile only ── */}
         <div className="mob-tb">
-          <div className="relative flex-1 min-w-0">
-            <svg className="absolute left-[10px] top-1/2 -translate-y-1/2 pointer-events-none text-[var(--muted)]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
+          {/* Search */}
+          <div className="ed-search">
             <input
               ref={mobileSearchRef}
               type="search"
-              placeholder="Search recipes…"
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search recipes"
-              className="mob-search-input mob-search-input--icon"
             />
           </div>
           {/* View toggle */}
-          <div className="mob-view-group" role="group" aria-label="View mode">
+          <div className="ed-toggle" role="group" aria-label="View mode">
             <button
               onClick={() => setViewMode("grid")}
-              className={`mob-tb-icon${viewMode === "grid" ? " on" : ""}`}
-              aria-label="Grid view"
+              className={viewMode === "grid" ? "is-active" : ""}
               aria-pressed={viewMode === "grid"}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
-                <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
-              </svg>
-            </button>
+            >Grid</button>
             <button
               onClick={() => setViewMode("list")}
-              className={`mob-tb-icon${viewMode === "list" ? " on" : ""}`}
-              aria-label="List view"
+              className={viewMode === "list" ? "is-active" : ""}
               aria-pressed={viewMode === "list"}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </button>
+            >List</button>
           </div>
-          {/* Filter + sort */}
+          {/* Filter */}
           <button
             onClick={() => setFilterSheetOpen(true)}
-            className={`mob-filter-btn${activeFilterCount > 0 ? " active" : ""}`}
-            aria-label={`Filter and sort${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
+            className={`mob-filter-text${activeFilterCount > 0 ? " active" : ""}`}
+            aria-label={`Filter${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
             aria-haspopup="dialog"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="4" y1="6" x2="20" y2="6"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>
-              <line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
-              <line x1="4" y1="18" x2="20" y2="18"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
-            </svg>
-            {activeFilterCount > 0 && <span className="mob-filter-dot" aria-hidden="true" />}
-          </button>
+          >Filter{activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}</button>
+          {/* + NEW */}
+          <button
+            onClick={() => router.push("/recipes/create")}
+            className="ed-btn-outline"
+            aria-label="Create new recipe"
+          >+ New</button>
         </div>
 
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
@@ -705,13 +690,6 @@ function RecipesPage() {
           </div>
         </>
       )}
-
-      {/* ── FAB (mobile only) ── */}
-      <button
-        className="mob-fab"
-        onClick={() => router.push("/recipes/create")}
-        aria-label="Create new recipe"
-      >+</button>
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto animate-page-enter">

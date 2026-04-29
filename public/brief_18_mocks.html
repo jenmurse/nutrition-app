@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Brief 18 — Before/After Mockups</title>
+<style>
+  body { background: #E5E2D9; font-family: 'DM Sans', system-ui, sans-serif; margin: 0; padding: 40px 20px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin: 0 0 32px; letter-spacing: -0.01em; }
+  .section { margin-bottom: 56px; }
+  .section-label { font-size: 11px; letter-spacing: 0.1em; color: #777; margin-bottom: 12px; text-transform: uppercase; font-weight: 500; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .frame { background: #F1EEE6; border-radius: 6px; overflow: hidden; position: relative; aspect-ratio: 16/10; }
+  .ba-tag { position: absolute; top: 10px; left: 12px; font-size: 9px; color: #888; letter-spacing: 0.1em; font-weight: 500; z-index: 10; }
+  .ba-note { position: absolute; top: 10px; right: 12px; font-size: 9px; color: #D85A30; letter-spacing: 0.05em; z-index: 10; max-width: 50%; text-align: right; }
+  .ba-note.ok { color: #4F7A4F; }
+
+  /* Auth */
+  .auth-header { height: 13%; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; }
+  .auth-header.ruled { border-bottom: 0.5px solid #C8C5BD; }
+  .auth-wm { font-size: 11px; font-weight: 700; color: #1a1a1a; }
+  .auth-back { font-size: 8px; letter-spacing: 0.12em; color: #1a1a1a; }
+  .auth-body { height: 87%; display: flex; position: relative; }
+  .auth-vsplit { position: absolute; top: 5%; left: 50%; bottom: 5%; width: 0.5px; background: #C8C5BD; }
+  .auth-left { flex: 1; padding: 9% 5%; }
+  .auth-right { flex: 1; padding: 9% 5%; }
+  .auth-eyebrow { font-size: 6px; letter-spacing: 0.12em; color: #888; margin-bottom: 8px; }
+  .auth-h { font-size: 17px; font-weight: 700; line-height: 1.0; color: #1a1a1a; }
+  .auth-h .sage { color: #6B9E6B; font-style: italic; }
+  .auth-tabs { display: flex; gap: 12px; font-size: 7px; letter-spacing: 0.12em; }
+  .auth-tabs.ruled { padding-bottom: 5px; border-bottom: 0.5px solid #C8C5BD; }
+  .auth-tab-active { color: #1a1a1a; border-bottom: 1px solid #1a1a1a; padding-bottom: 4px; }
+  .auth-tab { color: #888; padding-bottom: 4px; }
+  .auth-field { margin-top: 14px; }
+  .auth-field-label { font-size: 6px; letter-spacing: 0.12em; color: #888; }
+  .auth-field-line { height: 0.5px; background: #C8C5BD; margin-top: 8px; }
+  .auth-cta { margin-top: 16px; height: 16px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
+  .auth-cta span { font-size: 7px; color: white; letter-spacing: 0.12em; font-weight: 500; }
+
+  /* Settings */
+  .settings { display: flex; height: 100%; padding: 16% 6% 6%; }
+  .settings-nav { width: 30%; padding-right: 12px; }
+  .settings-nav-item { display: flex; gap: 10px; padding: 7px 0; }
+  .settings-nav-item.ruled { border-bottom: 0.5px solid #C8C5BD; }
+  .settings-nav-num { font-size: 7px; color: #888; }
+  .settings-nav-label { font-size: 8px; letter-spacing: 0.1em; }
+  .settings-nav-active .settings-nav-label { color: #1a1a1a; font-weight: 500; }
+  .settings-nav-inactive .settings-nav-label { color: #888; }
+  .settings-content { flex: 1; padding-left: 14px; }
+  .settings-h { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .settings-h-rule { height: 0.5px; background: #C8C5BD; margin-top: 8px; }
+  .settings-content-eyebrow { margin-top: 10px; font-size: 7px; color: #888; letter-spacing: 0.1em; }
+  .settings-input-line { margin-top: 5px; height: 0.5px; background: #C8C5BD; }
+
+  /* Shopping */
+  .shop-modal { background: white; margin: 18% 14% 5%; padding: 12px 16px; }
+  .shop-h { font-size: 11px; font-weight: 700; color: #1a1a1a; }
+  .shop-sub { font-size: 7px; color: #888; margin-top: 3px; }
+  .shop-cat { margin-top: 14px; display: flex; gap: 8px; align-items: center; }
+  .shop-cat-circle { width: 7px; height: 7px; border: 0.5px solid #888; border-radius: 50%; }
+  .shop-cat-label { font-size: 8px; letter-spacing: 0.12em; font-weight: 500; color: #1a1a1a; }
+  .shop-cat-rule { height: 0.5px; background: #C8C5BD; margin-top: 6px; }
+  .shop-item { margin-top: 6px; display: flex; gap: 8px; align-items: center; }
+  .shop-item-circle { width: 6px; height: 6px; border: 0.5px solid #888; border-radius: 50%; }
+  .shop-item-amt { font-size: 7px; color: #888; }
+  .shop-item-name { font-size: 7px; color: #1a1a1a; }
+
+  /* Onboarding */
+  .ob-chrome { display: flex; justify-content: space-between; padding: 13% 18% 0; }
+  .ob-wm { font-size: 11px; font-weight: 700; }
+  .ob-counter { font-size: 8px; color: #888; letter-spacing: 0.06em; }
+  .ob-content { text-align: center; padding: 0 12%; }
+  .ob-eyebrow { font-size: 7px; letter-spacing: 0.12em; color: #888; }
+  .ob-h { font-size: 18px; font-weight: 700; margin-top: 6px; line-height: 1.0; color: #1a1a1a; }
+  .ob-lede { font-size: 7px; color: #555; margin-top: 6px; line-height: 1.4; }
+  .ob-spacer-loose { height: 22%; }
+  .ob-spacer-tight { height: 9%; }
+  .gap-marker { position: absolute; right: 8px; width: 1px; }
+  .gap-marker-label { position: absolute; right: 14px; font-size: 8px; font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Brief 18 — Before / After</h1>
+
+<!-- AUTH -->
+<div class="section">
+  <div class="section-label">01 · Auth — remove header rule, vertical split divider, full-width tab rule</div>
+  <div class="pair">
+    <div class="frame">
+      <div class="ba-tag">BEFORE</div>
+      <div class="auth-header ruled">
+        <div class="auth-wm">Good Measure</div>
+        <div class="auth-back">← BACK</div>
+      </div>
+      <div class="auth-body">
+        <div class="auth-vsplit"></div>
+        <div class="auth-left">
+          <div class="auth-eyebrow">§ SIGN IN</div>
+          <div class="auth-h">Pick up where</div>
+          <div class="auth-h">you <span class="sage">left off.</span></div>
+        </div>
+        <div class="auth-right">
+          <div class="auth-tabs ruled">
+            <span class="auth-tab-active">SIGN IN</span>
+            <span class="auth-tab">CREATE ACCOUNT</span>
+          </div>
+          <div class="auth-field"><div class="auth-field-label">EMAIL</div><div class="auth-field-line"></div></div>
+          <div class="auth-field"><div class="auth-field-label">PASSWORD</div><div class="auth-field-line"></div></div>
+          <div class="auth-cta"><span>SIGN IN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="ba-tag">AFTER</div>
+      <div class="auth-header">
+        <div class="auth-wm">Good Measure</div>
+        <div class="auth-back">← BACK</div>
+      </div>
+      <div class="auth-body">
+        <div class="auth-left">
+          <div class="auth-eyebrow">§ SIGN IN</div>
+          <div class="auth-h">Pick up where</div>
+          <div class="auth-h">you <span class="sage">left off.</span></div>
+        </div>
+        <div class="auth-right">
+          <div class="auth-tabs">
+            <span class="auth-tab-active">SIGN IN</span>
+            <span class="auth-tab">CREATE ACCOUNT</span>
+          </div>
+          <div class="auth-field"><div class="auth-field-label">EMAIL</div><div class="auth-field-line"></div></div>
+          <div class="auth-field"><div class="auth-field-label">PASSWORD</div><div class="auth-field-line"></div></div>
+          <div class="auth-cta"><span>SIGN IN</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="section">
+  <div class="section-label">02 · Settings sidebar — remove row separators between numbered nav items</div>
+  <div class="pair">
+    <div class="frame">
+      <div class="ba-tag">BEFORE</div>
+      <div class="settings">
+        <div class="settings-nav">
+          <div class="settings-nav-item ruled settings-nav-active"><span class="settings-nav-num">01</span><span class="settings-nav-label">PEOPLE</span></div>
+          <div class="settings-nav-item ruled settings-nav-inactive"><span class="settings-nav-num">02</span><span class="settings-nav-label">DAILY GOALS</span></div>
+          <div class="settings-nav-item ruled settings-nav-inactive"><span class="settings-nav-num">03</span><span class="settings-nav-label">DASHBOARD</span></div>
+          <div class="settings-nav-item ruled settings-nav-inactive"><span class="settings-nav-num">04</span><span class="settings-nav-label">MCP</span></div>
+          <div class="settings-nav-item settings-nav-inactive"><span class="settings-nav-num">05</span><span class="settings-nav-label">DATA</span></div>
+        </div>
+        <div class="settings-content">
+          <div class="settings-h">People</div>
+          <div class="settings-h-rule"></div>
+          <div class="settings-content-eyebrow">HOUSEHOLD NAME</div>
+          <div class="settings-input-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="ba-tag">AFTER</div>
+      <div class="settings">
+        <div class="settings-nav">
+          <div class="settings-nav-item settings-nav-active"><span class="settings-nav-num">01</span><span class="settings-nav-label">PEOPLE</span></div>
+          <div class="settings-nav-item settings-nav-inactive"><span class="settings-nav-num">02</span><span class="settings-nav-label">DAILY GOALS</span></div>
+          <div class="settings-nav-item settings-nav-inactive"><span class="settings-nav-num">03</span><span class="settings-nav-label">DASHBOARD</span></div>
+          <div class="settings-nav-item settings-nav-inactive"><span class="settings-nav-num">04</span><span class="settings-nav-label">MCP</span></div>
+          <div class="settings-nav-item settings-nav-inactive"><span class="settings-nav-num">05</span><span class="settings-nav-label">DATA</span></div>
+        </div>
+        <div class="settings-content">
+          <div class="settings-h">People</div>
+          <div class="settings-h-rule"></div>
+          <div class="settings-content-eyebrow">HOUSEHOLD NAME</div>
+          <div class="settings-input-line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOPPING -->
+<div class="section">
+  <div class="section-label">03 · Shopping list — add hairlines below category headers</div>
+  <div class="pair">
+    <div class="frame">
+      <div class="ba-tag">BEFORE</div>
+      <div class="shop-modal">
+        <div class="shop-h">Shopping List</div>
+        <div class="shop-sub">Apr 26 – May 2</div>
+        <div class="shop-cat">
+          <div class="shop-cat-circle"></div>
+          <span class="shop-cat-label">PRODUCE</span>
+        </div>
+        <div class="shop-item"><div class="shop-item-circle"></div><span class="shop-item-amt">1.5 avocado</span><span class="shop-item-name">Avocado</span></div>
+        <div class="shop-item"><div class="shop-item-circle"></div><span class="shop-item-amt">37.5 g</span><span class="shop-item-name">Carrots</span></div>
+        <div class="shop-item"><div class="shop-item-circle"></div><span class="shop-item-amt">3.25 clove</span><span class="shop-item-name">Garlic</span></div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="ba-tag">AFTER</div>
+      <div class="shop-modal">
+        <div class="shop-h">Shopping List</div>
+        <div class="shop-sub">Apr 26 – May 2</div>
+        <div class="shop-cat">
+          <div class="shop-cat-circle"></div>
+          <span class="shop-cat-label">PRODUCE</span>
+        </div>
+        <div class="shop-cat-rule"></div>
+        <div class="shop-item"><div class="shop-item-circle"></div><span class="shop-item-amt">1.5 avocado</span><span class="shop-item-name">Avocado</span></div>
+        <div class="shop-item"><div class="shop-item-circle"></div><span class="shop-item-amt">37.5 g</span><span class="shop-item-name">Carrots</span></div>
+        <div class="shop-item"><div class="shop-item-circle"></div><span class="shop-item-amt">3.25 clove</span><span class="shop-item-name">Garlic</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="section">
+  <div class="section-label">04 · Onboarding steps 2–4 — tighten gap between chrome and eyebrow</div>
+  <div class="pair">
+    <div class="frame">
+      <div class="ba-tag">BEFORE</div>
+      <div class="ba-note">~96px gap</div>
+      <div class="ob-chrome">
+        <div class="ob-wm">Good Measure</div>
+        <div class="ob-counter">01 / 03</div>
+      </div>
+      <div class="ob-spacer-loose"></div>
+      <div class="ob-content">
+        <div class="ob-eyebrow">§ YOUR PROFILE</div>
+        <div class="ob-h">Pick your color.</div>
+        <div class="ob-lede">Your color marks what's yours across the app.</div>
+      </div>
+      <div class="gap-marker" style="top: 22%; bottom: 50%; background: #D85A30; opacity: 0.6;"></div>
+    </div>
+
+    <div class="frame">
+      <div class="ba-tag">AFTER</div>
+      <div class="ba-note ok">~56px gap</div>
+      <div class="ob-chrome">
+        <div class="ob-wm">Good Measure</div>
+        <div class="ob-counter">01 / 03</div>
+      </div>
+      <div class="ob-spacer-tight"></div>
+      <div class="ob-content">
+        <div class="ob-eyebrow">§ YOUR PROFILE</div>
+        <div class="ob-h">Pick your color.</div>
+        <div class="ob-lede">Your color marks what's yours across the app.</div>
+      </div>
+      <div class="gap-marker" style="top: 22%; bottom: 64%; background: #4F7A4F; opacity: 0.6;"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

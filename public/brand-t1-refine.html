@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Good Measure — T1 Refinement</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F4EF;
+  --fg:#1A1916;
+  --fg-2:#36342F;
+  --mute:#6B6860;
+  --rule:#D0CCC2;
+  --accent:#5A9B6A;
+  --sans:'DM Sans',-apple-system,system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;}
+body{padding:56px clamp(24px,5vw,80px);max-width:1320px;margin:0 auto;line-height:1.55;}
+
+.head{margin-bottom:56px;padding-bottom:32px;border-bottom:1px solid var(--rule);}
+.head .k{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;}
+.head h1{font-size:clamp(30px,4vw,44px);font-weight:500;letter-spacing:-0.025em;line-height:1.08;max-width:26ch;margin-bottom:20px;}
+.head p{font-size:15px;line-height:1.65;color:var(--fg-2);max-width:60ch;margin-bottom:12px;}
+.head p strong{color:var(--fg);font-weight:500;}
+
+.var{padding:56px 0;border-bottom:1px solid var(--rule);}
+.var:last-of-type{border-bottom:none;}
+.var-head{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;}
+.var-head .l{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg);}
+.var-head .r{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);justify-self:end;}
+
+.var h2{font-size:clamp(22px,2.8vw,28px);font-weight:500;letter-spacing:-0.02em;line-height:1.15;margin-bottom:8px;}
+.var .tag{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);margin-bottom:20px;}
+.var .spec{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;color:var(--accent);margin-bottom:28px;}
+
+/* Grid of renderings */
+.grid{display:grid;grid-template-columns:1.2fr 1fr 0.8fr 0.8fr;gap:0;border:1px solid var(--rule);background:var(--bg);}
+.cell{padding:36px 28px;border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:200px;}
+.cell:last-child{border-right:none;}
+.cell.dk{background:var(--fg);color:var(--bg);}
+.cell .lbl{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);text-align:center;}
+.cell.dk .lbl{color:rgba(255,255,255,0.5);}
+.cell .lbl .b{color:var(--fg);font-size:10px;display:block;margin-bottom:2px;}
+.cell.dk .lbl .b{color:#fff;}
+.fav-frame{border:1px solid var(--rule);padding:2px;background:#fff;display:inline-flex;}
+
+/* Nav */
+.nav-demo{border:1px solid var(--rule);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:14px 20px;margin-top:20px;}
+.nav-demo .right{display:flex;gap:20px;font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;align-items:center;}
+.nav-demo .right .cta{padding:7px 12px;background:var(--fg);color:#fff;}
+
+svg{display:block;}
+
+.read{padding:80px 0 40px;}
+.read p{max-width:58ch;font-size:15px;line-height:1.7;color:var(--fg-2);margin-bottom:16px;}
+.read p strong{color:var(--fg);font-weight:500;}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr 1fr;}
+  .cell:nth-child(2n){border-right:none;}
+  .cell:nth-child(-n+2){border-bottom:1px solid var(--rule);}
+}
+@media (max-width:560px){
+  body{padding:32px 20px;}
+  .grid{grid-template-columns:1fr;}
+  .cell{border-right:none;border-bottom:1px solid var(--rule);}
+  .cell:last-child{border-bottom:none;}
+  .var-head{grid-template-columns:1fr;}
+  .var-head .r{justify-self:start;}
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="k">§ T1 · Proportion refinement</div>
+  <h1>Five tuned variants of the same idea.</h1>
+  <p>
+    The concept is locked: paired ticks, framed. But the <strong>proportions</strong> decide whether it feels right. Here are five takes on the same mark — varying frame weight, tick height, tick thickness, gap, and one frameless test.
+  </p>
+  <p>
+    Each variant shown at display, section, and favicon size, plus in a real nav. Look at favicon first — that's where the mark lives most.
+  </p>
+</header>
+
+<!-- ══════════ VARIANT A — baseline (v4 draft) ══════════ -->
+<section class="var">
+  <div class="var-head">
+    <div class="l">Variant A</div>
+    <div class="r">Baseline · from v4</div>
+  </div>
+  <div class="tag">Reference point</div>
+  <h2>The v4 draft, unchanged.</h2>
+  <div class="spec">FRAME 1.5 · TICK 3 · TICK HEIGHT 56% · GAP 8</div>
+
+  <div class="grid">
+    <div class="cell">
+      <svg width="120" height="120" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="20" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">120px</span>Display</div>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="20" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Section</div>
+    </div>
+    <div class="cell">
+      <span class="fav-frame">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="9" y="7" width="3" height="18" fill="currentColor"/>
+          <rect x="20" y="7" width="3" height="18" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="lbl"><span class="b">16px</span>Favicon</div>
+    </div>
+    <div class="cell dk">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="20" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Inverted</div>
+    </div>
+  </div>
+
+  <div class="nav-demo">
+    <span style="display:inline-flex;align-items:center;gap:12px;">
+      <svg width="20" height="20" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+        <rect x="9" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="20" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;">Good Measure</span>
+    </span>
+    <div class="right">
+      <span>About</span><span>Sign in</span><span class="cta">Get Started ↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ VARIANT B — heavier ticks, lighter frame ══════════ -->
+<section class="var">
+  <div class="var-head">
+    <div class="l">Variant B</div>
+    <div class="r">Heavier ticks · lighter frame</div>
+  </div>
+  <div class="tag">Ticks carry the weight</div>
+  <h2>Bolder ticks in a quieter container.</h2>
+  <div class="spec">FRAME 1 · TICK 4 · TICK HEIGHT 56% · GAP 6</div>
+
+  <div class="grid">
+    <div class="cell">
+      <svg width="120" height="120" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1"/>
+        <rect x="9" y="7" width="4" height="18" fill="currentColor"/>
+        <rect x="19" y="7" width="4" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">120px</span>Display</div>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1"/>
+        <rect x="9" y="7" width="4" height="18" fill="currentColor"/>
+        <rect x="19" y="7" width="4" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Section</div>
+    </div>
+    <div class="cell">
+      <span class="fav-frame">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="9" y="7" width="4" height="18" fill="currentColor"/>
+          <rect x="19" y="7" width="4" height="18" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="lbl"><span class="b">16px</span>Favicon</div>
+    </div>
+    <div class="cell dk">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1"/>
+        <rect x="9" y="7" width="4" height="18" fill="currentColor"/>
+        <rect x="19" y="7" width="4" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Inverted</div>
+    </div>
+  </div>
+
+  <div class="nav-demo">
+    <span style="display:inline-flex;align-items:center;gap:12px;">
+      <svg width="20" height="20" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="7" width="4" height="18" fill="currentColor"/>
+        <rect x="19" y="7" width="4" height="18" fill="currentColor"/>
+      </svg>
+      <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;">Good Measure</span>
+    </span>
+    <div class="right">
+      <span>About</span><span>Sign in</span><span class="cta">Get Started ↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ VARIANT C — taller ticks ══════════ -->
+<section class="var">
+  <div class="var-head">
+    <div class="l">Variant C</div>
+    <div class="r">Taller ticks · less padding</div>
+  </div>
+  <div class="tag">More confident, less precious</div>
+  <h2>Ticks nearly touch the frame top and bottom.</h2>
+  <div class="spec">FRAME 1.5 · TICK 3 · TICK HEIGHT 75% · GAP 8</div>
+
+  <div class="grid">
+    <div class="cell">
+      <svg width="120" height="120" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="20" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">120px</span>Display</div>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="20" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Section</div>
+    </div>
+    <div class="cell">
+      <span class="fav-frame">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="9" y="4" width="3" height="24" fill="currentColor"/>
+          <rect x="20" y="4" width="3" height="24" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="lbl"><span class="b">16px</span>Favicon</div>
+    </div>
+    <div class="cell dk">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="20" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Inverted</div>
+    </div>
+  </div>
+
+  <div class="nav-demo">
+    <span style="display:inline-flex;align-items:center;gap:12px;">
+      <svg width="20" height="20" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+        <rect x="9" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="20" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;">Good Measure</span>
+    </span>
+    <div class="right">
+      <span>About</span><span>Sign in</span><span class="cta">Get Started ↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ VARIANT D — wider gap ══════════ -->
+<section class="var">
+  <div class="var-head">
+    <div class="l">Variant D</div>
+    <div class="r">Wider gap · interval breathes</div>
+  </div>
+  <div class="tag">The concept gets more room</div>
+  <h2>Bigger interval between the ticks.</h2>
+  <div class="spec">FRAME 1.5 · TICK 3 · TICK HEIGHT 56% · GAP 12</div>
+
+  <div class="grid">
+    <div class="cell">
+      <svg width="120" height="120" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="7" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="22" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">120px</span>Display</div>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="7" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="22" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Section</div>
+    </div>
+    <div class="cell">
+      <span class="fav-frame">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="7" y="7" width="3" height="18" fill="currentColor"/>
+          <rect x="22" y="7" width="3" height="18" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="lbl"><span class="b">16px</span>Favicon</div>
+    </div>
+    <div class="cell dk">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="7" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="22" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Inverted</div>
+    </div>
+  </div>
+
+  <div class="nav-demo">
+    <span style="display:inline-flex;align-items:center;gap:12px;">
+      <svg width="20" height="20" viewBox="0 0 32 32">
+        <rect x="0" y="0" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+        <rect x="7" y="7" width="3" height="18" fill="currentColor"/>
+        <rect x="22" y="7" width="3" height="18" fill="currentColor"/>
+      </svg>
+      <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;">Good Measure</span>
+    </span>
+    <div class="right">
+      <span>About</span><span>Sign in</span><span class="cta">Get Started ↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ VARIANT E — frameless ══════════ -->
+<section class="var">
+  <div class="var-head">
+    <div class="l">Variant E</div>
+    <div class="r">Frameless · implied square</div>
+  </div>
+  <div class="tag">Test: is the frame necessary?</div>
+  <h2>Just the two ticks. The square is implied by their bounding box.</h2>
+  <div class="spec">FRAME none · TICK 3 · TICK HEIGHT 75% · GAP 12</div>
+
+  <div class="grid">
+    <div class="cell">
+      <svg width="120" height="120" viewBox="0 0 32 32">
+        <rect x="7" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="22" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">120px</span>Display</div>
+    </div>
+    <div class="cell">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="7" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="22" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Section</div>
+    </div>
+    <div class="cell">
+      <span class="fav-frame">
+        <svg width="16" height="16" viewBox="0 0 32 32">
+          <rect x="7" y="4" width="3" height="24" fill="currentColor"/>
+          <rect x="22" y="4" width="3" height="24" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="lbl"><span class="b">16px</span>Favicon</div>
+    </div>
+    <div class="cell dk">
+      <svg width="48" height="48" viewBox="0 0 32 32">
+        <rect x="7" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="22" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <div class="lbl"><span class="b">48px</span>Inverted</div>
+    </div>
+  </div>
+
+  <div class="nav-demo">
+    <span style="display:inline-flex;align-items:center;gap:12px;">
+      <svg width="20" height="20" viewBox="0 0 32 32">
+        <rect x="7" y="4" width="3" height="24" fill="currentColor"/>
+        <rect x="22" y="4" width="3" height="24" fill="currentColor"/>
+      </svg>
+      <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;">Good Measure</span>
+    </span>
+    <div class="right">
+      <span>About</span><span>Sign in</span><span class="cta">Get Started ↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ MY READ ══════════ -->
+<section class="read">
+  <div class="var-head">
+    <div class="l">§ My read</div>
+    <div class="r">Of the five</div>
+  </div>
+
+  <p>
+    <strong>Variant C (taller ticks) is the strongest.</strong> Here's why.
+  </p>
+  <p>
+    A is the baseline, and the thing that's off about it is that the ticks look <em>shy</em> — they sit inside the frame with generous padding top and bottom, which makes them read as decorative lines rather than a measurement. C fixes that by pushing the ticks almost to the edges. The ticks stop being shy. They become a unit.
+  </p>
+  <p>
+    B (heavier ticks) is close behind but the 4px ticks make the favicon feel chunky at 16px. The ticks merge into the frame visually.
+  </p>
+  <p>
+    D (wider gap) is elegant but the wider interval weakens the object — the two ticks start to read as separate marks rather than a paired unit. The mark loses its cohesion.
+  </p>
+  <p>
+    <strong>E (frameless) is the one to pay attention to.</strong> I included it as a test and I'm 60/40 against it but it's worth your eyes. The frame is doing real work — it says "this is one unit, contained" — but the frameless version has its own argument: the ticks <em>are</em> the measurement, full stop, no container required. E also reads as more <em>design-y</em> in a way that may or may not be what you want. Worth considering.
+  </p>
+  <p>
+    My pick is <strong>C</strong>. Runner-up is <strong>E</strong> if you want the frame gone.
+  </p>
+</section>
+
+</body>
+</html>

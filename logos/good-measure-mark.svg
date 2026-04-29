@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Good Measure — Mark
+  32×32 viewBox. Tuned to sit beside DM Sans 600 wordmark.
+
+  Geometry:
+    frame   : full 32×32, band thickness 1.38 on all sides
+    ticks   : width 3.2, height 18.4
+    tick-L  : x=9.09,  y=6.8
+    tick-R  : x=19.74, y=6.8
+    gap     : 7.45 edge-to-edge
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="320" height="320">
+  <title>Good Measure mark</title>
+
+  <g id="mark">
+    <path id="frame"
+          d="M32,32H0V0h32v32ZM1.38,30.62h29.25V1.38H1.38v29.25h0Z"
+          fill="currentColor"/>
+
+    <rect id="tick-left"
+          x="9.09" y="6.8" width="3.2" height="18.4"
+          fill="currentColor"/>
+
+    <rect id="tick-right"
+          x="19.74" y="6.8" width="3.2" height="18.4"
+          fill="currentColor"/>
+  </g>
+</svg>

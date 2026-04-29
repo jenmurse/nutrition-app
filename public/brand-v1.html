@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Good Measure — Brand Exploration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F4EF;
+  --fg:#1A1916;
+  --fg-2:#36342F;
+  --mute:#6B6860;
+  --rule:#D0CCC2;
+  --accent:#5A9B6A;
+  --sans:'DM Sans',-apple-system,system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;}
+body{padding:56px clamp(24px,5vw,80px);max-width:1320px;margin:0 auto;line-height:1.55;}
+
+.head{margin-bottom:64px;padding-bottom:32px;border-bottom:1px solid var(--rule);}
+.head .k{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;}
+.head h1{font-size:clamp(32px,4.5vw,52px);font-weight:500;letter-spacing:-0.025em;line-height:1.08;max-width:22ch;margin-bottom:20px;}
+.head p{font-size:15.5px;line-height:1.65;color:var(--fg-2);max-width:56ch;}
+
+.dir{padding:80px 0;border-bottom:1px solid var(--rule);}
+.dir:last-of-type{border-bottom:none;}
+.dir-head{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:56px;}
+.dir-head .l{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg);}
+.dir-head .r{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);justify-self:end;}
+.dir h2{font-size:clamp(28px,3.6vw,40px);font-weight:500;letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
+.dir .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.dir .desc{font-size:15px;line-height:1.65;color:var(--fg-2);max-width:58ch;margin-bottom:40px;}
+
+.sizes{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--rule);background:var(--bg);}
+.size{display:grid;grid-template-columns:180px 1fr;align-items:center;min-height:80px;border-bottom:1px solid var(--rule);}
+.size:last-child{border-bottom:none;}
+.size .label{padding:14px 20px;font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);border-right:1px solid var(--rule);align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:2px;}
+.size .label .b{color:var(--fg);font-size:10px;}
+.size .mark{padding:24px 28px;display:flex;align-items:center;gap:20px;}
+
+.size.inv{background:var(--fg);color:var(--bg);}
+.size.inv .label{color:rgba(255,255,255,0.5);border-right-color:rgba(255,255,255,0.15);}
+.size.inv .label .b{color:#fff;}
+
+/* Mark scale demos */
+.mk-14{height:14px;}
+.mk-48{height:48px;}
+.mk-160{height:120px;}
+
+svg{display:block;}
+.gm-text{font-family:var(--sans);font-weight:700;letter-spacing:-0.015em;}
+
+/* Meta tables for each direction */
+.meta{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule);}
+.meta > div{padding:18px 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:140px 1fr;gap:20px;}
+.meta > div:nth-child(odd){border-right:1px solid var(--rule);padding-right:24px;}
+.meta > div:nth-child(even){padding-left:24px;}
+.meta .k{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);padding-top:2px;}
+.meta .v{font-size:13.5px;line-height:1.55;color:var(--fg-2);}
+
+.scenario{margin-top:40px;padding:32px;border:1px solid var(--rule);background:#fff;}
+.scenario .ttl{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);margin-bottom:18px;}
+.scenario .demo-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);}
+.scenario .demo-nav .right{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg);display:flex;gap:20px;}
+.scenario .demo-nav .right .cta{padding:7px 12px;background:var(--fg);color:var(--bg);}
+.scenario .body-preview{padding:28px 0 12px;font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mute);}
+
+.compare{padding:80px 0;border-bottom:1px solid var(--rule);}
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;margin-top:40px;}
+.compare-cell{padding:32px;border:1px solid var(--rule);background:#fff;min-height:140px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+.compare-cell .lbl{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--mute);}
+
+@media (max-width:760px){
+  body{padding:32px 20px;}
+  .dir{padding:56px 0;}
+  .dir-head{grid-template-columns:1fr;gap:4px;}
+  .dir-head .r{justify-self:start;}
+  .size{grid-template-columns:1fr;}
+  .size .label{border-right:none;border-bottom:1px solid var(--rule);padding:10px 14px;flex-direction:row;gap:12px;align-items:center;}
+  .size.inv .label{border-bottom-color:rgba(255,255,255,0.15);}
+  .meta{grid-template-columns:1fr;}
+  .meta > div:nth-child(odd){border-right:none;padding-right:0;}
+  .meta > div:nth-child(even){padding-left:0;}
+  .compare-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="k">§ Brand Exploration · v1</div>
+  <h1>Four directions for the Good Measure mark.</h1>
+  <p>
+    Each shown at three sizes — nav (14px), section header (48px), and poster (120px) — in both light and inverted. Read them first at nav size; that's where they'll live most of the time. The rest is how they scale.
+  </p>
+</header>
+
+<!-- ════════════════════════════════════════════════════════
+     DIRECTION 01 — WORDMARK ONLY (no mark at all)
+     ════════════════════════════════════════════════════════ -->
+<section class="dir">
+  <div class="dir-head">
+    <div class="l">Direction 01</div>
+    <div class="r">Wordmark · no mark</div>
+  </div>
+
+  <div class="tag">Typography is the brand</div>
+  <h2>Good Measure, set carefully.</h2>
+  <p class="desc">
+    No icon. No accent dot. The wordmark itself is the logo, set in DM Sans at a deliberate weight (500, not default bold) with precise tracking. This is the Milly Dent move — the restraint <em>is</em> the statement. What makes it opinionated rather than default is the tracking and the weight choice; everything else is DM Sans at rest.
+  </p>
+
+  <div class="sizes">
+    <div class="size">
+      <div class="label"><div class="b">Nav</div><div>14px</div></div>
+      <div class="mark">
+        <span style="font-family:var(--sans);font-weight:500;font-size:14px;letter-spacing:-0.01em;color:var(--fg);">Good Measure</span>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Section</div><div>48px</div></div>
+      <div class="mark">
+        <span style="font-family:var(--sans);font-weight:500;font-size:48px;letter-spacing:-0.025em;color:var(--fg);">Good Measure</span>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Poster</div><div>120px</div></div>
+      <div class="mark">
+        <span style="font-family:var(--sans);font-weight:500;font-size:120px;letter-spacing:-0.035em;color:var(--fg);line-height:1;">Good Measure</span>
+      </div>
+    </div>
+    <div class="size inv">
+      <div class="label"><div class="b">Inverted</div><div>48px</div></div>
+      <div class="mark">
+        <span style="font-family:var(--sans);font-weight:500;font-size:48px;letter-spacing:-0.025em;color:var(--bg);">Good Measure</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div><div class="k">What it's doing</div><div class="v">Nothing, on purpose. The weight (500) and tight tracking are the only moves. It's the most defensible option — and the hardest to get wrong.</div></div>
+    <div><div class="k">What it costs</div><div class="v">No "thing that's only yours." No favicon icon. No mark to stamp on physical goods. Risk: reads as a startup that hasn't branded yet.</div></div>
+    <div><div class="k">Favicon / app icon</div><div class="v">A single letter (G or M) in DM Sans 700, or a large square with "GM" set small inside. Workable but generic.</div></div>
+    <div><div class="k">Cascade</div><div class="v">Every app surface just uses the wordmark. No complications, no decisions to re-make later. The ruler in the margin dies — nothing to echo.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     DIRECTION 02 — RULER MARK (literal measurement)
+     ════════════════════════════════════════════════════════ -->
+<section class="dir">
+  <div class="dir-head">
+    <div class="l">Direction 02</div>
+    <div class="r">Wordmark + ruler tick</div>
+  </div>
+
+  <div class="tag">The measure is literal</div>
+  <h2>A single tick, standing in for a ruler.</h2>
+  <p class="desc">
+    A short vertical rule sits to the left of the wordmark — not a dot, not an icon. A <em>mark</em>, in the printmaker's sense. It reads as one tick of a ruler, or a measurement indicator, or simply as a pause before the word. At poster scale the tick becomes a full inch-mark with subdivisions; at nav scale it's a single hairline. The ruler in the landing page becomes the brand's native texture.
+  </p>
+
+  <div class="sizes">
+    <div class="size">
+      <div class="label"><div class="b">Nav</div><div>14px</div></div>
+      <div class="mark">
+        <svg viewBox="0 0 100 14" width="100" height="14" style="overflow:visible;">
+          <line x1="2" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;color:var(--fg);margin-left:-82px;">Good Measure</span>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Section</div><div>48px</div></div>
+      <div class="mark">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <svg width="14" height="48" viewBox="0 0 14 48" style="display:block;">
+            <line x1="4" y1="4" x2="4" y2="44" stroke="currentColor" stroke-width="2"/>
+            <line x1="4" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="14" x2="10" y2="14" stroke="currentColor" stroke-width="1"/>
+            <line x1="4" y1="24" x2="13" y2="24" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="34" x2="10" y2="34" stroke="currentColor" stroke-width="1"/>
+            <line x1="4" y1="44" x2="13" y2="44" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span style="font-family:var(--sans);font-weight:500;font-size:48px;letter-spacing:-0.025em;color:var(--fg);line-height:1;">Good Measure</span>
+        </div>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Poster</div><div>120px</div></div>
+      <div class="mark">
+        <div style="display:flex;align-items:center;gap:32px;">
+          <svg width="32" height="120" viewBox="0 0 32 120" style="display:block;">
+            <line x1="10" y1="6" x2="10" y2="114" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="10" y1="6" x2="30" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="10" y1="18" x2="22" y2="18" stroke="currentColor" stroke-width="1"/>
+            <line x1="10" y1="30" x2="26" y2="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10" y1="42" x2="22" y2="42" stroke="currentColor" stroke-width="1"/>
+            <line x1="10" y1="54" x2="26" y2="54" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10" y1="60" x2="30" y2="60" stroke="currentColor" stroke-width="2"/>
+            <line x1="10" y1="66" x2="22" y2="66" stroke="currentColor" stroke-width="1"/>
+            <line x1="10" y1="78" x2="26" y2="78" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10" y1="90" x2="22" y2="90" stroke="currentColor" stroke-width="1"/>
+            <line x1="10" y1="102" x2="26" y2="102" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10" y1="114" x2="30" y2="114" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span style="font-family:var(--sans);font-weight:500;font-size:120px;letter-spacing:-0.035em;color:var(--fg);line-height:1;">Good Measure</span>
+        </div>
+      </div>
+    </div>
+    <div class="size inv">
+      <div class="label"><div class="b">Inverted</div><div>48px</div></div>
+      <div class="mark">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <svg width="14" height="48" viewBox="0 0 14 48" style="display:block;">
+            <line x1="4" y1="4" x2="4" y2="44" stroke="currentColor" stroke-width="2"/>
+            <line x1="4" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="14" x2="10" y2="14" stroke="currentColor" stroke-width="1"/>
+            <line x1="4" y1="24" x2="13" y2="24" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="34" x2="10" y2="34" stroke="currentColor" stroke-width="1"/>
+            <line x1="4" y1="44" x2="13" y2="44" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span style="font-family:var(--sans);font-weight:500;font-size:48px;letter-spacing:-0.025em;color:var(--bg);line-height:1;">Good Measure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div><div class="k">What it's doing</div><div class="v">Making the name's double meaning literal — this is <em>good measure</em> as a unit of measurement. The ruler tick also echoes the landing page's margin ruler, so the system is coherent.</div></div>
+    <div><div class="k">What it costs</div><div class="v">At 14px the tick becomes very small — risks reading as a decorative pipe character. Needs careful stroke-width management at every size.</div></div>
+    <div><div class="k">Favicon / app icon</div><div class="v">Strong. The ruler mark alone, cropped to a square. Instantly recognizable and unique.</div></div>
+    <div><div class="k">Cascade</div><div class="v">Ruler in landing margin stays and is strengthened. Stamp / sticker / letterhead work is natural. You could literally print a ruler and ship it to beta users.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     DIRECTION 03 — OBLIQUE ABSTRACT (shape suggesting precision)
+     ════════════════════════════════════════════════════════ -->
+<section class="dir">
+  <div class="dir-head">
+    <div class="l">Direction 03</div>
+    <div class="r">Wordmark + abstract mark</div>
+  </div>
+
+  <div class="tag">Precision, not literal</div>
+  <h2>A circle divided.</h2>
+  <p class="desc">
+    A perfect circle, split by a thin horizontal line — suggesting a scale, a balance point, a half-mark. It's the "50%" indicator, the meridian, the split of a two-person household. Specific enough to mean something, abstract enough to not pin to any single reading. The geometry is the content: two halves, measured.
+  </p>
+
+  <div class="sizes">
+    <div class="size">
+      <div class="label"><div class="b">Nav</div><div>14px</div></div>
+      <div class="mark">
+        <svg width="14" height="14" viewBox="0 0 14 14">
+          <circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="1.5" y1="7" x2="12.5" y2="7" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;color:var(--fg);">Good Measure</span>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Section</div><div>48px</div></div>
+      <div class="mark">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="3" y1="24" x2="45" y2="24" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span style="font-family:var(--sans);font-weight:500;font-size:48px;letter-spacing:-0.025em;color:var(--fg);line-height:1;">Good Measure</span>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Poster</div><div>120px</div></div>
+      <div class="mark">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="3"/>
+          <line x1="6" y1="60" x2="114" y2="60" stroke="currentColor" stroke-width="3"/>
+        </svg>
+        <span style="font-family:var(--sans);font-weight:500;font-size:120px;letter-spacing:-0.035em;color:var(--fg);line-height:1;">Good Measure</span>
+      </div>
+    </div>
+    <div class="size inv">
+      <div class="label"><div class="b">Inverted</div><div>48px</div></div>
+      <div class="mark">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="3" y1="24" x2="45" y2="24" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span style="font-family:var(--sans);font-weight:500;font-size:48px;letter-spacing:-0.025em;color:var(--bg);line-height:1;">Good Measure</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div><div class="k">What it's doing</div><div class="v">Reading as a unit ("half / whole / balance") without naming it. The circle is geometric and confident — the simplest mark that could be a logo.</div></div>
+    <div><div class="k">What it costs</div><div class="v">Risk of generic — a circle with a line is a shape many brands land on. Could read as a sunset, a cookie, a horizon, a half-moon. Needs the wordmark to disambiguate.</div></div>
+    <div><div class="k">Favicon / app icon</div><div class="v">Strong. The divided circle is iconic and unique at a glance. Would make a great iOS app icon (circle inside rounded square).</div></div>
+    <div><div class="k">Cascade</div><div class="v">The mark becomes a stamp language — the circle-with-line appears as a section break, a divider, a loading indicator. Versatile.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     DIRECTION 04 — SET MARK (the name typeset as a masthead)
+     ════════════════════════════════════════════════════════ -->
+<section class="dir">
+  <div class="dir-head">
+    <div class="l">Direction 04</div>
+    <div class="r">Stacked wordmark · no mark</div>
+  </div>
+
+  <div class="tag">The wordmark as a masthead</div>
+  <h2>Good / Measure — stacked, ruled.</h2>
+  <p class="desc">
+    The two words stack with a horizontal rule between them, like a journal masthead. "Good" on top, "Measure" below, a thin line holding them together. Still typography only — no custom mark — but the treatment is unmistakable. It scales beautifully and it's instantly typeset-feeling. At nav size it horizontals out to the standard "Good Measure." The stacked form lives on covers, posters, and the app's opening surface.
+  </p>
+
+  <div class="sizes">
+    <div class="size">
+      <div class="label"><div class="b">Nav</div><div>14px</div></div>
+      <div class="mark">
+        <span style="font-family:var(--sans);font-weight:500;font-size:14px;letter-spacing:-0.01em;color:var(--fg);">Good Measure</span>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Section</div><div>stacked</div></div>
+      <div class="mark">
+        <div style="display:inline-flex;flex-direction:column;line-height:0.95;">
+          <span style="font-family:var(--sans);font-weight:500;font-size:40px;letter-spacing:-0.025em;color:var(--fg);">Good</span>
+          <div style="height:1.5px;background:var(--fg);margin:6px 0;"></div>
+          <span style="font-family:var(--sans);font-weight:500;font-size:40px;letter-spacing:-0.025em;color:var(--fg);">Measure</span>
+        </div>
+      </div>
+    </div>
+    <div class="size">
+      <div class="label"><div class="b">Poster</div><div>stacked</div></div>
+      <div class="mark">
+        <div style="display:inline-flex;flex-direction:column;line-height:0.9;">
+          <span style="font-family:var(--sans);font-weight:500;font-size:96px;letter-spacing:-0.035em;color:var(--fg);">Good</span>
+          <div style="height:2.5px;background:var(--fg);margin:12px 0;"></div>
+          <span style="font-family:var(--sans);font-weight:500;font-size:96px;letter-spacing:-0.035em;color:var(--fg);">Measure</span>
+        </div>
+      </div>
+    </div>
+    <div class="size inv">
+      <div class="label"><div class="b">Inverted</div><div>stacked</div></div>
+      <div class="mark">
+        <div style="display:inline-flex;flex-direction:column;line-height:0.95;">
+          <span style="font-family:var(--sans);font-weight:500;font-size:40px;letter-spacing:-0.025em;color:var(--bg);">Good</span>
+          <div style="height:1.5px;background:var(--bg);margin:6px 0;"></div>
+          <span style="font-family:var(--sans);font-weight:500;font-size:40px;letter-spacing:-0.025em;color:var(--bg);">Measure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div><div class="k">What it's doing</div><div class="v">Treating the wordmark like a <em>masthead</em>. The rule between "Good" and "Measure" is the unit-of-measurement echo — a ruler mark, buried inside the name. Functions everywhere, breathes on covers.</div></div>
+    <div><div class="k">What it costs</div><div class="v">Two versions to maintain (horizontal for nav, stacked for display). Slight risk of reading as "Good / Measure" as two separate words if someone skim-reads.</div></div>
+    <div><div class="k">Favicon / app icon</div><div class="v">Weak. You'd need a fallback mark for small sizes — probably a single letter or a horizontal rule as a placeholder.</div></div>
+    <div><div class="k">Cascade</div><div class="v">Strong for editorial moments — hero of the landing page, app opening screen, print work. Weaker in high-frequency small-size contexts (nav, favicons, iOS shortcuts).</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     COMPARISON — all four at nav size, side by side
+     ════════════════════════════════════════════════════════ -->
+<section class="compare">
+  <div class="dir-head">
+    <div class="l">§ All four at nav size</div>
+    <div class="r">14px — where the logo lives most</div>
+  </div>
+
+  <p class="desc" style="max-width:58ch;">
+    At 14px, only some of these moves survive. This is the page that should decide it.
+  </p>
+
+  <div class="compare-grid">
+    <div class="compare-cell">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--sans);font-weight:500;font-size:14px;letter-spacing:-0.01em;color:var(--fg);">Good Measure</span>
+      </div>
+      <div class="lbl">01 · Wordmark only</div>
+    </div>
+    <div class="compare-cell">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="8" height="14" viewBox="0 0 8 14"><line x1="2" y1="1" x2="2" y2="13" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;color:var(--fg);">Good Measure</span>
+      </div>
+      <div class="lbl">02 · Ruler tick</div>
+    </div>
+    <div class="compare-cell">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="14" height="14" viewBox="0 0 14 14">
+          <circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="1.5" y1="7" x2="12.5" y2="7" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <span style="font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:-0.015em;color:var(--fg);">Good Measure</span>
+      </div>
+      <div class="lbl">03 · Divided circle</div>
+    </div>
+    <div class="compare-cell">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--sans);font-weight:500;font-size:14px;letter-spacing:-0.01em;color:var(--fg);">Good Measure</span>
+      </div>
+      <div class="lbl">04 · Stacked (collapses to wordmark at nav)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     MY READ
+     ════════════════════════════════════════════════════════ -->
+<section class="dir" style="border-bottom:none;">
+  <div class="dir-head">
+    <div class="l">§ My read</div>
+    <div class="r">If you asked me to pick</div>
+  </div>
+
+  <p class="desc" style="max-width:58ch;margin-bottom:20px;">
+    <strong>Direction 02 (ruler tick) is the strongest.</strong> Here's the argument.
+  </p>
+
+  <p class="desc" style="max-width:58ch;margin-bottom:20px;">
+    It does the most work per unit of visual noise. The tick at nav size is nearly invisible — but it's there, and it's specific to you. At poster size it becomes a real ruler, which turns the name's double meaning into a literal object. The favicon problem solves itself (the ruler mark alone, cropped). It cascades into the landing page's margin ruler you already like, into stamped physical goods you might make, into a visual language for the app where rulers and tick marks become a texture.
+  </p>
+
+  <p class="desc" style="max-width:58ch;margin-bottom:20px;">
+    <strong>Direction 01 (wordmark only) is the safest.</strong> If you want to make a decision that's impossible to be wrong, this is it. You lose the signature, but you never regret the mark you chose.
+  </p>
+
+  <p class="desc" style="max-width:58ch;margin-bottom:20px;">
+    <strong>Direction 03 (divided circle)</strong> is beautiful but most likely to feel generic in a year — there are only so many circles with lines through them. I'd pass.
+  </p>
+
+  <p class="desc" style="max-width:58ch;">
+    <strong>Direction 04 (stacked masthead)</strong> is the most editorial and the most dangerous. It's gorgeous on a cover and awkward in a nav. It's really a second wordmark, not a logo — and maintaining two wordmarks is more work than it's worth unless you commit to it.
+  </p>
+</section>
+
+</body>
+</html>
