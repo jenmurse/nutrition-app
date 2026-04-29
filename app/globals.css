@@ -553,6 +553,7 @@ input[type="number"]:focus {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
+  margin-top: -1px;
 }
 .ed-count strong { color: var(--fg); font-weight: 500; }
 
