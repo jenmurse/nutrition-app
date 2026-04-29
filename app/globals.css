@@ -553,7 +553,6 @@ input[type="number"]:focus {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-  padding-top: 2px;
 }
 .ed-count strong { color: var(--fg); font-weight: 500; }
 
@@ -3280,6 +3279,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   main.app-main {
     padding-top: max(env(safe-area-inset-top), 24px);
     box-sizing: border-box;
+  }
+  /* Form pages (recipes/create, recipes/[id] edit, ingredients/create, ingredients/[id]) use
+     position:fixed overlays for back-row — cancel main's safe-area padding so they sit at
+     the same viewport position as the Shopping and Add Meal overlays. */
+  main.app-main:has(.form-page-shell) {
+    padding-top: 0;
   }
   /* Settings scroll container: clear fixed bottom nav */
   #settings-scroll-container {

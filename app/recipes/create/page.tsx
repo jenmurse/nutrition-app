@@ -155,7 +155,7 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="h-full relative">
+    <div className="form-page-shell h-full relative">
       {/* ── Jump Nav (fixed left — outside animated wrapper) ── */}
       <nav
         className="detail-jump-nav fixed z-50 flex flex-col"

@@ -559,7 +559,7 @@ export default function IngredientDetailPage() {
      ═══════════════════════════════════════════ */
   const sections = EDIT_JUMP_SECTIONS;
   return (
-    <div className="h-full relative">
+    <div className="form-page-shell h-full relative">
       {/* ── Jump Nav (fixed left — outside animated wrapper to avoid transform containment) ── */}
       <nav
         className="detail-jump-nav fixed z-50 flex flex-col"
