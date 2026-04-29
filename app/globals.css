@@ -551,6 +551,7 @@ input[type="number"]:focus {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
+  margin-top: 1px;
 }
 .ed-count strong { color: var(--fg); font-weight: 500; }
 
@@ -605,7 +606,7 @@ input[type="number"]:focus {
 /* Compare mode — selected state: exterior ring, never clips the photo bleed */
 .recipe-grid-item.is-selected {
   box-shadow: 0 0 0 2px var(--fg);
-  z-index: 1;
+  z-index: 2;
 }
 .recipe-grid-item.is-selected::after { display: none; }
 /* Bottom-edge hover rule */
@@ -2517,11 +2518,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .mob-sheet-chip:active { opacity: 0.75; }
 
-/* Sort grid — 3 columns */
+/* Sort buttons — flex-wrap so underlines hug text, not equal-width cells */
 .mob-sheet-sort-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  align-items: baseline;
   margin-bottom: 10px;
 }
 .mob-sheet-sort-btn {

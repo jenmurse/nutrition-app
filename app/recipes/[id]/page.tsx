@@ -550,7 +550,7 @@ export default function RecipeDetailPage() {
                 {/* Scale */}
                 <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-[14px]">
                   <span>Scale</span>
-                  <div className="flex gap-[14px]" role="group" aria-label="Scale recipe">
+                  <div className="flex gap-[24px]" role="group" aria-label="Scale recipe">
                     {[1, 2, 4, 6].map(n => (
                       <button key={n} onClick={() => setScale(n)}
                         className={`scale-chip${scale === n ? " active" : ""}`}

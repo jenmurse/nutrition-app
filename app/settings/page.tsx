@@ -884,7 +884,7 @@ const SettingsPage = () => {
 
             <div>
               {/* Person tabs */}
-              <div className="flex items-center gap-[8px] mb-[16px]" role="tablist" aria-label="Select person for goals">
+              <div className="flex items-center gap-[24px] mb-[16px]" role="tablist" aria-label="Select person for goals">
                 {persons.map((person) => {
                   const isActive = goalsPersonId === person.id;
                   return (

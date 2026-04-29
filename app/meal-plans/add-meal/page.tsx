@@ -301,7 +301,7 @@ function AddMealInner() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-[10px] mb-4 items-center overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className="flex gap-[24px] mb-4 items-center overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {RECIPE_TAGS.map(tag => (
                     <button
                       key={tag}
