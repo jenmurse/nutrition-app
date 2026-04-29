@@ -189,7 +189,7 @@ export default function ShoppingPage() {
           aria-label="Share shopping list"
         >Share</button>
         <button
-          className={`ed-btn-text${hideChecked ? ' is-active' : ''}`}
+          className="ed-btn-text"
           onClick={() => setHideChecked(h => !h)}
           aria-pressed={hideChecked}
         >{hideChecked ? 'Show all' : 'Hide checked'}</button>

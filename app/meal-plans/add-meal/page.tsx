@@ -301,7 +301,7 @@ function AddMealInner() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-[24px] mb-4 items-center overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className="pl-filter-strip flex gap-[24px] mb-4 items-center overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {RECIPE_TAGS.map(tag => (
                     <button
                       key={tag}
@@ -315,11 +315,11 @@ function AddMealInner() {
                       aria-pressed={recipeFilterTags.includes(tag)}
                     >{tag}</button>
                   ))}
-                  {recipeFilterTags.length > 0 && (
-                    <button type="button" className="pl-cancel-btn flex-shrink-0" onClick={() => setRecipeFilterTags([])}>
-                      clear
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={`pl-cancel-btn flex-shrink-0 ${recipeFilterTags.length === 0 ? 'invisible pointer-events-none' : ''}`}
+                    onClick={() => setRecipeFilterTags([])}
+                  >clear</button>
                 </div>
                 <div className="grid gap-0 md:grid-cols-2">
                   {filteredRecipes.length === 0 ? (

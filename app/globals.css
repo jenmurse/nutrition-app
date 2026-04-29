@@ -3064,6 +3064,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .pl-add-filter-chip:hover { color: var(--fg); }
 .pl-add-filter-chip.on { color: var(--fg); border-bottom-color: var(--fg); }
+
+/* CLEAR button inside chip strip — matches chip height so row never shifts on mount/unmount */
+.pl-filter-strip .pl-cancel-btn {
+  padding: 3px 0 2px;
+  border-bottom: 1.5px solid transparent;
+}
 .pl-add-scroll {
   padding-bottom: 24px;
 }
