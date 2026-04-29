@@ -359,6 +359,7 @@ const MealPlansPage = () => {
   const [creatingPlan, setCreatingPlan] = useState(false);
   const [planJustCreated, setPlanJustCreated] = useState(false);
   const showCreateForm = !planJustCreated && searchParams?.get("showForm") === "true";
+  const openSheetParam = searchParams?.get('openSheet');
   const [editMode, setEditMode] = useState(false);
   const [selectedMealIds, setSelectedMealIds] = useState<Set<number>>(new Set());
   const [viewMode, setViewMode] = useState<'personal' | 'both'>('personal');
@@ -612,6 +613,29 @@ const MealPlansPage = () => {
       if (plan) fetchAllPersonPlansForWeek(plan.weekStartDate);
     }
   }, [mealPlans, selectedPlanId, fetchAllPersonPlansForWeek]);
+
+  // Sync viewMode to body for CSS-based menu sheet gating (B-1)
+  useEffect(() => {
+    document.body.dataset.plannerView = viewMode === 'both' ? 'everyone' : 'personal';
+    return () => { delete document.body.dataset.plannerView; };
+  }, [viewMode]);
+
+  // Handle ?openSheet=shopping|nutrition from mobile menu
+  useEffect(() => {
+    if (!openSheetParam || !selectedPlan) return;
+    const params = new URLSearchParams(searchParams?.toString());
+    params.delete('openSheet');
+    const qs = params.toString();
+    router.replace(`/meal-plans${qs ? '?' + qs : ''}`);
+    if (openSheetParam === 'shopping') {
+      openShoppingList();
+    } else if (openSheetParam === 'nutrition') {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      setSelectedDay(today);
+      setMobNutSheetOpen(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openSheetParam, selectedPlan?.id]);
 
   // Default selectedDay to today (if in range) when a plan loads
   useEffect(() => {
@@ -1128,7 +1152,7 @@ const MealPlansPage = () => {
         </div>
       </div>
 
-      {/* ── Mobile two-row toolbar — hidden on desktop ── */}
+      {/* ── Mobile toolbar — hidden on desktop ── */}
       <div className="pl-mob-toolbar">
         {/* Row 1: locator + identity */}
         <div className="pl-toolbar-row">
@@ -1229,28 +1253,6 @@ const MealPlansPage = () => {
               )}
             </div>
           )}
-        </div>
-        {/* Row 2: actions */}
-        <div className="pl-toolbar-row">
-          {selectedPlan && (
-            <button
-              className="planner-toolbar-action"
-              onClick={openShoppingList}
-              aria-label="View shopping list"
-            >Shopping &#8250;</button>
-          )}
-          {selectedPlan && (
-            <button
-              className="planner-toolbar-action"
-              onClick={() => {
-                const today = new Date(); today.setHours(0,0,0,0);
-                setSelectedDay(today);
-                setMobNutSheetOpen(true);
-              }}
-              aria-label="View nutrition summary"
-            >Nutrition &#8250;</button>
-          )}
-          <span className="pl-toolbar-spacer" />
           <button
             className="ed-btn-outline"
             onClick={() => {

@@ -368,7 +368,7 @@ export default function Home() {
                       <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
                         of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
                       </div>
-                      <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
+                      <div className="h-[2px] bg-[var(--fg)] mt-[10px] relative overflow-hidden">
                         <div className="absolute inset-0 bg-[var(--fg)]" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)' }} />
                       </div>
                     </div>

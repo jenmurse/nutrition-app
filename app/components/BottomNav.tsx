@@ -78,7 +78,31 @@ export default function BottomNav() {
               </button>
             </div>
             <nav className="mob-menu-list" aria-label="Sections">
-              {SECTIONS.map(s => (
+              {SECTIONS.slice(0, -1).map(s => (
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  className={`mob-menu-item${isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
+                  aria-current={isActive(s.href, pathname) ? "page" : undefined}
+                >
+                  {s.label}
+                </Link>
+              ))}
+              <Link
+                href="/meal-plans?openSheet=shopping"
+                className="mob-menu-item"
+                onClick={() => setMenuOpen(false)}
+              >
+                Shopping
+              </Link>
+              <Link
+                href="/meal-plans?openSheet=nutrition"
+                className="mob-menu-item mob-menu-item--nutrition"
+                onClick={() => setMenuOpen(false)}
+              >
+                Nutrition
+              </Link>
+              {SECTIONS.slice(-1).map(s => (
                 <Link
                   key={s.href}
                   href={s.href}

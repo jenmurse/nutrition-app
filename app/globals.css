@@ -1599,7 +1599,7 @@ input[type="number"]:focus {
 
 .pl-mob-person-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 2px);
   right: 0;
   min-width: 140px;
   background: var(--bg);
@@ -3391,6 +3391,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     transition: color 200ms var(--ease);
   }
   .mob-menu-item--active { color: var(--fg); }
+  body[data-planner-view="everyone"] .mob-menu-item--nutrition { display: none; }
 
   /* Home hero: subtract bottom nav height instead of top nav */
   .hm-hero { min-height: calc(100dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom)); }
@@ -3535,12 +3536,20 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Invite buttons: wrap on small screens */
   .set-invite-btns { gap: 6px !important; }
 
-  /* ── Planner toolbar: two-row mobile toolbar replaces single row ── */
+  /* ── Planner toolbar: single-row mobile toolbar replaces desktop ── */
   .pl-toolbar { display: none !important; }
   .pl-mob-toolbar { display: flex; }
 
-  /* Mobile person dropdown — visible inside pl-mob-toolbar Row 1 */
+  /* Mobile person dropdown — visible inside pl-mob-toolbar */
   .pl-mob-person-wrap { display: block; }
+
+  /* + NEW PLAN create row: stack inputs vertically on mobile */
+  .pl-create-row { padding-left: var(--pad); padding-right: var(--pad); }
+  .pl-create-row.open { height: auto; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; row-gap: 8px; transition: opacity 180ms var(--ease-out); overflow: visible; }
+  .pl-create-row .pl-create-label { width: 100%; }
+  .pl-create-row .pl-copy-wrap { width: 100%; }
+  .pl-create-row .pl-copy-btn { min-width: 0; width: 100%; box-sizing: border-box; }
+  .pl-create-row .pl-create-actions { width: 100%; justify-content: flex-end; }
 
   /* ── Global mobile type baseline ─────────────────────────────── */
   /* Interactive chips + buttons: 8-9px → 11px */
