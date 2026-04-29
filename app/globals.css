@@ -3797,6 +3797,54 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* ── Recipe/pantry builder: prevent URL input causing horizontal scroll ── */
   #rd-scroll-container { overflow-x: hidden; }
   #pf-scroll-container { overflow-x: hidden; }
+
+  /* ── Recipe detail: scale chips (mobile only) ── */
+  .scale-chip {
+    font: 400 9px var(--font-mono) !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    background: none !important;
+    border: none !important;
+    border-bottom: 1.5px solid transparent !important; /* reserves underline space — prevents layout shift on activate */
+    border-radius: 0 !important;
+    color: var(--muted) !important;
+    padding: 8px 4px !important;
+    position: relative;
+    cursor: pointer;
+    transition: color 120ms var(--ease-out) !important;
+    line-height: 1.2;
+  }
+  .scale-chip:hover { color: var(--fg) !important; }
+  .scale-chip.active {
+    color: var(--fg) !important;
+    border-bottom-color: var(--fg) !important;
+    background: none !important;
+  }
+  /* Hit area expansion */
+  .scale-chip::before {
+    content: '';
+    position: absolute;
+    inset: -10px -4px;
+  }
+
+  /* ── Recipe detail: favorite button (mobile only) ── */
+  .favorite-btn {
+    font: 400 9px var(--font-mono) !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+    background: none !important;
+    border: 0 !important;
+    padding: 8px 4px !important;
+    cursor: pointer;
+    transition: color 120ms var(--ease-out) !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .favorite-btn:hover { color: var(--fg) !important; }
+  .favorite-btn.is-on { color: var(--fg) !important; }
 }
 
 /* ── Prevent hover accent bar from lingering after tap ───────────── */

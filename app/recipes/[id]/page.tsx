@@ -509,14 +509,14 @@ export default function RecipeDetailPage() {
                   aria-label="Delete recipe">Delete</button>
                 <button
                   onClick={toggleFavorite}
-                  className={`rcp-fav-btn rcp-fav-btn--labeled inline-flex items-center gap-[8px] border-0 bg-transparent cursor-pointer transition-colors duration-150 ${
+                  className={`rcp-fav-btn favorite-btn${isFavorited ? " is-on" : ""} inline-flex items-center gap-[8px] border-0 bg-transparent cursor-pointer transition-colors duration-150 ${
                     isFavorited ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
                   }`}
                   aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                   aria-pressed={isFavorited}
                 >
-                  <span aria-hidden="true" className={`fav-mark${isFavorited ? " rcp-heart-on" : ""}`} style={{ fontSize: 14, lineHeight: 1 }}>{isFavorited ? "●" : "○"}</span>
-                  <span className="font-mono text-[9px] font-medium tracking-[0.14em] uppercase">Favorite</span>
+                  {isFavorited && <span aria-hidden="true">★</span>}
+                  <span className="font-mono text-[9px] font-medium tracking-[0.14em] uppercase">{isFavorited ? "Favorited" : "Favorite"}</span>
                 </button>
               </div>
             </div>
@@ -545,14 +545,14 @@ export default function RecipeDetailPage() {
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {/* Scale */}
-                <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
+                <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-[14px]">
                   <span>Scale</span>
-                  <div className="flex gap-1" role="group" aria-label="Scale recipe">
+                  <div className="flex gap-[14px]" role="group" aria-label="Scale recipe">
                     {[1, 2, 4, 6].map(n => (
                       <button key={n} onClick={() => setScale(n)}
-                        className={`font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
+                        className={`scale-chip font-mono text-[9px] tracking-[0.06em] px-[7px] py-[2px] border rounded-pill transition-colors active:scale-[0.97] ${
                           scale === n
-                            ? "bg-[var(--cta)] text-[var(--cta-ink)] border-[var(--cta)]"
+                            ? "active bg-[var(--cta)] text-[var(--cta-ink)] border-[var(--cta)]"
                             : "bg-transparent text-[var(--muted)] border-[var(--rule)] hover:border-[var(--muted)]"
                         }`}
                         aria-pressed={scale === n}
