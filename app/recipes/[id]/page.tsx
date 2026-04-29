@@ -375,7 +375,7 @@ export default function RecipeDetailPage() {
       { id: "rf-sec-nutrition", n: "05", label: "Nutrition" },
     ];
     return (
-      <div className="form-page-shell h-full relative">
+      <div className="h-full relative">
         {/* Jump Nav — outside animated wrapper */}
         <nav className="detail-jump-nav fixed z-50 flex flex-col" style={{ left: "40px", top: "calc(var(--nav-h) + 48px)", width: 140 }} aria-label="Recipe form navigation">
           {EDIT_SECTIONS.map((s, i) => (
@@ -396,11 +396,6 @@ export default function RecipeDetailPage() {
         </nav>
 
         <div id="rf-edit-scroll" className="h-full overflow-y-auto animate-page-enter">
-          <div className="form-back-row">
-            <a href="/recipes" className="back-link">← Back</a>
-            <span className="form-back-sep" aria-hidden="true" />
-            <span className="form-back-title">Edit Recipe</span>
-          </div>
           <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>

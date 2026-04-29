@@ -8,6 +8,7 @@ import { dialog } from '@/lib/dialog';
 import { clientCache } from '@/lib/clientCache';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { useBottomRailSlot } from './BottomRailContext';
 
 interface Recipe {
   id: number;
@@ -76,6 +77,7 @@ interface MealPlanWeekProps {
   mealLogCaloriesMap?: Record<number, number>;
   onRefreshIngredients?: () => void;
   personName?: string;
+  personColor?: string;
   onNavigatePrevWeek?: () => void;
   onNavigateNextWeek?: () => void;
   onOpenNutrition?: (date: Date) => void;
@@ -209,6 +211,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   mealLogCaloriesMap = {},
   onRefreshIngredients,
   personName,
+  personColor,
   onNavigatePrevWeek,
   onNavigateNextWeek,
   onOpenNutrition,
@@ -248,6 +251,28 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
       setAddOverlayClosing(false);
     }, 280);
   };
+
+  // Bottom rail right-slot: show date/person status when add-meal overlay is open
+  const { setRightSlot } = useBottomRailSlot();
+  useEffect(() => {
+    const overlayOpen = mealTypeDropdownOpen || !!itemTypeTabOpen;
+    if (overlayOpen) {
+      const d = selectedDayMeal?.date || selectedDate;
+      const dStr = d
+        ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()
+        : null;
+      setRightSlot(
+        <span className="mob-rail-status">
+          {personColor && <span className="mob-rail-dot" style={{ background: personColor }} aria-hidden="true" />}
+          {dStr}{personName ? ` · ${personName.toUpperCase()}` : ''}
+        </span>
+      );
+    } else {
+      setRightSlot(null);
+    }
+    return () => setRightSlot(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mealTypeDropdownOpen, itemTypeTabOpen, selectedDate, selectedDayMeal, personName, personColor]);
 
   // Block all interaction on newly opened sheets by rendering a transparent
   // overlay div on top. This is a physical DOM blocker — no event handling
@@ -741,61 +766,6 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
 
       {(mealTypeDropdownOpen || itemTypeTabOpen) && (selectedDate || selectedDayMeal) && createPortal(
         <div className={`pl-add-overlay${addOverlayClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true" aria-label="Add meal">
-          {/* Anchor row */}
-          <div className="pl-add-anchor">
-            {!itemTypeTabOpen ? (
-              <button
-                type="button"
-                className="ed-btn-text"
-                onClick={closeAddOverlay}
-              >← Back</button>
-            ) : (
-              <button
-                type="button"
-                className="ed-btn-text"
-                onClick={() => {
-                  // Step 2 ← Step 1
-                  setItemTypeTabOpen(null);
-                  setSelectedDayMeal(null);
-                  setIngredientSearchTerm('');
-                  setRecipeSearchTerm('');
-                  setRecipeFilterTags([]);
-                  setPendingRecipeId(null);
-                  setPendingIngredientId(null);
-                  setMealTypeDropdownOpen(true);
-                }}
-              >← Back</button>
-            )}
-            <span className="pl-add-sep" aria-hidden="true" />
-            <span className="pl-add-label">Add meal</span>
-            {itemTypeTabOpen && selectedDayMeal && (
-              <>
-                <span className="pl-add-sep" aria-hidden="true" />
-                <button
-                  type="button"
-                  className="pl-add-crumb"
-                  onClick={() => {
-                    setItemTypeTabOpen(null);
-                    setSelectedDayMeal(null);
-                    setMealTypeDropdownOpen(true);
-                  }}
-                >{selectedDayMeal.mealType}</button>
-              </>
-            )}
-            <div className="pl-add-anchor-right">
-              {(() => {
-                const d = selectedDayMeal?.date || selectedDate;
-                if (!d) return null;
-                const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
-                return (
-                  <span className="pl-add-meta">
-                    {dStr}{personName ? ` · ${personName.toUpperCase()}` : ''}
-                  </span>
-                );
-              })()}
-            </div>
-          </div>
-
           {/* Step 1 — pick a meal type */}
           {!itemTypeTabOpen && selectedDate && (
             <div key="step-1" className="pl-add-step pl-add-step--in pl-add-body">

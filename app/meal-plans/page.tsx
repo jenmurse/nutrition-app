@@ -11,6 +11,7 @@ import { dialog } from '@/lib/dialog';
 import EmptyState from '@/app/components/EmptyState';
 import { toast } from '@/lib/toast';
 import { clientCache } from '@/lib/clientCache';
+import { useBottomRailSlot } from '@/app/components/BottomRailContext';
 
 /** Parse a UTC date string as a local Date preserving the calendar date.
  *  e.g. "2026-03-22T00:00:00.000Z" → local Date for March 22 midnight,
@@ -383,6 +384,8 @@ const MealPlansPage = () => {
   const [hideChecked, setHideChecked] = useState(false);
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
+
+  const { setRightSlot } = useBottomRailSlot();
 
   // Find other person's plan for the current week (for "also add to" checkbox)
   const otherPersonPlanId = (() => {
@@ -886,6 +889,21 @@ const MealPlansPage = () => {
       } catch { toast.error('Could not copy'); }
     }
   };
+
+  // Use a ref so the rail button always calls the latest handleShareList (avoids stale closure on checkedItems)
+  const handleShareRef = useRef(handleShareList);
+  handleShareRef.current = handleShareList;
+  useEffect(() => {
+    if (shopSheetOpen && shopItems.length > 0) {
+      setRightSlot(
+        <button type="button" className="mob-rail-action" onClick={() => handleShareRef.current()}>Share</button>
+      );
+    } else {
+      setRightSlot(null);
+    }
+    return () => setRightSlot(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shopSheetOpen, shopItems.length]);
 
   const toggleSelectMeal = (id: number) => {
     setSelectedMealIds((prev) => {
@@ -1522,29 +1540,6 @@ const MealPlansPage = () => {
       {/* Shopping list — full-screen editorial overlay */}
       {shopSheetOpen && createPortal(
         <div className={`pl-shop-overlay${shopClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true" aria-label="Shopping list">
-          {/* Anchor row */}
-          <div className="pl-shop-anchor">
-            <button
-              type="button"
-              className="pl-shop-back ed-btn-text"
-              onClick={() => closeShopOverlay()}
-            >← Back</button>
-            <span className="pl-shop-sep" aria-hidden="true" />
-            <span className="pl-shop-label">Shopping list</span>
-            <div className="pl-shop-anchor-right">
-              {checkedItems.size > 0 && (
-                <button
-                  type="button"
-                  className={`ed-btn-text${hideChecked ? ' is-active' : ''}`}
-                  onClick={() => setHideChecked(h => !h)}
-                >{hideChecked ? 'Show all' : 'Hide completed'}</button>
-              )}
-              {shopItems.length > 0 && (
-                <button type="button" className="ed-btn-text" onClick={handleShareList}>Share</button>
-              )}
-            </div>
-          </div>
-
           {/* Body */}
           <div className="pl-shop-body">
             {selectedPlan && (() => {
@@ -1721,6 +1716,7 @@ const MealPlansPage = () => {
                 mealLogCaloriesMap={selectedPlan.mealLogCaloriesMap}
                 onRefreshIngredients={fetchIngredients}
                 personName={persons.find((p) => p.id === selectedPersonId)?.name}
+                personColor={persons.find((p) => p.id === selectedPersonId)?.color}
                 onNavigatePrevWeek={mealPlans.length > 1 && selectedPlan ? () => {
                   const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
                   if (idx < mealPlans.length - 1) {

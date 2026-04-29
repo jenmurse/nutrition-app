@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useBottomRailSlot } from "./BottomRailContext";
 
 const SECTIONS = [
   { href: "/home",        label: "Home",     idx: 1 },
@@ -21,6 +22,7 @@ function isActive(href: string, pathname: string) {
 export default function BottomNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { rightSlot } = useBottomRailSlot();
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
@@ -54,9 +56,9 @@ export default function BottomNav() {
         >
           Menu
         </button>
-        {indexLabel && (
+        {rightSlot ?? (indexLabel && (
           <span className="mob-rail-index" aria-current="page">{indexLabel}</span>
-        )}
+        ))}
       </nav>
 
       {menuOpen && (

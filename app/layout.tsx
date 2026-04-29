@@ -12,6 +12,7 @@ import Toaster from "./components/Toaster";
 import ConfirmModal from "./components/ConfirmModal";
 import CustomCursor from "./components/CustomCursor";
 import { PersonProvider } from "./components/PersonContext";
+import { BottomRailProvider } from "./components/BottomRailContext";
 
 const dmSans = DM_Sans({
   weight: ['300', '400', '500', '600', '700'],
@@ -108,6 +109,7 @@ export default function RootLayout({
       <body className={`${dmSans.variable} ${dmMono.variable} ${instrumentSerif.variable} font-sans h-screen overflow-hidden`} style={{ height: '100dvh' }}>
         {/* FOUC prevention: apply stored theme synchronously before React hydration */}
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}` }} />
+        <BottomRailProvider>
         <PersonProvider>
           <NumberInputHandler />
           <Toaster />
@@ -127,6 +129,7 @@ export default function RootLayout({
             </Suspense>
           </div>
         </PersonProvider>
+        </BottomRailProvider>
         <CustomCursor />
       </body>
     </html>
