@@ -180,9 +180,14 @@ function RecipesPage() {
     );
   };
 
-  // updateSearchParam kept for mobile sheet (sort/dir) for convenience
-  const updateSort = (key: string) => setSortBy((key || "name") as SortKey);
-  const updateDir = (dir: string) => setSortDir((dir || "asc") as "asc" | "desc");
+  const handleMobSortField = (field: SortKey) => {
+    if (field === sortBy) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
+  };
 
   const isNutrientSort = (key: string) => key !== "name";
 
@@ -645,22 +650,17 @@ function RecipesPage() {
                   <button
                     key={opt.key}
                     className={`mob-sheet-sort-btn${sortBy === opt.key ? " on" : ""}`}
-                    onClick={() => setSortBy(opt.key)}
+                    onClick={() => handleMobSortField(opt.key)}
                     aria-pressed={sortBy === opt.key}
-                  >{opt.label}</button>
+                  >
+                    {opt.label}
+                    {sortBy === opt.key && (
+                      <span className="mob-sheet-sort-arrow" aria-hidden="true">
+                        {sortDir === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </button>
                 ))}
-              </div>
-              <div className="mob-sheet-dir-row">
-                <button
-                  className={`mob-sheet-dir-btn${sortDir === "asc" ? " on" : ""}`}
-                  onClick={() => setSortDir("asc")}
-                  aria-pressed={sortDir === "asc"}
-                >↑ Ascending</button>
-                <button
-                  className={`mob-sheet-dir-btn${sortDir === "desc" ? " on" : ""}`}
-                  onClick={() => setSortDir("desc")}
-                  aria-pressed={sortDir === "desc"}
-                >↓ Descending</button>
               </div>
             </div>
 

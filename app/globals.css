@@ -547,11 +547,11 @@ input[type="number"]:focus {
   font-family: var(--mono);
   font-size: 9px;
   font-weight: 400;
+  line-height: 1;
   color: var(--muted);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-  margin-top: 1px;
 }
 .ed-count strong { color: var(--fg); font-weight: 500; }
 
@@ -603,9 +603,10 @@ input[type="number"]:focus {
 /* Edge columns: text and photo both align with toolbar at 40px */
 .recipe-grid-item:nth-child(4n+1) { padding-left: 40px; }
 .recipe-grid-item:nth-child(4n)   { padding-right: 40px; }
-/* Compare mode — selected state: exterior ring, never clips the photo bleed */
+/* Compare mode — selected state: outline merges between adjacent selected cards */
 .recipe-grid-item.is-selected {
-  box-shadow: 0 0 0 2px var(--fg);
+  outline: 2px solid var(--fg);
+  outline-offset: 0;
   z-index: 2;
 }
 .recipe-grid-item.is-selected::after { display: none; }
@@ -2476,10 +2477,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .mob-sheet-section {
-  padding: 16px 20px 4px;
+  padding: 0 20px;
+  margin-top: 32px;
 }
-.mob-sheet-section + .mob-sheet-section {
-  margin-top: 4px;
+.mob-sheet-section:first-child {
+  margin-top: 28px;
 }
 
 .mob-sheet-section-label {
@@ -2488,7 +2490,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .mob-sheet-chips {
@@ -2527,6 +2529,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 10px;
 }
 .mob-sheet-sort-btn {
+  display: inline-flex;
+  align-items: baseline;
   padding: 8px 0 6px;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -2546,31 +2550,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom-color: var(--fg);
 }
 .mob-sheet-sort-btn:active { opacity: 0.75; }
-
-.mob-sheet-dir-row {
-  display: flex;
-  gap: 16px;
-}
-.mob-sheet-dir-btn {
-  flex: 1;
-  padding: 8px 0 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  background: none;
-  border: none;
-  border-bottom: 1.5px solid transparent;
-  border-radius: 0;
-  cursor: pointer;
-  transition: color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-.mob-sheet-dir-btn.on {
-  color: var(--fg);
-  border-bottom-color: var(--fg);
-}
-.mob-sheet-dir-btn:active { opacity: 0.75; }
+.mob-sheet-sort-arrow { margin-left: 0.4em; }
 
 .mob-sheet-done {
   display: block;
