@@ -1,7 +1,7 @@
 # Step 2 — Linework + Radius Audit
 
-**Status:** In progress · April 28, 2026
-**Briefs landed:** 2A ✓ · 2B ✓ · 2B.1 ✓ · 2B.2 ✓ · 2C → · 2D → · 2E ☐ · 2F ☐ · 2G ☐
+**Status:** In progress · April 29, 2026
+**Briefs landed:** 2A ✓ · 2B ✓ · 2B.1 ✓ · 2B.2 ✓ · 2C → · 2D ✓ · 2D.1 ✓ · 2D.2 ✓ · 2E ✓ · 2F ☐ · 2G ☐
 **Output of:** Step 2 of the design pass (master-plan.md)
 **Source for:** the implementation brief that follows
 
@@ -43,7 +43,7 @@ What goes into design-system.md after Step 2 lands:
 | **Pill exceptions kept:** `.hm-mob-person-chip` (mobile dashboard person tabs) and `.mob-filter-badge` (notification count badge). Everything else sharp. | enforcement §1 |
 | `var(--accent)` / `var(--cta)` / `var(--accent-l)` reserved for identity markers only — NEVER on focus borders, hover states, selection backgrounds, or `::selection`. | enforcement §2 |
 | Easing is always `var(--ease-out)` = `cubic-bezier(0.23, 1, 0.32, 1)`. Never `linear`, `ease-in-out`, or `ease-in` for UI. | enforcement §3 |
-| Mobile back-link copy is always `← BACK`. Never `← BACK TO X`. Page eyebrow + title provide context. | Locked Apr 28, Brief 2D |
+| Mobile child screens have no top back-bar. Navigation via cancel/save actions and persistent Menu. Bottom rail right slot: section locator on parents, SHARE on Shopping, date/person status on Add Meal. | Locked Apr 29, Brief 2D.2 (supersedes Apr 28 `← BACK` rule) |
 
 ---
 
@@ -65,9 +65,9 @@ For each surface: **current** describes what's shipping (from the screenshots), 
 
 **Current:** "Menu" text label left, "NN/NN — SECTION" mono right. Sharp hairline above. No corner issues. This is the editorial rail (Option B) we locked.
 
-**Target:** Same. Plus on child screens (New Recipe, New Pantry Item, Add Meal, Shopping), child screens carry their own `← BACK` row at the top while the rail stays constant. Note: back-link copy is always `← BACK` — not `← BACK TO X`. Page eyebrow + title provide context; the back link navigates only.
+**Target (updated after 2D.2):** Rail stays constant on all screens — parent and child. Child screens have no top back-bar. Navigation is contextual via cancel/save form actions and the persistent Menu. Right slot adapts: section locator on parent screens, SHARE on Shopping, date/person status on Add Meal.
 
-**Change:** No linework changes. IA-only changes are tracked in Step 4.
+**Change:** ✓ Resolved in 2D.2. No further linework changes needed here.
 
 ---
 
@@ -229,7 +229,7 @@ For each surface: **current** describes what's shipping (from the screenshots), 
 **Target:** Sharp corners. Left rule + tinted fill is the right pattern (matches over-limit warning style and is documented in onboarding.md §3 styling). Just make it sharp.
 
 **Change item:**
-- **K-1** Contextual tip card: `border-radius: 0`. Keep tinted fill + left rule.
+- **K-1** ✓ Confirmed already correct in 2E audit — `ContextualTip.tsx` has no `rounded` Tailwind class and no `border-radius` style. Already sharp. No code change needed.
 
 ---
 
@@ -247,9 +247,10 @@ For each surface: **current** describes what's shipping (from the screenshots), 
 - Animation: align to `var(--ease-out)` per the enforcement rule. The mobile_ux.md description of the curve is descriptive of what was shipped; the enforcement rule is what should ship. Match enforcement.
 
 **Change items:**
-- **L-1** Update `--radius-xl: 8px`. Audit whether anything else uses `--radius-xl` and fix that too.
-- **L-2** Verify the over-limit warning rows inside the nutrition sheet — they currently use `--err-l` fills, which is consistent with the desktop implementation. Design-system.md §5b describes them as "left rule margin-notes" but the actual implementation is fill-based. The fill version is working visually. Decision: **keep the fill, update design-system.md to reflect implementation reality.** This is consistent with enforcement §2 — `--err-l` is forbidden on *selection states*, not on actual over-limit semantic warnings.
-- **L-3** Audit sheet animation easing — confirm it uses `var(--ease-out)`. If it doesn't, change to match. Update mobile_ux.md to remove the conflicting curve description.
+- **L-1** ✓ Resolved in 2E — `--radius-xl` token removed entirely (Approach B). 8px hardcoded directly on `.mob-sheet` (`border-radius: 8px 8px 0 0`). Only reference was `.mob-sheet` — audit confirmed clean. Also added `border-top: 1px solid var(--rule)` hairline (was `none`).
+- **L-2** Decision confirmed in 2E audit: keep `--err-l` fill on over-limit nutrition rows. Fill pattern is semantically correct and visually working. design-system.md §5b (margin-note description) is the stale entry — update separately.
+- **L-3** ✓ Resolved in 2E — sheet animation already used `var(--ease-out)` at 360ms. Removed stale `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)` token from `:root`. LandingScreenCycle demo sheet aligned to match (8px, 360ms, editorial ease-out). mobile_ux.md updated.
+- **K-2** (chips in sheets) ✓ Confirmed already correct in 2E audit — all `.mob-sheet-chip`, `.mob-sheet-sort-btn`, `.mob-sheet-dir-btn` classes already have `border-radius: 0`. No code change needed. Active toggle state styling (filled-black on `.on` modifiers) is a separate issue tracked for 2G.
 
 ---
 
@@ -356,22 +357,23 @@ This is what gets sent to implementation. Each line is a single, scoped change.
 
 ### Mobile recipe form (3g)
 - **G-1** Strip rounded borders on native `<select>` dropdowns
-- **G-2** Add `← BACK` row (covered in Step 4 IA, but stays here for tracking)
+- ~~**G-2** Add `← BACK` row~~ — superseded by 2D.2; no top back-bar on any child screen
 
 ### Mobile pantry form (3h)
 - **H-1** Same as G-1
-- **H-2** Add `← BACK` row (Step 4 IA)
+- ~~**H-2** Add `← BACK` row~~ — superseded by 2D.2
 
 ### Auth (3i)
 - **I-1** Form half background `var(--bg)` (Step 7 surface, dependency tracked here)
 
 ### Onboarding (3j-k)
 - **J-1** Audit later onboarding steps for native `<select>` stragglers
-- **K-1** Contextual tip card → sharp corners
+- **K-1** ✓ Already sharp — confirmed in 2E audit
 
 ### Bottom sheets (3l)
-- **L-1** `--radius-xl: 8px`
-- **L-2** Update design-system.md to reflect over-limit fill pattern
+- **L-1** ✓ Done in 2E — `--radius-xl` removed, 8px hardcoded on `.mob-sheet`, border-top hairline added
+- **L-3** ✓ Done in 2E — easing confirmed `var(--ease-out)`, stale `--ease-drawer` token removed
+- **L-2** Decision confirmed: keep `--err-l` fill on over-limit rows. Update design-system.md separately.
 
 ### Cleanup (3m-n)
 - **M-1** Delete `.toolbar-icon-btn` legacy class
@@ -447,12 +449,26 @@ The remaining steps don't depend on more linework decisions — they depend on t
 
 **Should we ship Step 2 as one big PR or split it?**
 
-Three reasonable splits:
+✓ Answered — surface-by-surface, in order. That's what happened.
 
-1. **Token sweep first** (Q-1 through Q-4): change radius tokens, sweep CSS, cause whatever visual regressions land. Then fix surfaces. This breaks more things at once but the cleanup is global.
-2. **Surface-by-surface**: ship mobile recipes toolbar, then mobile pantry toolbar, then mobile planner toolbar, etc. Each PR is small and verifiable. Slower overall.
-3. **One big PR**: everything in this punch list at once. Easiest to review as a whole; hardest to bisect if something regresses.
+---
 
-My recommendation: **#2, surface by surface**, in this order: recipes toolbar → pantry toolbar → planner toolbar → recipe detail → forms → sheets → tokens cleanup last. Tokens last because they're the global blast radius; doing it last lets the surface-level work catch any straggler radii that the token change would otherwise mask.
+## 8 · Deferred work — scoped to future briefs
 
-Confirm before I write the brief.
+### Brief 2F — Bottom rail visual weight
+The bottom rail currently lacks visual separation from page content (same paper bg, thin hairline). A heavier hairline and/or subtle `--bg-2` tint would make the rail read as chrome rather than content. Scoped to 2F; do not fix as part of any 2E or earlier brief.
+
+### Brief 2G — Button hierarchy audit
+Filled-black is being misused on active toggle states. Items confirmed in audit:
+- `.mob-sheet-chip.on`, `.mob-sheet-sort-btn.on`, `.mob-sheet-dir-btn.on` — filled-black active state on toggles
+- `.compare-strip-cta` — review filled-black usage in compare strip context
+`filled-black = single primary CTA per page` — active toggle state should not use filled-black. Full button hierarchy audit scoped to 2G.
+
+### Step 3 flag — Typography and voice consistency
+Noticed during Step 2 work: eyebrow and headline voice is inconsistent across pages.
+
+**Eyebrow forms:** `PANTRY / EDIT` (breadcrumb style) vs `§ APR 26 – MAY 2` (editorial section marker) vs `§ STEP ONE · TUESDAY, APRIL 28` (chapter + date composite) — three different conventions, no clear rule.
+
+**Headline voice:** `Edit Pantry Item` (title-case label) vs `A week of meals.` (lowercase sentence) vs `Pick a meal type.` (lowercase imperative) — range from UI label to editorial prose, inconsistently applied.
+
+This is a Step 3 / editorial pass item, not a linework item. Not actionable in Step 2.

@@ -41,10 +41,13 @@ These are settled. Don't relitigate without a strong reason.
 - ✓ **Moves to Menu sheet.** Last item below Settings in the menu list. Removes the bottom-of-Settings burial.
 
 ### Menu rail behavior (mobile)
-- ✓ **Stays constant on every screen** as global orientation. Child screens (New Recipe, New Pantry Item, Add Meal, Shopping) carry their own `← BACK` row at top. Bottom rail keeps `Menu | NN/NN — SECTION` always.
+- ✓ **Stays constant on every screen** as global orientation. Mobile child screens have no top back-bar — navigation is contextual via cancel/save form actions and the persistent Menu in the bottom rail. The bottom rail's right slot adapts per page: section locator on parent screens, primary action on screens with one (SHARE on Shopping), or status locator on screens that need it (date/person on Add Meal). Locked in 2D.2.
 
-### Mobile back-link copy
-- ✓ **Always `← BACK`.** Page eyebrow + title provide orientation; the back link's only job is to navigate one step up. `← BACK TO X` labels are wrong on screens reachable from multiple entry points and redundant everywhere else. Applies to all mobile back-row links. Desktop breadcrumb patterns unaffected.
+### Mobile child-screen navigation
+- ✓ **No top back-bar on mobile child screens.** Navigation is contextual via cancel/save form actions and the persistent Menu in the bottom rail. No `← BACK` row on form pages (New Recipe, Edit Recipe, New Pantry Item, Edit Pantry Item, Shopping, Add Meal). The previous rule ("always `← BACK`") is superseded by this. Locked in 2D.2.
+
+### Bottom sheet corners
+- ✓ **8px top corners, hardcoded on `.mob-sheet`.** Round signals the surface slid up from below rather than appeared. This is the only exception to the sharp-default rule. Token `--radius-xl` removed — value is hardcoded directly in CSS. Locked in 2E.
 
 ### + NEW PLAN placement (mobile)
 - ✓ **Planner toolbar, right side.** Outlined (not filled), mirrors desktop pattern. Filled black reserved for single primary CTA per page.
@@ -81,7 +84,7 @@ These need answers before or during the relevant step. Tracked here so we don't 
 
 | ID | Question | My recommendation | Status |
 |---|---|---|---|
-| Q1.1 | Bottom sheet top-corner radius: sharp / 8px / 12px / keep 20px | 8px — quietly rounded enough to read as a sheet without iOS-default | ◇ decide in Step 3 |
+| Q1.1 | Bottom sheet top-corner radius: sharp / 8px / 12px / keep 20px | **8px — hardcoded on `.mob-sheet`. Token `--radius-xl` removed (Approach B).** | ✓ resolved in 2E |
 | Q1.2 | Toolbar icons (cart, chart, view toggles, filter): ghost no-fill / sharp outlined / text labels only | Text labels only on mobile — icons aren't earning their weight | ◇ decide in Step 3 |
 | Q4.1 | Form crumb pattern (`RECIPE / NEW` vs `§ RECIPE / NEW`) | Leave as metadata, no § | ◇ decide in Step 5 |
 | Q4.2 | `§ STEP ONE` on Add Meal — keep or simplify | Keep — § marks editorial chapter, "STEP ONE" alone reads as wizard chrome | ◇ decide in Step 5 |
@@ -137,14 +140,14 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 - Recipe detail "○ FAVORITE" prefix circle → remove (the dot is reserved; this isn't an identity dot)
 - Pantry form CATEGORY and DEFAULT UNIT dropdowns (visible rounded borders) → bottom-border-only
 - Onboarding native `<select>` dropdowns → styled to match
-- Bottom sheet top corners (currently 20px) → 8px (per Q1.1 recommendation)
-- Onboarding contextual tip box rounded corners → sharp + left rule (matches over-limit warning pattern)
+- Bottom sheet top corners ✓ — 8px hardcoded on `.mob-sheet`, `--radius-xl` removed (2E)
+- Onboarding contextual tip box rounded corners ✓ — already sharp in code; confirmed in 2E audit
 
 **Token changes:**
 - `--radius-pill: 0` (was 9999px legacy)
 - `--radius-md: 0` (was 12px)
 - `--radius-lg: 0` (was 16px)
-- `--radius-xl: 8px` (was 20px) — sheet top corners only
+- `--radius-xl` removed entirely (2E) — 8px hardcoded on `.mob-sheet` directly (Approach B)
 
 **Lock outputs:**
 - Updated radius tokens in design-system.md
@@ -428,8 +431,12 @@ Drafted in creative-direction.md. Walk through each.
 | Apr 28 | **Brief 2B landed** — Mobile planner toolbar rebuilt as two-row; cart/chart icons → text labels; `+ NEW PLAN` outlined added | 2 |
 | Apr 28 | **Brief 2B.1 landed** — Planner toolbar collapsed to single row; SHOPPING moved to menu sheet; NUTRITION moved to day-header `VIEW NUTRITION ›`; `+ NEW PLAN` mobile flow stacked inputs; Shopping back link genericized | 2 |
 | Apr 28 | **Brief 2B.2 landed** — PREV/NEXT dropped from mobile planner toolbar; swipe-on-day-strip for week nav; person chip height matched to toolbar buttons; `← BACK` rule applied to Shopping; NUTRITION chevron encoding fixed | 2 |
-| Apr 28 | **Mobile back-link rule locked** — Always `← BACK` on mobile. Page eyebrow + title provide context. `← BACK TO X` labels retired. Applies to all mobile back-row links; desktop unaffected. | 2 / 4 |
+| Apr 28 | ~~**Mobile back-link rule locked**~~ — *Superseded by 2D.2 below.* Was: Always `← BACK`; `← BACK TO X` retired. | 2 / 4 |
 | Apr 28 | **NUTRITION placement locked** — Contextual to day/person; `VIEW NUTRITION ›` below kcal bar on single-person planner view. Not in menu sheet. Hidden on Everyone view. | 2 |
 | Apr 28 | **SHOPPING placement locked** — In menu sheet (reachable from multiple entry points). Removed from planner toolbar. | 2 |
 | Apr 28 | **Planner toolbar mobile/desktop fully split** — `.pl-toolbar` desktop-only; `.pl-mob-toolbar` mobile-only. Future changes must touch both. | 2 |
+| Apr 29 | **Brief 2D.2 landed** — Removed top back-bars from all form pages (New/Edit Recipe, New/Edit Pantry Item, Shopping, Add Meal). Refactored Shopping → `/shopping` (sibling route), Add Meal → `/meal-plans/add-meal` (child route). Removed `BottomRailContext` entirely (~900 lines deleted). Bottom rail right slot now has three variants: section locator on parent screens, SHARE on Shopping, date/person status on Add Meal. ADD TO PLAN button changed from outlined to filled black. Button hierarchy findings (filled-black on active toggle states) flagged for 2G. | 2D.2 |
+| Apr 29 | **Mobile child-screen navigation rule locked** — No top back-bar on child screens. Navigation via cancel/save actions + persistent Menu. Right rail slot adapts per page. Replaces the Apr 28 `← BACK` rule. | 2D.2 |
+| Apr 29 | **Brief 2E landed** — `--radius-xl` token removed (Approach B: 8px hardcoded on `.mob-sheet`). `--ease-drawer` token removed (unreferenced). `.mob-sheet` got `border-top: 1px solid var(--rule)` hairline. LandingScreenCycle demo sheet aligned to match real sheet (8px corners, 360ms, `var(--ease-out)`). All sheet chips and ContextualTip confirmed already sharp — no code changes needed there. | 2E |
+| Apr 29 | **Bottom sheet corners locked** — 8px top corners hardcoded on `.mob-sheet`. Only exception to the sharp-default rule. Token `--radius-xl` removed. | 2E |
 
