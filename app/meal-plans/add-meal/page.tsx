@@ -44,8 +44,11 @@ function AddMealInner() {
   const weekStart = params?.get('weekStart') ?? '';
   const personParam = params?.get('person') ?? '';
 
-  // Prevent browser auto-focusing first interactive element on mount
-  useEffect(() => { (document.activeElement as HTMLElement)?.blur(); }, []);
+  // Prevent browser/Next.js navigation from leaving focus on first row
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   // Parse date from URL
   const selectedDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
@@ -304,7 +307,7 @@ function AddMealInner() {
                     <button
                       key={tag}
                       type="button"
-                      className={`pl-person-chip flex-shrink-0 ${recipeFilterTags.includes(tag) ? 'on' : ''}`}
+                      className={`pl-add-filter-chip flex-shrink-0 ${recipeFilterTags.includes(tag) ? 'on' : ''}`}
                       onClick={() =>
                         setRecipeFilterTags(prev =>
                           prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]

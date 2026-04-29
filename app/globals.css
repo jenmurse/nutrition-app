@@ -3016,8 +3016,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--fg);
   transition: width 0.2s var(--ease-out);
 }
-.pl-add-mtrow:hover::after { width: 100%; }
-.pl-add-mtrow:hover .pl-add-mtarrow { color: var(--fg); transform: translateX(2px); }
+@media (hover: hover) {
+  .pl-add-mtrow:hover::after { width: 100%; }
+  .pl-add-mtrow:hover .pl-add-mtarrow { color: var(--fg); transform: translateX(2px); }
+}
+.pl-add-mtrow:focus-visible { outline: none; }
+.pl-add-mtrow:focus-visible::after { width: 100%; }
+.pl-add-mtrow:focus-visible .pl-add-mtarrow { color: var(--fg); }
 .pl-add-mtnum {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -3042,6 +3047,23 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .pl-add-tabs { margin-bottom: 32px; }
+.pl-add-filter-chip {
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 3px 0 2px;
+  border-bottom: 1.5px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.pl-add-filter-chip:hover { color: var(--fg); }
+.pl-add-filter-chip.on { color: var(--fg); border-bottom-color: var(--fg); }
 .pl-add-scroll {
   padding-bottom: 24px;
 }
