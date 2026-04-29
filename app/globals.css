@@ -1632,6 +1632,45 @@ input[type="number"]:focus {
 .pl-mob-person-item.on { color: var(--fg); }
 .pl-mob-person-item + .pl-mob-person-item { border-top: 1px solid var(--rule-faint); }
 
+/* ── Mobile planner: two-row toolbar (hidden on desktop) ── */
+.pl-mob-toolbar {
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.pl-toolbar-row {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--pad);
+  gap: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.pl-toolbar-row .pl-toolbar-spacer { flex: 1; }
+
+.planner-toolbar-action {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 8px 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 120ms var(--ease-out);
+}
+.planner-toolbar-action:hover { color: var(--fg); }
+
 /* ── Mobile planner: day strip + single-day view ── */
 .pl-day-strip {
   display: flex;
@@ -3496,17 +3535,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Invite buttons: wrap on small screens */
   .set-invite-btns { gap: 6px !important; }
 
-  /* ── Planner toolbar: single compact row on mobile ─────────────── */
-  .pl-toolbar { overflow: visible; }
+  /* ── Planner toolbar: two-row mobile toolbar replaces single row ── */
+  .pl-toolbar { display: none !important; }
+  .pl-mob-toolbar { display: flex; }
 
-  /* Hide: This Week, + New Plan, Nutrition toggle, separator, entire right group */
-  .pl-this-week-btn,
-  .pl-new-btn,
-  .pl-nut-chip,
-  .pl-chip-sep,
-  .pl-right-group { display: none; }
-
-  /* Mobile person dropdown — visible only on mobile */
+  /* Mobile person dropdown — visible inside pl-mob-toolbar Row 1 */
   .pl-mob-person-wrap { display: block; }
 
   /* ── Global mobile type baseline ─────────────────────────────── */
@@ -3648,37 +3681,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     border-radius: 0 !important;
   }
 
-  /* ── Planner toolbar: match recipes/pantry toolbar (shadow, no hairline) ── */
-  .pl-toolbar {
-    height: 52px !important;
-    padding: 0 var(--pad) !important;
-    gap: 6px !important;
-    border-bottom: none !important;
-    border-bottom-color: transparent !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
-    background: var(--bg) !important;
-  }
-  /* Week range: mono label, anchor weight */
-  .pl-range {
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.04em !important;
-    padding-left: 0 !important;
-    padding-right: 4px !important;
-  }
-  /* Prev/Next: bordered pills */
-  .pl-nav-btn {
-    font-size: 9px !important;
-    letter-spacing: 0.06em !important;
-    border: 1px solid var(--rule) !important;
-    border-radius: var(--radius-pill) !important;
-    background: none !important;
-    color: var(--muted) !important;
-    padding: 0 8px !important;
-    height: 34px !important;
-  }
-  .pl-nav-btn:active { border-color: var(--accent-btn) !important; color: var(--accent-btn) !important; }
-  .pl-this-week-btn { display: none !important; }
+  /* pl-day-strip top is sticky within pl-main scroll context — no offset needed */
 
   /* Add-meal sheet: larger text for mobile touch targets */
   .add-meal-sheet .meal-chip { padding: 10px 8px; }
@@ -3705,14 +3708,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     margin-top: 12px !important;
   }
   .pl-mobile-day .wk-add-btn:active { border-color: var(--fg) !important; }
-
-  /* Planner mobile nutrition button — visible only on mobile */
-  .pl-mob-nut-btn { display: flex; }
-
-  /* Cart button: bg-3 fill on mobile to match toolbar icon pattern */
-  .pl-cart-btn { background: var(--bg-3); }
-  .pl-cart-btn:hover { background: var(--bg-2); }
-
 
   /* Shopping list sheet: explicit height on mobile for flex to work */
   .pl-shop-sheet { height: calc(82dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom, 0px)); }
