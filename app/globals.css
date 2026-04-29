@@ -104,7 +104,6 @@
     --radius-sm:  8px;   /* buttons, chips */
     --radius-md: 12px;   /* cards */
     --radius-lg: 16px;   /* modals, panels */
-    --radius-xl:   20px;   /* bottom sheets (top corners) */
     --radius-pill: 9999px; /* chips, tags, badges, icon buttons */
 
     /* Layout */
@@ -116,7 +115,6 @@
     --ease:            cubic-bezier(0.23, 1, 0.32, 1); /* canonical — use for all transitions */
     --ease-out:        cubic-bezier(0.23, 1, 0.32, 1); /* alias for --ease; kept for compat */
     --ease-out-strong: cubic-bezier(0.22, 1, 0.36, 1);
-    --ease-drawer:     cubic-bezier(0.32, 0.72, 0, 1);
 
     /* Motion — see design-system.md §9 */
     --motion-page-enter: 400ms cubic-bezier(0.0, 0.0, 0.2, 1);
@@ -2391,8 +2389,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   left: 0;
   right: 0;
   background: var(--bg);
-  border-top: none;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-top: 1px solid var(--rule);
+  border-radius: 8px 8px 0 0;
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.16);
   z-index: 300;
   max-height: 82dvh;

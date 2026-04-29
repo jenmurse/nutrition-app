@@ -1435,9 +1435,9 @@ function MobScreenPlanner() {
       {sheetMounted && (
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0,
-          background: "var(--bg)", borderRadius: "12px 12px 0 0",
+          background: "var(--bg)", borderRadius: "8px 8px 0 0",
           transform: sheetOpen ? "translateY(0)" : "translateY(100%)",
-          transition: "transform 380ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: "transform 360ms cubic-bezier(0.23, 1, 0.32, 1)",
           zIndex: 6, maxHeight: "76%", overflowY: "scroll", scrollbarWidth: "none" as const,
         }}>
           <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px" }}>
