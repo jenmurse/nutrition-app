@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/toast';
@@ -253,8 +253,10 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   };
 
   // Bottom rail right-slot: show date/person status when add-meal overlay is open
-  const { setRightSlot } = useBottomRailSlot();
-  useEffect(() => {
+  const { setRightSlot, setOverlayClose } = useBottomRailSlot();
+  const closeAddOverlayRef = useRef(closeAddOverlay);
+  closeAddOverlayRef.current = closeAddOverlay;
+  useLayoutEffect(() => {
     const overlayOpen = mealTypeDropdownOpen || !!itemTypeTabOpen;
     if (overlayOpen) {
       const d = selectedDayMeal?.date || selectedDate;
@@ -266,12 +268,14 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
           {dStr}{personName ? ` · ${personName.toUpperCase()}` : ''}
         </span>
       );
+      setOverlayClose(() => () => closeAddOverlayRef.current());
     } else {
       setRightSlot(null);
+      setOverlayClose(null);
     }
-    return () => setRightSlot(null);
+    return () => { setRightSlot(null); setOverlayClose(null); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mealTypeDropdownOpen, itemTypeTabOpen, selectedDate, selectedDayMeal, personName, personColor]);
+  }, [mealTypeDropdownOpen, itemTypeTabOpen, selectedDate, selectedDayMeal, personName]);
 
   // Block all interaction on newly opened sheets by rendering a transparent
   // overlay div on top. This is a physical DOM blocker — no event handling

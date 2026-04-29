@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useRouter } from 'next/navigation';
 import MealPlanWeek from '@/app/components/MealPlanWeek';
@@ -385,7 +385,7 @@ const MealPlansPage = () => {
   const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
   const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
-  const { setRightSlot } = useBottomRailSlot();
+  const { setRightSlot, setOverlayClose } = useBottomRailSlot();
 
   // Find other person's plan for the current week (for "also add to" checkbox)
   const otherPersonPlanId = (() => {
@@ -890,18 +890,23 @@ const MealPlansPage = () => {
     }
   };
 
-  // Use a ref so the rail button always calls the latest handleShareList (avoids stale closure on checkedItems)
+  // useLayoutEffect so slot is set before first paint — prevents 02/04 PLANNER flash
   const handleShareRef = useRef(handleShareList);
   handleShareRef.current = handleShareList;
-  useEffect(() => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const closeShopRef = useRef(closeShopOverlay);
+  closeShopRef.current = closeShopOverlay;
+  useLayoutEffect(() => {
     if (shopSheetOpen) {
       setRightSlot(
         <button type="button" className="mob-rail-action" onClick={() => handleShareRef.current()}>Share</button>
       );
+      setOverlayClose(() => () => closeShopRef.current());
     } else {
       setRightSlot(null);
+      setOverlayClose(null);
     }
-    return () => setRightSlot(null);
+    return () => { setRightSlot(null); setOverlayClose(null); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shopSheetOpen]);
 

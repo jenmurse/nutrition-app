@@ -1474,7 +1474,7 @@ input[type="number"]:focus {
 }
 .pl-create-btn:hover { opacity:0.85; }
 .pl-create-btn:active { transform:scale(0.97); }
-.pl-create-btn:disabled { opacity:0.4; cursor:default; }
+.pl-create-btn:disabled { cursor:default; }
 
 .pl-cancel-btn {
   font-family:var(--mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
@@ -2882,6 +2882,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: contentEnter 420ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pl-shop-overlay { animation: none; }
 }
 
 
@@ -2959,6 +2963,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  animation: contentEnter 420ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pl-add-overlay { animation: none; }
 }
 
 

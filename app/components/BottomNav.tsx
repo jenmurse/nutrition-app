@@ -22,7 +22,8 @@ function isActive(href: string, pathname: string) {
 export default function BottomNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { rightSlot } = useBottomRailSlot();
+  const { rightSlot, overlayClose } = useBottomRailSlot();
+  const isOverlay = overlayClose !== null;
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
@@ -84,8 +85,9 @@ export default function BottomNav() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  className={`mob-menu-item${isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
-                  aria-current={isActive(s.href, pathname) ? "page" : undefined}
+                  className={`mob-menu-item${!isOverlay && isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
+                  aria-current={!isOverlay && isActive(s.href, pathname) ? "page" : undefined}
+                  onClick={() => { overlayClose?.(); setMenuOpen(false); }}
                 >
                   {s.label}
                 </Link>
@@ -93,7 +95,7 @@ export default function BottomNav() {
               <Link
                 href="/meal-plans?openSheet=shopping"
                 className="mob-menu-item"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => { overlayClose?.(); setMenuOpen(false); }}
               >
                 Shopping
               </Link>
@@ -101,8 +103,9 @@ export default function BottomNav() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  className={`mob-menu-item${isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
-                  aria-current={isActive(s.href, pathname) ? "page" : undefined}
+                  className={`mob-menu-item${!isOverlay && isActive(s.href, pathname) ? " mob-menu-item--active" : ""}`}
+                  aria-current={!isOverlay && isActive(s.href, pathname) ? "page" : undefined}
+                  onClick={() => { overlayClose?.(); setMenuOpen(false); }}
                 >
                   {s.label}
                 </Link>
