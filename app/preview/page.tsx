@@ -441,8 +441,8 @@ export default function PreviewPage() {
                               <span className="text-[9px] text-[var(--muted)]"> / {n.goal}{n.unit}</span>
                             </span>
                           </div>
-                          <div className="h-[3px] bg-[var(--rule)] rounded-full overflow-hidden">
-                            <div className="h-full rounded-full bg-[var(--ok)]" style={{ width: `${pct}%` }} />
+                          <div className="h-[3px] bg-[var(--rule)] overflow-hidden">
+                            <div className="h-full bg-[var(--ok)]" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );

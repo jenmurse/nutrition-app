@@ -367,7 +367,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       return (
                         <div
                           key={meal.id}
-                          className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && selectedMealIds.has(meal.id) ? ' bg-[var(--err-l)]' : ''}`}
+                          className={`meal-chip${meal.recipe?.id ? ' meal-chip-recipe' : ''}${editMode && selectedMealIds.has(meal.id) ? ' bg-[var(--bg-2)]' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             if (editMode) {

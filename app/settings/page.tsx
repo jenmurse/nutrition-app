@@ -617,7 +617,7 @@ const SettingsPage = () => {
             aria-label={`Jump to ${s.label}`}
           >
             <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
-              activeSection === s.id ? 'text-[var(--cta)]' : 'text-[var(--rule)]'
+              activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--rule)]'
             }`}>{s.n}</span>
             {s.label}
           </button>
@@ -701,7 +701,7 @@ const SettingsPage = () => {
                       ) : pendingInvite ? (
                         <button
                           onClick={() => handleCopyMemberInvite(pendingInvite)}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity"
+                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity"
                           aria-label={`Copy invite link for ${person.name}`}
                         >
                           {copiedInviteId === pendingInvite.id ? 'Copied!' : 'Copy Invite Link'}
@@ -1132,7 +1132,7 @@ const SettingsPage = () => {
                       setConfigBlockCopied(true);
                       setTimeout(() => setConfigBlockCopied(false), 2000);
                     }}
-                    className="text-[var(--cta)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                    className="text-[var(--fg)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
                     aria-label="Copy configuration block"
                   >
                     {configBlockCopied ? (

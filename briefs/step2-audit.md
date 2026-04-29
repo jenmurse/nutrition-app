@@ -1,7 +1,7 @@
 # Step 2 — Linework + Radius Audit
 
-**Status:** In progress · April 29, 2026
-**Briefs landed:** 2A ✓ · 2B ✓ · 2B.1 ✓ · 2B.2 ✓ · 2C → · 2D ✓ · 2D.1 ✓ · 2D.2 ✓ · 2E ✓ · 2F ☐ · 2G ☐
+**Status:** ✅ Complete · April 29, 2026
+**Briefs landed:** 2A ✓ · 2B ✓ · 2B.1 ✓ · 2B.2 ✓ · 2C → · 2D ✓ · 2D.1 ✓ · 2D.2 ✓ · 2E ✓ · 2F ✓ · 2F.1 ✓ · 2G ✓ · 2G.1 ✓ · 2G.2 ✓ · 2H ✓ · 2H.1 ✓ · 2H.2 ✓ · 2H.3 ✓ · 2I ✓
 **Output of:** Step 2 of the design pass (master-plan.md)
 **Source for:** the implementation brief that follows
 
@@ -472,3 +472,19 @@ Noticed during Step 2 work: eyebrow and headline voice is inconsistent across pa
 **Headline voice:** `Edit Pantry Item` (title-case label) vs `A week of meals.` (lowercase sentence) vs `Pick a meal type.` (lowercase imperative) — range from UI label to editorial prose, inconsistently applied.
 
 This is a Step 3 / editorial pass item, not a linework item. Not actionable in Step 2.
+
+---
+
+## 9 · Brief 2I — Token sweep and final log (April 29, 2026)
+
+Brief 2I completed the Step 2 cleanup. Key changes landed:
+
+- `--radius-md`, `--radius-lg`, `--radius-pill` all set to `0` in `:root`. App is now fully sharp.
+- `.hm-mob-person-chip` and `.mob-filter-badge` hardcode `border-radius: 9999px` directly (no token dependency).
+- `.cmp-overlay` prefers-reduced-motion: fixed `linear` → `var(--ease-out)`.
+- `.pl-swap-btn:hover`: fixed accent leak → `var(--fg)`.
+- `MealPlanWeek.tsx`: fixed `bg-[var(--err-l)]` on selection state → `bg-[var(--bg-2)]`.
+- `settings/page.tsx`: fixed three accent-in-chrome leaks (sidebar active number, copy invite link, copy config block) → `var(--fg)`.
+- Docs updated: `design-system.md` (radius table, §5g toolbar, §6e err-l note, new §11/11a/11b sections), `mobile_ux.md` (toolbar, filter sheet), `feedback_design_system_enforcement.md` (Step 2 complete note).
+
+**Step 2 is complete. The system is grep-clean. Step 3 (mobile chrome rebuild) is unblocked.**

@@ -1261,8 +1261,8 @@ const MealPlansPage = () => {
                           <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{Math.round(n.value)}<span className="text-[var(--muted)] text-[9px] ml-[2px]">{n.unit}</span></span>
                         </div>
                         {goal > 0 && (
-                          <div className="h-[2px] bg-[var(--rule)] relative overflow-hidden rounded-full">
-                            <div className="absolute inset-0 rounded-full" style={{ background: statusColor, width: `${pct}%` }} />
+                          <div className="h-[2px] bg-[var(--rule)] relative overflow-hidden">
+                            <div className="absolute inset-0" style={{ background: statusColor, width: `${pct}%` }} />
                           </div>
                         )}
                       </div>

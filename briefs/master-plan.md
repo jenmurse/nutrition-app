@@ -126,7 +126,7 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 2 — Linework and radius audit ☐
+### STEP 2 — Linework and radius audit ✓
 
 **Why second:** Sets the rules every chrome decision depends on. Decides whether things round, half-round, or sharp.
 
@@ -155,7 +155,7 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 3 — Mobile chrome rebuild ☐
+### STEP 3 — Mobile chrome rebuild ☐ ← NEXT (unblocked by Step 2)
 
 **Why third:** The biggest piece of visual work. Linework and wordmark are locked, so chrome decisions are now mechanical.
 
@@ -439,4 +439,6 @@ Drafted in creative-direction.md. Walk through each.
 | Apr 29 | **Mobile child-screen navigation rule locked** — No top back-bar on child screens. Navigation via cancel/save actions + persistent Menu. Right rail slot adapts per page. Replaces the Apr 28 `← BACK` rule. | 2D.2 |
 | Apr 29 | **Brief 2E landed** — `--radius-xl` token removed (Approach B: 8px hardcoded on `.mob-sheet`). `--ease-drawer` token removed (unreferenced). `.mob-sheet` got `border-top: 1px solid var(--rule)` hairline. LandingScreenCycle demo sheet aligned to match real sheet (8px corners, 360ms, `var(--ease-out)`). All sheet chips and ContextualTip confirmed already sharp — no code changes needed there. | 2E |
 | Apr 29 | **Bottom sheet corners locked** — 8px top corners hardcoded on `.mob-sheet`. Only exception to the sharp-default rule. Token `--radius-xl` removed. | 2E |
+| Apr 29 | **Briefs 2F, 2F.1, 2G, 2G.1, 2G.2, 2H, 2H.1, 2H.2, 2H.3 landed** — Bottom rail signout divider, toggle underline rule system-wide, chip gap (24px desktop/16px mobile), sort direction inline arrow, recipes toolbar count baseline (`line-height: 1`), compare-mode inset card ring (`box-shadow: inset 0 0 0 2px var(--fg)`). Active state convention locked: 1.5px underline + ink text; never filled-black on toggles, never accent on state. | 2F–2H.3 |
+| Apr 29 | **Brief 2I landed — Step 2 complete** — Radius tokens `--radius-md`, `--radius-lg`, `--radius-pill` all set to `0`. Two pill exceptions (`.hm-mob-person-chip`, `.mob-filter-badge`) hardcode `9999px` directly. Easing and accent-color leaks swept (`.cmp-overlay`, `.pl-swap-btn`, settings sidebar active indicator, MealPlanWeek selection state). System is grep-clean. Step 3 (mobile chrome rebuild) is unblocked. | 2I |
 

@@ -471,7 +471,7 @@ function RecipesPage() {
                     onClick={() => toggleTag(tag)}
                   >
                     {tag}
-                    {selectedTags.includes(tag) && <span className="text-[var(--cta)]">✓</span>}
+                    {selectedTags.includes(tag) && <span className="text-[var(--fg)]">✓</span>}
                   </button>
                 ))}
                 <div className="border-t border-[var(--rule)] my-[3px]" aria-hidden="true" />

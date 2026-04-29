@@ -173,7 +173,7 @@ export default function CreateRecipePage() {
             aria-label={`Jump to ${s.label}`}
           >
             <span className={`font-serif text-[9px] font-bold min-w-[16px] transition-colors ${
-              activeSection === s.id ? "text-[var(--cta)]" : "text-[var(--rule)]"
+              activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--rule)]"
             }`}>{s.n}</span>
             {s.label}
           </button>
