@@ -76,6 +76,9 @@ interface MealPlanWeekProps {
   mealLogCaloriesMap?: Record<number, number>;
   onRefreshIngredients?: () => void;
   personName?: string;
+  onNavigatePrevWeek?: () => void;
+  onNavigateNextWeek?: () => void;
+  onOpenNutrition?: (date: Date) => void;
 }
 
 /* ── Drag-and-drop sub-components (desktop only) ── */
@@ -206,6 +209,9 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   mealLogCaloriesMap = {},
   onRefreshIngredients,
   personName,
+  onNavigatePrevWeek,
+  onNavigateNextWeek,
+  onOpenNutrition,
 }) => {
   const router = useRouter();
   const [selectedDayMeal, setSelectedDayMeal] = useState<{
@@ -280,6 +286,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const [activeMobileDayIdx, setActiveMobileDayIdx] = useState(0);
   const touchStartX = useRef<number>(0);
+  const stripTouchStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 640px)');
@@ -477,7 +484,22 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
         /* ── Mobile: single-day view ── */
         <>
           {/* Day strip — tap any day to jump, swipe the content area to advance */}
-          <div className="pl-day-strip" role="tablist" aria-label="Week days">
+          <div
+            className="pl-day-strip"
+            role="tablist"
+            aria-label="Week days"
+            onTouchStart={(e) => {
+              stripTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }}
+            onTouchEnd={(e) => {
+              const dx = e.changedTouches[0].clientX - stripTouchStart.current.x;
+              const dy = e.changedTouches[0].clientY - stripTouchStart.current.y;
+              if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) onNavigateNextWeek?.();
+                else onNavigatePrevWeek?.();
+              }
+            }}
+          >
             {days.map((day, idx) => {
               const todayFlag = isToday(new Date(day.date));
               return (
@@ -540,6 +562,13 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                   <div className="wk-day-bar">
                     <div className="wk-day-bar-fill" style={{ width: `${kcalPct}%` }} />
                   </div>
+                  {onOpenNutrition && (
+                    <button
+                      className="wk-day-nut-link"
+                      onClick={() => onOpenNutrition(new Date(day.date))}
+                      aria-label="View nutrition for this day"
+                    >View Nutrition \u203a</button>
+                  )}
                 </div>
 
                 {/* Meal sections */}

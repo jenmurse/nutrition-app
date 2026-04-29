@@ -614,12 +614,6 @@ const MealPlansPage = () => {
     }
   }, [mealPlans, selectedPlanId, fetchAllPersonPlansForWeek]);
 
-  // Sync viewMode to body for CSS-based menu sheet gating (B-1)
-  useEffect(() => {
-    document.body.dataset.plannerView = viewMode === 'both' ? 'everyone' : 'personal';
-    return () => { delete document.body.dataset.plannerView; };
-  }, [viewMode]);
-
   // Handle ?openSheet=shopping|nutrition from mobile menu
   useEffect(() => {
     if (!openSheetParam || !selectedPlan) return;
@@ -1165,34 +1159,6 @@ const MealPlansPage = () => {
                 : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
             })() : 'Meal Plans'}
           </span>
-          {mealPlans.length > 1 && selectedPlan && viewMode === 'personal' && (
-            <>
-              <button
-                className="planner-toolbar-action"
-                onClick={() => {
-                  const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
-                  if (idx < mealPlans.length - 1) {
-                    const params = new URLSearchParams(searchParams?.toString());
-                    params.set("planId", String(mealPlans[idx + 1].id));
-                    router.push(`/meal-plans?${params.toString()}`);
-                  }
-                }}
-                aria-label="Previous week"
-              >&#8249; Prev</button>
-              <button
-                className="planner-toolbar-action"
-                onClick={() => {
-                  const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
-                  if (idx > 0) {
-                    const params = new URLSearchParams(searchParams?.toString());
-                    params.set("planId", String(mealPlans[idx - 1].id));
-                    router.push(`/meal-plans?${params.toString()}`);
-                  }
-                }}
-                aria-label="Next week"
-              >Next &#8250;</button>
-            </>
-          )}
           <span className="pl-toolbar-spacer" />
           {persons.length > 0 && mealPlans.length > 0 && (
             <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
@@ -1562,7 +1528,7 @@ const MealPlansPage = () => {
               type="button"
               className="pl-shop-back ed-btn-text"
               onClick={() => closeShopOverlay()}
-            >← Back to planner</button>
+            >← Back</button>
             <span className="pl-shop-sep" aria-hidden="true" />
             <span className="pl-shop-label">Shopping list</span>
             <div className="pl-shop-anchor-right">
@@ -1755,6 +1721,26 @@ const MealPlansPage = () => {
                 mealLogCaloriesMap={selectedPlan.mealLogCaloriesMap}
                 onRefreshIngredients={fetchIngredients}
                 personName={persons.find((p) => p.id === selectedPersonId)?.name}
+                onNavigatePrevWeek={mealPlans.length > 1 && selectedPlan ? () => {
+                  const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
+                  if (idx < mealPlans.length - 1) {
+                    const params = new URLSearchParams(searchParams?.toString());
+                    params.set("planId", String(mealPlans[idx + 1].id));
+                    router.push(`/meal-plans?${params.toString()}`);
+                  }
+                } : undefined}
+                onNavigateNextWeek={mealPlans.length > 1 && selectedPlan ? () => {
+                  const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
+                  if (idx > 0) {
+                    const params = new URLSearchParams(searchParams?.toString());
+                    params.set("planId", String(mealPlans[idx - 1].id));
+                    router.push(`/meal-plans?${params.toString()}`);
+                  }
+                } : undefined}
+                onOpenNutrition={(date: Date) => {
+                  setSelectedDay(date);
+                  setMobNutSheetOpen(true);
+                }}
               />
             </div>
 

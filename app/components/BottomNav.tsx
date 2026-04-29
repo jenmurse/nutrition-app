@@ -95,13 +95,6 @@ export default function BottomNav() {
               >
                 Shopping
               </Link>
-              <Link
-                href="/meal-plans?openSheet=nutrition"
-                className="mob-menu-item mob-menu-item--nutrition"
-                onClick={() => setMenuOpen(false)}
-              >
-                Nutrition
-              </Link>
               {SECTIONS.slice(-1).map(s => (
                 <Link
                   key={s.href}

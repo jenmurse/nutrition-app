@@ -1508,6 +1508,8 @@ input[type="number"]:focus {
 .wk-day-bar { height:2px; background:var(--rule); margin-top:4px; overflow:hidden; }
 .wk-day-bar-fill { height:100%; background:var(--ok); transition:width 0.6s var(--ease-out); }
 .wk-day-col.today .wk-day-bar-fill { background:var(--accent-btn); }
+.wk-day-nut-link { display:block; text-align:right; margin-top:12px; font-family:var(--mono); font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:0.14em; color:var(--muted); background:none; border:0; padding:0; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:color 120ms var(--ease-out); }
+.wk-day-nut-link:hover, .wk-day-nut-link:active { color:var(--fg); }
 
 .wk-meal-section { padding:10px 0 2px; }
 
@@ -3391,7 +3393,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     transition: color 200ms var(--ease);
   }
   .mob-menu-item--active { color: var(--fg); }
-  body[data-planner-view="everyone"] .mob-menu-item--nutrition { display: none; }
 
   /* Home hero: subtract bottom nav height instead of top nav */
   .hm-hero { min-height: calc(100dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom)); }
@@ -3767,7 +3768,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   /* ── Planner: person dropdown matches toolbar element sizing ── */
-  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 0 10px 0 8px !important; height: 34px !important; border-radius: 0; }
+  .pl-mob-person-btn { font-size: 9px !important; letter-spacing: 0.06em !important; padding: 6px 10px 6px 8px !important; border-radius: 9999px; }
 
   /* ── Settings: household member rows wrap theme chips below ── */
   .set-person-row { flex-wrap: wrap; }
