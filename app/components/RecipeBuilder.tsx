@@ -182,8 +182,8 @@ function SortableIngredientRow({
                   <select
                     value={pendingCategory}
                     onChange={(e) => setPendingCategory(e.target.value)}
-                    className="ed-input font-mono"
-                    style={{ fontSize: 9, padding: "2px 4px", height: "auto" }}
+                    className="ed-select font-mono"
+                    style={{ fontSize: 9, padding: "2px 20px 2px 4px", height: "auto" }}
                     aria-label="Ingredient category"
                     autoFocus
                   >

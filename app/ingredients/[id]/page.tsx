@@ -586,6 +586,9 @@ export default function IngredientDetailPage() {
 
       {/* ── Main Scroll ── */}
       <div id="pf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
+        <div className="form-back-row">
+          <a href="/ingredients" className="back-link">← Back</a>
+        </div>
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>

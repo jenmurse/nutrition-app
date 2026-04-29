@@ -995,6 +995,19 @@ input[type="number"]:focus {
 .ed-row { display: flex; gap: 20px; }
 .ed-row > * { flex: 1; }
 
+/* ── Form back row (mobile-only — hidden on desktop) ─────────────── */
+.form-back-row { display: none; }
+.back-link {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 120ms var(--ease-out);
+}
+.back-link:hover { color: var(--fg); }
+
 /* ── Animations ──────────────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -3665,6 +3678,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Form pages: stack ed-row fields vertically ── */
   .ed-row { flex-direction: column !important; gap: 12px !important; }
+
+  /* ── Form back row: show on mobile ── */
+  .form-back-row {
+    display: block;
+    padding: 16px var(--pad);
+    border-bottom: 1px solid var(--rule);
+  }
 
   /* ── Settings: goals grid → 1 col ── */
   .set-goals-grid { grid-template-columns: 1fr !important; }

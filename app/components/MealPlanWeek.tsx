@@ -748,7 +748,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 type="button"
                 className="ed-btn-text"
                 onClick={closeAddOverlay}
-              >← Back to planner</button>
+              >← Back</button>
             ) : (
               <button
                 type="button"
