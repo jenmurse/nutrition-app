@@ -685,9 +685,9 @@ input[type="number"]:focus {
 }
 .recipe-grid-item__photo.is-ghost .ghost-name {
   font-family: var(--sans);
-  font-size: clamp(20px, 2.4vw, 32px);
+  font-size: clamp(17px, 1.6vw, 22px);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   line-height: 1.1;
   color: var(--fg);
   text-wrap: balance;
@@ -5850,7 +5850,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ob-topbar-wm {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 13px;
   letter-spacing: -0.02em;
   color: var(--fg);
 }
