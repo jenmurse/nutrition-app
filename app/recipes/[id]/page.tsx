@@ -470,7 +470,7 @@ export default function RecipeDetailPage() {
             <div>
               {/* Tags */}
               {tags.length > 0 && (
-                <div className="flex gap-[12px] mb-4 font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">
+                <div className="flex gap-[12px] mb-4 font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--muted)]">
                   {tags.map(tag => (
                     <span key={tag}>{tag}</span>
                   ))}
@@ -481,7 +481,7 @@ export default function RecipeDetailPage() {
                 {recipe.name}
               </h1>
               {/* Meta */}
-              <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-10">
+              <div className="font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--muted)] mb-10">
                 <span>{recipe.servingSize} {recipe.servingUnit}</span>
                 {recipe.prepTime != null && <> · <span>{recipe.prepTime} min prep</span></>}
                 {recipe.cookTime != null && <> · <span>{recipe.cookTime} min cook</span></>}

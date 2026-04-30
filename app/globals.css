@@ -2202,12 +2202,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Comparison — editorial header */
 .cmp-header {
-  padding: 80px 64px 48px;
+  padding: 48px 64px 48px 196px;
 }
 .cmp-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
@@ -2216,7 +2216,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .cmp-title {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: clamp(28px, 3vw, 44px);
+  font-size: clamp(36px, 4.4vw, 64px);
   letter-spacing: -0.025em;
   line-height: 1.05;
   color: var(--fg);
@@ -2889,13 +2889,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 48px 64px 80px;
+  padding: 48px 64px 80px 196px;
 }
 .pl-shop-eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 14px;
@@ -2917,7 +2917,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-shop-title {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: 36px;
+  font-size: clamp(36px, 4.4vw, 64px);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--fg);
@@ -2971,7 +2971,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex: none;
   display: flex;
   flex-direction: column;
-  padding: 80px 64px 48px;
+  padding: 48px 64px 48px 196px;
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;
@@ -2991,8 +2991,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-add-eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 14px;
@@ -3000,7 +3000,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-add-title {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: 38px;
+  font-size: clamp(36px, 4.4vw, 64px);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--fg);

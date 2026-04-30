@@ -122,7 +122,7 @@ function RecipesPage() {
 
   const toggleCompareRecipe = (id: number) => {
     setCompareIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 4 ? [...prev, id] : prev
+      prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 5 ? [...prev, id] : prev
     );
   };
 
@@ -600,12 +600,12 @@ function RecipesPage() {
         <div className="compare-strip" role="region" aria-label="Compare selection">
           <div className="compare-strip-label">
             {compareIds.length === 0
-              ? <>Select up to <strong>4 recipes</strong> to compare nutrition</>
-              : <><strong>{compareIds.length}</strong> of 4 selected</>
+              ? <>Select up to <strong>5 recipes</strong> to compare nutrition</>
+              : <><strong>{compareIds.length}</strong> of 5 selected</>
             }
           </div>
           <div className="compare-strip-slots" aria-hidden="true">
-            {[1,2,3,4].map(n => (
+            {[1,2,3,4,5].map(n => (
               <div key={n} className={`slot${n <= compareIds.length ? ' filled' : ''}`}>{n}</div>
             ))}
           </div>
@@ -735,7 +735,7 @@ function RecipesPage() {
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
                   aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
-                  className={`recipe-grid-item group${compareMode && compareIds.includes(recipe.id) ? " is-selected" : ""}${compareMode && !compareIds.includes(recipe.id) ? " is-selectable" : ""}${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 4 ? " opacity-40" : ""}`}
+                  className={`recipe-grid-item group${compareMode && compareIds.includes(recipe.id) ? " is-selected" : ""}${compareMode && !compareIds.includes(recipe.id) ? " is-selectable" : ""}${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 5 ? " opacity-40" : ""}`}
                   style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
                   {/* Photo */}
@@ -826,18 +826,19 @@ function RecipesPage() {
         </div>
 
         {/* Body */}
-        <div style={{ padding: '0 64px 64px' }}>
+        <div style={{ padding: '0 64px 64px 196px' }}>
           {(() => {
             const compareRecipes = compareIds.map(id => recipes.find(r => r.id === id)).filter(Boolean) as RecipeSummary[];
             if (compareRecipes.length < 2) return null;
-            const cols = compareRecipes.length;
-            const gridCols = `180px repeat(${cols}, 1fr)`;
+            const SLOTS = 5;
 
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: gridCols, maxWidth: 960 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: `180px repeat(${SLOTS}, 160px)`, maxWidth: 980, overflowX: 'auto' }}>
                 {/* Recipe headers */}
                 <div />
-                {compareRecipes.map((r, i) => {
+                {Array.from({ length: SLOTS }).map((_, i) => {
+                  const r = compareRecipes[i];
+                  if (!r) return <div key={`slot-${i}`} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20 }} />;
                   const category = r.tags?.split(",")[0]?.trim();
                   return (
                     <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
@@ -868,8 +869,11 @@ function RecipesPage() {
                         {n.label}
                       </div>
                       {/* Values */}
-                      {vals.map((v, i) => {
-                        const isWinner = v === winner && vals.some((x, j) => j !== i) /* avoid marking when only one */;
+                      {Array.from({ length: SLOTS }).map((_, i) => {
+                        const r = compareRecipes[i];
+                        if (!r) return <div key={`empty-${n.label}-${i}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 0' }} />;
+                        const v = vals[i];
+                        const isWinner = v === winner && vals.some((x, j) => j !== i);
                         return (
                           <div key={`val-${n.label}-${i}`} className={`cmp-value${isWinner ? ' lo' : ''}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 0' }}>
                             <span className="cmp-num tabular-nums">{v}</span>

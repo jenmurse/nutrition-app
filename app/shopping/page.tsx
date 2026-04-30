@@ -185,14 +185,14 @@ export default function ShoppingPage() {
           <div className="pl-shop-actions">
             <button
               className="ed-btn-text"
-              onClick={handleShare}
-              aria-label="Share shopping list"
-            >SHARE →</button>
-            <button
-              className="ed-btn-text"
               onClick={() => setHideChecked(h => !h)}
               aria-pressed={hideChecked}
             >{hideChecked ? 'SHOW ALL' : 'HIDE CHECKED'}</button>
+            <button
+              className="ed-btn-text"
+              onClick={handleShare}
+              aria-label="Share shopping list"
+            >SHARE →</button>
           </div>
         </div>
         {shopLoading ? (
