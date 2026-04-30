@@ -5610,7 +5610,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-right {
   padding: 48px 64px;
   display: flex; flex-direction: column; justify-content: center;
-  background: #fff;
+  background: var(--bg);
 }
 .auth-form-wrap { width: 100%; max-width: 380px; margin: 0 auto; }
 
