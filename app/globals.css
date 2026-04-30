@@ -3253,7 +3253,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* ── Small labels: bump minimum to 10px for readability ─────────── */
   .ed-label { font-size: 11px; }
-  .es-eyebrow { font-size: 10px; }
 .pl-day-strip-name { font-size: 11px; }
 
   /* "This week" header: tighten top gap */

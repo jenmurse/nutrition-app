@@ -189,7 +189,7 @@ export default function ShoppingPage() {
               aria-pressed={hideChecked}
             >{hideChecked ? 'SHOW ALL' : 'HIDE CHECKED'}</button>
             <button
-              className="ed-btn-text"
+              className="ed-btn-text hidden sm:inline"
               onClick={handleShare}
               aria-label="Share shopping list"
             >SHARE →</button>
