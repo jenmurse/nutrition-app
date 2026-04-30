@@ -5602,13 +5602,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .auth-split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1px 1fr;
   min-height: calc(100vh - 57px);
 }
 .auth-left {
   padding: 48px 56px;
-  display: flex; flex-direction: column; justify-content: space-between;
-  border-right: 1px solid var(--rule);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.auth-divider {
+  background: var(--rule);
 }
 .auth-left-spacer { min-height: 0; }
 .auth-eyebrow {
@@ -5628,7 +5630,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   max-width: 560px;
   color: var(--fg);
 }
-.auth-headline em { font-family: var(--serif-display); font-style: italic; color: inherit; }
+.auth-headline em { font-style: normal; font-weight: 700; font-family: inherit; }
 .auth-lede {
   font-family: var(--sans);
   font-size: 14px;
@@ -5777,8 +5779,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 @media (max-width: 760px) {
   .auth-split { grid-template-columns: 1fr; min-height: 0; }
+  .auth-divider { display: none; }
   .auth-left {
-    border-right: none;
     border-bottom: 1px solid var(--rule);
     padding: 40px 28px;
     display: block;

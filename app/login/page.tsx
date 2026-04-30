@@ -168,14 +168,12 @@ function LoginPage() {
 
       <main className="auth-split">
         <section className="auth-left">
-          <div className="auth-left-spacer" />
-          <div>
-            <div className="auth-eyebrow">{copy.eyebrow}</div>
-            <h1 className="auth-headline">{copy.headline}</h1>
-            <p className="auth-lede">{copy.lede}</p>
-          </div>
-          <div className="auth-left-spacer" />
+          <div className="auth-eyebrow">{copy.eyebrow}</div>
+          <h1 className="auth-headline">{copy.headline}</h1>
+          <p className="auth-lede">{copy.lede}</p>
         </section>
+
+        <div className="auth-divider" aria-hidden="true" />
 
         <section className="auth-right">
           <div className="auth-form-wrap">
