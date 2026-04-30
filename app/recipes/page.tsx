@@ -748,16 +748,16 @@ function RecipesPage() {
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       </div>
                     )}
-                    {!recipe.image && (
-                      <>
-                        {category && <span className="ghost-eyebrow">{category}</span>}
-                        <span className="ghost-name">{recipe.name}</span>
-                      </>
-                    )}
                   </div>
-                  {/* Category + name strip — photo cells only */}
-                  {recipe.image && category && <div className="recipe-grid-item__cat">{category}</div>}
-                  {recipe.image && <h3 className="recipe-grid-item__name">{recipe.name}</h3>}
+                  {/* Category + name strip */}
+                  {category && (
+                    <div className={recipe.image ? "recipe-grid-item__cat" : "ghost-eyebrow"}>
+                      {category}
+                    </div>
+                  )}
+                  <h3 className={recipe.image ? "recipe-grid-item__name" : "ghost-name"}>
+                    {recipe.name}
+                  </h3>
                   {recipe.isComplete === false && (
                     <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                   )}
