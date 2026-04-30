@@ -535,7 +535,7 @@ input[type="number"]:focus {
   transition: border-color 0.15s ease;
 }
 .ed-search input::placeholder {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -544,7 +544,7 @@ input[type="number"]:focus {
 .ed-search input:focus { border-bottom-color: var(--fg); }
 
 .ed-count {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   line-height: 1;
@@ -669,7 +669,7 @@ input[type="number"]:focus {
   text-align: left;
 }
 .recipe-grid-item__cat {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -784,7 +784,7 @@ input[type="number"]:focus {
   text-overflow: ellipsis;
 }
 .recipe-list-row__cat {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -794,7 +794,7 @@ input[type="number"]:focus {
 .recipe-list-row__vals {
   display: flex;
   gap: 28px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--fg);
@@ -880,7 +880,7 @@ input[type="number"]:focus {
 .pantry-item:hover::after { transform: scaleX(1); }
 
 .pantry-item__cat {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -899,7 +899,7 @@ input[type="number"]:focus {
   text-wrap: balance;
 }
 .pantry-item__unit {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -912,7 +912,7 @@ input[type="number"]:focus {
   margin-top: 20px;
 }
 .pantry-item__nut dt {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -922,7 +922,7 @@ input[type="number"]:focus {
   align-self: baseline;
 }
 .pantry-item__nut dd {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -1181,7 +1181,7 @@ input[type="number"]:focus {
   padding: 80px 32px;
 }
 .es-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1214,7 +1214,7 @@ input[type="number"]:focus {
   background: var(--status-error-tint);
   color: var(--status-error-ink);
   padding: 5px 12px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -1251,7 +1251,7 @@ input[type="number"]:focus {
 }
 .prose-notes h1:first-child, .prose-notes h2:first-child { margin-top: 0; }
 .prose-notes h3 {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1268,7 +1268,7 @@ input[type="number"]:focus {
 .prose-notes table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   margin: 12px 0;
 }
@@ -1293,7 +1293,7 @@ input[type="number"]:focus {
   margin: 16px 0;
 }
 .prose-notes code {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   background: var(--bg-subtle);
   padding: 1px 4px;
@@ -1570,7 +1570,7 @@ input[type="number"]:focus {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1617,7 +1617,7 @@ input[type="number"]:focus {
   gap: 10px;
   width: 100%;
   padding: 11px 14px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1655,7 +1655,7 @@ input[type="number"]:focus {
 .pl-toolbar-row .pl-toolbar-spacer { flex: 1; }
 
 .planner-toolbar-action {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -1697,7 +1697,7 @@ input[type="number"]:focus {
 }
 
 .pl-day-strip-name {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1752,7 +1752,7 @@ input[type="number"]:focus {
 }
 
 .pl-mobile-empty {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--muted);
   padding: 32px 0;
@@ -1884,14 +1884,14 @@ input[type="number"]:focus {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--status-warning-tint); color: var(--status-warning-ink);
   border-radius: 0; border: none; padding: 5px 12px;
-  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size: 9px; font-weight: 500;
   letter-spacing: 0.14em; text-transform: uppercase;
 }
 .err-chip {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--status-error-tint); color: var(--status-error-ink);
   border-radius: 0; border: none; padding: 5px 12px;
-  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size: 9px; font-weight: 500;
   letter-spacing: 0.14em; text-transform: uppercase;
 }
 .status-pill-dot {
@@ -2252,7 +2252,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Filter text button — editorial style matching .ed-toggle button */
 .mob-filter-text {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -3048,7 +3048,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .pl-add-tabs { margin-bottom: 32px; }
 .pl-add-filter-chip {
-  font-family: var(--sans);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
@@ -3260,7 +3260,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: var(--mono);
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
     font-size: 9px;
     font-weight: 400;
     letter-spacing: 0.14em;
@@ -3278,7 +3278,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     flex-shrink: 0;
   }
   .mob-rail-index {
-    font-family: var(--mono);
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
     font-size: 9px;
     font-weight: 400;
     letter-spacing: 0.14em;
@@ -3286,7 +3286,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     color: var(--muted);
   }
   .mob-rail-action {
-    font-family: var(--mono);
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.16em;
@@ -3301,7 +3301,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-rail-action:hover { color: var(--fg); }
   .mob-rail-status {
-    font-family: var(--mono);
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.16em;
@@ -3337,9 +3337,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     flex-shrink: 0;
   }
   .mob-menu-close {
-    font-family: var(--sans);
-    font-size: 13px;
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
     color: var(--muted);
     background: none;
     border: none;
@@ -3888,19 +3890,19 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   min-height: 16px;
 }
 .lp-cycle-active-label-num {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
 }
 .lp-cycle-active-label-dash {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   color: rgba(255,255,255,0.2);
 }
 .lp-cycle-active-label-title {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -3920,7 +3922,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   gap: 20px;
 }
 .lp-nav-signin {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -3931,7 +3933,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .lp-nav-signin:hover { color: var(--fg); }
 .lp-nav-cta {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -3947,7 +3949,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Shared type helpers ── */
 .lp-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -3957,7 +3959,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: block;
 }
 .lp-eyebrow-sm {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -3965,7 +3967,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
 }
 .lp-section-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
@@ -4004,7 +4006,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-cta-btn {
   display: inline-flex;
   align-items: center;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -4071,7 +4073,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 3px;
   padding: 2px 12px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   color: rgba(255,255,255,0.45);
   min-width: 140px;
@@ -4185,7 +4187,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-fs-tab:hover .lp-fs-tab-label { color: var(--fg); }
 .lp-fs-tab--active { border-bottom-color: var(--fg); }
 .lp-fs-tab-num {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -4194,7 +4196,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .lp-fs-tab--active .lp-fs-tab-num { color: #2D6B3F; }
 .lp-fs-tab-label {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -4236,7 +4238,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex-shrink: 0;
 }
 .lp-fs-desc-sep {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--rule);
   padding: 0 14px;
@@ -4255,7 +4257,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Legal line */
 .lp-fs-legal {
   padding: 16px var(--pad) 14px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -4341,13 +4343,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--fg);
 }
 .lp-mockup-amt {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   color: var(--muted);
   text-align: right;
 }
 .lp-mockup-cal {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   color: var(--muted);
   text-align: right;
@@ -4392,7 +4394,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   gap: 10px;
 }
 .lp-optim-divider {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--muted);
   text-align: center;
@@ -4458,7 +4460,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex-shrink: 0;
 }
 .lp-person-name {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -4504,7 +4506,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   text-wrap: pretty;
 }
 .lp-signin-hint {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -4526,7 +4528,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   justify-content: center;
 }
 .lp-footer-copy {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -4545,7 +4547,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* ── Recipe builder: nutrition guidance chips ───────────────────────────── */
 .rb-focus-chip {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4608,7 +4610,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
 }
 .rbd-recipe-meta {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -4669,7 +4671,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
 }
 .rbd-ing-qty {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   color: var(--fg-2);
   min-width: 52px;
@@ -4692,7 +4694,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transform: translateY(0);
 }
 .rbd-nut-meta {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -4711,14 +4713,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 4px;
 }
 .rbd-nut-label {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--fg-2);
 }
 .rbd-nut-value {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   color: var(--fg);
   font-variant-numeric: tabular-nums;
@@ -4770,7 +4772,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding: 0 16px 4px;
   background: var(--bg);
   flex-shrink: 0;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   font-weight: 600;
   color: var(--fg);
@@ -4817,7 +4819,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 7px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -4840,14 +4842,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding-bottom: 16px;
 }
 .lp-mob-feature-num {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.1em;
   color: var(--muted);
   margin-right: 6px;
 }
 .lp-mob-feature-label {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -4855,7 +4857,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-weight: 500;
 }
 .lp-mob-legal {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -5127,7 +5129,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-cta-btn--dark {
   background: var(--fg);
   color: #FAF8F4;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -5147,7 +5149,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-cta-btn--sage {
   background: #ffffff;
   color: #111111;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -5165,7 +5167,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-outline-btn {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -5243,7 +5245,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-feat-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -5277,7 +5279,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-feat-tag {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -5337,7 +5339,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .lp-cta-footer {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   color: rgba(250, 248, 244, 0.4);
   letter-spacing: 0.04em;
@@ -5539,7 +5541,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-nav-logo { font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
 .auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--fg); text-decoration: none;
 }
@@ -5566,7 +5568,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .auth-left-spacer { min-height: 0; }
 .auth-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 32px;
@@ -5607,7 +5609,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .auth-tab {
   background: none; border: none; padding: 0 0 12px; cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
   position: relative;
@@ -5622,7 +5624,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-field { display: block; margin-bottom: 24px; }
 .auth-label {
   display: block;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 8px;
@@ -5633,7 +5635,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .auth-label-link {
   background: none; border: none; padding: 0; cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted); text-decoration: none;
 }
@@ -5661,7 +5663,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--fg); color: var(--bg);
   border: 1px solid var(--fg); border-radius: 0;
   padding: 12px 14px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   cursor: pointer;
   margin: 8px 0 20px;
@@ -5677,7 +5679,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .auth-or-rule { flex: 1; height: 1px; background: var(--rule); }
 .auth-or-text {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
 }
@@ -5687,7 +5689,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: none; color: var(--fg);
   border: 1px solid var(--rule); border-radius: 0;
   padding: 12px 14px;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -5697,7 +5699,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-oauth:active { transform: scale(0.98); }
 
 .auth-error {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--err);
   margin: 0 0 16px;
@@ -5712,7 +5714,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-back-link {
   display: inline-block;
   background: none; border: none; padding: 0; cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted); text-decoration: none;
   margin-top: 8px;
@@ -5723,7 +5725,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 20px;
   padding: 10px 0 10px 14px;
   border-left: 2px solid var(--rule);
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
   color: var(--fg-2);
 }
@@ -5789,7 +5791,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .ob-topbar-left,
 .ob-topbar-right {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -5847,7 +5849,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Eyebrow */
 .ob-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -5891,7 +5893,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Form label */
 .ob-label {
   display: block;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -5973,7 +5975,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ob-member-muted { color: var(--muted); }
 
 .ob-member-you {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -5982,7 +5984,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 .ob-member-action {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -6015,7 +6017,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Settings hint below members list */
 .ob-members-hint {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -6062,7 +6064,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ob-goal-card--selected { border-color: var(--fg); }
 
 .ob-goal-card-label {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -6075,7 +6077,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin: 2px 0;
 }
 .ob-goal-card-detail {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -6107,7 +6109,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Back ghost link */
 .ob-back {
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -6126,7 +6128,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--bg);
   border: none;
   cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
