@@ -2971,7 +2971,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex: none;
   display: flex;
   flex-direction: column;
-  padding: 60px 64px 80px;
+  padding: 48px 64px 80px;
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;
@@ -2981,7 +2981,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .am-rail {
   position: fixed;
   left: var(--pad);
-  top: calc(var(--nav-h) + 60px);
+  top: calc(var(--nav-h) + 48px);
   width: 140px;
   z-index: 50;
   display: flex;
@@ -2998,7 +2998,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding: 8px 0;
   background: none;
   border: none;
-  border-bottom: 1.5px solid transparent;
   line-height: 1.2;
   cursor: pointer;
   text-align: left;
@@ -3007,7 +3006,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .am-rail-item:first-child { padding-top: 0; }
 .am-rail-item:hover { color: var(--fg); }
-.am-rail-item.is-active { color: var(--fg); border-bottom-color: var(--fg); }
+.am-rail-item.is-active { color: var(--fg); }
+.am-rail-label {
+  border-bottom: 1.5px solid transparent;
+  padding-bottom: 2px;
+}
+.am-rail-item.is-active .am-rail-label { border-bottom-color: var(--fg); }
 
 /* Add Meal — right column */
 .am-content { padding-left: 196px; min-width: 0; }

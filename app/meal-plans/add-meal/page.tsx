@@ -275,7 +275,7 @@ function AddMealInner() {
             onClick={() => handleRailClick(type)}
             aria-current={activeMealType === type ? 'true' : undefined}
           >
-            {RAIL_LABELS[type]}
+            <span className="am-rail-label">{RAIL_LABELS[type]}</span>
           </button>
         ))}
       </div>
@@ -287,7 +287,7 @@ function AddMealInner() {
           <button
             type="button"
             className="sm:hidden font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--fg)] bg-transparent border-0 p-0 cursor-pointer"
-            style={{ position: 'absolute', top: 20, left: 24 }}
+            style={{ position: 'absolute', top: 12, left: 24 }}
             onClick={() => setMobileStep('picker')}
           >← Back</button>
         )}
