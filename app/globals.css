@@ -5835,7 +5835,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--bg);
 }
 
-.ob-topbar-left,
+.ob-topbar-wm {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
 .ob-topbar-right {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;

@@ -242,7 +242,7 @@ export default function OnboardingPage() {
 
       {/* Full-width top bar */}
       <div className="ob-topbar">
-        <span className="ob-topbar-left">§ Onboarding</span>
+        <span className="ob-topbar-wm">Good Measure</span>
         <span className="ob-topbar-right">{stepLabel}</span>
       </div>
 
