@@ -4,18 +4,19 @@
 
 @layer base {
   :root {
-    /* ── Editorial Design System Tokens ─────────────────────────────────── */
+    /* ── Design System Tokens ────────────────────────────────────────────── */
 
-    /* Surfaces */
-    --bg:    #F5F4EF;   /* paper — primary background */
-    --bg-2:  #EEEAE3;   /* secondary surface (inputs, cards) */
-    --bg-3:  #E6E2D8;   /* tertiary surface (hover, tags) */
+    /* Surfaces — working register (white). Default for all app routes.
+       Editorial routes (landing, auth, onboarding) opt in via [data-register="editorial"]. */
+    --bg:    #FFFFFF;   /* paper — primary background */
+    --bg-2:  #F5F5F4;   /* secondary surface (inputs, cards) */
+    --bg-3:  #ECECEA;   /* tertiary surface (hover, tags) */
 
     /* Foreground */
-    --fg:    #1A1916;   /* ink — primary text */
-    --fg-2:  #36342F;   /* body — secondary text */
-    --muted: #6B6860;   /* muted — captions, eyebrows */
-    --rule:  #D0CCC2;   /* hairline — all dividers, card borders, nav rules */
+    --fg:    #0A0A0A;   /* ink — primary text */
+    --fg-2:  #2A2A2A;   /* body — secondary text */
+    --muted: #6E6E6E;   /* muted — captions, eyebrows */
+    --rule:  #D8D8D6;   /* hairline — all dividers, card borders, nav rules */
 
     /* Accent — default black (brand), overridden per person theme */
     --accent:     #111111;
@@ -150,7 +151,18 @@
 
   }
 
-  /* ── Person Themes (accent-only — surfaces stay warm globally) ─────── */
+  /* ── Editorial register — landing, auth, onboarding ────────────────── */
+  [data-register="editorial"] {
+    --bg:    #F5F4EF;
+    --bg-2:  #EEEAE3;
+    --bg-3:  #E6E2D8;
+    --fg:    #1A1916;
+    --fg-2:  #36342F;
+    --muted: #6B6860;
+    --rule:  #D0CCC2;
+  }
+
+  /* ── Person Themes (accent-only — unchanged across registers) ──────── */
   [data-theme="coral"]    { --accent: #E84828; --accent-btn: #E84828; --accent-l: rgba(232,72,40,0.09);  --accent-rgb: 232,72,40;  --accent-hover: #D03A1C; --accent-light: rgba(232,72,40,0.09);  --accent-text: #fff; --bg-selected: rgba(232,72,40,0.09);  }
   [data-theme="terra"]    { --accent: #C45C3A; --accent-btn: #A84E30; --accent-l: rgba(196,92,58,0.09);  --accent-rgb: 196,92,58;  --accent-hover: #A84E30; --accent-light: rgba(196,92,58,0.09);  --accent-text: #fff; --bg-selected: rgba(196,92,58,0.09);  }
   [data-theme="sage"]     { --accent: #5A9B6A; --accent-btn: #3A7A4E; --accent-l: rgba(90,155,106,0.10); --accent-rgb: 90,155,106; --accent-hover: #4A8558; --accent-light: rgba(90,155,106,0.10); --accent-text: #fff; --bg-selected: rgba(90,155,106,0.10); }

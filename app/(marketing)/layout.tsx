@@ -9,7 +9,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <>
       <MarketingScrollFix />
-      {children}
+      <div data-register="editorial">
+        {children}
+      </div>
     </>
   );
 }
