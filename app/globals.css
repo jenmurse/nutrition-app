@@ -5630,7 +5630,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   max-width: 560px;
   color: var(--fg);
 }
-.auth-headline em { font-style: normal; font-weight: 700; font-family: inherit; }
+.auth-headline em { font-family: var(--serif-display); font-style: italic; color: inherit; }
 .auth-lede {
   font-family: var(--sans);
   font-size: 14px;
