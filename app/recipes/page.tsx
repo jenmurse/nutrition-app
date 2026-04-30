@@ -749,16 +749,15 @@ function RecipesPage() {
                       </div>
                     )}
                     {!recipe.image && (
-                      <span className="ghost-title">
-                        {recipe.name.length > 30 ? recipe.name.slice(0, recipe.name.lastIndexOf(' ', 30) || 30) : recipe.name}
-                      </span>
+                      <>
+                        {category && <span className="ghost-eyebrow">{category}</span>}
+                        <span className="ghost-name">{recipe.name}</span>
+                      </>
                     )}
                   </div>
-                  {/* Category + name */}
-                  {category && <div className="recipe-grid-item__cat">{category}</div>}
-                  <h3 className="recipe-grid-item__name">
-                    {recipe.name}
-                                      </h3>
+                  {/* Category + name strip — photo cells only */}
+                  {recipe.image && category && <div className="recipe-grid-item__cat">{category}</div>}
+                  {recipe.image && <h3 className="recipe-grid-item__name">{recipe.name}</h3>}
                   {recipe.isComplete === false && (
                     <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                   )}

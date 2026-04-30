@@ -668,17 +668,29 @@ input[type="number"]:focus {
 }
 .recipe-grid-item__photo.is-ghost {
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
   padding: 20px;
+  border: 0.5px solid var(--rule);
 }
-.recipe-grid-item__photo.is-ghost .ghost-title {
-  color: var(--rule);
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+.recipe-grid-item__photo.is-ghost .ghost-eyebrow {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.recipe-grid-item__photo.is-ghost .ghost-name {
+  font-family: var(--sans);
+  font-size: clamp(20px, 2.4vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   line-height: 1.1;
-  text-align: left;
+  color: var(--fg);
+  text-wrap: balance;
 }
 .recipe-grid-item__cat {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -6112,15 +6124,22 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   text-align: left;
   transition: border-color 0.15s;
 }
-.ob-goal-card:hover     { border-color: var(--fg-2); }
-.ob-goal-card--selected { border-color: var(--fg); }
+.ob-goal-card:hover { border-color: var(--fg-2); }
 
 .ob-goal-card-label {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--muted);
+  align-self: flex-start;
+  border-bottom: 1.5px solid transparent;
+  padding-bottom: 2px;
+  transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
+}
+.ob-goal-card--selected .ob-goal-card-label {
   color: var(--fg);
+  border-bottom-color: var(--fg);
 }
 .ob-goal-card-desc {
   font-family: var(--sans);

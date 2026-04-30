@@ -652,7 +652,7 @@ const SettingsPage = () => {
                 <button
                   onClick={handleSaveHouseholdName}
                   disabled={householdNameSaving}
-                  className="ed-btn primary disabled:opacity-40"
+                  className="ed-btn disabled:opacity-40"
                 >{householdNameSaving ? 'Saving…' : 'Save'}</button>
               </div>
             </div>
