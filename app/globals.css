@@ -2206,9 +2206,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .cmp-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 12px;
@@ -2893,9 +2893,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .pl-shop-eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 14px;
@@ -2990,9 +2990,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .pl-add-eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 14px;
@@ -5594,7 +5594,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-left-spacer { min-height: 0; }
 .auth-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 32px;
 }
