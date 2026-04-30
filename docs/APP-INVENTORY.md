@@ -69,6 +69,13 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Confirmation dialogs and action dialogs share the same visual language: sharp corners, outlined destructive in `var(--rule)`, ghost cancel, sharp buttons throughout.
 - Account deletion strategy is deferred. Wipe-user dev script handles testing.
 
+**Locked this session (April 30):**
+- Auth hairline divider is an explicit `<div class="auth-divider" />` in a `1fr 1px 1fr` grid — not a `border-right` on the editorial panel. Makes the divider a structural grid element.
+- Auth headline `<em>` ("left off.", "actually cook.") = Instrument Serif italic, `color: inherit` (black). Distinct from the sage `<em>` accent used on landing and dashboard — do not conflate the two `<em>` conventions.
+- `position: fixed` rails must be siblings of the animated scroll container, never children. A CSS `transform` on an ancestor (including entrance animations) breaks `position: fixed` by creating a new containing block. Applies to all rails: jump nav, Add Meal `.am-rail`, settings nav.
+- Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
+- Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
+
 ---
 
 ## Open questions

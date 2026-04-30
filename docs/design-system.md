@@ -10,22 +10,24 @@ Source of truth for current visual reality. The design system is **editorial, sh
 
 ## 1. Typography
 
-**Two typefaces. Nothing else.**
+**Three typefaces. No others.**
 
 | Role | Family | When to use |
 |---|---|---|
-| Body / display / headings | DM Sans | Everything except UI labels |
+| Body / display / headings | DM Sans | Everything except UI labels and italic editorial moments |
 | Labels / mono | DM Mono | UI chrome — nav links, eyebrows, filter chips, metadata, dates, nutrition values, button text |
+| Italic editorial accent | Instrument Serif | Auth headlines only (`<em>left off.</em>`, `<em>actually cook.</em>`). Display-size only (≥ 24px). Never for body text. |
 
 **Defined as CSS variables on `:root`:**
 ```css
---font-sans: 'DM Sans', sans-serif;
---font-mono: 'DM Mono', monospace;
+--font-sans:      'DM Sans', sans-serif;
+--font-mono:      'DM Mono', monospace;
+--serif-display:  'Instrument Serif', Georgia, serif; /* italic-only, display-only */
 ```
 
 `html, body { font-family: var(--font-sans); font-size: 13px; -webkit-font-smoothing: antialiased; }`
 
-Tailwind's `font-serif` is mapped to DM Sans for legacy compatibility. There is no serif font in this system.
+Tailwind's `font-serif` is mapped to DM Sans for legacy compatibility.
 
 ### 1a. Type scale — 7 stops only
 
@@ -182,9 +184,32 @@ Long-scroll pages (recipe detail, recipe form, pantry form, settings) use a fixe
 
 Content offsets right to clear the jump nav: `padding-left: 196px`.
 
-**Rule:** the jump nav must be a sibling of the content container, never a child. A parent `transform` creates a stacking context that breaks `position: fixed`.
+**Rule:** any `position: fixed` rail must be a sibling of the scroll/content container, never a child. A parent `transform` (including CSS keyframe animations like `contentEnter`) creates a new containing block, breaking `position: fixed` — the element repositions relative to the transformed ancestor rather than the viewport. This applies to all fixed rails: recipe detail jump nav, Add Meal `.am-rail`, settings jump nav.
 
 **Label format:** `01 PEOPLE`, `02 DAILY GOALS`, `03 INGREDIENTS`, etc. Bare numbered labels — no two-column descriptor pattern. (The landing's `01 · The Library / Pantry + Recipes` is a landing-page artifact and not imported into app pages.)
+
+### 3d. Add Meal left rail (`.am-rail`)
+
+Mirrors the jump nav pattern. Fixed left, aligns to the content eyebrow:
+
+```css
+.am-rail {
+  position: fixed;
+  left: var(--pad);
+  top: calc(var(--nav-h) + 48px);  /* matches content padding-top */
+  width: 140px;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+```
+
+**Underline hugs text width:** The active underline is on a nested `<span class="am-rail-label">` inside each button — not on the button itself. The button uses `align-items: flex-start` so it doesn't stretch to the full 140px rail width.
+
+```css
+.am-rail-label { border-bottom: 1.5px solid transparent; padding-bottom: 2px; }
+.am-rail-item.is-active .am-rail-label { border-bottom-color: var(--fg); }
+```
+
+**Mobile:** `.am-rail { display: none }`. Replaced by a two-step picker (meal type list → recipe browser).
 
 ### 3d. App shell
 
@@ -595,15 +620,25 @@ Red color and red rule, no tinted fill. Reads as a flag, not an alert dialog.
 
 **`--err-l` (tinted error fill)** is for inline semantic over-limit callouts where a light background fill is needed (e.g., a highlighted row). It is **not** for selection states — selection uses `var(--bg-2)`. Do not use `--err-l` to indicate that something is selected or active.
 
-### 6f. Sage em accent
+### 6f. Em accent — two distinct treatments
 
-Sage `<em>` on one word per editorial headline. Used on the landing (`actually`), on auth (`left off.` / `actually cook.`), on the dashboard greeting (person name).
+There are two separate `<em>` conventions. Do not confuse them.
 
+**Sage accent `<em>` (landing, dashboard):**
 ```css
 em { font-style: normal; color: var(--accent); }
 ```
+Used on the landing (`actually`) and dashboard greeting (person name). Accent color, not italic. The color resolves to sage on auth/onboarding screens (no person selected yet) and adopts the active person's theme on in-app surfaces.
 
-The accent stays sage on auth and onboarding screens (no person is selected yet, so the var resolves to default sage). On in-app surfaces, it adopts the active person's theme.
+**Serif italic `<em>` (auth headlines only):**
+```css
+.auth-headline em {
+  font-family: var(--serif-display); /* Instrument Serif */
+  font-style: italic;
+  color: inherit; /* inherits --fg, not --accent */
+}
+```
+Used in the auth headlines only: *left off.* (Sign in) and *actually cook.* (Create account). These are Instrument Serif italic, black — not sage. The `<em>` markup is preserved ready for any future typeface swap; do not remove it even if the visual treatment changes.
 
 ---
 
@@ -709,32 +744,52 @@ Use Framer Motion (package `motion`) for entrance/exit on full-screen pages; CSS
 
 ### 8a. Auth (split layout)
 
-Two columns. Editorial left (1.15fr), form right (1fr). Vertical hairline divider. Both columns paper bg.
+**Grid:** `grid-template-columns: 1fr 1px 1fr`. The centre column is an explicit `<div class="auth-divider" />` element — full-height `background: var(--rule)`. This is a structural element in the grid, not a `border-right` on the editorial panel. The two content columns are equal (`1fr` each).
 
-- Left: eyebrow with `§` prefix → big DM Sans 500 headline (clamp 40–60px) with sage `<em>` on one word → lede DM Sans 14px with forced `<br />` line break
-- Right: tabs (Sign in / Create account) → bottom-border-only fields → sharp black submit → OR separator → outlined Google OAuth button only
-- Top nav: wordmark left, `← Back` mono link right
+**Editorial left** (`justify-content: center`): `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) with Instrument Serif italic `<em>` → DM Sans 14px lede. Both columns `padding: 48px 56px`.
+
+**Form right** (`justify-content: center`): SIGN IN / CREATE ACCOUNT tab toggle (active 1.5px underline) → bottom-border-only fields → sharp black CTA → OR divider → outlined Google SSO button.
+
+**Top nav** (`.auth-nav`): wordmark `Good Measure` (DM Sans 700 14px) left, `← Back` mono link right.
+
+**Headline `<em>` treatment**: Instrument Serif italic, `color: inherit` (black). *Not* the sage accent — see §6f.
 
 Sign in: Email + Password (with right-aligned `Forgot` link).
 Create account: Name + Email + Password + Confirm password.
 
-Mobile: stacks at 760px. Tighter spacing. Both modes fit one viewport on iPhone-class screens (sign in has no scroll; create account may scroll due to 4 fields).
+**Mobile (≤760px):** Stacks vertically. `auth-left` gets `border-bottom: 1px solid var(--rule)`. `.auth-divider { display: none }`.
 
 Routes: `/login` → Sign in. `/login?signup=1` → Create account. `/login?invite=<token>` → Create account preserving invite flow.
 
 ### 8b. Onboarding wizard
 
-Full-screen, no nav. 4 content steps + complete screen. Wordmark top-left, step counter (`01 / 03`) top-right.
+Full-screen, editorial register (`data-register="editorial"`, cream bg). No main app nav.
 
-| Step | Title | Content |
-|---|---|---|
-| 1 Welcome | Measure what matters. | Subtitle + Get Started → |
-| 2 Profile | Your profile. | Name input + 8 theme swatches (round) |
-| 3 Household | Your household. | Name input + Add. Member list with avatar dots + invite links + Copy |
-| 4 Goals | Your goals. | 2×2 grid of goal preset cards |
-| Complete | You're all set. | Centered card, scaleIn checkmark, Go to Dashboard → |
+**Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 700, 18px, -0.02em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `§ ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
 
-The voice and typography of onboarding are still being aligned with auth and the landing. **A copy + typography pass is pending** — current implementation is functional but not voice-matched.
+**Step counter values:**
+
+| Step | Topbar right |
+|---|---|
+| Welcome (step 0) | `WELCOME` |
+| Profile (step 1) | `STEP · 01 / 03` |
+| Household (step 2) | `STEP · 02 / 03` |
+| Goals (step 3) | `STEP · 03 / 03` |
+| Complete (step 4) | `READY` |
+
+**Steps:**
+
+| Step | Eyebrow | Title | Content |
+|---|---|---|---|
+| Welcome | `§ WELCOME` | Measure what matters. | Subtitle + Get Started → |
+| Profile | `§ YOUR PROFILE` | Your profile. | Name input + 8 theme swatches (round) |
+| Household | `§ YOUR HOUSEHOLD` | Your household. | Name input + member list + invite links |
+| Goals | `§ DAILY GOALS` | Your goals. | 4 goal preset cards |
+| Complete | `§ READY` | You're all set. | Checkmark + Go to Dashboard → |
+
+**Bookend pages (Welcome, Complete)** additionally show the `Good Measure` wordmark (32px, centered) in the body — a ceremonial full-size brand moment. This is separate from the 18px topbar wordmark; do not merge the two.
+
+The voice and typography of onboarding are still being aligned with the landing. **A copy + typography pass is pending.**
 
 ### 8c. Dashboard (home)
 
