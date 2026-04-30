@@ -488,3 +488,17 @@ Brief 2I completed the Step 2 cleanup. Key changes landed:
 - Docs updated: `design-system.md` (radius table, §5g toolbar, §6e err-l note, new §11/11a/11b sections), `mobile_ux.md` (toolbar, filter sheet), `feedback_design_system_enforcement.md` (Step 2 complete note).
 
 **Step 2 is complete. The system is grep-clean. Step 3 (mobile chrome rebuild) is unblocked.**
+
+---
+
+## 10 · Brief 2J — Type register fix (April 29, 2026)
+
+Investigation revealed two compounding issues:
+
+**Root cause 1 — Broken nested var() chain.** `--mono` was defined in `@layer base` as `var(--font-mono), 'DM Mono', ...`. When used via `font-family: var(--mono)` in unlayered rules, the nested `var(--font-mono)` substitution silently failed (IACVT), causing those elements to inherit DM Sans from `<body>` instead. 84 elements affected. Fix: global replace of `font-family: var(--mono)` → `font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace` directly across globals.css.
+
+**Root cause 2 — Explicit `var(--sans)` on toolbar controls.** `.ed-chip`, `.ed-toggle button`, `.sort-field`, `.ed-btn-text`, `.pl-add-filter-chip`, `.mob-menu-close` were explicitly set to `var(--sans)`. Changed to `var(--font-mono)`.
+
+**Locked rule: Border = Sans, No border = Mono.** Bordered buttons (`.ed-btn`, `.ed-btn-outline`) stay DM Sans. Borderless buttons/labels (`.ed-btn-text`, `.ed-chip`, `.ed-toggle button`, `.sort-field`) are DM Mono. Documented in `design-system.md §1d`.
+
+**Implementation rule: never use `var(--mono)` in `font-family` declarations.** Use `var(--font-mono), 'DM Mono', ui-monospace, monospace` directly. The `--mono` token remains in `:root` for legacy reference but the nested chain is unreliable. Documented in `feedback_design_system_enforcement.md`.

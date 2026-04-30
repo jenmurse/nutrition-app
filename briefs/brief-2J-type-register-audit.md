@@ -1,7 +1,7 @@
 # Brief 2J — Type register audit (investigation only)
 
-**Status:** Ready for Claude Code
-**Type:** Investigation, not patch
+**Status:** Complete (April 29, 2026) — investigation + fix landed in one session
+**Type:** Investigation → became patch
 **Depends on:** 2I.1 (parallel; not blocking)
 **Blocks:** A future 2J.1 fix brief, plus Step 10 (type pass)
 
