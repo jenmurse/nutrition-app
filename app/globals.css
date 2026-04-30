@@ -2175,9 +2175,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .cmp-overlay {
   position: fixed;
-  inset: 0;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--bg);
-  z-index: 300;
+  z-index: 50;
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -2197,30 +2200,26 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .cmp-overlay.open { transform: none; }
 }
 
-/* Comparison chart — nav header */
-.cmp-nav {
-  height: 44px;
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  align-items: center;
-  padding: 0 40px;
-  gap: 20px;
-  flex-shrink: 0;
+/* Comparison — editorial header */
+.cmp-header {
+  padding: 80px 64px 48px;
 }
-.cmp-nav-back {
-  font-family: var(--font-mono); font-size: 9px; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 0.14em;
-  color: var(--muted); text-decoration: none;
-  background: none; border: 0; padding: 0; cursor: pointer;
-  transition: color 0.15s ease;
+.cmp-eyebrow {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
 }
-.cmp-nav-back:hover { color: var(--fg); }
-.cmp-nav-sep {
-  width: 1px; background: var(--rule); height: 16px; align-self: center;
-}
-.cmp-nav-title {
-  font-family: var(--font-mono); font-size: 9px; font-weight: 400;
-  text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted);
+.cmp-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(28px, 3vw, 44px);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--fg);
 }
 
 /* Comparison chart — lowest-value highlight */
@@ -2901,6 +2900,20 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
   margin-bottom: 14px;
 }
+.pl-shop-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+.pl-shop-actions {
+  display: flex;
+  gap: 24px;
+  align-items: baseline;
+  flex-shrink: 0;
+}
 .pl-shop-title {
   font-family: var(--sans);
   font-weight: 700;
@@ -2908,7 +2921,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--fg);
-  margin: 0 0 8px;
+  margin: 0;
 }
 .pl-shop-sub {
   font-size: 13px;
@@ -2958,8 +2971,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   flex: none;
   display: flex;
   flex-direction: column;
-  padding: 56px 64px 48px;
-  max-width: 760px;
+  padding: 80px 64px 48px;
+  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
 }

@@ -178,40 +178,31 @@ export default function ShoppingPage() {
 
   return (
     <div className="flex h-full flex-col animate-page-enter">
-      {/* Desktop toolbar */}
-      <div className="pl-toolbar">
-        <span className="pl-range" role="heading" aria-level={1}>
-          {weekRange || 'Shopping'}
-        </span>
-        <button
-          className="ed-btn-text"
-          onClick={handleShare}
-          aria-label="Share shopping list"
-        >Share</button>
-        <button
-          className="ed-btn-text"
-          onClick={() => setHideChecked(h => !h)}
-          aria-pressed={hideChecked}
-        >{hideChecked ? 'Show all' : 'Hide checked'}</button>
-      </div>
-
-      {/* Content */}
       <div className="pl-shop-body">
+        <div className="pl-shop-eyebrow">{rangeDisplay}</div>
+        <div className="pl-shop-header-row">
+          <h1 className="pl-shop-title">A week of meals.</h1>
+          <div className="pl-shop-actions">
+            <button
+              className="ed-btn-text"
+              onClick={handleShare}
+              aria-label="Share shopping list"
+            >SHARE →</button>
+            <button
+              className="ed-btn-text"
+              onClick={() => setHideChecked(h => !h)}
+              aria-pressed={hideChecked}
+            >{hideChecked ? 'SHOW ALL' : 'HIDE CHECKED'}</button>
+          </div>
+        </div>
         {shopLoading ? (
           <div className="shop-empty">Loading…</div>
         ) : !plan ? (
           <div className="shop-empty">No meal plan found</div>
         ) : shopItems.length === 0 ? (
-          <>
-            <div className="pl-shop-eyebrow">{rangeDisplay}</div>
-            <h1 className="pl-shop-title">A week of meals.</h1>
-            <div className="shop-empty">No ingredients in this week&apos;s plan</div>
-          </>
+          <div className="shop-empty">No ingredients in this week&apos;s plan</div>
         ) : (
-          <>
-            <div className="pl-shop-eyebrow">{rangeDisplay}</div>
-            <h1 className="pl-shop-title">A week of meals.</h1>
-            <div className="pl-shop-grid">
+          <div className="pl-shop-grid">
               {sortedCats.map(cat => {
                 const allItems = groups.get(cat)!;
                 const items = hideChecked
@@ -275,7 +266,6 @@ export default function ShoppingPage() {
                 );
               })}
             </div>
-          </>
         )}
       </div>
     </div>

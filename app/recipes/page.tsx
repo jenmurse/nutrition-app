@@ -818,22 +818,15 @@ function RecipesPage() {
 
       {/* ── Full-screen compare overlay ── */}
       <div className={`cmp-overlay${compareOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Nutrition comparison">
-        {/* Header */}
-        <div className="cmp-nav">
-          <button
-            type="button"
-            onClick={() => setCompareOpen(false)}
-            className="cmp-nav-back"
-            aria-label="Back to recipes"
-          >
-            ‹ Back to Recipes
-          </button>
-          <div className="cmp-nav-sep" aria-hidden="true" />
-          <span className="cmp-nav-title">Nutrition Comparison</span>
+        <div className="flex-1 overflow-y-auto">
+        {/* Editorial header */}
+        <div className="cmp-header">
+          <div className="cmp-eyebrow">§ NUTRITION COMPARISON</div>
+          <h1 className="cmp-title">Side by side.</h1>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto" style={{ padding: '40px 64px 64px' }}>
+        <div style={{ padding: '0 64px 64px' }}>
           {(() => {
             const compareRecipes = compareIds.map(id => recipes.find(r => r.id === id)).filter(Boolean) as RecipeSummary[];
             if (compareRecipes.length < 2) return null;
@@ -890,6 +883,7 @@ function RecipesPage() {
               </div>
             );
           })()}
+        </div>
         </div>
       </div>
     </div>
