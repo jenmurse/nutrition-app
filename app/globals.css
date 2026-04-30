@@ -2151,9 +2151,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    Reserve the underline space on the base state so .is-active doesn't shift the text.
    line-height inherits (~1.2) to match .ed-toggle button vertical box. */
 .cmp-mode-btn {
-  padding: 5px 0 2px;
+  padding: 3px 0 2px;
   border-bottom: 1.5px solid transparent;
-  line-height: 1;
+  line-height: inherit;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .cmp-mode-btn.is-active {
