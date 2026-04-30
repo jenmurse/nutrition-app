@@ -831,46 +831,49 @@ function RecipesPage() {
             const compareRecipes = compareIds.map(id => recipes.find(r => r.id === id)).filter(Boolean) as RecipeSummary[];
             if (compareRecipes.length < 2) return null;
             const SLOTS = 5;
-            const hasAddMore = compareRecipes.length < SLOTS;
-            const totalCols = compareRecipes.length + (hasAddMore ? 1 : 0);
 
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: `180px repeat(${totalCols}, 160px)`, overflowX: 'auto' }}>
-                {/* Recipe headers */}
+              <div style={{ display: 'grid', gridTemplateColumns: `200px repeat(${SLOTS}, 1fr)` }}>
+                {/* Recipe headers — always 5 slots */}
                 <div />
-                {compareRecipes.map((r) => {
-                  const category = r.tags?.split(",")[0]?.trim();
-                  return (
-                    <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
-                      <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3' }}>
-                        {r.image
-                          ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
-                          : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>
-                              <span className="font-sans font-bold leading-[1.05] tracking-[-0.02em] text-[var(--fg)] opacity-[0.18] block" style={{ fontSize: 11 }}>
-                                {r.name.length > 22 ? r.name.slice(0, r.name.lastIndexOf(' ', 22) || 22) : r.name}
-                              </span>
-                            </div>
-                        }
+                {Array.from({ length: SLOTS }).map((_, i) => {
+                  const r = compareRecipes[i];
+                  if (r) {
+                    const category = r.tags?.split(",")[0]?.trim();
+                    return (
+                      <div key={r.id} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 16 }}>
+                        <div className="overflow-hidden mb-[12px] relative" style={{ width: 80, aspectRatio: '4/3' }}>
+                          {r.image
+                            ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
+                            : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>
+                                <span className="font-sans font-bold leading-[1.05] tracking-[-0.02em] text-[var(--fg)] opacity-[0.18] block" style={{ fontSize: 11 }}>
+                                  {r.name.length > 22 ? r.name.slice(0, r.name.lastIndexOf(' ', 22) || 22) : r.name}
+                                </span>
+                              </div>
+                          }
+                        </div>
+                        {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
+                        <div className="font-serif text-[16px] font-semibold leading-[1.2] text-[var(--fg)]">{r.name}</div>
                       </div>
-                      {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
-                      <div className="font-serif text-[16px] font-semibold leading-[1.2] text-[var(--fg)]">{r.name}</div>
-                    </div>
-                  );
+                    );
+                  }
+                  if (i === compareRecipes.length) {
+                    return (
+                      <div key={`add-${i}`} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
+                        <button
+                          onClick={() => setCompareOpen(false)}
+                          aria-label="Add more recipes to compare"
+                          style={{ width: 80, aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--rule)', background: 'transparent', cursor: 'pointer' }}
+                        >
+                          <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">+ Add More</span>
+                        </button>
+                      </div>
+                    );
+                  }
+                  return <div key={`empty-h-${i}`} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20 }} />;
                 })}
-                {/* Trailing add-more slot */}
-                {hasAddMore && (
-                  <div style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 24 }}>
-                    <button
-                      onClick={() => setCompareOpen(false)}
-                      aria-label="Add more recipes to compare"
-                      style={{ width: 80, aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--rule)', background: 'transparent', cursor: 'pointer' }}
-                    >
-                      <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">+ Add More</span>
-                    </button>
-                  </div>
-                )}
 
-                {/* Nutrient rows */}
+                {/* Nutrient rows — always 5 value cells */}
                 {COMPARE_NUTRIENTS.map(n => {
                   const vals = compareRecipes.map(r => getCompareValue(r, n.keys));
                   const winner = n.lowerIsBetter ? Math.min(...vals) : Math.max(...vals);
@@ -879,16 +882,19 @@ function RecipesPage() {
                       <div className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] flex items-center" style={{ borderBottom: '1px solid var(--rule)', padding: '11px 0' }}>
                         {n.label}
                       </div>
-                      {vals.map((v, i) => {
+                      {Array.from({ length: SLOTS }).map((_, i) => {
+                        if (i >= compareRecipes.length) {
+                          return <div key={`empty-${n.label}-${i}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 0' }} />;
+                        }
+                        const v = vals[i];
                         const isWinner = v === winner && vals.some((x, j) => j !== i);
                         return (
-                          <div key={`val-${n.label}-${i}`} className={`cmp-value${isWinner ? ' lo' : ''}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 24px 11px 0' }}>
+                          <div key={`val-${n.label}-${i}`} className={`cmp-value${isWinner ? ' lo' : ''}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 16px 11px 0' }}>
                             <span className="cmp-num tabular-nums">{v}</span>
                             <span className="cmp-unit">{n.unit}</span>
                           </div>
                         );
                       })}
-                      {hasAddMore && <div key={`add-${n.label}`} style={{ borderBottom: '1px solid var(--rule)', padding: '11px 0' }} />}
                     </React.Fragment>
                   );
                 })}

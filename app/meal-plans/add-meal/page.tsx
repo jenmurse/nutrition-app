@@ -56,15 +56,6 @@ const HEADLINES: Record<string, string> = {
   'pantry-items': 'Add a pantry item.',
 };
 
-function getDefaultMealType(): string {
-  const h = new Date().getHours();
-  if (h < 10) return 'breakfast';
-  if (h < 14) return 'lunch';
-  if (h < 17) return 'side';
-  if (h < 21) return 'dinner';
-  return 'snack';
-}
-
 function AddMealInner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -82,7 +73,7 @@ function AddMealInner() {
   const selectedDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
 
   // Rail / meal type selection
-  const [activeMealType, setActiveMealType] = useState<string>(getDefaultMealType());
+  const [activeMealType, setActiveMealType] = useState<string>('breakfast');
   const isPantryMode = activeMealType === 'pantry-items';
 
   // Fade transition state (desktop rail switches)
@@ -291,6 +282,16 @@ function AddMealInner() {
 
       <div className="pl-add-body">
 
+        {/* Mobile ← Back — absolute, sits above the eyebrow anchor (in the 48px reserved space) */}
+        {mobileStep === 'browse' && (
+          <button
+            type="button"
+            className="sm:hidden font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--fg)] bg-transparent border-0 p-0 cursor-pointer"
+            style={{ position: 'absolute', top: 20, left: 24 }}
+            onClick={() => setMobileStep('picker')}
+          >← Back</button>
+        )}
+
         {/* ── Mobile Screen 1: meal type picker ── */}
         {mobileStep === 'picker' && (
           <div className="sm:hidden">
@@ -318,17 +319,6 @@ function AddMealInner() {
           className={`am-content${mobileStep === 'picker' ? ' hidden sm:block' : ''}`}
           style={{ opacity: contentVisible ? 1 : 0, transition: 'opacity 180ms var(--ease-out)' }}
         >
-          {/* Mobile back link */}
-          {mobileStep === 'browse' && (
-            <div className="sm:hidden mb-6">
-              <button
-                type="button"
-                className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--fg)] bg-none border-0 p-0 cursor-pointer"
-                onClick={() => setMobileStep('picker')}
-              >← Back</button>
-            </div>
-          )}
-
           {/* Eyebrow + headline */}
           <div className="pl-add-eyebrow">§ {dateLabel.toUpperCase()}</div>
           <h1 className="pl-add-title">{HEADLINES[activeMealType]}</h1>
