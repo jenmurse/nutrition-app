@@ -143,6 +143,7 @@ function AddMealInner() {
 
   const handleSelectMealType = (mealType: string) => {
     setSelectedMealType(mealType);
+    setRecipeFilterTags([mealType]);
     setStep('picker');
   };
 
