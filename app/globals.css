@@ -685,8 +685,8 @@ input[type="number"]:focus {
 }
 .recipe-grid-item__photo.is-ghost .ghost-name {
   font-family: var(--sans);
-  font-size: clamp(17px, 1.6vw, 22px);
-  font-weight: 700;
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.1;
   color: var(--fg);
