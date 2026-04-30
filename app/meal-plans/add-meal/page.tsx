@@ -263,9 +263,9 @@ function AddMealInner() {
   const canAdd = !isPantryMode ? !!pendingRecipeId : !!pendingIngredientId;
 
   return (
-    <div className="h-full overflow-y-auto animate-page-enter">
+    <div className="h-full relative">
 
-      {/* Desktop fixed left rail — hidden on mobile via CSS */}
+      {/* Desktop fixed left rail — outside animated wrapper so CSS transform doesn't break position:fixed */}
       <div className="am-rail" role="navigation" aria-label="Meal type">
         {ALL_RAIL_ITEMS.map(type => (
           <button
@@ -280,6 +280,7 @@ function AddMealInner() {
         ))}
       </div>
 
+      <div className="h-full overflow-y-auto animate-page-enter">
       <div className="pl-add-body">
 
         {/* Mobile ← Back — absolute, sits above the eyebrow anchor (in the 48px reserved space) */}
@@ -493,6 +494,7 @@ function AddMealInner() {
           </div>
         </div>
 
+      </div>
       </div>
     </div>
   );
