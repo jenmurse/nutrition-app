@@ -759,8 +759,11 @@ input[type="number"]:focus {
   /* Cat + name padding */
   .recipe-grid-item__cat,
   .recipe-grid-item__name { padding-left: 16px; padding-right: 16px; }
-  /* Typographic cell: match mobile padding */
-  .recipe-grid-item.rg-typographic { padding: 16px; }
+  /* Typographic cell: padding + min-height to give it visual mass on mobile */
+  .recipe-grid-item.rg-typographic {
+    padding: 24px 16px;
+    min-height: 240px;
+  }
 }
 
 /* ── Recipe List (BRIEF-08) ──────────────────────────────────────── */
