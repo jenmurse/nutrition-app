@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { clientCache } from '@/lib/clientCache';
 import { toast } from '@/lib/toast';
@@ -46,7 +47,9 @@ const SHARE_CAT_ORDER = CATEGORY_ORDER;
 export default function ShoppingPage() {
   const { selectedPersonId } = usePersonContext();
   const [plan, setPlan] = useState<MealPlan | null>(null);
+  const [noPlanForWeek, setNoPlanForWeek] = useState(false);
   const [weekRange, setWeekRange] = useState('');
+  const [weekParam, setWeekParam] = useState<string | null | undefined>(undefined);
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const [shopLoading, setShopLoading] = useState(true);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
@@ -58,8 +61,14 @@ export default function ShoppingPage() {
     return () => cancelAnimationFrame(id);
   }, []);
 
+  // Read week param from URL on mount (avoids Suspense wrapper needed for useSearchParams)
   useEffect(() => {
-    if (!selectedPersonId) return;
+    const param = new URLSearchParams(window.location.search).get('week');
+    setWeekParam(param);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPersonId || weekParam === undefined) return;
     let cancelled = false;
 
     async function load() {
@@ -67,17 +76,29 @@ export default function ShoppingPage() {
         const res = await fetch(`/api/meal-plans?personId=${selectedPersonId}`);
         if (!res.ok || cancelled) return;
         const plans: MealPlan[] = await res.json();
-        if (!plans.length) { setShopLoading(false); return; }
+        if (!plans.length) { setShopLoading(false); setNoPlanForWeek(true); return; }
 
-        // Find current week plan, fallback to first
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        const thisWeekPlans = plans.filter((p) => {
-          const start = parseUTCDate(p.weekStartDate);
-          const end = new Date(start); end.setDate(end.getDate() + 6);
-          return today >= start && today <= end;
-        });
-        const current = (thisWeekPlans.find(p => parseUTCDate(p.weekStartDate).getDay() === 0) ?? thisWeekPlans[0]) ?? plans[0];
-        if (!current || cancelled) return;
+        let current: MealPlan | null = null;
+        if (weekParam) {
+          // Find plan matching the week the user was viewing in the planner
+          const targetTime = parseUTCDate(weekParam).getTime();
+          current = plans.find(p => parseUTCDate(p.weekStartDate).getTime() === targetTime) ?? null;
+        } else {
+          // Fallback: current calendar week
+          const today = new Date(); today.setHours(0, 0, 0, 0);
+          const thisWeekPlans = plans.filter((p) => {
+            const start = parseUTCDate(p.weekStartDate);
+            const end = new Date(start); end.setDate(end.getDate() + 6);
+            return today >= start && today <= end;
+          });
+          current = (thisWeekPlans.find(p => parseUTCDate(p.weekStartDate).getDay() === 0) ?? thisWeekPlans[0]) ?? plans[0];
+        }
+
+        if (!current) {
+          if (!cancelled) { setNoPlanForWeek(true); setShopLoading(false); }
+          return;
+        }
+        if (cancelled) return;
 
         // Compute week range label
         const s = parseUTCDate(current.weekStartDate);
@@ -116,7 +137,13 @@ export default function ShoppingPage() {
     }
     load();
     return () => { cancelled = true; };
-  }, [selectedPersonId]);
+  }, [selectedPersonId, weekParam]);
+
+  // Signal to BottomNav whether this page has content to share
+  useEffect(() => {
+    if (shopLoading) return;
+    window.dispatchEvent(new CustomEvent('shopping:content', { detail: { hasItems: shopItems.length > 0 } }));
+  }, [shopLoading, shopItems]);
 
   const saveChecked = useCallback((newSet: Set<string>) => {
     if (!plan) return;
@@ -172,37 +199,55 @@ export default function ShoppingPage() {
     return ai - bi;
   });
 
-  const rangeDisplay = weekRange
-    ? `§ ${weekRange.toUpperCase()}`
-    : '§';
+  const rangeDisplay = weekRange ? `§ ${weekRange.toUpperCase()}` : '§';
+
+  // Build planner link with week context for empty state CTAs
+  const plannerHref = weekParam ? `/meal-plans?week=${weekParam}` : '/meal-plans';
+
+  const isEmpty = !shopLoading && (noPlanForWeek || shopItems.length === 0);
 
   return (
     <div className="flex h-full flex-col animate-page-enter">
       <div className="pl-shop-body">
-        <div className="pl-shop-eyebrow">{rangeDisplay}</div>
-        <div className="pl-shop-header-row">
-          <h1 className="pl-shop-title">A week of meals.</h1>
-          <div className="pl-shop-actions">
-            <button
-              className="ed-btn-text"
-              onClick={() => setHideChecked(h => !h)}
-              aria-pressed={hideChecked}
-            >{hideChecked ? 'SHOW ALL' : 'HIDE CHECKED'}</button>
-            <button
-              className="ed-btn-text hidden sm:inline"
-              onClick={handleShare}
-              aria-label="Share shopping list"
-            >SHARE →</button>
-          </div>
-        </div>
         {shopLoading ? (
-          <div className="shop-empty">Loading…</div>
-        ) : !plan ? (
-          <div className="shop-empty">No meal plan found</div>
-        ) : shopItems.length === 0 ? (
-          <div className="shop-empty">No ingredients in this week&apos;s plan</div>
+          <div className="shop-loading">Loading…</div>
+        ) : isEmpty ? (
+          <div className="shop-empty">
+            {noPlanForWeek ? (
+              <>
+                <p className="eyebrow">§ NO PLAN THIS WEEK</p>
+                <h1 className="shop-empty-headline">A blank shopping list.</h1>
+                <p className="shop-empty-lede">Create a plan for this week, add some recipes, and the ingredients will be waiting here.</p>
+                <Link href={plannerHref} className="ed-btn">+ CREATE PLAN →</Link>
+              </>
+            ) : (
+              <>
+                <p className="eyebrow">§ NO INGREDIENTS YET</p>
+                <h1 className="shop-empty-headline">A week without a list.</h1>
+                <p className="shop-empty-lede">Add recipes to your plan and the ingredients show up here, sorted and ready to shop.</p>
+                <Link href={plannerHref} className="ed-btn">+ ADD MEALS →</Link>
+              </>
+            )}
+          </div>
         ) : (
-          <div className="pl-shop-grid">
+          <>
+            <div className="pl-shop-eyebrow">{rangeDisplay}</div>
+            <div className="pl-shop-header-row">
+              <h1 className="pl-shop-title">A week of meals.</h1>
+              <div className="pl-shop-actions">
+                <button
+                  className="ed-btn-text"
+                  onClick={() => setHideChecked(h => !h)}
+                  aria-pressed={hideChecked}
+                >{hideChecked ? 'SHOW ALL' : 'HIDE CHECKED'}</button>
+                <button
+                  className="ed-btn-text hidden sm:inline"
+                  onClick={handleShare}
+                  aria-label="Share shopping list"
+                >SHARE →</button>
+              </div>
+            </div>
+            <div className="pl-shop-grid">
               {sortedCats.map(cat => {
                 const allItems = groups.get(cat)!;
                 const items = hideChecked
@@ -266,6 +311,7 @@ export default function ShoppingPage() {
                 );
               })}
             </div>
+          </>
         )}
       </div>
     </div>

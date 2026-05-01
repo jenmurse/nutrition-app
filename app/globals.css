@@ -2821,12 +2821,38 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   overflow-y: auto;
   padding: 4px 20px;
 }
-.shop-empty {
+.shop-loading {
   text-align: center;
   color: var(--muted);
   padding: 24px 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
+}
+.shop-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding: 80px var(--pad);
+  min-height: 40vh;
+}
+.shop-empty-headline {
+  font: 700 clamp(36px, 4.4vw, 64px) var(--font-sans);
+  letter-spacing: -0.03em;
+  line-height: 1.0;
+  color: var(--fg);
+  text-wrap: balance;
+  margin: 0;
+}
+.shop-empty-lede {
+  font: 400 13px var(--font-sans);
+  color: var(--fg-2);
+  line-height: 1.7;
+  max-width: 360px;
+  text-wrap: pretty;
+  margin: 0;
 }
 .shop-cat-header {
   display: flex;

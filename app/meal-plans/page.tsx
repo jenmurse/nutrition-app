@@ -811,7 +811,7 @@ const MealPlansPage = () => {
         {/* Shopping list button — only when plans exist */}
         {mealPlans.length > 0 && (
           <Link
-            href="/shopping"
+            href={selectedPlan ? `/shopping?week=${selectedPlan.weekStartDate}` : '/shopping'}
             className="pl-cart-btn"
             aria-label="View shopping list"
           >

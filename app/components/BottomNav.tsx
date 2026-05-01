@@ -36,6 +36,17 @@ function AddMealStatus() {
 export default function BottomNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shoppingHasContent, setShoppingHasContent] = useState(false);
+
+  // Reset and listen for shopping page content state
+  useEffect(() => {
+    if (pathname !== '/shopping') { setShoppingHasContent(false); return; }
+    const handler = (e: Event) => {
+      setShoppingHasContent((e as CustomEvent<{ hasItems: boolean }>).detail.hasItems);
+    };
+    window.addEventListener('shopping:content', handler);
+    return () => window.removeEventListener('shopping:content', handler);
+  }, [pathname]);
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
@@ -93,13 +104,16 @@ export default function BottomNav() {
           MENU
         </button>
 
-        {isShopping && (
+        {isShopping && shoppingHasContent && (
           <button
             type="button"
             className="mob-rail-action"
             onClick={() => window.dispatchEvent(new CustomEvent("shopping:share"))}
             aria-label="Share shopping list"
           >SHARE</button>
+        )}
+        {isShopping && !shoppingHasContent && (
+          <span className="mob-rail-index" aria-current="page">SHOPPING</span>
         )}
 
         {isAddMeal && (
