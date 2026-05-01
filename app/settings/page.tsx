@@ -629,7 +629,7 @@ const SettingsPage = () => {
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* Page header */}
-          <div style={{ paddingTop: 24, marginBottom: 40 }}>
+          <div style={{ paddingTop: 48, marginBottom: 40 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ Settings</div>
             <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>Your preferences.</h1>
           </div>

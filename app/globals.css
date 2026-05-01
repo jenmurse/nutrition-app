@@ -3918,9 +3918,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     gap: 10px !important;
   }
 
-  /* ── Recipe detail: reduce top gap (no sticky header anymore) ── */
-  #rd-scroll-container .detail-content { padding-top: 16px !important; }
-  .rd-hero { padding-top: 8px !important; padding-bottom: 32px !important; min-height: 0 !important; }
+  /* ── Recipe detail: hero image flush to top bar, edge-to-edge ── */
+  #rd-scroll-container .detail-content { padding-top: 0 !important; }
+  .rd-hero { padding-top: 0 !important; padding-bottom: 32px !important; min-height: 0 !important; }
 
   /* ── Recipe detail: tighten section spacing on mobile ── */
   #rd-sec-ing,
