@@ -1654,9 +1654,9 @@ input[type="number"]:focus {
   right: 0;
   min-width: 140px;
   background: var(--bg);
-  border: none;
+  border: 1px solid var(--rule);
   border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+  box-shadow: none;
   z-index: 200;
   overflow: hidden;
 }
