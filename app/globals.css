@@ -666,21 +666,18 @@ input[type="number"]:focus {
   object-fit: cover;
   display: block;
 }
-.recipe-grid-item__photo.is-ghost {
-  background-color: var(--bg);
-  overflow: visible;
+/* Typographic cell — no photo, content bottom-anchored within the article */
+.recipe-grid-item.rg-typographic {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 24px;
 }
-/* Ghost caption: absolutely positioned below the photo div (top: 100%) so it
-   aligns with photo-cell captions without adding to card flow height */
-.ghost-caption {
+.recipe-grid-item.rg-typographic .check-mark {
   position: absolute;
-  top: 100%;
-  margin-top: 18px;
-  left: 24px;
-  right: 24px;
+  top: 12px;
+  left: 12px;
 }
-.recipe-grid-item:nth-child(4n+1) .ghost-caption { left: 40px; }
-.recipe-grid-item:nth-child(4n) .ghost-caption { right: 40px; }
 .ghost-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
@@ -735,11 +732,6 @@ input[type="number"]:focus {
   .recipe-grid-item:nth-child(4n)   .recipe-grid-item__photo { margin-left: -24px; margin-right: -24px; }
   .recipe-grid-item:nth-child(3n+1) .recipe-grid-item__photo { margin-left: -40px; margin-right: -24px; }
   .recipe-grid-item:nth-child(3n)   .recipe-grid-item__photo { margin-left: -24px; margin-right: -40px; }
-  /* Ghost caption edge-column offsets for 3-col */
-  .recipe-grid-item:nth-child(4n+1) .ghost-caption { left: 24px; }
-  .recipe-grid-item:nth-child(4n) .ghost-caption { right: 24px; }
-  .recipe-grid-item:nth-child(3n+1) .ghost-caption { left: 40px; }
-  .recipe-grid-item:nth-child(3n) .ghost-caption { right: 40px; }
 }
 
 /* Mobile recipe grid — 1 column, edge-to-edge photos */
@@ -767,8 +759,8 @@ input[type="number"]:focus {
   /* Cat + name padding */
   .recipe-grid-item__cat,
   .recipe-grid-item__name { padding-left: 16px; padding-right: 16px; }
-  /* Ghost caption: full-width, tighter margin-top to match mobile photo margin */
-  .ghost-caption { left: 16px; right: 16px; margin-top: 12px; }
+  /* Typographic cell: match mobile padding */
+  .recipe-grid-item.rg-typographic { padding: 16px; }
 }
 
 /* ── Recipe List (BRIEF-08) ──────────────────────────────────────── */

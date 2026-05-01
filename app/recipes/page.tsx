@@ -735,29 +735,37 @@ function RecipesPage() {
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); compareMode ? toggleCompareRecipe(recipe.id) : router.push(`/recipes/${recipe.id}`); } }}
                   aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
                   aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
-                  className={`recipe-grid-item group${compareMode && compareIds.includes(recipe.id) ? " is-selected" : ""}${compareMode && !compareIds.includes(recipe.id) ? " is-selectable" : ""}${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 5 ? " opacity-40" : ""}`}
+                  className={`recipe-grid-item${!recipe.image ? " rg-typographic" : ""} group${compareMode && compareIds.includes(recipe.id) ? " is-selected" : ""}${compareMode && !compareIds.includes(recipe.id) ? " is-selectable" : ""}${compareMode && !compareIds.includes(recipe.id) && compareIds.length >= 5 ? " opacity-40" : ""}`}
                   style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
-                  {/* Photo */}
-                  <div
-                    className={`recipe-grid-item__photo${recipe.image ? "" : " is-ghost"}`}
-                    style={recipe.image ? { backgroundImage: `url(${recipe.image})` } : undefined}
-                  >
-                    {compareMode && (
-                      <div className="check-mark" aria-hidden="true">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  {recipe.image ? (
+                    /* Photo cell */
+                    <>
+                      <div
+                        className="recipe-grid-item__photo"
+                        style={{ backgroundImage: `url(${recipe.image})` }}
+                      >
+                        {compareMode && (
+                          <div className="check-mark" aria-hidden="true">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {!recipe.image && (
-                      <div className="ghost-caption">
-                        {category && <div className="ghost-eyebrow">{category}</div>}
-                        <h3 className="ghost-name">{recipe.name}</h3>
-                      </div>
-                    )}
-                  </div>
-                  {/* Category + name strip — photo cells only */}
-                  {recipe.image && category && <div className="recipe-grid-item__cat">{category}</div>}
-                  {recipe.image && <h3 className="recipe-grid-item__name">{recipe.name}</h3>}
+                      {category && <div className="recipe-grid-item__cat">{category}</div>}
+                      <h3 className="recipe-grid-item__name">{recipe.name}</h3>
+                    </>
+                  ) : (
+                    /* Typographic cell — no photo div, content bottom-anchored by flex on article */
+                    <>
+                      {compareMode && (
+                        <div className="check-mark" aria-hidden="true">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      )}
+                      {category && <div className="ghost-eyebrow">{category}</div>}
+                      <h3 className="ghost-name">{recipe.name}</h3>
+                    </>
+                  )}
                   {recipe.isComplete === false && (
                     <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                   )}
