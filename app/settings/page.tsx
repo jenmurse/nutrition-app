@@ -629,7 +629,7 @@ const SettingsPage = () => {
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* Page header */}
-          <div style={{ paddingTop: 48, paddingBottom: 40 }}>
+          <div style={{ paddingTop: 24, paddingBottom: 40 }}>
             <p className="pl-shop-eyebrow">§ SETTINGS</p>
             <h1 className="pl-shop-title">Your preferences.</h1>
           </div>

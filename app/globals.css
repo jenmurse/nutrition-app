@@ -5823,7 +5823,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .auth-split { grid-template-columns: 1fr; min-height: 0; }
   .auth-divider { display: none; }
   .auth-left {
-    padding: 40px 28px;
+    padding: 28px 28px 20px;
     display: block;
   }
   .auth-left-spacer { display: none; }
@@ -5834,7 +5834,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     margin: 0 0 16px;
   }
   .auth-lede { font-size: 13px; line-height: 1.55; margin-bottom: 0; }
-  .auth-right { padding: 40px 28px; }
+  .auth-right { padding: 20px 28px 28px; }
   .auth-tabs { margin-bottom: 18px; }
   .auth-label { margin-bottom: 4px; }
   .auth-label-row { margin-bottom: 4px; }
