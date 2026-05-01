@@ -229,12 +229,33 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   }, [days.length > 0 ? days[0].date.toString() : '']);
 
   const availableMealTypes = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'];
+  const ALL_MEAL_TYPES = [...availableMealTypes, 'pantry-items'];
+  const MEAL_TYPE_LABELS: Record<string, string> = {
+    breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', side: 'Side',
+    snack: 'Snack', dessert: 'Dessert', beverage: 'Beverage', 'pantry-items': 'Pantry Items',
+  };
+
+  // Add Meal sheet (mobile step 1)
+  const [sheetDate, setSheetDate] = useState<Date | null>(null);
 
   const handleAddMealClick = (date: Date) => {
-    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    if (isMobile) {
+      setSheetDate(date);
+    } else {
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const weekStartStr = `${weekStartDate.getFullYear()}-${String(weekStartDate.getMonth() + 1).padStart(2, '0')}-${String(weekStartDate.getDate()).padStart(2, '0')}`;
+      const personQ = personName ? `&person=${encodeURIComponent(personName)}` : '';
+      router.push(`/meal-plans/add-meal?planId=${mealPlanId}&date=${dateStr}&weekStart=${weekStartStr}${personQ}`);
+    }
+  };
+
+  const handleSheetSelect = (type: string) => {
+    if (!sheetDate) return;
+    const dateStr = `${sheetDate.getFullYear()}-${String(sheetDate.getMonth() + 1).padStart(2, '0')}-${String(sheetDate.getDate()).padStart(2, '0')}`;
     const weekStartStr = `${weekStartDate.getFullYear()}-${String(weekStartDate.getMonth() + 1).padStart(2, '0')}-${String(weekStartDate.getDate()).padStart(2, '0')}`;
     const personQ = personName ? `&person=${encodeURIComponent(personName)}` : '';
-    router.push(`/meal-plans/add-meal?planId=${mealPlanId}&date=${dateStr}&weekStart=${weekStartStr}${personQ}`);
+    setSheetDate(null);
+    router.push(`/meal-plans/add-meal?planId=${mealPlanId}&date=${dateStr}&weekStart=${weekStartStr}&mealType=${type}${personQ}`);
   };
 
   const handleRemoveMeal = async (mealId: number) => {
@@ -518,6 +539,42 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
             );
           })}
         </div>
+      )}
+
+      {/* Add Meal bottom sheet — mobile step 1 */}
+      {sheetDate && (
+        <>
+          <div
+            className="mob-sheet-backdrop mob-sheet-backdrop--above-nav"
+            onClick={() => setSheetDate(null)}
+            aria-hidden="true"
+          />
+          <div
+            className="mob-sheet add-meal-type-sheet sheet-delay-touch"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Add meal"
+          >
+            <div className="mob-sheet-handle" aria-hidden="true" />
+            <div className="add-meal-sheet-eyebrow">
+              § {sheetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()}
+            </div>
+            <div className="add-meal-type-rows" role="list">
+              {ALL_MEAL_TYPES.map(type => (
+                <button
+                  key={type}
+                  type="button"
+                  className="add-meal-type-row"
+                  role="listitem"
+                  onClick={() => handleSheetSelect(type)}
+                >
+                  <span>{MEAL_TYPE_LABELS[type]}</span>
+                  <span aria-hidden="true">→</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
     </>

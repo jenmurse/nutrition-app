@@ -3289,15 +3289,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .mob-topbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0;
   }
   .mob-topbar-trigger {
-    width: 44px;
+    width: auto;
     height: 44px;
-    margin-right: 0;
+    padding: 0 var(--pad) 0 8px;
+    margin-right: calc(-1 * var(--pad));
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     background: none;
     border: none;
     color: var(--fg);
@@ -3828,6 +3829,37 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* pl-day-strip top is sticky within pl-main scroll context — no offset needed */
 
+  /* Add Meal type picker sheet (MOB-4 step 1) */
+  .add-meal-sheet-eyebrow {
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 var(--pad) 12px;
+  }
+  .add-meal-type-rows { display: flex; flex-direction: column; }
+  .add-meal-type-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px var(--pad);
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .add-meal-type-row:last-child { border-bottom: none; }
+  .add-meal-type-row span:last-child { color: var(--muted); font-weight: 400; }
+  .add-meal-type-row:active { background: var(--bg-2); }
+
   /* Add-meal sheet: larger text for mobile touch targets */
   .add-meal-sheet .meal-chip { padding: 10px 8px; }
   .add-meal-sheet .meal-chip-name { font-size: 16px; }
@@ -3843,8 +3875,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .pl-day-strip {
     border-bottom: none !important;
     box-shadow: 0 1px 0 rgba(128,128,128,0.1) !important;
-    padding-left: var(--pad);
-    padding-right: var(--pad);
+    padding-left: var(--pad) !important;
+    padding-right: var(--pad) !important;
   }
 
   /* +ADD button: give it a proper bordered look */

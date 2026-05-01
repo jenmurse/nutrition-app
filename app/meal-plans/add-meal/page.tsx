@@ -65,6 +65,7 @@ function AddMealInner() {
   const planId = params?.get('planId') ? Number(params.get('planId')) : null;
   const dateStr = params?.get('date') ?? '';
   const weekStart = params?.get('weekStart') ?? '';
+  const mealTypeParam = params?.get('mealType') ?? '';
 
   useEffect(() => {
     const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
@@ -74,14 +75,16 @@ function AddMealInner() {
   const selectedDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
 
   // Rail / meal type selection
-  const [activeMealType, setActiveMealType] = useState<string>('breakfast');
+  const validTypes = [...MEAL_TYPES, 'pantry-items'];
+  const initialType = validTypes.includes(mealTypeParam) ? mealTypeParam : 'breakfast';
+  const [activeMealType, setActiveMealType] = useState<string>(initialType);
   const isPantryMode = activeMealType === 'pantry-items';
 
   // Fade transition state (desktop rail switches)
   const [contentVisible, setContentVisible] = useState(true);
 
-  // Mobile two-step flow
-  const [mobileStep, setMobileStep] = useState<'picker' | 'browse'>('picker');
+  // Mobile two-step flow — start on browse if mealType was pre-selected via sheet
+  const [mobileStep, setMobileStep] = useState<'picker' | 'browse'>(mealTypeParam ? 'browse' : 'picker');
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -466,16 +469,6 @@ function AddMealInner() {
 
       <div className="h-full overflow-y-auto animate-page-enter">
       <div className="pl-add-body">
-
-        {/* Mobile ← Back — absolute, sits above the eyebrow anchor (in the 48px reserved space) */}
-        {mobileStep === 'browse' && (
-          <button
-            type="button"
-            className="sm:hidden font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--fg)] bg-transparent border-0 p-0 cursor-pointer"
-            style={{ position: 'absolute', top: 12, left: 24 }}
-            onClick={() => { setDirection('back'); setMobileStep('picker'); }}
-          >← Back</button>
-        )}
 
         {/* ── Mobile: animated Screen 1 ↔ Screen 2 ── */}
         <div className="sm:hidden overflow-x-hidden">
