@@ -1985,9 +1985,8 @@ input[type="number"]:focus {
 .nut-pct { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--muted); }
 .nut-track { height:3px; background:var(--rule); border-radius:99px; overflow:hidden; }
 .nut-fill { height:100%; border-radius:99px; transition:width 0.7s var(--ease-out); }
-.fill-ok   { background:var(--muted); }   /* within target — neutral */
-.fill-warn { background:var(--muted); }   /* below min — same neutral */
-.fill-err  { background:var(--err); }     /* over limit — red only */
+.fill-ok  { background:var(--muted); }   /* within target — neutral */
+.fill-err { background:var(--err); }     /* over limit — red only */
 
 /* Planner animations */
 @keyframes plannerColIn {
@@ -5892,17 +5891,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--muted);
 }
 
-/* Wordmark in step content (Welcome, Complete bookend screens) */
-.ob-wordmark {
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: -0.02em;
-  color: var(--fg);
-  display: block;
-  text-align: center;
-  margin-bottom: 40px;
-}
 
 /* Step body — flex center, column is the only child.
    overflow-y:auto so any iOS auto-scroll for focused inputs scrolls here,
@@ -6186,17 +6174,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-top: 4px;
 }
 
-/* Checkmark icon (Complete step) */
-.ob-check-icon {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 32px;
-  animation: ob-scale-in 350ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-@keyframes ob-scale-in {
-  from { opacity: 0; transform: scale(0.7); }
-  to   { opacity: 1; transform: scale(1); }
-}
 
 /* Action row */
 .ob-actions {
