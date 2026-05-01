@@ -178,17 +178,11 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 4 — Mobile information architecture ✓ (largely absorbed into Step 2/3)
+### STEP 4 — Mobile design edits ☐ (rescoped)
 
-**Originally scoped:** Back-button pattern, Sign Out location, Menu sheet, bottom rail behavior on child screens.
+**Original scope shipped:** Back-button pattern, Sign Out location, Menu sheet, bottom rail behavior on child screens — all landed in 2D.2 and 2F.
 
-**What landed:** All of these shipped in earlier briefs:
-- Back-bar removal + child-screen navigation pattern → 2D.2
-- Sign Out → Menu sheet → 2F
-- Menu sheet `Sign Out` row with hairline → 2F
-- Bottom rail right-slot variants (section locator / action / status) → 2D.2
-
-**Remaining items:** None. Step 4 is complete as scoped.
+**Rescoped scope:** Mobile-specific design edits surfaced by a mobile audit. Original IA items are done; this step now covers whatever the mobile audit surfaces — polish, rhythm, editorial expression on small screens, anything that doesn't fit elsewhere. Run the audit first, then define the punch list.
 
 ---
 
@@ -258,7 +252,7 @@ Shipped as **brief-3E-2**. Locked decisions:
 - `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow stays.
 - Italic `<em>` on headlines uses Instrument Serif italic, `color: inherit` (black). Distinct from the sage `<em>` accent convention.
 
-Remaining from original Step 7 scope: locked wordmark not yet applied (deferred to type scale pass, Step 10). Italic pass pending Step 6 decision.
+Remaining from original Step 7 scope: locked wordmark not yet applied to auth topbar (→ Step 9 wordmark integration pass). Italic pass pending Step 6 decision.
 
 ---
 
@@ -271,21 +265,32 @@ Shipped as **brief-3F-2** + follow-up April 30.
 - No wordmark or check icon in the body of any step — topbar wordmark is the only brand moment.
 - Body bookend content (Welcome: eyebrow + headline + lede + CTA; Complete: eyebrow + headline + lede + CTA). No decorative elements.
 
-Remaining: locked wordmark application (Step 1 wordmark → Step 10), italic pass (Step 6).
+Remaining: locked wordmark application to onboarding topbar (→ Step 9 wordmark integration pass). Italic pass pending Step 6 decision.
 
 ---
 
-### STEP 9 — Landing nav ☐ (combined with Step 3c scope)
+### STEP 9 — Wordmark integration pass ☐ (expanded scope, formerly "Landing nav")
 
-**Rescoped:** Step 3c (bottom sheets) is done. Step 9 (landing nav) is a short self-contained task — no separate step needed. Combine into the next available session.
+**Why this step exists:** The locked wordmark (`good · measure`, DM Sans 700, −0.02em, dot spec) is not yet applied to any surface. All current surfaces use a placeholder. This step is the single pass that integrates it everywhere at once.
+
+**Surfaces in scope:**
+- Landing nav (desktop + mobile)
+- Auth topbar (`.auth-nav`)
+- Onboarding topbar (`.ob-topbar-wm`)
+- Main app nav / any other wordmark occurrence in the app shell
 
 **Items:**
-- Desktop nav: apply locked wordmark (`good · measure`), running-bar labels middle, `SIGN IN` right
-- Mobile nav: wordmark left, `SIGN IN` right; drop running bar (per Q11.1)
+- Apply locked wordmark HTML/CSS to all four surfaces
+- Desktop landing nav: wordmark left, running-bar labels middle, `SIGN IN` right
+- Mobile landing nav: wordmark left, `SIGN IN` right; drop running bar (per Q11.1)
 - Verify tap targets meet 44px floor on mobile
+- Verify wordmark renders correctly at each size (nav ~13–14px, auth ~14px, onboarding ~18px)
+
+**Depends on:** Step 1 wordmark lock ✓ (already done)
 
 **Lock outputs:**
-- Landing nav desktop + mobile rebuilt with locked wordmark
+- Wordmark consistent across all surfaces
+- Design-system.md updated with final wordmark CSS snippet
 
 ---
 
