@@ -4016,8 +4016,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     grid-template-columns: 20px 1fr 36px;
     column-gap: 12px;
     row-gap: 12px;
-    padding: 18px var(--pad) !important;
-    border-bottom: 1px solid var(--rule);
+    padding: 18px 0 !important;
   }
   .ing-drag {
     grid-column: 1;
