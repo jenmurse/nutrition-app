@@ -147,12 +147,20 @@ function RecipesPage() {
     }).catch(console.error);
   }, [compareMode]);
 
-  // Escape closes compare overlay
+  // Escape closes compare overlay; Recipes nav link closes it too (same-page nav does nothing)
   useEffect(() => {
     if (!compareOpen) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setCompareOpen(false); };
+    const onNavClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement).closest('a');
+      if (link?.getAttribute('href') === '/recipes') setCompareOpen(false);
+    };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    document.addEventListener("click", onNavClick, true);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("click", onNavClick, true);
+    };
   }, [compareOpen]);
 
   const exitCompareMode = () => {

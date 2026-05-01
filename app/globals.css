@@ -599,20 +599,17 @@ input[type="number"]:focus {
   grid-template-columns: repeat(4, 1fr);
   column-gap: 0;
   row-gap: 0;
-  /* Closing hairline below the last row. Cells in the last row strip their
-     own border-bottom (rule below) so there's no doubling. */
-  border-bottom: 1px solid var(--rule);
 }
 .recipe-grid-item {
   padding: 0 24px 32px;
+  min-height: 120px;
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   background: none;
   cursor: pointer;
   position: relative;
 }
-.recipe-grid-item:nth-child(4n)        { border-right: 0; }
-.recipe-grid-item:nth-last-child(-n+4) { border-bottom: 0; }
+.recipe-grid-item:nth-child(4n) { border-right: 0; }
 /* Edge columns: text and photo both align with toolbar at 40px */
 .recipe-grid-item:nth-child(4n+1) { padding-left: 40px; }
 .recipe-grid-item:nth-child(4n)   { padding-right: 40px; }
@@ -721,13 +718,11 @@ input[type="number"]:focus {
 @media (max-width: 1023px) {
   .recipe-grid { grid-template-columns: repeat(3, 1fr); }
   /* reset 4-col border + edge-padding rules */
-  .recipe-grid-item:nth-child(4n)        { border-right: 1px solid var(--rule); padding-right: 24px; }
-  .recipe-grid-item:nth-last-child(-n+4) { border-bottom: 1px solid var(--rule); }
-  .recipe-grid-item:nth-child(4n+1)      { padding-left: 24px; }
+  .recipe-grid-item:nth-child(4n)   { border-right: 1px solid var(--rule); padding-right: 24px; }
+  .recipe-grid-item:nth-child(4n+1) { padding-left: 24px; }
   /* apply 3-col rules */
-  .recipe-grid-item:nth-child(3n)        { border-right: 0; padding-right: 40px; }
-  .recipe-grid-item:nth-child(3n+1)      { padding-left: 40px; }
-  .recipe-grid-item:nth-last-child(-n+3) { border-bottom: 0; }
+  .recipe-grid-item:nth-child(3n)   { border-right: 0; padding-right: 40px; }
+  .recipe-grid-item:nth-child(3n+1) { padding-left: 40px; }
   /* photo edge-to-edge per cell so heights match */
   .recipe-grid-item:nth-child(4n+1) .recipe-grid-item__photo,
   .recipe-grid-item:nth-child(4n)   .recipe-grid-item__photo { margin-left: -24px; margin-right: -24px; }
@@ -1656,7 +1651,7 @@ input[type="number"]:focus {
   background: var(--bg);
   border: 1px solid var(--rule);
   border-radius: var(--radius-md);
-  box-shadow: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   z-index: 200;
   overflow: hidden;
 }
@@ -3380,6 +3375,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     right: 0;
     background: var(--bg);
     border: 1px solid var(--rule);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     min-width: 120px;
     z-index: 300;
     display: flex;
