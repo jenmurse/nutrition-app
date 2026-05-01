@@ -65,7 +65,6 @@ function AddMealInner() {
   const planId = params?.get('planId') ? Number(params.get('planId')) : null;
   const dateStr = params?.get('date') ?? '';
   const weekStart = params?.get('weekStart') ?? '';
-  const mealTypeParam = params?.get('mealType') ?? '';
 
   useEffect(() => {
     const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
@@ -75,16 +74,14 @@ function AddMealInner() {
   const selectedDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
 
   // Rail / meal type selection
-  const validTypes = [...MEAL_TYPES, 'pantry-items'];
-  const initialType = validTypes.includes(mealTypeParam) ? mealTypeParam : 'breakfast';
-  const [activeMealType, setActiveMealType] = useState<string>(initialType);
+  const [activeMealType, setActiveMealType] = useState<string>('breakfast');
   const isPantryMode = activeMealType === 'pantry-items';
 
   // Fade transition state (desktop rail switches)
   const [contentVisible, setContentVisible] = useState(true);
 
-  // Mobile two-step flow — start on browse if mealType was pre-selected via sheet
-  const [mobileStep, setMobileStep] = useState<'picker' | 'browse'>(mealTypeParam ? 'browse' : 'picker');
+  // Mobile two-step flow (desktop only after MOB-4 — mobile uses AddMealSheet)
+  const [mobileStep, setMobileStep] = useState<'picker' | 'browse'>('picker');
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);

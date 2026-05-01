@@ -3860,6 +3860,41 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-type-row span:last-child { color: var(--muted); font-weight: 400; }
   .add-meal-type-row:active { background: var(--bg-2); }
 
+  /* Add Meal browse step (MOB-4 step 2) */
+  .add-meal-full-sheet { display: flex; flex-direction: column; }
+  .add-meal-browse { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .add-meal-browse-headline {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--fg);
+    padding: 0 var(--pad) 12px;
+    margin: 0;
+  }
+  .add-meal-browse-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 0 var(--pad) 12px;
+  }
+  .add-meal-browse-search-wrap { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 140px; }
+  .add-meal-browse-search-wrap .am-search-input { flex: 1; }
+  .add-meal-browse-servings-wrap { display: flex; align-items: center; gap: 8px; }
+  .add-meal-browse-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--rule-faint); }
+  .add-meal-browse-empty { padding: 24px var(--pad); font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-align: center; }
+  .add-meal-browse-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px var(--pad);
+    border-top: 1px solid var(--rule-faint);
+    flex-shrink: 0;
+  }
+  .add-meal-full-sheet .meal-chip { padding: 12px var(--pad); }
+  .add-meal-full-sheet .meal-chip-name { font-size: 15px; }
+  .add-meal-full-sheet .pl-create-label { font-size: 11px; }
+  .add-meal-full-sheet .pl-create-date { font-size: 14px; }
+
   /* Add-meal sheet: larger text for mobile touch targets */
   .add-meal-sheet .meal-chip { padding: 10px 8px; }
   .add-meal-sheet .meal-chip-name { font-size: 16px; }

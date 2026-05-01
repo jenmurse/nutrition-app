@@ -1404,6 +1404,7 @@ const MealPlansPage = () => {
                   setSelectedDay(date);
                   setMobNutSheetOpen(true);
                 }}
+                onMealAdded={() => fetchMealPlanDetails(selectedPlan.id)}
               />
             </div>
 
