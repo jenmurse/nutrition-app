@@ -123,8 +123,8 @@ function SortableIngredientRow({
             onClick={() => removeSectionFromRow(row.id)} aria-label="Remove section header">×</button>
         </div>
       )}
-      <div className="flex items-start gap-[10px] transition" style={{ padding: "8px 0" }}>
-        <div className="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
+      <div className="ing-row flex items-start gap-[10px] transition" style={{ padding: "8px 0" }}>
+        <div className="ing-drag shrink-0 flex items-center cursor-grab active:cursor-grabbing text-[var(--rule)] hover:text-[var(--muted)] transition-colors"
           style={{ paddingTop: 8 }}
           role="button" tabIndex={0} aria-label="Drag to reorder ingredient" {...listeners}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
@@ -133,9 +133,9 @@ function SortableIngredientRow({
             <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
           </svg>
         </div>
-        <div className="relative" style={{ flex: 1 }}>
+        <div className="ing-main relative" style={{ flex: 1 }}>
           <input type="text"
-            className={`ed-input ${!selectedIngredient && row.nameGuess && !currentSearch ? '!border-[var(--warn)] !text-[var(--warn)]' : ''}`}
+            className={`ing-name ed-input ${!selectedIngredient && row.nameGuess && !currentSearch ? '!border-[var(--warn)] !text-[var(--warn)]' : ''}`}
             placeholder="Ingredient name"
             value={selectedIngredient ? selectedIngredient.name : rawSearch}
             onChange={(e) => {
@@ -176,7 +176,7 @@ function SortableIngredientRow({
             </div>
           )}
           {!selectedIngredient && row.nameGuess && (
-            <div style={{ padding: "2px 0" }}>
+            <div className="ing-library-warn" style={{ padding: "2px 0" }}>
               {pendingCategoryRow === row.id ? (
                 <div className="flex items-center gap-[6px]">
                   <select
@@ -215,17 +215,23 @@ function SortableIngredientRow({
               )}
             </div>
           )}
-          <input
-            type="text"
-            className="ed-input"
-            style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}
-            placeholder="Preparation (optional) — e.g. finely diced"
-            value={row.notes ?? ""}
-            onChange={(e) => updateRow(row.id, { notes: e.target.value || undefined })}
-            aria-label={`Ingredient ${index + 1} preparation notes`}
-          />
+          <div className="ing-prep-wrap">
+            <span className="ing-field-label">Preparation</span>
+            <input
+              type="text"
+              className="ed-input ing-prep"
+              style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}
+              placeholder="Preparation (optional) — e.g. finely diced"
+              value={row.notes ?? ""}
+              onChange={(e) => updateRow(row.id, { notes: e.target.value || undefined })}
+              aria-label={`Ingredient ${index + 1} preparation notes`}
+            />
+          </div>
         </div>
-        <input className="ed-input" style={{ width: 70 }} type="text" inputMode="decimal" placeholder="Qty"
+        <div className="ing-qty-unit-wrap">
+          <div className="ing-field-qty">
+            <span className="ing-field-label">Amount</span>
+            <input className="ed-input" style={{ width: 70 }} type="text" inputMode="decimal" placeholder="Qty"
           value={quantityText[row.id] ?? ""}
           onChange={(e) => {
             const val = e.target.value;
@@ -242,15 +248,20 @@ function SortableIngredientRow({
             }
           }}
           aria-label={`Ingredient ${index + 1} quantity`} />
-        <select className="ed-select" style={{ width: 80 }} value={row.unit ?? defaultUnitForRow}
-          onChange={(e) => updateRow(row.id, { unit: e.target.value })} aria-label={`Ingredient ${index + 1} unit`}>
-          <optgroup label="Weight"><option value="g">g</option><option value="oz">oz</option><option value="lb">lb</option><option value="kg">kg</option></optgroup>
-          <optgroup label="Volume"><option value="ml">ml</option><option value="l">l</option><option value="tsp">tsp</option><option value="tbsp">tbsp</option><option value="cup">cup</option><option value="fl-oz">fl oz</option></optgroup>
-          {selectedIngredient?.customUnitName && (
-            <optgroup label="Custom"><option value={selectedIngredient.customUnitName}>{selectedIngredient.customUnitName}</option></optgroup>
-          )}
-        </select>
-        <button className="text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
+          </div>
+          <div className="ing-field-unit">
+            <span className="ing-field-label">Unit</span>
+            <select className="ed-select" style={{ width: 80 }} value={row.unit ?? defaultUnitForRow}
+              onChange={(e) => updateRow(row.id, { unit: e.target.value })} aria-label={`Ingredient ${index + 1} unit`}>
+              <optgroup label="Weight"><option value="g">g</option><option value="oz">oz</option><option value="lb">lb</option><option value="kg">kg</option></optgroup>
+              <optgroup label="Volume"><option value="ml">ml</option><option value="l">l</option><option value="tsp">tsp</option><option value="tbsp">tbsp</option><option value="cup">cup</option><option value="fl-oz">fl oz</option></optgroup>
+              {selectedIngredient?.customUnitName && (
+                <optgroup label="Custom"><option value={selectedIngredient.customUnitName}>{selectedIngredient.customUnitName}</option></optgroup>
+              )}
+            </select>
+          </div>
+        </div>
+        <button className="ing-delete text-[16px] text-[var(--muted)] hover:text-[var(--err)] bg-transparent border-0 cursor-pointer flex items-center justify-center transition-colors"
           style={{ width: 28, height: 28, marginTop: 2 }}
           onClick={() => setRows((prev) => {
             const idx = prev.findIndex((r) => r.id === row.id);

@@ -4010,6 +4010,94 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     inset: -10px -4px;
   }
 
+  /* ── Recipe builder: ingredient row card layout ── */
+  .ing-row {
+    display: grid !important;
+    grid-template-columns: 20px 1fr 36px;
+    column-gap: 12px;
+    row-gap: 12px;
+    padding: 18px var(--pad) !important;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ing-drag {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    padding-top: 0 !important;
+  }
+  .ing-main {
+    display: contents !important;
+  }
+  .ing-name {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+  }
+  .ing-library-warn {
+    display: none;
+  }
+  .ing-qty-unit-wrap {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex !important;
+    gap: 16px;
+  }
+  .ing-prep-wrap {
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ing-delete {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    width: 32px !important;
+    height: 32px !important;
+    border: 1px solid var(--rule) !important;
+    margin-top: 0 !important;
+  }
+  .ing-field-label {
+    display: block !important;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ing-field-qty {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 0 0 100px;
+  }
+  .ing-field-unit {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .ing-field-qty .ed-input,
+  .ing-field-unit .ed-select {
+    width: 100% !important;
+  }
+  .ing-prep .ed-input,
+  .ing-prep-wrap .ed-input {
+    font-size: 13px !important;
+    color: var(--fg) !important;
+    margin-top: 0 !important;
+  }
+
+}
+
+/* ── Recipe builder: ingredient row — desktop resets ── */
+@media (min-width: 641px) {
+  .ing-field-label { display: none; }
+  .ing-qty-unit-wrap { display: flex; align-items: flex-start; gap: 10px; }
+  .ing-field-qty, .ing-field-unit { display: contents; }
+  .ing-prep-wrap { display: block; }
 }
 
 /* ── Prevent hover accent bar from lingering after tap ───────────── */
