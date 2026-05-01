@@ -3906,12 +3906,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-sheet .pl-create-btn { font-size: 11px; padding: 8px 18px; }
 
 
-  /* Day strip: shadow separator, full-width edge-to-edge */
+  /* Day strip: shadow separator + align with toolbar */
   .pl-day-strip {
     border-bottom: none !important;
     box-shadow: 0 1px 0 rgba(128,128,128,0.1) !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: var(--pad) !important;
+    padding-right: var(--pad) !important;
   }
 
   /* +ADD button: give it a proper bordered look */
