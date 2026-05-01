@@ -257,7 +257,6 @@ export default function OnboardingPage() {
             {/* ── Welcome (step 0) ──────────────────────────────────── */}
             {step === 0 && (
               <>
-                <BrandName className="ob-wordmark" />
                 <div className="ob-eyebrow">§ WELCOME</div>
                 <h1 className="ob-headline ob-headline--welcome">
                   Measure what matters.
@@ -468,24 +467,6 @@ export default function OnboardingPage() {
             {/* ── Complete (step 4) ─────────────────────────────────── */}
             {step === 4 && (
               <>
-                <div className="ob-check-icon" aria-hidden="true">
-                  <svg
-                    width="56"
-                    height="56"
-                    viewBox="0 0 56 56"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="28" cy="28" r="26.25" stroke="var(--fg)" strokeWidth="1.5" />
-                    <polyline
-                      points="17,28 25,36 39,20"
-                      stroke="var(--fg)"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
                 <div className="ob-eyebrow">§ READY</div>
                 <h1 className="ob-headline ob-headline--complete">
                   You&rsquo;re all set.
