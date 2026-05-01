@@ -140,7 +140,8 @@ Locked April 30, 2026. Applies to: planner sidebar, recipe detail bars, ingredie
 - Only `--err` red appears on bars — reserved for the over-limit case only.
 - Below-min callout rows have no tinted background. Over-limit callout rows (`err-chip`) retain the tinted background because that state warrants higher visual weight.
 - Copy: below-min uses `+Xg to target` (positive framing, not alarming). Over-limit uses `+Xg over limit`.
-- Dashboard stats strip uses `--fg` (no semantic colors). Day kcal bars use `--ok` green always. Neither is affected by this policy.
+- Dashboard stats strip: track is `--rule`, fill is `--err` when over goal, `--fg` otherwise. Same binary rule — no warn state.
+- Day kcal bars use `--ok` green always (selected day uses `--accent-btn`). No semantic color state.
 
 ### 2c. Per-person themes (8)
 
