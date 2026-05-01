@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { toast } from '@/lib/toast';
 import { clientCache } from '@/lib/clientCache';
 import { usePersonContext } from '@/app/components/PersonContext';
@@ -81,6 +82,7 @@ function AddMealInner() {
 
   // Mobile two-step flow
   const [mobileStep, setMobileStep] = useState<'picker' | 'browse'>('picker');
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -186,8 +188,17 @@ function AddMealInner() {
     }, 180);
   };
 
+  const prefersReducedMotion = useReducedMotion();
+  const slideVariants = {
+    enter: (dir: 'forward' | 'back') => ({ x: prefersReducedMotion ? 0 : (dir === 'forward' ? 16 : -16), opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: 'forward' | 'back') => ({ x: prefersReducedMotion ? 0 : (dir === 'forward' ? -16 : 16), opacity: 0 }),
+  };
+  const slideTransition = { duration: 0.32, ease: [0.4, 0.0, 0.2, 0.2] as [number, number, number, number] };
+
   // Mobile meal type row tap
   const handleMobileTypeSelect = (type: string) => {
+    setDirection('forward');
     setActiveMealType(type);
     setRecipeSearchTerm('');
     setIngredientSearchTerm('');
@@ -262,6 +273,179 @@ function AddMealInner() {
   const dateLabel = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const canAdd = !isPantryMode ? !!pendingRecipeId : !!pendingIngredientId;
 
+  const browseContent = (
+    <>
+      <div className="pl-add-eyebrow">§ {dateLabel.toUpperCase()}</div>
+      <h1 className="pl-add-title">{HEADLINES[activeMealType]}</h1>
+
+      {!isPantryMode ? (
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="flex-1 flex items-center gap-2 min-w-[180px]">
+            <label className="pl-create-label" htmlFor="recipe-search">Search</label>
+            <input
+              id="recipe-search"
+              type="text"
+              placeholder="FIND RECIPE…"
+              className="pl-create-date am-search-input"
+              style={{ flex: 1 }}
+              value={recipeSearchTerm}
+              onChange={e => setRecipeSearchTerm(e.target.value)}
+              aria-label="Search recipes"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="pl-create-label" htmlFor="meal-servings">Servings</label>
+            <input
+              id="meal-servings"
+              type="number"
+              min={0.25}
+              step={0.25}
+              className="pl-create-date"
+              style={{ width: 60 }}
+              value={selectedServings}
+              onChange={e => setSelectedServings(e.target.value)}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-3 mb-4">
+          <div className="flex-1 flex items-center gap-2 min-w-max">
+            <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
+            <input
+              id="ingredient-search"
+              type="text"
+              placeholder="FIND ITEM…"
+              className="pl-create-date am-search-input"
+              style={{ flex: 1 }}
+              value={ingredientSearchTerm}
+              onChange={e => setIngredientSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="pl-create-label" htmlFor="ingredient-quantity">Quantity</label>
+            <input
+              id="ingredient-quantity"
+              type="number"
+              min={0.01}
+              step={0.1}
+              className="pl-create-date"
+              style={{ width: 60 }}
+              value={selectedQuantity}
+              onChange={e => setSelectedQuantity(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="pl-create-label" htmlFor="ingredient-unit">Unit</label>
+            <input
+              id="ingredient-unit"
+              type="text"
+              className="pl-create-date"
+              style={{ width: 60 }}
+              value={selectedUnit}
+              onChange={e => setSelectedUnit(e.target.value)}
+              placeholder="g, ml, etc."
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="pl-add-scroll">
+        {!isPantryMode ? (
+          <div className="grid gap-0 md:grid-cols-2">
+            {filteredRecipes.length === 0 ? (
+              <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                No recipes match this meal type
+              </div>
+            ) : (
+              filteredRecipes.map(recipe => (
+                <button
+                  key={recipe.id}
+                  type="button"
+                  className={`meal-chip text-left ${recipe.isComplete === false ? 'cursor-not-allowed opacity-50' : pendingRecipeId === recipe.id ? 'bg-[var(--bg-2)]' : ''}`}
+                  onClick={recipe.isComplete === false || adding ? undefined : () => setPendingRecipeId(recipe.id)}
+                  title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
+                  disabled={adding}
+                  aria-label={recipe.name}
+                >
+                  <span className="meal-chip-name">{recipe.name}</span>
+                  <span className="meal-chip-kcal">
+                    {recipe.servingSize} {recipe.servingUnit}
+                    {!recipe.isComplete && ' · Incomplete'}
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-0 md:grid-cols-2">
+            {filteredIngredients.length === 0 ? (
+              <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+                {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No items available' : 'No items match your search'}
+              </div>
+            ) : (
+              filteredIngredients.map(ingredient => (
+                <button
+                  key={ingredient.id}
+                  type="button"
+                  onClick={() => {
+                    const unit = ingredient.customUnitName || ingredient.defaultUnit;
+                    const qty = ingredient.customUnitName ? '1' : selectedQuantity;
+                    setSelectedUnit(unit);
+                    setSelectedQuantity(qty);
+                    setPendingIngredientId(ingredient.id);
+                  }}
+                  disabled={adding}
+                  className={`meal-chip text-left ${pendingIngredientId === ingredient.id ? 'bg-[var(--bg-2)]' : ''}`}
+                  aria-label={ingredient.name}
+                >
+                  <span className="meal-chip-name">{ingredient.name}</span>
+                  <span className="meal-chip-kcal">
+                    {ingredient.customUnitName
+                      ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
+                      : `per ${ingredient.defaultUnit}`}
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4">
+        {otherPersonPlans.length > 0 && (
+          <div className="flex items-center gap-3 flex-wrap flex-1">
+            <span className="pl-create-label">Also add to</span>
+            {otherPersonPlans.map(op => (
+              <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={alsoAddToPlanIds.has(op.planId)}
+                  onChange={e => {
+                    const next = new Set(alsoAddToPlanIds);
+                    if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
+                    setAlsoAddToPlanIds(next);
+                  }}
+                  className="w-[14px] h-[14px]"
+                  aria-label={`Also add to ${op.name}'s plan`}
+                />
+                <span className="font-mono text-[11px] text-[var(--muted)]">{op.name}</span>
+              </label>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-3 ml-auto">
+          <button
+            type="button"
+            className="pl-create-btn"
+            disabled={adding || !canAdd}
+            onClick={handleAdd}
+            aria-label="Add to plan"
+          >{adding ? 'Adding…' : 'Add to Plan'}</button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="h-full relative">
 
@@ -289,209 +473,62 @@ function AddMealInner() {
             type="button"
             className="sm:hidden font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--fg)] bg-transparent border-0 p-0 cursor-pointer"
             style={{ position: 'absolute', top: 12, left: 24 }}
-            onClick={() => setMobileStep('picker')}
+            onClick={() => { setDirection('back'); setMobileStep('picker'); }}
           >← Back</button>
         )}
 
-        {/* ── Mobile Screen 1: meal type picker ── */}
-        {mobileStep === 'picker' && (
-          <div className="sm:hidden">
-            <div className="pl-add-eyebrow">§ {dateLabel.toUpperCase()}</div>
-            <h1 className="pl-add-title">Add a meal.</h1>
-            <ul className="pl-add-mtlist">
-              {ALL_RAIL_ITEMS.map(type => (
-                <li key={type}>
-                  <button
-                    type="button"
-                    className="pl-add-mtrow"
-                    onClick={() => handleMobileTypeSelect(type)}
-                  >
-                    <span className="pl-add-mtname">{RAIL_LABELS[type]}</span>
-                    <span className="pl-add-mtarrow" aria-hidden="true">→</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* ── Mobile: animated Screen 1 ↔ Screen 2 ── */}
+        <div className="sm:hidden overflow-x-hidden">
+          <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+            {mobileStep === 'picker' ? (
+              <motion.div
+                key="screen-1"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={slideTransition}
+              >
+                <div className="pl-add-eyebrow">§ {dateLabel.toUpperCase()}</div>
+                <h1 className="pl-add-title">Add a meal.</h1>
+                <ul className="pl-add-mtlist">
+                  {ALL_RAIL_ITEMS.map(type => (
+                    <li key={type}>
+                      <button
+                        type="button"
+                        className="pl-add-mtrow"
+                        onClick={() => handleMobileTypeSelect(type)}
+                      >
+                        <span className="pl-add-mtname">{RAIL_LABELS[type]}</span>
+                        <span className="pl-add-mtarrow" aria-hidden="true">→</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="screen-2"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={slideTransition}
+              >
+                {browseContent}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-        {/* ── Right column: always on desktop, Screen 2 on mobile ── */}
+        {/* ── Desktop: always-visible right column ── */}
         <div
-          className={`am-content${mobileStep === 'picker' ? ' hidden sm:block' : ''}`}
+          className="am-content hidden sm:block"
           style={{ opacity: contentVisible ? 1 : 0, transition: 'opacity 180ms var(--ease-out)' }}
         >
-          {/* Eyebrow + headline */}
-          <div className="pl-add-eyebrow">§ {dateLabel.toUpperCase()}</div>
-          <h1 className="pl-add-title">{HEADLINES[activeMealType]}</h1>
-
-          {/* Search + Servings / Quantity row */}
-          {!isPantryMode ? (
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="flex-1 flex items-center gap-2 min-w-[180px]">
-                <label className="pl-create-label" htmlFor="recipe-search">Search</label>
-                <input
-                  id="recipe-search"
-                  type="text"
-                  placeholder="Find recipe…"
-                  className="pl-create-date"
-                  style={{ flex: 1 }}
-                  value={recipeSearchTerm}
-                  onChange={e => setRecipeSearchTerm(e.target.value)}
-                  aria-label="Search recipes"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="pl-create-label" htmlFor="meal-servings">Servings</label>
-                <input
-                  id="meal-servings"
-                  type="number"
-                  min={0.25}
-                  step={0.25}
-                  className="pl-create-date"
-                  style={{ width: 60 }}
-                  value={selectedServings}
-                  onChange={e => setSelectedServings(e.target.value)}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-3 mb-4">
-              <div className="flex-1 flex items-center gap-2 min-w-max">
-                <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
-                <input
-                  id="ingredient-search"
-                  type="text"
-                  placeholder="Find item…"
-                  className="pl-create-date"
-                  style={{ flex: 1 }}
-                  value={ingredientSearchTerm}
-                  onChange={e => setIngredientSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="pl-create-label" htmlFor="ingredient-quantity">Quantity</label>
-                <input
-                  id="ingredient-quantity"
-                  type="number"
-                  min={0.01}
-                  step={0.1}
-                  className="pl-create-date"
-                  style={{ width: 60 }}
-                  value={selectedQuantity}
-                  onChange={e => setSelectedQuantity(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="pl-create-label" htmlFor="ingredient-unit">Unit</label>
-                <input
-                  id="ingredient-unit"
-                  type="text"
-                  className="pl-create-date"
-                  style={{ width: 60 }}
-                  value={selectedUnit}
-                  onChange={e => setSelectedUnit(e.target.value)}
-                  placeholder="g, ml, etc."
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Recipe grid / ingredient list */}
-          <div className="pl-add-scroll">
-            {!isPantryMode ? (
-              <div className="grid gap-0 md:grid-cols-2">
-                {filteredRecipes.length === 0 ? (
-                  <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
-                    No recipes match this meal type
-                  </div>
-                ) : (
-                  filteredRecipes.map(recipe => (
-                    <button
-                      key={recipe.id}
-                      type="button"
-                      className={`meal-chip text-left ${recipe.isComplete === false ? 'cursor-not-allowed opacity-50' : pendingRecipeId === recipe.id ? 'bg-[var(--bg-2)]' : ''}`}
-                      onClick={recipe.isComplete === false || adding ? undefined : () => setPendingRecipeId(recipe.id)}
-                      title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
-                      disabled={adding}
-                      aria-label={recipe.name}
-                    >
-                      <span className="meal-chip-name">{recipe.name}</span>
-                      <span className="meal-chip-kcal">
-                        {recipe.servingSize} {recipe.servingUnit}
-                        {!recipe.isComplete && ' · Incomplete'}
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
-            ) : (
-              <div className="grid gap-0 md:grid-cols-2">
-                {filteredIngredients.length === 0 ? (
-                  <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
-                    {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No items available' : 'No items match your search'}
-                  </div>
-                ) : (
-                  filteredIngredients.map(ingredient => (
-                    <button
-                      key={ingredient.id}
-                      type="button"
-                      onClick={() => {
-                        const unit = ingredient.customUnitName || ingredient.defaultUnit;
-                        const qty = ingredient.customUnitName ? '1' : selectedQuantity;
-                        setSelectedUnit(unit);
-                        setSelectedQuantity(qty);
-                        setPendingIngredientId(ingredient.id);
-                      }}
-                      disabled={adding}
-                      className={`meal-chip text-left ${pendingIngredientId === ingredient.id ? 'bg-[var(--bg-2)]' : ''}`}
-                      aria-label={ingredient.name}
-                    >
-                      <span className="meal-chip-name">{ingredient.name}</span>
-                      <span className="meal-chip-kcal">
-                        {ingredient.customUnitName
-                          ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
-                          : `per ${ingredient.defaultUnit}`}
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4">
-            {otherPersonPlans.length > 0 && (
-              <div className="flex items-center gap-3 flex-wrap flex-1">
-                <span className="pl-create-label">Also add to</span>
-                {otherPersonPlans.map(op => (
-                  <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={alsoAddToPlanIds.has(op.planId)}
-                      onChange={e => {
-                        const next = new Set(alsoAddToPlanIds);
-                        if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
-                        setAlsoAddToPlanIds(next);
-                      }}
-                      className="w-[14px] h-[14px]"
-                      aria-label={`Also add to ${op.name}'s plan`}
-                    />
-                    <span className="font-mono text-[11px] text-[var(--muted)]">{op.name}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-3 ml-auto">
-              <button
-                type="button"
-                className="pl-create-btn"
-                disabled={adding || !canAdd}
-                onClick={handleAdd}
-                aria-label="Add to plan"
-              >{adding ? 'Adding…' : 'Add to Plan'}</button>
-            </div>
-          </div>
+          {browseContent}
         </div>
 
       </div>
@@ -511,3 +548,4 @@ export default function AddMealPage() {
     </Suspense>
   );
 }
+

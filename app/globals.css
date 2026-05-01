@@ -1469,6 +1469,13 @@ input[type="number"]:focus {
   padding:3px 0; outline:none; transition:border-color 0.2s;
 }
 .pl-create-date:focus { border-color:var(--fg); }
+.am-search-input::placeholder {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 
 .pl-copy-wrap { position:relative; }
 
@@ -3043,8 +3050,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .am-rail-item.is-active .am-rail-label { border-bottom-color: var(--fg); }
 
-/* Add Meal — right column */
-.am-content { padding-left: 196px; min-width: 0; }
+/* Add Meal — right column.
+   pl-add-body already has 64px left padding, so 196-64=132px clears the rail
+   at the same X as recipe detail's content (which uses padding-left: 196px on
+   a container with no extra left padding). */
+.am-content { padding-left: 132px; min-width: 0; }
 
 .pl-add-eyebrow {
   font-family: var(--font-mono);
