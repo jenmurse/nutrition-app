@@ -187,6 +187,7 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: var(--bg); /* bleeds cream into iOS safe-area zones on editorial routes */
   }
 
   /* Marketing pages — restore native document scroll.
@@ -5617,7 +5618,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px clamp(24px, 5vw, 56px);
+  padding: 18px var(--pad);
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
   min-height: 68px;
@@ -5822,7 +5823,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .auth-split { grid-template-columns: 1fr; min-height: 0; }
   .auth-divider { display: none; }
   .auth-left {
-    border-bottom: 1px solid var(--rule);
     padding: 40px 28px;
     display: block;
   }
@@ -5843,7 +5843,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .auth-submit { padding: 10px 14px; margin: 4px 0 12px; }
   .auth-oauth { padding: 10px 14px; }
   .auth-or { margin: 2px 0 10px; }
-  .auth-nav { padding: 14px 20px; min-height: 56px; }
+  .auth-nav { padding: 14px var(--pad); min-height: 56px; }
   .auth-nav-logo { font-size: 13px; }
   .auth-nav-link { font-size: 9px; letter-spacing: 0.14em; }
 }
@@ -5868,7 +5868,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: calc(env(safe-area-inset-top) + 4px) 40px 4px;
+  padding: calc(env(safe-area-inset-top) + 4px) var(--pad) 4px;
   min-height: calc(48px + env(safe-area-inset-top));
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;

@@ -628,10 +628,16 @@ const SettingsPage = () => {
       <div id="settings-scroll-container" className="h-full overflow-y-auto animate-page-enter">
         <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
 
+          {/* Page header */}
+          <div style={{ paddingTop: 48, paddingBottom: 40 }}>
+            <p className="pl-shop-eyebrow">§ SETTINGS</p>
+            <h1 className="pl-shop-title">Your preferences.</h1>
+          </div>
+
           {/* ════════════════════════════════════════════════════════════════════
               01 — PEOPLE
               ════════════════════════════════════════════════════════════════════ */}
-          <div id="set-sec-people" style={{ paddingTop: 48, paddingBottom: 56 }}>
+          <div id="set-sec-people" style={{ paddingTop: 0, paddingBottom: 56 }}>
             <SectionHeader number="01" title="People" />
 
             {/* Household name — full width above members */}

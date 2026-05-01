@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePersonContext } from "@/app/components/PersonContext";
 import { THEMES, themeHex } from "@/lib/themes";
 import { BrandName } from "@/app/components/BrandName";
+import EditorialBackground from "@/app/components/EditorialBackground";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -239,6 +240,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob-page">
+      <EditorialBackground />
 
       {/* Full-width top bar */}
       <div className="ob-topbar">

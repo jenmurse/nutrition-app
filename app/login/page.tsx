@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import EditorialBackground from "@/app/components/EditorialBackground";
 
 type Mode = "signin" | "signup" | "forgot";
 
@@ -161,6 +162,7 @@ function LoginPage() {
 
   return (
     <div className="auth-page">
+      <EditorialBackground />
       <nav className="auth-nav">
         <Link href="/" className="auth-nav-logo">Good Measure</Link>
         <Link href="/" className="auth-nav-link">← Back</Link>

@@ -11,8 +11,10 @@ import { useEffect } from "react";
 export default function MarketingScrollFix() {
   useEffect(() => {
     document.documentElement.dataset.marketing = "";
+    document.documentElement.dataset.register = "editorial";
     return () => {
       delete document.documentElement.dataset.marketing;
+      delete document.documentElement.dataset.register;
     };
   }, []);
   return null;
