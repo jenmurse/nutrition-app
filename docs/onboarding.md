@@ -31,9 +31,9 @@ Full-screen flow. No top nav. Triggered when `Person.onboardingComplete === fals
 ### Chrome
 
 - **Full-width topbar** above the body, separated by a hairline rule.
-- Left: `§ ONBOARDING` (mono, muted).
+- Left: `Good Measure` wordmark (DM Sans 700, 18px). No `§ ONBOARDING` label — removed as redundant with step counter and body eyebrow.
 - Right: contextual step label (above table).
-- The brand wordmark renders inside the step content on Welcome and Complete only (centered). Wizard steps don't show the wordmark — only the topbar.
+- No wordmark or icon in the body of any step. The topbar wordmark is the only brand moment. (Center wordmark and check icon removed April 30, 2026.)
 - No hairline rule above the action buttons (Get Started, Back, Continue, Go to Dashboard) — explicitly removed for a quieter editorial feel.
 
 ### Behavior

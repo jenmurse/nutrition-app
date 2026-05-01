@@ -124,6 +124,24 @@ Three buckets, no exceptions:
 
 Coral / theme accent should never appear on a primary CTA. Black should never appear on an identity marker.
 
+### 2e. Nutrition panel semantic color policy
+
+Locked April 30, 2026. Applies to: planner sidebar, recipe detail bars, ingredient context panel.
+
+| State | Bar fill | Callout row |
+|---|---|---|
+| Within target | `var(--muted)` neutral | None |
+| Below minimum | `var(--muted)` neutral | `.warn-chip` — plain ruled row, no background, muted dot, copy: `+Xg to target` |
+| Over limit | `var(--err)` red | `.err-chip` — tinted red background, copy: `+Xg over limit` |
+
+**Rationale:**
+- `--ok` green is not used as a bar fill. Its absence is sufficient to communicate "within target" — spending green on every normal bar dilutes its signal.
+- `--warn` amber is not used on bars. "Below minimum" (target not yet met, informational) and "over limit" (constraint violated, actionable) are different problems and should not render at equal visual weight.
+- Only `--err` red appears on bars — reserved for the over-limit case only.
+- Below-min callout rows have no tinted background. Over-limit callout rows (`err-chip`) retain the tinted background because that state warrants higher visual weight.
+- Copy: below-min uses `+Xg to target` (positive framing, not alarming). Over-limit uses `+Xg over limit`.
+- Dashboard stats strip uses `--fg` (no semantic colors). Day kcal bars use `--ok` green always. Neither is affected by this policy.
+
 ### 2c. Per-person themes (8)
 
 Switching the active person updates `--accent` and `--accent-l` globally via `document.documentElement.style.setProperty()`. All theme-reactive elements respond automatically.
@@ -785,9 +803,9 @@ Full-screen, editorial register (`data-register="editorial"`, cream bg). No main
 | Profile | `§ YOUR PROFILE` | Your profile. | Name input + 8 theme swatches (round) |
 | Household | `§ YOUR HOUSEHOLD` | Your household. | Name input + member list + invite links |
 | Goals | `§ DAILY GOALS` | Your goals. | 4 goal preset cards |
-| Complete | `§ READY` | You're all set. | Checkmark + Go to Dashboard → |
+| Complete | `§ READY` | You're all set. | Go to Dashboard → |
 
-**Bookend pages (Welcome, Complete)** additionally show the `Good Measure` wordmark (32px, centered) in the body — a ceremonial full-size brand moment. This is separate from the 18px topbar wordmark; do not merge the two.
+**Bookend pages (Welcome, Complete)** are content-only — no wordmark or icon in the body. The topbar wordmark is the only brand moment. The center wordmark and check icon were removed (April 30, 2026) as visual clutter.
 
 The voice and typography of onboarding are still being aligned with the landing. **A copy + typography pass is pending.**
 
@@ -809,8 +827,8 @@ Edge-to-edge full viewport.
 - Toolbar: date range, prev/next, `THIS WEEK`, cart icon, `+ NEW PLAN` (sharp black), edit, nutrition, person chips
 - Week grid: 7 columns, today's column tinted `--accent-l`
 - Meal entries: ruled rows. Eyebrow (DINNER, LUNCH, etc.) → meal name (DM Sans) → kcal (mono). No card backgrounds, no rounded tiles.
-- Day kcal progress bar under each day number; over-goal bars in `--err`.
-- Sidebar (open via NUTRITION ›): hero kcal number + ruled nutrient rows + over-limit warnings as margin-notes (left rule in `--err`, no fill).
+- Day kcal progress bar under each day number. Bar is always `--ok` green (or `--accent-btn` for today/selected); no semantic color state.
+- Sidebar (open via NUTRITION ›): hero kcal number + ruled nutrient rows (neutral `--muted` fill, `--err` red only for over-limit bars) + callout rows: `.err-chip` tinted for over-limit, `.warn-chip` plain ruled row for below-min. See §2e for the full nutrition panel color policy.
 
 ### 8e. Recipes (list and grid)
 

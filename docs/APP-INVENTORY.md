@@ -69,12 +69,17 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Confirmation dialogs and action dialogs share the same visual language: sharp corners, outlined destructive in `var(--rule)`, ghost cancel, sharp buttons throughout.
 - Account deletion strategy is deferred. Wipe-user dev script handles testing.
 
-**Locked this session (April 30):**
+**Locked this session (April 30 — first batch):**
 - Auth hairline divider is an explicit `<div class="auth-divider" />` in a `1fr 1px 1fr` grid — not a `border-right` on the editorial panel. Makes the divider a structural grid element.
 - Auth headline `<em>` ("left off.", "actually cook.") = Instrument Serif italic, `color: inherit` (black). Distinct from the sage `<em>` accent used on landing and dashboard — do not conflate the two `<em>` conventions.
 - `position: fixed` rails must be siblings of the animated scroll container, never children. A CSS `transform` on an ancestor (including entrance animations) breaks `position: fixed` by creating a new containing block. Applies to all rails: jump nav, Add Meal `.am-rail`, settings nav.
 - Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
 - Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
+
+**Locked this session (April 30 — second batch):**
+- Onboarding Welcome and Ready screens: no wordmark or check icon in the body. Topbar wordmark is the only brand moment. Center body wordmark and animated check icon both removed as visual clutter.
+- Nutrition panel semantic color policy: neutral `var(--muted)` for all bars except over-limit (which gets `var(--err)` red). `--ok` green and `--warn` amber no longer used as bar fills. Below-min callout rows use `.warn-chip` (plain ruled row, no tinted background, copy `+Xg to target`). Over-limit callout rows use `.err-chip` (tinted red background kept). See design-system.md §2e.
+- Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
 
 ---
 
