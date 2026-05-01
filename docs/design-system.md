@@ -126,22 +126,48 @@ Coral / theme accent should never appear on a primary CTA. Black should never ap
 
 ### 2e. Nutrition panel semantic color policy
 
-Locked April 30, 2026. Applies to: planner sidebar, recipe detail bars, ingredient context panel.
+Locked April 30–May 1, 2026. Applies to: planner sidebar, recipe detail bars, ingredient context panel, dashboard stats strip.
 
-| State | Bar fill | Callout row |
+#### Goal types
+
+A nutrient goal has up to two bounds:
+- **`highGoal`** — a hard cap. Exceeding it is a constraint violation.
+- **`lowGoal`** — a minimum target. Reaching it is a success; falling short is informational.
+
+These are different kinds of limits and must not be treated the same way.
+
+#### Bar color rule (three states)
+
+| Condition | Bar fill | Meaning |
 |---|---|---|
-| Within target | `var(--muted)` neutral | None |
-| Below minimum | `var(--muted)` neutral | `.warn-chip` — plain ruled row, no background, muted dot, copy: `+Xg to target` |
-| Over limit | `var(--err)` red | `.err-chip` — tinted red background, copy: `+Xg over limit` |
+| `highGoal` set and `value > highGoal` | `var(--err)` red | Over a hard cap — act on this |
+| No `highGoal`, `lowGoal` set, `value ≥ lowGoal` | `var(--ok)` green | Met a minimum target with no ceiling — positive signal |
+| Everything else (within cap, below minimum, no goals) | `var(--muted)` neutral (planner) or `var(--fg)` neutral (dashboard) | No signal needed |
 
-**Rationale:**
-- `--ok` green is not used as a bar fill. Its absence is sufficient to communicate "within target" — spending green on every normal bar dilutes its signal.
-- `--warn` amber is not used on bars. "Below minimum" (target not yet met, informational) and "over limit" (constraint violated, actionable) are different problems and should not render at equal visual weight.
-- Only `--err` red appears on bars — reserved for the over-limit case only.
-- Below-min callout rows have no tinted background. Over-limit callout rows (`err-chip`) retain the tinted background because that state warrants higher visual weight.
-- Copy: below-min uses `+Xg to target` (positive framing, not alarming). Over-limit uses `+Xg over limit`.
-- Dashboard stats strip: track is `--rule`, fill is `--err` when over goal, `--fg` otherwise. Same binary rule — no warn state.
-- Day kcal bars use `--ok` green always (selected day uses `--accent-btn`). No semantic color state.
+**Key distinction:** A nutrient with only a `lowGoal` (e.g. fiber, protein minimum) can never "go over" — exceeding the minimum is the goal. A nutrient with a `highGoal` (e.g. sugar, fat, sodium) has a ceiling; exceeding it is a violation. Nutrients with both (e.g. protein with min 105g and max 120g) use the `highGoal` for the red trigger.
+
+#### Callout rows (planner sidebar only)
+
+| State | Treatment |
+|---|---|
+| Below minimum | `.warn-chip` — plain ruled row, no background, muted dot, copy: `+Xg to target` |
+| Over limit | `.err-chip` — tinted red background, copy: `+Xg over limit` |
+
+#### Per-surface notes
+
+- **Planner sidebar + recipe detail + ingredient panel:** neutral fill is `var(--muted)`. `--ok` green not used (bar absence communicates "fine"). Callout rows as above.
+- **Dashboard stats strip:** track is `var(--rule)`. Neutral fill is `var(--fg)`. Three-way color (`--err` / `--ok` / `--fg`) applied based on goal type. No callout rows.
+- **Day kcal bars (week grid):** always `--ok` green (selected day uses `--accent-btn`). No semantic color state.
+- **`--warn` amber** is not used anywhere in nutrition bars. "Below minimum" and "over limit" are not the same problem.
+
+#### Implementation pattern (dashboard stats)
+
+```ts
+const isOver   = highGoal > 0 && value > highGoal;
+const isMetMin = !highGoal && lowGoal > 0 && value >= lowGoal;
+// bar fill:
+isOver ? 'var(--err)' : isMetMin ? 'var(--ok)' : 'var(--fg)'
+```
 
 ### 2c. Per-person themes (8)
 

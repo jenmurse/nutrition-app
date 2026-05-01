@@ -78,7 +78,7 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 
 **Locked this session (April 30 — second batch):**
 - Onboarding Welcome and Ready screens: no wordmark or check icon in the body. Topbar wordmark is the only brand moment. Center body wordmark and animated check icon both removed as visual clutter.
-- Nutrition panel semantic color policy: neutral `var(--muted)` for all bars except over-limit (which gets `var(--err)` red). `--ok` green and `--warn` amber no longer used as bar fills. Below-min callout rows use `.warn-chip` (plain ruled row, no tinted background, copy `+Xg to target`). Over-limit callout rows use `.err-chip` (tinted red background kept). See design-system.md §2e.
+- Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.
 - Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
 
 ---
