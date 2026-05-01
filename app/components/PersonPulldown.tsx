@@ -45,7 +45,6 @@ export default function PersonPulldown() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Current person: ${selectedPerson.name}. Switch person`}
-        style={{ borderColor: selectedPerson.color || "var(--accent)" }}
       >
         <span className="person-chip-dot" style={{ background: selectedPerson.color || "var(--accent)" }} />
         <span>{displayName}</span>

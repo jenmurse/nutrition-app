@@ -2077,7 +2077,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .mob-topbar { display: none; }
 
 @keyframes mob-menu-enter {
-  from { transform: translateY(100%); }
+  from { transform: translateY(-100%); }
   to   { transform: translateY(0); }
 }
 
@@ -3265,7 +3265,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-topbar-wordmark {
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--fg);
@@ -3289,12 +3289,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .mob-topbar-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
   }
   .mob-topbar-trigger {
     width: 44px;
     height: 44px;
-    margin-right: -10px;
+    margin-right: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -3614,6 +3614,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   /* Image renders above title on mobile */
   .rd-hero-img { order: -1; }
+  /* Hero image: edge-to-edge on mobile */
+  .rd-hero-img > div {
+    width: 100vw;
+    margin-left: calc(-1 * var(--pad));
+    border-radius: 0 !important;
+  }
 
   /* Ingredients + Nutrition 2-col → 1-col */
   .rd-two-col {
@@ -3710,14 +3716,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   /* ── CSS toolbar switching ── */
-  .mob-tb { display: flex; padding: 0 12px; }
+  .mob-tb { display: flex; padding: 10px var(--pad); }
   .desk-tb { display: none; }
 
   /* Taller toolbar for touch — mob-tb handles its own padding */
   .list-toolbar {
     gap: 0;
     padding: 0 !important;
-    height: 52px !important;
+    height: auto !important;
+    min-height: 52px !important;
     background: var(--bg) !important;
   }
   /* Toolbar inner row: page background */
@@ -3832,10 +3839,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-sheet .pl-create-btn { font-size: 11px; padding: 8px 18px; }
 
 
-  /* Day strip: shadow separator instead of hairline */
+  /* Day strip: shadow separator + align left/right with top bar */
   .pl-day-strip {
     border-bottom: none !important;
     box-shadow: 0 1px 0 rgba(128,128,128,0.1) !important;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
   }
 
   /* +ADD button: give it a proper bordered look */
@@ -5670,7 +5679,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   min-height: 68px;
   box-sizing: border-box;
 }
-.auth-nav-logo { font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
+.auth-nav-logo { font-family: var(--sans); font-size: 15px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
 .auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -5890,7 +5899,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .auth-oauth { padding: 10px 14px; }
   .auth-or { margin: 2px 0 10px; }
   .auth-nav { padding: 14px var(--pad); min-height: 56px; }
-  .auth-nav-logo { font-size: 13px; }
+  .auth-nav-logo { font-size: 15px; }
   .auth-nav-link { font-size: 9px; letter-spacing: 0.14em; }
 }
 
@@ -5925,7 +5934,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ob-topbar-wm {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: -0.02em;
   color: var(--fg);
 }
