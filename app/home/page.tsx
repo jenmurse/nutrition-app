@@ -221,10 +221,16 @@ export default function Home() {
     if (!cfg) return null;
     const nutrient = allNutrients.find(cfg.match);
     const value = nutrient?.value ?? 0;
-    const goal = nutrient?.highGoal ?? nutrient?.lowGoal ?? 0;
-    const pct = goal > 0 ? Math.min(Math.round((value / goal) * 100), 100) : 0;
-    return { key, label: cfg.label, unit: cfg.unit, value, goal, pct };
-  }).filter(Boolean) as { key: string; label: string; unit: string; value: number; goal: number; pct: number }[];
+    const highGoal = nutrient?.highGoal ?? 0;
+    const lowGoal  = nutrient?.lowGoal  ?? 0;
+    const goal = highGoal || lowGoal;
+    const pct  = goal > 0 ? Math.min(Math.round((value / goal) * 100), 100) : 0;
+    // isOver: value exceeded a hard cap (highGoal set)
+    const isOver   = highGoal > 0 && value > highGoal;
+    // isMetMin: value reached a minimum target and there is no cap to violate
+    const isMetMin = !highGoal && lowGoal > 0 && value >= lowGoal;
+    return { key, label: cfg.label, unit: cfg.unit, value, goal, pct, isOver, isMetMin };
+  }).filter(Boolean) as { key: string; label: string; unit: string; value: number; goal: number; pct: number; isOver: boolean; isMetMin: boolean }[];
 
   /** Get nutrient values for a meal log based on selected stats */
   const getMealNutrients = (m: MealLog): { label: string; value: number; unit: string }[] => {
@@ -375,7 +381,7 @@ export default function Home() {
                         of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
                       </div>
                       <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative overflow-hidden">
-                        <div className="absolute inset-0" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)', background: stat.goal > 0 && stat.value > stat.goal ? 'var(--err)' : 'var(--fg)' }} />
+                        <div className="absolute inset-0" style={{ width: `${stat.pct}%`, transition: 'width 0.6s var(--ease-out)', background: stat.isOver ? 'var(--err)' : stat.isMetMin ? 'var(--ok)' : 'var(--fg)' }} />
                       </div>
                     </div>
                   );
