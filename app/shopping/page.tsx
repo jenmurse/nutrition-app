@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import EmptyState from '@/app/components/EmptyState';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { clientCache } from '@/lib/clientCache';
 import { toast } from '@/lib/toast';
@@ -212,23 +213,23 @@ export default function ShoppingPage() {
         {shopLoading ? (
           <div className="shop-loading">Loading…</div>
         ) : isEmpty ? (
-          <div className="shop-empty">
-            {noPlanForWeek ? (
-              <>
-                <p className="eyebrow">§ NO PLAN THIS WEEK</p>
-                <h1 className="shop-empty-headline">A blank shopping list.</h1>
-                <p className="shop-empty-lede">Create a plan for this week, add some recipes, and the ingredients will be waiting here.</p>
-                <Link href={plannerHref} className="ed-btn">+ CREATE PLAN →</Link>
-              </>
-            ) : (
-              <>
-                <p className="eyebrow">§ NO INGREDIENTS YET</p>
-                <h1 className="shop-empty-headline">A week without a list.</h1>
-                <p className="shop-empty-lede">Add recipes to your plan and the ingredients show up here, sorted and ready to shop.</p>
-                <Link href={plannerHref} className="ed-btn">+ ADD MEALS →</Link>
-              </>
-            )}
-          </div>
+          noPlanForWeek ? (
+            <EmptyState
+              eyebrow="§ NO PLAN THIS WEEK"
+              headline="A blank shopping list."
+              lede="Create a plan for this week, add some recipes, and the ingredients will be waiting here."
+              ctaLabel="+ CREATE PLAN →"
+              ctaHref={plannerHref}
+            />
+          ) : (
+            <EmptyState
+              eyebrow="§ NO INGREDIENTS YET"
+              headline="A week without a list."
+              lede="Add recipes to your plan and the ingredients show up here, sorted and ready to shop."
+              ctaLabel="+ ADD MEALS →"
+              ctaHref={plannerHref}
+            />
+          )
         ) : (
           <>
             <div className="pl-shop-eyebrow">{rangeDisplay}</div>
