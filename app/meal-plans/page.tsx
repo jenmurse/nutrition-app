@@ -1255,7 +1255,7 @@ const MealPlansPage = () => {
                   {keyNutrients.map(n => {
                     const goal = n.highGoal ?? n.lowGoal ?? 0;
                     const pct = goal > 0 ? Math.min((n.value / goal) * 100, 100) : 0;
-                    const statusColor = n.status === 'error' ? 'var(--err)' : n.status === 'warning' ? 'var(--warn)' : 'var(--ok)';
+                    const statusColor = n.status === 'error' ? 'var(--err)' : 'var(--muted)';
                     return (
                       <div key={n.nutrientId}>
                         <div className="flex justify-between items-baseline mb-[3px]">
@@ -1286,7 +1286,7 @@ const MealPlansPage = () => {
                         const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
                         const chipClass = isAboveMax ? 'err-chip' : 'warn-chip';
                         const label = isBelowMin
-                          ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
+                          ? `${n.displayName} +${Math.round(n.lowGoal! - n.value)}${n.unit} to target`
                           : isAboveMax
                           ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
                           : `${n.displayName} outside target`;
@@ -1472,7 +1472,7 @@ const MealPlansPage = () => {
                           const goal = nutrient.highGoal ?? nutrient.lowGoal;
                           const pct = goal ? Math.min(Math.round((nutrient.value / goal) * 100), 100) : 0;
                           const isOver = nutrient.highGoal && nutrient.highGoal > 0 && nutrient.value > nutrient.highGoal;
-                          const fillClass = isOver ? 'fill-err' : nutrient.status === 'warning' ? 'fill-warn' : 'fill-ok';
+                          const fillClass = isOver ? 'fill-err' : 'fill-ok';
                           const unitSuffix = nutrient.displayName.toLowerCase() === 'calories' ? '' : ` ${nutrient.unit}`;
                           const formatVal = (v: number) => { const r = Math.round(v); return r >= 1000 ? r.toLocaleString() : String(r); };
                           return (
@@ -1502,7 +1502,7 @@ const MealPlansPage = () => {
                             const isAboveMax = n.status === 'error' && n.highGoal != null && n.value > n.highGoal;
                             const chipClass = isAboveMax ? 'err-chip' : 'warn-chip';
                             const label = isBelowMin
-                              ? `${n.displayName} −${Math.round(n.lowGoal! - n.value)}${n.unit} below min`
+                              ? `${n.displayName} +${Math.round(n.lowGoal! - n.value)}${n.unit} to target`
                               : isAboveMax
                               ? `${n.displayName} +${Math.round(n.value - n.highGoal!)}${n.unit} over limit`
                               : `${n.displayName} outside target`;

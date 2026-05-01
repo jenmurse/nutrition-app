@@ -619,7 +619,7 @@ export default function RecipeDetailPage() {
                     const target = goal?.highGoal || goal?.lowGoal || 0;
                     const pct = target > 0 ? Math.min((value / target) * 100, 100) : 0;
                     const isOver = target > 0 && value > target;
-                    const fillClass = isOver ? "bg-[var(--err)]" : pct > 80 ? "bg-[var(--warn)]" : "bg-[var(--ok)]";
+                    const fillClass = isOver ? "bg-[var(--err)]" : "bg-[var(--muted)]";
                     return (
                       <div key={label}>
                         <div className="flex justify-between items-baseline mb-1">

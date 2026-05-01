@@ -1928,18 +1928,20 @@ input[type="number"]:focus {
 .pl-warn-section { margin-bottom:20px; }
 .pl-warn-label { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
 
-.warn-chips { display:flex; flex-direction:column; gap:6px; }
+.warn-chips { display:flex; flex-direction:column; }
+/* below-min: plain ruled row, no background — informational, not alarming */
 .warn-chip {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--status-warning-tint); color: var(--status-warning-ink);
-  border-radius: 0; border: none; padding: 5px 12px;
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  background: none; color: var(--muted);
+  border: none; border-top: 0.5px solid var(--rule); padding: 6px 0;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size: 9px; font-weight: 500;
   letter-spacing: 0.14em; text-transform: uppercase;
 }
+/* over-limit: tinted background kept — constraint violated, act on this */
 .err-chip {
-  display: inline-flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 8px; width: 100%;
   background: var(--status-error-tint); color: var(--status-error-ink);
-  border-radius: 0; border: none; padding: 5px 12px;
+  border-radius: 0; border: none; padding: 5px 12px; margin-bottom: 2px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size: 9px; font-weight: 500;
   letter-spacing: 0.14em; text-transform: uppercase;
 }
@@ -1983,9 +1985,9 @@ input[type="number"]:focus {
 .nut-pct { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--muted); }
 .nut-track { height:3px; background:var(--rule); border-radius:99px; overflow:hidden; }
 .nut-fill { height:100%; border-radius:99px; transition:width 0.7s var(--ease-out); }
-.fill-ok  { background:var(--ok); }
-.fill-err { background:var(--err); }
-.fill-warn { background:var(--warn); }
+.fill-ok   { background:var(--muted); }   /* within target — neutral */
+.fill-warn { background:var(--muted); }   /* below min — same neutral */
+.fill-err  { background:var(--err); }     /* over limit — red only */
 
 /* Planner animations */
 @keyframes plannerColIn {

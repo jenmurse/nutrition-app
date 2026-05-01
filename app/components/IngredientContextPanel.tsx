@@ -126,7 +126,6 @@ export default function IngredientContextPanel({
           const target = goal.highGoal || goal.lowGoal || 0;
           const pct = target > 0 ? Math.round((value / target) * 100) : 0;
           const isOver = pct > 100;
-          const isWarn = !isOver && pct > 80;
           const unitSuffix = goal.nutrient.displayName.toLowerCase() === "calories" ? "" : ` ${goal.nutrient.unit}`;
           const overLabel = isOver ? " — over" : "";
 
@@ -134,15 +133,13 @@ export default function IngredientContextPanel({
             <div key={goal.nutrientId} className="mb-3">
               <div className="flex justify-between items-baseline mb-[5px]">
                 <span className="font-mono text-[11px] text-[var(--fg)] uppercase tracking-[0.06em]">{goal.nutrient.displayName}</span>
-                <span className={`font-mono text-[11px] tabular-nums ${isOver ? "text-[var(--error)]" : "text-[var(--muted)]"}`}>
+                <span className={`font-mono text-[11px] tabular-nums ${isOver ? "text-[var(--err)]" : "text-[var(--muted)]"}`}>
                   {formatGoalVal(Math.round(value * 10) / 10)} / {formatGoalVal(target)}{unitSuffix}{overLabel}
                 </span>
               </div>
               <div className="h-[4px] bg-[var(--bg-subtle)] overflow-hidden">
                 <div
-                  className={`h-full ${
-                    isOver ? "bg-[var(--error)]" : isWarn ? "bg-[var(--warning)]" : "bg-[var(--accent)]"
-                  }`}
+                  className={`h-full ${isOver ? "bg-[var(--err)]" : "bg-[var(--muted)]"}`}
                   style={{ width: `${Math.min(pct, 100)}%` }}
                 />
               </div>
