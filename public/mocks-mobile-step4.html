@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Good Measure — Mobile mocks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --paper: #F5F4EF;
+    --bg-2: #EEEAE3;
+    --bg-3: #E6E2D8;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --accent: #E84828;
+    --pad: 20px;
+
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-sans);
+    background: #DDD9D2;
+    color: var(--fg);
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .lab-section {
+    margin-bottom: 80px;
+  }
+
+  .lab-section > h2 {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    color: var(--fg);
+  }
+
+  .lab-section > p.lede {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg-2);
+    margin-bottom: 32px;
+    max-width: 640px;
+  }
+
+  .frame-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .frame {
+    width: 375px;
+    background: var(--bg);
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid #C5C1B8;
+    box-shadow: 0 12px 40px -12px rgba(0,0,0,0.18);
+    position: relative;
+  }
+
+  .frame.paper { background: var(--paper); }
+
+  .frame-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
+  .frame-wrap { display: flex; flex-direction: column; }
+
+  /* iOS status bar mock */
+  .status-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .status-bar .right { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+
+  /* Top bar (the new pattern) */
+  .topbar {
+    height: 50px;
+    padding: 0 var(--pad);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: inherit;
+  }
+
+  .topbar .wordmark {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+
+  .topbar .menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg);
+    background: transparent;
+    border: none;
+    padding: 8px 0;
+  }
+
+  .topbar .menu-glyph {
+    width: 14px;
+    height: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .topbar .menu-glyph::before,
+  .topbar .menu-glyph::after,
+  .topbar .menu-glyph span {
+    content: '';
+    display: block;
+    height: 1px;
+    background: var(--fg);
+  }
+  .topbar .menu-glyph::before { content: ''; }
+  .topbar .menu-glyph::after { content: ''; }
+
+  .topbar .right-slot {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .topbar .back-link {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+  }
+
+  .topbar .person-chips {
+    display: flex;
+    gap: 8px;
+  }
+
+  .person-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--fg);
+  }
+  .person-chip.on {
+    border-color: var(--accent);
+  }
+  .person-chip .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+  .person-chip.garth .dot { background: #5A9B6A; }
+
+  /* Page content body */
+  .content {
+    padding: 32px var(--pad) 40px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .h1 {
+    font-family: var(--font-sans);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--fg);
+  }
+
+  .lede-text {
+    font-size: 13px;
+    color: var(--fg-2);
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+
+  /* Stats strip on dashboard */
+  .stats-strip {
+    margin-top: 24px;
+  }
+  .stat-block {
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 0;
+  }
+  .stat-block:last-child { border-bottom: 0; }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-value .unit { font-size: 13px; color: var(--muted); margin-left: 2px; font-weight: 400; }
+  .stat-of {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .accent-name { color: var(--accent); }
+
+  /* Toolbar pattern (recipes/pantry) */
+  .sub-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px var(--pad);
+    border-bottom: 1px solid var(--rule);
+  }
+  .search-input {
+    flex: 1;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 6px 0;
+    background: transparent;
+    outline: none;
+  }
+  .search-input::placeholder { color: var(--muted); font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; }
+
+  .toggle-grid {
+    display: flex;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .toggle-grid .on { color: var(--fg); border-bottom: 1.5px solid var(--fg); padding-bottom: 2px; }
+
+  .new-btn {
+    border: 1px solid var(--rule);
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--fg);
+  }
+
+  /* Planner */
+  .planner-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px var(--pad);
+    border-bottom: 1px solid var(--rule);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .date-range {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg);
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  .day-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+  .day-cell {
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .day-cell .dow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+  .day-cell .num {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    margin-top: 2px;
+  }
+  .day-cell.on .num { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 4px; }
+
+  .day-block {
+    padding: 24px var(--pad) 16px;
+  }
+  .day-block .day-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .day-block .day-num {
+    font-family: var(--font-sans);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .kcal-line {
+    margin-top: 14px;
+  }
+  .kcal-line .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .kcal-bar {
+    height: 2px;
+    background: var(--rule);
+    margin-top: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kcal-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 95%;
+    background: #5A9B6A;
+  }
+  .meal-row {
+    padding: 16px var(--pad);
+    border-bottom: 1px solid var(--rule);
+  }
+  .meal-row .label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .meal-row .name {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .meal-row .kcal {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Recipe edit ingredients — current (broken) */
+  .ing-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 24px var(--pad) 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ing-section-header .num {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--rule);
+  }
+  .ing-section-header .h {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .ing-section-header .rule-fill {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+    align-self: center;
+  }
+
+  /* Current row layout (the bad one) */
+  .ing-row-current {
+    display: grid;
+    grid-template-columns: 16px 1fr 50px 70px 16px;
+    gap: 8px;
+    padding: 16px var(--pad);
+    align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ing-row-current .drag {
+    color: var(--muted);
+    font-size: 14px;
+    cursor: grab;
+  }
+  .ing-row-current input,
+  .ing-row-current select {
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    background: transparent;
+    width: 100%;
+    outline: none;
+  }
+  .ing-row-current .x {
+    color: var(--muted);
+    font-size: 16px;
+    border: none;
+    background: transparent;
+  }
+  .ing-row-current-prep {
+    padding: 0 var(--pad) 16px calc(var(--pad) + 24px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .ing-row-current-prep input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--muted);
+    background: transparent;
+    outline: none;
+  }
+
+  /* Proposed stacked layout */
+  .ing-card {
+    padding: 18px var(--pad);
+    border-bottom: 1px solid var(--rule);
+  }
+  .ing-card-row1 {
+    display: grid;
+    grid-template-columns: 16px 1fr 32px;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .ing-card-row1 .drag {
+    color: var(--muted);
+    font-size: 14px;
+    cursor: grab;
+    line-height: 1;
+  }
+  .ing-card-row1 .name {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 0;
+    width: 100%;
+    background: transparent;
+    outline: none;
+  }
+  .ing-card-row1 .name:focus { border-bottom-color: var(--fg); }
+  .ing-card-row1 .delete {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .ing-card-row2 {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 16px;
+    margin-left: 28px;
+    margin-bottom: 12px;
+    align-items: end;
+  }
+  .ing-card-row2 .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ing-card-row2 .field-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ing-card-row2 input,
+  .ing-card-row2 select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    background: transparent;
+    width: 100%;
+    outline: none;
+    border-radius: 0;
+  }
+  .ing-card-row2 select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath fill='%236B6860' d='M0 0l4 5 4-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 8px 5px;
+    padding-right: 18px;
+  }
+  .ing-card-row3 {
+    margin-left: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ing-card-row3 .field-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ing-card-row3 input {
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 4px 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--fg);
+    background: transparent;
+    outline: none;
+  }
+  .ing-card-row3 input::placeholder { color: var(--muted); }
+
+  .add-ing-btn {
+    margin: 16px var(--pad);
+    padding: 12px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg);
+    cursor: pointer;
+    width: calc(100% - 40px);
+  }
+
+  /* Add meal screen 2 specific */
+  .add-meal-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 var(--pad);
+    margin-bottom: 8px;
+  }
+  .add-meal-h1 {
+    font-family: var(--font-sans);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.0;
+    padding: 0 var(--pad) 24px;
+  }
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    padding: 12px var(--pad);
+    border-bottom: 1px solid var(--rule);
+    border-top: 1px solid var(--rule);
+    align-items: center;
+  }
+  .search-row .servings {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .search-row .servings input {
+    width: 30px;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    text-align: right;
+    outline: none;
+    background: transparent;
+  }
+
+  /* Recipe list */
+  .recipe-list-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 var(--pad) 0 0;
+    border-bottom: 1px solid var(--rule);
+    height: 64px;
+  }
+  .recipe-list-row .thumb {
+    width: 60px;
+    height: 64px;
+    background: var(--bg-3);
+    flex-shrink: 0;
+  }
+  .recipe-list-row .name {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .compare-tag {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--fg);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    z-index: 5;
+  }
+
+  .compare-tag.before { background: #B02020; }
+  .compare-tag.after { background: #2D7D52; }
+
+  .commentary {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.04);
+    border-left: 2px solid var(--fg);
+    max-width: 720px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg-2);
+  }
+  .commentary strong { color: var(--fg); }
+
+</style>
+</head>
+<body>
+
+<div class="page-title">Good Measure — Mobile Mock Review</div>
+
+<div class="lab-section">
+  <h2>1. Menu to top — pattern across pages</h2>
+  <p class="lede">Replaces the bottom rail with a top bar carrying the wordmark (left) and a contextual right slot. The right slot adapts per page: MENU on most pages, person chips on the dashboard, BACK on flow screens, page-specific actions where it makes sense. The current bottom rail is removed entirely.</p>
+
+  <div class="frame-row">
+
+    <!-- Dashboard -->
+    <div class="frame-wrap">
+      <div class="frame-label">Dashboard — wordmark + person chips + menu</div>
+      <div class="frame">
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <div class="wordmark">Good Measure</div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div class="person-chips">
+              <div class="person-chip on"><span class="dot"></span>JEN</div>
+              <div class="person-chip garth"><span class="dot"></span>GARTH</div>
+            </div>
+            <button class="menu-btn">
+              <span class="menu-glyph"><span></span></span>
+              MENU
+            </button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="eyebrow">FRIDAY, MAY 1, 2026</div>
+          <div class="h1">Good morning,<br/><span class="accent-name">Jen</span></div>
+          <div class="stats-strip">
+            <div class="stat-block">
+              <div class="stat-label">Calories</div>
+              <div class="stat-value">1,703</div>
+              <div class="stat-of">of 1,800</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-label">Sat Fat</div>
+              <div class="stat-value">15<span class="unit">g</span></div>
+              <div class="stat-of">of 16 g</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipes grid -->
+    <div class="frame-wrap">
+      <div class="frame-label">Recipes — wordmark + menu, toolbar below</div>
+      <div class="frame">
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <div class="wordmark">Good Measure</div>
+          <button class="menu-btn">
+            <span class="menu-glyph"><span></span></span>
+            MENU
+          </button>
+        </div>
+        <div class="sub-toolbar">
+          <input class="search-input" placeholder="SEARCH" />
+          <div class="toggle-grid">
+            <span class="on">GRID</span>
+            <span>LIST</span>
+            <span>FILTER</span>
+          </div>
+          <button class="new-btn">+ NEW</button>
+        </div>
+        <div style="height: 240px; background: #C5B89B; background-size: cover;"></div>
+        <div style="padding: 8px var(--pad); border-bottom: 1px solid var(--rule);">
+          <div class="eyebrow" style="margin-bottom: 4px;">DESSERT</div>
+          <div style="font-family: var(--font-sans); font-size: 18px; font-weight: 700; letter-spacing: -0.02em;">Almond Croissant Bars</div>
+        </div>
+        <div style="height: 100px; background: #D9C9AC;"></div>
+      </div>
+    </div>
+
+    <!-- Planner / new plan -->
+    <div class="frame-wrap">
+      <div class="frame-label">Planner — wordmark + menu, planner toolbar below</div>
+      <div class="frame">
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <div class="wordmark">Good Measure</div>
+          <button class="menu-btn">
+            <span class="menu-glyph"><span></span></span>
+            MENU
+          </button>
+        </div>
+        <div class="planner-toolbar">
+          <div class="date-range">APR 26 — MAY 2</div>
+          <div class="person-chip on" style="flex-shrink: 0;"><span class="dot"></span>JEN ▾</div>
+          <button class="new-btn" style="flex-shrink: 0;">+ NEW PLAN</button>
+        </div>
+        <div class="day-strip">
+          <div class="day-cell"><div class="dow">SU</div><div class="num">26</div></div>
+          <div class="day-cell"><div class="dow">MO</div><div class="num">27</div></div>
+          <div class="day-cell"><div class="dow">TU</div><div class="num">28</div></div>
+          <div class="day-cell"><div class="dow">WE</div><div class="num">29</div></div>
+          <div class="day-cell"><div class="dow">TH</div><div class="num">30</div></div>
+          <div class="day-cell on"><div class="dow">FR</div><div class="num">1</div></div>
+          <div class="day-cell"><div class="dow">SA</div><div class="num">2</div></div>
+        </div>
+        <div class="day-block">
+          <div class="day-eyebrow">FRIDAY</div>
+          <div class="day-num">1</div>
+          <div class="kcal-line">
+            <div class="label">1703 kcal</div>
+            <div class="kcal-bar"></div>
+          </div>
+        </div>
+        <div class="meal-row">
+          <div class="label">BREAKFAST</div>
+          <div class="name">Overnight Oats Blueberry — Jen</div>
+          <div class="kcal">366 kcal</div>
+        </div>
+        <div class="meal-row">
+          <div class="label">LUNCH</div>
+          <div class="name">Lunch Salad w/ Salmon</div>
+          <div class="kcal">578 kcal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Meal screen 2 -->
+    <div class="frame-wrap">
+      <div class="frame-label">Add Meal step 2 — back left, date · person right</div>
+      <div class="frame">
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <button class="back-link">← BACK</button>
+          <div class="right-slot">FRI, MAY 1 · JEN</div>
+        </div>
+        <div style="padding: 24px var(--pad) 0;">
+          <div class="add-meal-eyebrow" style="padding: 0;">§ FRIDAY, MAY 1</div>
+          <div class="add-meal-h1" style="padding: 0;">Add a breakfast.</div>
+        </div>
+        <div class="search-row">
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">SEARCH</span>
+            <input class="search-input" placeholder="FIND RECIPE…" style="flex: 1;" />
+          </div>
+          <div class="servings">SERVINGS <input value="1" /></div>
+        </div>
+        <div style="padding: 16px var(--pad);">
+          <div style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; margin-bottom: 4px;">Cottage Cheese Breakfast</div>
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">1 servings</div>
+        </div>
+        <div style="padding: 16px var(--pad); border-top: 1px solid var(--rule);">
+          <div style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; margin-bottom: 4px;">Frittata Breakfast Cups</div>
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">12 cups</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pantry list -->
+    <div class="frame-wrap">
+      <div class="frame-label">Pantry — wordmark + menu, toolbar below</div>
+      <div class="frame">
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <div class="wordmark">Good Measure</div>
+          <button class="menu-btn">
+            <span class="menu-glyph"><span></span></span>
+            MENU
+          </button>
+        </div>
+        <div class="sub-toolbar">
+          <input class="search-input" placeholder="SEARCH" />
+          <div class="toggle-grid">
+            <span>FILTER</span>
+          </div>
+          <button class="new-btn">+ ADD</button>
+        </div>
+        <div style="display: flex; align-items: center; padding: 14px var(--pad); border-bottom: 1px solid var(--rule);">
+          <div style="flex: 1; font-family: var(--font-sans); font-size: 16px; font-weight: 700;">Almond butter</div>
+          <button style="width: 32px; height: 32px; border: 1px solid var(--rule); background: transparent; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: var(--muted); font-size: 16px;">✎</button>
+          <button style="width: 32px; height: 32px; border: 1px solid var(--rule); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 18px;">×</button>
+        </div>
+        <div style="display: flex; align-items: center; padding: 14px var(--pad); border-bottom: 1px solid var(--rule);">
+          <div style="flex: 1; font-family: var(--font-sans); font-size: 16px; font-weight: 700;">Almond extract</div>
+          <button style="width: 32px; height: 32px; border: 1px solid var(--rule); background: transparent; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: var(--muted); font-size: 16px;">✎</button>
+          <button style="width: 32px; height: 32px; border: 1px solid var(--rule); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 18px;">×</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="frame-wrap">
+      <div class="frame-label">Settings — wordmark + menu, page header below</div>
+      <div class="frame">
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <div class="wordmark">Good Measure</div>
+          <button class="menu-btn">
+            <span class="menu-glyph"><span></span></span>
+            MENU
+          </button>
+        </div>
+        <div class="content">
+          <div class="eyebrow">§ SETTINGS</div>
+          <div class="h1">Your preferences.</div>
+        </div>
+        <div class="ing-section-header">
+          <span class="num">01</span>
+          <span class="h">People</span>
+          <span class="rule-fill"></span>
+        </div>
+        <div style="padding: 16px var(--pad);">
+          <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">HOUSEHOLD NAME</div>
+          <div style="border-bottom: 1px solid var(--rule); padding-bottom: 6px; font-size: 16px; font-weight: 700;">PS! Kitchen</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="commentary">
+    <strong>Notes on the pattern.</strong> The top bar is a single 50px row with <code>border-bottom: 1px solid var(--rule)</code>. Wordmark left, contextual right slot. On flow screens (Add Meal step 2) the wordmark is replaced by the back link — the wordmark's job is "you are inside the app" and a back link in a flow already says that more specifically. The current "section name" right slot from the bottom rail (PLANNER, RECIPES, PANTRY, SETTINGS) goes away — the page content already tells you where you are. Person chips on the dashboard live next to MENU on the right. On planner, the date range / person picker / + NEW PLAN row stays as a sub-toolbar below the top bar — same as today. The bottom rail is removed; menu sheet is now triggered from the top right.
+  </div>
+</div>
+
+<div class="lab-section">
+  <h2>2. Recipe edit — ingredients restructure</h2>
+  <p class="lede">Side by side: current squeezed 4-column row vs proposed stacked block. The proposed pattern gives every input enough room, makes delete a real tap target, lets prep be a real field, and keeps the drag handle in a recognizable position.</p>
+
+  <div class="frame-row">
+
+    <div class="frame-wrap">
+      <div class="frame-label">Current — 4 columns at 375px (broken)</div>
+      <div class="frame" style="position: relative;">
+        <div class="compare-tag before">BEFORE</div>
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <button class="back-link">← BACK</button>
+          <div class="right-slot">RECIPES</div>
+        </div>
+        <div class="ing-section-header">
+          <span class="num">03</span>
+          <span class="h">Ingredients</span>
+          <span class="rule-fill"></span>
+        </div>
+        <div class="ing-row-current">
+          <span class="drag">⋮⋮</span>
+          <input value="Almond flour" />
+          <input value="1" />
+          <select><option>cup</option></select>
+          <button class="x">×</button>
+        </div>
+        <div class="ing-row-current-prep">
+          <input placeholder="Preparation (optional)" />
+        </div>
+        <div class="ing-row-current">
+          <span class="drag">⋮⋮</span>
+          <input value="Oats, raw" />
+          <input value="2.33" />
+          <select><option>cup</option></select>
+          <button class="x">×</button>
+        </div>
+        <div class="ing-row-current-prep">
+          <input placeholder="Preparation (optional)" />
+        </div>
+        <div class="ing-row-current">
+          <span class="drag">⋮⋮</span>
+          <input value="Cashew milk" />
+          <input value="1.33" />
+          <select><option>cup</option></select>
+          <button class="x">×</button>
+        </div>
+        <div class="ing-row-current-prep">
+          <input placeholder="Preparation (optional)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="frame-label">Proposed — stacked block, full-width fields</div>
+      <div class="frame" style="position: relative;">
+        <div class="compare-tag after">AFTER</div>
+        <div class="status-bar"><span>9:41</span><span class="right">●●● 􀙇 􀋨</span></div>
+        <div class="topbar">
+          <button class="back-link">← BACK</button>
+          <div class="right-slot">RECIPES</div>
+        </div>
+        <div class="ing-section-header">
+          <span class="num">03</span>
+          <span class="h">Ingredients</span>
+          <span class="rule-fill"></span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-card-row1">
+            <span class="drag">⋮⋮</span>
+            <input class="name" value="Almond flour" />
+            <button class="delete">×</button>
+          </div>
+          <div class="ing-card-row2">
+            <div class="field">
+              <span class="field-label">Amount</span>
+              <input value="1" />
+            </div>
+            <div class="field">
+              <span class="field-label">Unit</span>
+              <select><option>cup</option><option>tbsp</option><option>tsp</option></select>
+            </div>
+          </div>
+          <div class="ing-card-row3">
+            <span class="field-label">Preparation</span>
+            <input placeholder="optional" />
+          </div>
+        </div>
+        <div class="ing-card">
+          <div class="ing-card-row1">
+            <span class="drag">⋮⋮</span>
+            <input class="name" value="Oats, raw" />
+            <button class="delete">×</button>
+          </div>
+          <div class="ing-card-row2">
+            <div class="field">
+              <span class="field-label">Amount</span>
+              <input value="2.33" />
+            </div>
+            <div class="field">
+              <span class="field-label">Unit</span>
+              <select><option>cup</option></select>
+            </div>
+          </div>
+          <div class="ing-card-row3">
+            <span class="field-label">Preparation</span>
+            <input value="rolled, not steel-cut" />
+          </div>
+        </div>
+        <button class="add-ing-btn">+ ADD INGREDIENT</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="commentary">
+    <strong>Notes on the change.</strong> Each ingredient is a vertical block with three rows: (1) drag handle + name + delete, (2) amount + unit indented under the name, (3) preparation indented under the name. The drag handle and delete are aligned on row 1 only — the indent on rows 2 and 3 visually anchors all sub-fields to the ingredient name above. Every field has a 9px DM Mono uppercase label above it (Amount, Unit, Preparation) — this lifts the prep field out of placeholder-only land and matches the labeling pattern used elsewhere in the app. Delete is a 32x32 tap target with a hairline border, matching the pantry list edit/delete pattern. The select uses the locked bottom-border-only style with a custom caret (per Brief 2D). On desktop, the same component can revert to the current 4-column row at <code>min-width: 641px</code> — the new stacked layout is mobile-only.
+  </div>
+</div>
+
+</body>
+</html>

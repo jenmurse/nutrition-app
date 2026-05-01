@@ -6,6 +6,7 @@ import { useState, useEffect, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { dialog } from "@/lib/dialog";
 import { BrandName } from "./BrandName";
+import PersonPulldown from "./PersonPulldown";
 
 const SECTIONS = [
   { href: "/home",        label: "Home"     },
@@ -115,19 +116,22 @@ export default function MobileTopBar() {
               <AddMealRightSlot />
             </Suspense>
           ) : (
-            <button
-              className="mob-topbar-trigger"
-              onClick={() => setMenuOpen(true)}
-              aria-expanded={menuOpen}
-              aria-haspopup="dialog"
-              aria-label="Open menu"
-            >
-              <svg viewBox="0 0 18 12" width="18" height="12" aria-hidden="true">
-                <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" strokeWidth="1"/>
-                <line x1="0" y1="6"  x2="18" y2="6"  stroke="currentColor" strokeWidth="1"/>
-                <line x1="0" y1="11" x2="18" y2="11" stroke="currentColor" strokeWidth="1"/>
-              </svg>
-            </button>
+            <>
+              {pathname === "/home" && <PersonPulldown />}
+              <button
+                className="mob-topbar-trigger"
+                onClick={() => setMenuOpen(true)}
+                aria-expanded={menuOpen}
+                aria-haspopup="dialog"
+                aria-label="Open menu"
+              >
+                <svg viewBox="0 0 18 12" width="18" height="12" aria-hidden="true">
+                  <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" strokeWidth="1"/>
+                  <line x1="0" y1="6"  x2="18" y2="6"  stroke="currentColor" strokeWidth="1"/>
+                  <line x1="0" y1="11" x2="18" y2="11" stroke="currentColor" strokeWidth="1"/>
+                </svg>
+              </button>
+            </>
           )}
         </div>
       </header>

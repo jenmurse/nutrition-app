@@ -975,7 +975,12 @@ const MealPlansPage = () => {
             })() : 'Meal Plans'}
           </span>
           <span className="pl-toolbar-spacer" />
-          {persons.length > 0 && mealPlans.length > 0 && (
+          {persons.length > 0 && mealPlans.length > 0 && (persons.length === 1 ? (
+            <div className="person-chip-static" aria-label={selectedPerson?.name}>
+              <span className="person-chip-dot" style={{ background: selectedPerson?.color || 'var(--accent)' }} />
+              <span>{selectedPerson?.name}</span>
+            </div>
+          ) : (
             <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
               <button
                 className="pl-mob-person-btn"
@@ -1033,7 +1038,7 @@ const MealPlansPage = () => {
                 </div>
               )}
             </div>
-          )}
+          ))}
           <button
             className="ed-btn-outline"
             onClick={() => {
