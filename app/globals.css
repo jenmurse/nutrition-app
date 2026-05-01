@@ -759,10 +759,18 @@ input[type="number"]:focus {
   /* Cat + name padding */
   .recipe-grid-item__cat,
   .recipe-grid-item__name { padding-left: 16px; padding-right: 16px; }
-  /* Typographic cell: padding + min-height to give it visual mass on mobile */
+  /* Typographic cell: square aspect matches photo cell weight; larger display type */
   .recipe-grid-item.rg-typographic {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
     padding: 24px 16px;
-    min-height: 240px;
+  }
+  .recipe-grid-item.rg-typographic .ghost-name {
+    font-size: clamp(40px, 10vw, 64px);
+    line-height: 1.05;
+  }
+  .recipe-grid-item.rg-typographic .ghost-eyebrow {
+    margin-bottom: 16px;
   }
 }
 
