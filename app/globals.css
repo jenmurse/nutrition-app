@@ -2073,15 +2073,13 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .hm-week-grid > .hm-week-inner { display: flex; align-items: stretch; }
 .hm-week-day { flex: 1; min-width: 110px; display: flex; flex-direction: column; }
 
-/* ── Bottom navigation bar ───────────────────────────────────────── */
-:root { --bottom-nav-h: 60px; }
+/* ── Mobile top bar (hidden on desktop, shown on mobile) ─────────── */
+.mob-topbar { display: none; }
 
 @keyframes mob-menu-enter {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
-
-.bottom-nav { display: none; }
 
 /* ── Dashboard hero (desktop) ────────────────────────────────────── */
 .hm-hero {
@@ -2443,9 +2441,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   z-index: 290;
   animation: backdropIn 200ms ease both;
 }
-/* Backdrop for sheets that float above the bottom nav — don't dim the nav */
+/* Backdrop for sheets — full coverage, no bottom nav to avoid */
 .mob-sheet-backdrop--above-nav {
-  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  bottom: 0;
 }
 @keyframes backdropIn {
   from { opacity: 0; }
@@ -2700,8 +2698,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
-  /* On mobile: float above bottom nav */
-  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  bottom: 0;
   border-radius: 0;
 }
 
@@ -2981,7 +2978,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 @media (max-width: 700px) {
   .pl-shop-grid { grid-template-columns: 1fr; gap: 32px; }
-  .pl-shop-body { padding: 32px 24px calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 32px); }
+  .pl-shop-body { padding: 32px 24px calc(env(safe-area-inset-bottom, 0px) + 32px); }
 }
 .pl-shop-cat { min-width: 0; }
 .pl-shop-cat-header {
@@ -3161,7 +3158,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 
 @media (max-width: 700px) {
-  .pl-add-body { padding: 48px 24px calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px); position: relative; }
+  .pl-add-body { padding: 48px 24px calc(env(safe-area-inset-bottom, 0px) + 24px); position: relative; }
   .pl-add-title { font-size: 28px; }
   .am-rail { display: none; }
   .am-content { padding-left: 0; }
@@ -3238,41 +3235,94 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   input:not([type="checkbox"]):not([type="radio"]),
   textarea, select { font-size: 16px !important; }
 
-  /* ── Option B nav: hide entire top nav on mobile ── */
-  /* Per-page contextual headers + bottom tab bar handle all navigation */
+  /* ── Desktop top nav is hidden on mobile; mobile top bar (.mob-topbar) takes its place ── */
   .top-nav { display: none !important; }
-  /* Reset nav-h so hero/content calculations don't reserve space for it */
-  :root { --nav-h: 0px; }
 
-  /* ── Prevent content bleeding behind bottom nav / Safari toolbar ── */
-  /* overscroll-behavior stops rubber-band from revealing content below */
+  /* ── Prevent content bleeding behind Safari toolbar ── */
   html, body { overscroll-behavior-y: none; }
   /* Marketing pages restore native scroll + pull-to-refresh */
   html[data-marketing],
   html[data-marketing] body { overscroll-behavior-y: auto !important; }
 
-  /* Safe-area for the iOS status bar applied once at the layout level —
-     pushes every page's top chrome below the notch / status bar without
-     each page needing its own env(safe-area-inset-top) padding.
-     max() with a 24px floor so we still get clearance when iOS reports
-     0 for env(safe-area-inset-top) (e.g. cross-app handoffs from Gmail,
-     URL-bar collapse states). Onboarding bypasses this (position:fixed
-     inset:0) and handles its own safe-area on .ob-topbar. */
-  main.app-main {
-    padding-top: max(env(safe-area-inset-top), 24px);
-    box-sizing: border-box;
+  /* ── Mobile top bar — safe-area handled here so main.app-main doesn't need padding-top ── */
+  /* Onboarding bypasses layout entirely (position:fixed inset:0) and handles its own
+     safe-area on .ob-topbar. */
+  .mob-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: env(safe-area-inset-top, 0px) var(--pad) 0;
+    height: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 200;
   }
-  /* Settings scroll container: clear fixed bottom nav */
-  #settings-scroll-container {
-    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px);
+  .mob-topbar-left {
+    display: flex;
+    align-items: center;
+  }
+  .mob-topbar-wordmark {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .mob-topbar-back {
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 120ms var(--ease-out);
+  }
+  .mob-topbar-back:hover { color: var(--fg); }
+  .mob-topbar-right {
+    display: flex;
+    align-items: center;
+  }
+  .mob-topbar-trigger {
+    width: 44px;
+    height: 44px;
+    margin-right: -10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: none;
+    border: none;
+    color: var(--fg);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-topbar-status {
+    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 
-  /* Hero: compact on mobile — no full-viewport lock; chrome bar provides top spacing */
+  /* Settings scroll container: clear iOS home indicator */
+  #settings-scroll-container {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
+  }
+
+  /* Hero: compact on mobile */
   .hm-hero { min-height: 0; padding-top: 0; }
 
-  /* Detail pages: hide jump nav, full-width content with bottom nav padding */
+  /* Detail pages: hide jump nav, full-width content */
   .detail-jump-nav { display: none !important; }
-  .detail-content  { padding: 32px var(--pad) calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 40px) var(--pad) !important; }
+  .detail-content  { padding: 32px var(--pad) calc(env(safe-area-inset-bottom, 0px) + 40px) var(--pad) !important; }
 
   /* Mobile chrome bar (logo + person switcher).
      Sticky so it stays pinned at the top of the (now safe-area-padded)
@@ -3329,74 +3379,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* Week strip: explicit left-alignment */
   .hm-week-grid > .hm-week-inner { justify-content: flex-start; }
 
-  /* Pattern B — editorial rail */
-  .bottom-nav {
-    display: flex;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
-    padding: 0 20px env(safe-area-inset-bottom);
-    align-items: center;
-    justify-content: space-between;
-    background: var(--bg);
-    border-top: 1px solid var(--fg);
-    z-index: 350;
-  }
-  .mob-rail-menu {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-    font-size: 9px;
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--fg);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .menu-rail-glyph {
-    width: 10px;
-    height: 8px;
-    flex-shrink: 0;
-  }
-  .mob-rail-index {
-    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-    font-size: 9px;
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .mob-rail-action {
-    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--muted);
-    background: none;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: color 120ms var(--ease-out);
-  }
-  .mob-rail-action:hover { color: var(--fg); }
-  .mob-rail-status {
-    font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
   /* Fullscreen menu overlay */
   .mob-menu-overlay {
     position: fixed;
@@ -3473,11 +3455,11 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-menu-signout:hover { color: var(--fg); }
 
-  /* Home hero: subtract bottom nav height instead of top nav */
-  .hm-hero { min-height: calc(100dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom)); }
+  /* Home hero: fill viewport below mobile top bar */
+  .hm-hero { min-height: calc(100dvh - var(--nav-h) - env(safe-area-inset-top, 0px)); }
 
-  /* Scrollable content: pad bottom so bottom nav doesn't cover last item */
-  .hm-bottom-pad { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px); }
+  /* Scrollable content: clear iOS home indicator */
+  .hm-bottom-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
 
   /* Dashboard week grid: hidden on mobile (too compact to be useful) */
   .hm-thisweek-section { display: none; }
@@ -3522,9 +3504,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .list-controls::-webkit-scrollbar { display: none; }
   .list-controls input[type="text"] { width: auto !important; min-width: 80px; flex: 1; max-width: 140px; }
 
-  /* List scroll container: clear bottom nav */
+  /* List scroll container: clear iOS home indicator */
   .list-scroll {
-    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 32px) !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px) !important;
   }
 
   /* Recipes grid/list content: strip desktop horizontal padding */
@@ -3802,7 +3784,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .pl-mobile-day .wk-add-btn:active { border-color: var(--fg) !important; }
 
   /* Shopping list sheet: explicit height on mobile for flex to work */
-  .pl-shop-sheet { height: calc(82dvh - var(--bottom-nav-h) - env(safe-area-inset-bottom, 0px)); }
+  .pl-shop-sheet { height: 82dvh; }
 
 
   /* ── List row hairlines: lighter separator ── */

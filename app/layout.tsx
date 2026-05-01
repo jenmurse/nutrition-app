@@ -7,7 +7,7 @@ import { DM_Sans, DM_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import NumberInputHandler from "./components/NumberInputHandler";
 import TopNav from "./components/TopNav";
-import BottomNav from "./components/BottomNav";
+import MobileTopBar from "./components/MobileTopBar";
 import Toaster from "./components/Toaster";
 import ConfirmModal from "./components/ConfirmModal";
 import CustomCursor from "./components/CustomCursor";
@@ -116,15 +116,14 @@ export default function RootLayout({
             <Suspense>
               <TopNav />
             </Suspense>
+            <Suspense>
+              <MobileTopBar />
+            </Suspense>
 
             {/* Main Content Area — overflow-hidden so each page manages its own scroll panes */}
             <main className="app-main flex-1 overflow-hidden">
               {children}
             </main>
-
-            <Suspense>
-              <BottomNav />
-            </Suspense>
           </div>
         </PersonProvider>
         <CustomCursor />

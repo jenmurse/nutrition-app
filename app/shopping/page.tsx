@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import EmptyState from '@/app/components/EmptyState';
 import { usePersonContext } from '@/app/components/PersonContext';
@@ -140,11 +140,6 @@ export default function ShoppingPage() {
     return () => { cancelled = true; };
   }, [selectedPersonId, weekParam]);
 
-  // Signal to BottomNav whether this page has content to share
-  useEffect(() => {
-    if (shopLoading) return;
-    window.dispatchEvent(new CustomEvent('shopping:content', { detail: { hasItems: shopItems.length > 0 } }));
-  }, [shopLoading, shopItems]);
 
   const saveChecked = useCallback((newSet: Set<string>) => {
     if (!plan) return;
@@ -177,14 +172,6 @@ export default function ShoppingPage() {
     }
   }, [shopItems, checkedItems, weekRange]);
 
-  // BottomNav dispatches this event on /shopping to trigger share
-  const handleShareRef = useRef(handleShare);
-  handleShareRef.current = handleShare;
-  useEffect(() => {
-    const handler = () => handleShareRef.current();
-    window.addEventListener('shopping:share', handler);
-    return () => window.removeEventListener('shopping:share', handler);
-  }, []);
 
   const groups = new Map<string, ShopItem[]>();
   for (const item of shopItems) {
@@ -242,7 +229,7 @@ export default function ShoppingPage() {
                   aria-pressed={hideChecked}
                 >{hideChecked ? 'SHOW ALL' : 'HIDE CHECKED'}</button>
                 <button
-                  className="ed-btn-text hidden sm:inline"
+                  className="ed-btn-text"
                   onClick={handleShare}
                   aria-label="Share shopping list"
                 >SHARE →</button>
