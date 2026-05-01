@@ -189,7 +189,7 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
       />
       <div
         ref={sheetRef}
-        className="mob-sheet add-meal-full-sheet sheet-delay-touch"
+        className="mob-sheet add-meal-full-sheet"
         role="dialog"
         aria-modal="true"
         aria-label="Add meal"
