@@ -3404,6 +3404,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .person-pulldown-item.on { color: var(--fg); }
   .person-pulldown-item:active { background: var(--bg-3); }
+  .person-pulldown-item + .person-pulldown-item { border-top: 1px solid var(--rule-faint); }
 
   /* Stats strip: stack vertically, no hairlines */
   .hm-stats-strip  { flex-direction: column; }
