@@ -101,11 +101,30 @@ The mobile bottom edge has two surfaces with distinct roles:
 - Scaling rule: full name when ≤3 people in the household, initial only when 4+.
 - Classes: `.hm-mob-person-chip`, `.hm-mob-person-chip.on`.
 
+### Add Meal mobile (two-screen flow)
+
+Add Meal on mobile is a two-screen flow inside a single route (`/meal-plans/add-meal`):
+
+- **Screen 1 — Picker:** meal type list (Breakfast, Lunch, Dinner, etc. + Pantry Items). Tapping a meal type sets direction to `'forward'` and transitions to Screen 2.
+- **Screen 2 — Browse:** recipe grid/search with an `← BACK` button. Tapping back sets direction to `'back'` and returns to Screen 1.
+
+**Transition:** Framer Motion `AnimatePresence mode="popLayout"` with direction-aware variants.
+- Forward (Screen 1 → 2): incoming from right (`x: 16 → 0`), outgoing exits left (`x: 0 → -16`). Concurrent crossfade.
+- Back (Screen 2 → 1): incoming from left (`x: -16 → 0`), outgoing exits right (`x: 0 → 16`). Same concurrent crossfade.
+- Duration: 320ms · easing: `cubic-bezier(0.4, 0.0, 0.2, 0.2)` — matches `--motion-step` CSS token. Do not delete this token.
+- `useReducedMotion()` collapses x-translation to 0; opacity crossfade only.
+- Both screens have the eyebrow anchored at the same Y position. They translate horizontally as a unit — no vertical jog.
+
+**Search input:** `FIND RECIPE…` / `FIND ITEM…` placeholder in DM Mono 9px uppercase (matches `/recipes` toolbar search). Placeholder swaps based on mode.
+
+**Desktop:** Screen 1 never shows on desktop — the meal type rail is always visible. The two-screen flow is mobile-only.
+
 ### Auth mobile
 
 - Split layout stacks at 760px: editorial top, form bottom.
-- Hairline divider becomes horizontal between the stacked sections.
+- Editorial left → top section; form right → bottom section. `.auth-divider { display: none }`. Editorial section gets `border-bottom: 1px solid var(--rule)` for the horizontal divide.
 - Outer wrapper is `.auth-page { height:100%; overflow-y:auto }` so the form scrolls on viewports too short to fit it. The layout's `<main>` is `overflow-hidden` so every page must own its own scroll.
+- Top nav (`.auth-nav`): wordmark left, `← Back` mono right. Present on both desktop and mobile.
 
 ### Onboarding mobile
 

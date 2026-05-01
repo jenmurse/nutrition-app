@@ -155,60 +155,40 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 3 — Mobile chrome rebuild ☐ ← NEXT (unblocked by Step 2)
-
-**Why third:** The biggest piece of visual work. Linework and wordmark are locked, so chrome decisions are now mechanical.
+### STEP 3 — Mobile chrome rebuild ✓
 
 **Substeps:**
 
-**3a · Index toolbars (Recipes, Pantry)**
-- Replace bordered rounded search with hairline-underline search (no magnifier)
-- Replace rounded square buttons with text-button toggles `GRID / LIST` and text `FILTER`
-- Active state = baseline 1.5px underline
-- `+ NEW` text button replaces FAB
+| Substep | Description | Brief | Status |
+|---|---|---|---|
+| 3a | Index toolbars (Recipes, Pantry) — hairline search, text toggles, FAB removed | 2A, 3B | ✓ |
+| 3b | Planner toolbar — icons → text, `+ NEW PLAN`, person chip | 2B–2B.2 | ✓ |
+| 3c | Bottom sheets — 8px corners, hairline top, backdrop variants | 2E | ✓ |
+| 3d | FAB removal from Recipes / Pantry | 2A | ✓ |
+| 3e | Form chrome — native selects, rounded → sharp | 3B | ✓ |
+| 3A | Token system + register migration (hardcoded color sweep) | 3A | ✓ |
+| 3B | Full app migration audit + color cleanup | 3B | ✓ |
+| 3D-2 | Add Meal redesign — fixed rail, recipe grid, editorial layout | 3D-2 | ✓ |
+| 3D-3 | Add Meal precision fixes — X alignment, search placeholder, mobile Screen 1↔2 transition | 3D-3 | ✓ |
+| 3E-2 | Auth rebuild — paper bg, explicit divider element, Instrument Serif `<em>` | 3E-2 | ✓ |
+| 3F-2 | Onboarding topbar — wordmark left, step counter right, `§ ONBOARDING` removed | 3F-2 | ✓ |
+| 3G-2 | Stragglers — Settings SAVE outlined, grid typographic cell, cart hidden on empty planner, preset underline | 3G-2 | ✓ |
 
-**3b · Planner toolbar**
-- Cart icon → text `SHOPPING` (or `SHOPPING ›`)
-- Chart icon → text `NUTRITION ›`
-- Add `+ NEW PLAN` (sharp black) right side
-- Person chip stays as pill (locked identity exception)
-- Date controls (`PREV NEXT THIS WEEK`) collapse if width-tight
-
-**3c · Bottom sheets**
-- Top corners 8px (or whatever Q1.1 lands on)
-- Drag handle stays
-- Backdrop variants (`.mob-sheet-backdrop`, `.mob-sheet-backdrop--above-nav`) unchanged
-
-**3d · FAB removal**
-- Remove FAB component from Recipes index, Pantry index
-- Confirm `+ NEW` text button is the only primary action
-- Remove the round-black-circle stack from globals.css
-
-**3e · Form chrome alignment**
-- All native `<select>` dropdowns → custom styled with bottom-border only OR keep native but strip rounded border
-- All form rounded borders → sharp or hairline-underline
-
-**Lock outputs:**
-- Mobile recipes/pantry/planner toolbars in production
-- Sheet radius lock
-- All FAB code removed
+**Step 3 complete.** Dead code sweep also ran April 30 (4 unused `.module.css` files, `DailySummary.tsx`, 95 HTML mockups, dead globals.css classes removed).
 
 ---
 
-### STEP 4 — Mobile information architecture ☐
+### STEP 4 — Mobile information architecture ✓ (largely absorbed into Step 2/3)
 
-**Why fourth:** Decisions are largely locked already (Section 1 above). This step is implementation.
+**Originally scoped:** Back-button pattern, Sign Out location, Menu sheet, bottom rail behavior on child screens.
 
-**Items:**
-- New Recipe screen gets `← BACK TO RECIPES` top row (matches Add Meal pattern)
-- New Pantry Item gets `← BACK TO PANTRY` top row
-- Sign Out moves from Settings bottom to Menu sheet last item
-- Menu sheet adds `Sign Out` row (with hairline above it separating from nav items)
-- Bottom rail labels stay constant on child screens (`02/04 — PLANNER` even when on a child screen, since it indicates the section the user is logically in)
+**What landed:** All of these shipped in earlier briefs:
+- Back-bar removal + child-screen navigation pattern → 2D.2
+- Sign Out → Menu sheet → 2F
+- Menu sheet `Sign Out` row with hairline → 2F
+- Bottom rail right-slot variants (section locator / action / status) → 2D.2
 
-**Lock outputs:**
-- Mobile back-button pattern consistent across all child screens
-- Sign Out in one location only
+**Remaining items:** None. Step 4 is complete as scoped.
 
 ---
 
@@ -269,54 +249,43 @@ Drafted in creative-direction.md. Walk through each.
 
 ---
 
-### STEP 7 — Auth screen ☐
+### STEP 7 — Auth screen ✓
 
-**Why seventh:** Brand mark + linework + italic typeface all locked. Auth is one focused screen.
+Shipped as **brief-3E-2**. Locked decisions:
+- White right panel removed — auth now sits on `--bg` (paper) like every other form surface.
+- Vertical hairline divider is an explicit `<div class="auth-divider" />` in a `1fr 1px 1fr` grid. Not a `border-right`.
+- Mobile: stacks at 760px, `.auth-divider { display: none }`, editorial top / form bottom.
+- `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow stays.
+- Italic `<em>` on headlines uses Instrument Serif italic, `color: inherit` (black). Distinct from the sage `<em>` accent convention.
 
-**Items:**
-- Right panel goes from white to `--bg` (paper)
-- Inputs stay bottom-border-only (already correct)
-- Vertical hairline divider between editorial half and form half on desktop; horizontal hairline on mobile
-- Wordmark in topbar = new locked wordmark
-- `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow stays
-- Italic on lede — apply Step 6 decision
-- Hero scale and tracking — apply Step 1 type scale (matches landing hero size)
-
-**Lock outputs:**
-- Auth desktop + mobile rebuilt to spec
+Remaining from original Step 7 scope: locked wordmark not yet applied (deferred to type scale pass, Step 10). Italic pass pending Step 6 decision.
 
 ---
 
-### STEP 8 — Onboarding ☐
+### STEP 8 — Onboarding ✓
 
-**Why eighth:** Same dependencies as auth.
+Shipped as **brief-3F-2** + follow-up April 30.
 
-**Items:**
-- Topbar wordmark (left) — apply locked wordmark
-- Topbar step counter (right) — verify mono spec matches Step 1 type scale (DM Mono 9–11px, +0.14em)
-- Hairline below topbar stays
-- Step 1 (Welcome) and Step 5 (Complete) wordmark in body uses locked wordmark
-- Theme picker dot circles — verify they read as the dot system (not just generic radio buttons)
-- Italic on bookend headlines — apply Step 6 decision (`measure what matters` is the most-likely italic candidate, only word that needs emphasis)
-- Native `<select>` — replace per Step 2 (already in linework punch list but worth tracking here)
+- Topbar: wordmark left (DM Sans 700 18px), step counter right (DM Mono 9px +0.14em muted).
+- `§ ONBOARDING` label permanently removed — redundant.
+- No wordmark or check icon in the body of any step — topbar wordmark is the only brand moment.
+- Body bookend content (Welcome: eyebrow + headline + lede + CTA; Complete: eyebrow + headline + lede + CTA). No decorative elements.
 
-**Lock outputs:**
-- Onboarding desktop + mobile rebuilt to spec
+Remaining: locked wordmark application (Step 1 wordmark → Step 10), italic pass (Step 6).
 
 ---
 
-### STEP 9 — Landing nav ☐
+### STEP 9 — Landing nav ☐ (combined with Step 3c scope)
 
-**Why ninth:** Brand mark + linework locked.
+**Rescoped:** Step 3c (bottom sheets) is done. Step 9 (landing nav) is a short self-contained task — no separate step needed. Combine into the next available session.
 
 **Items:**
-- Desktop nav: wordmark left (locked version), running-bar labels middle, `SIGN IN` right
-- Verify running-bar labels fit at design width without truncation
-- Mobile nav: wordmark left, `SIGN IN` right; drop running bar entirely (per Q11.1)
+- Desktop nav: apply locked wordmark (`good · measure`), running-bar labels middle, `SIGN IN` right
+- Mobile nav: wordmark left, `SIGN IN` right; drop running bar (per Q11.1)
 - Verify tap targets meet 44px floor on mobile
 
 **Lock outputs:**
-- Landing nav desktop + mobile rebuilt
+- Landing nav desktop + mobile rebuilt with locked wordmark
 
 ---
 
@@ -441,4 +410,15 @@ Drafted in creative-direction.md. Walk through each.
 | Apr 29 | **Bottom sheet corners locked** — 8px top corners hardcoded on `.mob-sheet`. Only exception to the sharp-default rule. Token `--radius-xl` removed. | 2E |
 | Apr 29 | **Briefs 2F, 2F.1, 2G, 2G.1, 2G.2, 2H, 2H.1, 2H.2, 2H.3 landed** — Bottom rail signout divider, toggle underline rule system-wide, chip gap (24px desktop/16px mobile), sort direction inline arrow, recipes toolbar count baseline (`line-height: 1`), compare-mode inset card ring (`box-shadow: inset 0 0 0 2px var(--fg)`). Active state convention locked: 1.5px underline + ink text; never filled-black on toggles, never accent on state. | 2F–2H.3 |
 | Apr 29 | **Brief 2I landed — Step 2 complete** — Radius tokens `--radius-md`, `--radius-lg`, `--radius-pill` all set to `0`. Two pill exceptions (`.hm-mob-person-chip`, `.mob-filter-badge`) hardcode `9999px` directly. Easing and accent-color leaks swept (`.cmp-overlay`, `.pl-swap-btn`, settings sidebar active indicator, MealPlanWeek selection state). System is grep-clean. Step 3 (mobile chrome rebuild) is unblocked. | 2I |
+| Apr 30 | **Briefs 3A + 3B landed** — Full token system and register migration. Hardcoded hex values swept and replaced with CSS variables. White register (`data-register="white"`) added. All surfaces migrated to correct register. | 3A/3B |
+| Apr 30 | **Brief 3D-2 landed** — Add Meal fully redesigned. Fixed left rail (meal type + Pantry Items), recipe grid with typographic ghost cells, editorial eyebrow/headline, footer. Desktop layout matches recipe detail X alignment. Rail uses nested `<span class="am-rail-label">` for tight underlines. | 3D-2 |
+| Apr 30 | **`position: fixed` rail rule locked** — Rails must be siblings of the animated/scroll container, never children. CSS `transform` on an ancestor breaks `position: fixed`. Applies to Add Meal rail, jump nav, settings nav. | 3D-2 |
+| Apr 30 | **Recipe grid typographic cell locked** — Cells without images are their own cell type: `display: flex; flex-direction: column; justify-content: flex-end` on the article element. Ghost photo div removed. Content bottom-anchored within cell. Mobile gets `aspect-ratio: 4/3` for visual mass. Display type: `clamp(28px, 2.8vw, 38px)` desktop, `clamp(40px, 10vw, 64px)` mobile. | 3D-2 |
+| Apr 30 | **Brief 3D-3 landed** — Add Meal X alignment fixed (am-content `padding-left: 132px` to land at 196px total). Search placeholder: DM Mono 9px uppercase `FIND RECIPE…` / `FIND ITEM…`. Mobile Screen 1↔2 transition: AnimatePresence `mode="popLayout"`, direction-aware, 320ms `--motion-step`. | 3D-3 |
+| Apr 30 | **Brief 3E-2 landed — Step 7 complete** — Auth rebuilt to paper bg. Vertical hairline is explicit `<div class="auth-divider" />` in `1fr 1px 1fr` grid. Auth headline `<em>` = Instrument Serif italic, black (not sage accent). | 3E-2 / Step 7 |
+| Apr 30 | **Brief 3F-2 landed — Step 8 complete** — Onboarding topbar: wordmark left, step counter right. `§ ONBOARDING` permanently removed. Body wordmark and check icon removed from Welcome/Ready screens. | 3F-2 / Step 8 |
+| Apr 30 | **Brief 3G-2 landed** — Settings SAVE button outlined. Grid typographic fallback for recipes without images. Cart button hidden on empty planner state. Goal preset underline for active selection. | 3G-2 |
+| Apr 30 | **Nutrition panel semantic color locked (§2e)** — `--ok` and `--warn` removed as bar fill colors. Only `--err` used on bars (over-limit only). All other bars neutral `--muted`. Below-min callout: plain ruled row, no tinted bg, copy `+Xg to target`. Over-limit callout: tinted red err-chip retained. | X1-2 |
+| Apr 30 | **Dead code sweep complete** — Removed: 4 unused `.module.css` files, `DailySummary.tsx`, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Archived superseded brief drafts to `briefs/_archived/`. | X2-2 |
+| Apr 30 | **Step 3 complete.** Steps 7 + 8 also complete. Next: Steps 5/6 (copy pass + typeface lock), Step 9 (landing nav, combined), Step 10 (type leading pass). | — |
 
