@@ -212,18 +212,18 @@ export default function CreateIngredientModal({
         {pending ? (
           <div className="space-y-5">
             {duplicateWarning && (
-              <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--warning)]">{duplicateWarning}</p>
+              <p className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--warning)]">{duplicateWarning}</p>
             )}
 
             {/* USDA source */}
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-1">USDA source</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] mb-1">USDA source</div>
               <p className="font-sans text-[13px] text-[var(--muted)]">{pending.usdaDescription}</p>
             </div>
 
             {/* Editable name */}
             <div>
-              <label className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-1 block" htmlFor="confirmed-name">
+              <label className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] mb-1 block" htmlFor="confirmed-name">
                 Save as
               </label>
               <input
@@ -241,7 +241,7 @@ export default function CreateIngredientModal({
             {/* Nutrient preview */}
             {pending.nutrientUpdates.length > 0 && (
               <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] mb-2">Nutrition per 100g</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] mb-2">Nutrition per 100g</div>
                 <div className="flex flex-wrap gap-3">
                   {pending.nutrientUpdates.map((u) => {
                     const n = nutrients.find((x) => x.id === u.nutrientId);
@@ -260,21 +260,21 @@ export default function CreateIngredientModal({
             <div className="flex items-center gap-3 pt-2 border-t border-[var(--rule)]">
               <button
                 onClick={() => { setPending(null); setDuplicateWarning(null); }}
-                className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+                className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
               >
                 ← Back
               </button>
               <div className="flex-1" />
               <button
                 onClick={onClose}
-                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
               >
                 Skip
               </button>
               <button
                 onClick={handleConfirmSave}
                 disabled={saving || !confirmedName.trim()}
-                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] cursor-pointer disabled:opacity-40 transition-colors"
+                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] cursor-pointer disabled:opacity-40 transition-colors"
               >
                 {saving ? "Saving…" : "Save ingredient"}
               </button>
@@ -289,7 +289,7 @@ export default function CreateIngredientModal({
                   key={t}
                   onClick={() => setTab(t)}
                   style={{ borderRadius: 0 }}
-                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] border-b-2 transition ${
+                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.06em] border-b-2 transition ${
                     tab === t
                       ? "border-[var(--accent)] text-[var(--fg)]"
                       : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
@@ -316,7 +316,7 @@ export default function CreateIngredientModal({
                   <button
                     onClick={handleUSDASearch}
                     disabled={searching}
-                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
+                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
                   >
                     {searching ? "Searching…" : "Search"}
                   </button>
@@ -344,7 +344,7 @@ export default function CreateIngredientModal({
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-sans text-[13px] text-[var(--fg)]">{result.description}</span>
                             {isLoading && (
-                              <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] shrink-0">Loading…</span>
+                              <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] shrink-0">Loading…</span>
                             )}
                           </div>
                         </div>
@@ -386,14 +386,14 @@ export default function CreateIngredientModal({
             <div className="flex gap-2 mt-6 pt-4 border-t border-[var(--rule)]">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
+                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
               >
                 Skip for now
               </button>
               {tab === "manual" && (
                 <button
                   onClick={handleManualSave}
-                  className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.08em] border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] cursor-pointer transition-colors"
+                  className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] cursor-pointer transition-colors"
                 >
                   Save nutrition
                 </button>

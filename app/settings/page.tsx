@@ -701,7 +701,7 @@ const SettingsPage = () => {
                           Tracked Only
                         </span>
                       ) : redeemedInvite ? (
-                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)]">
                           ✓ Joined {new Date(redeemedInvite.usedAt!).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </span>
                       ) : pendingInvite ? (
@@ -720,7 +720,7 @@ const SettingsPage = () => {
                           {person.trackedOnly ? (
                             <button
                               onClick={() => handleInviteToJoin(person.id)}
-                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+                              className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
                               aria-label={`Invite ${person.name} to join`}
                             >
                               Invite to Join
@@ -728,7 +728,7 @@ const SettingsPage = () => {
                           ) : pendingInvite && !redeemedInvite ? (
                             <button
                               onClick={() => handleMakeTrackedOnly(person.id, pendingInvite.id)}
-                              className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+                              className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
                               aria-label={`Make ${person.name} tracked only`}
                             >
                               Make Tracked Only
@@ -743,7 +743,7 @@ const SettingsPage = () => {
                                 toast.error(data.error || 'Failed to remove person');
                               }
                             }}
-                            className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
+                            className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
                             aria-label={`Remove ${person.name}`}
                           >
                             Remove
@@ -852,7 +852,7 @@ const SettingsPage = () => {
                         />
                         <div>
                           <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)]">Tracked Only (no login)</div>
-                          <div className="text-[12px] text-[var(--muted)] leading-[1.5] mt-[2px]">
+                          <div className="text-[11px] text-[var(--muted)] leading-[1.5] mt-[2px]">
                             Use for children or members who won&rsquo;t have their own account.
                           </div>
                         </div>
@@ -991,7 +991,7 @@ const SettingsPage = () => {
               <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]" style={{ maxWidth: 480 }}>
                 Select three nutrition stats to display on your dashboard and meal cards.
               </p>
-              <div className={`font-mono text-[9px] uppercase tracking-[0.08em] mb-[16px] ${dashboardStats.enabledStats.length === 3 ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
+              <div className={`font-mono text-[9px] uppercase tracking-[0.06em] mb-[16px] ${dashboardStats.enabledStats.length === 3 ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
                 {dashboardStats.enabledStats.length} of 3 selected
               </div>
               <div style={{ maxWidth: 400 }}>
@@ -1070,7 +1070,7 @@ const SettingsPage = () => {
                 </div>
                 {newMcpToken && (
                   <div>
-                    <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--cta)] mb-[8px]">
+                    <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--cta)] mb-[8px]">
                       Copy this token now — it won&apos;t be shown again
                     </div>
                     <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--cta)] px-[16px] py-[12px]">
@@ -1156,8 +1156,8 @@ const SettingsPage = () => {
   }
 }`}</pre>
                 </div>
-                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[12px] text-[var(--muted)] leading-[1.6]">
-                  <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, in the command line above, replace <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[10px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
+                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--muted)] leading-[1.6]">
+                  <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, in the command line above, replace <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
                 </div>
               </div>
 

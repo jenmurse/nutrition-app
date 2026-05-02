@@ -437,7 +437,7 @@ function RecipesPage() {
               aria-label="Filter by category"
               aria-expanded={categoryOpen}
               aria-haspopup="listbox"
-              className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
+              className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--fg)] bg-transparent border-0 py-[3px] pl-[9px] pr-[22px] cursor-pointer whitespace-nowrap relative"
               style={{ minWidth: 72 }}
             >
               {categoryLabel}
@@ -454,7 +454,7 @@ function RecipesPage() {
                 <button
                   role="option"
                   aria-selected={selectedTags.length === 0 && !showFavorites}
-                  className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                  className={`block w-full text-left font-mono text-[9px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                     selectedTags.length === 0 && !showFavorites
                       ? "text-[var(--fg)] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -471,7 +471,7 @@ function RecipesPage() {
                     key={tag}
                     role="option"
                     aria-selected={selectedTags.includes(tag)}
-                    className={`flex items-center justify-between w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                    className={`flex items-center justify-between w-full text-left font-mono text-[9px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                       selectedTags.includes(tag)
                         ? "text-[var(--fg)] bg-transparent"
                         : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -486,7 +486,7 @@ function RecipesPage() {
                 <button
                   role="option"
                   aria-selected={showFavorites}
-                  className={`flex items-center gap-[5px] w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-[5px] w-full text-left font-mono text-[9px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                     showFavorites
                       ? "text-[var(--err)] bg-transparent"
                       : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
@@ -549,7 +549,7 @@ function RecipesPage() {
                       role="option"
                       aria-selected={sortBy === opt.key}
                       onClick={() => { setSortBy(opt.key); setSortOpen(false); }}
-                      className={`block w-full text-left font-mono text-[9px] tracking-[0.08em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                      className={`block w-full text-left font-mono text-[9px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
                         sortBy === opt.key
                           ? "text-[var(--fg)] bg-transparent"
                           : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"

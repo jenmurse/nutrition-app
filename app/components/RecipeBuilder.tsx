@@ -1009,7 +1009,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             onChange={(e) => { setGuidedMode(e.target.checked); if (!e.target.checked) { setGuidedPersonId(null); setGuidedFocus([]); setFocusCaps({}); } }}
             style={{ accentColor: "var(--accent)", width: 13, height: 13, cursor: "pointer" }}
           />
-          <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)]">Show nutrition guidance</span>
+          <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)]">Show nutrition guidance</span>
         </label>
 
         {/* Guidance inline panel */}
@@ -1027,7 +1027,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                     <div className="flex flex-wrap gap-[6px]" style={{ marginBottom: 16 }}>
                       {persons.map((p) => (
                         <button key={p.id} onClick={() => setGuidedPersonId(p.id === guidedPersonId ? null : p.id)}
-                          className={`font-mono text-[9px] tracking-[0.08em] uppercase cursor-pointer transition-colors active:scale-[0.97] bg-transparent border-0 ${
+                          className={`font-mono text-[9px] tracking-[0.06em] uppercase cursor-pointer transition-colors active:scale-[0.97] bg-transparent border-0 ${
                             guidedPersonId === p.id
                               ? "text-[var(--fg)]"
                               : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -1062,7 +1062,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                               className="rb-focus-checkbox"
                               style={{ flexShrink: 0 }}
                             />
-                            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg-2)]">{g.nutrient.displayName}</span>
+                            <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg-2)]">{g.nutrient.displayName}</span>
                           </label>
                         );
                       })}
@@ -1096,7 +1096,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                         </div>
                         {isFocused && guidedFocus.includes(g.nutrientId) && (
                           <div className="flex items-center gap-[6px] mt-[5px]">
-                            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">Cap</span>
+                            <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)]">Cap</span>
                             <input type="number" min="0" value={focusCaps[g.nutrientId] ?? ""}
                               onChange={(e) => setFocusCaps((prev) => ({ ...prev, [g.nutrientId]: e.target.value }))}
                               placeholder={String(Math.round(baseGoal))}

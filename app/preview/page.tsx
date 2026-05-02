@@ -305,7 +305,7 @@ export default function PreviewPage() {
           <div className="flex gap-[5px] items-center ml-auto">
             <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredRecipes.length} recipes</span>
             <div className="flex border border-[var(--rule)]">
-              <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
+              <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
                 Name
                 <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
               </span>
@@ -482,8 +482,8 @@ export default function PreviewPage() {
               </div>
               <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
               <div className="flex items-center gap-3">
-                <span className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 cursor-pointer hover:opacity-90">Copy prompt &rarr;</span>
-                <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] cursor-pointer hover:text-[var(--fg)]">Paste notes instead</span>
+                <span className="font-mono text-[9px] tracking-[0.06em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 cursor-pointer hover:opacity-90">Copy prompt &rarr;</span>
+                <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] cursor-pointer hover:text-[var(--fg)]">Paste notes instead</span>
               </div>
             </div>
 
@@ -500,8 +500,8 @@ export default function PreviewPage() {
               </div>
               <p className="text-[11px] text-[var(--muted)] mb-4">Copy this prompt into any MCP-connected AI assistant. Notes will save automatically once you approve.</p>
               <div className="flex items-center gap-3">
-                <span className="font-mono text-[9px] tracking-[0.08em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 cursor-pointer hover:opacity-90">Copy prompt &rarr;</span>
-                <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--muted)] cursor-pointer hover:text-[var(--fg)]">Paste notes instead</span>
+                <span className="font-mono text-[9px] tracking-[0.06em] uppercase bg-[var(--accent)] text-[var(--accent-fg)] py-[6px] px-4 cursor-pointer hover:opacity-90">Copy prompt &rarr;</span>
+                <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)] cursor-pointer hover:text-[var(--fg)]">Paste notes instead</span>
               </div>
             </div>
           </div>
@@ -530,7 +530,7 @@ export default function PreviewPage() {
           <div className="flex gap-[5px] items-center ml-auto">
             <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.04em] mr-[6px] tabular-nums">{filteredIngredients.length} items</span>
             <div className="flex border border-[var(--rule)]">
-              <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
+              <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--fg)] bg-transparent border-0 border-r border-[var(--rule)] py-[3px] pl-[9px] pr-[22px] relative">
                 Name
                 <span className="absolute right-[7px] top-1/2 -translate-y-1/2 border-[3px] border-transparent border-t-[4px] border-t-[var(--muted)] mt-[2px]" />
               </span>
@@ -636,7 +636,7 @@ export default function PreviewPage() {
               <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">Maya&apos;s daily targets</div>
               {mockGoals.map((g, i) => (
                 <div key={g.label} className={`flex items-baseline justify-between py-3 ${i < mockGoals.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg-2)]">{g.label}</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg-2)]">{g.label}</span>
                   <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
                     {g.value} <span className="text-[9px] text-[var(--muted)]">{g.unit}</span>
                   </span>

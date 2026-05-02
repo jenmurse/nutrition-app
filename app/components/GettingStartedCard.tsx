@@ -314,7 +314,7 @@ export default function GettingStartedCard() {
                 >
                   {task.text}
                   {task.note && !done && (
-                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] ml-2">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] ml-2">
                       {task.note}
                     </span>
                   )}
@@ -367,7 +367,7 @@ export default function GettingStartedCard() {
                 <span className="flex-1 font-sans text-[13px] text-[var(--muted)]" style={{ textDecoration: done ? "line-through" : "none" }}>
                   {task.text}
                   {task.note && !done && (
-                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)] ml-2 opacity-60">{task.note}</span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] ml-2 opacity-60">{task.note}</span>
                   )}
                 </span>
                 {!done && (

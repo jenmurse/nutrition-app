@@ -479,7 +479,7 @@ export default function RecipeDetailPage() {
                 </div>
               )}
               {/* Name */}
-              <h1 className="font-serif font-medium tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-4" style={{ fontSize: "clamp(28px, 3.4vw, 48px)", textWrap: "balance" }}>
+              <h1 className="recipe-title" style={{ textWrap: "balance" }}>
                 {recipe.name}
               </h1>
               {/* Meta */}
@@ -602,7 +602,7 @@ export default function RecipeDetailPage() {
                   return (
                     <div className="flex items-center justify-between gap-3 px-3 py-2 mb-4 bg-[var(--bg-2)] text-[13px] text-[var(--muted)] leading-[1.5]">
                       <span>Nutrition is partial — {missingCount} ingredient{missingCount > 1 ? "s" : ""} {missingCount > 1 ? "don't" : "doesn't"} have data yet.</span>
-                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--fg)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
+                      <a href={`/recipes/${recipe.id}/edit`} className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg)] whitespace-nowrap hover:opacity-75 transition-opacity">Add missing data →</a>
                     </div>
                   );
                 })()}
@@ -680,7 +680,7 @@ export default function RecipeDetailPage() {
                 ? "Copy the prompt below into any MCP-connected AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve."
                 : <>To use this feature, connect an MCP-enabled AI assistant. It reads your recipe directly from Good Measure, suggests changes, and saves the optimized version back automatically once you approve.
                   <div className="mt-2">
-                    <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
+                    <Link href="/settings" className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
                   </div>
                 </>}
             </ContextualTip>
@@ -707,7 +707,7 @@ export default function RecipeDetailPage() {
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">Optimization Notes</span>
                     <button onClick={() => { setEditingNotes("optimization"); setNotesText(optNotes || ""); }}
-                      className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2"
+                      className="font-mono text-[9px] tracking-[0.06em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2"
                       aria-label="Edit optimization notes">Edit</button>
                   </div>
                   <div className="prose-notes" dangerouslySetInnerHTML={{ __html: renderNotesHtml(optNotes) }} />
@@ -751,7 +751,7 @@ export default function RecipeDetailPage() {
                 ? "Copy the prompt below into any MCP-connected AI assistant. It analyzes your recipe for batch cooking, storage, and reheating — then saves the notes back to Good Measure automatically."
                 : <>To use this feature, connect an MCP-enabled AI assistant. It analyzes your recipe for batch cooking, storage, and reheating — then saves the notes back to Good Measure automatically.
                   <div className="mt-2">
-                    <Link href="/settings" className="font-mono text-[9px] tracking-[0.08em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
+                    <Link href="/settings" className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--accent)] hover:text-[var(--fg)] transition-colors no-underline">Set up MCP in Settings →</Link>
                   </div>
                 </>}
             </ContextualTip>
@@ -778,7 +778,7 @@ export default function RecipeDetailPage() {
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">Meal Prep Notes</span>
                     <button onClick={() => { setEditingNotes("mealPrep"); setNotesText(prepNotes || ""); }}
-                      className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2"
+                      className="font-mono text-[9px] tracking-[0.06em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2"
                       aria-label="Edit meal prep notes">Edit</button>
                   </div>
                   <div className="prose-notes" dangerouslySetInnerHTML={{ __html: renderNotesHtml(prepNotes) }} />

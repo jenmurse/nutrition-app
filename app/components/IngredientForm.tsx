@@ -213,7 +213,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
 
   return (
     <div>
-      <h3 className="text-lg font-medium mb-3">Add Ingredient</h3>
+      <h3 className="section-label mb-3">Add Ingredient</h3>
 
       <div className="flex flex-col gap-3 mb-3">
         <div className="flex gap-3">

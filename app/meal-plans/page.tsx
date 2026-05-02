@@ -1264,7 +1264,7 @@ const MealPlansPage = () => {
                     return (
                       <div key={n.nutrientId}>
                         <div className="flex justify-between items-baseline mb-[3px]">
-                          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--muted)]">{n.displayName}</span>
+                          <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)]">{n.displayName}</span>
                           <span className="font-mono text-[11px] tabular-nums text-[var(--fg)]">{Math.round(n.value)}<span className="text-[var(--muted)] text-[9px] ml-[2px]">{n.unit}</span></span>
                         </div>
                         {goal > 0 && (
