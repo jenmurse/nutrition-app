@@ -5881,7 +5881,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .auth-lede {
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.7;
   color: var(--fg-2);
   margin: 0;
