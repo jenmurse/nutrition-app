@@ -585,6 +585,8 @@ Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ PREMISE`
 }
 ```
 
+**Single token — no exceptions.** An audit on April 30, 2026 found two competing sizes (9px and 11px) across the app. Decision: collapse to one token everywhere — `9px / 400 / 0.14em / var(--muted)`. Classes changed: `.cmp-eyebrow`, `.pl-shop-eyebrow`, `.pl-add-eyebrow` (were 11px/0.16em), `.auth-eyebrow` (was 0.18em). Recipe detail tag and meta line also corrected. See `briefs/_archived/eyebrow-audit.md` for the full inventory.
+
 The `§` prefix is a landing convention available to internal pages too (auth uses `§ Sign in`, `§ Create account`).
 
 ### 6g. Typographic glyphs (≡, §, →, ↗)
