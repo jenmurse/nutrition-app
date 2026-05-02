@@ -8,7 +8,7 @@ export default function Close() {
       </div>
 
       <div className="close-col">
-        <h2 className="close-h">
+        <h2 className="close-h cl-h">
           Cook by the gram.<br />Plan by the week.
         </h2>
         <div className="close-body">
@@ -16,7 +16,7 @@ export default function Close() {
             I built Good Measure for myself first, and I cook from it every day.
             Now it&apos;s here for you to try.
           </p>
-          <div className="close-cta">
+          <div className="close-cta cl-cta">
             <a href="/login?signup=1" className="btn">
               Get Started <span className="arr" aria-hidden="true">↗</span>
             </a>
