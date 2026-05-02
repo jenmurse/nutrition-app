@@ -111,7 +111,7 @@
 
 .mkt .hero-bottom {
   display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: end;
-  margin-top: 40px;
+  margin-top: 20px;
 }
 .mkt .hero-lede { max-width: 52ch; font-size: 16px; line-height: 1.6; color: var(--fg-2); }
 .mkt .hero-lede strong { color: var(--fg); font-weight: 500; }
@@ -147,10 +147,9 @@
   letter-spacing: -0.03em;
   line-height: 1;
   max-width: 22ch;
-  text-wrap: balance;
 }
-.mkt .manifesto-type span { display: block; }
-.mkt .manifesto-type .pay { font-weight: 500; color: var(--fg); }
+.mkt .manifesto-type span { display: block; margin: 0; }
+.mkt .manifesto-type .pay { font-weight: 500; color: var(--fg); margin-top: -0.08em; }
 .mkt .manifesto-type .set { font-weight: 500; color: var(--fg); }
 
 /* ─── CHAPTER SPLIT ─── */
