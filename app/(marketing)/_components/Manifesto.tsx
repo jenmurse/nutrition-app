@@ -6,12 +6,10 @@ export default function Manifesto() {
       </div>
 
       <h2 className="manifesto-type">
-        <span className="ml set">Most nutrition apps log what you ate.</span>
-        <span className="ml set">Most recipe apps store what you&apos;ll cook.</span>
+        <span className="ml set">Most nutrition apps log what you eat.</span>
+        <span className="ml set">Most recipe apps store what you cook.</span>
         <span className="ml pay">Good Measure plans one</span>
-        <span className="ml pay">
-          against the <em>other</em>.
-        </span>
+        <span className="ml pay">against the other.</span>
       </h2>
     </section>
   );

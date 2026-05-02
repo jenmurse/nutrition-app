@@ -264,8 +264,7 @@ export default function OnboardingPage() {
                   Measure what matters.
                 </h1>
                 <p className="ob-lede">
-                  A nutrition tracker built around real recipes,<br />
-                  real households, and the way you actually cook.
+                  Your pantry, your recipes, your week. All calculated, planned, and optimized.
                 </p>
                 <div className="ob-actions ob-actions--center">
                   <button

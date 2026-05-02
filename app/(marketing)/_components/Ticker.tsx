@@ -1,8 +1,8 @@
 const PHRASES = [
-  "Measured to the gram",
   "Calculated, not estimated",
-  "Optimized by AI",
-  "Built for people who cook",
+  "Measured to the gram",
+  "Planned by the week",
+  "Optimized by goal",
 ];
 
 export default function Ticker() {

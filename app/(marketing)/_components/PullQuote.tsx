@@ -6,9 +6,7 @@ export default function PullQuote() {
       </div>
 
       <h2 className="pq-type">
-        <span className="pql a">
-          Cook by the <em>gram</em>.
-        </span>
+        <span className="pql a">Cook by the gram.</span>
         <span className="pql b">Plan by the week.</span>
       </h2>
     </section>

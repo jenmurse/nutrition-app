@@ -98,15 +98,24 @@ export default function ChapterWeek() {
             <br />
             Every person.
             <br />
-            The whole <em>matrix.</em>
+            The whole matrix.
           </h3>
 
           <p className="ch-p">
-            Good Measure was built for how people actually cook, whether it&apos;s for one person or a household. My husband and I cook out of the same kitchen but we have different bodies and different goals, so every person in the household has their own plan, their own targets, their own week — running against the shared recipe library. Drag a meal onto Tuesday; it counts for one person. Each plan stands on its own, and the shopping list builds itself from there.
+            Good Measure was built for how people actually cook, whether it&apos;s
+            for one person or a household. My husband and I cook out of the same
+            kitchen but we have different bodies and different goals. Every person
+            in the household has their own plan and their own targets, running
+            against the shared recipe library. You can add a meal for one person
+            or the entire household. As you go, the shopping list builds itself.
           </p>
 
           <p className="ch-p">
-            The AI part is the one I&apos;m most proud of. Good Measure connects to Claude (or any MCP-compatible agent) so you can hand it a goal — &ldquo;more protein at breakfast,&rdquo; &ldquo;keep Thursday under 1,800 calories, don&apos;t touch dinner&rdquo; — and it reads your whole week, suggests swaps from your actual pantry, and writes the changes back. Instead of optimizing a single recipe in isolation, it sees the matrix.
+            Good Measure connects to Claude or any MCP-compatible agent. Hand it a
+            goal like make this recipe have more protein or keep Thursday under
+            1800 calories, and it works from your actual pantry and plans, suggests
+            swaps, and writes the changes back. It can optimize a single recipe or
+            the whole week, whatever you need.
           </p>
         </div>
 

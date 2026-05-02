@@ -63,17 +63,18 @@ export default function ChapterLibrary() {
       <div className="ch-split">
         <div className="ch-text r">
           <h3 className="ch-h">
-            Every ingredient, to the <em>gram</em>.
+            Every ingredient, to the gram.
             <br />
             Every recipe, calculated.
           </h3>
 
           <p className="ch-p">
-            Every ingredient you cook with lives in a pantry you build once. Pull nutrition from USDA for the things that have it — produce, spices, the half of your kitchen that doesn&apos;t come with a label — and enter the rest by hand from the package in front of you. Custom units too: one almond, one egg, one of whatever you actually reach for. Measured once, lives forever.
-          </p>
-
-          <p className="ch-p">
-            Recipes are built on top of that library, which means nutrition isn&apos;t estimated — it&apos;s calculated. Change the olive oil from two tablespoons to one and the whole card updates. Scale to six servings and every number scales with it. Import from a URL, paste from a markdown file, or build from scratch. The numbers follow the ingredients.
+            Every ingredient you cook with lives in a pantry you build once, with
+            full nutrition from the USDA when it exists and from the package in
+            front of you when it doesn&apos;t. Import a recipe or create one from
+            scratch. Recipes draw from the pantry, so the numbers follow the
+            ingredients. Change two tablespoons of olive oil to one and the recipe
+            details update. Nutrition is calculated, not estimated.
           </p>
         </div>
 

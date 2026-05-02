@@ -107,7 +107,6 @@
   text-wrap: balance;
 }
 .mkt .hero-type span { display: block; }
-.mkt .hero-type em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .hero-type .thin { font-weight: 500; }
 
 .mkt .hero-bottom {
@@ -152,7 +151,6 @@
 }
 .mkt .manifesto-type span { display: block; }
 .mkt .manifesto-type .pay { font-weight: 500; color: var(--fg); }
-.mkt .manifesto-type .pay em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .manifesto-type .set { font-weight: 500; color: var(--fg); }
 
 /* ─── CHAPTER SPLIT ─── */
@@ -180,7 +178,6 @@
   max-width: 15ch;
   text-wrap: balance;
 }
-.mkt .ch-h em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .ch-p { font-size: 15.5px; line-height: 1.7; color: var(--fg-2); max-width: 44ch; text-wrap: pretty; }
 .mkt .ch-p + .ch-p { margin-top: -16px; }
 
@@ -306,7 +303,6 @@
   text-wrap: balance;
 }
 .mkt .pq-type span { display: block; }
-.mkt .pq-type .a em { font-family: var(--serif-display); font-style: italic; color: inherit; font-weight: 400; }
 .mkt .pq-type .b { font-weight: 500; }
 
 /* ─── CLOSE ─── */

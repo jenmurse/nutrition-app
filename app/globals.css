@@ -75,7 +75,6 @@
     /* Typography — fonts */
     --sans:          var(--font-sans), 'DM Sans', -apple-system, system-ui, sans-serif;
     --mono:          var(--font-mono), 'DM Mono', ui-monospace, monospace;
-    --serif-display: 'Instrument Serif', Georgia, serif; /* italic-only, display-only (≥24px) */
     --display-font:     var(--font-sans);
     --display-weight:   700;
     --display-tracking: -0.02em;
@@ -5879,7 +5878,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   max-width: 560px;
   color: var(--fg);
 }
-.auth-headline em { font-family: var(--serif-display); font-style: italic; color: inherit; }
+
 .auth-lede {
   font-family: var(--sans);
   font-size: 14px;

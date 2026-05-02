@@ -139,22 +139,22 @@ function LoginPage() {
   const copy = {
     signin: {
       eyebrow: "§ Sign in",
-      headline: <>Pick up where you <em>left&nbsp;off.</em></>,
-      lede: <>Your pantry, your recipes, the week you were planning.<br />All measured to the&nbsp;gram.</>,
+      headline: "Pick up where you left off.",
+      lede: "Your pantry, your recipes, the week you were planning. All calculated to the gram.",
       submit: "Sign in",
       submitLoading: "Signing in…",
     },
     signup: {
       eyebrow: "§ Create account",
-      headline: <>Cook the way you <em>actually&nbsp;cook.</em></>,
-      lede: <>Build your pantry once. Plan a week against it.<br />Let the math take care of&nbsp;itself.</>,
+      headline: "Set up your kitchen.",
+      lede: "Build your pantry once. Plan a week against it. Let the math take care of itself.",
       submit: "Create account",
       submitLoading: "Creating account…",
     },
     forgot: {
       eyebrow: "§ Reset password",
-      headline: <>Forgot? It <em>happens.</em></>,
-      lede: <>Enter the email tied to your account and we&rsquo;ll send a reset link.</>,
+      headline: "Forgot? It happens.",
+      lede: "Enter the email tied to your account and we’ll send a reset link.",
       submit: "Send reset link",
       submitLoading: "Sending…",
     },

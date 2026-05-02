@@ -18,7 +18,6 @@ Steps 1–5 of the design pass are complete. What remains:
 
 | Step | Description | Status |
 |---|---|---|
-| Step 6 | Italic serif decision + landing copy pass (italic density + em-dash strip + copy edits, all in one pass) | ☐ |
 | Step 9 | Wordmark integration pass — apply locked `good · measure` wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav) | ☐ |
 | Step 10 | Type leading and tracking pass — verify every surface uses the correct type token | ☐ |
 | Step 11 | Surface coherence check — full sweep of every screen, desktop + mobile | ☐ |
@@ -72,6 +71,14 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - `position: fixed` rails must be siblings of the animated scroll container, never children. A CSS `transform` on an ancestor (including entrance animations) breaks `position: fixed` by creating a new containing block. Applies to all rails: jump nav, Add Meal `.am-rail`, settings nav.
 - Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
 - Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
+
+**Locked this session (May 2 — Step 6):**
+- **Italic system removed.** No `<em>` italics on any surface. Theme-accent `<em>` convention retained for dashboard greeting only.
+- **Two-typeface system.** DM Sans + DM Mono. Instrument Serif removed.
+- **Sage is no longer a brand color.** Sage is the default theme color (used when no person is selected — auth, onboarding bookends, landing). On in-app surfaces the accent shifts with the active person's theme. The brand is paper and ink only; color belongs to the person.
+- **Landing hero is "Measure what matters."** — replaces "A nutrition app for people who actually cook." Echoes onboarding Welcome headline on purpose.
+- **Auth Create account headline is "Set up your kitchen."** — replaces "Cook the way you actually cook."
+- **Running bar is four labels** — *CALCULATED, NOT ESTIMATED · MEASURED TO THE GRAM · PLANNED BY THE WEEK · OPTIMIZED BY GOAL*.
 
 **Locked this session (May 2 — Step 5 editorial pass):**
 - **Button casing rule** — all button labels render UPPERCASE via `text-transform: uppercase` at the class level; source strings may be mixed-case. Applies to every button class. Exception: `.mob-menu-item` (sentence case at 36px, content register).

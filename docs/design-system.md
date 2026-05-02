@@ -10,19 +10,17 @@ Source of truth for current visual reality. The design system is **editorial, sh
 
 ## 1. Typography
 
-**Three typefaces. No others.**
+**Two typefaces. No others.**
 
 | Role | Family | When to use |
 |---|---|---|
-| Body / display / headings | DM Sans | Everything except UI labels and italic editorial moments |
+| Body / display / headings | DM Sans | Everything except UI labels |
 | Labels / mono | DM Mono | UI chrome — nav links, eyebrows, filter chips, metadata, dates, nutrition values, button text |
-| Italic editorial accent | Instrument Serif | Auth headlines only (`<em>left off.</em>`, `<em>actually cook.</em>`). Display-size only (≥ 24px). Never for body text. |
 
 **Defined as CSS variables on `:root`:**
 ```css
---font-sans:      'DM Sans', sans-serif;
---font-mono:      'DM Mono', monospace;
---serif-display:  'Instrument Serif', Georgia, serif; /* italic-only, display-only */
+--font-sans: 'DM Sans', sans-serif;
+--font-mono: 'DM Mono', monospace;
 ```
 
 `html, body { font-family: var(--font-sans); font-size: 13px; -webkit-font-smoothing: antialiased; }`
@@ -118,13 +116,15 @@ All colors are CSS variables. Never hardcode hex values.
 
 Three buckets, no exceptions:
 
-1. **Theme-reactive = identity.** The accent color marks "I am Jen" / "I am Garth." Used for: avatar dots, active person pill, active planner day column, person dots before names, sage `<em>` accent words on landing and auth.
+1. **Theme-reactive = identity.** The accent color marks "I am Jen" / "I am Garth." Used for: avatar dots, active person pill, active planner day column, person dots before names, dashboard greeting `<em>` name accent.
 
 2. **Neutral black = everything else.** Primary CTAs, active tab states, focus rings, active nav underlines, destructive buttons, hover states, every generic UI affordance.
 
 3. **Red and green stay semantic.** `--err` for over-limit warnings, `--ok` for success. These are signal colors, not brand colors.
 
 Coral / theme accent should never appear on a primary CTA. Black should never appear on an identity marker.
+
+**Sage is a theme color, not a brand color.** The system has eight named themes; sage is one of them, used as the default when no person is selected (auth, onboarding bookends, landing — surfaces where the accent has no person to belong to). On in-app surfaces, the accent shifts with the active person's theme. The brand itself is paper and ink (`--bg` and `--fg`); sage and every other accent belong to the person, not the product.
 
 ### 2e. Nutrition panel semantic color policy
 
@@ -703,25 +703,17 @@ Red color and red rule, no tinted fill. Reads as a flag, not an alert dialog.
 
 **`--err-l` (tinted error fill)** is for inline semantic over-limit callouts where a light background fill is needed (e.g., a highlighted row). It is **not** for selection states — selection uses `var(--bg-2)`. Do not use `--err-l` to indicate that something is selected or active.
 
-### 6f. Em accent — two distinct treatments
+### 6f. Em accent — theme-accent convention
 
-There are two separate `<em>` conventions. Do not confuse them.
+The `<em>` markup is used as a typographic accent in one place: the dashboard greeting (person name in `var(--accent)`). It is not italic — it is `font-style: normal` with theme-reactive color.
 
-**Sage accent `<em>` (landing, dashboard):**
 ```css
 em { font-style: normal; color: var(--accent); }
 ```
-Used on the landing (`actually`) and dashboard greeting (person name). Accent color, not italic. The color resolves to sage on auth/onboarding screens (no person selected yet) and adopts the active person's theme on in-app surfaces.
 
-**Serif italic `<em>` (auth headlines only):**
-```css
-.auth-headline em {
-  font-family: var(--serif-display); /* Instrument Serif */
-  font-style: italic;
-  color: inherit; /* inherits --fg, not --accent */
-}
-```
-Used in the auth headlines only: *left off.* (Sign in) and *actually cook.* (Create account). These are Instrument Serif italic, black — not sage. The `<em>` markup is preserved ready for any future typeface swap; do not remove it even if the visual treatment changes.
+This is a theme convention, not a brand convention. The accent color is sage by default (when no person is selected, e.g. on auth or onboarding bookends), but on in-app surfaces it shifts to the active person's theme color (coral, plum, slate, etc.). The brand itself is paper and ink (`--bg` and `--fg`); color belongs to the person.
+
+The previous serif italic `<em>` convention used on auth headlines (`<em>left off</em>`, `<em>actually cook</em>`) was removed in May 2026 along with the Instrument Serif typeface. No surface in the system uses serif italic anymore.
 
 ---
 
@@ -829,13 +821,13 @@ Use Framer Motion (package `motion`) for entrance/exit on full-screen pages; CSS
 
 **Grid:** `grid-template-columns: 1fr 1px 1fr`. The centre column is an explicit `<div class="auth-divider" />` element — full-height `background: var(--rule)`. This is a structural element in the grid, not a `border-right` on the editorial panel. The two content columns are equal (`1fr` each).
 
-**Editorial left** (`justify-content: center`): `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) with Instrument Serif italic `<em>` → DM Sans 14px lede. Both columns `padding: 48px 56px`.
+**Editorial left** (`justify-content: center`): `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) → DM Sans 14px lede. Both columns `padding: 48px 56px`.
 
 **Form right** (`justify-content: center`): SIGN IN / CREATE ACCOUNT tab toggle (active 1.5px underline) → bottom-border-only fields → sharp black CTA → OR divider → outlined Google SSO button.
 
 **Top nav** (`.auth-nav`): wordmark `Good Measure` (DM Sans 700 14px) left, `← Back` mono link right.
 
-**Headline `<em>` treatment**: Instrument Serif italic, `color: inherit` (black). *Not* the sage accent — see §6f.
+Auth headlines are plain DM Sans, no `<em>` markup. Sign in: `Pick up where you left off.` Create account: `Set up your kitchen.`
 
 Sign in: Email + Password (with right-aligned `Forgot` link).
 Create account: Name + Email + Password + Confirm password.
