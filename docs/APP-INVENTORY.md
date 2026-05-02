@@ -22,7 +22,9 @@ After the in-flight briefs land, the remaining work is no longer a list of small
 
 **Brand mark question.** Current "Good Measure" wordmark is DM Sans 700 — functional but not identity-forward. Open question: should it be a more designed wordmark (custom letterforms, custom kerning, possibly a small mark) that does heavier lifting? This decision affects auth, onboarding, mobile chrome, and what linework needs to do. Worth pulling references and discussing before committing.
 
-**Mobile cleanup.** Mobile views feel slightly less editorial than desktop. Tension between content-heavy editorial app and mobile app conventions (bottom nav, FABs, bottom sheets). Surfaces to look at: index pages, dashboard, bottom sheets, recipe detail, auth/onboarding. The fix isn't to make mobile feel exactly like desktop — it's to find the mobile expression of the editorial language.
+**Mobile cleanup.** Significant ground covered in the May 1 session: top-bar chip-to-hamburger gap (MOB-CLEANUP-1B), Add Meal as a full-overlay sheet (MOB-4), planner day strip alignment, person dropdown style (planner + dashboard), recipe builder ingredient rows (MOB-3), recipe grid uniform row heights and borders. Archived briefs: `briefs/_archived/brief-mob-*.md`.
+
+Remaining surfaces not yet polished: recipe detail mobile layout, auth/onboarding mobile expression. The overall question — what is the mobile expression of the editorial language — is still open and connects to the brand mark and linework decisions.
 
 **Type leading consistency.** Leading on big type may differ across landing, auth, and onboarding. Hero on landing might be tighter than the same scale used elsewhere. Worth measuring and standardizing. Small fix with a big impact on whether the system reads as one family.
 
@@ -105,6 +107,10 @@ Resolved this session, no longer open:
 - ~~Mobile recipes card view~~ — deferred to post-launch design pass
 - ~~Onboarding mockup direction~~ — resolved (single-column centered)
 - ~~Compare selection overlay~~ — confirmed shipped
+- ~~Mobile bottom sheet Add Meal~~ — shipped (MOB-4, May 1)
+- ~~Recipe builder ingredient rows mobile~~ — shipped (MOB-3, May 1)
+- ~~Recipe grid borders + uniform row heights~~ — shipped (May 1)
+- ~~Mobile top bar chip-to-hamburger gap~~ — shipped (MOB-CLEANUP-1B, May 1)
 
 ---
 
