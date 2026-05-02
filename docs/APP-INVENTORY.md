@@ -79,6 +79,8 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - **Landing hero is "Measure what matters."** — replaces "A nutrition app for people who actually cook." Echoes onboarding Welcome headline on purpose.
 - **Auth Create account headline is "Set up your kitchen."** — replaces "Cook the way you actually cook."
 - **Running bar is four labels** — *CALCULATED, NOT ESTIMATED · MEASURED TO THE GRAM · PLANNED BY THE WEEK · OPTIMIZED BY GOAL*.
+- **§ METHOD (PullQuote) section removed from landing.** Landing is now §00 Hero, §01 Manifesto (§ Premise), §02 ChapterLibrary, §03 ChapterWeek, §04 Close (§ Invitation).
+- **Landing headline-to-body gap normalized to 24px across all sections.** `.ch-text { gap: 24px }` (§02, §03), `.close-col { gap: 24px }` (§04), `.hero-bottom { margin-top: 20px }` (§00 — intentionally tighter given larger headline scale).
 
 **Locked this session (May 2 — Step 5 editorial pass):**
 - **Button casing rule** — all button labels render UPPERCASE via `text-transform: uppercase` at the class level; source strings may be mixed-case. Applies to every button class. Exception: `.mob-menu-item` (sentence case at 36px, content register).
@@ -110,8 +112,7 @@ For the next session:
 1. **Linework audit framework** — what to measure, what's the criteria for adding or removing rules?
 2. **Brand mark** — designed wordmark or stick with DM Sans 700? References to pull?
 3. **Mobile editorial expression** — what does the mobile version of this design system look like?
-4. **Type leading** — measure the gap between landing/auth/onboarding headlines and standardize
-5. **Account deletion** (in `decisions-pending.md`) — when does this need to be answered?
+4. **Account deletion** (in `decisions-pending.md`) — when does this need to be answered?
 
 Resolved this session, no longer open:
 - ~~Mobile recipes card view~~ — deferred to post-launch design pass
@@ -121,6 +122,7 @@ Resolved this session, no longer open:
 - ~~Recipe builder ingredient rows mobile~~ — shipped (MOB-3, May 1)
 - ~~Recipe grid borders + uniform row heights~~ — shipped (May 1)
 - ~~Mobile top bar chip-to-hamburger gap~~ — shipped (MOB-CLEANUP-1B, May 1)
+- ~~Type leading~~ — landing headline-to-body gap standardized to 24px across all sections (May 2)
 
 ---
 

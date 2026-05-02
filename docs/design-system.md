@@ -584,7 +584,7 @@ These are the patterns that distinguish Good Measure from a generic app and rhym
 
 ### 6a. Bare eyebrow labels
 
-Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ PREMISE`, `§ METHOD`, `§ INVITATION` — are bare DM Mono labels. **No container, no border, no background, no padding.** Just the text.
+Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ PREMISE`, `§ INVITATION` — are bare DM Mono labels. **No container, no border, no background, no padding.** Just the text.
 
 ```css
 .eyebrow {
@@ -605,7 +605,7 @@ These glyphs are treated as typographic marks, not icons. They represent ideas, 
 
 | Glyph | Use | Notes |
 |---|---|---|
-| `§` | Editorial section marker | Landing `§ PREMISE`, auth `§ SIGN IN` |
+| `§` | Editorial section marker | Landing `§ PREMISE`, `§ INVITATION`; auth `§ SIGN IN` |
 | `→` | Direction / forward action | CTAs, step transitions |
 | `↗` | External / outbound link indicator | Links that open new contexts |
 | `≡` | Bottom rail MENU control | 10×8px inline SVG, 1px strokes, `currentColor`. **Only here** — not as a general menu affordance elsewhere |

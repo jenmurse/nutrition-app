@@ -540,7 +540,7 @@ input[type="number"]:focus {
   background: transparent;
   padding: 4px 2px;
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 13px;
   width: 140px;
   color: var(--fg);
   outline: none;
@@ -548,9 +548,9 @@ input[type="number"]:focus {
 }
 .ed-search input::placeholder {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--muted);
 }
 .ed-search input:focus { border-bottom-color: var(--fg); }
@@ -561,7 +561,7 @@ input[type="number"]:focus {
   font-weight: 400;
   line-height: 1;
   color: var(--muted);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -689,7 +689,7 @@ input[type="number"]:focus {
   font-family: var(--sans);
   font-size: clamp(28px, 2.8vw, 38px);
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--fg);
   text-wrap: balance;
@@ -705,9 +705,9 @@ input[type="number"]:focus {
 }
 .recipe-grid-item__name {
   font-family: var(--sans);
-  font-size: 17px;
+  font-size: clamp(13px, 1.4vw, 16px);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
   line-height: 1.25;
   color: var(--fg);
   text-wrap: balance;
@@ -814,9 +814,9 @@ input[type="number"]:focus {
 }
 .recipe-list-row__name {
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   white-space: nowrap;
   overflow: hidden;
@@ -929,9 +929,9 @@ input[type="number"]:focus {
 }
 .pantry-item__name {
   font-family: var(--sans);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
   line-height: 1.2;
   color: var(--fg);
   margin: 0 0 4px;
@@ -940,7 +940,7 @@ input[type="number"]:focus {
 .pantry-item__unit {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--muted);
 }
 .pantry-item__nut {
@@ -955,7 +955,7 @@ input[type="number"]:focus {
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   margin: 0;
   align-self: baseline;
@@ -1231,7 +1231,7 @@ input[type="number"]:focus {
   font-family: var(--sans);
   font-size: 36px;
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--fg);
   margin: 0 0 20px;
@@ -1292,7 +1292,7 @@ input[type="number"]:focus {
 .prose-notes h3 {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 16px 0 6px;
@@ -1313,7 +1313,7 @@ input[type="number"]:focus {
 }
 .prose-notes th {
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--muted);
   text-align: left;
   padding: 4px 12px 4px 0;
@@ -1386,10 +1386,10 @@ input[type="number"]:focus {
   transition:background 0.5s;
 }
 
-.pl-range { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg); padding-left:4px; padding-right:8px; flex-shrink:0; min-width:100px; }
+.pl-range { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--fg); padding-left:4px; padding-right:8px; flex-shrink:0; min-width:100px; }
 
 .pl-nav-btn {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
   background:none; border:1px solid var(--rule); color:var(--muted);
   padding:6px 10px; cursor:pointer; white-space:nowrap; flex-shrink:0;
   border-radius: 0;
@@ -1403,7 +1403,7 @@ input[type="number"]:focus {
 .pl-chip-sep { width:1px; height:14px; background:var(--rule); flex-shrink:0; margin:0 6px; }
 
 .pl-person-chip {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
   background:none; border:none; color:var(--muted);
   padding:3px 0 2px; cursor:pointer; position:relative; white-space:nowrap;
   border-radius: 0;
@@ -1421,7 +1421,7 @@ input[type="number"]:focus {
 .pl-right-group { display:flex; gap:18px; align-items:center; margin-left:auto; }
 
 .pl-nut-chip {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
   background:none; border:none; color:var(--muted);
   padding:3px 0 2px; cursor:pointer; white-space:nowrap; position:relative;
   border-bottom: 1.5px solid transparent;
@@ -1433,7 +1433,7 @@ input[type="number"]:focus {
 .pl-nut-chip.on { color:var(--fg); border-bottom-color: var(--fg); }
 
 .pl-new-btn {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; font-weight:500; letter-spacing:0.14em; text-transform:uppercase;
   background:transparent; color:var(--fg); border:1px solid var(--rule); padding:6px 14px;
   border-radius: 0;
   cursor:pointer; transition:border-color 0.15s, transform 100ms var(--ease-out); white-space:nowrap; flex-shrink:0;
@@ -1458,7 +1458,7 @@ input[type="number"]:focus {
   border-bottom-color:var(--rule);
 }
 
-.pl-create-label { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+.pl-create-label { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
 
 .pl-create-date {
   font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:11px; color:var(--fg);
@@ -1541,9 +1541,9 @@ input[type="number"]:focus {
 
 .wk-day-header { padding:16px 6px 12px; }
 
-.wk-day-name { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+.wk-day-name { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
 
-.wk-day-num { font-family:var(--font-sans); font-size:28px; font-weight:700; letter-spacing:-0.02em; color:var(--fg-2); line-height:1; margin-top:3px; font-variant-numeric:tabular-nums; }
+.wk-day-num { font-family:var(--font-sans); font-size:28px; font-weight:700; letter-spacing:-0.03em; color:var(--fg-2); line-height:1; margin-top:3px; font-variant-numeric:tabular-nums; }
 
 .wk-day-col.today .wk-day-name { color:var(--accent-btn); }
 .wk-day-col.today .wk-day-num { color:var(--accent-btn); }
@@ -1559,7 +1559,7 @@ input[type="number"]:focus {
 .wk-meal-section { padding:10px 0 2px; }
 
 .wk-meal-label {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
   color:var(--muted); padding:0 6px; margin-bottom:4px;
 }
 
@@ -1580,14 +1580,14 @@ input[type="number"]:focus {
 .meal-chip-kcal { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:2px; display:block; }
 
 .ev-person-label {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
   color:var(--muted); padding:0 6px; margin:6px 0 2px; display:flex; align-items:center; gap:5px;
 }
 .ev-person-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
 
 .wk-add-btn {
   display:block; text-align:left;
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
   color:var(--muted); background:none; border:none;
   padding:12px 6px 24px; cursor:pointer;
   transition:color 120ms ease-out, transform 80ms ease-out;
@@ -1618,7 +1618,7 @@ input[type="number"]:focus {
   gap: 6px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fg);
   background: none;
@@ -1665,7 +1665,7 @@ input[type="number"]:focus {
   padding: 11px 14px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
   background: none;
@@ -1840,13 +1840,13 @@ input[type="number"]:focus {
 .ev-day-head.today .ev-dnum { color:var(--accent-btn); }
 
 .ev-dname {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.12em;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em;
   text-transform:uppercase; color:var(--muted);
 }
 
 .ev-dnum {
   font-family:var(--font-sans); font-size:28px; font-weight:700;
-  letter-spacing:-0.02em; color:var(--fg-2); line-height:1; margin-top:3px;
+  letter-spacing:-0.03em; color:var(--fg-2); line-height:1; margin-top:3px;
   font-variant-numeric:tabular-nums;
 }
 
@@ -1859,7 +1859,7 @@ input[type="number"]:focus {
 .ev-row-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
 .ev-row-name {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.08em;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.06em;
   text-transform:uppercase; color:var(--fg-2);
 }
 
@@ -1877,7 +1877,7 @@ input[type="number"]:focus {
 }
 
 .ev-meal-type {
-  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.04em;
+  font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.06em;
   color:var(--muted); flex-shrink:0; padding-top:1px;
 }
 
@@ -1910,7 +1910,7 @@ input[type="number"]:focus {
 
 .pl-side-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; }
 .pl-side-day { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:11px; font-weight:400; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
-.pl-side-person { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px; }
+.pl-side-person { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px; }
 .pl-side-person-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
 
 .pl-kcal-hero { margin-bottom:4px; }
@@ -1923,7 +1923,7 @@ input[type="number"]:focus {
 .pl-nut-rows { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
 
 .pl-warn-section { margin-bottom:20px; }
-.pl-warn-label { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.pl-warn-label { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
 
 .warn-chips { display:flex; flex-direction:column; }
 /* below-min: plain ruled row, no background — informational, not alarming */
@@ -1958,7 +1958,7 @@ input[type="number"]:focus {
 .pl-swap-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.5; }
 .pl-swap-savings { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--ok); margin-top:2px; margin-bottom:10px; }
 
-.pl-swap-btn { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: 0; color:var(--muted); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out); }
+.pl-swap-btn { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: 0; color:var(--muted); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:color 0.15s, border-color 0.15s, transform 100ms var(--ease-out); }
 .pl-swap-btn:hover { border-color:var(--fg); color:var(--fg); }
 .pl-swap-btn:active { transform:scale(0.97); }
 
@@ -1970,7 +1970,7 @@ input[type="number"]:focus {
 .pl-rec-name { font-size:11px; font-weight:500; color:var(--fg); line-height:1.5; }
 .pl-rec-kcal { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--muted); margin-top:2px; }
 
-.pl-add-btn { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: 0; color:var(--fg); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:border-color 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
+.pl-add-btn { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; background:none; border:1px solid var(--rule); border-radius: 0; color:var(--fg); padding:6px 16px; cursor:pointer; flex-shrink:0; transition:border-color 0.15s, transform 100ms var(--ease-out); white-space:nowrap; }
 .pl-add-btn:hover { border-color:var(--fg); }
 .pl-add-btn:active { transform:scale(0.97); }
 
@@ -2036,7 +2036,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
   cursor: pointer;
@@ -2250,7 +2250,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--sans);
   font-weight: 700;
   font-size: clamp(36px, 4.4vw, 64px);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--fg);
 }
@@ -2261,7 +2261,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   align-items: baseline;
   gap: 3px;
   font-family: var(--sans);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 .cmp-value .cmp-num {
   color: var(--muted);
@@ -2346,7 +2346,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-radius: 0;
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   cursor: pointer;
@@ -2397,7 +2397,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   overflow: hidden;
   white-space: nowrap;
@@ -2606,7 +2606,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-radius: 0;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
   transition: opacity 0.15s, transform 100ms var(--ease-out);
@@ -2758,7 +2758,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .shop-header-label {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fg);
   margin-bottom: 2px;
@@ -2836,7 +2836,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -2952,7 +2952,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-weight: 700;
   font-size: clamp(22px, 2.4vw, 32px);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   margin: 0;
 }
@@ -3066,7 +3066,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-weight: 700;
   font-size: clamp(22px, 2.4vw, 32px);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   margin: 0 0 32px;
 }
@@ -3114,9 +3114,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-add-mtrow:focus-visible .pl-add-mtarrow { color: var(--fg); }
 .pl-add-mtname {
   font-family: var(--sans);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   flex: 1;
 }
@@ -3263,7 +3263,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     font-family: var(--font-sans);
     font-size: 15px;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     color: var(--fg);
     text-decoration: none;
   }
@@ -3487,7 +3487,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     font-family: var(--sans);
     font-size: 36px;
     font-weight: 500;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     line-height: 1.1;
     color: var(--fg-2);
     text-decoration: none;
@@ -3505,7 +3505,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     font-family: var(--sans);
     font-size: 36px;
     font-weight: 500;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     line-height: 1.1;
     color: var(--fg-2);
     background: none;
@@ -4158,7 +4158,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   text-decoration: none;
   display: inline-block;
@@ -4185,7 +4185,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-cycle-active-label-num {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
 }
@@ -4197,7 +4197,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-cycle-active-label-title {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.6);
 }
@@ -4205,7 +4205,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-weight: 700;
   font-size: 13px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   text-decoration: none;
 }
@@ -4219,7 +4219,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   text-decoration: none;
   transition: color 0.15s;
@@ -4230,7 +4230,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--accent-fg);
   background: var(--accent-btn);
   text-decoration: none;
@@ -4246,7 +4246,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   margin-bottom: 20px;
   display: block;
@@ -4264,7 +4264,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   margin-bottom: 18px;
   display: block;
@@ -4280,7 +4280,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-weight: 700;
   font-size: clamp(44px, 5.5vw, 60px);
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   line-height: 0.95;
   color: var(--fg);
   text-wrap: balance;
@@ -4303,7 +4303,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: #fff;
   background: var(--accent-btn);
   text-decoration: none;
@@ -4371,7 +4371,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: rgba(255,255,255,0.45);
   min-width: 140px;
   text-align: center;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 /* Cycling screens */
 .lp-cycle-screen-wrap {
@@ -4482,7 +4482,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-fs-tab-num {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #2D6B3F;
   margin-right: 7px;
@@ -4491,7 +4491,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-fs-tab-label {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   white-space: nowrap;
@@ -4525,7 +4525,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   white-space: nowrap;
   flex-shrink: 0;
@@ -4552,7 +4552,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding: 16px var(--pad) 14px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   border-top: 1px solid var(--rule);
@@ -4668,7 +4668,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   line-height: 1;
 }
@@ -4756,7 +4756,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: var(--fg-2);
 }
 .lp-household-note {
@@ -4782,7 +4782,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-weight: 800;
   font-size: clamp(36px, 5.5vw, 72px);
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   line-height: 1.0;
   color: var(--fg);
   margin-bottom: 20px;
@@ -4802,7 +4802,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   margin-top: 20px;
 }
@@ -4842,7 +4842,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .rb-focus-chip {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
   background: none;
@@ -4941,7 +4941,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
   flex-shrink: 0;
 }
@@ -5115,7 +5115,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 7px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--muted);
   gap: 3px;
 }
@@ -5137,7 +5137,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-mob-feature-num {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   margin-right: 6px;
 }
@@ -5145,14 +5145,14 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: var(--fg);
   font-weight: 500;
 }
 .lp-mob-legal {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   padding: 16px 0 calc(14px + env(safe-area-inset-bottom));
@@ -5267,7 +5267,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 0;
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1;
   color: var(--fg);
   text-decoration: none;
@@ -5278,7 +5278,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding: 9px 20px !important;
   background: var(--fg) !important;
   color: #FAF8F4 !important;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   border: 1.5px solid var(--fg) !important;
   transition: background 0.15s, color 0.15s !important;
 }
@@ -5425,7 +5425,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   padding: 12px 24px;
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--fg);
@@ -5445,7 +5445,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   padding: 14px 32px;
   border-radius: var(--radius-pill);
   border: none;
@@ -5463,7 +5463,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   padding: 12px 24px;
   border-radius: var(--radius-pill);
   border: 1.5px solid rgba(17, 17, 17, 0.25);
@@ -5541,7 +5541,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: rgba(17, 17, 17, 0.75);
   margin: 0;
 }
@@ -5575,7 +5575,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   padding: 5px 12px;
   border-radius: var(--radius-pill);
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -5635,7 +5635,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   color: rgba(250, 248, 244, 0.4);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   margin-top: 16px;
 }
 
@@ -5830,7 +5830,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
 }
-.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
+.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
 .auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -5872,7 +5872,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: clamp(40px, 4.5vw, 60px);
   line-height: 1.05;
   font-weight: 500;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   margin: 0 0 28px;
   text-wrap: balance;
   max-width: 560px;
@@ -5881,7 +5881,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .auth-lede {
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--fg-2);
   margin: 0;
@@ -6020,7 +6020,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   padding: 10px 0 10px 14px;
   border-left: 2px solid var(--rule);
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--fg-2);
 }
 .auth-invite-banner strong { color: var(--fg); font-weight: 600; }
@@ -6084,7 +6084,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--sans);
   font-weight: 700;
   font-size: 15px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--fg);
 }
 .ob-topbar-right {
@@ -6149,7 +6149,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--sans);
   font-weight: 500;
   font-size: clamp(28px, 7vw, 36px);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   line-height: 1.0;
   color: var(--fg);
   margin: 0 0 16px;
