@@ -248,7 +248,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
   };
 
   const handleRemoveMeal = async (mealId: number) => {
-    if (!await dialog.confirm({ title: 'Remove this meal?', body: "This can't be undone.", confirmLabel: 'Remove', danger: true })) return;
+    if (!await dialog.confirm({ title: 'Remove this meal?', body: "This can't be undone.", confirmLabel: 'REMOVE', danger: true })) return;
 
     try {
       await onRemoveMeal(mealId);
@@ -427,7 +427,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       handleAddMealClick(new Date(day.date));
                     }}
                     aria-label={`Add meal on ${day.dayOfWeek}`}
-                  >+ Add</button>
+                  >+ ADD</button>
                 )}
               </div>
             );
@@ -522,7 +522,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                       handleAddMealClick(new Date(day.date));
                     }}
                     aria-label={`Add meal on ${day.dayOfWeek}`}
-                  >+ Add</button>
+                  >+ ADD</button>
                 )}
               </DroppableDayCol>
             );

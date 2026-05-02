@@ -766,7 +766,7 @@ const MealPlansPage = () => {
                 }
               }}
               aria-label="Previous week"
-            >&#8249; Prev</button>
+            >&#8249; PREV</button>
             <button
               className="ed-btn-text"
               onClick={() => {
@@ -778,7 +778,7 @@ const MealPlansPage = () => {
                 }
               }}
               aria-label="Next week"
-            >Next &#8250;</button>
+            >NEXT &#8250;</button>
           </>
         )}
         <button
@@ -844,7 +844,7 @@ const MealPlansPage = () => {
               router.push(`/meal-plans?${params.toString()}`);
             }}
             aria-label="New plan"
-          >+ New Plan</button>
+          >+ NEW PLAN</button>
 
           {/* Edit mode controls */}
           {selectedPlan && viewMode === 'personal' && !editMode && (
@@ -852,7 +852,7 @@ const MealPlansPage = () => {
               className="ed-btn-text"
               onClick={() => setEditMode(true)}
               aria-label="Edit meals"
-            >Edit</button>
+            >EDIT</button>
           )}
           {editMode && (
             <>
@@ -862,7 +862,7 @@ const MealPlansPage = () => {
                 disabled={selectedMealIds.size === 0}
                 onClick={handleDeleteSelected}
                 aria-label="Delete selected meals"
-              >Delete</button>
+              >DELETE</button>
               <button
                 className="pl-nav-btn pl-nav-btn--destroy"
                 onClick={async () => {
@@ -881,12 +881,12 @@ const MealPlansPage = () => {
                   router.push(`/meal-plans?${params.toString()}`);
                 }}
                 aria-label="Delete entire plan"
-              >Delete plan</button>
+              >DELETE PLAN</button>
               <button
                 className="pl-nav-btn"
                 onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
                 aria-label="Exit edit mode"
-              >Done</button>
+              >DONE</button>
             </>
           )}
 
@@ -954,7 +954,7 @@ const MealPlansPage = () => {
                 onClick={() => setViewMode('both')}
                 aria-pressed={viewMode === 'both'}
                 aria-label="Everyone"
-              >Everyone</button>
+              >EVERYONE</button>
               </div>
             </>
           )}
@@ -1056,7 +1056,7 @@ const MealPlansPage = () => {
               router.push(`/meal-plans?${params.toString()}`);
             }}
             aria-label="New plan"
-          >+ New Plan</button>
+          >+ NEW PLAN</button>
         </div>
       </div>
 

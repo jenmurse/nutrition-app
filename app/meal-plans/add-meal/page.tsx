@@ -440,7 +440,7 @@ function AddMealInner() {
             disabled={adding || !canAdd}
             onClick={handleAdd}
             aria-label="Add to plan"
-          >{adding ? 'Adding…' : 'Add to Plan'}</button>
+          >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
         </div>
       </div>
     </>

@@ -350,7 +350,7 @@ export default function Home() {
           <div className="hm-stats-border border-t border-[var(--rule)]">
             {statEntries.length === 0 ? (
               <div style={{ padding: `20px var(--pad)`, borderLeft: '2px solid var(--rule)', marginLeft: 'var(--pad)' }}>
-                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">§ Dashboard stats</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">§ DASHBOARD STATS</div>
                 <div className="font-sans text-[13px] text-[var(--fg-2)] mb-[12px]">Choose 3 stats to track here.</div>
                 <Link
                   href="/settings#dashboard"

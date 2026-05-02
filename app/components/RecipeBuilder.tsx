@@ -1133,9 +1133,9 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ Footer Buttons ═══ */}
       {!hideFooterButtons && (
         <div className="flex justify-end gap-[10px]" style={{ marginTop: 64 }}>
-          <button className="ed-btn ghost" onClick={onCancel} disabled={saving} aria-label="Cancel">Cancel</button>
+          <button className="ed-btn ghost" onClick={onCancel} disabled={saving} aria-label="Cancel">CANCEL</button>
           <button className="ed-btn primary" onClick={handleSave} disabled={saving} aria-label={initialRecipe ? "Save recipe" : "Create recipe"}>
-            {saving ? (initialRecipe ? "Saving…" : "Creating…") : (initialRecipe ? "Save" : "Create")}
+            {saving ? (initialRecipe ? "SAVING…" : "CREATING…") : (initialRecipe ? "SAVE" : "CREATE")}
           </button>
         </div>
       )}

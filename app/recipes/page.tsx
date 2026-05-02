@@ -521,7 +521,7 @@ function RecipesPage() {
               aria-pressed={compareMode}
               aria-label={compareMode ? (compareIds.length >= 2 ? "Open nutrition comparison" : "Exit compare mode") : "Enter compare mode"}
             >
-              {compareMode && compareIds.length > 0 ? `Compare (${compareIds.length})` : 'Compare'}
+              {compareMode && compareIds.length > 0 ? `COMPARE (${compareIds.length})` : 'COMPARE'}
             </button>
 
             {/* Sort group */}
@@ -619,16 +619,16 @@ function RecipesPage() {
           </div>
           <div className="compare-strip-sep" aria-hidden="true" />
           {compareIds.length > 0 && (
-            <button className="ed-btn-text" onClick={() => setCompareIds([])} aria-label="Clear compare selection">Clear</button>
+            <button className="ed-btn-text" onClick={() => setCompareIds([])} aria-label="Clear compare selection">CLEAR</button>
           )}
-          <button className="ed-btn-text" onClick={exitCompareMode} aria-label="Exit compare mode">Exit</button>
+          <button className="ed-btn-text" onClick={exitCompareMode} aria-label="Exit compare mode">EXIT</button>
           <button
             className="compare-strip-cta"
             disabled={compareIds.length < 2}
             onClick={() => setCompareOpen(true)}
             aria-label="Open nutrition comparison"
           >
-            Compare →
+            COMPARE →
           </button>
         </div>
       )}
@@ -646,7 +646,7 @@ function RecipesPage() {
                   className="mob-sheet-clear"
                   onClick={() => { setSelectedTags([]); setShowFavorites(false); setSortBy("name"); setSortDir("asc"); }}
                   aria-label="Clear all filters"
-                >Clear all</button>
+                >CLEAR ALL</button>
               )}
             </div>
 
@@ -700,7 +700,7 @@ function RecipesPage() {
               </div>
             </div>
 
-            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>Done</button>
+            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>DONE</button>
           </div>
         </>
       )}

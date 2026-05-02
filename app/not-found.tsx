@@ -3,10 +3,10 @@ import EmptyState from "./components/EmptyState";
 export default function NotFound() {
   return (
     <EmptyState
-      eyebrow="§ Not found"
+      eyebrow="§ NOT FOUND"
       headline="Nothing here."
       lede="The page you're looking for doesn't exist, or may have moved."
-      ctaLabel="Go home"
+      ctaLabel="GO HOME →"
       ctaHref="/"
     />
   );

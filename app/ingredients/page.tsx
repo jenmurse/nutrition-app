@@ -351,7 +351,7 @@ function IngredientsPage() {
                   className="mob-sheet-clear"
                   onClick={() => setFoodFilter('all')}
                   aria-label="Clear filter"
-                >Clear</button>
+                >CLEAR</button>
               )}
             </div>
 
@@ -365,7 +365,7 @@ function IngredientsPage() {
               </div>
             </div>
 
-            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>Done</button>
+            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>DONE</button>
           </div>
         </>
       )}

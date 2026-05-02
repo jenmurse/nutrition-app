@@ -75,6 +75,8 @@ Never use 7, 8, 10, 12, 14, 15, 17, 18, 26, 30. The 20px stop is mid-display onl
 | `.ed-toggle button` | no (only active underline) | DM Mono |
 | `.sort-field` | no | DM Mono |
 
+**Casing.** All button labels render UPPERCASE, regardless of register. Borderless DM Mono buttons (`.ed-btn-text`, `.ed-chip`, `.ed-toggle button`, `.sort-field`) and bordered DM Sans buttons (`.ed-btn`, `.ed-btn-outline`) all use `text-transform: uppercase` enforced at the class level. Source strings may be authored mixed-case for readability — the class does the work. Exception: mobile menu sheet items (`.mob-menu-item`) are sentence case at 36px DM Sans — these are content register overlay nav items, not chrome buttons.
+
 **Implementation note:** All DM Mono button/label classes must use `var(--font-mono)` directly — not `var(--mono)` — because the nested variable chain can fail to resolve due to CSS layer ordering. The `var(--mono)` token is still valid for non-button use but prefer `var(--font-mono), 'DM Mono', ui-monospace, monospace` in component-level rules.
 
 ---

@@ -335,7 +335,7 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                 disabled={adding || !canAdd}
                 onClick={handleAdd}
                 aria-label="Add to plan"
-              >{adding ? 'Adding…' : 'Add to Plan'}</button>
+              >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
             </div>
           </div>
         )}

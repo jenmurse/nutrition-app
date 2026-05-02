@@ -2511,6 +2511,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--fg);
   background: transparent;
   border: 0;

@@ -502,13 +502,13 @@ export default function RecipeDetailPage() {
                 <div className="flex gap-[10px] items-center">
                   <button onClick={handleEditClick} disabled={editLoading}
                     className="ed-btn disabled:opacity-50"
-                    aria-label="Edit recipe">{editLoading ? "Loading…" : "Edit"}</button>
+                    aria-label="Edit recipe">{editLoading ? "LOADING…" : "EDIT"}</button>
                   <button onClick={handleDuplicate}
                     className="ed-btn"
-                    aria-label="Duplicate recipe">Duplicate</button>
+                    aria-label="Duplicate recipe">DUPLICATE</button>
                   <button onClick={handleDelete}
                     className="ed-btn danger"
-                    aria-label="Delete recipe">Delete</button>
+                    aria-label="Delete recipe">DELETE</button>
                 </div>
                 {/* Row 2: favorite */}
                 <button
@@ -518,8 +518,8 @@ export default function RecipeDetailPage() {
                   aria-pressed={isFavorited}
                 >
                   {isFavorited ? (
-                    <>★ Favorited<span className="favorite-remove"> · Remove</span></>
-                  ) : "Add to Favorites"}
+                    <>★ FAVORITED<span className="favorite-remove"> · REMOVE</span></>
+                  ) : "ADD TO FAVORITES"}
                 </button>
               </div>
             </div>

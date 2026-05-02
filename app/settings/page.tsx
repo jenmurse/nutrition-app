@@ -630,7 +630,7 @@ const SettingsPage = () => {
 
           {/* Page header */}
           <div style={{ paddingTop: 48, marginBottom: 40 }}>
-            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ Settings</div>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ SETTINGS</div>
             <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>Your preferences.</h1>
           </div>
 
@@ -965,7 +965,7 @@ const SettingsPage = () => {
                       className="ed-btn ghost"
                       aria-label="Reset goals to defaults"
                     >
-                      Reset to defaults
+                      RESET TO DEFAULTS
                     </button>
                     <button
                       onClick={handleSaveGoals}
@@ -973,7 +973,7 @@ const SettingsPage = () => {
                       className="ed-btn primary disabled:opacity-40"
                       aria-label="Save goals"
                     >
-                      {goalsSaving ? 'Saving...' : 'Save Goals'}
+                      {goalsSaving ? 'SAVING...' : 'SAVE GOALS'}
                     </button>
                   </div>
                 </>
@@ -1200,7 +1200,7 @@ const SettingsPage = () => {
                 className="ed-btn disabled:opacity-40"
                 aria-label="Export household data"
               >
-                {exportLoading ? 'Exporting…' : 'Export Data'}
+                {exportLoading ? 'EXPORTING…' : 'EXPORT DATA'}
               </button>
 
               <div className="mt-[40px]">

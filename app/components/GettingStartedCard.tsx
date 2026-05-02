@@ -387,7 +387,7 @@ export default function GettingStartedCard() {
             className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
             aria-label="Dismiss getting started checklist"
           >
-            {allDone ? "Done — dismiss" : "Dismiss"}
+            Dismiss
           </button>
         </div>
       </div>
