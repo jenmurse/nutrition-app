@@ -178,11 +178,28 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 4 — Mobile design edits ☐ (rescoped)
+### STEP 4 — Mobile design edits ✓
 
 **Original scope shipped:** Back-button pattern, Sign Out location, Menu sheet, bottom rail behavior on child screens — all landed in 2D.2 and 2F.
 
-**Rescoped scope:** Mobile-specific design edits surfaced by a mobile audit. Original IA items are done; this step now covers whatever the mobile audit surfaces — polish, rhythm, editorial expression on small screens, anything that doesn't fit elsewhere. Run the audit first, then define the punch list.
+**Rescoped scope shipped (Apr 30–May 1):**
+
+| Brief | Description | Status |
+|---|---|---|
+| MOB-Q1 | Five quick mobile cleanups: bg bleed fix, topbar alignment, auth hairline, settings header padding, pantry icon audit | ✓ |
+| MOB-CLEANUP-1 | Spacing and visual corrections pass | ✓ |
+| MOB-CLEANUP-1B | Top-bar chip-to-hamburger gap: restructured trigger to `width: auto; padding: 0 var(--pad) 0 8px; margin-right: calc(-1 * var(--pad))` for true 8px visual gap | ✓ |
+| MOB-1 | Mobile top bar replaces bottom rail as primary chrome | ✓ |
+| MOB-2 | Dashboard person pulldown: styled dropdown, 1-person static chip logic | ✓ |
+| SHOP-1 | Shopping: plan-scoped navigation, EmptyState component for empty state | ✓ |
+| MOB-3 | Recipe edit ingredients: 3-row card layout on mobile via CSS grid + `display: contents` | ✓ |
+| MOB-4 | Add Meal converted to full-overlay two-step bottom sheet; scrim covers full viewport; step 1 at 75vh expands to step 2 at `calc(100dvh - 60px)` via CSS max-height transition | ✓ |
+
+**Also shipped (May 1, desktop + cross-platform):**
+- Recipe grid: uniform row heights (`grid-auto-rows: calc(18.75vw + 110px)` at 4-col), all cards get `border-bottom`, `nth-last-child` stripping removed
+- Compare overlay: clicking Recipes nav while open now closes it
+- Person pulldowns (mobile planner + dashboard): `border: 1px solid var(--rule)` + `box-shadow: 0 4px 12px rgba(0,0,0,0.08)` — matches filter dropdown
+- Planner day strip: `padding-left/right: 12px` (calibrated value, not `var(--pad)`)
 
 ---
 
@@ -426,4 +443,15 @@ Remaining: locked wordmark application to onboarding topbar (→ Step 9 wordmark
 | Apr 30 | **Nutrition panel semantic color locked (§2e)** — `--ok` and `--warn` removed as bar fill colors. Only `--err` used on bars (over-limit only). All other bars neutral `--muted`. Below-min callout: plain ruled row, no tinted bg, copy `+Xg to target`. Over-limit callout: tinted red err-chip retained. | X1-2 |
 | Apr 30 | **Dead code sweep complete** — Removed: 4 unused `.module.css` files, `DailySummary.tsx`, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Archived superseded brief drafts to `briefs/_archived/`. | X2-2 |
 | Apr 30 | **Step 3 complete.** Steps 7 + 8 also complete. Next: Steps 5/6 (copy pass + typeface lock), Step 9 (landing nav, combined), Step 10 (type leading pass). | — |
+| Apr 30–May 1 | **MOB-Q1 landed** — Five quick mobile cleanups batched: bg bleed fix, topbar alignment, auth hairline, settings header padding, pantry icon audit. | 4 |
+| Apr 30–May 1 | **MOB-CLEANUP-1 + 1B landed** — Spacing and visual corrections pass. Chip-to-hamburger gap fixed: trigger restructured to `width: auto` with inline padding so glyph-to-chip gap is exactly 8px at any viewport width. | 4 |
+| May 1 | **MOB-1 landed** — Mobile top bar replaces bottom rail as primary navigation chrome. | 4 |
+| May 1 | **MOB-2 landed** — Dashboard person pulldown: styled dropdown with `border: 1px solid var(--rule)`, hairline dividers between items. 1-person view shows static chip (no dropdown). | 4 |
+| May 1 | **SHOP-1 landed** — Shopping: plan-scoped navigation, EmptyState component for zero-items state, date range min-width fix. | 4 |
+| May 1 | **MOB-3 landed** — Recipe builder ingredient rows reflow to 3-row card on mobile via CSS grid. `.ing-main { display: contents }` lets children participate in parent grid directly. Field labels (Amount / Unit / Preparation) visible on mobile, hidden on desktop. | 4 |
+| May 1 | **MOB-4 landed** — Add Meal converted to full-overlay two-step bottom sheet (`AddMealSheet`). Renders via `createPortal`. Backdrop `.mob-sheet-backdrop--above-nav` covers full viewport including top bar. Step 1 (picker) at `maxHeight: 75vh`; step 2 (browse) at `maxHeight: calc(100dvh - 60px)`. Transition is CSS max-height, not a cross-slide. Do NOT add `sheet-delay-touch` — it overrides the `sheetUp` animation. | 4 |
+| May 1 | **Planner day strip padding locked** — `padding-left/right: 12px` (not `var(--pad)` = 28px which was too inset, not 0 which overshot edges). | 4 |
+| May 1 | **Person pulldown dropdown style locked** — `border: 1px solid var(--rule)` + `box-shadow: 0 4px 12px rgba(0,0,0,0.08)` on both planner and dashboard mobile dropdowns. Matches desktop filter tag dropdown exactly. | 4 |
+| May 1 | **Recipe grid uniform row heights locked** — `grid-auto-rows: calc(18.75vw + 110px)` (4-col) / `calc(25vw + 110px)` (3-col) / `auto` (mobile). All cards carry `border-bottom`; no `nth-last-child` stripping. | 4 |
+| May 1 | **Step 4 complete.** Remaining mobile surfaces: recipe detail, auth/onboarding expression. | — |
 
