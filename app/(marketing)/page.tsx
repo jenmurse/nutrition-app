@@ -5,7 +5,6 @@ import Hero from "./_components/Hero";
 import Manifesto from "./_components/Manifesto";
 import ChapterLibrary from "./_components/ChapterLibrary";
 import ChapterWeek from "./_components/ChapterWeek";
-import PullQuote from "./_components/PullQuote";
 import Close from "./_components/Close";
 import LandingFooter from "./_components/LandingFooter";
 import LandingMotion from "./_components/LandingMotion";
@@ -31,7 +30,6 @@ export default function MarketingLanding() {
       <Manifesto />
       <ChapterLibrary />
       <ChapterWeek />
-      <PullQuote />
       <Close />
       <LandingFooter />
       <LandingMotion />

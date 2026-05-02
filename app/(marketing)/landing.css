@@ -111,7 +111,7 @@
 
 .mkt .hero-bottom {
   display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: end;
-  margin-top: 56px;
+  margin-top: 40px;
 }
 .mkt .hero-lede { max-width: 52ch; font-size: 16px; line-height: 1.6; color: var(--fg-2); }
 .mkt .hero-lede strong { color: var(--fg); font-weight: 500; }
@@ -285,26 +285,6 @@
 .mkt .opt-trow .chg { color: var(--accent); }
 .mkt .opt-trow .chg.none { color: var(--mute); }
 
-/* ─── PULL-QUOTE ─── */
-.mkt .pq { padding: 180px var(--pad); text-align: left; border-bottom: 1px solid var(--rule); position: relative; }
-.mkt .pq-eyebrow {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--mute);
-  margin-bottom: 56px;
-  display: flex; justify-content: space-between;
-}
-.mkt .pq-eyebrow .rt { color: var(--fg); }
-.mkt .pq-type {
-  font-size: 72px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--fg);
-  text-wrap: balance;
-}
-.mkt .pq-type span { display: block; }
-.mkt .pq-type .b { font-weight: 500; }
-
 /* ─── CLOSE ─── */
 .mkt .close { padding: 160px var(--pad) 120px; position: relative; }
 .mkt .close-head {
@@ -315,18 +295,16 @@
 }
 .mkt .close-head .n { color: var(--fg); }
 .mkt .close-head .rt { justify-self: end; }
-.mkt .close-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 96px; align-items: start; }
+.mkt .close-col { display: flex; flex-direction: column; gap: 40px; }
 .mkt .close-h {
-  font-size: clamp(28px,3.6vw,44px);
+  font-size: clamp(32px,4.5vw,52px);
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.05;
   text-wrap: balance;
-  max-width: 22ch;
 }
 .mkt .close-body { max-width: 40ch; font-size: 15px; line-height: 1.7; color: var(--fg-2); }
 .mkt .close-body p + p { margin-top: 18px; }
-.mkt .close-sig { margin-top: 32px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg); }
 .mkt .close-cta { margin-top: 40px; }
 
 /* ─── FOOTER ─── */
@@ -397,10 +375,6 @@
   .mkt .ch-vis-sticky { position: static; }
 }
 
-@media (max-width: 900px) {
-  .mkt .pq-type { font-size: 56px; }
-}
-
 /* Mobile */
 @media (max-width: 760px) {
   .mkt { --pad: 20px; font-size: 13.5px; }
@@ -422,9 +396,9 @@
   .mkt .hero-ctas { justify-self: start; width: 100%; }
   .mkt .hero-ctas .btn { flex: 1; justify-content: center; padding: 14px 16px; font-size: 9px; }
 
-  .mkt .manifesto, .mkt .ch, .mkt .pq, .mkt .close { padding-top: 72px; padding-bottom: 72px; }
-  .mkt .ch-head, .mkt .manifesto-eyebrow, .mkt .pq-eyebrow, .mkt .close-head { grid-template-columns: 1fr; gap: 4px; margin-bottom: 40px; font-size: 9px; }
-  .mkt .ch-head .rt, .mkt .manifesto-eyebrow .rt, .mkt .pq-eyebrow .rt, .mkt .close-head .rt { justify-self: start; }
+  .mkt .manifesto, .mkt .ch, .mkt .close { padding-top: 72px; padding-bottom: 72px; }
+  .mkt .ch-head, .mkt .manifesto-eyebrow, .mkt .close-head { grid-template-columns: 1fr; gap: 4px; margin-bottom: 40px; font-size: 9px; }
+  .mkt .ch-head .rt, .mkt .manifesto-eyebrow .rt, .mkt .close-head .rt { justify-self: start; }
   .mkt .ch-head { display: flex; gap: 6px; }
   .mkt .ch-head .rt::before { content: '·'; margin-right: 6px; color: var(--mute); }
 
@@ -478,12 +452,8 @@
   .mkt .opt-trow .nut { font-size: 9px; }
   .mkt .opt-note { font-size: 10.5px; max-width: none; }
 
-  .mkt .pq { padding: 100px var(--pad); }
-  .mkt .pq-type { font-size: clamp(28px,8vw,44px); line-height: 1; }
-
   .mkt .close { padding: 96px var(--pad) 80px; }
-  .mkt .close-grid { grid-template-columns: 1fr; gap: 32px; }
-  .mkt .close-h { font-size: clamp(22px,5.8vw,30px); max-width: none; }
+  .mkt .close-h { font-size: clamp(22px,7vw,36px); }
   .mkt .close-body { font-size: 14.5px; max-width: none; }
 
   .mkt .foot { padding: 28px var(--pad); font-size: 9px; }
@@ -493,5 +463,4 @@
   .mkt .hero-type { font-size: 42px; }
   .mkt .manifesto-type { font-size: 28px; }
   .mkt .ch-h { font-size: 28px; }
-  .mkt .pq-type { font-size: 40px; }
 }
