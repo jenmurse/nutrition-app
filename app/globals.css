@@ -3406,7 +3406,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
   /* Stats strip: stack vertically, no hairlines */
   .hm-stats-strip  { flex-direction: column; }
-  .hm-stats-border { border-top: none !important; }
+  .hm-stats-border { border-top: none !important; border-bottom: none !important; }
   .hm-stat-item    { padding: 14px 0 !important; }
   .hm-stat-item:not(:last-child) {
     padding-right: 0; margin-right: 0; border-right: none; border-bottom: none;

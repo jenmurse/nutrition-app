@@ -612,6 +612,32 @@ These glyphs are treated as typographic marks, not icons. They represent ideas, 
 
 The `≡` hamburger is rendered as inline SVG (three horizontal strokes, `viewBox="0 0 10 8"`), never as a font icon or imported icon component. Color is `currentColor` so it inherits the button's `var(--fg)`. Gap between glyph and MENU label: 6px.
 
+### 6h. Empty state composition
+
+Full-page empty states use a four-element pattern:
+
+```
+§ EYEBROW
+Headline sentence.
+Lede — one short line of context.
+CTA LABEL →
+```
+
+- **Eyebrow:** DM Mono 9px, `--muted`, `§ KEYWORD` convention.
+- **Headline:** lowercase, ends with period. Imperative or observational. Working-surface scale (`clamp(22px, 2.4vw, 32px)`) when inside a working surface; Display scale for full-editorial moments (404, auth).
+- **Lede:** DM Sans 13px, `--fg-2`. One sentence of context.
+- **CTA:** Single action, `LABEL →`. Outlined button or bare mono link.
+
+**Exception — dashboard stats strip:** Uses a three-element pattern (no headline). The stats strip is a quiet inline section between the greeting and the rest of the dashboard; it doesn't earn an editorial headline moment.
+
+```
+§ DASHBOARD STATS
+Pick three nutrition values to track here.
+CHOOSE STATS →
+```
+
+All other empty states (planner, recipes, pantry, shopping, 404) keep the four-element pattern.
+
 ### 6b. Numbered section headers
 
 Long-scroll pages use numbered section heads with hairline rules.

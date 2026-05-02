@@ -348,11 +348,10 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div className="hm-stats-border border-t border-[var(--rule)]">
+          <div className="hm-stats-border border-t border-b border-[var(--rule)]">
             {statEntries.length === 0 ? (
               <div style={{ padding: `20px var(--pad)`, borderLeft: '2px solid var(--rule)', marginLeft: 'var(--pad)' }}>
                 <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">§ DASHBOARD STATS</div>
-                <div className="font-sans font-medium text-[var(--fg)] mb-[6px]" style={{ fontSize: 'clamp(22px, 2.4vw, 32px)', lineHeight: 1.1, letterSpacing: '-0.015em' }}>Choose your stats.</div>
                 <div className="font-sans text-[13px] text-[var(--fg-2)] mb-[12px]">Pick three nutrition values to track here.</div>
                 <Link
                   href="/settings#dashboard"
