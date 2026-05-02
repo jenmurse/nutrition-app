@@ -7,7 +7,7 @@ export default function Hero() {
       </div>
 
       <h1 className="hero-type r">
-        Measure what matters.
+        Measure<br />what matters.
       </h1>
 
       <div className="hero-bottom r d1">

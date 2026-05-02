@@ -17,7 +17,6 @@ export default function Close() {
             I built Good Measure for myself first, and I cook from it every day.
             Now it&apos;s here for you to try.
           </p>
-          <div className="close-sig cl-sig">— Jen Murse, Good Measure</div>
           <div className="close-cta cl-cta">
             <a href="/login?signup=1" className="btn">
               Get Started <span className="arr" aria-hidden="true">↗</span>
