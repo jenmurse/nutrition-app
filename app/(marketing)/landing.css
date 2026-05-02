@@ -285,7 +285,7 @@
 .mkt .opt-trow .chg.none { color: var(--mute); }
 
 /* ─── CLOSE ─── */
-.mkt .close { padding: 160px var(--pad) 120px; position: relative; }
+.mkt .close { padding: 120px var(--pad) 120px; position: relative; }
 .mkt .close-head {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
@@ -304,7 +304,7 @@
 }
 .mkt .close-body { max-width: 40ch; font-size: 15px; line-height: 1.7; color: var(--fg-2); }
 .mkt .close-body p + p { margin-top: 18px; }
-.mkt .close-cta { margin-top: 40px; }
+.mkt .close-cta { margin-top: 24px; }
 
 /* ─── FOOTER ─── */
 .mkt .foot {
