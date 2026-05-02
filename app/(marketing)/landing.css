@@ -294,7 +294,7 @@
 }
 .mkt .close-head .n { color: var(--fg); }
 .mkt .close-head .rt { justify-self: end; }
-.mkt .close-col { display: flex; flex-direction: column; gap: 40px; }
+.mkt .close-col { display: flex; flex-direction: column; gap: 24px; }
 .mkt .close-h {
   font-size: clamp(32px,4.5vw,52px);
   font-weight: 500;
