@@ -402,7 +402,7 @@ export default function RecipeDetailPage() {
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
               <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ EDIT</div>
-              <h1 className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(28px, 2.4vw, 36px)" }}>Edit this recipe.</h1>
+              <h1 className="form-title">Edit this recipe.</h1>
             </div>
 
             <RecipeBuilder

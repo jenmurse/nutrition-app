@@ -349,10 +349,20 @@ input[type="number"]:focus {
 
 /* ── Editorial Button System ──────────────────────────────────────── */
 /* Base: font-mono 9px, uppercase, 8px 20px padding, border on --rule */
+.form-title {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(28px, 2.4vw, 36px);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--fg);
+  margin: 0;
+}
+
 .ed-btn {
   font-family: var(--sans);
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 9px 22px;

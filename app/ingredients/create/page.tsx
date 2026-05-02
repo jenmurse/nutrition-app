@@ -327,7 +327,7 @@ export default function CreateIngredientPage() {
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ NEW</div>
-            <h1 className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(28px, 2.4vw, 36px)", textWrap: "balance" }}>A new pantry item.</h1>
+            <h1 className="form-title">A new pantry item.</h1>
           </div>
 
           {/* ── 01 Lookup ── */}

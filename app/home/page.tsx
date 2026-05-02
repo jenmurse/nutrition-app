@@ -374,11 +374,11 @@ export default function Home() {
                       }}
                     >
                       <div className="hm-stat-label font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-[5px]">{stat.label}</div>
-                      <div className="hm-stat-value font-sans text-[36px] font-medium tracking-[-0.018em] tabular-nums text-[var(--fg)] leading-none">
+                      <div className="hm-stat-value font-sans text-[36px] font-medium tracking-[-0.03em] tabular-nums text-[var(--fg)] leading-none">
                         {formatVal(stat.value)}
                         {stat.unit && <span className="hm-stat-unit font-mono text-[11px] text-[var(--muted)] ml-1">{stat.unit}</span>}
                       </div>
-                      <div className="hm-stat-sub font-mono text-[9px] tracking-[0.08em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
+                      <div className="hm-stat-sub font-mono text-[9px] tracking-[0.06em] text-[var(--muted)] mt-[5px]" style={{ visibility: stat.goal > 0 ? 'visible' : 'hidden' }}>
                         of {formatVal(stat.goal)}{stat.unit ? ` ${stat.unit}` : ''}
                       </div>
                       <div className="h-[2px] bg-[var(--rule)] mt-[10px] relative">
