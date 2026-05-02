@@ -6076,7 +6076,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: calc(env(safe-area-inset-top) + 4px) var(--pad) 4px;
+  padding: calc(env(safe-area-inset-top) + 4px) 40px 4px;
   min-height: calc(48px + env(safe-area-inset-top));
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
@@ -6214,8 +6214,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  max-width: 320px;
-  margin: 0 auto 32px;
+  margin: 0 0 32px;
 }
 
 .ob-swatch {

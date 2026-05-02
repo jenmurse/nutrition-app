@@ -348,7 +348,7 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div className="hm-stats-border border-t border-b border-[var(--rule)]">
+          <div className={`hm-stats-border border-t border-[var(--rule)]${statEntries.length === 0 ? ' border-b' : ''}`}>
             {statEntries.length === 0 ? (
               <div style={{ padding: `20px var(--pad)`, borderLeft: '2px solid var(--rule)', marginLeft: 'var(--pad)' }}>
                 <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">§ DASHBOARD STATS</div>
