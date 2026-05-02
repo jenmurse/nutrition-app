@@ -863,6 +863,8 @@ Edge-to-edge. Toolbar: count + COMPARE + sort (NAME ▾ + ↑/↓ separate eleme
 
 - List view: ruled rows. Thumbnail + recipe name + category eyebrow + 4-value nutrition scan (kcal · fat · carbs · prot).
 - Grid view: 4-column ruled cells. Image + name + category eyebrow. Ghost-tile placeholder (no image) bottom-left aligned, never centered. No nutrition values — photo-first visual library.
+  - **Uniform row heights:** `grid-auto-rows: calc(18.75vw + 110px)` (4-col) / `calc(25vw + 110px)` (3-col) / `auto` (mobile). Formula = photo height (3/4 of column width) + text area (2-line title + 24px bottom pad). All cards carry `border-bottom: 1px solid var(--rule)` — no `nth-last-child` stripping. The container has no `border-bottom`. Cards have `overflow: hidden`.
+  - **Compare overlay:** clicking Recipes in the top nav while the compare panel is open closes the panel via a capture-phase click listener (same-page Link clicks don't trigger re-mount).
 
 Filter chips at top: All / Breakfast / Lunch / Dinner / Side / Snack / Dessert / Beverage / Favorites. Active state = 1.5px underline below text.
 
@@ -907,7 +909,7 @@ Mobile-only persistent chrome at the bottom of every page (hidden on `/onboardin
 |---|---|
 | Parent screens (Home, Planner, Recipes, Pantry, Settings) | Section name: `HOME`, `PLANNER`, `RECIPES`, `PANTRY`, `SETTINGS` |
 | Shopping (`/shopping`) | `SHARE` — tapping dispatches the share event |
-| Add Meal (`/meal-plans/add-meal`) | `TUE, APR 28 · JEN` — date and person from URL params |
+| Add Meal (mobile sheet) | No bottom-rail right slot — Add Meal is a sheet, not a page. The rail remains in its parent-page state (e.g. `PLANNER`). |
 
 **Locked exception — heavier border:** The rail's `border-top` is `1px solid var(--fg)` while all content hairlines are `1px solid var(--rule)` (or `0.5px`). This deliberate inconsistency signals "below this is chrome, above is content." Do not normalize it back to `var(--rule)`. This is documented alongside the `.mob-sheet` 8px radius as the two locked chrome exceptions in this design system.
 

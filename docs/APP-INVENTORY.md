@@ -76,6 +76,14 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
 - Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
 
+**Locked this session (May 1):**
+- Add Meal on mobile is a bottom sheet, not a page flow. `AddMealSheet` renders via `createPortal` at `document.body`. Backdrop is `.mob-sheet-backdrop--above-nav` (z-index 290, covers the top bar). Step 1 (picker) at `maxHeight: 75vh`; step 2 (browse) at `maxHeight: calc(100dvh - 60px)`. Transition is CSS `max-height 360ms var(--ease-out)` — the sheet expands in place, no cross-slide. Do NOT add `sheet-delay-touch` to this sheet: that class overrides the `animation` property and kills the `sheetUp` slide-in.
+- Recipe builder ingredient rows (mobile): `.ing-row` uses CSS grid (`20px 1fr 36px`). `.ing-main` uses `display: contents` so its children participate directly in the parent grid. Three visual rows: drag+name+delete, Amount+Unit, Preparation. Labels (`.ing-field-label`) are visible on mobile, `display: none` on desktop. Desktop is unchanged flex layout.
+- Recipe grid uniform row heights: `grid-auto-rows: calc(18.75vw + 110px)` (4-col) and `calc(25vw + 110px)` (3-col) scale the row to column width so every row matches photo height + 2-line title + 24px bottom pad. Mobile resets to `grid-auto-rows: auto`. All cards get `border-bottom` — nth-last-child border stripping removed (it broke partial last rows).
+- Person pulldowns on mobile (planner + dashboard): `border: 1px solid var(--rule)` + `box-shadow: 0 4px 12px rgba(0,0,0,0.08)` — identical to the filter tag dropdown on desktop.
+- Compare overlay: clicking Recipes in the top nav while the overlay is open now closes it. Same-page Link clicks don't trigger a route change, so a capture-phase click listener on `a[href="/recipes"]` closes `compareOpen`.
+- Planner day strip: `padding-left/right: 12px`. Not `var(--pad)` (28px — too inset) and not 0 (cells overshoot the nav boundaries). 12px is the calibrated value.
+
 **Locked this session (April 30 — second batch):**
 - Onboarding Welcome and Ready screens: no wordmark or check icon in the body. Topbar wordmark is the only brand moment. Center body wordmark and animated check icon both removed as visual clutter.
 - Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.

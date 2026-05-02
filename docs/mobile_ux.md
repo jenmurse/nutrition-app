@@ -95,29 +95,46 @@ The mobile bottom edge has two surfaces with distinct roles:
 - Action buttons (edit / delete) are always visible on mobile, not hidden behind hover or swipe.
 - Buttons are square (`border-radius: 0`) with `--rule` border, matching the desktop sharp-corner system.
 
+### Person pulldown dropdowns (mobile)
+
+The person-switching dropdowns on the mobile planner and dashboard use `border: 1px solid var(--rule)` + `box-shadow: 0 4px 12px rgba(0,0,0,0.08)` — identical to the desktop filter tag dropdown. The shadow gives elevation cues against the content below without adding fill color.
+
 ### Person chips (mobile)
 
 - Pill chips with a colored dot + name (kept as pill — identity marker, exception to the sharp-corner rule).
 - Scaling rule: full name when ≤3 people in the household, initial only when 4+.
 - Classes: `.hm-mob-person-chip`, `.hm-mob-person-chip.on`.
 
-### Add Meal mobile (two-screen flow)
+### Add Meal mobile (two-step sheet)
 
-Add Meal on mobile is a two-screen flow inside a single route (`/meal-plans/add-meal`):
+Add Meal on mobile is a bottom sheet (`AddMealSheet`) rendered via `createPortal(el, document.body)`. It is not a page navigation — the planner page stays mounted underneath.
 
-- **Screen 1 — Picker:** meal type list (Breakfast, Lunch, Dinner, etc. + Pantry Items). Tapping a meal type sets direction to `'forward'` and transitions to Screen 2.
-- **Screen 2 — Browse:** recipe grid/search with an `← BACK` button. Tapping back sets direction to `'back'` and returns to Screen 1.
+**Sheet structure:**
+- **Step 1 — Picker:** meal type list (`maxHeight: 75vh`). Tapping a type expands to Step 2.
+- **Step 2 — Browse:** recipe/ingredient search + servings/quantity controls + Add to Plan CTA (`maxHeight: calc(100dvh - 60px)`).
+- Step transition: CSS `max-height 360ms var(--ease-out)` on the sheet element — it expands in place. No cross-slide between steps.
 
-**Transition:** Framer Motion `AnimatePresence mode="popLayout"` with direction-aware variants.
-- Forward (Screen 1 → 2): incoming from right (`x: 16 → 0`), outgoing exits left (`x: 0 → -16`). Concurrent crossfade.
-- Back (Screen 2 → 1): incoming from left (`x: -16 → 0`), outgoing exits right (`x: 0 → 16`). Same concurrent crossfade.
-- Duration: 320ms · easing: `cubic-bezier(0.4, 0.0, 0.2, 0.2)` — matches `--motion-step` CSS token. Do not delete this token.
-- `useReducedMotion()` collapses x-translation to 0; opacity crossfade only.
-- Both screens have the eyebrow anchored at the same Y position. They translate horizontally as a unit — no vertical jog.
+**Backdrop:** `.mob-sheet-backdrop--above-nav` (z-index 290). Covers the full viewport including the top bar — same behavior as the nutrition summary sheet.
 
-**Search input:** `FIND RECIPE…` / `FIND ITEM…` placeholder in DM Mono 9px uppercase (matches `/recipes` toolbar search). Placeholder swaps based on mode.
+**Animation:** `.mob-sheet` class gives `sheetUp 360ms var(--ease-out)` slide-in on mount. **Do NOT add `sheet-delay-touch`** — that class overrides the `animation` property (same specificity, declared later) and kills the slide-in, making the sheet appear instantly.
 
-**Desktop:** Screen 1 never shows on desktop — the meal type rail is always visible. The two-screen flow is mobile-only.
+**Drag-to-dismiss:** `touchstart/touchend` delta > 60px downward closes the sheet.
+
+**Data refresh:** after a successful add, `onMealAdded()` callback triggers `fetchMealPlanDetails()` on the parent planner page. No full-page reload.
+
+**Desktop:** clicking `+ ADD` on a planner day navigates to `/meal-plans/add-meal` (page-based flow, unchanged).
+
+### Recipe builder ingredient rows (mobile)
+
+On mobile (`max-width: 640px`), each ingredient row reflows from a horizontal flex strip to a vertical 3-row card:
+
+- **Row 1:** drag handle (col 1) · name input (col 2) · delete button (col 3)
+- **Row 2:** Amount label + input · Unit label + select (both in col 2)
+- **Row 3:** Preparation label + input (col 2)
+
+**Key CSS:** `.ing-row { display: grid; grid-template-columns: 20px 1fr 36px }`. `.ing-main { display: contents }` — this lets `.ing-main`'s children (name, library warning, prep) participate directly in the parent grid without `.ing-main` itself being a grid item. Field labels (`.ing-field-label`, DM Mono 9px uppercase) are `display: block` on mobile, `display: none` on desktop.
+
+Desktop layout is unchanged: outer div is still `display: flex` with the middle div as a flex child.
 
 ### Auth mobile
 
