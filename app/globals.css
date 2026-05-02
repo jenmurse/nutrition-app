@@ -2951,7 +2951,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-shop-title {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: clamp(36px, 4.4vw, 64px);
+  font-size: clamp(22px, 2.4vw, 32px);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--fg);
@@ -3065,7 +3065,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-add-title {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: clamp(36px, 4.4vw, 64px);
+  font-size: clamp(22px, 2.4vw, 32px);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--fg);
@@ -3157,7 +3157,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 @media (max-width: 700px) {
   .pl-add-body { padding: 48px 24px calc(env(safe-area-inset-bottom, 0px) + 24px); position: relative; }
-  .pl-add-title { font-size: 28px; }
   .am-rail { display: none; }
   .am-content { padding-left: 0; }
 }

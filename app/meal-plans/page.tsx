@@ -1568,8 +1568,13 @@ const MealPlansPage = () => {
             ) : (
               <EmptyState
                 eyebrow="§ SELECT A PLAN"
-                headline="Nothing selected."
-                lede={<>Use the controls above to navigate<br />between your plans.</>}
+                headline="A week to plan."
+                ctaLabel="+ CREATE PLAN →"
+                onCta={() => {
+                  const params = new URLSearchParams(searchParams?.toString());
+                  params.set("showForm", "true");
+                  router.push(`/meal-plans?${params.toString()}`);
+                }}
               />
             )}
           </div>

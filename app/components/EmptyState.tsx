@@ -4,7 +4,7 @@ import Link from "next/link";
 interface EmptyStateProps {
   eyebrow: string;
   headline: string;
-  lede: React.ReactNode;
+  lede?: React.ReactNode;
   ctaLabel?: string;
   ctaHref?: string;
   onCta?: () => void;
@@ -33,7 +33,7 @@ export default function EmptyState({
         <p className="es-eyebrow">{eyebrow}</p>
       )}
       <h2 className="es-headline">{headline}</h2>
-      <p className="es-lede">{lede}</p>
+      {lede && <p className="es-lede">{lede}</p>}
       {ctaLabel && ctaHref && (
         <Link
           href={ctaHref}

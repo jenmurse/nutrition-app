@@ -213,7 +213,7 @@ export default function ShoppingPage() {
               eyebrow="§ NO INGREDIENTS YET"
               headline="A week without a list."
               lede="Add recipes to your plan and the ingredients show up here, sorted and ready to shop."
-              ctaLabel="+ ADD MEALS →"
+              ctaLabel="OPEN PLANNER →"
               ctaHref={plannerHref}
             />
           )

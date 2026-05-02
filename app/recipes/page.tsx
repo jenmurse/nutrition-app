@@ -726,6 +726,8 @@ function RecipesPage() {
                 eyebrow="§ NO MATCHES"
                 headline="Nothing matches that."
                 lede={<>Try a different search, or clear the filters<br />to see everything.</>}
+                ctaLabel="CLEAR FILTERS →"
+                onCta={() => { setSearchQuery(''); setSelectedTags([]); setShowFavorites(false); }}
               />
             )}
           </div>

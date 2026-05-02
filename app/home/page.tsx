@@ -115,6 +115,7 @@ export default function Home() {
   const now = new Date();
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
+  const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
   useEffect(() => {
     if (selectedPersonId === null) return;
@@ -421,8 +422,8 @@ export default function Home() {
                 eyebrow="§ NOTHING TODAY"
                 headline="No meals logged."
                 lede={<>Open the planner to add meals<br />for today.</>}
-                ctaLabel="OPEN PLANNER →"
-                ctaHref={`/meal-plans?planId=${weekPlanId}`}
+                ctaLabel="+ ADD MEAL →"
+                ctaHref={`/meal-plans/add-meal?planId=${weekPlanId}&date=${todayISO}`}
               />
             </div>
 
@@ -526,8 +527,8 @@ export default function Home() {
                   eyebrow="§ NOTHING TODAY"
                   headline="No meals logged."
                   lede={<>Open the planner to add meals<br />for today.</>}
-                  ctaLabel="+ ADD MEALS →"
-                  ctaHref={`/meal-plans?planId=${weekPlanId}`}
+                  ctaLabel="+ ADD MEAL →"
+                  ctaHref={`/meal-plans/add-meal?planId=${weekPlanId}&date=${todayISO}`}
                 />
               )}
             </div>
