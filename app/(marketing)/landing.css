@@ -168,7 +168,7 @@
 .mkt .ch-split.reverse .ch-text { order: 2; }
 .mkt .ch-split.reverse .ch-vis { order: 1; }
 
-.mkt .ch-text { display: flex; flex-direction: column; gap: 40px; padding-bottom: 15vh; }
+.mkt .ch-text { display: flex; flex-direction: column; gap: 24px; padding-bottom: 15vh; }
 .mkt .ch-h {
   font-size: clamp(32px,4.5vw,52px);
   font-weight: 500;
@@ -404,7 +404,7 @@
   .mkt .manifesto-type { font-size: clamp(28px,7.5vw,40px); line-height: 1.1; max-width: none; }
 
   .mkt .ch-split { gap: 40px; }
-  .mkt .ch-text { gap: 28px; }
+  .mkt .ch-text { gap: 24px; }
   .mkt .ch-h { font-size: clamp(28px,7.5vw,40px); max-width: none; }
   .mkt .ch-p { font-size: 14.5px; line-height: 1.65; max-width: none; }
   .mkt .ch-p + .ch-p { margin-top: -8px; }
