@@ -546,7 +546,7 @@ export default function RecipeDetailPage() {
               <div>
                 <div className="flex items-baseline gap-3 mb-8">
                   <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
-                  <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Ingredients</span>
+                  <span className="section-label">Ingredients</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {/* Scale */}
@@ -592,7 +592,7 @@ export default function RecipeDetailPage() {
               <div id="rd-sec-nut">
                 <div className="flex items-baseline gap-3 mb-8">
                   <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
-                  <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Nutrition</span>
+                  <span className="section-label">Nutrition</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {/* Partial nutrition warning */}
@@ -649,7 +649,7 @@ export default function RecipeDetailPage() {
             <div id="rd-sec-steps" style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
                 <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
-                <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Instructions</span>
+                <span className="section-label">Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="flex flex-col">
@@ -672,7 +672,7 @@ export default function RecipeDetailPage() {
           <div id="rd-sec-opt" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
               <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
-              <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Optimization</span>
+              <span className="section-label">Optimization</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
             <ContextualTip tipId="ai-optimize" label="AI Optimization">
@@ -743,7 +743,7 @@ export default function RecipeDetailPage() {
           <div id="rd-sec-prep" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
               <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
-              <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Meal Prep</span>
+              <span className="section-label">Meal Prep</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
             <ContextualTip tipId="ai-meal-prep" label="AI Meal Prep">

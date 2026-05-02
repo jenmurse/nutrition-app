@@ -63,7 +63,7 @@ function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-baseline gap-3 mb-8">
       <span className="font-serif text-[13px] font-bold text-[var(--rule)]">{number}</span>
-      <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>{title}</span>
+      <span className="section-label">{title}</span>
       <span className="flex-1 h-px bg-[var(--rule)]" />
     </div>
   );

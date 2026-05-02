@@ -349,6 +349,14 @@ input[type="number"]:focus {
 
 /* ── Editorial Button System ──────────────────────────────────────── */
 /* Base: font-mono 9px, uppercase, 8px 20px padding, border on --rule */
+.section-label {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+}
+
 .form-title {
   font-family: var(--sans);
   font-weight: 500;
@@ -5840,7 +5848,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
 }
-.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
+.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
 .auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;

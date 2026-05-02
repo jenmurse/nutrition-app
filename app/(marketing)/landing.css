@@ -145,7 +145,7 @@
   font-size: clamp(40px,6vw,72px);
   font-weight: 500;
   letter-spacing: -0.03em;
-  line-height: 1;
+  line-height: 1.05;
   max-width: 22ch;
 }
 .mkt .manifesto-type span { display: block; margin: 0; }
