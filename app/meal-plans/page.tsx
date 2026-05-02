@@ -867,7 +867,7 @@ const MealPlansPage = () => {
                 className="pl-nav-btn pl-nav-btn--destroy"
                 onClick={async () => {
                   if (!selectedPlan) return;
-                  if (!await dialog.confirm({ title: 'Delete this plan?', body: "This can't be undone.", confirmLabel: 'Delete plan', danger: true })) return;
+                  if (!await dialog.confirm({ title: 'Delete this plan?', body: "This can't be undone.", confirmLabel: 'DELETE', danger: true })) return;
                   const deletedId = selectedPlan.id;
                   await fetch(`/api/meal-plans/${deletedId}`, { method: 'DELETE' });
                   // Update state immediately — don't wait for refetch

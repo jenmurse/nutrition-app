@@ -736,7 +736,7 @@ const SettingsPage = () => {
                           ) : null}
                           <button
                             onClick={async () => {
-                              if (!await dialog.confirm({ title: `Remove ${person.name}?`, body: "Their meal plans and goals will be deleted. This can't be undone.", confirmLabel: 'Remove', danger: true })) return;
+                              if (!await dialog.confirm({ title: `Remove "${person.name}"?`, body: "Their meal plans and goals will be deleted. This can't be undone.", confirmLabel: 'REMOVE', danger: true })) return;
                               const res = await fetch(`/api/persons/${person.id}`, { method: 'DELETE' });
                               if (res.ok) { await refreshPersons(); await loadInvites(); } else {
                                 const data = await res.json();

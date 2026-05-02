@@ -568,6 +568,14 @@ Text-label pattern (established by Briefs 2A and 2B). Sharp, `var(--fg-muted)` i
 
 Replaces toasts. Slim row below the nav. DM Mono 8px uppercase muted. Slides down from `height: 0` to `24px`. No floating notifications, no toast stacks.
 
+### 5j. Dialog voice
+
+- **Title:** Sentence case, ends with `?` for confirmations or `.` for statements. Include the record name in quotes when available: `Delete "Almond Croissant Bars"?`. Generic fallback when no name: `Delete this recipe?`.
+- **Body:** Sentence case, brief, factual. `This can't be undone.` is the canonical short body for destructive actions. Omit entirely if no extra context is needed.
+- **Confirm label:** Single verb where possible (`DELETE`, `REMOVE`, `SAVE`). Renders UPPERCASE via the button class — source string must be uppercase.
+- **Cancel label:** `CANCEL` (default ghost button).
+- **Signature:** Always use the structured object form `dialog.confirm({ title, body, confirmLabel, danger })`. Never use the legacy single-string form.
+
 ---
 
 ## 6. Editorial patterns

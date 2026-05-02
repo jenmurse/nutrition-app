@@ -79,7 +79,7 @@ export default function MobileTopBar() {
     const confirmed = await dialog.confirm({
       title: "Sign out?",
       body: "You'll need to sign in again to access your data.",
-      confirmLabel: "Sign out",
+      confirmLabel: "SIGN OUT",
       danger: false,
     });
     if (!confirmed) return;
