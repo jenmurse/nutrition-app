@@ -360,7 +360,7 @@ input[type="number"]:focus {
 .form-title {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(28px, 2.4vw, 36px);
+  font-size: clamp(28px, 3.4vw, 48px);
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--fg);
@@ -2277,7 +2277,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .cmp-title {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(28px, 2.4vw, 36px);
+  font-size: clamp(28px, 3.4vw, 48px);
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--fg);
@@ -2978,7 +2978,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-shop-title {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(28px, 2.4vw, 36px);
+  font-size: clamp(28px, 3.4vw, 48px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--fg);
@@ -3092,7 +3092,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .pl-add-title {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(28px, 2.4vw, 36px);
+  font-size: clamp(28px, 3.4vw, 48px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--fg);
