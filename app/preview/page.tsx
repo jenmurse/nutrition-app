@@ -173,8 +173,8 @@ export default function PreviewPage() {
             Friday, April 4 2026
           </div>
           <h1
-            className="font-serif font-medium leading-[0.91] tracking-[-0.03em] text-[var(--fg)]"
-            style={{ fontSize: "11.5vw", marginLeft: "-6px" }}
+            className="leading-[0.91] tracking-[-0.03em] text-[var(--fg)]"
+            style={{ fontSize: "11.5vw", marginLeft: "-6px", fontFamily: "var(--sans)", fontWeight: 500 }}
           >
             Good afternoon,{" "}
             <span className="text-[var(--accent)]">Maya</span>
@@ -382,7 +382,7 @@ export default function PreviewPage() {
                     <span className="font-mono text-[9px] tracking-[0.14em] uppercase py-[3px] px-[10px] bg-[var(--bg-3)] text-[var(--muted)]">breakfast</span>
                   </div>
                 </div>
-                <h2 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-12" style={{ fontSize: "clamp(30px, 3.4vw, 48px)" }}>
+                <h2 className="recipe-title mb-12">
                   Cottage Cheese Breakfast Bowl
                 </h2>
                 <div className="flex gap-2 mt-6">
