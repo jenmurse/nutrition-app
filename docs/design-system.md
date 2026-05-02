@@ -953,6 +953,22 @@ Mobile-only persistent chrome at the bottom of every page (hidden on `/onboardin
 
 **Menu sheet** (opened by tapping MENU): Full-screen overlay. Nav items at 36px DM Sans sentence case — this is content register because the sheet is an overlay surface, not chrome. Items: Home, Planner, Recipes, Pantry, Shopping, Settings + hairline divider + Sign out (same 36px weight, sentence case). Tapping any item navigates and dismisses. Sign out triggers `dialog.confirm` before signing out.
 
+### 8j. Form pages (New / Edit)
+
+Form pages (New Recipe, Edit Recipe, New Pantry Item, Edit Pantry Item) follow a locked pattern:
+
+- **Eyebrow:** Single-word `§ NEW` or `§ EDIT` (DM Mono 9px, muted, uppercase). Replaces path-style breadcrumbs (`RECIPE / NEW`).
+- **Headline:** DM Sans, working-surface scale (`clamp(22px, 2.4vw, 32px)`, weight 700, -0.02em). Lowercase, sentence case, ends with period.
+
+| Page | Eyebrow | Headline |
+|---|---|---|
+| New Recipe | `§ NEW` | `A new recipe.` |
+| Edit Recipe | `§ EDIT` | `Edit this recipe.` |
+| New Pantry Item | `§ NEW` | `A new pantry item.` |
+| Edit Pantry Item | `§ EDIT` | `Edit this pantry item.` |
+
+**Add Meal** uses the same working-surface scale for its headline (`.pl-add-title`). **Shopping** uses the same scale for its title (`.pl-shop-title`). Neither uses a Display-scale headline — they are working surfaces, not editorial bookend moments.
+
 ### 8i. Settings
 
 1100px container, left jump nav (`01 PEOPLE / 02 DAILY GOALS / 03 DASHBOARD / 04 MCP INTEGRATION / 05 DATA`).

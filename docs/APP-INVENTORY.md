@@ -12,27 +12,22 @@ All briefs from the April 26–27 sessions have shipped and verified. The visual
 
 What remains is the design pass and a few deferred decisions.
 
-### Queued — design pass across everything
+### Queued — remaining design pass steps
 
-After the in-flight briefs land, the remaining work is no longer a list of small fixes. It's a coherent design pass across the system. Pieces:
+Steps 1–5 of the design pass are complete. What remains:
 
-**Linework audit.** Walk every key surface and capture what's there: what hairlines exist, what feels under-ruled, what feels over-ruled. Trigger was onboarding chrome feeling lacking but the question opens up: is onboarding under-ruled, or is the rest of the app over-ruled? Document patterns, then standardize.
+| Step | Description | Status |
+|---|---|---|
+| Step 6 | Italic serif decision + landing copy pass (italic density + em-dash strip + copy edits, all in one pass) | ☐ |
+| Step 9 | Wordmark integration pass — apply locked `good · measure` wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav) | ☐ |
+| Step 10 | Type leading and tracking pass — verify every surface uses the correct type token | ☐ |
+| Step 11 | Surface coherence check — full sweep of every screen, desktop + mobile | ☐ |
+| Step 12 | Email templates — refresh 5 Supabase templates with locked visual language | ☐ |
 
-**Onboarding logo placement.** Tied to linework decision. Options: add hairlines to onboarding so it rhymes with the app, OR quieter chrome that doesn't need rules, OR brand mark redesign that does its own visual work.
-
-**Brand mark question.** Current "Good Measure" wordmark is DM Sans 700 — functional but not identity-forward. Open question: should it be a more designed wordmark (custom letterforms, custom kerning, possibly a small mark) that does heavier lifting? This decision affects auth, onboarding, mobile chrome, and what linework needs to do. Worth pulling references and discussing before committing.
-
-**Mobile cleanup.** Significant ground covered in the May 1 session: top-bar chip-to-hamburger gap (MOB-CLEANUP-1B), Add Meal as a full-overlay sheet (MOB-4), planner day strip alignment, person dropdown style (planner + dashboard), recipe builder ingredient rows (MOB-3), recipe grid uniform row heights and borders. Archived briefs: `briefs/_archived/brief-mob-*.md`.
-
-Remaining surfaces not yet polished: recipe detail mobile layout, auth/onboarding mobile expression. The overall question — what is the mobile expression of the editorial language — is still open and connects to the brand mark and linework decisions.
-
-**Type leading consistency.** Leading on big type may differ across landing, auth, and onboarding. Hero on landing might be tighter than the same scale used elsewhere. Worth measuring and standardizing. Small fix with a big impact on whether the system reads as one family.
-
-**Recommended approach:** don't write small briefs for these items individually. They're interrelated. Suggested flow:
-
-1. Audit pass first — walk every surface, take screenshots, annotate
-2. Discuss brand mark direction (with references) before committing to other visual decisions
-3. Then write the design pass brief(s) — could be one big "Visual coherence pass" or split by area
+**Also still open:**
+- Recipe detail mobile layout
+- Auth/onboarding mobile expression
+- The overall mobile editorial language question (connects to brand mark and linework decisions)
 
 This pass is post-launch polish, not a launch blocker.
 
@@ -77,6 +72,14 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - `position: fixed` rails must be siblings of the animated scroll container, never children. A CSS `transform` on an ancestor (including entrance animations) breaks `position: fixed` by creating a new containing block. Applies to all rails: jump nav, Add Meal `.am-rail`, settings nav.
 - Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
 - Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
+
+**Locked this session (May 2 — Step 5 editorial pass):**
+- **Button casing rule** — all button labels render UPPERCASE via `text-transform: uppercase` at the class level; source strings may be mixed-case. Applies to every button class. Exception: `.mob-menu-item` (sentence case at 36px, content register).
+- **Working-surface vs editorial scale split** — Editorial bookends (landing, auth, onboarding bookends, dashboard hero, full-page empty states, 404) use Display scale (`clamp(36px, 4.4vw, 64px)`). Working surfaces (forms, Add Meal, Shopping) use form-title scale (`clamp(22px, 2.4vw, 32px)`).
+- **Form-page headline pattern** — Single `§ NEW` or `§ EDIT` eyebrow replaces path-style breadcrumbs. Headline is lowercase DM Sans, sentence case, ends with period: `A new recipe.`, `Edit this recipe.`, `A new pantry item.`, `Edit this pantry item.`
+- **Dialog voice rule** — Title: sentence case, ends `?` (confirms) or `.` (statements), record name in quotes when available. Body: brief and factual. Confirm label: single verb UPPERCASE (`DELETE`, `REMOVE`, `SAVE`). Structured object form `dialog.confirm({ title, body, confirmLabel, danger })` everywhere — no legacy single-string calls.
+- **Empty-state composition** — Standard four-element pattern: `§ EYEBROW / Headline sentence. / Lede. / CTA →`. Dashboard stats strip is a deliberate three-element exception (no headline) — quiet inline section between greeting and rest of dashboard.
+- **§ convention** — `§` introduces editorial headlines only. Not used on UI labels, controls, or metadata. Enforced UPPERCASE via class.
 
 **Locked this session (May 1):**
 - Add Meal on mobile is a bottom sheet, not a page flow. `AddMealSheet` renders via `createPortal` at `document.body`. Backdrop is `.mob-sheet-backdrop--above-nav` (z-index 290, covers the top bar). Step 1 (picker) at `maxHeight: 75vh`; step 2 (browse) at `maxHeight: calc(100dvh - 60px)`. Transition is CSS `max-height 360ms var(--ease-out)` — the sheet expands in place, no cross-slide. Do NOT add `sheet-delay-touch` to this sheet: that class overrides the `animation` property and kills the `sheetUp` slide-in.

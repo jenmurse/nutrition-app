@@ -224,7 +224,9 @@ export default function RecipeDetailPage() {
       if (r.ok) {
         clientCache.delete(`/api/recipes/${recipe.id}`);
         const cached = clientCache.get<any[]>("/api/recipes");
-        if (cached) clientCache.set("/api/recipes", cached.filter(r => r.id !== recipe.id));
+        if (cached) clientCache.set("/api/recipes", cached.filter(x => x.id !== recipe.id));
+        const cachedSlim = clientCache.get<any[]>("/api/recipes?slim=true");
+        if (cachedSlim) clientCache.set("/api/recipes?slim=true", cachedSlim.filter(x => x.id !== recipe.id));
         router.push("/recipes");
       } else toast.error("Failed to delete recipe");
     } catch { toast.error("Failed to delete recipe"); }

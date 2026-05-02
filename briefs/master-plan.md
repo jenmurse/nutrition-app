@@ -203,26 +203,18 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 5 — Editorial pass and § convention ☐
+### STEP 5 — Editorial pass and § convention ✓
 
-**Why fifth:** Voice and convention rules. Doesn't depend on visual locks; could happen in parallel with Step 3, but listing here for ordering clarity.
+**Shipped across briefs 5A–5E (May 2, 2026).** Scope expanded beyond the original § audit to include button casing enforcement, empty-state CTAs, form-page headline rewrites, working-surface scale split, dialog voice rule, dashboard stats one-off, and several bug fixes. Deferred landing items (italic density, landing copy edits) moved to Step 6 — they're tightly coupled to the italic typeface decision.
 
-**§ rule (locked):** Use `§` to introduce an editorial headline. Don't use it on UI labels, controls, or metadata.
+**Briefs shipped:**
+- **5A** — Eyebrow casing enforced UPPERCASE app-wide. `Done — dismiss` → `Dismiss`. `+ Add` → `+ ADD`. `Go home` → `GO HOME →`.
+- **5B** — Button casing rule locked in design-system.md §1d. 43 button-related classes audited. Source string cleanup across 10 files.
+- **5C** — Empty-state CTAs added/fixed. `CLEAR FILTERS →` on Recipes/Pantry. Planner SELECT A PLAN → `A week to plan.` + CTA. Shopping no-ingredients → `OPEN PLANNER →`. Dashboard NOTHING TODAY → `+ ADD MEAL →` with prefilled date+person. EmptyState `lede` made optional.
+- **5D** — Form-page headline voice locked. Path-style breadcrumbs (`RECIPE / NEW`) → single-word § eyebrows (`§ NEW`). Headlines: `A new recipe.`, `Edit this recipe.`, `A new pantry item.`, `Edit this pantry item.`. Working-surface scale extended to Add Meal and Shopping.
+- **5E** — Dashboard stats empty state simplified to eyebrow + lede + CTA (no headline). Strip-bottom hairline fixed. Dialog voice rule locked. All `dialog.confirm` calls audited and brought to spec.
 
-**Audit:**
-- Walk every `§` usage in the app + landing
-- Walk every place a `§` should be added
-- Form crumbs (`RECIPE / NEW`) — Q4.1 decides
-
-**Editorial pass items:**
-- Verify all empty states use `§ EYEBROW / Display headline / lede / outlined CTA` pattern
-- Verify shopping list / add meal headers consistent
-- Onboarding bookend pages use `§ WELCOME` / `§ READY` (already do)
-- Onboarding interior steps use `§ YOUR PROFILE` / `§ YOUR HOUSEHOLD` / `§ YOUR GOALS` (already do)
-
-**Lock outputs:**
-- One-paragraph rule in design-system.md
-- All § usage consistent
+**Lock outputs in design-system.md:** §1d button casing rule, §5j dialog voice rule, §6h empty-state composition pattern (including dashboard stats three-element exception), §8j form-page patterns.
 
 ---
 
@@ -252,10 +244,12 @@ Specific edits already drafted in creative-direction.md (Section 7). Six em-dash
 **6d · Specific line edits**
 Drafted in creative-direction.md. Walk through each.
 
+**6e · Landing copy adjustments** *(absorbed from Step 5, May 2)*
+User has separate copy edits to apply alongside the italic cuts and em-dash strip. Treat the landing as one comprehensive pass: typeface lock + italic density + em-dash strip + copy edits, all together. Do not apply landing copy edits piecemeal before the italic decision is made — the typeface choice and copy density interact.
+
 **Lock outputs:**
 - Italic typeface chosen + loaded
-- Landing copy revised
-- Em-dashes gone
+- Landing copy revised (italic density + em-dash strip + copy edits as one pass)
 - Italic moments locked per surface
 
 ---
@@ -454,4 +448,11 @@ Remaining: locked wordmark application to onboarding topbar (→ Step 9 wordmark
 | May 1 | **Person pulldown dropdown style locked** — `border: 1px solid var(--rule)` + `box-shadow: 0 4px 12px rgba(0,0,0,0.08)` on both planner and dashboard mobile dropdowns. Matches desktop filter tag dropdown exactly. | 4 |
 | May 1 | **Recipe grid uniform row heights locked** — `grid-auto-rows: calc(18.75vw + 110px)` (4-col) / `calc(25vw + 110px)` (3-col) / `auto` (mobile). All cards carry `border-bottom`; no `nth-last-child` stripping. | 4 |
 | May 1 | **Step 4 complete.** Remaining mobile surfaces: recipe detail, auth/onboarding expression. | — |
+| May 2 | **Brief 5A landed** — Eyebrow casing enforced UPPERCASE at component level. `Done — dismiss` → `Dismiss` (em-dash removed). `+ Add` → `+ ADD` in MealPlanWeek. `Go home` → `GO HOME →` in 404. Breadcrumb and AddMealSheet date eyebrow casing verified as enforced via class. `§ ` convention audited app-wide; marketing strings deferred to Step 6. | 5A |
+| May 2 | **Brief 5B landed** — Button casing rule locked in design-system.md §1d: all button labels render UPPERCASE regardless of register; class handles it, source strings may be mixed-case. 43 button-related classes audited; one fix (`.mob-sheet-clear`). RecipeBuilder, AddMealSheet, and login button source strings uppercased. | 5B |
+| May 2 | **Brief 5C landed** — Empty-state CTAs added/fixed. `CLEAR FILTERS →` on Recipes and Pantry no-matches states. Planner SELECT A PLAN confirmed as Case A (reachable when user deletes current plan while others exist); headline → `A week to plan.` + `+ CREATE PLAN →` CTA. Shopping no-ingredients: `+ ADD MEALS →` → `OPEN PLANNER →`. Dashboard NOTHING TODAY → `+ ADD MEAL →` with `todayISO` local date and `planId` prefilled. EmptyState `lede` prop made optional. | 5C |
+| May 2 | **Brief 5D landed** — Form-page headline voice locked. Path-style breadcrumbs (`RECIPE / NEW`) → single `§ NEW` / `§ EDIT` eyebrows. Headlines lowercase, sentence case, period: `A new recipe.`, `Edit this recipe.`, `A new pantry item.`, `Edit this pantry item.` Working-surface scale (`clamp(22px, 2.4vw, 32px)`) extended to Add Meal (`.pl-add-title`) and Shopping (`.pl-shop-title`). | 5D |
+| May 2 | **Working-surface vs editorial scale split locked** — Headlines split by user intent: editorial bookends (landing, auth, onboarding bookends, dashboard hero, full-page empty states, 404) at Display scale (`clamp(36px, 4.4vw, 64px)`); working surfaces (forms, Add Meal, Shopping) at form-title scale (`clamp(22px, 2.4vw, 32px)`). Step 10 will verify the split system-wide. | 5D |
+| May 2 | **Brief 5E landed** — Dashboard stats empty state: three-element composition (eyebrow + lede + CTA; no headline — strip is a quiet inline section that doesn't earn an editorial moment). Strip-bottom hairline moved to outer wrapper so it renders in both states. Dialog voice rule locked in design-system.md §5j: title sentence case ending `?` or `.`, body brief and factual, confirm label single verb UPPERCASE. All `dialog.confirm` calls audited; fixes: `Delete plan` → `DELETE` confirm label; `Remove ${name}?` → `Remove "${name}"?`; `Sign out` → `SIGN OUT`. | 5E |
+| May 2 | **Step 5 complete.** Editorial pass and § convention done across the app. Landing italic density and landing copy adjustments absorbed into Step 6 — they're tightly coupled to the italic typeface decision. | — |
 
