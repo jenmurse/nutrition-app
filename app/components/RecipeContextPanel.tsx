@@ -103,7 +103,7 @@ function GoalsTab({
 
   return (
     <div>
-      <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.1em] mb-4 pb-3 border-b border-[var(--rule)]">
+      <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.14em] mb-4 pb-3 border-b border-[var(--rule)]">
         Per serving · vs goals
       </div>
       {goals.map((goal) => {

@@ -387,7 +387,7 @@ export default function RecipeDetailPage() {
                 const container = document.getElementById("rf-edit-scroll");
                 if (el && container) container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
               }}
-              className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--fg)]`}
+              className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.14em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left text-[var(--muted)] hover:text-[var(--fg)]`}
               style={i === 0 ? { paddingTop: 0 } : undefined}
               aria-label={`Jump to ${s.label}`}
             >
@@ -402,7 +402,7 @@ export default function RecipeDetailPage() {
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
               <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ EDIT</div>
-              <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)" }}>Edit this recipe.</h1>
+              <h1 className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(28px, 2.4vw, 36px)" }}>Edit this recipe.</h1>
             </div>
 
             <RecipeBuilder
@@ -448,7 +448,7 @@ export default function RecipeDetailPage() {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.14em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
@@ -479,7 +479,7 @@ export default function RecipeDetailPage() {
                 </div>
               )}
               {/* Name */}
-              <h1 className="font-serif font-bold tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-4" style={{ fontSize: "clamp(30px, 3.4vw, 48px)", textWrap: "balance" }}>
+              <h1 className="font-serif font-medium tracking-[-0.03em] leading-[1.05] text-[var(--fg)] mb-4" style={{ fontSize: "clamp(28px, 3.4vw, 48px)", textWrap: "balance" }}>
                 {recipe.name}
               </h1>
               {/* Meta */}
@@ -546,7 +546,7 @@ export default function RecipeDetailPage() {
               <div>
                 <div className="flex items-baseline gap-3 mb-8">
                   <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
-                  <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
+                  <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Ingredients</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {/* Scale */}
@@ -569,7 +569,7 @@ export default function RecipeDetailPage() {
                     return (
                       <li key={ing.id}>
                         {showSection && (
-                          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] pt-8 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
+                          <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] pt-8 pb-1 border-b border-[var(--rule)]">{ing.section}</div>
                         )}
                         <div className="flex gap-[18px] py-3 border-b border-[var(--rule)]">
                           <span className="font-mono text-[11px] text-[var(--fg-2)] min-w-[70px] text-right shrink-0 tabular-nums pt-[3px]">
@@ -592,7 +592,7 @@ export default function RecipeDetailPage() {
               <div id="rd-sec-nut">
                 <div className="flex items-baseline gap-3 mb-8">
                   <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
-                  <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
+                  <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Nutrition</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
                 {/* Partial nutrition warning */}
@@ -649,7 +649,7 @@ export default function RecipeDetailPage() {
             <div id="rd-sec-steps" style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
                 <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
-                <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
+                <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="flex flex-col">
@@ -672,7 +672,7 @@ export default function RecipeDetailPage() {
           <div id="rd-sec-opt" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
               <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
-              <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Optimization</span>
+              <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Optimization</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
             <ContextualTip tipId="ai-optimize" label="AI Optimization">
@@ -705,7 +705,7 @@ export default function RecipeDetailPage() {
               ) : optNotes ? (
                 <>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Optimization Notes</span>
+                    <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">Optimization Notes</span>
                     <button onClick={() => { setEditingNotes("optimization"); setNotesText(optNotes || ""); }}
                       className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2"
                       aria-label="Edit optimization notes">Edit</button>
@@ -743,7 +743,7 @@ export default function RecipeDetailPage() {
           <div id="rd-sec-prep" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
               <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
-              <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Meal Prep</span>
+              <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Meal Prep</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
             <ContextualTip tipId="ai-meal-prep" label="AI Meal Prep">
@@ -776,7 +776,7 @@ export default function RecipeDetailPage() {
               ) : prepNotes ? (
                 <>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Meal Prep Notes</span>
+                    <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">Meal Prep Notes</span>
                     <button onClick={() => { setEditingNotes("mealPrep"); setNotesText(prepNotes || ""); }}
                       className="font-mono text-[9px] tracking-[0.08em] uppercase bg-transparent border-0 text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer py-1 px-2"
                       aria-label="Edit meal prep notes">Edit</button>

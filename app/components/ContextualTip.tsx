@@ -56,7 +56,7 @@ export default function ContextualTip({ tipId, label, children }: ContextualTipP
       </svg>
 
       <div className="flex-1 min-w-0">
-        <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent)] mb-[4px]">{label}</div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--accent)] mb-[4px]">{label}</div>
         <div className="font-sans text-[13px] text-[var(--fg)] leading-[1.6]">{children}</div>
       </div>
 

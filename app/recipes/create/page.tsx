@@ -166,7 +166,7 @@ export default function CreateRecipePage() {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.14em] uppercase py-[8px] border-0 border-b border-[var(--rule)] bg-transparent cursor-pointer transition-colors text-left ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--muted)] hover:text-[var(--fg)]"
             }`}
             style={i === 0 ? { paddingTop: 0 } : undefined}
@@ -186,7 +186,7 @@ export default function CreateRecipePage() {
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ NEW</div>
-            <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>A new recipe.</h1>
+            <h1 className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(28px, 2.4vw, 36px)", textWrap: "balance" }}>A new recipe.</h1>
           </div>
 
           {/* Import section */}

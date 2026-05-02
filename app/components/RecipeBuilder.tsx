@@ -98,7 +98,7 @@ function SortableIngredientRow({
     <div ref={setNodeRef} style={style} {...attributes}>
       {editingSectionRowId === row.id && !showSectionHeader && (
         <div className="flex items-center gap-2" style={{ padding: "10px 0 6px", borderBottom: "1px solid var(--rule)" }}>
-          <input autoFocus className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
+          <input autoFocus className="flex-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
             placeholder="Section name..." value={editingSectionText}
             onChange={(e) => setEditingSectionText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
@@ -108,13 +108,13 @@ function SortableIngredientRow({
       {showSectionHeader && (
         <div className="flex items-center gap-2" style={{ padding: "10px 0 6px", borderBottom: "1px solid var(--rule)" }}>
           {editingSectionRowId === row.id ? (
-            <input autoFocus className="flex-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
+            <input autoFocus className="flex-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] bg-transparent border-0 px-0 py-0 focus:outline-none"
               placeholder="Section name..." value={editingSectionText}
               onChange={(e) => setEditingSectionText(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") commitSection(row.id); if (e.key === "Escape") setEditingSectionRowId(null); }}
               onBlur={() => commitSection(row.id)} aria-label="Edit section name" />
           ) : (
-            <button type="button" className="flex-1 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] font-medium hover:text-[var(--fg)] cursor-pointer bg-transparent border-0 p-0"
+            <button type="button" className="flex-1 text-left font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] font-medium hover:text-[var(--fg)] cursor-pointer bg-transparent border-0 p-0"
               onClick={() => { setEditingSectionRowId(row.id); setEditingSectionText(row.section || ""); }}
               aria-label={`Edit section: ${row.section}`}>{row.section}</button>
           )}
@@ -726,7 +726,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div id="rf-sec-basics" style={{ marginTop: 0 }}>
         <div className="flex items-baseline gap-3 mb-8">
           <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
-          <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Basics</span>
+          <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Basics</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 
@@ -807,7 +807,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div id="rf-sec-photo" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
           <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
-          <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Photo</span>
+          <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Photo</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 
@@ -868,11 +868,11 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 aria-label="Upload recipe image"
               >
                 {imageUploading ? (
-                  <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] animate-pulse">Uploading…</span>
+                  <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] animate-pulse">Uploading…</span>
                 ) : (
                   <>
                     <span className="text-[24px] text-[var(--rule)]">+</span>
-                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)]">Photo</span>
+                    <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">Photo</span>
                   </>
                 )}
               </button>
@@ -909,7 +909,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div id="rf-sec-ingredients" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
           <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
-          <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
+          <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Ingredients</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 
@@ -935,8 +935,8 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         </div>
 
         <div className="flex gap-3" style={{ padding: "8px 0" }}>
-          <button className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]" onClick={addRow} aria-label="Add ingredient row">+ Add Ingredient</button>
-          <button className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]"
+          <button className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]" onClick={addRow} aria-label="Add ingredient row">+ Add Ingredient</button>
+          <button className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]"
             onClick={() => { const newId = `r${Date.now()}`; setRows((s) => [...s, { id: newId }]); setEditingSectionRowId(newId); setEditingSectionText(""); }}
             aria-label="Add section header">+ Section Header</button>
         </div>
@@ -946,7 +946,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div id="rf-sec-method" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
           <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
-          <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Method</span>
+          <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Method</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 
@@ -966,7 +966,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
         </DndContext>
         <div style={{ padding: "8px 0" }}>
           <button
-            className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]"
+            className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] bg-transparent border-0 cursor-pointer p-0 hover:text-[var(--fg)] transition-colors active:scale-[0.97]"
             onClick={() => setSteps((prev) => [...prev, ""])}
             aria-label="Add step"
           >+ Add Step</button>
@@ -977,7 +977,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       <div id="rf-sec-nutrition" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
           <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
-          <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
+          <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>Nutrition</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
 

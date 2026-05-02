@@ -687,8 +687,8 @@ input[type="number"]:focus {
 }
 .ghost-name {
   font-family: var(--sans);
-  font-size: clamp(28px, 2.8vw, 38px);
-  font-weight: 700;
+  font-size: clamp(28px, 2.8vw, 36px);
+  font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--fg);
@@ -867,7 +867,7 @@ input[type="number"]:focus {
   }
   .recipe-list-row__name {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 500;
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
@@ -2017,7 +2017,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .hm-mob-brand {
   font-family: var(--font-sans);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.03em;
   color: var(--fg);
   line-height: 1;
@@ -2248,8 +2248,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .cmp-title {
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: clamp(36px, 4.4vw, 64px);
+  font-weight: 500;
+  font-size: clamp(28px, 2.4vw, 36px);
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--fg);
@@ -2278,7 +2278,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .cmp-value.lo .cmp-num {
   color: var(--fg);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 22px;
 }
 .cmp-value.lo .cmp-unit { opacity: 1; }
@@ -2949,8 +2949,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .pl-shop-title {
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 500;
+  font-size: clamp(28px, 2.4vw, 36px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--fg);
@@ -3063,8 +3063,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .pl-add-title {
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 500;
+  font-size: clamp(28px, 2.4vw, 36px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--fg);
@@ -3262,7 +3262,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .mob-topbar-wordmark {
     font-family: var(--font-sans);
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: -0.03em;
     color: var(--fg);
     text-decoration: none;
@@ -3864,7 +3864,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .add-meal-browse-headline {
     font-family: var(--font-sans);
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 500;
     color: var(--fg);
     padding: 0 var(--pad) 12px;
     margin: 0;
@@ -4157,7 +4157,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-split-brand {
   font-family: var(--font-sans);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.03em;
   color: var(--fg);
   text-decoration: none;
@@ -4203,7 +4203,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .lp-nav-brand {
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 13px;
   letter-spacing: -0.03em;
   color: var(--fg);
@@ -4278,7 +4278,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .lp-headline {
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 500;
   font-size: clamp(44px, 5.5vw, 60px);
   letter-spacing: -0.03em;
   line-height: 0.95;
@@ -4587,7 +4587,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-col-visual {}
 .lp-section-headline {
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 500;
   font-size: clamp(26px, 3.2vw, 44px);
   letter-spacing: -0.03em;
   line-height: 1.1;
@@ -4667,7 +4667,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-mockup-total-val {
   font-family: var(--font-sans);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.03em;
   color: var(--fg);
   line-height: 1;
@@ -4913,7 +4913,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .rbd-recipe-title {
   font-family: var(--font-sans);
   font-size: clamp(20px, 2.4vw, 28px);
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--fg);
@@ -4933,7 +4933,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .rbd-section-num {
   font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--rule);
   flex-shrink: 0;
 }
@@ -5393,7 +5393,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-s-headline {
   font-family: var(--font-sans);
   font-size: clamp(64px, 7vw, 104px);
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 0.97;
   color: var(--fg);
@@ -5549,7 +5549,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .lp-feat-h2 {
   font-family: var(--font-sans);
   font-size: clamp(30px, 3.2vw, 50px);
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1.0;
   color: var(--fg);
@@ -5830,7 +5830,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
 }
-.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
+.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
 .auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -6082,7 +6082,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .ob-topbar-wm {
   font-family: var(--sans);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 15px;
   letter-spacing: -0.03em;
   color: var(--fg);

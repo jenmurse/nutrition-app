@@ -115,7 +115,7 @@ export default function IngredientContextPanel({
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-6 py-4">
-        <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.1em] mb-4 pb-3 border-b border-[var(--rule)]">
+        <div className="font-mono text-[9px] text-[var(--muted)] uppercase tracking-[0.14em] mb-4 pb-3 border-b border-[var(--rule)]">
           {personName ? `${personName}'s goals` : "Daily goals"} · {servingLabel}
         </div>
 

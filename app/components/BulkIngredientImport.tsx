@@ -214,7 +214,7 @@ export default function BulkIngredientImport({
     <>
       <div className="space-y-4">
         <div>
-          <label className="block font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] mb-2">
+          <label className="block font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-2">
             Paste your ingredient data (CSV or TSV):
           </label>
           <textarea
@@ -228,7 +228,7 @@ export default function BulkIngredientImport({
         {error && <div className="text-[var(--error)] text-[11px]">{error}</div>}
         <button
           onClick={handleParse}
-          className="w-full px-4 py-2 bg-[var(--cta)] text-[var(--cta-ink)] hover:opacity-90 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+          className="w-full px-4 py-2 bg-[var(--cta)] text-[var(--cta-ink)] hover:opacity-90 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors"
         >
           Parse & Preview
         </button>
@@ -245,7 +245,7 @@ export default function BulkIngredientImport({
               </h3>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
+                className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
                 aria-label="Close preview"
               >
                 Close
@@ -257,16 +257,16 @@ export default function BulkIngredientImport({
               <table className="w-full text-[11px] border-collapse">
                 <thead>
                   <tr className="bg-[var(--bg-subtle)] sticky top-0">
-                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Item</th>
-                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Unit & Amount</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Cal</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Fat</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Sat</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Na</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Carb</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Sug</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Pro</th>
-                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">Fib</th>
+                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Item</th>
+                    <th className="border border-[var(--rule)] p-2 text-left font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Unit & Amount</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Cal</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Fat</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Sat</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Na</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Carb</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Sug</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Pro</th>
+                    <th className="border border-[var(--rule)] p-2 text-right font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Fib</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,13 +296,13 @@ export default function BulkIngredientImport({
               <button
                 onClick={handleImport}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-[var(--cta)] text-[var(--cta-ink)] hover:opacity-90 disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors"
+                className="flex-1 px-4 py-2 bg-[var(--cta)] text-[var(--cta-ink)] hover:opacity-90 disabled:opacity-50 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors"
               >
                 {loading ? "Importing..." : "Import All"}
               </button>
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className="px-4 py-2 border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] font-mono text-[9px] uppercase tracking-[0.1em] transition-colors cursor-pointer"
+                className="px-4 py-2 border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] font-mono text-[9px] uppercase tracking-[0.14em] transition-colors cursor-pointer"
               >
                 Cancel
               </button>

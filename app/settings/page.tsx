@@ -63,7 +63,7 @@ function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-baseline gap-3 mb-8">
       <span className="font-serif text-[13px] font-bold text-[var(--rule)]">{number}</span>
-      <span className="font-serif font-semibold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>{title}</span>
+      <span className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "20px" }}>{title}</span>
       <span className="flex-1 h-px bg-[var(--rule)]" />
     </div>
   );
@@ -608,7 +608,7 @@ const SettingsPage = () => {
           <button
             key={s.id}
             onClick={() => scrollToSection(s.id)}
-            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.1em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
+            className={`flex items-baseline gap-[10px] font-mono text-[9px] tracking-[0.14em] uppercase py-[8px] border-0 bg-transparent cursor-pointer transition-colors text-left ${
               i < JUMP_SECTIONS.length - 1 ? 'border-b border-[var(--rule)]' : ''
             } ${
               activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--muted)] hover:text-[var(--fg)]'
@@ -631,7 +631,7 @@ const SettingsPage = () => {
           {/* Page header */}
           <div style={{ paddingTop: 48, marginBottom: 40 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ SETTINGS</div>
-            <h1 className="font-serif font-bold tracking-[-0.02em] text-[var(--fg)]" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", textWrap: "balance" }}>Your preferences.</h1>
+            <h1 className="font-serif font-medium tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(28px, 2.4vw, 36px)", textWrap: "balance" }}>Your preferences.</h1>
           </div>
 
           {/* ════════════════════════════════════════════════════════════════════
@@ -693,11 +693,11 @@ const SettingsPage = () => {
 
                       {/* Status pill — owner / tracked-only / joined / pending */}
                       {isOwner ? (
-                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">
                           Owner
                         </span>
                       ) : person.trackedOnly ? (
-                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] border border-[var(--rule)] px-[6px] py-[2px] rounded-pill">
                           Tracked Only
                         </span>
                       ) : redeemedInvite ? (
@@ -707,7 +707,7 @@ const SettingsPage = () => {
                       ) : pendingInvite ? (
                         <button
                           onClick={() => handleCopyMemberInvite(pendingInvite)}
-                          className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity"
+                          className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity"
                           aria-label={`Copy invite link for ${person.name}`}
                         >
                           {copiedInviteId === pendingInvite.id ? 'Copied!' : 'Copy Invite Link'}
@@ -851,7 +851,7 @@ const SettingsPage = () => {
                           className="mt-[2px]"
                         />
                         <div>
-                          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--fg)]">Tracked Only (no login)</div>
+                          <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)]">Tracked Only (no login)</div>
                           <div className="text-[12px] text-[var(--muted)] leading-[1.5] mt-[2px]">
                             Use for children or members who won&rsquo;t have their own account.
                           </div>
@@ -1077,7 +1077,7 @@ const SettingsPage = () => {
                       <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{newMcpToken}</code>
                       <button
                         onClick={handleCopyMcpToken}
-                        className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
+                        className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
                         aria-label="Copy MCP token"
                       >
                         {mcpCopied ? 'Copied!' : 'Copy'}
@@ -1142,7 +1142,7 @@ const SettingsPage = () => {
                     aria-label="Copy configuration block"
                   >
                     {configBlockCopied ? (
-                      <span className="font-mono text-[9px] uppercase tracking-[0.1em]">Copied ✓</span>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.14em]">Copied ✓</span>
                     ) : (
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
                     )}
@@ -1216,7 +1216,7 @@ const SettingsPage = () => {
                   aria-label="Drop JSON file or click to browse"
                 >
                   <span className="text-[16px] text-[var(--muted)] mb-[4px]">↑</span>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">
                     {importFile ? importFile.name : 'Drop JSON file or click to browse'}
                   </span>
                 </label>
@@ -1236,14 +1236,14 @@ const SettingsPage = () => {
                     <button
                       onClick={handleImport}
                       disabled={importLoading}
-                      className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.1em] bg-[var(--cta)] text-white border-0 cursor-pointer disabled:opacity-40 hover:opacity-90 transition-opacity"
+                      className="px-4 py-[9px] font-mono text-[9px] uppercase tracking-[0.14em] bg-[var(--cta)] text-white border-0 cursor-pointer disabled:opacity-40 hover:opacity-90 transition-opacity"
                       aria-label="Restore from backup"
                     >
                       {importLoading ? 'Importing…' : 'Restore'}
                     </button>
                     <button
                       onClick={() => { setImportFile(null); setImportResult(null); }}
-                      className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
+                      className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-0 cursor-pointer"
                     >
                       Cancel
                     </button>

@@ -434,7 +434,7 @@ export default function Home() {
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
-                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
+                    className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
                   >
                     Full planner →
                   </Link>
@@ -458,7 +458,7 @@ export default function Home() {
                 <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
+                  className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
                 >
                   Open planner →
                 </Link>
@@ -490,19 +490,19 @@ export default function Home() {
                                 href={`/recipes/${m.recipe.id}`}
                                 className="no-underline group"
                               >
-                                <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3 text-[var(--fg)] group-hover:text-[var(--fg)] transition-colors" style={{ textWrap: 'balance' }}>
+                                <div className="font-serif text-[20px] font-bold tracking-[-0.03em] leading-[1.15] mb-3 text-[var(--fg)] group-hover:text-[var(--fg)] transition-colors" style={{ textWrap: 'balance' }}>
                                   {name}
                                 </div>
                               </Link>
                             ) : (
-                              <div className="font-serif text-[20px] font-bold tracking-[-0.02em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
+                              <div className="font-serif text-[20px] font-bold tracking-[-0.03em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
                                 {name}
                               </div>
                             )}
                             {/* Nutrient rows — 3 selected stats */}
                             {mealStats.map((s) => (
                               <div key={s.label} className="flex justify-between items-center py-[6px] border-b border-[var(--rule)]">
-                                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)]">{s.label}</span>
+                                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{s.label}</span>
                                 <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] tabular-nums">
                                   {s.value}{s.unit && <span className="text-[11px] text-[var(--muted)] ml-[2px]">{s.unit}</span>}
                                 </span>
@@ -511,7 +511,7 @@ export default function Home() {
                             {m.recipe?.id && (
                               <Link
                                 href={`/recipes/${m.recipe.id}`}
-                                className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
+                                className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity mt-[14px] inline-block"
                               >
                                 See recipe →
                               </Link>
@@ -540,7 +540,7 @@ export default function Home() {
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
-                    className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
+                    className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
                   >
                     Full planner →
                   </Link>
@@ -606,13 +606,13 @@ function WeekOverview({
             {/* Day header */}
             <div className="hm-week-day-header" style={{ padding: '12px 14px 14px' }}>
               <div
-                className="hm-day-abbr font-mono text-[9px] uppercase tracking-[0.1em]"
+                className="hm-day-abbr font-mono text-[9px] uppercase tracking-[0.14em]"
                 style={{ color: isToday ? 'var(--accent)' : 'var(--muted)' }}
               >
                 {DAY_NAMES[date.getDay()]}
               </div>
               <div
-                className="hm-day-num font-serif text-[28px] font-bold tracking-[-0.02em] leading-none mt-[2px] tabular-nums"
+                className="hm-day-num font-serif text-[28px] font-bold tracking-[-0.03em] leading-none mt-[2px] tabular-nums"
                 style={{ color: isToday ? 'var(--fg)' : 'var(--fg-2)' }}
               >
                 {date.getDate()}
@@ -657,7 +657,7 @@ function WeekOverview({
               {dayMeals.length === 0 && (
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
-                  className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] no-underline hover:text-[var(--fg)] transition-colors block py-[6px]"
+                  className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] no-underline hover:text-[var(--fg)] transition-colors block py-[6px]"
                 >
                   + Add
                 </Link>

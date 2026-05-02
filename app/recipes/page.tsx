@@ -777,7 +777,7 @@ function RecipesPage() {
                     </>
                   )}
                   {recipe.isComplete === false && (
-                    <div className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
+                    <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--warn)] mt-[6px]">incomplete</div>
                   )}
                 </article>
               );
@@ -816,7 +816,7 @@ function RecipesPage() {
                                           </span>
                     {category && <span className="recipe-list-row__cat">{category}</span>}
                     {recipe.isComplete === false && (
-                      <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-[var(--warn)] flex-shrink-0">incomplete</span>
+                      <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--warn)] flex-shrink-0">incomplete</span>
                     )}
                   </div>
                   {/* Nutrition values */}
@@ -863,7 +863,7 @@ function RecipesPage() {
                           {r.image
                             ? <img src={r.image} alt="" className="w-full h-full object-cover block" />
                             : <div className="w-full h-full flex items-end overflow-hidden" style={{ background: 'var(--bg-3)', padding: '4px 6px 8px' }}>
-                                <span className="font-sans font-bold leading-[1.05] tracking-[-0.02em] text-[var(--fg)] opacity-[0.18] block" style={{ fontSize: 11 }}>
+                                <span className="font-sans font-bold leading-[1.05] tracking-[-0.03em] text-[var(--fg)] opacity-[0.18] block" style={{ fontSize: 11 }}>
                                   {r.name.length > 22 ? r.name.slice(0, r.name.lastIndexOf(' ', 22) || 22) : r.name}
                                 </span>
                               </div>
