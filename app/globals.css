@@ -370,7 +370,7 @@ input[type="number"]:focus {
 .recipe-title {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: clamp(36px, 3.4vw, 48px);
+  font-size: clamp(28px, 3.4vw, 48px);
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--fg);
