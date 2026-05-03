@@ -25,11 +25,8 @@ These are settled. Don't relitigate without a strong reason.
 ### Brand principles
 - ✓ **"Brand is paper & ink. Color belongs to the person."** — Claude Design's brand line is the single sentence the system runs on.
 - ✓ **The dot is what gets measured.** — One asset, four meanings (person / present moment / unit / decision). Used scarcely, not as wallpaper.
-- ✓ **Two typefaces + one italic serif accent.** — DM Sans, DM Mono, plus an italic-only serif for display emphasis. Italic serif is "spice not sauce" — display only (24px+), one word per headline, never in body, never in wordmark, never decorative.
+- ✓ **Two typefaces only — DM Sans + DM Mono.** Italic serif explored (Instrument Serif) and ultimately removed entirely in Step 6. No serif, no italic anywhere in the system.
 - ✓ **Sharp is default. Round = identity (the dot only). Pill = legacy stragglers.**
-
-### Italic serif typeface
-- ◇ **Open: Instrument Serif vs alternative.** Instrument is having a moment which makes leaning into it feel less original. Park this exploration for the copy pass — fonts to audition: GT Sectra, Editorial New (free), Domaine Display, Tiempos Headline, Migra. Decision deferred to Step 6.
 
 ### FAB
 - ✓ **Killed.** Round black FAB on Recipes/Pantry violates "the dot is the singular human thing inside rectangles" — a black disc as a generic nav glyph is exactly what the dot doctrine forbids. Replace with `+ NEW` text button in toolbar (matches desktop pattern).
@@ -82,15 +79,15 @@ These are settled. Don't relitigate without a strong reason.
 
 These need answers before or during the relevant step. Tracked here so we don't lose them.
 
-| ID | Question | My recommendation | Status |
+| ID | Question | Resolution | Status |
 |---|---|---|---|
 | Q1.1 | Bottom sheet top-corner radius: sharp / 8px / 12px / keep 20px | **8px — hardcoded on `.mob-sheet`. Token `--radius-xl` removed (Approach B).** | ✓ resolved in 2E |
-| Q1.2 | Toolbar icons (cart, chart, view toggles, filter): ghost no-fill / sharp outlined / text labels only | Text labels only on mobile — icons aren't earning their weight | ◇ decide in Step 3 |
-| Q4.1 | Form crumb pattern (`RECIPE / NEW` vs `§ RECIPE / NEW`) | Leave as metadata, no § | ◇ decide in Step 5 |
-| Q4.2 | `§ STEP ONE` on Add Meal — keep or simplify | Keep — § marks editorial chapter, "STEP ONE" alone reads as wizard chrome | ◇ decide in Step 5 |
-| Q5.5 | Nutrition sheet over-limit warning treatment: keep `--err-l` fill (current) or convert to left-rule margin-note (per design-system.md spec) | Keep current fill — it's working. Update the doc to match implementation. | ◇ decide in Step 3 |
-| Q11.1 | Mobile landing running bar: drop / single label / marquee | Drop entirely. Wordmark + SIGN IN is enough. | ◇ decide in Step 11 |
-| Q11.2 | Desktop landing running bar labels: keep statement-style or convert to section anchors (`§ PREMISE / METHOD / INVITATION`) | Keep as is — working, distinctive | ◇ decide in Step 11 |
+| Q1.2 | Toolbar icons (cart, chart, view toggles, filter): ghost no-fill / sharp outlined / text labels only | Text labels only on mobile — shipped in Step 3 | ✓ resolved in Step 3 |
+| Q4.1 | Form crumb pattern (`RECIPE / NEW` vs `§ RECIPE / NEW`) | Single `§ NEW` / `§ EDIT` eyebrow — path-style breadcrumbs removed | ✓ resolved in 5D |
+| Q4.2 | `§ STEP ONE` on Add Meal — keep or simplify | Working-surface eyebrow convention applied; § confirmed correct | ✓ resolved in Step 5 |
+| Q5.5 | Nutrition sheet over-limit warning treatment: keep `--err-l` fill (current) or convert to left-rule margin-note | `.err-chip` tinted fill kept for over-limit; `.warn-chip` plain ruled row for below-min. Design-system updated to match. | ✓ resolved in Step 3 |
+| Q11.1 | Mobile landing running bar: drop / single label / marquee | Dropped entirely — wordmark + SIGN IN is enough on mobile | ✓ resolved in Step 11 |
+| Q11.2 | Desktop landing running bar labels: keep statement-style or convert to section anchors | Kept statement-style — four locked labels (CALCULATED, NOT ESTIMATED · MEASURED TO THE GRAM · PLANNED BY THE WEEK · OPTIMIZED BY GOAL) | ✓ resolved in Step 6 |
 
 ---
 
@@ -218,39 +215,19 @@ Twelve steps. Steps 1–2 are foundational; 3–6 are the bulk of the visual wor
 
 ---
 
-### STEP 6 — Italic serif decision and copy pass ☐
+### STEP 6 — Type system + copy pass ✓
 
-**Why sixth:** Touches landing, auth, onboarding, possibly empty states. Italic typeface choice and copy line-edits done together because they affect each other.
+**What shipped:** Italic serif (Instrument Serif) was removed entirely rather than locked. The system is DM Sans + DM Mono only — no third typeface, no italic anywhere. Auth and landing copy updated in the same pass.
 
-**6a · Italic typeface audition**
-- Current candidate: Instrument Serif italic
-- Alternatives to test: GT Sectra, Editorial New (free, PangramPangram), Domaine Display, Tiempos Headline, Migra
-- Lock: 1 italic serif for the whole system
-- Set rule: italic only, 24px+, never in body, never in wordmark, never decorative, scope to display contexts via specific class (not global `<em>`)
+**Decisions landed:**
+- No italic serif. `<em>` convention retained only for dashboard greeting (theme-accent color, not italic).
+- Landing hero headline: "Measure what matters." — replaces the earlier version.
+- Auth create account: "Set up your kitchen." Auth sign in: "Pick up where you left off."
+- Running bar locked: four statement labels (CALCULATED, NOT ESTIMATED · MEASURED TO THE GRAM · PLANNED BY THE WEEK · OPTIMIZED BY GOAL).
+- § METHOD (PullQuote) section removed from landing. Landing is now: §00 Hero / §01 Manifesto / §02 ChapterLibrary / §03 ChapterWeek / §04 Close.
+- Landing headline-to-body gap normalized to 24px across all sections.
 
-**6b · Italic application audit**
-Walk every italic moment with the rule "spice not sauce":
-- Landing hero `actually` ✓ (one word)
-- Landing section 02 `other` ◇ (third italic on the page — does it earn it?)
-- Landing section 04 `matrix` ◇ (fourth italic — getting close to wallpaper)
-- Auth `left off` ◇ (two words — Claude Design says "rarely two")
-- Brand system pages `paper & ink`, `human and singular`, `italic serif` — these are doc usage, not product
-
-**Discussion:** With three italic moments on the landing, are we still in spice territory? My push: keep landing hero italic, convert section 02 and 04 to bold or upright. Auth `left off` — convert to bold (clearer at sign-in scale where serif italic is dramatic). Confirm with you.
-
-**6c · Em-dash strip on landing**
-Specific edits already drafted in creative-direction.md (Section 7). Six em-dashes to replace with comma / period / colon.
-
-**6d · Specific line edits**
-Drafted in creative-direction.md. Walk through each.
-
-**6e · Landing copy adjustments** *(absorbed from Step 5, May 2)*
-User has separate copy edits to apply alongside the italic cuts and em-dash strip. Treat the landing as one comprehensive pass: typeface lock + italic density + em-dash strip + copy edits, all together. Do not apply landing copy edits piecemeal before the italic decision is made — the typeface choice and copy density interact.
-
-**Lock outputs:**
-- Italic typeface chosen + loaded
-- Landing copy revised (italic density + em-dash strip + copy edits as one pass)
-- Italic moments locked per surface
+See decision log for full entry (May 2).
 
 ---
 
@@ -305,41 +282,27 @@ Remaining: locked wordmark application to onboarding topbar (→ Step 9 wordmark
 
 ---
 
-### STEP 10 — Type leading and tracking pass across all surfaces ☐
+### STEP 10 — Type leading and tracking pass ✓
 
-**Why tenth:** With Step 1's type scale locked, sweep every surface and verify each headline uses the right token.
+**Shipped May 2.** Full type audit across all surfaces. Key decisions locked:
 
-**Items:**
-- Dashboard hero: 11.5vw / −0.04em / 0.91 line-height
-- Landing hero: 96px / −0.035em / 1.0 line-height
-- Auth lede, onboarding bookend, empty state headlines: 64px display token (−0.03em / 1.05)
-- Recipe titles, page titles: 40px title token (−0.025em / 1.10)
-- Section heads inside long-scroll pages: 24px section token (−0.02em / 1.20)
-- All eyebrows: 9px DM Mono UPPERCASE / +0.14em
-- Body lede paragraphs (under display headlines): 18px / 0 / 1.55 — NEW token
+- **Weight system:** 700 = data numbers. 600 = content names + wordmark. 500 = editorial headlines. 400 = everything else.
+- **DM Sans tracking:** -0.03em everywhere in-app.
+- **DM Mono tracking — two tiers:** 0.06em (nutrition panel data labels), 0.14em (all general UI chrome). No other values.
+- Section numbers (01, 02…): DM Mono 600, 0.14em, color `var(--rule)`.
+- Instruction step numbers: 9px DM Mono 400, 0.14em, `var(--muted)`, baseline-aligned.
+- Meal card titles: 20px DM Sans 600, -0.03em. Class `.meal-card-name`.
+- `font-light` (300) removed everywhere — floor is 400.
+- `font-serif` alias swept from codebase.
+- Manifesto `.pay` span `margin-top: -0.08em` removed (leading now uniform).
 
-**Lock outputs:**
-- Type tokens defined in design-system.md
-- Every surface verified to use the right token
+Full spec in design-system.md §1b–§1e.
 
 ---
 
-### STEP 11 — Surface coherence check ☐
+### STEP 11 — Surface coherence check ✓
 
-**Why eleventh:** Final sweep before emails. Walk through every screen on desktop + mobile and verify:
-- Wordmark consistent
-- Linework consistent
-- Type tokens applied
-- § convention applied
-- No straggler radii
-- No magnifier icons
-- No FAB
-- No auth white
-- Italic moments per Step 6 decision
-- Mobile back buttons present on child screens
-- Sign Out only in Menu sheet on mobile
-
-**Output:** Pass/fail per screen, fix punch list.
+**Shipped May 2.** Full sweep of all screens desktop + mobile as part of the type audit pass. No straggler radii, no font-serif, no font-light, no off-spec tracking values found and left unresolved.
 
 ---
 
@@ -455,4 +418,6 @@ Remaining: locked wordmark application to onboarding topbar (→ Step 9 wordmark
 | May 2 | **Working-surface vs editorial scale split locked** — Headlines split by user intent: editorial bookends (landing, auth, onboarding bookends, dashboard hero, full-page empty states, 404) at Display scale (`clamp(36px, 4.4vw, 64px)`); working surfaces (forms, Add Meal, Shopping) at form-title scale (`clamp(22px, 2.4vw, 32px)`). Step 10 will verify the split system-wide. | 5D |
 | May 2 | **Brief 5E landed** — Dashboard stats empty state: three-element composition (eyebrow + lede + CTA; no headline — strip is a quiet inline section that doesn't earn an editorial moment). Strip-bottom hairline moved to outer wrapper so it renders in both states. Dialog voice rule locked in design-system.md §5j: title sentence case ending `?` or `.`, body brief and factual, confirm label single verb UPPERCASE. All `dialog.confirm` calls audited; fixes: `Delete plan` → `DELETE` confirm label; `Remove ${name}?` → `Remove "${name}"?`; `Sign out` → `SIGN OUT`. | 5E |
 | May 2 | **Step 5 complete.** Editorial pass and § convention done across the app. Landing italic density and landing copy adjustments absorbed into Step 6 — they're tightly coupled to the italic typeface decision. | — |
+| May 2 | **Step 6 complete — italic serif removed entirely.** Instrument Serif removed. System is DM Sans + DM Mono only. `<em>` convention retained only for dashboard greeting (theme-accent color, not italic). Auth `<em>` italics removed. Landing hero: "Measure what matters." Auth create account: "Set up your kitchen." Auth sign in: "Pick up where you left off." Running bar locked to four statement labels. § METHOD section removed from landing. Landing headline-to-body gap normalized to 24px. | 6 |
+| May 2 | **Steps 10 + 11 complete — type audit.** Weight system locked (700/600/500/400 with specific semantic roles). DM Sans -0.03em everywhere. DM Mono two-tier tracking: 0.06em (data labels) / 0.14em (chrome). Section numbers → DM Mono 600. Instruction step numbers → 9px DM Mono 400 0.14em. Meal card titles → 20px 600 `.meal-card-name`. `font-light` swept to 400. `font-serif` alias removed. Manifesto `.pay` margin-top removed. Full spec in design-system.md §1b–§1e. | 10 / 11 |
 
