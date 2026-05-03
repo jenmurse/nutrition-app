@@ -387,7 +387,7 @@
 
   .mkt .tick { padding: 9px 0; font-size: 9px; letter-spacing: 0.14em; }
 
-  .mkt .hero { padding: 40px var(--pad) 56px; }
+  .mkt .hero { padding: 72px var(--pad) 72px; }
   .mkt .hero-meta { grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 40px; font-size: 9px; }
   .mkt .hero-type { font-size: clamp(44px,12vw,68px); line-height: 0.95; }
   .mkt .hero-bottom { grid-template-columns: 1fr; gap: 28px; margin-top: 24px; align-items: start; }
