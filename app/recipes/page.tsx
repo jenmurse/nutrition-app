@@ -803,7 +803,7 @@ function RecipesPage() {
                   aria-label={compareMode ? `${compareIds.includes(recipe.id) ? "Remove" : "Add"} ${recipe.name} from comparison` : recipe.name}
                   aria-pressed={compareMode ? compareIds.includes(recipe.id) : undefined}
                   className="recipe-list-row"
-                  style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: 'var(--accent-l)' } : {}) }}
+                  style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`, ...(compareMode && compareIds.includes(recipe.id) ? { background: 'var(--bg-3)' } : {}) }}
                 >
                   {/* Thumbnail */}
                   <div className="recipe-list-row__thumb">
