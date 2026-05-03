@@ -10,16 +10,16 @@ export const SEO = {
 
   // ── Core identity ────────────────────────────────────────────
   siteName:    "Good Measure",
-  title:       "Good Measure — Measure what matters.",
-  description: "Know exactly what's in everything you cook. Build and optimize recipes, track nutrition live, and easily plan the week for your entire household.",
+  title:       "Good Measure — Cook by the gram. Plan by the week.",
+  description: "A cooking tool that calculates nutrition to the gram, plans meals by the week, and works whether you're cooking for yourself or a whole household.",
 
   // ── Canonical URL ────────────────────────────────────────────
   // Update this when you connect a custom domain.
   siteUrl: "https://withgoodmeasure.com",
 
   // ── Open Graph (Facebook, iMessage, Slack, etc.) ─────────────
-  ogTitle:       "Good Measure",
-  ogDescription: "Know exactly what's in everything you cook. Build and optimize recipes, track nutrition live, and plan the week for your entire household.",
+  ogTitle:       "Good Measure — Cook by the gram. Plan by the week.",
+  ogDescription: "A cooking tool that calculates nutrition to the gram, plans meals by the week, and works whether you're cooking for yourself or a whole household.",
   // Drop a 1200×630 PNG at /public/og.png to use a custom image.
   // Until then the auto-generated branded card is used (app/opengraph-image.tsx).
   ogImagePath:   "/og-image",   // points to the generated route
