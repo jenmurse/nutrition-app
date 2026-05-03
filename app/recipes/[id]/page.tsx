@@ -463,7 +463,7 @@ export default function RecipeDetailPage() {
       </nav>
 
       {/* ── Main Scroll ── */}
-      <div id="rd-scroll-container" className="h-full overflow-y-auto animate-page-enter">
+      <div id="rd-scroll-container" className={`h-full overflow-y-auto animate-page-enter${recipe.image ? " rd-has-image" : ""}`}>
 
 <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "0 64px 120px 196px" }}>
 

@@ -4015,8 +4015,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
 
   /* ── Recipe detail: hero image flush to top bar, edge-to-edge ── */
-  #rd-scroll-container .detail-content { padding-top: 0 !important; }
-  .rd-hero { padding-top: 0 !important; padding-bottom: 32px !important; min-height: 0 !important; }
+  #rd-scroll-container.rd-has-image .detail-content { padding-top: 0 !important; }
+  .rd-has-image .rd-hero { padding-top: 0 !important; padding-bottom: 32px !important; min-height: 0 !important; }
 
   /* ── Recipe detail: tighten section spacing on mobile ── */
   #rd-sec-ing,
