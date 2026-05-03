@@ -11,13 +11,13 @@ import LandingMotion from "./_components/LandingMotion";
 import "./landing.css";
 
 export const metadata: Metadata = {
-  title: "Good Measure — A nutrition app for people who actually cook.",
+  title: "Good Measure — Cook by the gram. Plan by the week.",
   description:
-    "Your pantry, your recipes, your week — measured to the gram, planned as a system, optimized by an AI that reads the whole week instead of one meal at a time.",
+    "A cooking tool that calculates nutrition to the gram, plans meals by the week, and works whether you're cooking for yourself or a whole household.",
   openGraph: {
-    title: "Good Measure — A nutrition app for people who actually cook.",
+    title: "Good Measure — Cook by the gram. Plan by the week.",
     description:
-      "Your pantry, your recipes, your week — measured to the gram, planned as a system, optimized by AI.",
+      "A cooking tool that calculates nutrition to the gram, plans meals by the week, and works whether you're cooking for yourself or a whole household.",
   },
 };
 
