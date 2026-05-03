@@ -88,7 +88,7 @@
 @media (prefers-reduced-motion: reduce) { .mkt { scroll-behavior: auto; } }
 
 /* ─── HERO ─── */
-.mkt .hero { padding: 48px var(--pad) 64px; border-bottom: 1px solid var(--rule); }
+.mkt .hero { padding: 160px var(--pad) 160px; border-bottom: 1px solid var(--rule); }
 .mkt .hero-meta {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
