@@ -5866,7 +5866,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px var(--pad);
+  padding: 18px clamp(24px, 5vw, 56px);
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
@@ -5895,7 +5895,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   min-height: calc(100vh - 57px);
 }
 .auth-left {
-  padding: 48px var(--pad);
+  padding: 48px clamp(24px, 5vw, 56px);
   display: flex; flex-direction: column; justify-content: center;
 }
 .auth-divider {
@@ -6090,7 +6090,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .auth-submit { padding: 10px 14px; margin: 4px 0 12px; }
   .auth-oauth { padding: 10px 14px; }
   .auth-or { margin: 2px 0 10px; }
-  .auth-nav { padding: 14px var(--pad); }
+  .auth-nav { padding: 14px clamp(24px, 5vw, 56px); }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -6113,7 +6113,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: calc(env(safe-area-inset-top) + 4px) 40px 4px;
+  padding: calc(env(safe-area-inset-top) + 4px) clamp(24px, 5vw, 56px) 4px;
   min-height: calc(48px + env(safe-area-inset-top));
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
