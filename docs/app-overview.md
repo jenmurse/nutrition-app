@@ -117,7 +117,7 @@ See `ai_analysis.md` for full workflow details.
 - Top Contributors: shows which ingredients are causing overages
 
 ### Onboarding (3 layers)
-- **Layer 1:** Wizard at `/onboarding` for new users (welcome + 3 content steps + complete screen). Full-width topbar with `§ ONBOARDING` left and step label right (`WELCOME` / `STEP · 01 / 03` / `READY`). See `onboarding.md` for structure detail; trust current code if conflicts.
+- **Layer 1:** Wizard at `/onboarding` for new users (welcome + 3 content steps + complete screen). Full-width topbar with wordmark left and step label right (`WELCOME` / `STEP · 01 / 03` / `READY`). No `§ ONBOARDING` label — removed as redundant. See `onboarding.md` for structure detail; trust current code if conflicts.
 - **Layer 2:** Getting Started checklist on the dashboard. Tasks auto-complete from server state (recipes, ingredients, goals, etc.); dismissed per person server-side via `dismissTip()` in PersonContext.
 - **Layer 3:** Contextual tips on key pages, also dismissed per person server-side.
 
@@ -140,7 +140,6 @@ See `ai_analysis.md` for full workflow details.
 ## Remaining before public launch
 
 - **Brand mark.** Frameless two-tick placeholder is in place. Swap when ready (touches nav, auth, onboarding, favicon, OG card)
-- **Onboarding voice + typography pass.** Not yet aligned with auth and landing
 - **Row Level Security** (Supabase RLS — see `rls_plan.md`)
 - **Auth hardening** — confirm-password field shipped via Brief 14; CAPTCHA still pending
 - **Update Supabase transactional emails** with branding
