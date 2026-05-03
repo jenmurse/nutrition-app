@@ -333,7 +333,7 @@ export default function CreateIngredientPage() {
           {/* ── 01 Lookup ── */}
           <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-mono text-[13px] font-bold text-[var(--rule)]">01</span>
+              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">01</span>
               <span className="section-label">Lookup</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -383,7 +383,7 @@ export default function CreateIngredientPage() {
           {/* ── 02 Details ── */}
           <div id="pf-sec-details" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-mono text-[13px] font-bold text-[var(--rule)]">02</span>
+              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">02</span>
               <span className="section-label">Details</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -491,7 +491,7 @@ export default function CreateIngredientPage() {
           {/* ── 03 Nutrition ── */}
           <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-mono text-[13px] font-bold text-[var(--rule)]">03</span>
+              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">03</span>
               <span className="section-label">Nutrition</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>

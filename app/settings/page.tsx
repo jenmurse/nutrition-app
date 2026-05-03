@@ -62,7 +62,7 @@ const JUMP_SECTIONS = [
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-baseline gap-3 mb-8">
-      <span className="font-mono text-[13px] font-bold text-[var(--rule)]">{number}</span>
+      <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">{number}</span>
       <span className="section-label">{title}</span>
       <span className="flex-1 h-px bg-[var(--rule)]" />
     </div>
