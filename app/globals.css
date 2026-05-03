@@ -375,6 +375,7 @@ input[type="number"]:focus {
   line-height: 1.05;
   color: var(--fg);
   margin-bottom: 16px;
+  overflow-wrap: break-word;
 }
 
 .ed-btn {
@@ -3640,6 +3641,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     min-height: 0 !important;
     gap: 24px !important;
   }
+  .rd-hero > * { min-width: 0; }
   /* Image renders above title on mobile */
   .rd-hero-img { order: -1; }
   /* Hero image: edge-to-edge on mobile */
