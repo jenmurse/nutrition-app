@@ -348,7 +348,7 @@ export default function RecipeDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading recipe…</div>
+        <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading recipe…</div>
       </div>
     );
   }

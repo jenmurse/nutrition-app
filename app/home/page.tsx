@@ -404,7 +404,7 @@ export default function Home() {
 
         ) : !weekPlanId ? (
           <div style={{ padding: `56px var(--pad) 72px` }}>
-            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">This week</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-6">This week</div>
             <EmptyState
               eyebrow="§ NO PLAN THIS WEEK"
               headline="A blank week."
@@ -417,7 +417,7 @@ export default function Home() {
         ) : !todayData || todayMeals.length === 0 ? (
           <>
             <div style={{ padding: `56px var(--pad) 72px` }}>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] mb-6">Today</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-6">Today</div>
               <EmptyState
                 eyebrow="§ NOTHING TODAY"
                 headline="No meals logged."
@@ -431,7 +431,7 @@ export default function Home() {
             {weekDays.length > 0 && (
               <div className="hm-thisweek-section" style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
                 <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
                     className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
@@ -455,7 +455,7 @@ export default function Home() {
             {/* Today's Meals — editorial numbered columns */}
             <div className="hm-meals-wrap" style={{ padding: `0 var(--pad) 72px` }}>
               <div className="hm-keymeal-hdr hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
-                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">Today&apos;s key meals</span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
                   href={`/meal-plans?planId=${weekPlanId}`}
                   className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
@@ -537,7 +537,7 @@ export default function Home() {
             {weekDays.length > 0 && (
               <div className="hm-thisweek-section" style={{ padding: `0 var(--pad)`, paddingBottom: 0 }}>
                 <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)]">This week</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">This week</span>
                   <Link
                     href={`/meal-plans?planId=${weekPlanId}`}
                     className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
@@ -617,7 +617,7 @@ function WeekOverview({
               >
                 {date.getDate()}
               </div>
-              <div className="hm-day-kcal font-mono text-[9px] tracking-[0.04em] text-[var(--muted)] mt-1">
+              <div className="hm-day-kcal font-mono text-[9px] tracking-[0.06em] text-[var(--muted)] mt-1">
                 {calVal > 0 ? `${calVal.toLocaleString()} kcal` : "\u00A0"}
               </div>
               <div className="hm-day-bar h-[2px] bg-[var(--rule)] mt-[6px] relative overflow-hidden">

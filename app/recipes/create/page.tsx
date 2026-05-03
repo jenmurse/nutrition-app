@@ -230,7 +230,7 @@ export default function CreateRecipePage() {
           )}
 
           {/* Recipe Builder */}
-          <Suspense fallback={<div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading…</div>}>
+          <Suspense fallback={<div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading…</div>}>
             <RecipeBuilder
               initialRecipe={importedRecipe || undefined}
               onSaved={() => router.push("/recipes")}

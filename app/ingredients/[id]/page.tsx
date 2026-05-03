@@ -532,7 +532,7 @@ export default function IngredientDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">
+        <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">
           Loading ingredient...
         </div>
       </div>
@@ -725,7 +725,7 @@ export default function IngredientDetailPage() {
                     {editUnit === "other" ? (
                       <input className="ed-input" placeholder="e.g. banana, scoop, cup" value={editCustomUnitName} onChange={(e) => setEditCustomUnitName(e.target.value)} aria-label="Custom unit name" />
                     ) : (
-                      <div className="py-[6px] font-mono text-[13px] font-light text-[var(--fg)]">{editUnit}</div>
+                      <div className="py-[6px] font-mono text-[13px] font-normal text-[var(--fg)]">{editUnit}</div>
                     )}
                   </div>
                   <div className="ed-field">

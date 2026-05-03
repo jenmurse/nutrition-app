@@ -149,7 +149,7 @@
   max-width: 22ch;
 }
 .mkt .manifesto-type span { display: block; margin: 0; }
-.mkt .manifesto-type .pay { color: var(--fg); margin-top: -0.08em; }
+.mkt .manifesto-type .pay { color: var(--fg); }
 .mkt .manifesto-type .set { color: var(--fg); }
 
 /* ─── CHAPTER SPLIT ─── */

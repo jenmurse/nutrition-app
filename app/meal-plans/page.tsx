@@ -732,7 +732,7 @@ const MealPlansPage = () => {
   if (loading && selectedPersonId !== null) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading meal plans...</div>
+        <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading meal plans...</div>
       </div>
     );
   }

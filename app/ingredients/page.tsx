@@ -374,7 +374,7 @@ function IngredientsPage() {
       <div className="list-scroll flex-1 overflow-y-auto animate-page-enter">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading ingredients...</div>
+            <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading ingredients...</div>
           </div>
         ) : sortedIngredients.length === 0 ? (
           <div className="flex items-center justify-center h-full">

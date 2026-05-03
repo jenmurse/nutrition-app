@@ -462,7 +462,7 @@ export default function CreateIngredientPage() {
                     {unit === "other" ? (
                       <input className="ed-input" placeholder="e.g. banana, scoop, cup" value={customUnitName} onChange={(e) => setCustomUnitName(e.target.value)} aria-label="Custom unit name" />
                     ) : (
-                      <div className="py-[6px] font-mono text-[13px] font-light text-[var(--fg)]">{unit}</div>
+                      <div className="py-[6px] font-mono text-[13px] font-normal text-[var(--fg)]">{unit}</div>
                     )}
                   </div>
                   <div className="ed-field">

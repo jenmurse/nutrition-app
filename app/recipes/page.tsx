@@ -709,7 +709,7 @@ function RecipesPage() {
       <div className="list-scroll flex-1 overflow-y-auto animate-page-enter">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="font-mono text-[13px] font-light text-[var(--muted)] animate-loading">Loading recipes…</div>
+            <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading recipes…</div>
           </div>
         ) : sortedRecipes.length === 0 ? (
           <div className="flex items-center justify-center h-full">
@@ -869,7 +869,7 @@ function RecipesPage() {
                               </div>
                           }
                         </div>
-                        {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
+                        {category && <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
                         <div className="font-sans text-[16px] font-semibold leading-[1.2] text-[var(--fg)]">{r.name}</div>
                       </div>
                     );

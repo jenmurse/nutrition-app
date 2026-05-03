@@ -51,7 +51,7 @@ export default function TopNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`nav-link font-mono text-[9px] uppercase tracking-[0.12em] py-[6px] no-underline relative transition-colors duration-150 whitespace-nowrap ${
+              className={`nav-link font-mono text-[9px] uppercase tracking-[0.14em] py-[6px] no-underline relative transition-colors duration-150 whitespace-nowrap ${
                 isActive
                   ? "text-[var(--fg)]"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -76,7 +76,7 @@ export default function TopNav() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPersonId(p.id)}
-                  className="nav-person-dot w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[9px] font-semibold text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
+                  className="nav-person-dot w-[18px] h-[18px] rounded-full flex items-center justify-center font-mono text-[9px] font-normal text-white shrink-0 transition-transform duration-200 cursor-pointer border-0 hover:scale-[1.15]"
                   style={{
                     background: p.color || "var(--accent)",
                     boxShadow: isSelected ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${p.color || 'var(--accent)'}` : 'none',
@@ -108,7 +108,7 @@ export default function TopNav() {
         </Link>
         <button
           onClick={handleSignOut}
-          className="nav-signout font-mono text-[9px] uppercase tracking-[0.12em] px-0 py-[5px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors duration-150 bg-transparent border-0 cursor-pointer"
+          className="nav-signout font-mono text-[9px] uppercase tracking-[0.14em] px-0 py-[5px] flex items-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors duration-150 bg-transparent border-0 cursor-pointer"
           aria-label="Sign out"
         >
           Sign out
