@@ -761,7 +761,7 @@ export default function IngredientDetailPage() {
 
             {/* Basis row */}
             <div className="flex items-center gap-[10px]" style={{ marginBottom: 24 }}>
-              <span className="font-mono text-[9px] text-[var(--muted)]">Values are per</span>
+              <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Values are per</span>
               <input
                 className="ed-input"
                 type="number"
@@ -795,7 +795,7 @@ export default function IngredientDetailPage() {
                   const inputValue = editValues[n.id];
                   return (
                     <div key={n.id} className="flex items-center gap-[12px] py-[10px]">
-                      <span className="text-[13px] w-[120px] shrink-0">{n.displayName}</span>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] w-[120px] shrink-0">{n.displayName}</span>
                       <input
                         className="ed-input flex-1 text-right"
                         type="number"
