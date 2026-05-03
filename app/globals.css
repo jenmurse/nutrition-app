@@ -3647,7 +3647,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* ── Recipe detail: stack hero + sections ───────────────────────── */
   .rd-hero {
     grid-template-columns: 1fr !important;
-    padding: 24px 0 32px !important;
+    padding: 0 0 32px !important;
     min-height: 0 !important;
     gap: 24px !important;
   }
