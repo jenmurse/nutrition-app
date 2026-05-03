@@ -490,12 +490,12 @@ export default function Home() {
                                 href={`/recipes/${m.recipe.id}`}
                                 className="no-underline group"
                               >
-                                <div className="font-serif text-[20px] font-bold tracking-[-0.03em] leading-[1.15] mb-3 text-[var(--fg)] group-hover:text-[var(--fg)] transition-colors" style={{ textWrap: 'balance' }}>
+                                <div className="font-serif text-[20px] font-semibold tracking-[-0.03em] leading-[1.15] mb-3 text-[var(--fg)] group-hover:text-[var(--fg)] transition-colors" style={{ textWrap: 'balance' }}>
                                   {name}
                                 </div>
                               </Link>
                             ) : (
-                              <div className="font-serif text-[20px] font-bold tracking-[-0.03em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
+                              <div className="font-serif text-[20px] font-semibold tracking-[-0.03em] leading-[1.15] mb-3" style={{ textWrap: 'balance' }}>
                                 {name}
                               </div>
                             )}
