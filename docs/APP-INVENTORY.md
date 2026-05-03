@@ -14,17 +14,16 @@ What remains is the design pass and a few deferred decisions.
 
 ### Queued — remaining design pass steps
 
-Steps 1–5 of the design pass are complete. What remains:
+Steps 1–5 of the design pass are complete. Status on remaining steps:
 
 | Step | Description | Status |
 |---|---|---|
 | Step 9 | Wordmark integration pass — apply locked `good · measure` wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav) | ☐ |
-| Step 10 | Type leading and tracking pass — verify every surface uses the correct type token | ☐ |
-| Step 11 | Surface coherence check — full sweep of every screen, desktop + mobile | ☐ |
+| Step 10 | Type leading and tracking pass — verify every surface uses the correct type token | ✓ Done May 2 |
+| Step 11 | Surface coherence check — full sweep of every screen, desktop + mobile | ✓ Done May 2 |
 | Step 12 | Email templates — refresh 5 Supabase templates with locked visual language | ☐ |
 
 **Also still open:**
-- Recipe detail mobile layout
 - Auth/onboarding mobile expression
 - The overall mobile editorial language question (connects to brand mark and linework decisions)
 
@@ -72,6 +71,17 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
 - Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
 
+**Locked this session (May 2 — typography audit):**
+- **Two-tier DM Mono tracking.** `0.06em` for data contexts (nutrition panel category labels: CALORIES, FAT, etc.). `0.14em` for all general UI chrome (nav links, eyebrows, form labels, tags, buttons). No other tracking values in use.
+- **DM Sans tracking: -0.03em everywhere** within the app. No range, no exceptions.
+- **Weight system locked.** 700 = data numbers (tabular, hero stats). 600 = content names (meal cards, recipe cards, wordmark, section numbers). 500 = editorial headlines (dashboard greeting only). 400 = everything else.
+- **Section numbers (01, 02…) are DM Mono 600**, not DM Sans 700. Color `var(--rule)`.
+- **Instruction step numbers redesigned.** 9px DM Mono 400, 0.14em, uppercase, `var(--muted)`. Baseline-aligned with step text, 32px min-width, gap-4.
+- **Meal card titles: 20px DM Sans 600**, -0.03em, line-height 1.15. Class `.meal-card-name`.
+- **`font-light` (300) removed entirely.** Minimum weight is 400. Loading states and all other uses swept to `font-normal`.
+- **`font-serif` swept from codebase.** Was a Tailwind alias for DM Sans — renamed to `font-sans` for accuracy. No surface uses serif typography.
+- **Manifesto leading fixed.** `.pay` spans had `margin-top: -0.08em` tightening the gap between the two sentence groups. Removed — all four lines now use uniform `line-height: 1.05` spacing.
+
 **Locked this session (May 2 — Step 6):**
 - **Italic system removed.** No `<em>` italics on any surface. Theme-accent `<em>` convention retained for dashboard greeting only.
 - **Two-typeface system.** DM Sans + DM Mono. Instrument Serif removed.
@@ -107,12 +117,8 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 
 ## Open questions
 
-For the next session:
-
-1. **Linework audit framework** — what to measure, what's the criteria for adding or removing rules?
-2. **Brand mark** — designed wordmark or stick with DM Sans 700? References to pull?
-3. **Mobile editorial expression** — what does the mobile version of this design system look like?
-4. **Account deletion** (in `decisions-pending.md`) — when does this need to be answered?
+1. **Brand mark** — designed wordmark or stick with DM Sans 700? References to pull?
+2. **Account deletion** (in `decisions-pending.md`) — when does this need to be answered?
 
 Resolved this session, no longer open:
 - ~~Mobile recipes card view~~ — deferred to post-launch design pass
@@ -123,6 +129,9 @@ Resolved this session, no longer open:
 - ~~Recipe grid borders + uniform row heights~~ — shipped (May 1)
 - ~~Mobile top bar chip-to-hamburger gap~~ — shipped (MOB-CLEANUP-1B, May 1)
 - ~~Type leading~~ — landing headline-to-body gap standardized to 24px across all sections (May 2)
+- ~~Recipe detail mobile layout~~ — fixed May 2: removed placeholder image for no-image recipes, corrected top padding (zeroed rd-hero top pad in base rule, preserved only for has-image), fixed title overflow with `overflow-wrap: break-word` and `min-width: 0` on grid children
+- ~~Type leading and tracking pass (Step 10)~~ — completed May 2
+- ~~Surface coherence check (Step 11)~~ — full audit completed May 2
 
 ---
 

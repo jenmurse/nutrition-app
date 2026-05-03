@@ -14,8 +14,8 @@ Source of truth for current visual reality. The design system is **editorial, sh
 
 | Role | Family | When to use |
 |---|---|---|
-| Body / display / headings | DM Sans | Everything except UI labels |
-| Labels / mono | DM Mono | UI chrome — nav links, eyebrows, filter chips, metadata, dates, nutrition values, button text |
+| Body / display / headings | DM Sans | Everything except UI labels and data values |
+| Labels / data | DM Mono | UI chrome — nav links, eyebrows, filter chips, metadata, section numbers, nutrition values, button text |
 
 **Defined as CSS variables on `:root`:**
 ```css
@@ -25,7 +25,7 @@ Source of truth for current visual reality. The design system is **editorial, sh
 
 `html, body { font-family: var(--font-sans); font-size: 13px; -webkit-font-smoothing: antialiased; }`
 
-Tailwind's `font-serif` is mapped to DM Sans for legacy compatibility.
+**Note:** Tailwind's `font-serif` class was previously mapped to DM Sans as a compatibility alias. It has been swept from the codebase — use `font-sans` directly.
 
 ### 1a. Type scale — 7 stops only
 
@@ -35,30 +35,60 @@ Never use 7, 8, 10, 12, 14, 15, 17, 18, 26, 30. The 20px stop is mid-display onl
 
 **Minimum size: 9px.** 7px and 8px are below the iOS legibility floor.
 
-### 1b. Element sizes
+### 1b. Weight system
 
-| Element | Size | Weight | Letter Spacing | Notes |
-|---|---|---|---|---|
-| Wordmark (nav) | 13px | 700 | -0.02em | DM Sans |
-| Wordmark (auth, onboarding) | 18px | 700 | -0.02em | DM Sans |
-| Page title (recipe detail) | clamp(30px, 3.4vw, 48px) | 700 | -0.03em | line-height 1.05, text-wrap balance |
-| Page title (form) | clamp(22px, 2.4vw, 32px) | 700 | -0.02em | |
-| Section header | clamp(18px, 1.8vw, 26px) | 600 | -0.02em | |
-| Recipe card name | clamp(13px, 1.4vw, 16px) | 600 | -0.01em | text-wrap balance |
-| Hero number (stats) | 28px | 700 | -0.025em | tabular-nums |
-| Planner day number | 28px | 700 | -0.02em | tabular-nums |
-| Step / section numbers | 28px | 700 | — | color: var(--rule) |
-| Nav links / mono labels | 9px DM Mono | 400 | 0.12–0.18em | uppercase |
-| Section eyebrow | 9px DM Mono | 400 | 0.14–0.18em | uppercase, var(--muted) |
-| Body / step text | 13px DM Sans | 400 | — | line-height 1.7, var(--fg-2) |
-| Form inputs | 13px DM Sans | 400 | — | |
+Four weights, each with a specific semantic role. Do not mix roles.
 
-### 1c. Rules
+| Weight | Role | Examples |
+|---|---|---|
+| **700** (bold) | Data numbers only — tabular displays that update | Hero stats, planner day numbers, kcal/macro values |
+| **600** (semibold) | Content item names + wordmark | Meal card titles, recipe card names, nav wordmark |
+| **500** (medium) | Editorial headlines | Dashboard greeting only |
+| **400** (regular) | Everything else — body, labels, all DM Mono chrome | Nav links, eyebrows, form inputs, step text |
+
+### 1c. Tracking system
+
+**DM Sans:** `-0.03em` everywhere. No exceptions within the app. (Larger display sizes — auth headline, landing hero — may use tighter values like `-0.035em`.)
+
+**DM Mono — two-tier system:**
+
+| Tier | Tracking | When to use |
+|---|---|---|
+| **Data** | `0.06em` | Nutrition panel category labels (CALORIES, FAT, SAT FAT…), numeric data contexts |
+| **Chrome** | `0.14em` | Nav links, section eyebrows, form labels, tags, button text, all general UI chrome |
+
+The data tier is slightly tighter because it lives alongside numbers in dense nutrition layouts. Chrome tier is the default for all other DM Mono text.
+
+### 1d. Element sizes
+
+| Element | Family | Size | Weight | Tracking | Notes |
+|---|---|---|---|---|---|
+| Wordmark (nav) | DM Sans | 13px | 600 | -0.03em | |
+| Wordmark (auth, onboarding) | DM Sans | 18px | 700 | -0.02em | |
+| Dashboard greeting | DM Sans | 11.5vw | 500 | — | line-height 0.91 |
+| Page title (recipe detail) | DM Sans | clamp(30px, 3.4vw, 48px) | 700 | -0.03em | line-height 1.05, text-wrap balance |
+| Page title (form) | DM Sans | clamp(22px, 2.4vw, 32px) | 700 | -0.02em | |
+| Section header title | DM Sans | clamp(18px, 1.8vw, 26px) | 600 | -0.02em | |
+| Meal card title | DM Sans | 20px | 600 | -0.03em | line-height 1.15 |
+| Recipe card name | DM Sans | clamp(13px, 1.4vw, 16px) | 600 | -0.01em | text-wrap balance |
+| Hero stat number | DM Sans | 28px | 700 | -0.025em | tabular-nums |
+| Planner day number | DM Sans | 28px | 700 | -0.02em | tabular-nums |
+| Body / step text | DM Sans | 13px | 400 | -0.03em | line-height 1.7, var(--fg-2) |
+| Form inputs | DM Sans | 13px | 400 | — | |
+| Section numbers (01, 02…) | DM Mono | 13px | 600 | 0.14em | uppercase, color: var(--rule) |
+| Instruction step numbers | DM Mono | 9px | 400 | 0.14em | uppercase, color: var(--muted), min-width 32px |
+| Nav links / sign out | DM Mono | 9px | 400 | 0.14em | uppercase |
+| Eyebrows / tags / form labels | DM Mono | 9px | 400 | 0.14em | uppercase, var(--muted) |
+| Nutrition category labels | DM Mono | 9px | 400 | 0.06em | uppercase, var(--muted) — data tier |
+| Button text | DM Mono | 9px | 400 | 0.14em | uppercase |
+
+### 1e. Rules
 
 - All DM Mono labels that are UI chrome → `text-transform: uppercase`
 - Numbers that update dynamically → `font-variant-numeric: tabular-nums`
 - Headings → `text-wrap: balance`
 - Body paragraphs → `text-wrap: pretty`
+- Never use `font-light` (300) — floor is 400
 
 ### 1d. Button register rule (locked)
 
@@ -644,12 +674,12 @@ Long-scroll pages use numbered section heads with hairline rules.
 
 ```css
 .section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 32px; }
-.section-num  { font: 700 12px var(--font-sans); color: var(--rule); }
+.section-num  { font: 600 13px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule); }
 .section-title { font: 600 clamp(18px,1.8vw,26px) var(--font-sans); letter-spacing: -0.02em; color: var(--fg); }
 .section-rule { flex: 1; height: 1px; background: var(--rule); }
 ```
 
-`01`, `02`, `03`… in DM Sans 700, color `--rule` (so the number reads as muted typography, not as a heading number).
+`01`, `02`, `03`… in DM Mono 600, color `--rule` (so the number reads as muted chrome, not as a heading number). Instruction step numbers are a separate, smaller pattern — 9px DM Mono 400, same `0.14em` tracking, color `var(--muted)`.
 
 ### 6c. Ruled rows
 
