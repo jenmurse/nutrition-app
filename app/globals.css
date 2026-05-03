@@ -3097,7 +3097,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--fg);
-  margin: 0 0 32px;
+  margin: 0 0 48px;
 }
 .pl-add-sub {
   font-size: 13px;
