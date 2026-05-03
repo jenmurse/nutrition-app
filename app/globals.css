@@ -894,8 +894,8 @@ input[type="number"]:focus {
     min-height: 72px;
   }
   .recipe-list-row__name {
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
@@ -3839,7 +3839,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .set-mob-jump::-webkit-scrollbar { display: none; }
 
   /* ── Ingredient list: more touch padding, bigger action targets ── */
-  .ing-list-row { padding: 12px !important; }
+  .ing-list-row { padding: 12px var(--pad) !important; }
   .ing-list-category { display: none; }
   .ing-list-actions { opacity: 1 !important; gap: 8px !important; }
   .ing-list-actions button {
