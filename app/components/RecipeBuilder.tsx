@@ -989,7 +989,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
               const display = value > 0 ? `${Math.round(value * 10) / 10}${unit !== "kcal" ? unit : ""}` : "—";
               return (
                 <div key={label} className="flex justify-between items-baseline" style={{ padding: `8px ${(idx + 1) % 3 === 0 ? "0" : "16px"} 8px 0` }}>
-                  <span className="font-mono text-[11px] text-[var(--muted)]">{label}</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)]">{label}</span>
                   <span className="font-mono text-[13px] font-medium tabular-nums">{display}</span>
                 </div>
               );
@@ -1009,7 +1009,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             onChange={(e) => { setGuidedMode(e.target.checked); if (!e.target.checked) { setGuidedPersonId(null); setGuidedFocus([]); setFocusCaps({}); } }}
             style={{ accentColor: "var(--accent)", width: 13, height: 13, cursor: "pointer" }}
           />
-          <span className="font-mono text-[9px] tracking-[0.06em] uppercase text-[var(--muted)]">Show nutrition guidance</span>
+          <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">Show nutrition guidance</span>
         </label>
 
         {/* Guidance inline panel */}
