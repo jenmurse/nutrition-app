@@ -70,11 +70,11 @@ export default function ChapterLibrary() {
 
           <p className="ch-p">
             Every ingredient you cook with lives in a pantry you build once, with
-            full nutrition from the USDA when it exists and from the package in
+            full nutrition from the USDA when it exists, and from the package in
             front of you when it doesn&apos;t. Import a recipe or create one from
             scratch. Recipes draw from the pantry, so the numbers follow the
             ingredients. Change two tablespoons of olive oil to one and the recipe
-            details update. Nutrition is calculated, not estimated.
+            details update automatically.
           </p>
         </div>
 

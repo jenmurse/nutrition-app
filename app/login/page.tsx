@@ -140,14 +140,14 @@ function LoginPage() {
     signin: {
       eyebrow: "§ Sign in",
       headline: "Pick up where you left off.",
-      lede: "Your pantry, your recipes, the week you were planning. All calculated to the gram.",
+      lede: "Your pantry. Your recipes. The week you were planning. All calculated to the gram.",
       submit: "Sign in",
       submitLoading: "Signing in…",
     },
     signup: {
       eyebrow: "§ Create account",
       headline: "Set up your kitchen.",
-      lede: "Build your pantry once. Plan a week against it. Let the math take care of itself.",
+      lede: "Build your pantry once. Create or import recipes. Plan your week. Let Good Measure take care of the rest.",
       submit: "Create account",
       submitLoading: "Creating account…",
     },

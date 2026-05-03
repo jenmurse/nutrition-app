@@ -102,20 +102,22 @@ export default function ChapterWeek() {
           </h3>
 
           <p className="ch-p">
-            Good Measure was built for how people actually cook, whether it&apos;s
-            for one person or a household. My husband and I cook out of the same
-            kitchen but we have different bodies and different goals. Every person
-            in the household has their own plan and their own targets, running
-            against the shared recipe library. You can add a meal for one person
-            or the entire household. As you go, the shopping list builds itself.
+            Good Measure was built for people who want more control over what they
+            cook, whether it&apos;s for one person or a household. My husband and I
+            cook out of the same kitchen but we have different needs and goals.
+            Every person in the household has their own plan and their own targets
+            running against the shared recipe and pantry library. You can add a
+            meal for one person or the entire household.
           </p>
 
           <p className="ch-p">
-            Good Measure connects to Claude or any MCP-compatible agent. Hand it a
-            goal like make this recipe have more protein or keep Thursday under
-            1800 calories, and it works from your actual pantry and plans, suggests
-            swaps, and writes the changes back. It can optimize a single recipe or
-            the whole week, whatever you need.
+            Good Measure connects to any MCP-compatible agent to help you optimize
+            your recipes. Hand it a goal such as, &ldquo;make this recipe have more
+            protein&rdquo; or &ldquo;keep Thursday under 1800 calories,&rdquo; and
+            it works from your actual pantry and plans, suggests swaps, and writes
+            the changes back. You can optimize a single recipe or the whole week,
+            and because Good Measure talks to the agent you don&apos;t have to do
+            any of the fussy edits.
           </p>
         </div>
 
