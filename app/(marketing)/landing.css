@@ -152,6 +152,7 @@
 .mkt .manifesto-type .set { color: var(--fg); }
 
 /* ─── CHAPTER SPLIT ─── */
+.mkt .mob-br { display: none; }
 .mkt .ch { padding: 120px var(--pad) 120px; border-bottom: 1px solid var(--rule); position: relative; }
 .mkt .ch-head {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
@@ -353,6 +354,10 @@
   .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta { opacity: 1; transform: none; transition: none; }
 }
 
+@media (max-width: 760px) {
+  .mkt .ml { opacity: 1; transform: none; transition: none; }
+}
+
 /* No-JS fallback — everything visible */
 @media (scripting: none) {
   .mkt .r { opacity: 1; transform: none; }
@@ -400,6 +405,7 @@
   .mkt .ch-head { display: flex; gap: 6px; }
   .mkt .ch-head .rt::before { content: '·'; margin-right: 6px; color: var(--mute); }
 
+  .mkt .mob-br { display: inline; }
   .mkt .manifesto-type { font-size: clamp(28px,7.5vw,40px); line-height: 1.1; max-width: none; }
 
   .mkt .ch-split { gap: 40px; }

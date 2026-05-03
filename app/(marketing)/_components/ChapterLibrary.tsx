@@ -65,7 +65,7 @@ export default function ChapterLibrary() {
           <h3 className="ch-h">
             Every ingredient, to the gram.
             <br />
-            Every recipe, calculated.
+            Every recipe,<br className="mob-br" /> calculated.
           </h3>
 
           <p className="ch-p">
