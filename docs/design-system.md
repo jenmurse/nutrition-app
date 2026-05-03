@@ -64,7 +64,7 @@ The data tier is slightly tighter because it lives alongside numbers in dense nu
 | Element | Family | Size | Weight | Tracking | Notes |
 |---|---|---|---|---|---|
 | Wordmark (nav) | DM Sans | 13px | 600 | -0.03em | |
-| Wordmark (auth, onboarding) | DM Sans | 18px | 700 | -0.02em | |
+| Wordmark (auth, onboarding) | DM Sans | 13px | 600 | -0.03em | same spec as nav wordmark |
 | Dashboard greeting | DM Sans | 11.5vw | 500 | — | line-height 0.91 |
 | Page title (recipe detail) | DM Sans | clamp(30px, 3.4vw, 48px) | 700 | -0.03em | line-height 1.05, text-wrap balance |
 | Page title (form) | DM Sans | clamp(22px, 2.4vw, 32px) | 700 | -0.02em | |
@@ -851,11 +851,11 @@ Use Framer Motion (package `motion`) for entrance/exit on full-screen pages; CSS
 
 **Grid:** `grid-template-columns: 1fr 1px 1fr`. The centre column is an explicit `<div class="auth-divider" />` element — full-height `background: var(--rule)`. This is a structural element in the grid, not a `border-right` on the editorial panel. The two content columns are equal (`1fr` each).
 
-**Editorial left** (`justify-content: center`): `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) → DM Sans 14px lede. Both columns `padding: 48px 56px`.
+**Editorial left** (`justify-content: center`): `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) → DM Sans 14px lede. Left column: `padding: 48px clamp(24px, 5vw, 56px)` (matches landing nav). Right column: `padding: 48px 64px`.
 
 **Form right** (`justify-content: center`): SIGN IN / CREATE ACCOUNT tab toggle (active 1.5px underline) → bottom-border-only fields → sharp black CTA → OR divider → outlined Google SSO button.
 
-**Top nav** (`.auth-nav`): wordmark `Good Measure` (DM Sans 700 14px) left, `← Back` mono link right.
+**Top nav** (`.auth-nav`): wordmark `Good Measure` (DM Sans 600 13px, -0.03em) left, `← Back` mono link right.
 
 Auth headlines are plain DM Sans, no `<em>` markup. Sign in: `Pick up where you left off.` Create account: `Set up your kitchen.`
 
@@ -870,7 +870,7 @@ Routes: `/login` → Sign in. `/login?signup=1` → Create account. `/login?invi
 
 Full-screen, editorial register (`data-register="editorial"`, cream bg). No main app nav.
 
-**Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 700, 18px, -0.02em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `§ ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
+**Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 600, 13px, -0.03em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `§ ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
 
 **Step counter values:**
 
