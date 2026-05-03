@@ -777,7 +777,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           </div>
           <div className="ed-field">
             <label className="ed-label">Total Time</label>
-            <div className="font-mono text-[13px] text-[var(--muted)]" style={{ padding: "6px 0", borderBottom: "1px solid var(--rule)" }}>
+            <div className="font-mono text-[13px] text-[var(--muted)]" style={{ padding: "10px 0", borderBottom: "1px solid var(--rule)" }}>
               {(prepTime !== "" || cookTime !== "") ? `${(Number(prepTime) || 0) + (Number(cookTime) || 0)}` : "—"}
             </div>
           </div>
@@ -787,7 +787,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           <label className="ed-label">Tags</label>
           <div className="flex flex-wrap gap-3" style={{ padding: "4px 0" }}>
             {availableTags.map((tag) => (
-              <label key={tag} className="flex items-center gap-[5px] cursor-pointer text-[13px]">
+              <label key={tag} className="flex items-center gap-[5px] cursor-pointer text-[13px] text-[var(--muted)]">
                 <input type="checkbox" checked={tags.includes(tag)} onChange={(e) => { if (e.target.checked) setTags([...tags, tag]); else setTags(tags.filter((t) => t !== tag)); }} className="cursor-pointer" />
                 <span className="capitalize">{tag}</span>
               </label>
