@@ -6110,8 +6110,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .ob-topbar-wm {
   font-family: var(--sans);
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 13px;
   letter-spacing: -0.03em;
   color: var(--fg);
 }
@@ -6189,7 +6189,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   margin-bottom: 20px;
 }
 .ob-headline--complete {
-  font-size: clamp(34px, 8vw, 44px);
+  font-size: clamp(36px, 8vw, 48px);
   letter-spacing: -0.03em;
   margin-bottom: 20px;
 }
