@@ -481,7 +481,7 @@ function IngredientsPage() {
                 >
                   {/* Name + category inline */}
                   <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
-                    <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)] truncate">{ingredient.name}</span>
+                    <span className="ing-list-name">{ingredient.name}</span>
                     <span className="ing-list-category font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] shrink-0">{category}</span>
                   </div>
                   {/* Macros — all nutrients, right-aligned */}

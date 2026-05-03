@@ -1017,6 +1017,7 @@ input[type="number"]:focus {
 
 /* Pantry list row base padding (desktop) */
 .ing-list-row { padding: 18px 40px; }
+.ing-list-name { font-family: var(--sans); font-size: 16px; font-weight: 600; letter-spacing: -0.03em; color: var(--fg); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 /* ── Editorial Form System ───────────────────────────────────────── */
 .ed-label {
