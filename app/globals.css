@@ -378,6 +378,16 @@ input[type="number"]:focus {
   overflow-wrap: break-word;
 }
 
+.meal-card-name {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--fg);
+  margin-bottom: 12px;
+}
+
 .ed-btn {
   font-family: var(--sans);
   font-size: 9px;
