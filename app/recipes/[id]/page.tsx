@@ -391,7 +391,7 @@ export default function RecipeDetailPage() {
               style={i === 0 ? { paddingTop: 0 } : undefined}
               aria-label={`Jump to ${s.label}`}
             >
-              <span className="font-sans text-[9px] font-bold min-w-[16px] text-[var(--rule)]">{s.n}</span>
+              <span className="font-mono text-[9px] font-bold min-w-[16px] text-[var(--rule)]">{s.n}</span>
               {s.label}
             </button>
           ))}
@@ -454,7 +454,7 @@ export default function RecipeDetailPage() {
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
           >
-            <span className={`font-sans text-[9px] font-bold min-w-[16px] transition-colors ${
+            <span className={`font-mono text-[9px] font-bold min-w-[16px] transition-colors ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--rule)]"
             }`}>{s.n}</span>
             {s.label}
@@ -541,7 +541,7 @@ export default function RecipeDetailPage() {
               {/* Ingredients */}
               <div>
                 <div className="flex items-baseline gap-3 mb-8">
-                  <span className="font-sans text-[13px] font-bold text-[var(--rule)]">01</span>
+                  <span className="font-mono text-[13px] font-bold text-[var(--rule)]">01</span>
                   <span className="section-label">Ingredients</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
@@ -587,7 +587,7 @@ export default function RecipeDetailPage() {
               {/* Nutrition */}
               <div id="rd-sec-nut">
                 <div className="flex items-baseline gap-3 mb-8">
-                  <span className="font-sans text-[13px] font-bold text-[var(--rule)]">02</span>
+                  <span className="font-mono text-[13px] font-bold text-[var(--rule)]">02</span>
                   <span className="section-label">Nutrition</span>
                   <span className="flex-1 h-px bg-[var(--rule)]" />
                 </div>
@@ -644,7 +644,7 @@ export default function RecipeDetailPage() {
           {recipe.instructions && (
             <div id="rd-sec-steps" style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-sans text-[13px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-mono text-[13px] font-bold text-[var(--rule)]">03</span>
                 <span className="section-label">Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
@@ -653,7 +653,7 @@ export default function RecipeDetailPage() {
                   const steps = recipe.instructions.split("\n").filter(s => s.trim());
                   return (
                     <div key={idx} className={`flex gap-6 items-start py-5 ${idx < steps.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
-                      <span className="font-sans text-[28px] font-bold text-[var(--rule)] min-w-[40px] leading-none shrink-0 pt-[2px] tabular-nums">
+                      <span className="font-mono text-[28px] font-bold text-[var(--rule)] min-w-[40px] leading-none shrink-0 pt-[2px] tabular-nums">
                         {String(idx + 1).padStart(2, "0")}
                       </span>
                       <span className="text-[13px] leading-[1.7] text-[var(--fg-2)] pt-[6px]">{step.replace(/^\d+[\.\)]\s*/, "")}</span>
@@ -667,7 +667,7 @@ export default function RecipeDetailPage() {
           {/* ── Section: Optimization ── */}
           <div id="rd-sec-opt" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
-              <span className="font-sans text-[13px] font-bold text-[var(--rule)]">04</span>
+              <span className="font-mono text-[13px] font-bold text-[var(--rule)]">04</span>
               <span className="section-label">Optimization</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>
@@ -738,7 +738,7 @@ export default function RecipeDetailPage() {
           {/* ── Section: Meal Prep ── */}
           <div id="rd-sec-prep" style={{ padding: "56px 0" }}>
             <div className="flex items-baseline gap-3 mb-8">
-              <span className="font-sans text-[13px] font-bold text-[var(--rule)]">05</span>
+              <span className="font-mono text-[13px] font-bold text-[var(--rule)]">05</span>
               <span className="section-label">Meal Prep</span>
               <span className="flex-1 h-px bg-[var(--rule)]" />
             </div>

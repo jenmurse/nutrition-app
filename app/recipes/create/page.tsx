@@ -172,7 +172,7 @@ export default function CreateRecipePage() {
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
           >
-            <span className={`font-sans text-[9px] font-bold min-w-[16px] transition-colors ${
+            <span className={`font-mono text-[9px] font-bold min-w-[16px] transition-colors ${
               activeSection === s.id ? "text-[var(--fg)]" : "text-[var(--rule)]"
             }`}>{s.n}</span>
             {s.label}

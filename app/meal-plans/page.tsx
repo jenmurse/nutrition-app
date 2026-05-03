@@ -1245,7 +1245,7 @@ const MealPlansPage = () => {
               {calorieNutrient && (
                 <div style={{ padding: '16px 20px 8px' }}>
                   <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[4px]">Calories</div>
-                  <div className="font-sans text-[36px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
+                  <div className="font-mono text-[36px] font-bold tracking-[-0.025em] tabular-nums text-[var(--fg)] leading-none">
                     {Math.round(calorieNutrient.value).toLocaleString()}
                     {calorieGoal > 0 && <span className="font-mono text-[13px] text-[var(--muted)] font-normal ml-2">/ {Math.round(calorieGoal).toLocaleString()}</span>}
                   </div>

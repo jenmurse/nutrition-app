@@ -725,7 +725,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 01 Basics ═══ */}
       <div id="rf-sec-basics" style={{ marginTop: 0 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-sans text-[13px] font-bold text-[var(--rule)]">01</span>
+          <span className="font-mono text-[13px] font-bold text-[var(--rule)]">01</span>
           <span className="section-label">Basics</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -806,7 +806,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 02 Photo ═══ */}
       <div id="rf-sec-photo" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-sans text-[13px] font-bold text-[var(--rule)]">02</span>
+          <span className="font-mono text-[13px] font-bold text-[var(--rule)]">02</span>
           <span className="section-label">Photo</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -908,7 +908,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 03 Ingredients ═══ */}
       <div id="rf-sec-ingredients" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-sans text-[13px] font-bold text-[var(--rule)]">03</span>
+          <span className="font-mono text-[13px] font-bold text-[var(--rule)]">03</span>
           <span className="section-label">Ingredients</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -945,7 +945,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 04 Method ═══ */}
       <div id="rf-sec-method" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-sans text-[13px] font-bold text-[var(--rule)]">04</span>
+          <span className="font-mono text-[13px] font-bold text-[var(--rule)]">04</span>
           <span className="section-label">Method</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>
@@ -976,7 +976,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
       {/* ═══ 05 Nutrition ═══ */}
       <div id="rf-sec-nutrition" style={{ marginTop: 64 }}>
         <div className="flex items-baseline gap-3 mb-8">
-          <span className="font-sans text-[13px] font-bold text-[var(--rule)]">05</span>
+          <span className="font-mono text-[13px] font-bold text-[var(--rule)]">05</span>
           <span className="section-label">Nutrition</span>
           <span className="flex-1 h-px bg-[var(--rule)]" />
         </div>

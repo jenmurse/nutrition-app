@@ -62,7 +62,7 @@ const JUMP_SECTIONS = [
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-baseline gap-3 mb-8">
-      <span className="font-sans text-[13px] font-bold text-[var(--rule)]">{number}</span>
+      <span className="font-mono text-[13px] font-bold text-[var(--rule)]">{number}</span>
       <span className="section-label">{title}</span>
       <span className="flex-1 h-px bg-[var(--rule)]" />
     </div>
@@ -616,7 +616,7 @@ const SettingsPage = () => {
             style={i === 0 ? { paddingTop: 0 } : undefined}
             aria-label={`Jump to ${s.label}`}
           >
-            <span className={`font-sans text-[9px] font-bold min-w-[16px] transition-colors ${
+            <span className={`font-mono text-[9px] font-bold min-w-[16px] transition-colors ${
               activeSection === s.id ? 'text-[var(--fg)]' : 'text-[var(--rule)]'
             }`}>{s.n}</span>
             {s.label}
