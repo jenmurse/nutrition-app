@@ -55,7 +55,7 @@ export default function ChapterLibrary() {
     <section className="ch" id="library">
       <div className="ch-head">
         <div>
-          <span className="n">01 · The Library</span>
+          <span className="n">§ The Library</span>
         </div>
         <div className="rt">Pantry + Recipes</div>
       </div>

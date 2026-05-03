@@ -86,7 +86,7 @@ export default function ChapterWeek() {
     <section className="ch" id="week">
       <div className="ch-head">
         <div>
-          <span className="n">02 · The Week</span>
+          <span className="n">§ The Week</span>
         </div>
         <div className="rt">Planner + AI</div>
       </div>
@@ -166,7 +166,7 @@ export default function ChapterWeek() {
 
             <div className="ch-caption">
               <span>Fig. 03 · Week</span>
-              <span>A single person&apos;s plan</span>
+              <span>Weekly plan</span>
             </div>
 
             <div className="iface">
@@ -204,10 +204,6 @@ export default function ChapterWeek() {
                   Halved from original. Onion is the primary sugar driver here. Ginger, garlic, and spices carry the flavor. Saves ~3g sugar per serving.
                 </p>
 
-                <p className="opt-note">
-                  <b>Cashew milk retained.</b> Fairlife Fat-Free was trialled in id:107 but pushed sugar to 12.7g and sodium to 513mg per serving. Cashew remains correct for this recipe.
-                </p>
-
                 <div className="opt-eyebrow" style={{ marginTop: 18 }}>
                   Nutrition Comparison (per serving)
                 </div>
@@ -237,7 +233,7 @@ export default function ChapterWeek() {
 
             <div className="ch-caption">
               <span>Fig. 04 · Optimize</span>
-              <span>Editorial notes, not just numbers</span>
+              <span>Detailed notes, not just numbers</span>
             </div>
           </div>
         </div>

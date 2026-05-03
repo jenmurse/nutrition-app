@@ -2,8 +2,7 @@ export default function Hero() {
   return (
     <section className="hero">
       <div className="hero-meta">
-        <div className="c">Good Measure</div>
-        <div className="rt">A nutrition &amp; meal planning tool</div>
+        <div className="c">§ Nutrition &amp; Meal Planning Tool</div>
       </div>
 
       <h1 className="hero-type r">

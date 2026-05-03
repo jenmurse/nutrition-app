@@ -13,7 +13,7 @@ export default function Close() {
         </h2>
         <div className="close-body">
           <p className="cl-body">
-            I built Good Measure for myself first, and I cook from it every day.
+            I built Good Measure for myself first, and I cook with it every day.
             Now it&apos;s here for you to try.
           </p>
           <div className="close-cta cl-cta">
