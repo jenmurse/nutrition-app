@@ -5866,7 +5866,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 40px;
+  padding: 18px var(--pad);
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
