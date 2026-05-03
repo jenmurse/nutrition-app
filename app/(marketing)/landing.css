@@ -178,7 +178,7 @@
   text-wrap: balance;
 }
 .mkt .ch-p { font-size: 16px; line-height: 1.7; color: var(--fg-2); max-width: 44ch; text-wrap: pretty; }
-.mkt .ch-p + .ch-p { margin-top: -16px; }
+.mkt .ch-p + .ch-p { margin-top: 24px; }
 
 .mkt .ch-vis { position: relative; }
 .mkt .ch-vis-sticky { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 32px; }
@@ -412,7 +412,7 @@
   .mkt .ch-text { gap: 24px; }
   .mkt .ch-h { font-size: clamp(28px,7.5vw,40px); max-width: none; }
   .mkt .ch-p { font-size: 16px; line-height: 1.65; max-width: none; }
-  .mkt .ch-p + .ch-p { margin-top: -8px; }
+  .mkt .ch-p + .ch-p { margin-top: 24px; }
 
   .mkt .iface { padding: 12px; }
   .mkt .iface-top { font-size: 8px; padding-bottom: 10px; }
