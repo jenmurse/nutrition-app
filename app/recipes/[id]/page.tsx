@@ -526,17 +526,13 @@ export default function RecipeDetailPage() {
               </div>
             </div>
             {/* Image */}
-            <div className="rd-hero-img">
-              {recipe.image ? (
+            {recipe.image && (
+              <div className="rd-hero-img">
                 <div className="w-full overflow-hidden" style={{ aspectRatio: "4/3" }}>
                   <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover block" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 </div>
-              ) : (
-                <div className="w-full bg-[var(--bg-3)] flex items-end p-6" style={{ aspectRatio: "4/3" }}>
-                  <span className="font-serif text-[clamp(28px,3vw,40px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.12]">{recipe.name}</span>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* ── Section: Ingredients + Nutrition (2-col) ── */}
