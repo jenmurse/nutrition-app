@@ -1232,7 +1232,7 @@ const MealPlansPage = () => {
               <div style={{ position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 1, borderBottom: '1px solid var(--rule-faint)', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                 <div className="mob-sheet-handle" aria-hidden="true" />
                 <div className="flex items-center justify-between" style={{ padding: '8px 20px 12px' }}>
-                  <div className="font-sans text-[16px] font-semibold text-[var(--fg)]">
+                  <div className="pl-side-day">
                     {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </div>
                   <button
