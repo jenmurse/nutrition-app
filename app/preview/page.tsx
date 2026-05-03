@@ -142,7 +142,7 @@ export default function PreviewPage() {
     <div className="h-full overflow-y-auto bg-[var(--bg)]">
       {/* ═══ TopNav ═══ */}
       <nav className="flex items-center h-[var(--nav-h)] bg-[var(--bg)] px-[var(--pad)] shrink-0 relative z-10 border-b border-[var(--rule)]" aria-label="Main navigation">
-        <BrandName className="font-serif text-[13px] text-[var(--fg)] mr-6 tracking-[-0.03em] font-bold" />
+        <BrandName className="font-sans text-[13px] text-[var(--fg)] mr-6 tracking-[-0.03em] font-bold" />
         <div className="flex items-center flex-1 gap-5">
           {["Dashboard", "Meal Plans", "Recipes", "Pantry", "Settings"].map((item, i) => (
             <span
@@ -186,7 +186,7 @@ export default function PreviewPage() {
           {/* Calories */}
           <div className="flex-1 px-8 py-6">
             <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Calories today</div>
-            <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">1,180</div>
+            <div className="font-sans text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">1,180</div>
             <div className="font-mono text-[9px] text-[var(--muted)] mb-2">of 2,000 kcal</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "59%" }} />
@@ -195,7 +195,7 @@ export default function PreviewPage() {
           {/* Protein */}
           <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
             <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Protein</div>
-            <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">82g</div>
+            <div className="font-sans text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">82g</div>
             <div className="font-mono text-[9px] text-[var(--muted)] mb-2">of 120g goal</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "68%" }} />
@@ -204,7 +204,7 @@ export default function PreviewPage() {
           {/* Meals */}
           <div className="flex-1 px-8 py-6 border-l border-[var(--rule)]">
             <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-2">Meals today</div>
-            <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">3</div>
+            <div className="font-sans text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">3</div>
             <div className="font-mono text-[9px] text-[var(--muted)] mb-2">logged</div>
             <div className="h-[2px] bg-[var(--rule)] w-full">
               <div className="h-full bg-[var(--accent)]" style={{ width: "100%" }} />
@@ -226,12 +226,12 @@ export default function PreviewPage() {
               <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] pb-2 mb-3 border-b border-[var(--rule)]">
                 {meal.num} &middot; {meal.type}
               </div>
-              <div className="font-serif text-[20px] font-bold tracking-[-0.03em] leading-[1.15] mb-4" style={{ textWrap: "balance" }}>
+              <div className="font-sans text-[20px] font-bold tracking-[-0.03em] leading-[1.15] mb-4" style={{ textWrap: "balance" }}>
                 {meal.name}
               </div>
               <div className="flex items-baseline gap-2 pb-2 border-b border-[var(--rule)]">
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Calories</span>
-                <span className="font-serif text-[16px] tabular-nums text-[var(--fg)] ml-auto">{meal.kcal} kcal</span>
+                <span className="font-sans text-[16px] tabular-nums text-[var(--fg)] ml-auto">{meal.kcal} kcal</span>
               </div>
               <div className="mt-[14px]">
                 <span className="font-mono text-[8.5px] text-[var(--accent)] cursor-pointer hover:opacity-80 transition-opacity">See recipe &rarr;</span>
@@ -263,7 +263,7 @@ export default function PreviewPage() {
                 }`}>
                   {d.day}
                 </div>
-                <div className="font-serif text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">
+                <div className="font-sans text-[28px] font-bold tabular-nums text-[var(--fg)] leading-none mb-1">
                   {d.date}
                 </div>
                 <div className="font-mono text-[9px] text-[var(--muted)] tabular-nums mb-2">
@@ -327,12 +327,12 @@ export default function PreviewPage() {
               <div key={recipe.id} className="bg-[var(--bg)] cursor-pointer overflow-hidden relative group" data-cursor="card">
                 <div className="overflow-hidden" style={{ aspectRatio: "4/3" }}>
                   <div className="w-full h-full bg-[var(--bg-3)] flex items-end p-4">
-                    <span className="font-serif text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.18]">{recipe.name}</span>
+                    <span className="font-sans text-[clamp(22px,2.5vw,32px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.18]">{recipe.name}</span>
                   </div>
                 </div>
                 <div style={{ padding: "16px 18px 20px" }}>
                   <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-[7px]">{recipe.tag}</div>
-                  <div className="font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>{recipe.name}</div>
+                  <div className="font-sans text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[10px]" style={{ textWrap: "balance" }}>{recipe.name}</div>
                   <div className="flex gap-2 items-baseline flex-wrap">
                     <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{recipe.kcal} kcal</span>
                     <span className="font-mono text-[8.5px] text-[var(--muted)] tabular-nums">P {recipe.protein}g</span>
@@ -365,7 +365,7 @@ export default function PreviewPage() {
                   i === 0 ? "text-[var(--fg)] pt-0" : "text-[var(--muted)]"
                 }`}
               >
-                <span className={`font-serif text-[9px] font-bold min-w-[16px] ${i === 0 ? "text-[var(--accent)]" : "text-[var(--rule)]"}`}>{s.n}</span>
+                <span className={`font-sans text-[9px] font-bold min-w-[16px] ${i === 0 ? "text-[var(--accent)]" : "text-[var(--rule)]"}`}>{s.n}</span>
                 {s.label}
               </span>
             ))}
@@ -392,7 +392,7 @@ export default function PreviewPage() {
                 </div>
               </div>
               <div className="w-full bg-[var(--bg-3)] flex items-end p-6" style={{ aspectRatio: "4/3" }}>
-                <span className="font-serif text-[clamp(28px,3vw,40px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.12]">Cottage Cheese Breakfast Bowl</span>
+                <span className="font-sans text-[clamp(28px,3vw,40px)] font-bold tracking-[-0.03em] leading-[0.92] text-[var(--fg)] opacity-[0.12]">Cottage Cheese Breakfast Bowl</span>
               </div>
             </div>
 
@@ -401,8 +401,8 @@ export default function PreviewPage() {
               <div className="grid gap-[56px]" style={{ gridTemplateColumns: "1fr 1fr" }}>
                 <div>
                   <div className="flex items-baseline gap-3 mb-8">
-                    <span className="font-serif text-[13px] font-bold text-[var(--rule)]">01</span>
-                    <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
+                    <span className="font-sans text-[13px] font-bold text-[var(--rule)]">01</span>
+                    <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Ingredients</span>
                     <span className="flex-1 h-px bg-[var(--rule)]" />
                   </div>
                   <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3 flex items-center gap-2">
@@ -424,8 +424,8 @@ export default function PreviewPage() {
                 </div>
                 <div>
                   <div className="flex items-baseline gap-3 mb-8">
-                    <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
-                    <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
+                    <span className="font-sans text-[13px] font-bold text-[var(--rule)]">02</span>
+                    <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Nutrition</span>
                     <span className="flex-1 h-px bg-[var(--rule)]" />
                   </div>
                   <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving &middot; vs goals</div>
@@ -455,14 +455,14 @@ export default function PreviewPage() {
             {/* Instructions */}
             <div style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">03</span>
-                <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
+                <span className="font-sans text-[13px] font-bold text-[var(--rule)]">03</span>
+                <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Instructions</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="flex flex-col" style={{ maxWidth: 600 }}>
                 {mockSteps.map((step, idx) => (
                   <div key={idx} className={`flex gap-6 items-start py-5 ${idx < mockSteps.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
-                    <span className="font-serif text-[28px] font-bold text-[var(--rule)] min-w-[40px] leading-none shrink-0 pt-[2px] tabular-nums">{String(idx + 1).padStart(2, "0")}</span>
+                    <span className="font-sans text-[28px] font-bold text-[var(--rule)] min-w-[40px] leading-none shrink-0 pt-[2px] tabular-nums">{String(idx + 1).padStart(2, "0")}</span>
                     <span className="text-[13px] leading-[1.7] text-[var(--fg-2)] pt-[6px]">{step}</span>
                   </div>
                 ))}
@@ -472,8 +472,8 @@ export default function PreviewPage() {
             {/* Optimization */}
             <div style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">04</span>
-                <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Optimization</span>
+                <span className="font-sans text-[13px] font-bold text-[var(--rule)]">04</span>
+                <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Optimization</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="border border-[var(--accent-l)] bg-[var(--accent-l)] p-4 mb-4">
@@ -490,8 +490,8 @@ export default function PreviewPage() {
             {/* Meal Prep */}
             <div style={{ padding: "56px 0" }}>
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">05</span>
-                <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Meal Prep</span>
+                <span className="font-sans text-[13px] font-bold text-[var(--rule)]">05</span>
+                <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Meal Prep</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="border border-[var(--accent-l)] bg-[var(--accent-l)] p-4 mb-4">
@@ -556,7 +556,7 @@ export default function PreviewPage() {
                   }`}>
                     {item.category}
                   </div>
-                  <div className="font-serif text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]">{item.name}</div>
+                  <div className="font-sans text-[clamp(13px,1.4vw,16px)] font-semibold tracking-[-0.01em] leading-[1.2] mb-[6px]">{item.name}</div>
                   <div className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] mb-[10px]">{item.unit}</div>
                   <div className="flex gap-2 items-baseline flex-wrap">
                     <span className="font-mono text-[11px] text-[var(--fg)] tabular-nums">{item.kcal} kcal</span>
@@ -587,7 +587,7 @@ export default function PreviewPage() {
                 } ${i === 0 ? "pt-0" : ""}`}
                 aria-label={`Jump to ${s.label}`}
               >
-                <span className={`font-serif text-[9px] font-bold min-w-[16px] ${activeSection === s.n ? "text-[var(--accent)]" : "text-[var(--rule)]"}`}>{s.n}</span>
+                <span className={`font-sans text-[9px] font-bold min-w-[16px] ${activeSection === s.n ? "text-[var(--accent)]" : "text-[var(--rule)]"}`}>{s.n}</span>
                 {s.label}
               </button>
             ))}
@@ -598,8 +598,8 @@ export default function PreviewPage() {
             {/* 01 People */}
             <div className="mb-16">
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[13px] font-bold text-[var(--accent)]">01</span>
-                <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>People</span>
+                <span className="font-sans text-[13px] font-bold text-[var(--accent)]">01</span>
+                <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>People</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               {/* Mock person row */}
@@ -607,7 +607,7 @@ export default function PreviewPage() {
                 <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white"
                   style={{ background: "var(--accent)" }} aria-hidden="true">M</div>
                 <div className="flex-1">
-                  <div className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Maya</div>
+                  <div className="font-sans text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Maya</div>
                   <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">Active &middot; 2,000 kcal goal</div>
                 </div>
                 <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
@@ -616,7 +616,7 @@ export default function PreviewPage() {
                 <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center font-mono text-[11px] font-medium text-white opacity-50"
                   style={{ background: "#7C8DA0" }} aria-hidden="true">G</div>
                 <div className="flex-1">
-                  <div className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Greg</div>
+                  <div className="font-sans text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">Greg</div>
                   <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)]">Inactive &middot; 2,400 kcal goal</div>
                 </div>
                 <span className="font-mono text-[9px] tracking-[0.12em] uppercase bg-transparent border border-[var(--rule)] text-[var(--muted)] py-[4px] px-[10px] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">Edit</span>
@@ -629,8 +629,8 @@ export default function PreviewPage() {
             {/* 02 Daily Goals */}
             <div className="mb-16">
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-serif text-[13px] font-bold text-[var(--rule)]">02</span>
-                <span className="font-serif font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Daily Goals</span>
+                <span className="font-sans text-[13px] font-bold text-[var(--rule)]">02</span>
+                <span className="font-sans font-semibold tracking-[-0.03em] text-[var(--fg)]" style={{ fontSize: "clamp(18px, 1.8vw, 26px)" }}>Daily Goals</span>
                 <span className="flex-1 h-px bg-[var(--rule)]" />
               </div>
               <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-4">Maya&apos;s daily targets</div>

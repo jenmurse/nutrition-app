@@ -340,7 +340,7 @@ export default function Home() {
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
               </div>
               {/* Greeting */}
-              <div className="font-serif hm-greeting-text" style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
+              <div className="font-sans hm-greeting-text" style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
                 <span className="block" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 40ms both' }}>{getGreeting()}</span>
                 <span className="block text-[var(--accent)]" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 130ms both' }}>{selectedPerson?.name ?? ""}</span>
               </div>
@@ -503,7 +503,7 @@ export default function Home() {
                             {mealStats.map((s) => (
                               <div key={s.label} className="flex justify-between items-center py-[6px] border-b border-[var(--rule)]">
                                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{s.label}</span>
-                                <span className="font-serif text-[16px] font-semibold tracking-[-0.01em] tabular-nums">
+                                <span className="font-sans text-[16px] font-semibold tracking-[-0.01em] tabular-nums">
                                   {s.value}{s.unit && <span className="text-[11px] text-[var(--muted)] ml-[2px]">{s.unit}</span>}
                                 </span>
                               </div>
@@ -612,7 +612,7 @@ function WeekOverview({
                 {DAY_NAMES[date.getDay()]}
               </div>
               <div
-                className="hm-day-num font-serif text-[28px] font-bold tracking-[-0.03em] leading-none mt-[2px] tabular-nums"
+                className="hm-day-num font-sans text-[28px] font-bold tracking-[-0.03em] leading-none mt-[2px] tabular-nums"
                 style={{ color: isToday ? 'var(--fg)' : 'var(--fg-2)' }}
               >
                 {date.getDate()}

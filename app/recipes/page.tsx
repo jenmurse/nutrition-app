@@ -870,7 +870,7 @@ function RecipesPage() {
                           }
                         </div>
                         {category && <div className="font-mono text-[8px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[4px]">{category}</div>}
-                        <div className="font-serif text-[16px] font-semibold leading-[1.2] text-[var(--fg)]">{r.name}</div>
+                        <div className="font-sans text-[16px] font-semibold leading-[1.2] text-[var(--fg)]">{r.name}</div>
                       </div>
                     );
                   }

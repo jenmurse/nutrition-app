@@ -240,7 +240,7 @@ export default function BulkIngredientImport({
           <div className="bg-[var(--bg)] border border-[var(--rule)] max-w-6xl w-full max-h-[90vh] flex flex-col animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--rule)]">
-              <h3 className="font-sans text-[13px] font-medium text-[var(--fg)]">
+              <h3 className="font-sans text-[13px] text-[var(--fg)]" style={{ fontWeight: 400 }}>
                 Preview: {parsedData.length} ingredient{parsedData.length !== 1 ? "s" : ""}
               </h3>
               <button

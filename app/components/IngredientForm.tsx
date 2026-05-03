@@ -257,7 +257,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
 
       {defaultUnit === "other" && (
         <div className="mb-4 p-3 bg-[var(--bg-subtle)] border border-[var(--rule)]">
-          <h4 className="font-medium mb-2 text-sm">Custom Unit Settings</h4>
+          <h4 className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-2">Custom Unit Settings</h4>
           <div className="space-y-2">
             <div className="flex gap-2 items-center">
               <label className="w-32 text-sm font-medium">Unit name:</label>
@@ -370,7 +370,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       )}
 
       <div className="mb-4 p-3 bg-[var(--bg-subtle)] border">
-        <h4 className="font-medium mb-2 text-sm">What amount are these nutrients for?</h4>
+        <h4 className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-2">What amount are these nutrients for?</h4>
         <div className="flex gap-2">
           <input
             type="number"
@@ -399,7 +399,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
       </div>
 
       <div className="mb-3">
-        <h4 className="font-medium mb-2">Nutrient values (per 100g)</h4>
+        <h4 className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-2">Nutrient values (per 100g)</h4>
         <div className="grid grid-cols-1 gap-2">
           {nutrients.map((n) => (
             <label key={n.id} className="flex items-center gap-2 border p-2">

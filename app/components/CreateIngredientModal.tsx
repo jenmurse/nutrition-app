@@ -202,7 +202,7 @@ export default function CreateIngredientModal({
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-[16px] text-[var(--fg)]">
+          <h2 className="font-sans text-[16px] text-[var(--fg)]">
             {pending ? "Review & save ingredient" : `Add nutrition for: ${ingredientName}`}
           </h2>
           <button onClick={onClose} className="text-[var(--muted)] hover:text-[var(--fg)]" aria-label="Close">✕</button>
