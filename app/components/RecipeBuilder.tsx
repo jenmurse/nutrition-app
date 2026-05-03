@@ -789,7 +789,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             {availableTags.map((tag) => (
               <label key={tag} className="flex items-center gap-[5px] cursor-pointer font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">
                 <input type="checkbox" checked={tags.includes(tag)} onChange={(e) => { if (e.target.checked) setTags([...tags, tag]); else setTags(tags.filter((t) => t !== tag)); }} className="cursor-pointer" />
-                <span className="capitalize">{tag}</span>
+                <span>{tag}</span>
               </label>
             ))}
           </div>
