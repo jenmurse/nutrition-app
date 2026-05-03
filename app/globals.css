@@ -3290,8 +3290,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-topbar-wordmark {
     font-family: var(--font-sans);
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     letter-spacing: -0.03em;
     color: var(--fg);
     text-decoration: none;
@@ -5859,7 +5859,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
 }
-.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
+.auth-nav-logo { font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: -0.03em; color: var(--fg); text-decoration: none; transition: opacity 150ms ease; }
 .auth-nav-logo:hover { opacity: 0.7; }
 .auth-nav-link {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -6111,7 +6111,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 .ob-topbar-wm {
   font-family: var(--sans);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 13px;
   letter-spacing: -0.03em;
   color: var(--fg);
