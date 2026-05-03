@@ -1956,7 +1956,7 @@ input[type="number"]:focus {
 .pl-kcal-hero { margin-bottom:4px; }
 .pl-kcal-num { font-family:var(--font-sans); font-size:36px; font-weight:700; letter-spacing:-0.03em; line-height:1; font-variant-numeric:tabular-nums; }
 .pl-kcal-unit { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--muted); margin-left:4px; vertical-align:baseline; }
-.pl-kcal-sub { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; color:var(--muted); margin-bottom:4px; }
+.pl-kcal-sub { font-family:var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size:9px; letter-spacing:0.06em; color:var(--muted); margin-bottom:4px; }
 .pl-kcal-bar { height:3px; background:var(--rule); overflow:hidden; margin-bottom:20px; }
 .pl-kcal-bar-fill { height:100%; background:var(--accent-btn); transition:width 0.6s var(--ease-out); }
 
