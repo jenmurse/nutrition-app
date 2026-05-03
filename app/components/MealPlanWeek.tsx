@@ -349,7 +349,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 <div className="wk-day-header">
                   <div className="wk-day-name">{day.dayOfWeek}</div>
                   <div className="wk-day-num">{dayNum}</div>
-                  <div className="wk-day-kcal">{dayKcal ? `${dayKcal} kcal` : '\u2014'}</div>
+                  <div className="wk-day-kcal">{dayKcal ? `${dayKcal.toLocaleString()} kcal` : '\u2014'}</div>
                   <div className="wk-day-bar">
                     <div className="wk-day-bar-fill" style={{ width: `${kcalPct}%` }} />
                   </div>
@@ -471,7 +471,7 @@ const MealPlanWeek: React.FC<MealPlanWeekProps> = ({
                 <div className="wk-day-header">
                   <div className="wk-day-name">{day.dayOfWeek.slice(0, 3)}</div>
                   <div className="wk-day-num">{dayNum}</div>
-                  <div className="wk-day-kcal">{dayKcal ? `${dayKcal} kcal` : '\u2014'}</div>
+                  <div className="wk-day-kcal">{dayKcal ? `${dayKcal.toLocaleString()} kcal` : '\u2014'}</div>
                   <div className="wk-day-bar">
                     <div className="wk-day-bar-fill" style={{ width: `${kcalPct}%` }} />
                   </div>

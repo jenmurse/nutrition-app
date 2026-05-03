@@ -612,7 +612,7 @@ function WeekOverview({
                 {DAY_NAMES[date.getDay()]}
               </div>
               <div
-                className="hm-day-num font-mono text-[28px] font-bold tracking-[-0.03em] leading-none mt-[2px] tabular-nums"
+                className="hm-day-num font-sans text-[28px] font-bold tracking-[-0.03em] leading-none mt-[2px] tabular-nums"
                 style={{ color: isToday ? 'var(--fg)' : 'var(--fg-2)' }}
               >
                 {date.getDate()}
