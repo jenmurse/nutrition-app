@@ -5895,7 +5895,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   min-height: calc(100vh - 57px);
 }
 .auth-left {
-  padding: 48px 56px;
+  padding: 48px var(--pad);
   display: flex; flex-direction: column; justify-content: center;
 }
 .auth-divider {
