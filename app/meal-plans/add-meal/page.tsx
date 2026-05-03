@@ -280,7 +280,7 @@ function AddMealInner() {
 
       {!isPantryMode ? (
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <div className="flex-1 flex items-center gap-2 min-w-[180px]">
+          <div className="flex-1 flex items-center gap-4 min-w-[180px]">
             <label className="pl-create-label" htmlFor="recipe-search">Search</label>
             <input
               id="recipe-search"
@@ -293,7 +293,7 @@ function AddMealInner() {
               aria-label="Search recipes"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <label className="pl-create-label" htmlFor="meal-servings">Servings</label>
             <input
               id="meal-servings"
@@ -309,7 +309,7 @@ function AddMealInner() {
         </div>
       ) : (
         <div className="flex flex-wrap gap-3 mb-4">
-          <div className="flex-1 flex items-center gap-2 min-w-max">
+          <div className="flex-1 flex items-center gap-4 min-w-max">
             <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
             <input
               id="ingredient-search"
@@ -321,7 +321,7 @@ function AddMealInner() {
               onChange={e => setIngredientSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <label className="pl-create-label" htmlFor="ingredient-quantity">Quantity</label>
             <input
               id="ingredient-quantity"
@@ -334,7 +334,7 @@ function AddMealInner() {
               onChange={e => setSelectedQuantity(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <label className="pl-create-label" htmlFor="ingredient-unit">Unit</label>
             <input
               id="ingredient-unit"

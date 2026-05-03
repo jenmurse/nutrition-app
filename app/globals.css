@@ -3917,9 +3917,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     gap: 8px;
     padding: 0 var(--pad) 12px;
   }
-  .add-meal-browse-search-wrap { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 140px; }
+  .add-meal-browse-search-wrap { flex: 1; display: flex; align-items: center; gap: 16px; min-width: 140px; }
   .add-meal-browse-search-wrap .am-search-input { flex: 1; }
-  .add-meal-browse-servings-wrap { display: flex; align-items: center; gap: 8px; }
+  .add-meal-browse-servings-wrap { display: flex; align-items: center; gap: 16px; }
   .add-meal-browse-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--rule-faint); }
   .add-meal-browse-empty { padding: 24px var(--pad); font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-align: center; }
   .add-meal-browse-footer {
