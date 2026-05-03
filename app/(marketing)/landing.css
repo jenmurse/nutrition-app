@@ -88,7 +88,7 @@
 @media (prefers-reduced-motion: reduce) { .mkt { scroll-behavior: auto; } }
 
 /* ─── HERO ─── */
-.mkt .hero { padding: 160px var(--pad) 160px; border-bottom: 1px solid var(--rule); }
+.mkt .hero { padding: 120px var(--pad) 120px; border-bottom: 1px solid var(--rule); }
 .mkt .hero-meta {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--mute);
@@ -132,10 +132,10 @@
 .mkt .btn:hover .arr { transform: translate(3px,-3px); }
 
 /* ─── MANIFESTO ─── */
-.mkt .manifesto { padding: 160px var(--pad); border-bottom: 1px solid var(--rule); position: relative; }
+.mkt .manifesto { padding: 120px var(--pad); border-bottom: 1px solid var(--rule); position: relative; }
 .mkt .manifesto-eyebrow {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--mute);
+  color: var(--fg);
   margin-bottom: 56px;
   display: flex; justify-content: space-between;
 }
@@ -152,7 +152,7 @@
 .mkt .manifesto-type .set { color: var(--fg); }
 
 /* ─── CHAPTER SPLIT ─── */
-.mkt .ch { padding: 120px var(--pad) 140px; border-bottom: 1px solid var(--rule); position: relative; }
+.mkt .ch { padding: 120px var(--pad) 120px; border-bottom: 1px solid var(--rule); position: relative; }
 .mkt .ch-head {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
@@ -450,7 +450,7 @@
   .mkt .opt-trow .nut { font-size: 9px; }
   .mkt .opt-note { font-size: 10.5px; max-width: none; }
 
-  .mkt .close { padding: 96px var(--pad) 80px; }
+  .mkt .close { padding: 72px var(--pad) 72px; }
   .mkt .close-h { font-size: clamp(28px,7.5vw,40px); }
   .mkt .close-body { font-size: 16px; max-width: none; }
 
