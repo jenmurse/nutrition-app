@@ -1229,17 +1229,12 @@ const MealPlansPage = () => {
           <>
             <div className="mob-sheet-backdrop mob-sheet-backdrop--above-nav" onClick={() => setMobNutSheetOpen(false)} aria-hidden="true" />
             <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Nutrition summary">
-              <div style={{ position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 1, borderBottom: '1px solid var(--rule-faint)', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 1, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                 <div className="mob-sheet-handle" aria-hidden="true" />
-                <div className="flex items-center justify-between" style={{ padding: '8px 20px 12px' }}>
+                <div style={{ padding: '8px 20px 12px' }}>
                   <div className="pl-side-day">
-                    {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    § {dayData.dayOfWeek}, {activeDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </div>
-                  <button
-                    onClick={() => setMobNutSheetOpen(false)}
-                    className="w-[44px] h-[44px] flex items-center justify-center text-[var(--muted)] hover:text-[var(--fg)] transition-colors -mr-[8px]"
-                    aria-label="Close nutrition summary"
-                  >✕</button>
                 </div>
               </div>
               {calorieNutrient && (
