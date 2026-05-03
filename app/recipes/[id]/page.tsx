@@ -652,11 +652,11 @@ export default function RecipeDetailPage() {
                 {recipe.instructions.split("\n").filter(s => s.trim()).map((step, idx) => {
                   const steps = recipe.instructions.split("\n").filter(s => s.trim());
                   return (
-                    <div key={idx} className={`flex gap-6 items-start py-5 ${idx < steps.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--rule)] min-w-[40px] shrink-0 pt-[2px]">
+                    <div key={idx} className={`flex gap-6 items-baseline py-5 ${idx < steps.length - 1 ? "border-b border-[var(--rule)]" : ""}`}>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] min-w-[32px] shrink-0">
                         {String(idx + 1).padStart(2, "0")}
                       </span>
-                      <span className="text-[13px] leading-[1.7] text-[var(--fg-2)] pt-[6px]">{step.replace(/^\d+[\.\)]\s*/, "")}</span>
+                      <span className="text-[13px] leading-[1.7] text-[var(--fg-2)]">{step.replace(/^\d+[\.\)]\s*/, "")}</span>
                     </div>
                   );
                 })}
