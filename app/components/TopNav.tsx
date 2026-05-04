@@ -18,7 +18,7 @@ export default function TopNav() {
   const supabase = createClient();
 
   // Hide nav on login, preview, onboarding, and landing pages
-  if (pathname === "/" || pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing" || pathname === "/waitlist" || pathname === "/waitlist-success" || pathname === "/invite") return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/preview" || pathname === "/onboarding" || pathname === "/landing" || pathname === "/waitlist" || pathname === "/waitlist-success" || pathname === "/invite" || pathname?.startsWith("/admin")) return null;
 
   const handleSignOut = async () => {
     sessionStorage.removeItem("selectedPersonId");
