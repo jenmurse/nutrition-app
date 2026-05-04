@@ -19,6 +19,7 @@ Public visitors who don't have a code can join a waitlist.
 | `/invite` | New users with an invite code | Validates code, then collects name/email/password and creates account |
 | `/waitlist` | General public | Collects name + email and saves to the waitlist |
 | `/waitlist-success` | — | Confirmation page after waitlist signup |
+| `/admin/waitlist` | Jen only | Password-protected view of all waitlist entries |
 
 ---
 
@@ -90,12 +91,18 @@ CREATE TABLE "Waitlist" (
 );
 ```
 
-To view waitlist entries, query the database directly with a SQL client (e.g. TablePlus, psql, or the Railway query console):
+Duplicate emails are allowed — no unique constraint. If someone submits twice, both rows are saved.
+
+### Viewing the waitlist
+
+Go to `withgoodmeasure.com/admin/waitlist` and enter the admin password. Shows name, email, and signup date for all entries, newest first.
+
+The admin page is password-gated via `ADMIN_PASSWORD` env var (set in `.env` and Railway). The password is stored in the project memory file `project_env_vars.md`.
+
+To query directly with SQL:
 ```sql
 SELECT * FROM "Waitlist" ORDER BY "createdAt" DESC;
 ```
-
-Duplicate emails are allowed — no unique constraint. If someone submits twice, both rows are saved.
 
 ---
 
@@ -114,8 +121,10 @@ The file `proxy.ts` at the project root acts as Next.js middleware. It:
 - `/invite` — invite code + signup
 - `/waitlist` — waitlist form
 - `/waitlist-success` — waitlist confirmation
+- `/admin/*` — admin pages (have their own password gate)
 - `/api/invite/*` — invite code validation
 - `/api/waitlist` — waitlist submission
+- `/api/admin/*` — admin API routes (password-gated internally)
 - `/api/auth/*` — Google OAuth
 - `/preview` — preview route
 
