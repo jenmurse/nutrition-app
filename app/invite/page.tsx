@@ -7,6 +7,7 @@ import EditorialBackground from "@/app/components/EditorialBackground";
 
 export default function InvitePage() {
   const [inviteCode, setInviteCode] = useState("");
+  const [codeVerified, setCodeVerified] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +39,20 @@ export default function InvitePage() {
     });
     const data = await res.json();
     return data.valid === true;
+  };
+
+  const handleCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!inviteCode.trim()) { setError("Enter your invite code."); return; }
+    setLoading(true);
+    const valid = await validateCode();
+    setLoading(false);
+    if (valid) {
+      setCodeVerified(true);
+    } else {
+      setError("That code isn’t valid. Try again.");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,22 +123,29 @@ export default function InvitePage() {
           <div className="auth-form-wrap">
             {notice ? (
               <p className="auth-notice" role="status">{notice}</p>
+            ) : !codeVerified ? (
+              <form onSubmit={handleCodeSubmit}>
+                <label className="auth-field">
+                  <span className="auth-label">Invite code</span>
+                  <input
+                    className="auth-input"
+                    type="text"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    required
+                    autoComplete="off"
+                    autoFocus
+                    aria-label="Invite code"
+                  />
+                </label>
+                {error && <p className="auth-error" role="alert">{error}</p>}
+                <button type="submit" className="auth-submit" disabled={loading}>
+                  {loading ? "Checking…" : "Continue →"}
+                </button>
+              </form>
             ) : (
               <>
                 <form onSubmit={handleSubmit}>
-                  <label className="auth-field">
-                    <span className="auth-label">Invite code</span>
-                    <input
-                      className="auth-input"
-                      type="text"
-                      value={inviteCode}
-                      onChange={(e) => setInviteCode(e.target.value)}
-                      required
-                      autoComplete="off"
-                      aria-label="Invite code"
-                    />
-                  </label>
-
                   <label className="auth-field">
                     <span className="auth-label">Name</span>
                     <input

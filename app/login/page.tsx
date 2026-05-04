@@ -31,7 +31,8 @@ function LoginPage() {
     const modeParam = searchParams.get("mode");
     const invite = searchParams.get("invite");
     if (modeParam === "forgot") setModeState("forgot");
-    else if (signup || invite) setModeState("signup");
+    else if (invite) setModeState("signup");
+    else if (signup) window.location.replace("/invite");
   }, [searchParams]);
 
   useEffect(() => {

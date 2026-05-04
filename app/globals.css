@@ -6109,10 +6109,22 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .standalone-topbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 18px clamp(24px, 5vw, 56px);
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
 }
+
+.standalone-back-link {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.standalone-back-link:hover { color: var(--fg); }
 
 .standalone-wordmark {
   font-family: var(--font-sans), 'DM Sans', sans-serif;
