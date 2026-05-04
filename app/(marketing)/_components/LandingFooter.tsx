@@ -7,8 +7,10 @@ export default function LandingFooter() {
           Jen Murse
         </a>
       </div>
-      <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
         <a href="mailto:jenmurse@gmail.com">Contact</a>
+        <span style={{ margin: "0 8px" }}>·</span>
+        <a href="/privacy">Privacy</a>
       </div>
     </footer>
   );
