@@ -105,7 +105,7 @@ function List({ items }: { items: string[] }) {
   return (
     <ul style={{ padding: 0, margin: 0, listStyle: "none" }}>
       {items.map((item, i) => (
-        <li key={i} style={{ fontFamily: "var(--font-sans)", fontWeight: 400, fontSize: 14, lineHeight: 1.7, color: "var(--fg-2)", padding: "4px 0" }}>
+        <li key={i} style={{ fontFamily: "var(--font-sans)", fontWeight: 400, fontSize: 14, lineHeight: 1.7, color: "var(--fg-2)", padding: "1px 0" }}>
           {item}
         </li>
       ))}
