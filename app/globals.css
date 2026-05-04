@@ -6169,7 +6169,6 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 14px;
   line-height: 1.6;
   color: var(--fg-2);
-  max-width: 380px;
   margin-bottom: 40px;
 }
 
