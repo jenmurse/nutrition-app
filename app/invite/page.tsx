@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import EditorialBackground from "@/app/components/EditorialBackground";
 
 export default function InvitePage() {
   const [code, setCode] = useState("");
@@ -23,7 +24,7 @@ export default function InvitePage() {
       if (data.valid) {
         window.location.href = "/login?signup=1";
       } else {
-        setError("That code isn’t valid. Try again.");
+        setError("That code isn't valid. Try again.");
         setLoading(false);
       }
     } catch {
@@ -33,32 +34,45 @@ export default function InvitePage() {
   };
 
   return (
-    <div className="standalone-page" data-register="editorial">
-      <header className="standalone-topbar">
-        <Link href="/" className="standalone-wordmark">Good Measure</Link>
-      </header>
-      <div className="standalone-body">
-        <div className="standalone-eyebrow">§ Invite code</div>
-        <h1 className="standalone-headline">You&rsquo;re invited.</h1>
-        <p className="standalone-lede">Enter your invite code below to create your account.</p>
-        <form onSubmit={handleSubmit} noValidate>
-          <label className="standalone-field">
-            <span className="standalone-label">Invite code</span>
-            <input
-              className="standalone-input"
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              autoComplete="off"
-              aria-label="Invite code"
-            />
-            {error && <span className="standalone-field-error" role="alert">{error}</span>}
-          </label>
-          <button type="submit" className="standalone-submit" disabled={loading}>
-            {loading ? "Checking…" : "Continue →"}
-          </button>
-        </form>
-      </div>
+    <div className="auth-page">
+      <EditorialBackground />
+      <nav className="auth-nav">
+        <Link href="/" className="auth-nav-logo">Good Measure</Link>
+        <Link href="/" className="auth-nav-link">← Back</Link>
+      </nav>
+
+      <main className="auth-split">
+        <section className="auth-left">
+          <div className="auth-eyebrow">§ Invite code</div>
+          <h1 className="auth-headline">You&rsquo;re invited.</h1>
+          <p className="auth-lede">Enter your invite code below to create your account.</p>
+        </section>
+
+        <div className="auth-divider" aria-hidden="true" />
+
+        <section className="auth-right">
+          <div className="auth-form-wrap">
+            <form onSubmit={handleSubmit}>
+              <label className="auth-field">
+                <span className="auth-label">Invite code</span>
+                <input
+                  className="auth-input"
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  autoComplete="off"
+                  autoFocus
+                  aria-label="Invite code"
+                />
+              </label>
+              {error && <p className="auth-error" role="alert">{error}</p>}
+              <button type="submit" className="auth-submit" disabled={loading}>
+                {loading ? "Checking…" : "Continue →"}
+              </button>
+            </form>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
