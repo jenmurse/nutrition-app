@@ -1217,7 +1217,7 @@ const SettingsPage = () => {
 
             <div>
               <div className="ed-label mb-[8px]">Export</div>
-              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
                 Download a complete backup of your household data — recipes, ingredients, meal plans, and goals — as a single JSON file.
               </p>
               <button
@@ -1231,7 +1231,7 @@ const SettingsPage = () => {
 
               <div className="mt-[40px]">
                 <div className="ed-label mb-[8px]">Import</div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
                   Restore from a backup file. <strong className="text-[var(--fg)]">This will overwrite all existing household data.</strong>
                 </p>
                 {/* Drag-drop zone */}
@@ -1297,8 +1297,8 @@ const SettingsPage = () => {
           <div id="set-sec-account" style={{ padding: '56px 0' }}>
             <SectionHeader number="06" title="Account" />
             <div className="ed-label mb-[8px]">Delete account</div>
-            <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
-              Permanently deletes your profile and meal history. Recipes and pantry items remain in the household. This can&apos;t be undone.
+            <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
+              Permanently deletes your account, profile, and meal history. Recipes and pantry items remain in the household. This can&apos;t be undone.
             </p>
             <button
               onClick={handleDeleteAccount}
