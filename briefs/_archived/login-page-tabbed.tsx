@@ -179,6 +179,28 @@ function LoginPage() {
 
         <section className="auth-right">
           <div className="auth-form-wrap">
+            {mode !== "forgot" && (
+              <div className="auth-tabs" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "signin"}
+                  className={`auth-tab ${mode === "signin" ? "active" : ""}`}
+                  onClick={() => setMode("signin")}
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "signup"}
+                  className={`auth-tab ${mode === "signup" ? "active" : ""}`}
+                  onClick={() => setMode("signup")}
+                >
+                  Create account
+                </button>
+              </div>
+            )}
 
             {inviteHousehold && mode === "signup" && (
               <div className="auth-invite-banner" role="status" aria-live="polite">
