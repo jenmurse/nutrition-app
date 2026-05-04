@@ -5,6 +5,7 @@ export default function PrivacyPage() {
     <div className="standalone-page" data-register="editorial" style={{ minHeight: 0, height: "100%" }}>
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
+        <Link href="/" className="standalone-back-link">← Back</Link>
       </header>
       <div style={{ flex: 1, overflowY: "auto" }}>
         <div style={{ maxWidth: 680, margin: "0 auto", padding: "64px 24px 80px" }}>
