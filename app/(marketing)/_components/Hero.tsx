@@ -18,8 +18,8 @@ export default function Hero() {
           calculated to the gram, planned as a system, and optimized with AI.
         </p>
         <div className="hero-ctas">
-          <a href="/login?signup=1" className="btn">
-            Get Started <span className="arr" aria-hidden="true">↗</span>
+          <a href="/waitlist" className="btn">
+            Join waitlist <span className="arr" aria-hidden="true">↗</span>
           </a>
           <a href="#manifesto" className="btn ghost js-see-how">
             See how it works

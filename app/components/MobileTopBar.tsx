@@ -17,7 +17,7 @@ const SECTIONS = [
   { href: "/settings",    label: "Settings" },
 ];
 
-const HIDDEN = new Set(["/", "/login", "/preview", "/onboarding", "/landing"]);
+const HIDDEN = new Set(["/", "/login", "/preview", "/onboarding", "/landing", "/waitlist", "/waitlist-success", "/invite"]);
 
 function isActive(href: string, pathname: string) {
   if (href === "/home") return pathname === "/home";

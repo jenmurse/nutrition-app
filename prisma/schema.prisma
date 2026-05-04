@@ -353,3 +353,10 @@ model GlobalNutritionGoal {
   @@index([personId])
   @@index([householdId])
 }
+
+model Waitlist {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  createdAt DateTime @default(now())
+}
