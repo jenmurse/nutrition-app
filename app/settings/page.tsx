@@ -54,6 +54,7 @@ const JUMP_SECTIONS = [
   { id: 'set-sec-dashboard', n: '03', label: 'Dashboard' },
   { id: 'set-sec-mcp', n: '04', label: 'MCP' },
   { id: 'set-sec-data', n: '05', label: 'Data' },
+  { id: 'set-sec-account', n: '06', label: 'Account' },
 ];
 
 // ─── Household section ──────────────────────────────────────────────────────
@@ -81,6 +82,31 @@ const SettingsPage = () => {
     document.documentElement.removeAttribute('data-theme');
     await supabase.auth.signOut();
     window.location.href = '/login';
+  };
+
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const confirmed = await dialog.confirm({
+      title: 'Delete your account?',
+      body: 'Your profile and meal history will be permanently deleted. Recipes and pantry items stay in the household. This can\'t be undone.',
+      confirmLabel: 'DELETE',
+      danger: true,
+    });
+    if (!confirmed) return;
+    setDeletingAccount(true);
+    try {
+      const res = await fetch('/api/account', { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      sessionStorage.clear();
+      localStorage.removeItem('theme');
+      document.documentElement.removeAttribute('data-theme');
+      await supabase.auth.signOut();
+      window.location.href = '/login';
+    } catch {
+      toast.error('Something went wrong. Try again.');
+      setDeletingAccount(false);
+    }
   };
 
   const [nutrients, setNutrients] = useState<Nutrient[]>([]);
@@ -1263,6 +1289,25 @@ const SettingsPage = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════════════════
+              06 — ACCOUNT
+              ════════════════════════════════════════════════════════════════════ */}
+          <div id="set-sec-account" style={{ padding: '56px 0' }}>
+            <SectionHeader number="06" title="Account" />
+            <div className="ed-label mb-[8px]">Delete account</div>
+            <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+              Permanently deletes your profile and meal history. Recipes and pantry items remain in the household. This can&apos;t be undone.
+            </p>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deletingAccount}
+              className="ed-btn danger disabled:opacity-40"
+              aria-label="Delete your account"
+            >
+              {deletingAccount ? 'Deleting…' : 'Delete account'}
+            </button>
           </div>
 
         </div>

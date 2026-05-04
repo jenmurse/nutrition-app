@@ -6,22 +6,25 @@ Tracker for product and architecture decisions that have been deferred but need 
 
 ## Account deletion strategy
 
-**Question:** What does "deleting a user" mean in production? Three competing answers:
+**Status: Resolved and shipped.**
 
-1. **Cascade delete** — `onDelete: Cascade` on FK relations. Deleting a Person automatically removes their meal plans, logs, goals, etc. Aggressive and irreversible. Easy to implement, dangerous in production.
-2. **SetNull on audit fields, cascade on personal data** — preserves shared artifacts (e.g., Recipes Garth created stay in Jen's library with `createdBy = null`) but removes Garth's personal data (his meal logs, goals). Mixed approach.
-3. **Soft delete** — mark `deletedAt` timestamp, hide from queries, retain everything for recovery. Standard consumer-app pattern. Adds complexity to every query.
+**Decision:** Immediate hard delete, scoped to the requesting user only.
 
-**Why deferred:** product decisions about GDPR, account deletion UX, and data retention policy aren't made yet. Picking a cascade policy commits to answers we haven't given.
+**What gets deleted:**
+- Person profile, nutrition goals, meal plans, meal logs
+- Supabase auth account
+- If sole household member: all household data (recipes, ingredients, meal plans, the household itself)
 
-**Current workaround:** `scripts/dev/wipe-user.ts` handles testing. Production has no user-facing deletion UI yet.
+**What stays (multi-member households):**
+- Recipes and pantry items remain in the household — they are household-scoped, not person-scoped
+- No `createdBy` nullification needed (Recipe has no createdBy field)
 
-**Triggers needing to decide:**
-- A user requests account deletion (GDPR right-to-be-forgotten)
-- We add a "Delete account" button anywhere in Settings
-- We need to comply with regional data laws
+**Where it lives:**
+- API: `DELETE /api/account`
+- UI: Settings → Section 06 Account → "Delete account" button → confirmation dialog
+- Only the logged-in user can delete their own account
 
-**Owner:** Jen
+**Recovery:** None — immediate permanent deletion. Acceptable for a friends-and-family app.
 
 ---
 
