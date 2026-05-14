@@ -8,7 +8,7 @@ export default function LandingFooter() {
         </a>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-        <a href="mailto:jenmurse@gmail.com">Contact</a>
+        <a href="mailto:hello@jenmurse.com">Contact</a>
         <span style={{ margin: "0 8px" }}>·</span>
         <a href="/privacy">Privacy</a>
       </div>
