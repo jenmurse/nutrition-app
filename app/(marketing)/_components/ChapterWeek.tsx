@@ -10,75 +10,101 @@ const DAYS: Day[] = [
   {
     d: "Sun", n: "19", kcal: "1,824",
     meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Trout Salad", k: "498 kcal" },
-      { t: "Dinner", n: "Roasted Cauliflower and Lentils", k: "764 kcal" },
-      { t: "Snack", n: "Protein Blondies", k: "199 kcal" },
+      { t: "Breakfast", n: "Overnight Oats",                   k: "363 kcal" },
+      { t: "Lunch",     n: "Trout Salad",                      k: "498 kcal" },
+      { t: "Dinner",    n: "Roasted Cauliflower and Lentils",   k: "764 kcal" },
+      { t: "Snack",     n: "Protein Blondies",                  k: "199 kcal" },
     ],
   },
   {
     d: "Mon", n: "20", kcal: "1,540",
     meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Trout Salad", k: "498 kcal" },
-      { t: "Dinner", n: "Pan-seared Salmon", k: "561 kcal" },
-      { t: "Side", n: "Mushrooms and Leeks", k: "118 kcal" },
+      { t: "Breakfast", n: "Overnight Oats",   k: "363 kcal" },
+      { t: "Lunch",     n: "Trout Salad",       k: "498 kcal" },
+      { t: "Dinner",    n: "Pan-seared Salmon", k: "561 kcal" },
+      { t: "Side",      n: "Mushrooms and Leeks", k: "118 kcal" },
     ],
   },
   {
     d: "Tue", n: "21", kcal: "1,602",
     meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Tuna Salad", k: "596 kcal" },
-      { t: "Dinner", n: "Noodle Bowl", k: "528 kcal" },
-      { t: "Dessert", n: "Protein Blondies", k: "115 kcal" },
+      { t: "Breakfast", n: "Overnight Oats",  k: "363 kcal" },
+      { t: "Lunch",     n: "Tuna Salad",      k: "596 kcal" },
+      { t: "Dinner",    n: "Noodle Bowl",     k: "528 kcal" },
+      { t: "Dessert",   n: "Protein Blondies", k: "115 kcal" },
     ],
   },
   {
     d: "Wed", n: "22", kcal: "1,617",
     meals: [
       { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Salmon Salad", k: "578 kcal" },
-      { t: "Dinner", n: "Noodle Bowl", k: "676 kcal" },
+      { t: "Lunch",     n: "Salmon Salad",   k: "578 kcal" },
+      { t: "Dinner",    n: "Noodle Bowl",    k: "676 kcal" },
     ],
   },
   {
     d: "Thu", n: "23", kcal: "1,522", on: true,
     meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Trout Salad", k: "498 kcal" },
-      { t: "Dinner", n: "Pan-seared Salmon", k: "561 kcal" },
-      { t: "Dessert", n: "Protein Blondies", k: "115 kcal" },
+      { t: "Breakfast", n: "Overnight Oats",   k: "363 kcal" },
+      { t: "Lunch",     n: "Trout Salad",       k: "498 kcal" },
+      { t: "Dinner",    n: "Pan-seared Salmon", k: "561 kcal" },
+      { t: "Dessert",   n: "Protein Blondies",  k: "115 kcal" },
     ],
   },
   {
     d: "Fri", n: "24", kcal: "1,720",
     meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Salmon Salad", k: "578 kcal" },
-      { t: "Dinner", n: "Roasted Cauliflower and Lentils", k: "662 kcal" },
-      { t: "Snack", n: "Protein Blondies", k: "117 kcal" },
+      { t: "Breakfast", n: "Overnight Oats",                 k: "363 kcal" },
+      { t: "Lunch",     n: "Salmon Salad",                   k: "578 kcal" },
+      { t: "Dinner",    n: "Roasted Cauliflower and Lentils", k: "662 kcal" },
+      { t: "Snack",     n: "Protein Blondies",                k: "117 kcal" },
     ],
   },
   {
     d: "Sat", n: "25", kcal: "1,680",
     meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch", n: "Trout Salad", k: "498 kcal" },
-      { t: "Dinner", n: "Pan-seared Salmon", k: "561 kcal" },
-      { t: "Side", n: "Mushrooms and Leeks", k: "118 kcal" },
-      { t: "Dessert", n: "Protein Blondies", k: "140 kcal" },
+      { t: "Breakfast", n: "Overnight Oats",   k: "363 kcal" },
+      { t: "Lunch",     n: "Trout Salad",       k: "498 kcal" },
+      { t: "Dinner",    n: "Pan-seared Salmon", k: "561 kcal" },
+      { t: "Side",      n: "Mushrooms and Leeks", k: "118 kcal" },
+      { t: "Dessert",   n: "Protein Blondies",  k: "140 kcal" },
     ],
   },
 ];
 
-const OPT_TABLE = [
-  { nut: "Calories", old: "729 kcal", neu: "661 kcal", chg: "↓ 68 kcal", chgNone: false },
-  { nut: "Fat", old: "21.3 g", neu: "20.9 g", chg: "—", chgNone: true },
-  { nut: "Sodium", old: "217 mg", neu: "233 mg", chg: "—", chgNone: true },
-  { nut: "Sugar", old: "10.9 g", neu: "7.75 g", chg: "↓ 3.2 g ✓", chgNone: false },
-  { nut: "Protein", old: "49.2 g", neu: "48.4 g", chg: "—", chgNone: true },
-  { nut: "Fiber", old: "17.0 g", neu: "15.4 g", chg: "—", chgNone: true },
+type ShopItem = { qty: string; name: string };
+type ShopCol = { cat: string; items: ShopItem[] };
+
+const SHOP_COLS: ShopCol[] = [
+  {
+    cat: "Produce",
+    items: [
+      { qty: "1",      name: "Avocado" },
+      { qty: "37.5 g", name: "Carrots" },
+      { qty: "0.25 head", name: "Cauliflower, large" },
+      { qty: "15 g",   name: "Cilantro, raw" },
+      { qty: "122 g",  name: "Cucumber" },
+      { qty: "0.75 clove", name: "Garlic" },
+    ],
+  },
+  {
+    cat: "Meat & Seafood",
+    items: [
+      { qty: "1 patty",    name: "Beyond Meat" },
+      { qty: "1 6oz fillet", name: "Fish, cod" },
+      { qty: "0.5 8oz fillet", name: "Fish, salmon" },
+    ],
+  },
+  {
+    cat: "Dairy & Eggs",
+    items: [
+      { qty: "1 tbsp",  name: "Butter" },
+      { qty: "197.5 ml", name: "Cashew milk" },
+      { qty: "4.17 egg", name: "Eggs" },
+      { qty: "3 tbsp",  name: "Goat cheese" },
+      { qty: "330 g",   name: "Lactaid Cottage Cheese" },
+    ],
+  },
 ];
 
 export default function ChapterWeek() {
@@ -88,7 +114,7 @@ export default function ChapterWeek() {
         <div>
           <span className="n">§ The Week</span>
         </div>
-        <div className="rt">Planner + AI</div>
+        <div className="rt">Planner + Shopping</div>
       </div>
 
       <div className="ch-split reverse wide-viz">
@@ -111,17 +137,17 @@ export default function ChapterWeek() {
           </p>
 
           <p className="ch-p">
-            You can connect Good Measure to any MCP-compatible agent to help you optimize your recipes. Hand it a goal such as, &ldquo;make this recipe have more
-            protein&rdquo; or &ldquo;keep Thursday under 1800 calories,&rdquo; and
-            it works from your actual pantry and plans, suggests swaps, and writes
-            the changes back. You can optimize a single recipe or the whole week,
-            and because Good Measure talks to the agent you don&apos;t have to do
-            any of the fussy edits.
+            Once the week is planned, the shopping list writes itself. Every
+            ingredient from every recipe, grouped by where you&apos;ll find it in
+            the store. Quantities are scaled to the servings you&apos;re actually
+            making, down to the gram. Check things off as you shop. Share the list
+            with whoever&apos;s going.
           </p>
         </div>
 
         <div className="ch-vis">
           <div className="ch-vis-sticky">
+            {/* Fig. 03 · Weekly Plan */}
             <div className="iface">
               <div className="iface-top">
                 <div className="lg">Good Measure</div>
@@ -169,62 +195,45 @@ export default function ChapterWeek() {
               <span>Fig. 03 · Weekly Plan</span>
             </div>
 
+            {/* Fig. 04 · Shopping list */}
             <div className="iface">
               <div className="iface-top">
                 <div className="lg">Good Measure</div>
                 <div className="iface-tabs">
-                  <span>Planner</span>
-                  <span className="on">Recipes</span>
+                  <span className="on">Planner</span>
+                  <span>Recipes</span>
                   <span>Pantry</span>
                 </div>
-                <div>Optimization Notes</div>
+                <div>Shopping List</div>
               </div>
 
-              <div className="opt">
-                <div className="opt-h">
-                  <div className="ttl">
-                    Current Best Version <span className="check">✓</span>
+              <div className="shop">
+                <div className="shop-hd">
+                  <div className="shop-meta">
+                    <div className="shop-eyebrow">§ May 3–9</div>
+                    <div className="shop-title">A week of meals.</div>
                   </div>
-                  <div className="tag">AI · claude</div>
+                  <div className="shop-controls">
+                    <span>Hide Checked</span>
+                    <span>Share →</span>
+                  </div>
                 </div>
 
-                <div className="opt-eyebrow">Changes from original (id:25)</div>
-
-                <p className="opt-note">
-                  <span className="swap">
-                    Cherry tomatoes 200g <span className="arr">→</span> Canned diced, no salt (200g).
-                  </span>{" "}
-                  Better sauce body, lower natural sugar, consistent year-round. Saves ~2g sugar per serving.
-                </p>
-
-                <p className="opt-note">
-                  <span className="swap">
-                    Onion: 200g <span className="arr">→</span> 100g.
-                  </span>{" "}
-                  Halved from original. Onion is the primary sugar driver here. Ginger, garlic, and spices carry the flavor. Saves ~3g sugar per serving.
-                </p>
-
-                <div className="opt-eyebrow" style={{ marginTop: 18 }}>
-                  Nutrition Comparison (per serving)
-                </div>
-
-                <div className="opt-table">
-                  <div className="opt-trow hd">
-                    <span className="nut">Nutrient</span>
-                    <span>Original id:25</span>
-                    <span>This version</span>
-                    <span>Change</span>
-                  </div>
-                  {OPT_TABLE.map((row, i) => (
-                    <div
-                      key={row.nut}
-                      className="opt-trow"
-                      style={i === OPT_TABLE.length - 1 ? { borderBottom: "none" } : undefined}
-                    >
-                      <span className="nut">{row.nut}</span>
-                      <span className="old">{row.old}</span>
-                      <span className="new">{row.neu}</span>
-                      <span className={`chg${row.chgNone ? " none" : ""}`}>{row.chg}</span>
+                <div className="shop-grid">
+                  {SHOP_COLS.map((col) => (
+                    <div key={col.cat} className="shop-col">
+                      <div className="shop-cat-hd">
+                        <span className="shop-cb" aria-hidden="true" />
+                        <span className="shop-cat-name">{col.cat}</span>
+                        <span className="shop-cat-count">{col.items.length}</span>
+                      </div>
+                      {col.items.map((item) => (
+                        <div key={item.name} className="shop-row">
+                          <span className="shop-cb" aria-hidden="true" />
+                          <span className="shop-qty">{item.qty}</span>
+                          <span className="shop-name">{item.name}</span>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
@@ -232,7 +241,7 @@ export default function ChapterWeek() {
             </div>
 
             <div className="ch-caption">
-              <span>Fig. 04 · Optimization via MCP</span>
+              <span>Fig. 04 · Shopping list</span>
             </div>
           </div>
         </div>
