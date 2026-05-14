@@ -11,11 +11,8 @@ export default function Hero() {
 
       <div className="hero-bottom r d1">
         <p className="hero-lede">
-          For years I ran my meal planning and recipe creation with two tools, a
-          spreadsheet for nutrition and an app for recipes. They lived independently
-          from each other. Good Measure is the version of that setup where the two
-          halves overlap. Your pantry, your recipes, your week of meals. All
-          calculated to the gram, planned as a system, and optimized with AI.
+          A single tool for your pantry, your recipes, and your week of meals. One
+          ingredient library, nutrition calculated to the gram, plans optimized with AI.
         </p>
         <div className="hero-ctas">
           <a href="/waitlist" className="btn">

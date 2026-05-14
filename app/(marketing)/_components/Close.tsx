@@ -3,7 +3,7 @@ export default function Close() {
     <section className="close">
       <div className="close-head">
         <div>
-          <span className="n">§ Invitation</span>
+          <span className="n">§ The Invitation</span>
         </div>
       </div>
 

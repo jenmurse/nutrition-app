@@ -5,7 +5,8 @@ export default function LandingNav() {
         <span>Good Measure</span>
       </a>
       <div className="nav-right">
-        <a href="/login" className="nav-signin">Sign in</a>
+        <a href="https://www.withgoodmeasure.com/invite" className="nav-signin">Have a code? →</a>
+        <a href="/login" className="nav-signin">Sign in →</a>
       </div>
     </nav>
   );
