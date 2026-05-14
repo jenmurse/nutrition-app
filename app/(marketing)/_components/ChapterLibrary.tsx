@@ -57,7 +57,6 @@ export default function ChapterLibrary() {
         <div>
           <span className="n">§ The Library</span>
         </div>
-        <div className="rt">Pantry + Recipes</div>
       </div>
 
       <div className="ch-split">

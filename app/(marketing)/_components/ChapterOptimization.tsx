@@ -14,7 +14,6 @@ export default function ChapterOptimization() {
         <div>
           <span className="n">§ The Optimization</span>
         </div>
-        <div className="rt">Goals + AI</div>
       </div>
 
       <div className="ch-split">

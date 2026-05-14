@@ -114,7 +114,6 @@ export default function ChapterWeek() {
         <div>
           <span className="n">§ The Week</span>
         </div>
-        <div className="rt">Planner + Shopping</div>
       </div>
 
       <div className="ch-split reverse wide-viz">

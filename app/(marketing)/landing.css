@@ -67,17 +67,16 @@
 .mkt .nav-right .nav-signin:hover { color: var(--fg); }
 
 /* ─── TICKER ─── */
-.mkt .tick {
+.mkt .claims {
   border-bottom: 1px solid var(--rule);
-  padding: 11px 0;
-  overflow: hidden;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--fg);
+  padding: 14px var(--pad);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  gap: 16px;
 }
-.mkt .tick-track { display: flex; gap: 0; white-space: nowrap; width: max-content; animation: mkt-tick 52s linear infinite; }
-@keyframes mkt-tick { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
-.mkt .tick span { padding: 0; }
-.mkt .tick span::before { content: '—'; margin: 0 28px; color: var(--mute); }
+.mkt .claims-item { display: flex; align-items: center; gap: 0; white-space: nowrap; }
+.mkt .claims-n { font-weight: 600; color: var(--rule); margin-right: 8px; }
 
 /* ─── SECTION SHELL ─── */
 .mkt section { padding: 0 var(--pad); position: relative; }
@@ -367,7 +366,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .mkt .r { opacity: 1; transform: none; transition: none; }
-  .mkt .tick-track { animation: none; }
   .mkt .ml { opacity: 1; transform: none; transition: none; }
   .mkt .pql { opacity: 1; transform: none; transition: none; }
   .mkt .cl-h, .mkt .cl-body, .mkt .cl-sig, .mkt .cl-cta { opacity: 1; transform: none; transition: none; }
@@ -408,7 +406,8 @@
   .mkt .nav-right a { font-size: 9px; letter-spacing: 0.14em; }
   .mkt .nav-signin { font-size: 9px; letter-spacing: 0.14em; }
 
-  .mkt .tick { padding: 9px 0; font-size: 9px; letter-spacing: 0.14em; }
+  .mkt .claims { flex-wrap: wrap; gap: 10px 24px; }
+  .mkt .claims-item { white-space: nowrap; }
 
   .mkt .hero { padding: 72px var(--pad) 72px; }
   .mkt .hero-meta { margin-bottom: 40px; font-size: 9px; }
