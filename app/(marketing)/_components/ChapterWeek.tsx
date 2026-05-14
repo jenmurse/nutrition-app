@@ -167,8 +167,7 @@ export default function ChapterWeek() {
             </div>
 
             <div className="ch-caption">
-              <span>Fig. 03 · Week</span>
-              <span>Weekly plan</span>
+              <span>Fig. 03 · Weekly Plan</span>
             </div>
 
             <div className="iface">
@@ -234,8 +233,7 @@ export default function ChapterWeek() {
             </div>
 
             <div className="ch-caption">
-              <span>Fig. 04 · Optimize</span>
-              <span>Detailed notes, not just numbers</span>
+              <span>Fig. 04 · Optimization via MCP</span>
             </div>
           </div>
         </div>

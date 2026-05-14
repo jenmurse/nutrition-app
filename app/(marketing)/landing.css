@@ -76,8 +76,8 @@
 }
 .mkt .tick-track { display: flex; gap: 0; white-space: nowrap; width: max-content; animation: mkt-tick 52s linear infinite; }
 @keyframes mkt-tick { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
-.mkt .tick span { padding: 0 28px; }
-.mkt .tick span::before { content: '—'; margin-right: 28px; color: var(--mute); }
+.mkt .tick span { padding: 0; }
+.mkt .tick span::before { content: '—'; margin: 0 28px; color: var(--mute); }
 
 /* ─── SECTION SHELL ─── */
 .mkt section { padding: 0 var(--pad); position: relative; }

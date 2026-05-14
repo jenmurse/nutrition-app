@@ -112,7 +112,6 @@ export default function ChapterLibrary() {
 
             <div className="ch-caption">
               <span>Fig. 01 · Pantry</span>
-              <span>Measured to the gram</span>
             </div>
 
             <div className="iface">
@@ -166,7 +165,6 @@ export default function ChapterLibrary() {
 
             <div className="ch-caption">
               <span>Fig. 02 · Recipe</span>
-              <span>Calculated, not estimated</span>
             </div>
           </div>
         </div>
