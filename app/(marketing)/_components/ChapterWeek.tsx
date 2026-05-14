@@ -104,15 +104,14 @@ export default function ChapterWeek() {
           <p className="ch-p">
             Good Measure was built for people who want more control over what they
             cook, whether it&apos;s for one person or a household. My husband and I
-            cook out of the same kitchen but we have different needs and goals.
+            cook from the same kitchen but we have different needs and goals.
             Every person in the household has their own plan and their own targets
             running against the shared recipe and pantry library. You can add a
             meal for one person or the entire household.
           </p>
 
           <p className="ch-p">
-            Good Measure connects to any MCP-compatible agent to help you optimize
-            your recipes. Hand it a goal such as, &ldquo;make this recipe have more
+            You can connect Good Measure to any MCP-compatible agent to help you optimize your recipes. Hand it a goal such as, &ldquo;make this recipe have more
             protein&rdquo; or &ldquo;keep Thursday under 1800 calories,&rdquo; and
             it works from your actual pantry and plans, suggests swaps, and writes
             the changes back. You can optimize a single recipe or the whole week,
