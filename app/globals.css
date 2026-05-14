@@ -5866,7 +5866,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    ────────────────────────────────────────── */
 .auth-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px clamp(24px, 5vw, 56px);
+  padding: 0 clamp(24px, 5vw, 56px);
+  height: var(--nav-h);
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
   box-sizing: border-box;
@@ -6263,7 +6264,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   align-items: center;
   justify-content: space-between;
   padding: calc(env(safe-area-inset-top) + 4px) clamp(24px, 5vw, 56px) 4px;
-  min-height: calc(48px + env(safe-area-inset-top));
+  min-height: calc(var(--nav-h) + env(safe-area-inset-top));
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
   box-sizing: border-box;

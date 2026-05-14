@@ -53,7 +53,9 @@
 .mkt .nav {
   position: sticky; top: 0; z-index: 50;
   display: flex; justify-content: space-between; align-items: center;
-  padding: 18px var(--pad);
+  padding: 0 var(--pad);
+  height: var(--nav-h);
+  box-sizing: border-box;
   background: var(--bg);
   border-bottom: 1px solid var(--rule);
 }
@@ -76,7 +78,7 @@
   gap: 16px;
 }
 .mkt .claims-item { display: flex; align-items: center; gap: 0; white-space: nowrap; }
-.mkt .claims-n { font-weight: 600; color: var(--rule); margin-right: 8px; }
+.mkt .claims-n { font-weight: 600; color: var(--muted); margin-right: 8px; }
 
 /* ─── SECTION SHELL ─── */
 .mkt section { padding: 0 var(--pad); position: relative; }
@@ -406,8 +408,7 @@
   .mkt .nav-right a { font-size: 9px; letter-spacing: 0.14em; }
   .mkt .nav-signin { font-size: 9px; letter-spacing: 0.14em; }
 
-  .mkt .claims { flex-wrap: wrap; gap: 10px 24px; }
-  .mkt .claims-item { white-space: nowrap; }
+  .mkt .claims { display: none; }
 
   .mkt .hero { padding: 72px var(--pad) 72px; }
   .mkt .hero-meta { margin-bottom: 40px; font-size: 9px; }
