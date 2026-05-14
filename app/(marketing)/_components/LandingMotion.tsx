@@ -59,7 +59,7 @@ export default function LandingMotion() {
     if (seeHow) {
       seeHow.addEventListener("click", (e) => {
         e.preventDefault();
-        document.querySelector("#premise-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector("#library")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
 

@@ -11,14 +11,13 @@ export default function Hero() {
 
       <div className="hero-bottom r d1">
         <p className="hero-lede">
-          A single tool for your pantry, your recipes, and your week of meals. One
-          ingredient library, nutrition calculated to the gram, plans optimized with AI.
+          Most nutrition apps log what you eat. Most recipe apps store what you cook. Good Measure puts the two together. A single tool for your pantry, your recipes, and your week of meals. One ingredient library, nutrition calculated to the gram, and plans optimized with AI.
         </p>
         <div className="hero-ctas">
           <a href="/waitlist" className="btn">
             Join waitlist <span className="arr" aria-hidden="true">↗</span>
           </a>
-          <a href="#manifesto" className="btn ghost js-see-how">
+          <a href="#library" className="btn ghost js-see-how">
             See how it works
           </a>
         </div>

@@ -10,6 +10,7 @@
   --fg: #1A1916;
   --fg-2: #36342F;
   --mute: #6B6860;
+  --mute-light: #B3B0A8;
   --rule: #D0CCC2;
   --rule-ink: #1A1916;
   --accent: #5A9B6A;
@@ -74,11 +75,11 @@
   padding: 14px var(--pad);
   display: flex; justify-content: space-between; align-items: center;
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--muted);
+  color: var(--mute-light);
   gap: 16px;
 }
 .mkt .claims-item { display: flex; align-items: center; gap: 0; white-space: nowrap; }
-.mkt .claims-n { font-weight: 600; color: var(--muted); margin-right: 8px; }
+.mkt .claims-n { font-weight: 400; color: var(--mute-light); margin-right: 8px; }
 
 /* ─── SECTION SHELL ─── */
 .mkt section { padding: 0 var(--pad); position: relative; }
@@ -294,7 +295,7 @@
 .mkt .shop-controls span { font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); white-space: nowrap; }
 .mkt .shop-grid { display: grid; grid-template-columns: repeat(3,1fr); border-left: 1px solid var(--rule); }
 .mkt .shop-col { border-right: 1px solid var(--rule); }
-.mkt .shop-cat-hd { display: flex; align-items: center; gap: 5px; padding: 6px 8px; border-bottom: 1px solid var(--fg); }
+.mkt .shop-cat-hd { display: flex; align-items: center; gap: 5px; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
 .mkt .shop-cb { display: inline-block; width: 10px; height: 10px; border: 1px solid var(--rule); flex-shrink: 0; }
 .mkt .shop-cat-name { font-family: var(--mono); font-size: 7px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg); flex: 1; }
 .mkt .shop-cat-count { font-family: var(--mono); font-size: 7px; letter-spacing: 0.06em; color: var(--mute); }

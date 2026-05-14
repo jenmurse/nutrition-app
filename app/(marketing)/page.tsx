@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import LandingNav from "./_components/LandingNav";
 import Ticker from "./_components/Ticker";
 import Hero from "./_components/Hero";
-import Manifesto from "./_components/Manifesto";
 import ChapterLibrary from "./_components/ChapterLibrary";
 import ChapterWeek from "./_components/ChapterWeek";
 import ChapterOptimization from "./_components/ChapterOptimization";
@@ -28,7 +27,6 @@ export default function MarketingLanding() {
       <LandingNav />
       <Ticker />
       <Hero />
-      <Manifesto />
       <ChapterLibrary />
       <ChapterWeek />
       <ChapterOptimization />
