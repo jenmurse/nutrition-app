@@ -116,7 +116,7 @@ export default function ChapterWeek() {
         </div>
       </div>
 
-      <div className="ch-split reverse wide-viz">
+      <div className="ch-split reverse">
         <div className="ch-text r">
           <h3 className="ch-h">
             One week.

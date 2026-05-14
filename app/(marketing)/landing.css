@@ -164,12 +164,11 @@
 .mkt .ch-head .n { color: var(--fg); }
 .mkt .ch-head .rt { justify-self: end; }
 
-.mkt .ch-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 88px; align-items: start; }
-.mkt .ch-split.wide-viz { grid-template-columns: 0.85fr 1.2fr; gap: 72px; }
+.mkt .ch-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 80px; align-items: start; }
 .mkt .ch-split.reverse .ch-text { order: 2; }
 .mkt .ch-split.reverse .ch-vis { order: 1; }
 
-.mkt .ch-text { display: flex; flex-direction: column; gap: 24px; padding-bottom: 15vh; }
+.mkt .ch-text { display: flex; flex-direction: column; gap: 24px; padding-bottom: 15vh; min-width: 0; }
 .mkt .ch-h {
   font-size: clamp(32px,4.5vw,52px);
   font-weight: 500;
@@ -181,7 +180,7 @@
 .mkt .ch-p { font-size: 16px; line-height: 1.7; color: var(--fg-2); max-width: 44ch; text-wrap: pretty; }
 .mkt .ch-p + .ch-p { margin-top: 8px; }
 
-.mkt .ch-vis { position: relative; }
+.mkt .ch-vis { position: relative; min-width: 0; }
 .mkt .ch-vis-sticky { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 32px; }
 .mkt .ch-caption {
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
@@ -390,7 +389,6 @@
 /* Tablet — sticky figures become inline */
 @media (max-width: 1100px) {
   .mkt .ch-split { grid-template-columns: 1fr; gap: 56px; }
-  .mkt .ch-split.wide-viz { grid-template-columns: 1fr; gap: 56px; }
   .mkt .ch-split.reverse .ch-text { order: 1; }
   .mkt .ch-split.reverse .ch-vis { order: 2; }
   .mkt .ch-text { padding-bottom: 0; }
