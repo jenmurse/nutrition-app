@@ -408,7 +408,7 @@ export default function Home() {
             <EmptyState
               eyebrow="§ NO PLAN THIS WEEK"
               headline="A blank week."
-              lede={<>Drop in recipes for the days ahead<br />and the nutrition math handles itself.</>}
+              lede={<>Drop in recipes for the days ahead<br />and the nutritional math handles itself.</>}
               ctaLabel="+ CREATE PLAN →"
               ctaHref="/meal-plans"
             />

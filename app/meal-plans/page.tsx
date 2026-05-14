@@ -1552,7 +1552,7 @@ const MealPlansPage = () => {
               <EmptyState
                 eyebrow="§ NO PLAN THIS WEEK"
                 headline="A blank week."
-                lede={<>Drop in recipes for the days ahead<br />and the nutrition math handles itself.</>}
+                lede={<>Drop in recipes for the days ahead<br />and the nutritional math handles itself.</>}
                 ctaLabel="+ CREATE PLAN →"
                 onCta={() => {
                   const params = new URLSearchParams(searchParams?.toString());
