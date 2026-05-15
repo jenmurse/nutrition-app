@@ -1,111 +1,4 @@
-type Day = {
-  d: string;
-  n: string;
-  kcal: string;
-  meals: Array<{ t: string; n: string; k: string }>;
-  on?: boolean;
-};
-
-const DAYS: Day[] = [
-  {
-    d: "Sun", n: "19", kcal: "1,824",
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats",                   k: "363 kcal" },
-      { t: "Lunch",     n: "Trout Salad",                      k: "498 kcal" },
-      { t: "Dinner",    n: "Roasted Cauliflower and Lentils",   k: "764 kcal" },
-      { t: "Snack",     n: "Protein Blondies",                  k: "199 kcal" },
-    ],
-  },
-  {
-    d: "Mon", n: "20", kcal: "1,540",
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats",   k: "363 kcal" },
-      { t: "Lunch",     n: "Trout Salad",       k: "498 kcal" },
-      { t: "Dinner",    n: "Pan-seared Salmon", k: "561 kcal" },
-      { t: "Side",      n: "Mushrooms and Leeks", k: "118 kcal" },
-    ],
-  },
-  {
-    d: "Tue", n: "21", kcal: "1,602",
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats",  k: "363 kcal" },
-      { t: "Lunch",     n: "Tuna Salad",      k: "596 kcal" },
-      { t: "Dinner",    n: "Noodle Bowl",     k: "528 kcal" },
-      { t: "Dessert",   n: "Protein Blondies", k: "115 kcal" },
-    ],
-  },
-  {
-    d: "Wed", n: "22", kcal: "1,617",
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats", k: "363 kcal" },
-      { t: "Lunch",     n: "Salmon Salad",   k: "578 kcal" },
-      { t: "Dinner",    n: "Noodle Bowl",    k: "676 kcal" },
-    ],
-  },
-  {
-    d: "Thu", n: "23", kcal: "1,522", on: true,
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats",   k: "363 kcal" },
-      { t: "Lunch",     n: "Trout Salad",       k: "498 kcal" },
-      { t: "Dinner",    n: "Pan-seared Salmon", k: "561 kcal" },
-      { t: "Dessert",   n: "Protein Blondies",  k: "115 kcal" },
-    ],
-  },
-  {
-    d: "Fri", n: "24", kcal: "1,720",
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats",                 k: "363 kcal" },
-      { t: "Lunch",     n: "Salmon Salad",                   k: "578 kcal" },
-      { t: "Dinner",    n: "Roasted Cauliflower and Lentils", k: "662 kcal" },
-      { t: "Snack",     n: "Protein Blondies",                k: "117 kcal" },
-    ],
-  },
-  {
-    d: "Sat", n: "25", kcal: "1,680",
-    meals: [
-      { t: "Breakfast", n: "Overnight Oats",   k: "363 kcal" },
-      { t: "Lunch",     n: "Trout Salad",       k: "498 kcal" },
-      { t: "Dinner",    n: "Pan-seared Salmon", k: "561 kcal" },
-      { t: "Side",      n: "Mushrooms and Leeks", k: "118 kcal" },
-      { t: "Dessert",   n: "Protein Blondies",  k: "140 kcal" },
-    ],
-  },
-];
-
-type ShopItem = { qty: string; name: string };
-type ShopCol = { cat: string; items: ShopItem[] };
-
-const SHOP_COLS: ShopCol[] = [
-  {
-    cat: "Produce",
-    items: [
-      { qty: "1",      name: "Avocado" },
-      { qty: "37.5 g", name: "Carrots" },
-      { qty: "0.25 head", name: "Cauliflower, large" },
-      { qty: "15 g",   name: "Cilantro, raw" },
-      { qty: "122 g",  name: "Cucumber" },
-      { qty: "0.75 clove", name: "Garlic" },
-    ],
-  },
-  {
-    cat: "Meat & Seafood",
-    items: [
-      { qty: "1 patty",    name: "Beyond Meat" },
-      { qty: "1 6oz fillet", name: "Fish, cod" },
-      { qty: "0.5 8oz fillet", name: "Fish, salmon" },
-    ],
-  },
-  {
-    cat: "Dairy & Eggs",
-    items: [
-      { qty: "1 tbsp",  name: "Butter" },
-      { qty: "197.5 ml", name: "Cashew milk" },
-      { qty: "4.17 egg", name: "Eggs" },
-      { qty: "3 tbsp",  name: "Goat cheese" },
-      { qty: "330 g",   name: "Lactaid Cottage Cheese" },
-    ],
-  },
-];
+import LandingFigure from "./LandingFigure";
 
 export default function ChapterWeek() {
   return (
@@ -146,102 +39,17 @@ export default function ChapterWeek() {
 
         <div className="ch-vis">
           <div className="ch-vis-sticky">
-            {/* Fig. 03 · Weekly Plan */}
-            <div className="iface">
-              <div className="iface-top">
-                <div className="lg">Good Measure</div>
-                <div className="iface-tabs">
-                  <span className="on">Planner</span>
-                  <span>Recipes</span>
-                  <span>Pantry</span>
-                </div>
-                <div>Apr 19–25</div>
-              </div>
+            <LandingFigure
+              slug="fig-03-planner"
+              alt="Good Measure weekly planner — seven days of meals with calorie totals per person"
+              caption="Fig. 03 · Weekly Plan"
+            />
 
-              <div className="plan">
-                <div className="plan-strip" aria-hidden="true">
-                  {DAYS.map((d) => (
-                    <div key={d.n} className={`plan-strip-day${d.on ? " on" : ""}`}>
-                      <span className="sn">{d.d}</span>
-                      {d.n}
-                    </div>
-                  ))}
-                </div>
-                {DAYS.map((d) => (
-                  <div key={d.n} className={`plan-col${d.on ? " on" : ""}`}>
-                    <div className="plan-day">
-                      <span className="d">{d.d}</span>
-                      <span className="n">{d.n}</span>
-                    </div>
-                    <div className="plan-kcal">
-                      {d.kcal}
-                      <br />
-                      kcal
-                    </div>
-                    {d.meals.map((m, i) => (
-                      <div key={i} className="plan-meal">
-                        <div className="t">{m.t}</div>
-                        <div className="n">{m.n}</div>
-                        <div className="k">{m.k}</div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="ch-caption">
-              <span>Fig. 03 · Weekly Plan</span>
-            </div>
-
-            {/* Fig. 04 · Shopping list */}
-            <div className="iface">
-              <div className="iface-top">
-                <div className="lg">Good Measure</div>
-                <div className="iface-tabs">
-                  <span className="on">Planner</span>
-                  <span>Recipes</span>
-                  <span>Pantry</span>
-                </div>
-                <div>Shopping List</div>
-              </div>
-
-              <div className="shop">
-                <div className="shop-hd">
-                  <div className="shop-meta">
-                    <div className="shop-eyebrow">§ May 3–9</div>
-                    <div className="shop-title">A week of meals.</div>
-                  </div>
-                  <div className="shop-controls">
-                    <span>Hide Checked</span>
-                    <span>Share →</span>
-                  </div>
-                </div>
-
-                <div className="shop-grid">
-                  {SHOP_COLS.map((col) => (
-                    <div key={col.cat} className="shop-col">
-                      <div className="shop-cat-hd">
-                        <span className="shop-cb" aria-hidden="true" />
-                        <span className="shop-cat-name">{col.cat}</span>
-                        <span className="shop-cat-count">{col.items.length}</span>
-                      </div>
-                      {col.items.map((item) => (
-                        <div key={item.name} className="shop-row">
-                          <span className="shop-cb" aria-hidden="true" />
-                          <span className="shop-qty">{item.qty}</span>
-                          <span className="shop-name">{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="ch-caption">
-              <span>Fig. 04 · Shopping list</span>
-            </div>
+            <LandingFigure
+              slug="fig-04-shopping"
+              alt="Good Measure shopping list — produce, meat, and dairy grouped by store section"
+              caption="Fig. 04 · Shopping list"
+            />
           </div>
         </div>
       </div>

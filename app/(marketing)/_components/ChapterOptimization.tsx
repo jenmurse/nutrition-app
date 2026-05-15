@@ -1,11 +1,4 @@
-const OPT_TABLE = [
-  { nut: "Calories", old: "729 kcal", neu: "661 kcal", chg: "↓ 68 kcal", chgNone: false },
-  { nut: "Fat",      old: "21.3 g",   neu: "20.9 g",   chg: "—",          chgNone: true  },
-  { nut: "Sodium",   old: "217 mg",   neu: "233 mg",   chg: "—",          chgNone: true  },
-  { nut: "Sugar",    old: "10.9 g",   neu: "7.75 g",   chg: "↓ 3.2 g ✓", chgNone: false },
-  { nut: "Protein",  old: "49.2 g",   neu: "48.4 g",   chg: "—",          chgNone: true  },
-  { nut: "Fiber",    old: "17.0 g",   neu: "15.4 g",   chg: "—",          chgNone: true  },
-];
+import LandingFigure from "./LandingFigure";
 
 export default function ChapterOptimization() {
   return (
@@ -40,71 +33,11 @@ export default function ChapterOptimization() {
 
         <div className="ch-vis">
           <div className="ch-vis-sticky">
-            <div className="iface">
-              <div className="iface-top">
-                <div className="lg">Good Measure</div>
-                <div className="iface-tabs">
-                  <span>Planner</span>
-                  <span className="on">Recipes</span>
-                  <span>Pantry</span>
-                </div>
-                <div>Optimization Notes</div>
-              </div>
-
-              <div className="opt">
-                <div className="opt-h">
-                  <div className="ttl">
-                    Current Best Version <span className="check">✓</span>
-                  </div>
-                  <div className="tag">AI · claude</div>
-                </div>
-
-                <div className="opt-eyebrow">Changes from original (id:25)</div>
-
-                <p className="opt-note">
-                  <span className="swap">
-                    Cherry tomatoes 200g <span className="arr">→</span> Canned diced, no salt (200g).
-                  </span>{" "}
-                  Better sauce body, lower natural sugar, consistent year-round. Saves ~2g sugar per serving.
-                </p>
-
-                <p className="opt-note">
-                  <span className="swap">
-                    Onion: 200g <span className="arr">→</span> 100g.
-                  </span>{" "}
-                  Halved from original. Onion is the primary sugar driver here. Ginger, garlic, and spices carry the flavor. Saves ~3g sugar per serving.
-                </p>
-
-                <div className="opt-eyebrow" style={{ marginTop: 18 }}>
-                  Nutrition Comparison (per serving)
-                </div>
-
-                <div className="opt-table">
-                  <div className="opt-trow hd">
-                    <span className="nut">Nutrient</span>
-                    <span>Original id:25</span>
-                    <span>This version</span>
-                    <span>Change</span>
-                  </div>
-                  {OPT_TABLE.map((row, i) => (
-                    <div
-                      key={row.nut}
-                      className="opt-trow"
-                      style={i === OPT_TABLE.length - 1 ? { borderBottom: "none" } : undefined}
-                    >
-                      <span className="nut">{row.nut}</span>
-                      <span className="old">{row.old}</span>
-                      <span className="new">{row.neu}</span>
-                      <span className={`chg${row.chgNone ? " none" : ""}`}>{row.chg}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="ch-caption">
-              <span>Fig. 05 · Optimization Notes</span>
-            </div>
+            <LandingFigure
+              slug="fig-05-optimization"
+              alt="Good Measure optimization notes — AI-suggested swaps with before/after nutrition comparison"
+              caption="Fig. 05 · Optimization Notes"
+            />
           </div>
         </div>
       </div>

@@ -76,7 +76,7 @@
   padding: 14px var(--pad);
   display: flex; justify-content: space-between; align-items: center;
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--mute-light);
+  color: var(--mute);
   gap: 16px;
 }
 .mkt .claims-item { display: flex; align-items: center; gap: 0; white-space: nowrap; }
@@ -197,6 +197,18 @@
 /* ─── INTERFACE IMAGES ─── */
 .mkt .iface { background: var(--bg); border: 1px solid var(--rule); padding: 18px; position: relative; }
 .mkt .iface.tall { min-height: 380px; }
+
+/* Image-figure variant — image fills the frame edge to edge */
+.mkt .iface-img { padding: 0; overflow: hidden; line-height: 0; background: white; border-color: var(--rule-light); }
+.mkt .iface-img picture { display: block; }
+.mkt .iface-img img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
 .mkt .iface-top {
   display: flex; justify-content: space-between; align-items: center;
   padding-bottom: 14px; border-bottom: 1px solid var(--rule);
@@ -419,6 +431,9 @@
   .mkt .hero-ctas .btn { flex: 1; justify-content: center; padding: 14px 16px; font-size: 9px; }
 
   .mkt .manifesto, .mkt .ch, .mkt .close { padding-top: 72px; padding-bottom: 72px; }
+  /* Multi-figure chapters: extra breathing room before the next section so
+     stacked figures don't feel cramped against the heading that follows */
+  .mkt #library, .mkt #week { padding-bottom: 112px; }
   .mkt .ch-head, .mkt .manifesto-eyebrow, .mkt .close-head { grid-template-columns: 1fr; gap: 4px; margin-bottom: 40px; font-size: 9px; }
   .mkt .ch-head .rt, .mkt .manifesto-eyebrow .rt, .mkt .close-head .rt { justify-self: start; }
   .mkt .ch-head { display: flex; gap: 6px; }
