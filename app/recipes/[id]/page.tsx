@@ -71,7 +71,7 @@ const JUMP_SECTIONS = [
   { id: "rd-sec-ing", n: "01", label: "Ingredients" },
   { id: "rd-sec-nut", n: "02", label: "Nutrition" },
   { id: "rd-sec-steps", n: "03", label: "Instructions" },
-  { id: "rd-sec-opt", n: "04", label: "Optimize" },
+  { id: "rd-sec-opt", n: "04", label: "Optimization" },
   { id: "rd-sec-prep", n: "05", label: "Meal Prep" },
 ];
 
