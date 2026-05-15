@@ -183,7 +183,12 @@ export default function LandingMotion() {
     });
 
     // ── Run once on mount for above-fold elements, then on scroll ──
+    // Three passes: immediate, after first paint, and after layout settles.
+    // This prevents near-fold elements from staying invisible until the
+    // user nudges the page (common on mobile where layout shifts after paint).
     checkReveals();
+    requestAnimationFrame(checkReveals);
+    setTimeout(checkReveals, 300);
     window.addEventListener("scroll", checkReveals, { passive: true });
 
     return () => {
