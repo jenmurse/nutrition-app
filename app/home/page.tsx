@@ -557,6 +557,7 @@ export default function Home() {
           </>
         )}
 
+        </div>
       </div>
     </div>
   );
@@ -666,7 +667,6 @@ function WeekOverview({
           </div>
         );
       })}
-        </div>
       </div>
     </div>
   );
