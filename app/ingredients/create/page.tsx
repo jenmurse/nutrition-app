@@ -322,8 +322,8 @@ export default function CreateIngredientPage() {
       </nav>
 
       {/* ── Main Scroll ── */}
-      <div id="pf-scroll-container" className="h-full overflow-y-auto animate-page-enter">
-        <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: "48px 64px 60px 196px" }}>
+      <div id="pf-scroll-container" className="h-full overflow-y-auto">
+        <div className="detail-content max-w-[1100px] mx-auto animate-page-enter" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ NEW</div>

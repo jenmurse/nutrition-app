@@ -293,8 +293,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-full">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto hm-bottom-pad animate-page-enter">
-
+      <div ref={scrollRef} className="flex-1 overflow-y-auto hm-bottom-pad">
+        <div className="animate-page-enter">
         {/* Hero — full-viewport greeting (compact on mobile via .hm-hero) */}
         <div key={`hero-${selectedPersonId}`} className="hm-hero">
           {/* Mobile chrome: logo + person switcher (hidden on desktop — top nav covers this) */}
@@ -666,6 +666,7 @@ function WeekOverview({
           </div>
         );
       })}
+        </div>
       </div>
     </div>
   );

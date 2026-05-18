@@ -371,7 +371,8 @@ function IngredientsPage() {
       )}
 
       {/* ── Content ── */}
-      <div className="list-scroll flex-1 overflow-y-auto animate-page-enter">
+      <div className="list-scroll flex-1 overflow-y-auto">
+        <div className="animate-page-enter" style={{ minHeight: "100%" }}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading ingredients...</div>
@@ -521,6 +522,7 @@ function IngredientsPage() {
             })}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

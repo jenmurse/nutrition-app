@@ -464,8 +464,8 @@ function AddMealInner() {
         ))}
       </div>
 
-      <div className="h-full overflow-y-auto animate-page-enter">
-      <div className="pl-add-body">
+      <div className="h-full overflow-y-auto">
+      <div className="pl-add-body animate-page-enter">
 
         {/* ── Mobile: animated Screen 1 ↔ Screen 2 ── */}
         <div className="sm:hidden overflow-x-hidden">

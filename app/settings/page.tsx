@@ -651,8 +651,8 @@ const SettingsPage = () => {
       </nav>
 
       {/* ─── Scrollable content ─── */}
-      <div id="settings-scroll-container" className="h-full overflow-y-auto animate-page-enter">
-        <div className="detail-content max-w-[1100px] mx-auto" style={{ padding: '0 64px 60px 196px' }}>
+      <div id="settings-scroll-container" className="h-full overflow-y-auto">
+        <div className="detail-content max-w-[1100px] mx-auto animate-page-enter" style={{ padding: '0 64px 60px 196px' }}>
 
           {/* Page header */}
           <div style={{ paddingTop: 48, marginBottom: 40 }}>
