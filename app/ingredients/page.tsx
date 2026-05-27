@@ -110,7 +110,7 @@ function IngredientsPage() {
   const [foodFilter, setFoodFilter] = useState<'all' | 'foods' | 'ingredients'>('all');
 
   // View mode
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Prevent browser navigation from leaving focus on first list item
   useEffect(() => {
