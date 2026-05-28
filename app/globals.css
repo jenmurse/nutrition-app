@@ -3284,6 +3284,18 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   /* ── Desktop top nav is hidden on mobile; mobile top bar (.mob-topbar) takes its place ── */
   .top-nav { display: none !important; }
 
+  /* ── Lock app shell to the visual viewport on iOS ──
+     dvh fluctuates as Safari's toolbar slides in/out, which corrupts scroll
+     container heights and causes the "stuck too high" bug. position:fixed;inset:0
+     always matches the currently-visible viewport (same strategy as onboarding).
+     height/width are unset so the fixed positioning drives sizing instead. */
+  .app-shell {
+    position: fixed;
+    inset: 0;
+    height: unset !important;
+    width: unset !important;
+  }
+
   /* ── Prevent content bleeding behind Safari toolbar ── */
   html, body { overscroll-behavior-y: none; }
   /* Marketing pages restore native scroll + pull-to-refresh */

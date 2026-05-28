@@ -106,7 +106,7 @@ export default function RootLayout({
           <NumberInputHandler />
           <Toaster />
           <ConfirmModal />
-          <div className="flex flex-col h-screen" style={{ height: '100dvh' }}>
+          <div className="app-shell flex flex-col h-screen" style={{ height: '100dvh' }}>
             <Suspense>
               <TopNav />
             </Suspense>
