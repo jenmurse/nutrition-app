@@ -16,6 +16,13 @@ type PendingResult = {
   nutrientUpdates: { nutrientId: number; value: number }[];
 };
 
+const CATEGORIES = [
+  "Produce", "Meat & Seafood", "Dairy & Eggs", "Grains, Pasta & Bread",
+  "Legumes", "Baking", "Nuts & Seeds", "Spices & Seasonings",
+  "Condiments & Sauces", "Oils & Fats", "Frozen", "Canned & Jarred",
+  "Beverages", "Alcohol", "Snacks",
+];
+
 interface CreateIngredientModalProps {
   ingredientName: string;
   ingredientId: number;
@@ -36,6 +43,7 @@ export default function CreateIngredientModal({
   const [fetchingFdcId, setFetchingFdcId] = useState<string | null>(null);
   const [tab, setTab] = useState<"search" | "manual">("search");
   const [manualNutrients, setManualNutrients] = useState<Record<number, string>>({});
+  const [category, setCategory] = useState("");
 
   // Confirmation step
   const [pending, setPending] = useState<PendingResult | null>(null);
@@ -53,11 +61,14 @@ export default function CreateIngredientModal({
       .catch((e) => { console.error(e); if (!cached) setNutrients([]); });
   }, []);
 
-  // Focus name field when confirm step appears
   useEffect(() => {
-    if (pending) {
-      setTimeout(() => nameInputRef.current?.select(), 50);
-    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (pending) setTimeout(() => nameInputRef.current?.select(), 50);
   }, [pending]);
 
   const handleUSDASearch = async () => {
@@ -87,7 +98,6 @@ export default function CreateIngredientModal({
     setDuplicateWarning(null);
 
     try {
-      // Check global ingredient cache + duplicate in parallel
       const [dupRes, globalRes] = await Promise.all([
         fetch(`/api/ingredients/by-fdc-id/${result.fdcId}`).catch(() => null),
         fetch(`/api/global-ingredients?fdcId=${result.fdcId}`),
@@ -96,15 +106,14 @@ export default function CreateIngredientModal({
       if (dupRes?.ok) {
         const dupData = await dupRes.json();
         if (dupData.found && dupData.ingredient.id !== ingredientId) {
-          setDuplicateWarning(`Note: "${dupData.ingredient.name}" already uses this USDA food.`);
+          setDuplicateWarning(`"${dupData.ingredient.name}" already uses this USDA food.`);
         }
       }
 
       const globalData = globalRes.ok ? await globalRes.json() : null;
 
       if (globalData) {
-        // Use global cache — no USDA API call needed
-        const updates = globalData.nutrients.map((gn: any) => ({
+        const updates = globalData.nutrients.map((gn: { nutrientId: number; value: number }) => ({
           nutrientId: gn.nutrientId,
           value: gn.value,
         }));
@@ -113,7 +122,6 @@ export default function CreateIngredientModal({
         return;
       }
 
-      // Not in global cache — fall back to USDA API
       const usdaRes = await fetch(`/api/usda/fetch/${result.fdcId}`);
       const data = await usdaRes.json();
       const foodNutrients = data.foodNutrients || [];
@@ -163,6 +171,7 @@ export default function CreateIngredientModal({
           name: confirmedName.trim(),
           nutrientValues: pending.nutrientUpdates,
           fdcId: String(pending.fdcId),
+          category,
         }),
       });
       const data = await res.json();
@@ -190,47 +199,142 @@ export default function CreateIngredientModal({
       const res = await fetch(`/api/ingredients/${ingredientId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nutrientValues: updates }),
+        body: JSON.stringify({ nutrientValues: updates, category }),
       });
       if (res.ok) { clientCache.invalidate("/api/ingredients"); onNutritionAdded?.(); onClose(); }
     } catch { toast.error("Failed to update ingredient"); }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-[var(--bg)] border border-[var(--rule)] p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-fade-in">
+  const handleSkip = async () => {
+    if (category) {
+      try {
+        await fetch(`/api/ingredients/${ingredientId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category }),
+        });
+        clientCache.invalidate("/api/ingredients");
+      } catch { /* non-blocking */ }
+    }
+    onClose();
+  };
 
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ci-title"
+      className="fixed inset-0 z-[10000] flex items-center justify-center"
+      style={{ background: "rgba(0,0,0,0.4)" }}
+      onClick={onClose}
+    >
+      <div
+        className="animate-fade-in"
+        style={{
+          background: "var(--bg)",
+          border: "1px solid var(--fg)",
+          borderRadius: 0,
+          width: "90%",
+          maxWidth: "560px",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          padding: "32px",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-sans text-[16px] text-[var(--fg)]">
-            {pending ? "Review & save ingredient" : `Add nutrition for: ${ingredientName}`}
+        <div className="flex items-start justify-between" style={{ marginBottom: "20px", gap: "16px" }}>
+          <h2
+            id="ci-title"
+            style={{
+              fontFamily: "var(--font-sans), sans-serif",
+              fontSize: "24px",
+              fontWeight: 700,
+              color: "var(--fg)",
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {pending ? "Review & save." : `Add nutrition for "${ingredientName}".`}
           </h2>
-          <button onClick={onClose} className="text-[var(--muted)] hover:text-[var(--fg)]" aria-label="Close">✕</button>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="bg-transparent border-0 cursor-pointer hover:opacity-70 transition-opacity"
+            style={{ color: "var(--muted)", fontSize: "16px", lineHeight: 1, padding: 0, marginTop: "4px" }}
+          >
+            ✕
+          </button>
         </div>
 
         {/* ── Confirmation step ── */}
         {pending ? (
-          <div className="space-y-5">
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             {duplicateWarning && (
-              <p className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--warning)]">{duplicateWarning}</p>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                  fontSize: "9px",
+                  fontWeight: 400,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                }}
+              >
+                Note — {duplicateWarning}
+              </p>
             )}
 
             {/* USDA source */}
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] mb-1">USDA source</div>
-              <p className="font-sans text-[13px] text-[var(--muted)]">{pending.usdaDescription}</p>
+              <div
+                style={{
+                  fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                  fontSize: "9px",
+                  fontWeight: 400,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: "6px",
+                }}
+              >
+                USDA source
+              </div>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans), sans-serif",
+                  fontSize: "13px",
+                  color: "var(--fg-2)",
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.6,
+                }}
+              >
+                {pending.usdaDescription}
+              </p>
             </div>
 
             {/* Editable name */}
             <div>
-              <label className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] mb-1 block" htmlFor="confirmed-name">
+              <label
+                htmlFor="confirmed-name"
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                  fontSize: "9px",
+                  fontWeight: 400,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: "8px",
+                }}
+              >
                 Save as
               </label>
               <input
                 id="confirmed-name"
                 ref={nameInputRef}
                 type="text"
-                className="w-full border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[16px] text-[var(--fg)] focus:outline-none focus:border-[var(--fg)]"
+                className="ed-input"
                 value={confirmedName}
                 onChange={(e) => setConfirmedName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleConfirmSave()}
@@ -238,17 +342,68 @@ export default function CreateIngredientModal({
               />
             </div>
 
+            {/* Category */}
+            <div>
+              <label
+                htmlFor="confirmed-category"
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                  fontSize: "9px",
+                  fontWeight: 400,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: "8px",
+                }}
+              >
+                Category
+              </label>
+              <select
+                id="confirmed-category"
+                className="ed-select"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                aria-label="Ingredient category"
+                style={{ width: "100%" }}
+              >
+                <option value="">Uncategorized</option>
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
             {/* Nutrient preview */}
             {pending.nutrientUpdates.length > 0 && (
               <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] mb-2">Nutrition per 100g</div>
-                <div className="flex flex-wrap gap-3">
+                <div
+                  style={{
+                    fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                    fontSize: "9px",
+                    fontWeight: 400,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "var(--muted)",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Nutrition per 100g
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 16px" }}>
                   {pending.nutrientUpdates.map((u) => {
                     const n = nutrients.find((x) => x.id === u.nutrientId);
                     if (!n) return null;
                     return (
-                      <div key={u.nutrientId} className="font-mono text-[11px] text-[var(--fg)]">
-                        <span className="text-[var(--muted)]">{n.displayName} </span>{Math.round(u.value * 10) / 10}{n.unit}
+                      <div
+                        key={u.nutrientId}
+                        style={{
+                          fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                          fontSize: "11px",
+                          color: "var(--fg)",
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        <span style={{ color: "var(--muted)", textTransform: "uppercase" }}>{n.displayName} </span>
+                        {Math.round(u.value * 10) / 10}{n.unit}
                       </div>
                     );
                   })}
@@ -257,73 +412,100 @@ export default function CreateIngredientModal({
             )}
 
             {/* Actions */}
-            <div className="flex items-center gap-3 pt-2 border-t border-[var(--rule)]">
-              <button
-                onClick={() => { setPending(null); setDuplicateWarning(null); }}
-                className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors"
-              >
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "16px", borderTop: "1px solid var(--rule)" }}>
+              <button onClick={() => { setPending(null); setDuplicateWarning(null); }} className="ed-btn ghost">
                 ← Back
               </button>
-              <div className="flex-1" />
-              <button
-                onClick={onClose}
-                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-              >
-                Skip
-              </button>
-              <button
-                onClick={handleConfirmSave}
-                disabled={saving || !confirmedName.trim()}
-                className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] cursor-pointer disabled:opacity-40 transition-colors"
-              >
-                {saving ? "Saving…" : "Save ingredient"}
+              <div style={{ flex: 1 }} />
+              <button onClick={handleSkip} className="ed-btn">Skip</button>
+              <button onClick={handleConfirmSave} disabled={saving || !confirmedName.trim()} className="ed-btn primary">
+                {saving ? "Saving…" : "Save"}
               </button>
             </div>
           </div>
         ) : (
-          <>
-            {/* Tabs */}
-            <div className="flex gap-2 mb-4 border-b border-[var(--rule)]">
-              {(["search", "manual"] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTab(t)}
-                  style={{ borderRadius: 0 }}
-                  className={`px-4 py-2 font-mono text-[9px] uppercase tracking-[0.06em] border-b-2 transition ${
-                    tab === t
-                      ? "border-[var(--accent)] text-[var(--fg)]"
-                      : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
-                  }`}
-                >
-                  {t === "search" ? "USDA Search" : "Manual Entry"}
-                </button>
-              ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {/* Category — surfaced up front so it isn't forgotten */}
+            <div>
+              <label
+                htmlFor="ci-category"
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                  fontSize: "9px",
+                  fontWeight: 400,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: "8px",
+                }}
+              >
+                Category
+              </label>
+              <select
+                id="ci-category"
+                className="ed-select"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                aria-label="Ingredient category"
+                style={{ width: "100%" }}
+              >
+                <option value="">Uncategorized</option>
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            {/* Tabs — ink underline (active toggle convention §11) */}
+            <div style={{ display: "flex", gap: "20px", borderBottom: "1px solid var(--rule)" }}>
+              {(["search", "manual"] as const).map((t) => {
+                const active = tab === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setTab(t)}
+                    style={{
+                      fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
+                      fontSize: "9px",
+                      fontWeight: 400,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      background: "none",
+                      border: "none",
+                      borderBottom: `1.5px solid ${active ? "var(--fg)" : "transparent"}`,
+                      color: active ? "var(--fg)" : "var(--muted)",
+                      paddingBottom: "10px",
+                      marginBottom: "-1px",
+                      cursor: "pointer",
+                      transition: "color 120ms var(--ease-out)",
+                    }}
+                  >
+                    {t === "search" ? "USDA Search" : "Manual Entry"}
+                  </button>
+                );
+              })}
             </div>
 
             {/* USDA Search Tab */}
             {tab === "search" && (
-              <div className="space-y-4">
-                <div className="flex gap-2">
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
                   <input
                     type="text"
-                    className="flex-1 border-b border-[var(--rule)] bg-transparent px-0 py-[6px] text-[13px] text-[var(--fg)] rounded-none focus:outline-none focus:border-[var(--fg)]"
+                    className="ed-input"
+                    style={{ flex: 1 }}
                     placeholder="Search USDA database…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleUSDASearch()}
                     autoFocus
                   />
-                  <button
-                    onClick={handleUSDASearch}
-                    disabled={searching}
-                    className="px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
-                  >
+                  <button onClick={handleUSDASearch} disabled={searching} className="ed-btn">
                     {searching ? "Searching…" : "Search"}
                   </button>
                 </div>
 
                 {searchResults.length > 0 && (
-                  <div className="space-y-[2px] max-h-80 overflow-y-auto border border-[var(--rule)]">
+                  <div style={{ maxHeight: "320px", overflowY: "auto", border: "1px solid var(--rule)" }}>
                     {searchResults.map((result) => {
                       const isLoading = fetchingFdcId === result.fdcId;
                       return (
@@ -331,22 +513,30 @@ export default function CreateIngredientModal({
                           key={result.fdcId}
                           role="button"
                           tabIndex={0}
-                          className={`px-3 py-[10px] border-b border-[var(--rule)] transition ${
-                            fetchingFdcId
-                              ? isLoading
-                                ? "bg-[var(--bg-subtle)] cursor-wait"
-                                : "opacity-40 cursor-not-allowed"
-                              : "hover:bg-[var(--bg-subtle)] cursor-pointer"
-                          }`}
                           onClick={() => handleSelectResult(result)}
                           onKeyDown={(e) => e.key === "Enter" && handleSelectResult(result)}
+                          style={{
+                            padding: "12px 14px",
+                            borderBottom: "1px solid var(--rule)",
+                            cursor: fetchingFdcId ? (isLoading ? "wait" : "not-allowed") : "pointer",
+                            opacity: fetchingFdcId && !isLoading ? 0.4 : 1,
+                            transition: "background 120ms var(--ease-out)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "12px",
+                          }}
+                          onMouseEnter={(e) => { if (!fetchingFdcId) e.currentTarget.style.background = "var(--bg-2)"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                         >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-sans text-[13px] text-[var(--fg)]">{result.description}</span>
-                            {isLoading && (
-                              <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--muted)] shrink-0">Loading…</span>
-                            )}
-                          </div>
+                          <span style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: "13px", letterSpacing: "-0.03em", color: "var(--fg)" }}>
+                            {result.description}
+                          </span>
+                          {isLoading && (
+                            <span style={{ fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", flexShrink: 0 }}>
+                              Loading…
+                            </span>
+                          )}
                         </div>
                       );
                     })}
@@ -354,28 +544,37 @@ export default function CreateIngredientModal({
                 )}
 
                 {!searching && searchResults.length === 0 && searchQuery !== ingredientName && (
-                  <p className="font-sans text-[13px] text-[var(--muted)]">No results. Try a different term.</p>
+                  <p style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: "13px", color: "var(--muted)", letterSpacing: "-0.03em" }}>
+                    No results. Try a different term.
+                  </p>
                 )}
               </div>
             )}
 
             {/* Manual Entry Tab */}
             {tab === "manual" && (
-              <div className="space-y-4">
-                <p className="font-sans text-[13px] text-[var(--muted)]">Enter nutrition values per 100g:</p>
-                <div className="space-y-2 max-h-80 overflow-y-auto">
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <p style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: "13px", color: "var(--fg-2)", letterSpacing: "-0.03em" }}>
+                  Enter nutrition values per 100g.
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "320px", overflowY: "auto" }}>
                   {nutrients.map((nutrient) => (
-                    <div key={nutrient.id} className="flex items-center gap-3">
-                      <label className="flex-1 font-sans text-[13px] text-[var(--fg)]">{nutrient.displayName}</label>
+                    <div key={nutrient.id} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <label style={{ flex: 1, fontFamily: "var(--font-sans), sans-serif", fontSize: "13px", letterSpacing: "-0.03em", color: "var(--fg)" }}>
+                        {nutrient.displayName}
+                      </label>
                       <input
                         type="text"
                         inputMode="decimal"
                         placeholder="0"
-                        className="w-24 border-b border-[var(--rule)] bg-transparent px-0 py-[4px] text-[13px] text-[var(--fg)] text-right focus:outline-none focus:border-[var(--fg)]"
+                        className="ed-input"
+                        style={{ width: "96px", textAlign: "right" }}
                         value={manualNutrients[nutrient.id] ?? ""}
                         onChange={(e) => setManualNutrients({ ...manualNutrients, [nutrient.id]: e.target.value })}
                       />
-                      <span className="w-10 font-mono text-[11px] text-[var(--muted)] text-right">{nutrient.unit}</span>
+                      <span style={{ width: "32px", fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace", fontSize: "11px", color: "var(--muted)", textAlign: "right" }}>
+                        {nutrient.unit}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -383,23 +582,13 @@ export default function CreateIngredientModal({
             )}
 
             {/* Actions */}
-            <div className="flex gap-2 mt-6 pt-4 border-t border-[var(--rule)]">
-              <button
-                onClick={onClose}
-                className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--rule)] bg-[var(--bg-raised)] text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)] hover:border-[var(--rule-strong)] cursor-pointer transition-colors"
-              >
-                Skip for now
-              </button>
+            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "10px", paddingTop: "16px", borderTop: "1px solid var(--rule)" }}>
+              <button onClick={handleSkip} className="ed-btn">Skip for now</button>
               {tab === "manual" && (
-                <button
-                  onClick={handleManualSave}
-                  className="flex-1 px-4 py-[7px] font-mono text-[9px] uppercase tracking-[0.06em] border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] cursor-pointer transition-colors"
-                >
-                  Save nutrition
-                </button>
+                <button onClick={handleManualSave} className="ed-btn primary">Save nutrition</button>
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
