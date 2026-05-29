@@ -735,14 +735,21 @@ input[type="number"]:focus {
   text-wrap: balance;
   margin: 0;
 }
+.recipe-grid-item__cat-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
 .recipe-grid-item__cat {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--muted);
-  margin-bottom: 6px;
 }
+.recipe-grid-item__cat-row .ghost-eyebrow { margin-bottom: 0; }
 .recipe-grid-item__name {
   font-family: var(--sans);
   font-size: 20px;
@@ -958,6 +965,13 @@ input[type="number"]:focus {
 }
 .pantry-item:hover::after { transform: scaleX(1); }
 
+.pantry-item__cat-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
 .pantry-item__cat {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
@@ -965,7 +979,32 @@ input[type="number"]:focus {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--muted);
-  margin-bottom: 6px;
+}
+
+/* Inline favorite glyph — shared across recipe + pantry index views.
+   13px DM Mono, muted when off, ink when on. Baseline-aligned with the
+   eyebrow text via parent's `align-items: baseline`. */
+.fav-glyph {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  background: none;
+  border: 0;
+  padding: 0 2px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 120ms var(--ease-out);
+}
+.fav-glyph:hover { color: var(--fg); }
+.fav-glyph[aria-pressed="true"] { color: var(--fg); }
+/* Expand hit target without changing layout */
+.fav-glyph { position: relative; }
+.fav-glyph::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
 }
 .pantry-item__name {
   font-family: var(--sans);

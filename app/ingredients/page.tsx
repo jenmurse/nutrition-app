@@ -24,6 +24,7 @@ type Ingredient = {
   customUnitGrams?: number | null;
   isMealItem?: boolean;
   category?: string;
+  isFavorited?: boolean;
   nutrientValues: NutrientValue[];
 };
 
@@ -108,6 +109,7 @@ function IngredientsPage() {
   // Filters
   const searchQuery = searchParams?.get("search") || "";
   const [foodFilter, setFoodFilter] = useState<'all' | 'foods' | 'ingredients'>('all');
+  const [showFavorites, setShowFavorites] = useState(false);
 
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -216,10 +218,29 @@ function IngredientsPage() {
     if (searchQuery && !ing.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (foodFilter === 'foods' && !ing.isMealItem) return false;
     if (foodFilter === 'ingredients' && ing.isMealItem) return false;
+    if (showFavorites && !ing.isFavorited) return false;
     return true;
   });
 
   const sortedIngredients = [...filteredIngredients].sort((a, b) => a.name.localeCompare(b.name));
+
+  async function toggleFavorite(ingredient: Ingredient) {
+    const next = !ingredient.isFavorited;
+    // optimistic
+    setIngredients((prev) => prev.map((i) => i.id === ingredient.id ? { ...i, isFavorited: next } : i));
+    const optimistic = ingredients.map((i) => i.id === ingredient.id ? { ...i, isFavorited: next } : i);
+    clientCache.set("/api/ingredients", optimistic);
+    try {
+      const res = await fetch(`/api/ingredients/${ingredient.id}/favorite`, { method: next ? "POST" : "DELETE" });
+      if (!res.ok) throw new Error("Failed");
+    } catch {
+      // revert
+      setIngredients((prev) => prev.map((i) => i.id === ingredient.id ? { ...i, isFavorited: !next } : i));
+      const reverted = ingredients.map((i) => i.id === ingredient.id ? { ...i, isFavorited: !next } : i);
+      clientCache.set("/api/ingredients", reverted);
+      toast.error("Could not update favorite");
+    }
+  }
 
   async function handleDelete(ingredient: Ingredient) {
     if (!await dialog.confirm({ title: `Delete "${ingredient.name}"?`, body: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
@@ -289,6 +310,15 @@ function IngredientsPage() {
             aria-label="Show only ingredients"
             aria-pressed={foodFilter === 'ingredients'}
           >Ingredients</button>
+          <button
+            onClick={() => setShowFavorites(prev => !prev)}
+            className={`ed-chip flex items-center gap-[5px]${showFavorites ? " is-active" : ""}`}
+            aria-label="Show only favorites"
+            aria-pressed={showFavorites}
+          >
+            <span aria-hidden="true">★</span>
+            Favorites
+          </button>
           </div>
 
           {/* Right side controls */}
@@ -446,7 +476,16 @@ function IngredientsPage() {
                     </button>
                   </div>
 
-                  <div className="pantry-item__cat">{category}</div>
+                  <div className="pantry-item__cat-row">
+                    <div className="pantry-item__cat">{category}</div>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(ingredient); }}
+                      className="fav-glyph"
+                      aria-label={ingredient.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                      aria-pressed={!!ingredient.isFavorited}
+                    >{ingredient.isFavorited ? "★" : "☆"}</button>
+                  </div>
                   <h3 className="pantry-item__name">{ingredient.name}</h3>
                   <div className="pantry-item__unit">{unitContext}</div>
                   <dl className="pantry-item__nut">
@@ -485,6 +524,13 @@ function IngredientsPage() {
                   <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
                     <span className="ing-list-name">{ingredient.name}</span>
                     <span className="ing-list-category font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] shrink-0">{category}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(ingredient); }}
+                      className="fav-glyph shrink-0"
+                      aria-label={ingredient.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                      aria-pressed={!!ingredient.isFavorited}
+                    >{ingredient.isFavorited ? "★" : "☆"}</button>
                   </div>
                   {/* Macros — all nutrients, right-aligned */}
                   {macros && (

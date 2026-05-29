@@ -7,12 +7,18 @@ type Ctx = { params: Promise<{ id: string }> };
 export const GET = withAuth(async (auth, _request: Request, { params }: Ctx) => {
   const { id } = await params;
   const numId = Number(id);
-  const ingredient = await prisma.ingredient.findFirst({
-    where: { id: numId, householdId: auth.householdId },
-    include: { nutrientValues: { include: { nutrient: true } } },
-  });
+  const [ingredient, favoriteRow] = await Promise.all([
+    prisma.ingredient.findFirst({
+      where: { id: numId, householdId: auth.householdId },
+      include: { nutrientValues: { include: { nutrient: true } } },
+    }),
+    prisma.ingredientFavorite.findUnique({
+      where: { ingredientId_personId: { ingredientId: numId, personId: auth.personId } },
+      select: { id: true },
+    }),
+  ]);
   if (!ingredient) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(ingredient);
+  return NextResponse.json({ ...ingredient, isFavorited: !!favoriteRow });
 }, "Failed to fetch ingredient");
 
 export const PUT = withAuth(async (auth, request: Request, { params }: Ctx) => {

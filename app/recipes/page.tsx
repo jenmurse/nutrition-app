@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
+import { toast } from "@/lib/toast";
 import EmptyState from "@/app/components/EmptyState";
 
 type RecipeSummary = {
@@ -285,6 +286,24 @@ function RecipesPage() {
     const match = recipe.totals.find(t => t.displayName === nutrient);
     return match?.value ?? 0;
   };
+
+  async function toggleFavorite(recipe: RecipeSummary) {
+    const next = !recipe.isFavorited;
+    setRecipes((prev) => prev.map((r) => r.id === recipe.id ? { ...r, isFavorited: next } : r));
+    const optimistic = recipes.map((r) => r.id === recipe.id ? { ...r, isFavorited: next } : r);
+    clientCache.set("/api/recipes", optimistic);
+    clientCache.set("/api/recipes?slim=true", optimistic);
+    try {
+      const res = await fetch(`/api/recipes/${recipe.id}/favorite`, { method: next ? "POST" : "DELETE" });
+      if (!res.ok) throw new Error("Failed");
+    } catch {
+      setRecipes((prev) => prev.map((r) => r.id === recipe.id ? { ...r, isFavorited: !next } : r));
+      const reverted = recipes.map((r) => r.id === recipe.id ? { ...r, isFavorited: !next } : r);
+      clientCache.set("/api/recipes", reverted);
+      clientCache.set("/api/recipes?slim=true", reverted);
+      toast.error("Could not update favorite");
+    }
+  }
 
   const filteredRecipes = recipes.filter((recipe) => {
     if (showFavorites && !recipe.isFavorited) return false;
@@ -763,7 +782,16 @@ function RecipesPage() {
                           </div>
                         )}
                       </div>
-                      {category && <div className="recipe-grid-item__cat">{category}</div>}
+                      <div className="recipe-grid-item__cat-row">
+                        {category ? <div className="recipe-grid-item__cat">{category}</div> : <span />}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(recipe); }}
+                          className="fav-glyph"
+                          aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                          aria-pressed={!!recipe.isFavorited}
+                        >{recipe.isFavorited ? "★" : "☆"}</button>
+                      </div>
                       <h3 className="recipe-grid-item__name">{recipe.name}</h3>
                     </>
                   ) : (
@@ -774,7 +802,16 @@ function RecipesPage() {
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                       )}
-                      {category && <div className="ghost-eyebrow">{category}</div>}
+                      <div className="recipe-grid-item__cat-row">
+                        {category ? <div className="ghost-eyebrow">{category}</div> : <span />}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(recipe); }}
+                          className="fav-glyph"
+                          aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                          aria-pressed={!!recipe.isFavorited}
+                        >{recipe.isFavorited ? "★" : "☆"}</button>
+                      </div>
                       <h3 className="ghost-name">{recipe.name}</h3>
                     </>
                   )}
@@ -817,6 +854,13 @@ function RecipesPage() {
                       {recipe.name}
                                           </span>
                     {category && <span className="recipe-list-row__cat">{category}</span>}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(recipe); }}
+                      className="fav-glyph shrink-0"
+                      aria-label={recipe.isFavorited ? "Remove from favorites" : "Add to favorites"}
+                      aria-pressed={!!recipe.isFavorited}
+                    >{recipe.isFavorited ? "★" : "☆"}</button>
                     {recipe.isComplete === false && (
                       <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--warn)] flex-shrink-0">incomplete</span>
                     )}

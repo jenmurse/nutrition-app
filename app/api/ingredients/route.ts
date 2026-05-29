@@ -5,18 +5,26 @@ import { withAuth } from "@/lib/apiUtils";
 export const GET = withAuth(async (auth, request: Request) => {
   const slim = new URL(request.url).searchParams.get("slim") === "true";
 
-  const ingredients = await prisma.ingredient.findMany({
-    where: { householdId: auth.householdId },
-    ...(!slim && {
-      include: {
-        nutrientValues: {
-          include: { nutrient: true },
+  const [ingredients, favoriteRows] = await Promise.all([
+    prisma.ingredient.findMany({
+      where: { householdId: auth.householdId },
+      ...(!slim && {
+        include: {
+          nutrientValues: {
+            include: { nutrient: true },
+          },
         },
-      },
+      }),
+      orderBy: { name: "asc" },
     }),
-    orderBy: { name: "asc" },
-  });
-  return NextResponse.json(ingredients);
+    prisma.ingredientFavorite.findMany({
+      where: { personId: auth.personId },
+      select: { ingredientId: true },
+    }),
+  ]);
+
+  const favoriteSet = new Set(favoriteRows.map((f) => f.ingredientId));
+  return NextResponse.json(ingredients.map((i) => ({ ...i, isFavorited: favoriteSet.has(i.id) })));
 }, "Failed to fetch ingredients");
 
 export const POST = withAuth(async (auth, request: Request) => {

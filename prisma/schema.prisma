@@ -44,6 +44,7 @@ model Person {
   createdInvites       HouseholdInvite[] @relation("InviteCreator")
   invitesForMe         HouseholdInvite[] @relation("InviteTarget")
   recipeFavorites      RecipeFavorite[]
+  ingredientFavorites  IngredientFavorite[]
 }
 
 // Household groups people together; all data is scoped to a household
@@ -121,9 +122,24 @@ model Ingredient {
   nutrientValues    IngredientNutrient[]
   recipeIngredients RecipeIngredient[]
   mealLogs          MealLog[]
+  favorites         IngredientFavorite[]
 
   @@unique([name, householdId])
   @@index([householdId])
+}
+
+// Person favorites for pantry items (person-scoped, mirrors RecipeFavorite)
+model IngredientFavorite {
+  id           Int      @id @default(autoincrement())
+  ingredientId Int
+  personId     Int
+  createdAt    DateTime @default(now())
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  person     Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, personId])
+  @@index([personId])
 }
 
 // Junction table: Ingredients to Nutrients (per 100g)

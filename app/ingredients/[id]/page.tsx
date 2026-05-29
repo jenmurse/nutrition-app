@@ -125,6 +125,7 @@ export default function IngredientDetailPage() {
   const [editSpecifiedUnit, setEditSpecifiedUnit] = useState("g");
   const [editValues, setEditValues] = useState<Record<number, number>>({});
   const [saving, setSaving] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   // USDA
   const [usdaLookupQuery, setUsdaLookupQuery] = useState("");
@@ -198,6 +199,26 @@ export default function IngredientDetailPage() {
       })
       .catch(console.error);
   }, []);
+
+  /* ── Sync favorited state ── */
+  useEffect(() => {
+    if (ingredient) setIsFavorited(!!(ingredient as Ingredient & { isFavorited?: boolean }).isFavorited);
+  }, [ingredient]);
+
+  const toggleFavorite = async () => {
+    if (!ingredient) return;
+    const next = !isFavorited;
+    setIsFavorited(next);
+    try {
+      const res = await fetch(`/api/ingredients/${ingredient.id}/favorite`, { method: next ? "POST" : "DELETE" });
+      if (!res.ok) { setIsFavorited(!next); return; }
+      clientCache.delete("/api/ingredients");
+      const cached = clientCache.get<Ingredient & { isFavorited?: boolean }>(`/api/ingredients/${ingredient.id}`);
+      if (cached) clientCache.set(`/api/ingredients/${ingredient.id}`, { ...cached, isFavorited: next });
+    } catch {
+      setIsFavorited(!next);
+    }
+  };
 
   /* ── Initialize form when ingredient loads ── */
   useEffect(() => {
@@ -590,6 +611,16 @@ export default function IngredientDetailPage() {
           <div style={{ marginBottom: 32 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ EDIT</div>
             <h1 className="form-title">Edit this pantry item.</h1>
+            <button
+              type="button"
+              onClick={toggleFavorite}
+              className={`rcp-fav-btn favorite-btn${isFavorited ? " is-on" : ""}`}
+              aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+              aria-pressed={isFavorited}
+              style={{ marginTop: 16 }}
+            >
+              {isFavorited ? <>★ FAVORITED<span className="favorite-remove"> · REMOVE</span></> : "ADD TO FAVORITES"}
+            </button>
           </div>
 
           {/* Import row — optional USDA shortcut, unnumbered */}
