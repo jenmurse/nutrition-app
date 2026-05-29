@@ -1041,31 +1041,8 @@ const MealPlansPage = () => {
               )}
             </div>
           ))}
-          <button
-            className="ed-btn-primary"
-            onClick={() => {
-              setPlanJustCreated(false);
-              const existingStarts = mealPlans.map(p => parseUTCDate(p.weekStartDate).getTime()).sort((a,b) => b-a);
-              const latestStart = existingStarts.length > 0 ? new Date(existingStarts[0]) : null;
-              const today = new Date(); today.setHours(0,0,0,0);
-              const thisSunday = new Date(today); thisSunday.setDate(today.getDate() - today.getDay());
-              const nextSunday = latestStart && latestStart >= thisSunday
-                ? new Date(latestStart.getTime() + 7 * 86400000)
-                : thisSunday;
-              setNewWeekStartDate(nextSunday.toISOString().slice(0, 10));
-              const params = new URLSearchParams(searchParams?.toString());
-              params.set("showForm", "true");
-              router.push(`/meal-plans?${params.toString()}`);
-            }}
-            aria-label="New plan"
-          >+ NEW PLAN</button>
-        </div>
-
-        {/* Row 2: edit controls — only when a plan is selected */}
-        {selectedPlan && viewMode === 'personal' && (
-          <div className="pl-toolbar-row">
-            <span className="pl-toolbar-spacer" />
-            {!editMode ? (
+          {selectedPlan && viewMode === 'personal' && (
+            !editMode ? (
               <button
                 className="ed-btn-text"
                 onClick={() => setEditMode(true)}
@@ -1086,9 +1063,27 @@ const MealPlansPage = () => {
                   aria-label="Done editing"
                 >DONE</button>
               </>
-            )}
-          </div>
-        )}
+            )
+          )}
+          <button
+            className="ed-btn-primary"
+            onClick={() => {
+              setPlanJustCreated(false);
+              const existingStarts = mealPlans.map(p => parseUTCDate(p.weekStartDate).getTime()).sort((a,b) => b-a);
+              const latestStart = existingStarts.length > 0 ? new Date(existingStarts[0]) : null;
+              const today = new Date(); today.setHours(0,0,0,0);
+              const thisSunday = new Date(today); thisSunday.setDate(today.getDate() - today.getDay());
+              const nextSunday = latestStart && latestStart >= thisSunday
+                ? new Date(latestStart.getTime() + 7 * 86400000)
+                : thisSunday;
+              setNewWeekStartDate(nextSunday.toISOString().slice(0, 10));
+              const params = new URLSearchParams(searchParams?.toString());
+              params.set("showForm", "true");
+              router.push(`/meal-plans?${params.toString()}`);
+            }}
+            aria-label="New plan"
+          >+ NEW PLAN</button>
+        </div>
       </div>
 
       {/* Inline create-plan row */}
