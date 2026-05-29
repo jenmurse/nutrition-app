@@ -62,9 +62,8 @@ const CATEGORIES = [
 /* ── Jump Sections ── */
 
 const JUMP_SECTIONS = [
-  { id: "pf-sec-lookup", n: "01", label: "Lookup" },
-  { id: "pf-sec-details", n: "02", label: "Details" },
-  { id: "pf-sec-nutrition", n: "03", label: "Nutrition" },
+  { id: "pf-sec-details", n: "01", label: "Details" },
+  { id: "pf-sec-nutrition", n: "02", label: "Nutrition" },
 ];
 
 /* ── Page ── */
@@ -330,15 +329,10 @@ export default function CreateIngredientPage() {
             <h1 className="form-title">A new pantry item.</h1>
           </div>
 
-          {/* ── 01 Lookup ── */}
-          <div id="pf-sec-lookup" style={{ marginTop: 64 }}>
-            <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">01</span>
-              <span className="section-label">Lookup</span>
-              <div className="flex-1 h-px bg-[var(--rule)]" />
-            </div>
-
-            <div className="flex gap-[10px] items-end" style={{ marginBottom: 10 }}>
+          {/* Import row — optional USDA shortcut, unnumbered (matches recipe import pattern) */}
+          <div style={{ marginBottom: 64 }}>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[10px]">USDA Lookup</div>
+            <div className="flex gap-[10px] items-end">
               <div className="ed-field flex-1" style={{ marginBottom: 0 }}>
                 <input
                   className="ed-input"
@@ -349,20 +343,13 @@ export default function CreateIngredientPage() {
                   aria-label="USDA search"
                 />
               </div>
-              <button className="ed-btn" onClick={handleUsdaLookupClick} aria-label="USDA Lookup">USDA Lookup</button>
+              <button className="ed-btn" onClick={handleUsdaLookupClick} aria-label="USDA Lookup">
+                {usdaLoading ? "Searching…" : "Lookup"}
+              </button>
             </div>
 
-            <ContextualTip tipId="usda-search" label="About the USDA database">
-              Search 300,000+ foods from the USDA national database. Results include
-              branded products and generic entries. Selecting one fills in the nutrition
-              values automatically. You can always edit them at any time.
-            </ContextualTip>
-
-            {usdaLoading && (
-              <p className="text-[11px] text-[var(--muted)] mt-2">Searching USDA...</p>
-            )}
             {usdaResults.length > 0 && (
-              <div className="max-h-[200px] overflow-y-auto mt-[10px]">
+              <div className="max-h-[200px] overflow-y-auto mt-[10px] border border-[var(--rule)]">
                 {usdaResults.map((food: any) => (
                   <button
                     key={food.fdcId}
@@ -376,18 +363,28 @@ export default function CreateIngredientPage() {
               </div>
             )}
 
-            {usdaSelected && (
-              <p className="text-[11px] text-[var(--accent)] mt-2">Data imported from USDA FDC</p>
-            )}
+            <div style={{ marginTop: 12 }}>
+              <ContextualTip tipId="usda-search" label="About the USDA database">
+                Search 300,000+ foods from the USDA national database. Results include
+                branded products and generic entries. Selecting one fills in the nutrition
+                values automatically. You can always edit them at any time.
+              </ContextualTip>
+            </div>
           </div>
 
-          {/* ── 02 Details ── */}
-          <div id="pf-sec-details" style={{ marginTop: 64 }}>
+          {/* ── 01 Details ── */}
+          <div id="pf-sec-details">
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">02</span>
+              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">01</span>
               <span className="section-label">Details</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
+
+            {usdaSelected && (
+              <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]" style={{ marginBottom: 24 }}>
+                § Imported — {usdaSelected.description}
+              </div>
+            )}
 
             <div className="ed-row" style={{ marginBottom: 20 }}>
               <div className="ed-field" style={{ flex: 2 }}>
@@ -489,10 +486,10 @@ export default function CreateIngredientPage() {
             </div>
           </div>
 
-          {/* ── 03 Nutrition ── */}
+          {/* ── 02 Nutrition ── */}
           <div id="pf-sec-nutrition" style={{ marginTop: 64 }}>
             <div className="flex items-baseline gap-3" style={{ marginBottom: 32 }}>
-              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">03</span>
+              <span className="font-mono text-[13px] font-semibold text-[var(--rule)]">02</span>
               <span className="section-label">Nutrition</span>
               <div className="flex-1 h-px bg-[var(--rule)]" />
             </div>
