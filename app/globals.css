@@ -968,9 +968,10 @@ input[type="number"]:focus {
 .pantry-item__cat-row {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 6px;
+  /* Star sits just after the category text on the left — keeps top-right clear
+     for the hover edit/delete affordances. */
 }
 .pantry-item__cat {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;

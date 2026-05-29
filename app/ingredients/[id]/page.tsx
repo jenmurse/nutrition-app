@@ -608,7 +608,7 @@ export default function IngredientDetailPage() {
       <div id="pf-scroll-container" className="h-full overflow-y-auto">
         <div className="detail-content max-w-[1100px] mx-auto animate-page-enter" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 56 }}>
             <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ EDIT</div>
             <h1 className="form-title">Edit this pantry item.</h1>
             <button
@@ -617,7 +617,7 @@ export default function IngredientDetailPage() {
               className={`rcp-fav-btn favorite-btn${isFavorited ? " is-on" : ""}`}
               aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
               aria-pressed={isFavorited}
-              style={{ marginTop: 16 }}
+              style={{ marginTop: 20 }}
             >
               {isFavorited ? <>★ FAVORITED<span className="favorite-remove"> · REMOVE</span></> : "ADD TO FAVORITES"}
             </button>
