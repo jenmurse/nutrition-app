@@ -63,7 +63,6 @@ function buildDraft(data: any, source: string): ImportDraft {
 
 export default function CreateRecipePage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [importedRecipe, setImportedRecipe] = useState<ImportDraft | null>(null);
   const [importUrl, setImportUrl] = useState("");
@@ -109,27 +108,6 @@ export default function CreateRecipePage() {
       jumpNavLocked.current = true;
       container.scrollTo({ top: el.offsetTop - 64, behavior: "smooth" });
       setTimeout(() => { jumpNavLocked.current = false; }, 800);
-    }
-  };
-
-  const handleFileImport = async (file: File) => {
-    setImporting(true);
-    setImportError("");
-    try {
-      const markdown = await file.text();
-      const res = await fetch("/api/recipes/import/pestle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Import failed");
-      setImportedRecipe(buildDraft(data, data.sourceApp || "Markdown Import"));
-    } catch (error: any) {
-      console.error(error);
-      setImportError(error.message || "Failed to import recipe");
-    } finally {
-      setImporting(false);
     }
   };
 
@@ -208,19 +186,6 @@ export default function CreateRecipePage() {
                 </div>
                 <button className="ed-btn" onClick={handleUrlImport} disabled={importing || !importUrl.trim()} aria-label="Import from URL">
                   {importing ? "Importing…" : "Import"}
-                </button>
-                <span className="font-mono text-[9px] text-[var(--muted)]" style={{ padding: "0 4px" }}>or</span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".md,text/markdown"
-                  onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFileImport(file); }}
-                  disabled={importing}
-                  className="sr-only"
-                  aria-label="Upload markdown file"
-                />
-                <button className="ed-btn" onClick={() => fileInputRef.current?.click()} disabled={importing} aria-label="Upload file">
-                  Upload File
                 </button>
               </div>
               {importError && (
