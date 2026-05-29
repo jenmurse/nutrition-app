@@ -237,13 +237,13 @@ export default function CreateIngredientModal({
           width: "90%",
           maxWidth: "560px",
           maxHeight: "90vh",
-          overflowY: "auto",
-          padding: "32px",
+          display: "flex",
+          flexDirection: "column",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between" style={{ marginBottom: "20px", gap: "16px" }}>
+        <div className="flex items-start justify-between" style={{ padding: "28px 32px 20px", gap: "16px", flexShrink: 0 }}>
           <h2
             id="ci-title"
             style={{
@@ -269,7 +269,7 @@ export default function CreateIngredientModal({
 
         {/* ── Confirmation step ── */}
         {pending ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "0 32px 28px", overflowY: "auto", flex: "1 1 auto", minHeight: 0 }}>
             {duplicateWarning && (
               <p
                 style={{
@@ -424,7 +424,7 @@ export default function CreateIngredientModal({
             </div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "0 32px 28px", overflowY: "auto", flex: "1 1 auto", minHeight: 0 }}>
             {/* Category — surfaced up front so it isn't forgotten */}
             <div>
               <label

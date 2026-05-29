@@ -371,13 +371,14 @@ function IngredientsPage() {
       )}
 
       {/* ── Content ── */}
-      <div className="list-scroll flex-1 overflow-y-auto">
-        <div className="animate-page-enter" style={{ minHeight: "100%" }}>
-        {loading ? (
-          <div className="flex items-center justify-center" style={{ minHeight: "100%" }}>
+      <div className="list-scroll flex-1 overflow-y-auto relative">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center">
             <div className="font-mono text-[13px] font-normal text-[var(--muted)] animate-loading">Loading ingredients...</div>
           </div>
-        ) : sortedIngredients.length === 0 ? (
+        )}
+        <div className="animate-page-enter" style={{ minHeight: "100%" }}>
+        {loading ? null : sortedIngredients.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             {ingredients.length === 0 ? (
               <EmptyState
