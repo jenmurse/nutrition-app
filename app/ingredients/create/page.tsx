@@ -381,8 +381,16 @@ export default function CreateIngredientPage() {
             </div>
 
             {usdaSelected && (
-              <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]" style={{ marginBottom: 24 }}>
-                § Imported — {usdaSelected.description}
+              <div style={{ borderLeft: "2px solid var(--rule)", paddingLeft: 16, marginBottom: 32 }}>
+                <div className="font-mono" style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>
+                  § Imported from USDA
+                </div>
+                <div className="font-sans" style={{ fontSize: 13, letterSpacing: "-0.03em", color: "var(--fg)" }}>
+                  {usdaSelected.description}
+                </div>
+                <div className="font-sans" style={{ fontSize: 13, letterSpacing: "-0.03em", color: "var(--muted)", marginTop: 2 }}>
+                  Values below are editable.
+                </div>
               </div>
             )}
 
