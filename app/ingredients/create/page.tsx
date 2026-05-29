@@ -345,6 +345,7 @@ export default function CreateIngredientPage() {
                   placeholder="Search USDA database…"
                   value={usdaQuery}
                   onChange={(e) => handleUsdaSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUsdaLookupClick(); } }}
                   aria-label="USDA search"
                 />
               </div>
