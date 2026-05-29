@@ -337,7 +337,6 @@ function AddMealInner() {
                   </button>
                   {pendingRecipeId === recipe.id && (
                     <div className="am-inline-expand">
-                      <span className="pl-create-label">{recipe.servingSize} {recipe.servingUnit} / serving</span>
                       <label className="pl-create-label" htmlFor={`am-sv-${recipe.id}`}>Servings</label>
                       <input
                         id={`am-sv-${recipe.id}`}
@@ -345,7 +344,6 @@ function AddMealInner() {
                         min={0.25}
                         step={0.25}
                         className="pl-create-date"
-                        style={{ width: 60 }}
                         value={selectedServings}
                         onChange={e => setSelectedServings(e.target.value)}
                         autoFocus

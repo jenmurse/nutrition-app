@@ -275,7 +275,6 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                       </button>
                       {pendingRecipeId === recipe.id && (
                         <div className="am-inline-expand">
-                          <span className="pl-create-label">{recipe.servingSize} {recipe.servingUnit} / serving</span>
                           <label className="pl-create-label" htmlFor={`am-sheet-sv-${recipe.id}`}>Servings</label>
                           <input
                             id={`am-sheet-sv-${recipe.id}`}
@@ -283,7 +282,6 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                             min={0.25}
                             step={0.25}
                             className="pl-create-date"
-                            style={{ width: 60 }}
                             value={selectedServings}
                             onChange={e => setSelectedServings(e.target.value)}
                             autoFocus
