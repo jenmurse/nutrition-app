@@ -172,7 +172,7 @@ function SortableIngredientRow({
           )}
           {!selectedIngredient && row.nameGuess && (
             <div className="ing-library-warn" style={{ padding: "2px 0" }}>
-              <div className="flex items-center gap-[8px]" style={{ paddingLeft: 10, borderLeft: "2px solid var(--err)", marginTop: 2 }}>
+              <div className="flex items-center gap-[8px]" style={{ marginTop: 2 }}>
                 <span className="font-mono" style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--err)" }}>Not in pantry —</span>
                 <button type="button"
                   onClick={() => createIngredient(currentSearch || row.nameGuess!, row.id)}
