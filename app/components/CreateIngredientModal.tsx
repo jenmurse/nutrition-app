@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "@/lib/toast";
 import { clientCache } from "@/lib/clientCache";
 import type { Nutrient } from "@/types";
@@ -219,7 +220,8 @@ export default function CreateIngredientModal({
     onClose();
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -591,6 +593,7 @@ export default function CreateIngredientModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

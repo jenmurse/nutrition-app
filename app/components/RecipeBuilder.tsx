@@ -130,7 +130,7 @@ function SortableIngredientRow({
         </div>
         <div className="ing-main relative" style={{ flex: 1 }}>
           <input type="text"
-            className={`ing-name ed-input ${!selectedIngredient && row.nameGuess && !currentSearch ? '!border-[var(--warn)] !text-[var(--warn)]' : ''}`}
+            className={`ing-name ed-input ${!selectedIngredient && row.nameGuess && !currentSearch ? '!border-[var(--err)] !text-[var(--err)]' : ''}`}
             placeholder="Ingredient name"
             value={selectedIngredient ? selectedIngredient.name : rawSearch}
             onChange={(e) => {
