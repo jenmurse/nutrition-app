@@ -965,125 +965,127 @@ const MealPlansPage = () => {
 
       {/* ── Mobile toolbar — hidden on desktop ── */}
       <div className="pl-mob-toolbar">
-        {/* Row 1: locator + identity */}
-        <div className="pl-toolbar-row">
-          <span className="pl-range" role="heading" aria-level={1}>
-            {selectedPlan ? (() => {
-              const s = parseUTCDate(selectedPlan.weekStartDate);
-              const e = new Date(s); e.setDate(e.getDate() + 6);
-              return s.getMonth() === e.getMonth()
-                ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
-                : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-            })() : 'Meal Plans'}
-          </span>
-          <span className="pl-toolbar-spacer" />
-          {persons.length > 0 && mealPlans.length > 0 && (persons.length === 1 ? (
-            <div className="person-chip-static" aria-label={selectedPerson?.name}>
-              <span className="person-chip-dot" style={{ background: selectedPerson?.color || 'var(--accent)' }} />
-              <span>{selectedPerson?.name}</span>
-            </div>
-          ) : (
-            <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
-              <button
-                className="pl-mob-person-btn"
-                onClick={() => setMobilePeopleOpen(o => !o)}
-                aria-haspopup="listbox"
-                aria-expanded={mobilePeopleOpen}
-                aria-label="Switch person or view"
-              >
-                <span
-                  className="pl-mob-person-dot"
-                  style={{ background: viewMode === 'both' ? 'var(--fg-2)' : selectedPerson?.color || 'var(--accent)' }}
-                />
-                <span className="pl-mob-person-name">
-                  {viewMode === 'both' ? 'Everyone' : selectedPerson?.name || 'Me'}
-                </span>
-                <span className="pl-mob-person-arrow" aria-hidden>▾</span>
-              </button>
-              {mobilePeopleOpen && (
-                <div className="pl-mob-person-menu" role="listbox">
-                  {persons.map((p) => {
-                    const isActive = viewMode === 'personal' && selectedPersonId === p.id;
-                    return (
+        {editMode ? (
+          /* Edit mode: full-width contextual bar */
+          <div className="pl-toolbar-row" aria-label="Edit mode">
+            <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{selectedMealIds.size} selected</span>
+            <span className="pl-toolbar-spacer" />
+            <button
+              className="ed-btn-text"
+              disabled={selectedMealIds.size === 0}
+              onClick={handleDeleteSelected}
+              aria-label="Delete selected meals"
+            >DELETE</button>
+            <button
+              className="ed-btn-text"
+              onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
+              aria-label="Done editing"
+            >DONE</button>
+          </div>
+        ) : (
+          /* Normal mode: locator + identity + actions */
+          <div className="pl-toolbar-row">
+            <span className="pl-range" role="heading" aria-level={1}>
+              {selectedPlan ? (() => {
+                const s = parseUTCDate(selectedPlan.weekStartDate);
+                const e = new Date(s); e.setDate(e.getDate() + 6);
+                return s.getMonth() === e.getMonth()
+                  ? `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${e.getDate()}`
+                  : `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+              })() : 'Meal Plans'}
+            </span>
+            <span className="pl-toolbar-spacer" />
+            {persons.length > 0 && mealPlans.length > 0 && (persons.length === 1 ? (
+              <div className="person-chip-static" aria-label={selectedPerson?.name}>
+                <span className="person-chip-dot" style={{ background: selectedPerson?.color || 'var(--accent)' }} />
+                <span>{selectedPerson?.name}</span>
+              </div>
+            ) : (
+              <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
+                <button
+                  className="pl-mob-person-btn"
+                  onClick={() => setMobilePeopleOpen(o => !o)}
+                  aria-haspopup="listbox"
+                  aria-expanded={mobilePeopleOpen}
+                  aria-label="Switch person or view"
+                >
+                  <span
+                    className="pl-mob-person-dot"
+                    style={{ background: viewMode === 'both' ? 'var(--fg-2)' : selectedPerson?.color || 'var(--accent)' }}
+                  />
+                  <span className="pl-mob-person-name">
+                    {viewMode === 'both' ? 'Everyone' : selectedPerson?.name || 'Me'}
+                  </span>
+                  <span className="pl-mob-person-arrow" aria-hidden>▾</span>
+                </button>
+                {mobilePeopleOpen && (
+                  <div className="pl-mob-person-menu" role="listbox">
+                    {persons.map((p) => {
+                      const isActive = viewMode === 'personal' && selectedPersonId === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          role="option"
+                          aria-selected={isActive}
+                          className={`pl-mob-person-item${isActive ? ' on' : ''}`}
+                          onClick={() => {
+                            const wasEveryone = viewMode === 'both';
+                            setViewMode('personal');
+                            if (wasEveryone && selectedPersonId === p.id) {
+                              if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
+                            } else {
+                              setSelectedPersonId(p.id);
+                            }
+                            setMobilePeopleOpen(false);
+                          }}
+                        >
+                          <span className="pl-mob-person-dot" style={{ background: p.color || 'var(--accent)' }} />
+                          {p.name}
+                        </button>
+                      );
+                    })}
+                    {persons.length > 1 && (
                       <button
-                        key={p.id}
                         role="option"
-                        aria-selected={isActive}
-                        className={`pl-mob-person-item${isActive ? ' on' : ''}`}
-                        onClick={() => {
-                          const wasEveryone = viewMode === 'both';
-                          setViewMode('personal');
-                          if (wasEveryone && selectedPersonId === p.id) {
-                            if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
-                          } else {
-                            setSelectedPersonId(p.id);
-                          }
-                          setMobilePeopleOpen(false);
-                        }}
+                        aria-selected={viewMode === 'both'}
+                        className={`pl-mob-person-item${viewMode === 'both' ? ' on' : ''}`}
+                        onClick={() => { setViewMode('both'); setMobilePeopleOpen(false); }}
                       >
-                        <span className="pl-mob-person-dot" style={{ background: p.color || 'var(--accent)' }} />
-                        {p.name}
+                        <span className="pl-mob-person-dot" style={{ background: 'var(--fg-2)' }} />
+                        Everyone
                       </button>
-                    );
-                  })}
-                  {persons.length > 1 && (
-                    <button
-                      role="option"
-                      aria-selected={viewMode === 'both'}
-                      className={`pl-mob-person-item${viewMode === 'both' ? ' on' : ''}`}
-                      onClick={() => { setViewMode('both'); setMobilePeopleOpen(false); }}
-                    >
-                      <span className="pl-mob-person-dot" style={{ background: 'var(--fg-2)' }} />
-                      Everyone
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-          {selectedPlan && viewMode === 'personal' && (
-            !editMode ? (
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+            {selectedPlan && viewMode === 'personal' && (
               <button
                 className="ed-btn-text"
                 onClick={() => setEditMode(true)}
                 aria-label="Edit meals"
               >EDIT</button>
-            ) : (
-              <>
-                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{selectedMealIds.size} selected</span>
-                <button
-                  className="ed-btn-text"
-                  disabled={selectedMealIds.size === 0}
-                  onClick={handleDeleteSelected}
-                  aria-label="Delete selected meals"
-                >DELETE</button>
-                <button
-                  className="ed-btn-text"
-                  onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
-                  aria-label="Done editing"
-                >DONE</button>
-              </>
-            )
-          )}
-          <button
-            className="ed-btn-primary"
-            onClick={() => {
-              setPlanJustCreated(false);
-              const existingStarts = mealPlans.map(p => parseUTCDate(p.weekStartDate).getTime()).sort((a,b) => b-a);
-              const latestStart = existingStarts.length > 0 ? new Date(existingStarts[0]) : null;
-              const today = new Date(); today.setHours(0,0,0,0);
-              const thisSunday = new Date(today); thisSunday.setDate(today.getDate() - today.getDay());
-              const nextSunday = latestStart && latestStart >= thisSunday
-                ? new Date(latestStart.getTime() + 7 * 86400000)
-                : thisSunday;
-              setNewWeekStartDate(nextSunday.toISOString().slice(0, 10));
-              const params = new URLSearchParams(searchParams?.toString());
-              params.set("showForm", "true");
-              router.push(`/meal-plans?${params.toString()}`);
-            }}
-            aria-label="New plan"
-          >+ NEW PLAN</button>
-        </div>
+            )}
+            <button
+              className="ed-btn-primary"
+              onClick={() => {
+                setPlanJustCreated(false);
+                const existingStarts = mealPlans.map(p => parseUTCDate(p.weekStartDate).getTime()).sort((a,b) => b-a);
+                const latestStart = existingStarts.length > 0 ? new Date(existingStarts[0]) : null;
+                const today = new Date(); today.setHours(0,0,0,0);
+                const thisSunday = new Date(today); thisSunday.setDate(today.getDate() - today.getDay());
+                const nextSunday = latestStart && latestStart >= thisSunday
+                  ? new Date(latestStart.getTime() + 7 * 86400000)
+                  : thisSunday;
+                setNewWeekStartDate(nextSunday.toISOString().slice(0, 10));
+                const params = new URLSearchParams(searchParams?.toString());
+                params.set("showForm", "true");
+                router.push(`/meal-plans?${params.toString()}`);
+              }}
+              aria-label="New plan"
+            >+ NEW PLAN</button>
+          </div>
+        )}
       </div>
 
       {/* Inline create-plan row */}
