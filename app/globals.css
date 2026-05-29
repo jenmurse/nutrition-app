@@ -983,11 +983,13 @@ input[type="number"]:focus {
 }
 
 /* Inline favorite glyph — shared across recipe + pantry index views.
-   13px DM Mono, muted when off, ink when on. Baseline-aligned with the
-   eyebrow text via parent's `align-items: baseline`. */
+   14px DM Mono, muted when off, ink when on. Baseline-aligned with the
+   eyebrow text via parent's `align-items: baseline`. (14px not 13 because
+   the ★ glyph renders slightly smaller than its em-box; this matches the
+   optical cap-height of the 9px uppercase eyebrow text.) */
 .fav-glyph {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
