@@ -279,170 +279,181 @@ function AddMealInner() {
       <h1 className="pl-add-title">{HEADLINES[activeMealType]}</h1>
 
       {!isPantryMode ? (
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <div className="flex-1 flex items-center gap-4 min-w-[180px]">
-            <label className="pl-create-label" htmlFor="recipe-search">Search</label>
-            <input
-              id="recipe-search"
-              type="text"
-              placeholder="FIND RECIPE…"
-              className="pl-create-date am-search-input"
-              style={{ flex: 1 }}
-              value={recipeSearchTerm}
-              onChange={e => setRecipeSearchTerm(e.target.value)}
-              aria-label="Search recipes"
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <label className="pl-create-label" htmlFor="meal-servings">Servings</label>
-            <input
-              id="meal-servings"
-              type="number"
-              min={0.25}
-              step={0.25}
-              className="pl-create-date"
-              style={{ width: 60 }}
-              value={selectedServings}
-              onChange={e => setSelectedServings(e.target.value)}
-            />
-          </div>
+        <div className="flex items-center gap-4 mb-4">
+          <label className="pl-create-label" htmlFor="recipe-search">Search</label>
+          <input
+            id="recipe-search"
+            type="text"
+            placeholder="FIND RECIPE…"
+            className="pl-create-date am-search-input"
+            style={{ flex: 1 }}
+            value={recipeSearchTerm}
+            onChange={e => setRecipeSearchTerm(e.target.value)}
+            aria-label="Search recipes"
+          />
         </div>
       ) : (
-        <div className="flex flex-wrap gap-3 mb-4">
-          <div className="flex-1 flex items-center gap-4 min-w-max">
-            <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
-            <input
-              id="ingredient-search"
-              type="text"
-              placeholder="FIND ITEM…"
-              className="pl-create-date am-search-input"
-              style={{ flex: 1 }}
-              value={ingredientSearchTerm}
-              onChange={e => setIngredientSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <label className="pl-create-label" htmlFor="ingredient-quantity">Quantity</label>
-            <input
-              id="ingredient-quantity"
-              type="number"
-              min={0.01}
-              step={0.1}
-              className="pl-create-date"
-              style={{ width: 60 }}
-              value={selectedQuantity}
-              onChange={e => setSelectedQuantity(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <label className="pl-create-label" htmlFor="ingredient-unit">Unit</label>
-            <input
-              id="ingredient-unit"
-              type="text"
-              className="pl-create-date"
-              style={{ width: 60 }}
-              value={selectedUnit}
-              onChange={e => setSelectedUnit(e.target.value)}
-              placeholder="g, ml, etc."
-            />
-          </div>
+        <div className="flex items-center gap-4 mb-4">
+          <label className="pl-create-label" htmlFor="ingredient-search">Search</label>
+          <input
+            id="ingredient-search"
+            type="text"
+            placeholder="FIND ITEM…"
+            className="pl-create-date am-search-input"
+            style={{ flex: 1 }}
+            value={ingredientSearchTerm}
+            onChange={e => setIngredientSearchTerm(e.target.value)}
+          />
         </div>
       )}
 
       <div className="pl-add-scroll">
         {!isPantryMode ? (
-          <div className="grid gap-0 md:grid-cols-2">
+          <div className="grid gap-0">
             {filteredRecipes.length === 0 ? (
-              <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+              <div className="py-6 text-center font-mono text-[11px] text-[var(--muted)]">
                 No recipes match this meal type
               </div>
             ) : (
               filteredRecipes.map(recipe => (
-                <button
-                  key={recipe.id}
-                  type="button"
-                  className={`meal-chip text-left ${recipe.isComplete === false ? 'cursor-not-allowed opacity-50' : pendingRecipeId === recipe.id ? 'bg-[var(--bg-2)]' : ''}`}
-                  onClick={recipe.isComplete === false || adding ? undefined : () => setPendingRecipeId(recipe.id)}
-                  title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
-                  disabled={adding}
-                  aria-label={recipe.name}
-                >
-                  <span className="meal-chip-name">{recipe.name}</span>
-                  <span className="meal-chip-kcal">
-                    {recipe.servingSize} {recipe.servingUnit}
-                    {!recipe.isComplete && ' · Incomplete'}
-                  </span>
-                </button>
+                <div key={recipe.id} className="am-chip-group">
+                  <button
+                    type="button"
+                    className={`meal-chip text-left ${recipe.isComplete === false ? 'cursor-not-allowed opacity-50' : pendingRecipeId === recipe.id ? 'bg-[var(--bg-2)]' : ''}`}
+                    onClick={recipe.isComplete === false || adding ? undefined : () => {
+                      setPendingRecipeId(prev => prev === recipe.id ? null : recipe.id);
+                      setSelectedServings('1');
+                    }}
+                    title={!recipe.isComplete ? 'Complete this recipe before adding to meal plan' : ''}
+                    disabled={adding}
+                    aria-label={recipe.name}
+                    aria-expanded={pendingRecipeId === recipe.id}
+                  >
+                    <span className="meal-chip-name">{recipe.name}</span>
+                    <span className="meal-chip-kcal">
+                      {recipe.servingSize} {recipe.servingUnit}
+                      {!recipe.isComplete && ' · Incomplete'}
+                    </span>
+                  </button>
+                  {pendingRecipeId === recipe.id && (
+                    <div className="am-inline-expand">
+                      <span className="pl-create-label">{recipe.servingSize} {recipe.servingUnit} / serving</span>
+                      <label className="pl-create-label" htmlFor={`am-sv-${recipe.id}`}>Servings</label>
+                      <input
+                        id={`am-sv-${recipe.id}`}
+                        type="number"
+                        min={0.25}
+                        step={0.25}
+                        className="pl-create-date"
+                        style={{ width: 60 }}
+                        value={selectedServings}
+                        onChange={e => setSelectedServings(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        className="pl-create-btn"
+                        onClick={handleAdd}
+                        disabled={adding}
+                        aria-label="Add to plan"
+                      >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                    </div>
+                  )}
+                </div>
               ))
             )}
           </div>
         ) : (
-          <div className="grid gap-0 md:grid-cols-2">
+          <div className="grid gap-0">
             {filteredIngredients.length === 0 ? (
-              <div className="col-span-full py-6 text-center font-mono text-[11px] text-[var(--muted)]">
+              <div className="py-6 text-center font-mono text-[11px] text-[var(--muted)]">
                 {ingredients.filter(ing => ing.isMealItem).length === 0 ? 'No items available' : 'No items match your search'}
               </div>
             ) : (
               filteredIngredients.map(ingredient => (
-                <button
-                  key={ingredient.id}
-                  type="button"
-                  onClick={() => {
-                    const unit = ingredient.customUnitName || ingredient.defaultUnit;
-                    const qty = ingredient.customUnitName ? '1' : selectedQuantity;
-                    setSelectedUnit(unit);
-                    setSelectedQuantity(qty);
-                    setPendingIngredientId(ingredient.id);
-                  }}
-                  disabled={adding}
-                  className={`meal-chip text-left ${pendingIngredientId === ingredient.id ? 'bg-[var(--bg-2)]' : ''}`}
-                  aria-label={ingredient.name}
-                >
-                  <span className="meal-chip-name">{ingredient.name}</span>
-                  <span className="meal-chip-kcal">
-                    {ingredient.customUnitName
-                      ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
-                      : `per ${ingredient.defaultUnit}`}
-                  </span>
-                </button>
+                <div key={ingredient.id} className="am-chip-group">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (pendingIngredientId === ingredient.id) { setPendingIngredientId(null); return; }
+                      const unit = ingredient.customUnitName || ingredient.defaultUnit;
+                      setSelectedUnit(unit);
+                      if (ingredient.customUnitName) setSelectedQuantity('1');
+                      setPendingIngredientId(ingredient.id);
+                    }}
+                    disabled={adding}
+                    className={`meal-chip text-left ${pendingIngredientId === ingredient.id ? 'bg-[var(--bg-2)]' : ''}`}
+                    aria-label={ingredient.name}
+                    aria-expanded={pendingIngredientId === ingredient.id}
+                  >
+                    <span className="meal-chip-name">{ingredient.name}</span>
+                    <span className="meal-chip-kcal">
+                      {ingredient.customUnitName
+                        ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
+                        : `per ${ingredient.defaultUnit}`}
+                    </span>
+                  </button>
+                  {pendingIngredientId === ingredient.id && (
+                    <div className="am-inline-expand">
+                      <label className="pl-create-label" htmlFor={`am-qty-${ingredient.id}`}>Qty</label>
+                      <input
+                        id={`am-qty-${ingredient.id}`}
+                        type="number"
+                        min={0.01}
+                        step={0.1}
+                        className="pl-create-date"
+                        style={{ width: 60 }}
+                        value={selectedQuantity}
+                        onChange={e => setSelectedQuantity(e.target.value)}
+                        autoFocus
+                      />
+                      <label className="pl-create-label" htmlFor={`am-unit-${ingredient.id}`}>Unit</label>
+                      <input
+                        id={`am-unit-${ingredient.id}`}
+                        type="text"
+                        className="pl-create-date"
+                        style={{ width: 60 }}
+                        value={selectedUnit}
+                        onChange={e => setSelectedUnit(e.target.value)}
+                        placeholder="g, ml…"
+                      />
+                      <button
+                        type="button"
+                        className="pl-create-btn"
+                        onClick={handleAdd}
+                        disabled={adding}
+                        aria-label="Add to plan"
+                      >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                    </div>
+                  )}
+                </div>
               ))
             )}
           </div>
         )}
       </div>
 
-      <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4">
-        {otherPersonPlans.length > 0 && (
-          <div className="flex items-center gap-3 flex-wrap flex-1">
-            <span className="pl-create-label">Also add to</span>
-            {otherPersonPlans.map(op => (
-              <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={alsoAddToPlanIds.has(op.planId)}
-                  onChange={e => {
-                    const next = new Set(alsoAddToPlanIds);
-                    if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
-                    setAlsoAddToPlanIds(next);
-                  }}
-                  className="w-[14px] h-[14px]"
-                  aria-label={`Also add to ${op.name}'s plan`}
-                />
-                <span className="font-mono text-[11px] text-[var(--muted)]">{op.name}</span>
-              </label>
-            ))}
-          </div>
-        )}
-        <div className="flex gap-3 ml-auto">
-          <button
-            type="button"
-            className="pl-create-btn"
-            disabled={adding || !canAdd}
-            onClick={handleAdd}
-            aria-label="Add to plan"
-          >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+      {otherPersonPlans.length > 0 && (
+        <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4 flex-wrap">
+          <span className="pl-create-label">Also add to</span>
+          {otherPersonPlans.map(op => (
+            <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={alsoAddToPlanIds.has(op.planId)}
+                onChange={e => {
+                  const next = new Set(alsoAddToPlanIds);
+                  if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
+                  setAlsoAddToPlanIds(next);
+                }}
+                className="w-[14px] h-[14px]"
+                aria-label={`Also add to ${op.name}'s plan`}
+              />
+              <span className="font-mono text-[11px] text-[var(--muted)]">{op.name}</span>
+            </label>
+          ))}
         </div>
-      </div>
+      )}
     </>
   );
 

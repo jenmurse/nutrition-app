@@ -18,22 +18,16 @@ Steps 1–5 of the design pass are complete. Status on remaining steps:
 
 | Step | Description | Status |
 |---|---|---|
-| Step 9 | Wordmark integration pass — apply locked `good · measure` wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav) | ☐ |
+| Step 9 | Wordmark integration pass — apply wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav). Current spec: DM Sans 600, 13px, -0.03em, Title Case ("Good Measure") | ☐ |
 | Step 10 | Type leading and tracking pass — verify every surface uses the correct type token | ✓ Done May 2 |
 | Step 11 | Surface coherence check — full sweep of every screen, desktop + mobile | ✓ Done May 2 |
-| Step 12 | Email templates — refresh 5 Supabase templates with locked visual language | ☐ |
-
-**Also still open:**
-- Auth/onboarding mobile expression
-- The overall mobile editorial language question (connects to brand mark and linework decisions)
+| Step 12 | Email templates — refresh 6 Supabase templates with locked visual language. All 6 done May 3. Reauthentication uses a display code (not a link) so token_hash fix didn't apply — visual language updated. | ✓ Done May 3 |
 
 This pass is post-launch polish, not a launch blocker.
 
 ### Deferred indefinitely
 
 **RLS (Row Level Security).** Documented in `rls_plan.md`. Not blocking launch.
-
-**Account deletion strategy.** Tracked in `decisions-pending.md`. Wipe-user dev script handles testing in the meantime.
 
 ---
 
@@ -62,14 +56,14 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Person and HouseholdInvite are paired by default. Tracked-only is an explicit Settings-only checkbox.
 - Empty state pattern: "An empty X" / "A blank X" headlines with mono eyebrow + DM Sans 500 36px headline + DM Sans 13px lede + outlined CTA. No icons.
 - Confirmation dialogs and action dialogs share the same visual language: sharp corners, outlined destructive in `var(--rule)`, ghost cancel, sharp buttons throughout.
-- Account deletion strategy is deferred. Wipe-user dev script handles testing.
+- Account deletion — shipped. Immediate hard delete scoped to logged-in user. Sole-member households delete all household data; multi-member households preserve recipes and pantry. UI in Settings §06. Full decision in `decisions-pending.md`.
 
 **Locked this session (April 30 — first batch):**
 - Auth hairline divider is an explicit `<div class="auth-divider" />` in a `1fr 1px 1fr` grid — not a `border-right` on the editorial panel. Makes the divider a structural grid element.
-- Auth headline `<em>` ("left off.", "actually cook.") = Instrument Serif italic, `color: inherit` (black). Distinct from the sage `<em>` accent used on landing and dashboard — do not conflate the two `<em>` conventions.
+- ~~Auth headline `<em>` = Instrument Serif italic~~ — superseded by May 2 Step 6. Instrument Serif removed entirely. Auth headlines are plain DM Sans, no italic.
 - `position: fixed` rails must be siblings of the animated scroll container, never children. A CSS `transform` on an ancestor (including entrance animations) breaks `position: fixed` by creating a new containing block. Applies to all rails: jump nav, Add Meal `.am-rail`, settings nav.
 - Add Meal rail underline uses a nested `<span class="am-rail-label">` so the underline hugs text width rather than spanning the full 140px button.
-- Onboarding topbar: wordmark (`Good Measure`, 18px DM Sans 700) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
+- Onboarding topbar: wordmark (`Good Measure`, DM Sans 600, 13px, -0.03em) left, step counter right. `§ ONBOARDING` label permanently removed — redundant with step counter and body eyebrow.
 
 **Locked this session (May 2 — typography audit):**
 - **Two-tier DM Mono tracking.** `0.06em` for data contexts (nutrition panel category labels: CALORIES, FAT, etc.). `0.14em` for all general UI chrome (nav links, eyebrows, form labels, tags, buttons). No other tracking values in use.
@@ -113,12 +107,20 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.
 - Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
 
+**Shipped this session (May 3):**
+- **Invite-only gate** — `/invite` page (two-step: code validation → signup form). Single shared `INVITE_CODE` env var. Server-side validation only.
+- **Waitlist** — `/waitlist` and `/waitlist-success` pages. Entries saved to `Waitlist` table in Railway Postgres. Admin view at `/admin/waitlist` (password-gated).
+- **Landing CTAs updated** — hero and close section now point to `/waitlist` and `/invite` instead of `/login?signup=1`.
+- **Login page** — sign-in only. Create Account tab removed and archived at `briefs/_archived/login-page-tabbed.tsx`. Household invite links (`?invite=token`) still trigger signup mode.
+- **Account deletion** — Settings §06. Immediate hard delete scoped to logged-in user. Full decision in `decisions-pending.md`.
+- **Email templates** — 5 of 6 Supabase templates refreshed with locked visual language and token_hash flow. See Step 12 above.
+
 ---
 
 ## Open questions
 
-1. **Brand mark** — designed wordmark or stick with DM Sans 700? References to pull?
-2. **Account deletion** (in `decisions-pending.md`) — when does this need to be answered?
+1. **Brand mark** — current interim spec: DM Sans 600, 13px, -0.03em, Title Case ("Good Measure"). Designed SVG wordmark still pending. Step 9 covers applying it across all surfaces.
+2. ~~**Account deletion**~~ — shipped (May 3). See `decisions-pending.md`.
 
 Resolved this session, no longer open:
 - ~~Mobile recipes card view~~ — deferred to post-launch design pass

@@ -997,6 +997,10 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
           </div>
         </div>
 
+        {/* NUTRITION GUIDANCE — hidden (MCP now covers this). Restore by removing the {false &&} wrapper.
+            State vars (guidedMode, guidedPersonId, guidedFocus, focusCaps) and the goals useEffect are
+            still in place above so nothing else breaks. */}
+        {false && <>
         <ContextualTip tipId="nutrition-guidance" label="Nutrition Guidance">
           Toggle the guidance panel below to see how this recipe fits your daily nutrition goals in real time as you add ingredients.
         </ContextualTip>
@@ -1128,6 +1132,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
             </div>
           </div>
         )}
+        </>} {/* end {false && <>} nutrition guidance */}
       </div>
 
       {/* ═══ Footer Buttons ═══ */}

@@ -31,7 +31,7 @@ Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 
 |---|---|
 | Framework | Next.js 15 (App Router) |
 | Hosting | Railway — push to `main` auto-deploys |
-| Database | Supabase PostgreSQL via Prisma (14 models, fully normalized) |
+| Database | Railway Postgres via Prisma (14 models, fully normalized) |
 | Auth | Supabase Auth — email/password + Google OAuth. Middleware validates session and injects `x-supabase-user-id` header |
 | AI | MCP-based — Claude Desktop + `good-measure-mcp` npm package. No in-app AI API calls |
 | PWA | Installed and working — usable as an app on Mac, iPhone, iPad |
@@ -51,7 +51,7 @@ Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 
 - `UsedaIngredientCache` — shared nutrition data cache across all users
 
 ### Auth flow
-- Middleware (`middleware.ts`) checks the Supabase session cookie on every request
+- Middleware (`proxy.ts` at project root — named proxy.ts, not middleware.ts) checks the Supabase session cookie on every request
 - Sets `x-supabase-user-id` header for downstream API routes
 - New users hit `/onboarding`; returning users go to `/`
 - `app/auth/callback/route.ts` handles the OAuth callback and the onboarding flag
@@ -68,6 +68,36 @@ Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 
 - Sheets and modals that overlay the bottom nav MUST use `createPortal(el, document.body)`
 
 The old three-pane layout (220px list / flex-1 detail / 300px context) was removed during the editorial migration. Any references to it elsewhere are stale.
+
+---
+
+## Access control
+
+**Currently invite-only.** Two entry paths:
+
+1. **Invite code** — `/invite` page. User enters a shared code (`INVITE_CODE` env var) in step 1. If valid, step 2 shows the full signup form (name, email, password, confirm password, or Continue with Google). Code is validated server-side only via `POST /api/invite/validate` — never exposed to the browser. Case-insensitive comparison.
+
+2. **Household invite link** — existing member generates a token-based link from Settings → People. Link goes to `/login?invite=<token>`, which switches the login page into signup mode. No invite code required — the token is the auth mechanism.
+
+**Waitlist** — public visitors without a code go to `/waitlist` (name + email). Entries saved to the `Waitlist` table. Viewable at `/admin/waitlist` (password-gated via `ADMIN_PASSWORD` env var).
+
+**`/login`** — sign-in only. No Create Account tab. Household invite links still trigger signup mode via `?invite=` param.
+
+**Opening to the public** — see `auth_and_access.md` for the full checklist. Short version: restore the archived tabbed login (`briefs/_archived/login-page-tabbed.tsx`), remove the invite gate, swap landing CTAs from waitlist to sign-up.
+
+---
+
+## Account deletion
+
+Settings → §06 Account → "Delete account" → confirmation dialog → immediate permanent deletion.
+
+- **Scoped to the logged-in user only** — the person chip (UI state) has no effect. `DELETE /api/account` resolves identity from the Supabase JWT via `getAuthenticatedHousehold()`.
+- **What gets deleted:** person profile, nutrition goals, meal plans, meal logs, Supabase auth account.
+- **Sole-member households:** all household data (recipes, ingredients, the household itself) is also deleted.
+- **Multi-member households:** recipes and pantry items remain — they are household-scoped, not person-scoped.
+- **Recovery:** none. Immediate hard delete. Acceptable for a friends-and-family app.
+
+Full decision documented in `decisions-pending.md`.
 
 ---
 
@@ -131,7 +161,7 @@ See `ai_analysis.md` for full workflow details.
 ## Deployment & config
 
 - **Railway** — push to `main` auto-deploys
-- **Environment vars:** `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXTAUTH_SECRET`
+- **Environment vars:** `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXTAUTH_SECRET`, `INVITE_CODE` (shared invite code), `ADMIN_PASSWORD` (waitlist admin page). Values in project memory `project_env_vars.md`.
 - **AI_PROVIDER:** set to `mock` (default) or `anthropic` + `AI_API_KEY` for live AI. Currently the MCP workflow is the active integration; the in-app AI route is stubbed
 - **SEO/OG/favicon:** all config in `lib/seo.ts`. Favicon: `app/icon.tsx`. OG card: `app/opengraph-image.tsx`
 
@@ -144,6 +174,7 @@ See `ai_analysis.md` for full workflow details.
 - **Auth hardening** — confirm-password field shipped via Brief 14; CAPTCHA still pending
 - **Update Supabase transactional emails** with branding
 - **Custom domain finalization** — `withgoodmeasure.com` is live; see `rename_url_guide.md` for any remaining references that point to the old URL
+- **Open to the public** — remove invite gate, restore tabbed login, swap landing CTAs. Full checklist in `auth_and_access.md`.
 
 ---
 

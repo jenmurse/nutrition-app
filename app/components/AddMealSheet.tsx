@@ -224,53 +224,28 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
 
             {!isPantryMode ? (
               <div className="add-meal-browse-controls">
-                <div className="add-meal-browse-search-wrap">
-                  <label className="pl-create-label" htmlFor="am-sheet-search">Search</label>
-                  <input
-                    id="am-sheet-search"
-                    type="text"
-                    placeholder="FIND RECIPE…"
-                    className="pl-create-date am-search-input"
-                    value={recipeSearchTerm}
-                    onChange={e => setRecipeSearchTerm(e.target.value)}
-                    aria-label="Search recipes"
-                  />
-                </div>
-                <div className="add-meal-browse-servings-wrap">
-                  <label className="pl-create-label" htmlFor="am-sheet-servings">Servings</label>
-                  <input
-                    id="am-sheet-servings"
-                    type="number"
-                    min={0.25}
-                    step={0.25}
-                    className="pl-create-date"
-                    style={{ width: 60 }}
-                    value={selectedServings}
-                    onChange={e => setSelectedServings(e.target.value)}
-                  />
-                </div>
+                <label className="pl-create-label" htmlFor="am-sheet-search">Search</label>
+                <input
+                  id="am-sheet-search"
+                  type="text"
+                  placeholder="FIND RECIPE…"
+                  className="pl-create-date am-search-input"
+                  value={recipeSearchTerm}
+                  onChange={e => setRecipeSearchTerm(e.target.value)}
+                  aria-label="Search recipes"
+                />
               </div>
             ) : (
               <div className="add-meal-browse-controls">
-                <div className="add-meal-browse-search-wrap">
-                  <label className="pl-create-label" htmlFor="am-sheet-ing-search">Search</label>
-                  <input
-                    id="am-sheet-ing-search"
-                    type="text"
-                    placeholder="FIND ITEM…"
-                    className="pl-create-date am-search-input"
-                    value={ingredientSearchTerm}
-                    onChange={e => setIngredientSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div className="add-meal-browse-servings-wrap">
-                  <label className="pl-create-label" htmlFor="am-sheet-qty">Quantity</label>
-                  <input id="am-sheet-qty" type="number" min={0.01} step={0.1} className="pl-create-date" style={{ width: 60 }} value={selectedQuantity} onChange={e => setSelectedQuantity(e.target.value)} />
-                </div>
-                <div className="add-meal-browse-servings-wrap">
-                  <label className="pl-create-label" htmlFor="am-sheet-unit">Unit</label>
-                  <input id="am-sheet-unit" type="text" className="pl-create-date" style={{ width: 60 }} value={selectedUnit} onChange={e => setSelectedUnit(e.target.value)} placeholder="g, ml…" />
-                </div>
+                <label className="pl-create-label" htmlFor="am-sheet-ing-search">Search</label>
+                <input
+                  id="am-sheet-ing-search"
+                  type="text"
+                  placeholder="FIND ITEM…"
+                  className="pl-create-date am-search-input"
+                  value={ingredientSearchTerm}
+                  onChange={e => setIngredientSearchTerm(e.target.value)}
+                />
               </div>
             )}
 
@@ -280,20 +255,49 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                   <div className="add-meal-browse-empty">No recipes match this meal type</div>
                 ) : (
                   filteredRecipes.map(recipe => (
-                    <button
-                      key={recipe.id}
-                      type="button"
-                      className={`meal-chip text-left${recipe.isComplete === false ? ' cursor-not-allowed opacity-50' : pendingRecipeId === recipe.id ? ' bg-[var(--bg-2)]' : ''}`}
-                      onClick={recipe.isComplete === false || adding ? undefined : () => setPendingRecipeId(recipe.id)}
-                      disabled={adding}
-                      aria-label={recipe.name}
-                    >
-                      <span className="meal-chip-name">{recipe.name}</span>
-                      <span className="meal-chip-kcal">
-                        {recipe.servingSize} {recipe.servingUnit}
-                        {!recipe.isComplete && ' · Incomplete'}
-                      </span>
-                    </button>
+                    <div key={recipe.id} className="am-chip-group">
+                      <button
+                        type="button"
+                        className={`meal-chip text-left${recipe.isComplete === false ? ' cursor-not-allowed opacity-50' : pendingRecipeId === recipe.id ? ' bg-[var(--bg-2)]' : ''}`}
+                        onClick={recipe.isComplete === false || adding ? undefined : () => {
+                          setPendingRecipeId(prev => prev === recipe.id ? null : recipe.id);
+                          setSelectedServings('1');
+                        }}
+                        disabled={adding}
+                        aria-label={recipe.name}
+                        aria-expanded={pendingRecipeId === recipe.id}
+                      >
+                        <span className="meal-chip-name">{recipe.name}</span>
+                        <span className="meal-chip-kcal">
+                          {recipe.servingSize} {recipe.servingUnit}
+                          {!recipe.isComplete && ' · Incomplete'}
+                        </span>
+                      </button>
+                      {pendingRecipeId === recipe.id && (
+                        <div className="am-inline-expand">
+                          <span className="pl-create-label">{recipe.servingSize} {recipe.servingUnit} / serving</span>
+                          <label className="pl-create-label" htmlFor={`am-sheet-sv-${recipe.id}`}>Servings</label>
+                          <input
+                            id={`am-sheet-sv-${recipe.id}`}
+                            type="number"
+                            min={0.25}
+                            step={0.25}
+                            className="pl-create-date"
+                            style={{ width: 60 }}
+                            value={selectedServings}
+                            onChange={e => setSelectedServings(e.target.value)}
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            className="pl-create-btn"
+                            onClick={handleAdd}
+                            disabled={adding}
+                            aria-label="Add to plan"
+                          >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                        </div>
+                      )}
+                    </div>
                   ))
                 )
               ) : (
@@ -303,39 +307,65 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                   </div>
                 ) : (
                   filteredIngredients.map(ingredient => (
-                    <button
-                      key={ingredient.id}
-                      type="button"
-                      className={`meal-chip text-left${pendingIngredientId === ingredient.id ? ' bg-[var(--bg-2)]' : ''}`}
-                      onClick={() => {
-                        const unit = ingredient.customUnitName || ingredient.defaultUnit;
-                        setSelectedUnit(unit);
-                        if (ingredient.customUnitName) setSelectedQuantity('1');
-                        setPendingIngredientId(ingredient.id);
-                      }}
-                      disabled={adding}
-                      aria-label={ingredient.name}
-                    >
-                      <span className="meal-chip-name">{ingredient.name}</span>
-                      <span className="meal-chip-kcal">
-                        {ingredient.customUnitName
-                          ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
-                          : `per ${ingredient.defaultUnit}`}
-                      </span>
-                    </button>
+                    <div key={ingredient.id} className="am-chip-group">
+                      <button
+                        type="button"
+                        className={`meal-chip text-left${pendingIngredientId === ingredient.id ? ' bg-[var(--bg-2)]' : ''}`}
+                        onClick={() => {
+                          if (pendingIngredientId === ingredient.id) { setPendingIngredientId(null); return; }
+                          const unit = ingredient.customUnitName || ingredient.defaultUnit;
+                          setSelectedUnit(unit);
+                          if (ingredient.customUnitName) setSelectedQuantity('1');
+                          setPendingIngredientId(ingredient.id);
+                        }}
+                        disabled={adding}
+                        aria-label={ingredient.name}
+                        aria-expanded={pendingIngredientId === ingredient.id}
+                      >
+                        <span className="meal-chip-name">{ingredient.name}</span>
+                        <span className="meal-chip-kcal">
+                          {ingredient.customUnitName
+                            ? `${ingredient.customUnitAmount ?? 1} ${ingredient.customUnitName} = ${ingredient.customUnitGrams}g`
+                            : `per ${ingredient.defaultUnit}`}
+                        </span>
+                      </button>
+                      {pendingIngredientId === ingredient.id && (
+                        <div className="am-inline-expand">
+                          <label className="pl-create-label" htmlFor={`am-sheet-qty-${ingredient.id}`}>Qty</label>
+                          <input
+                            id={`am-sheet-qty-${ingredient.id}`}
+                            type="number"
+                            min={0.01}
+                            step={0.1}
+                            className="pl-create-date"
+                            style={{ width: 60 }}
+                            value={selectedQuantity}
+                            onChange={e => setSelectedQuantity(e.target.value)}
+                            autoFocus
+                          />
+                          <label className="pl-create-label" htmlFor={`am-sheet-unit-${ingredient.id}`}>Unit</label>
+                          <input
+                            id={`am-sheet-unit-${ingredient.id}`}
+                            type="text"
+                            className="pl-create-date"
+                            style={{ width: 60 }}
+                            value={selectedUnit}
+                            onChange={e => setSelectedUnit(e.target.value)}
+                            placeholder="g, ml…"
+                          />
+                          <button
+                            type="button"
+                            className="pl-create-btn"
+                            onClick={handleAdd}
+                            disabled={adding}
+                            aria-label="Add to plan"
+                          >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                        </div>
+                      )}
+                    </div>
                   ))
                 )
               )}
-            </div>
-
-            <div className="add-meal-browse-footer">
-              <button
-                type="button"
-                className="pl-create-btn"
-                disabled={adding || !canAdd}
-                onClick={handleAdd}
-                aria-label="Add to plan"
-              >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
             </div>
           </div>
         )}

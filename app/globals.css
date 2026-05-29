@@ -3934,22 +3934,26 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .add-meal-browse-controls {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
     padding: 0 var(--pad) 12px;
   }
-  .add-meal-browse-search-wrap { flex: 1; display: flex; align-items: center; gap: 16px; min-width: 140px; }
-  .add-meal-browse-search-wrap .am-search-input { flex: 1; }
-  .add-meal-browse-servings-wrap { display: flex; align-items: center; gap: 16px; }
+  .add-meal-browse-controls .am-search-input { flex: 1; }
   .add-meal-browse-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--rule-faint); }
   .add-meal-browse-empty { padding: 24px var(--pad); font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-align: center; }
-  .add-meal-browse-footer {
+
+  /* Option A — inline expand */
+  .am-chip-group { display: block; }
+  .am-chip-group .meal-chip { margin-bottom: 0; width: 100%; box-sizing: border-box; }
+  .am-chip-group + .am-chip-group { margin-top: 4px; }
+  .am-inline-expand {
     display: flex;
-    justify-content: flex-end;
-    padding: 12px var(--pad);
-    border-top: 1px solid var(--rule-faint);
-    flex-shrink: 0;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 10px var(--pad) 12px;
+    background: var(--bg-2);
+    margin-bottom: 4px;
   }
   .add-meal-full-sheet .meal-chip { padding: 12px var(--pad); }
   .add-meal-full-sheet .meal-chip-name { font-size: 15px; }
