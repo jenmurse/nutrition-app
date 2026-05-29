@@ -648,10 +648,10 @@ export default function IngredientDetailPage() {
                 <div className="font-mono" style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>
                   § Imported from USDA
                 </div>
-                <div className="font-sans" style={{ fontSize: 13, letterSpacing: "-0.03em", color: "var(--fg)" }}>
+                <div className="font-sans" style={{ fontSize: 13, color: "var(--fg)" }}>
                   {usdaSelectedFood.description}
                 </div>
-                <div className="font-sans" style={{ fontSize: 13, letterSpacing: "-0.03em", color: "var(--muted)", marginTop: 2 }}>
+                <div className="font-sans" style={{ fontSize: 13, color: "var(--muted)", marginTop: 2 }}>
                   Values below are editable.
                 </div>
               </div>
