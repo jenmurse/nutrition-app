@@ -737,6 +737,8 @@ const MealPlansPage = () => {
     );
   }
 
+  const currentPlanIdx = selectedPlan ? mealPlans.findIndex(p => p.id === selectedPlan.id) : -1;
+
   return (
     <div className="flex h-full flex-col">
       {/* Editorial toolbar */}
@@ -757,11 +759,11 @@ const MealPlansPage = () => {
           <>
             <button
               className="ed-btn-text"
+              disabled={currentPlanIdx < 0 || currentPlanIdx >= mealPlans.length - 1}
               onClick={() => {
-                const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
-                if (idx < mealPlans.length - 1) {
+                if (currentPlanIdx < mealPlans.length - 1) {
                   const params = new URLSearchParams(searchParams?.toString());
-                  params.set("planId", String(mealPlans[idx + 1].id));
+                  params.set("planId", String(mealPlans[currentPlanIdx + 1].id));
                   router.push(`/meal-plans?${params.toString()}`);
                 }
               }}
@@ -769,11 +771,11 @@ const MealPlansPage = () => {
             >&#8249; PREV</button>
             <button
               className="ed-btn-text"
+              disabled={currentPlanIdx <= 0}
               onClick={() => {
-                const idx = mealPlans.findIndex(p => p.id === selectedPlan.id);
-                if (idx > 0) {
+                if (currentPlanIdx > 0) {
                   const params = new URLSearchParams(searchParams?.toString());
-                  params.set("planId", String(mealPlans[idx - 1].id));
+                  params.set("planId", String(mealPlans[currentPlanIdx - 1].id));
                   router.push(`/meal-plans?${params.toString()}`);
                 }
               }}
