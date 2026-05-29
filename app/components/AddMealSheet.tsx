@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from '@/lib/toast';
 import { clientCache } from '@/lib/clientCache';
+import { usePersonContext } from '@/app/components/PersonContext';
 
 interface Recipe {
   id: number;
@@ -35,6 +36,12 @@ const HEADLINES: Record<string, string> = {
   beverage: 'Add a beverage.', 'pantry-items': 'Add a pantry item.',
 };
 
+interface OtherPlan {
+  personId: number;
+  planId: number;
+  name: string;
+}
+
 interface AddMealSheetProps {
   planId: number;
   date: Date;
@@ -43,7 +50,8 @@ interface AddMealSheetProps {
   onMealAdded: () => void;
 }
 
-export default function AddMealSheet({ planId, date, onClose, onMealAdded }: AddMealSheetProps) {
+export default function AddMealSheet({ planId, date, weekStartDate, onClose, onMealAdded }: AddMealSheetProps) {
+  const { persons, selectedPersonId } = usePersonContext();
   const [step, setStep] = useState<'picker' | 'browse'>('picker');
   const [activeMealType, setActiveMealType] = useState<string>('breakfast');
   const isPantryMode = activeMealType === 'pantry-items';
@@ -58,6 +66,8 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
   const [pendingRecipeId, setPendingRecipeId] = useState<number | null>(null);
   const [pendingIngredientId, setPendingIngredientId] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
+  const [otherPersonPlans, setOtherPersonPlans] = useState<OtherPlan[]>([]);
+  const [alsoAddToPlanIds, setAlsoAddToPlanIds] = useState<Set<number>>(new Set());
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
@@ -91,6 +101,31 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
     loadIngredients();
   }, []);
 
+  useEffect(() => {
+    if (persons.length < 2 || !selectedPersonId) return;
+    const wsd = new Date(weekStartDate);
+    wsd.setHours(0, 0, 0, 0);
+    const weekStartTime = wsd.getTime();
+    async function loadOtherPlans() {
+      try {
+        const others = persons.filter(p => p.id !== selectedPersonId);
+        const results: OtherPlan[] = [];
+        await Promise.all(others.map(async (p) => {
+          const res = await fetch(`/api/meal-plans?personId=${p.id}`);
+          if (!res.ok) return;
+          const plans = await res.json();
+          const match = plans.find((pl: { weekStartDate: string; id: number }) => {
+            const d = new Date(pl.weekStartDate);
+            return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).getTime() === weekStartTime;
+          });
+          if (match) results.push({ personId: p.id, planId: match.id, name: p.name });
+        }));
+        setOtherPersonPlans(results);
+      } catch {}
+    }
+    loadOtherPlans();
+  }, [persons, selectedPersonId, weekStartDate]);
+
   const filteredRecipes = useMemo(() => {
     let result = recipes;
     if (recipeSearchTerm) {
@@ -121,6 +156,7 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
   const handleAdd = async () => {
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const apiMealType = isPantryMode ? 'snack' : activeMealType;
+    const addToPlans = [planId, ...Array.from(alsoAddToPlanIds)];
     setAdding(true);
     try {
       if (!isPantryMode && pendingRecipeId) {
@@ -130,12 +166,13 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
           setAdding(false);
           return;
         }
-        const res = await fetch(`/api/meal-plans/${planId}/meals`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recipeId: pendingRecipeId, date: dateISO, mealType: apiMealType, servings }),
-        });
-        if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to add meal'); }
+        const body = { recipeId: pendingRecipeId, date: dateISO, mealType: apiMealType, servings };
+        for (const pid of addToPlans) {
+          const res = await fetch(`/api/meal-plans/${pid}/meals`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+          });
+          if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to add meal'); }
+        }
       } else if (isPantryMode && pendingIngredientId) {
         const qty = parseFloat(selectedQuantity);
         if (!Number.isFinite(qty) || qty <= 0) {
@@ -143,12 +180,13 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
           setAdding(false);
           return;
         }
-        const res = await fetch(`/api/meal-plans/${planId}/meals`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ingredientId: pendingIngredientId, quantity: qty, unit: selectedUnit, date: dateISO, mealType: apiMealType }),
-        });
-        if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to add meal'); }
+        const body = { ingredientId: pendingIngredientId, quantity: qty, unit: selectedUnit, date: dateISO, mealType: apiMealType };
+        for (const pid of addToPlans) {
+          const res = await fetch(`/api/meal-plans/${pid}/meals`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+          });
+          if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to add meal'); }
+        }
       }
       clientCache.delete(`/api/meal-plans/${planId}`);
       toast.success('Meal added successfully!');
@@ -293,6 +331,26 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                             disabled={adding}
                             aria-label="Add to plan"
                           >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                          {otherPersonPlans.length > 0 && (
+                            <div className="am-also-add">
+                              <span className="pl-create-label">Also add to</span>
+                              {otherPersonPlans.map(op => (
+                                <label key={op.planId} className="am-also-add-person">
+                                  <input
+                                    type="checkbox"
+                                    checked={alsoAddToPlanIds.has(op.planId)}
+                                    onChange={e => {
+                                      const next = new Set(alsoAddToPlanIds);
+                                      if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
+                                      setAlsoAddToPlanIds(next);
+                                    }}
+                                    aria-label={`Also add to ${op.name}'s plan`}
+                                  />
+                                  <span>{op.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -358,6 +416,26 @@ export default function AddMealSheet({ planId, date, onClose, onMealAdded }: Add
                             disabled={adding}
                             aria-label="Add to plan"
                           >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                          {otherPersonPlans.length > 0 && (
+                            <div className="am-also-add">
+                              <span className="pl-create-label">Also add to</span>
+                              {otherPersonPlans.map(op => (
+                                <label key={op.planId} className="am-also-add-person">
+                                  <input
+                                    type="checkbox"
+                                    checked={alsoAddToPlanIds.has(op.planId)}
+                                    onChange={e => {
+                                      const next = new Set(alsoAddToPlanIds);
+                                      if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
+                                      setAlsoAddToPlanIds(next);
+                                    }}
+                                    aria-label={`Also add to ${op.name}'s plan`}
+                                  />
+                                  <span>{op.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

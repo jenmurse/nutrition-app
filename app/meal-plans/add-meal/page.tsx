@@ -355,6 +355,26 @@ function AddMealInner() {
                         disabled={adding}
                         aria-label="Add to plan"
                       >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                      {otherPersonPlans.length > 0 && (
+                        <div className="am-also-add">
+                          <span className="pl-create-label">Also add to</span>
+                          {otherPersonPlans.map(op => (
+                            <label key={op.planId} className="am-also-add-person">
+                              <input
+                                type="checkbox"
+                                checked={alsoAddToPlanIds.has(op.planId)}
+                                onChange={e => {
+                                  const next = new Set(alsoAddToPlanIds);
+                                  if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
+                                  setAlsoAddToPlanIds(next);
+                                }}
+                                aria-label={`Also add to ${op.name}'s plan`}
+                              />
+                              <span>{op.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -422,6 +442,26 @@ function AddMealInner() {
                         disabled={adding}
                         aria-label="Add to plan"
                       >{adding ? 'ADDING…' : 'ADD TO PLAN'}</button>
+                      {otherPersonPlans.length > 0 && (
+                        <div className="am-also-add">
+                          <span className="pl-create-label">Also add to</span>
+                          {otherPersonPlans.map(op => (
+                            <label key={op.planId} className="am-also-add-person">
+                              <input
+                                type="checkbox"
+                                checked={alsoAddToPlanIds.has(op.planId)}
+                                onChange={e => {
+                                  const next = new Set(alsoAddToPlanIds);
+                                  if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
+                                  setAlsoAddToPlanIds(next);
+                                }}
+                                aria-label={`Also add to ${op.name}'s plan`}
+                              />
+                              <span>{op.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -430,28 +470,6 @@ function AddMealInner() {
           </div>
         )}
       </div>
-
-      {otherPersonPlans.length > 0 && (
-        <div className="border-t border-[var(--rule-faint)] pt-4 pb-4 flex items-center gap-4 flex-wrap">
-          <span className="pl-create-label">Also add to</span>
-          {otherPersonPlans.map(op => (
-            <label key={op.planId} className="flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={alsoAddToPlanIds.has(op.planId)}
-                onChange={e => {
-                  const next = new Set(alsoAddToPlanIds);
-                  if (e.target.checked) next.add(op.planId); else next.delete(op.planId);
-                  setAlsoAddToPlanIds(next);
-                }}
-                className="w-[14px] h-[14px]"
-                aria-label={`Also add to ${op.name}'s plan`}
-              />
-              <span className="font-mono text-[11px] text-[var(--muted)]">{op.name}</span>
-            </label>
-          ))}
-        </div>
-      )}
     </>
   );
 

@@ -1060,6 +1060,35 @@ const MealPlansPage = () => {
             aria-label="New plan"
           >+ NEW PLAN</button>
         </div>
+
+        {/* Row 2: edit controls — only when a plan is selected */}
+        {selectedPlan && viewMode === 'personal' && (
+          <div className="pl-toolbar-row">
+            <span className="pl-toolbar-spacer" />
+            {!editMode ? (
+              <button
+                className="ed-btn-text"
+                onClick={() => setEditMode(true)}
+                aria-label="Edit meals"
+              >EDIT</button>
+            ) : (
+              <>
+                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{selectedMealIds.size} selected</span>
+                <button
+                  className="ed-btn-text"
+                  disabled={selectedMealIds.size === 0}
+                  onClick={handleDeleteSelected}
+                  aria-label="Delete selected meals"
+                >DELETE</button>
+                <button
+                  className="ed-btn-text"
+                  onClick={() => { setEditMode(false); setSelectedMealIds(new Set()); }}
+                  aria-label="Done editing"
+                >DONE</button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Inline create-plan row */}

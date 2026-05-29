@@ -1660,6 +1660,22 @@ input[type="number"]:focus {
   margin-bottom: 4px;
 }
 .am-inline-expand .pl-create-date { width: 80px; }
+.am-also-add {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 6px;
+}
+.am-also-add-person {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
 
 /* ── Drag-and-drop ── */
 .wk-day-col--drop-target { background:var(--accent-l) !important; outline:2px dashed var(--accent-btn); outline-offset:-2px; }
