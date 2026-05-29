@@ -1040,7 +1040,7 @@ const MealPlansPage = () => {
             </div>
           ))}
           <button
-            className="ed-btn-outline"
+            className="ed-btn-primary"
             onClick={() => {
               setPlanJustCreated(false);
               const existingStarts = mealPlans.map(p => parseUTCDate(p.weekStartDate).getTime()).sort((a,b) => b-a);

@@ -262,7 +262,7 @@ function IngredientsPage() {
           {/* + ADD */}
           <button
             onClick={() => router.push("/ingredients/create")}
-            className="ed-btn-outline"
+            className="ed-btn-primary"
             aria-label="Add new ingredient"
           >+ Add</button>
         </div>
@@ -331,7 +331,7 @@ function IngredientsPage() {
             {/* + Add */}
             <button
               onClick={() => router.push("/ingredients/create")}
-              className="ed-btn-outline"
+              className="ed-btn-primary"
               aria-label="Add new ingredient"
             >+ Add</button>
           </div>
