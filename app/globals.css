@@ -1009,6 +1009,9 @@ input[type="number"]:focus {
   position: absolute;
   inset: -10px;
 }
+@media (max-width: 767px) {
+  .fav-glyph { font-size: 17px; }
+}
 .pantry-item__name {
   font-family: var(--sans);
   font-size: 16px;
