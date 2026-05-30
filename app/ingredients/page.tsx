@@ -114,6 +114,18 @@ function IngredientsPage() {
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  /* Force list view on mobile — the pantry grid is desktop-only because items
+     have no photos, so the grid is just a denser list. Toggle is already
+     hidden in .desk-tb; this keeps state honest. */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => { if (mq.matches) setViewMode("list"); };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   // Prevent browser navigation from leaving focus on first list item
   useEffect(() => {
     const id = requestAnimationFrame(() => { (document.activeElement as HTMLElement)?.blur(); });
