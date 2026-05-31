@@ -738,8 +738,7 @@ input[type="number"]:focus {
 .recipe-grid-item__cat-row {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 6px;
 }
 .recipe-grid-item__cat {

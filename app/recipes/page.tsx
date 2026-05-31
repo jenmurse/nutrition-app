@@ -783,7 +783,7 @@ function RecipesPage() {
                         )}
                       </div>
                       <div className="recipe-grid-item__cat-row">
-                        {category ? <div className="recipe-grid-item__cat">{category}</div> : <span />}
+                        {category && <div className="recipe-grid-item__cat">{category}</div>}
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(recipe); }}
@@ -803,7 +803,7 @@ function RecipesPage() {
                         </div>
                       )}
                       <div className="recipe-grid-item__cat-row">
-                        {category ? <div className="ghost-eyebrow">{category}</div> : <span />}
+                        {category && <div className="ghost-eyebrow">{category}</div>}
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(recipe); }}
