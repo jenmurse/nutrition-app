@@ -878,19 +878,24 @@ input[type="number"]:focus {
 }
 .recipe-list-row__vals {
   display: flex;
-  gap: 28px;
+  gap: 16px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 9px;
   font-variant-numeric: tabular-nums;
   color: var(--fg);
   flex-shrink: 0;
+  white-space: nowrap;
+}
+.recipe-list-row__vals > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
 }
 .recipe-list-row__vals .u {
   font-size: 9px;
   color: var(--muted);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-left: 2px;
 }
 
 /* Mobile list — image + name only, edge-to-edge thumb */
@@ -2351,10 +2356,10 @@ input[type="number"]:focus {
   background: transparent;
   border: 1px solid var(--rule);
   width: 36px;
-  height: 36px;
+  height: 30px;
   padding: 0;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 20px;
+  font-size: 18px;
   letter-spacing: 0;
   color: var(--fg);
   cursor: pointer;
@@ -2366,7 +2371,13 @@ input[type="number"]:focus {
 }
 .mx-mob-arrow:hover { border-color: var(--fg); }
 .mx-mob-arrow:disabled { opacity: 0.3; cursor: default; }
-.mx-mob-new { padding: 8px 12px; }
+.mx-mob-new {
+  height: 30px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+}
 
 .mx-mob-daystrip {
   display: flex;

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard planner — Option 2 mock</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #FFFFFF;
+    --bg-2: #F5F5F4;
+    --bg-3: #ECECEA;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #B43A1F;
+    --ok: #4F6B3A;
+    --accent: #7C8C5F;
+    --sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-3);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: -12px 0 24px;
+  }
+
+  /* Surfaces */
+  .surface {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    padding: 56px 64px 72px;
+  }
+
+  /* Hero + greeting block (existing dashboard pattern) */
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .hero-greeting {
+    font-size: 64px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 48px;
+  }
+  .hero-greeting em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  /* ── Today's meals section ─────────────────────────────────── */
+  .today-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+    padding: 32px 0 20px;
+    margin-bottom: 0;
+  }
+  .today-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .today-link {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .today-link:hover { opacity: 0.7; }
+
+  /* Slot rows — matches matrix mobile day stack */
+  .slot-row {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    transition: background 120ms var(--ease-out);
+  }
+  .slot-row:hover { background: var(--bg-2); }
+  .slot-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .slot-name {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    color: var(--fg);
+  }
+  .slot-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .slot-macros {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-variant-numeric: tabular-nums;
+  }
+  .slot-macros span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .slot-macros .u {
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .slot-row.empty .slot-name {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.55;
+    font-weight: 400;
+  }
+
+  /* Day totals strip */
+  .day-totals {
+    background: var(--bg-2);
+    padding: 20px 28px;
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .day-totals-head {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .day-totals-cell .k {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .day-totals-cell .v {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+  }
+  .day-totals-cell .v.over { color: var(--err); }
+  .day-totals-cell .v.met  { color: var(--ok); }
+
+  /* ── Before/after side-by-side ─────────────────────────────── */
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .compare-col {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    padding: 32px;
+  }
+  .col-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .col-label .x { color: var(--err); text-decoration: line-through; }
+  .col-label .check { color: var(--ok); }
+
+  /* CURRENT style miniature */
+  .cur-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 28px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .cur-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .cur-card .cur-mealtype {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 10px;
+  }
+  .cur-card .cur-mealname {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .cur-card .cur-nutrow {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .cur-card .cur-nutrow .v {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .cur-card .cur-link {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin-top: 14px;
+    display: inline-block;
+  }
+
+  /* Annotations */
+  .anno {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 8px;
+  }
+  .qbox {
+    border-left: 2px solid var(--rule);
+    padding: 4px 0 4px 14px;
+    margin: 0 0 6px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .qbox strong { color: var(--fg); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-title">Dashboard planner — Option 2</div>
+  <div class="doc-intro">
+    Reskinning the dashboard's "Today's key meals" block to mirror the matrix planner's single-day stack style.
+    Same data and function as today (a glance at what you're eating now), but visually coherent with where the user
+    came from and where they're going.
+  </div>
+
+  <!-- ============== SECTION 1 — Before / After ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">Side by side</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="compare-row">
+
+      <!-- CURRENT -->
+      <div class="compare-col">
+        <div class="col-label"><span class="x">Current — editorial columns</span></div>
+        <div class="cur-eyebrow">
+          <span>Today's key meals</span>
+          <span>Open planner →</span>
+        </div>
+        <div class="cur-cols">
+          <div class="cur-card">
+            <div class="cur-mealtype">01 · Breakfast</div>
+            <div class="cur-mealname">Overnight Oats PB</div>
+            <div class="cur-nutrow"><span>Calories</span><span class="v">420</span></div>
+            <div class="cur-nutrow"><span>Protein</span><span class="v">18g</span></div>
+            <div class="cur-nutrow"><span>Fiber</span><span class="v">7g</span></div>
+            <div class="cur-link">See recipe →</div>
+          </div>
+          <div class="cur-card">
+            <div class="cur-mealtype">02 · Lunch</div>
+            <div class="cur-mealname">Lunch Salad w/ Tuna</div>
+            <div class="cur-nutrow"><span>Calories</span><span class="v">440</span></div>
+            <div class="cur-nutrow"><span>Protein</span><span class="v">34g</span></div>
+            <div class="cur-nutrow"><span>Fiber</span><span class="v">9g</span></div>
+            <div class="cur-link">See recipe →</div>
+          </div>
+          <div class="cur-card">
+            <div class="cur-mealtype">03 · Dinner</div>
+            <div class="cur-mealname">Pan-seared Salmon</div>
+            <div class="cur-nutrow"><span>Calories</span><span class="v">580</span></div>
+            <div class="cur-nutrow"><span>Protein</span><span class="v">42g</span></div>
+            <div class="cur-nutrow"><span>Fiber</span><span class="v">5g</span></div>
+            <div class="cur-link">See recipe →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROPOSED -->
+      <div class="compare-col">
+        <div class="col-label"><span class="check">Proposed — matrix-aligned stack</span></div>
+        <div class="cur-eyebrow">
+          <span>Today's meals</span>
+          <span>Open planner →</span>
+        </div>
+
+        <div class="slot-row">
+          <div class="slot-label">Breakfast</div>
+          <div>
+            <div class="slot-name">Overnight Oats PB</div>
+            <div class="slot-meta">1 serving</div>
+          </div>
+          <div class="slot-macros">
+            <span>420<span class="u">cal</span></span>
+            <span>18g<span class="u">prot</span></span>
+          </div>
+        </div>
+        <div class="slot-row">
+          <div class="slot-label">Lunch</div>
+          <div>
+            <div class="slot-name">Lunch Salad w/ Tuna</div>
+            <div class="slot-meta">1 serving</div>
+          </div>
+          <div class="slot-macros">
+            <span>440<span class="u">cal</span></span>
+            <span>34g<span class="u">prot</span></span>
+          </div>
+        </div>
+        <div class="slot-row">
+          <div class="slot-label">Dinner</div>
+          <div>
+            <div class="slot-name">Pan-seared Salmon</div>
+            <div class="slot-meta">1 serving</div>
+          </div>
+          <div class="slot-macros">
+            <span>580<span class="u">cal</span></span>
+            <span>42g<span class="u">prot</span></span>
+          </div>
+        </div>
+        <div class="slot-row">
+          <div class="slot-label">Snack</div>
+          <div>
+            <div class="slot-name">Fage Lactose Free Yogurt</div>
+            <div class="slot-meta">150 g</div>
+          </div>
+          <div class="slot-macros">
+            <span>130<span class="u">cal</span></span>
+            <span>14g<span class="u">prot</span></span>
+          </div>
+        </div>
+
+        <!-- Day totals strip -->
+        <div class="day-totals" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+          <div class="day-totals-head">Today's totals</div>
+          <div class="day-totals-cell"><div class="k">Cal</div><div class="v">1,570</div></div>
+          <div class="day-totals-cell"><div class="k">Fat</div><div class="v">56g</div></div>
+          <div class="day-totals-cell"><div class="k">Sat F</div><div class="v">14g</div></div>
+          <div class="day-totals-cell"><div class="k">Na</div><div class="v">1,820mg</div></div>
+          <div class="day-totals-cell"><div class="k">Carb</div><div class="v">142g</div></div>
+          <div class="day-totals-cell"><div class="k">Sugar</div><div class="v">32g</div></div>
+          <div class="day-totals-cell"><div class="k">Prot</div><div class="v met">108g</div></div>
+          <div class="day-totals-cell"><div class="k">Fiber</div><div class="v met">29g</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SECTION 2 — Full mock on the dashboard ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">In context</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ APPLIED TO THE DASHBOARD · BELOW THE HERO GREETING</div>
+
+    <div class="surface">
+      <div class="hero-eyebrow">Sunday, June 1 · Week 22</div>
+      <h1 class="hero-greeting">
+        Good morning,<br>
+        <em>Jen</em>.
+      </h1>
+
+      <div class="today-head">
+        <span class="today-eyebrow">Today's meals</span>
+        <a href="#" class="today-link">Open planner →</a>
+      </div>
+
+      <div class="slot-row">
+        <div class="slot-label">Breakfast</div>
+        <div>
+          <div class="slot-name">Overnight Oats PB</div>
+          <div class="slot-meta">1 serving</div>
+        </div>
+        <div class="slot-macros">
+          <span>420<span class="u">cal</span></span>
+          <span>18g<span class="u">prot</span></span>
+          <span>7g<span class="u">fiber</span></span>
+        </div>
+      </div>
+      <div class="slot-row">
+        <div class="slot-label">Lunch</div>
+        <div>
+          <div class="slot-name">Lunch Salad w/ Tuna</div>
+          <div class="slot-meta">1 serving</div>
+        </div>
+        <div class="slot-macros">
+          <span>440<span class="u">cal</span></span>
+          <span>34g<span class="u">prot</span></span>
+          <span>9g<span class="u">fiber</span></span>
+        </div>
+      </div>
+      <div class="slot-row">
+        <div class="slot-label">Dinner</div>
+        <div>
+          <div class="slot-name">Pan-seared Salmon</div>
+          <div class="slot-meta">1 serving</div>
+        </div>
+        <div class="slot-macros">
+          <span>580<span class="u">cal</span></span>
+          <span>42g<span class="u">prot</span></span>
+          <span>5g<span class="u">fiber</span></span>
+        </div>
+      </div>
+      <div class="slot-row">
+        <div class="slot-label">Snack</div>
+        <div>
+          <div class="slot-name">Fage Lactose Free Yogurt</div>
+          <div class="slot-meta">150 g</div>
+        </div>
+        <div class="slot-macros">
+          <span>130<span class="u">cal</span></span>
+          <span>14g<span class="u">prot</span></span>
+        </div>
+      </div>
+      <div class="slot-row">
+        <div class="slot-label">Side</div>
+        <div>
+          <div class="slot-name">Steamed Broccoli</div>
+          <div class="slot-meta">1 serving</div>
+        </div>
+        <div class="slot-macros">
+          <span>50<span class="u">cal</span></span>
+          <span>4g<span class="u">prot</span></span>
+          <span>5g<span class="u">fiber</span></span>
+        </div>
+      </div>
+
+      <div class="day-totals">
+        <div class="day-totals-head">Today's totals</div>
+        <div class="day-totals-cell"><div class="k">Cal</div><div class="v">1,620</div></div>
+        <div class="day-totals-cell"><div class="k">Fat</div><div class="v">58g</div></div>
+        <div class="day-totals-cell"><div class="k">Sat F</div><div class="v">14g</div></div>
+        <div class="day-totals-cell"><div class="k">Na</div><div class="v">1,840mg</div></div>
+        <div class="day-totals-cell"><div class="k">Carb</div><div class="v">145g</div></div>
+        <div class="day-totals-cell"><div class="k">Sugar</div><div class="v">33g</div></div>
+        <div class="day-totals-cell"><div class="k">Prot</div><div class="v met">112g</div></div>
+        <div class="day-totals-cell"><div class="k">Fiber</div><div class="v met">34g</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SECTION 3 — Notes ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">What changes, what stays</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="anno">Stays the same</div>
+    <p class="qbox">
+      <strong>Editorial dashboard chrome.</strong> Hero greeting, big "Good morning, Jen", date eyebrow, person switching, getting-started card. The matrix-aligned slot stack only replaces the "Today's key meals" block below.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>The data.</strong> Same source — today's MealLogs from the active person's plan. Same numbers as the matrix's "today" column.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>"Open planner →" link.</strong> Stays. Now points to <code>/planner</code> with today's planId.
+    </p>
+
+    <div class="anno">What changes</div>
+    <p class="qbox">
+      <strong>Editorial 3-column cards → matrix-style slot rows.</strong> Each meal is one row: slot label (mono) · name (sans 20px 600) + 1-line meta · 2–3 macros chip on the right. Identical to the matrix mobile day view.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Per-meal "See recipe →" link drops.</strong> The slot row is the click target — taps into the planner cell or recipe detail. Reduces visual noise.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>"Today's totals" strip appears below.</strong> The 8-cell totals grid from the matrix (Cal / Fat / Sat F / Na / Carb / Sugar / Prot / Fiber) with three-state color. Gives the dashboard a clear "how am I doing" answer that the editorial cards don't provide.
+    </p>
+
+    <div class="anno">Why this is better</div>
+    <p class="qbox">
+      <strong>Visual continuity.</strong> A user lands on the dashboard, sees the same row pattern they'll see in the matrix. No mental gear-shift between "summary view" and "planner view" — they're the same vocabulary at different densities.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Goal feedback is at-a-glance.</strong> The current cards show per-meal stats but not how the day is pacing toward goals. The totals strip with color does.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Shows all meals, not just three.</strong> Editorial filters out empty types; this stack shows Breakfast / Lunch / Dinner + any extras (Snack, Side, Dessert, Beverage). True picture of the day.
+    </p>
+
+    <div class="anno">Open question</div>
+    <p class="qbox">
+      <strong>Do we keep the editorial columns anywhere?</strong> The big numbered "01 · BREAKFAST" feels good on first install when there's room to breathe. Maybe a setting? Or just retire it — the matrix is the editorial moment now.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
