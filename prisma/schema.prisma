@@ -13,11 +13,11 @@ datasource db {
 
 // Pre-populated nutrients table (shared, not household-scoped)
 model Nutrient {
-  id           Int                   @id @default(autoincrement())
-  name         String                @unique // e.g., "calories", "fat", "satFat"
-  displayName  String                // e.g., "Calories", "Saturated Fat"
-  unit         String                // e.g., "kcal", "g", "mg"
-  orderIndex   Int                   // for display order
+  id          Int    @id @default(autoincrement())
+  name        String @unique // e.g., "calories", "fat", "satFat"
+  displayName String // e.g., "Calories", "Saturated Fat"
+  unit        String // e.g., "kcal", "g", "mg"
+  orderIndex  Int // for display order
 
   ingredientNutrients       IngredientNutrient[]
   nutritionGoals            NutritionGoal[]
@@ -27,24 +27,25 @@ model Nutrient {
 
 // People (authenticated users + household members)
 model Person {
-  id           Int      @id @default(autoincrement())
-  supabaseId   String?  @unique // Supabase auth UUID — null for legacy/migration
-  email        String?
-  name         String
-  color        String   @default("#5C9169")
-  theme        String   @default("sage")
-  onboardingComplete Boolean @default(false)
-  trackedOnly  Boolean  @default(false) // true = nutrition tracked, no login (e.g., children)
-  dismissedTips String  @default("[]") // JSON array of dismissed tip IDs
-  createdAt    DateTime @default(now())
+  id                 Int      @id @default(autoincrement())
+  supabaseId         String?  @unique // Supabase auth UUID — null for legacy/migration
+  email              String?
+  name               String
+  color              String   @default("#5C9169")
+  theme              String   @default("sage")
+  onboardingComplete Boolean  @default(false)
+  trackedOnly        Boolean  @default(false) // true = nutrition tracked, no login (e.g., children)
+  dismissedTips      String   @default("[]") // JSON array of dismissed tip IDs
+  createdAt          DateTime @default(now())
 
   mealPlans            MealPlan[]
   globalNutritionGoals GlobalNutritionGoal[]
   householdMembers     HouseholdMember[]
-  createdInvites       HouseholdInvite[] @relation("InviteCreator")
-  invitesForMe         HouseholdInvite[] @relation("InviteTarget")
+  createdInvites       HouseholdInvite[]     @relation("InviteCreator")
+  invitesForMe         HouseholdInvite[]     @relation("InviteTarget")
   recipeFavorites      RecipeFavorite[]
   ingredientFavorites  IngredientFavorite[]
+  dayTemplates         DayTemplate[]
 }
 
 // Household groups people together; all data is scoped to a household
@@ -61,19 +62,20 @@ model Household {
   globalNutritionGoals GlobalNutritionGoal[]
   systemSettings       SystemSetting[]
   apiUsageLogs         ApiUsageLog[]
+  dayTemplates         DayTemplate[]
 }
 
 // Maps people to households; a person can belong to multiple but only one is active
 model HouseholdMember {
-  id           Int      @id @default(autoincrement())
-  personId     Int
-  householdId  Int
-  active       Boolean  @default(true)
-  role         String   @default("member") // "owner" or "member"
-  joinedAt     DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  personId    Int
+  householdId Int
+  active      Boolean  @default(true)
+  role        String   @default("member") // "owner" or "member"
+  joinedAt    DateTime @default(now())
 
-  person       Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
-  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  person    Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
   @@unique([personId, householdId])
   @@index([personId])
@@ -87,42 +89,43 @@ model HouseholdInvite {
   id           Int       @id @default(autoincrement())
   householdId  Int
   token        String    @unique @default(uuid())
-  createdBy    Int       // personId who generated the invite
-  forPersonId  Int?      // personId this invite is meant for (null = legacy/generic invite)
+  createdBy    Int // personId who generated the invite
+  forPersonId  Int? // personId this invite is meant for (null = legacy/generic invite)
   inviteSentAt DateTime? // when the user copied/shared the link (used by dashboard checklist)
   createdAt    DateTime  @default(now())
   expiresAt    DateTime
   usedAt       DateTime?
-  usedBy       Int?      // personId who redeemed
+  usedBy       Int? // personId who redeemed
 
-  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  creator      Person    @relation("InviteCreator", fields: [createdBy], references: [id])
-  forPerson    Person?   @relation("InviteTarget", fields: [forPersonId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  creator   Person    @relation("InviteCreator", fields: [createdBy], references: [id])
+  forPerson Person?   @relation("InviteTarget", fields: [forPersonId], references: [id], onDelete: Cascade)
 
   @@index([forPersonId])
 }
 
 // Ingredients with basic info (household-scoped)
 model Ingredient {
-  id           Int                   @id @default(autoincrement())
-  householdId  Int?
-  name         String
-  fdcId        String?               // USDA Food Data Central ID for lookups
-  source       String                @default("custom") // "usda" or "custom"
-  defaultUnit  String                @default("g") // e.g., "g", "ml", or "other" if using custom units
-  customUnitName    String?          // e.g., "banana" when defaultUnit is "other"
-  customUnitAmount  Float?           // e.g., 1 (meaning 1 banana is the reference)
-  customUnitGrams   Float?           // e.g., 120 (meaning 1 banana = 120g)
-  isMealItem   Boolean               @default(false) // If true, shows in meal plan ingredient list
-  category     String                @default("") // e.g., "Produce", "Meat & Fish", "Dairy & Eggs"
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
+  id               Int      @id @default(autoincrement())
+  householdId      Int?
+  name             String
+  fdcId            String? // USDA Food Data Central ID for lookups
+  source           String   @default("custom") // "usda" or "custom"
+  defaultUnit      String   @default("g") // e.g., "g", "ml", or "other" if using custom units
+  customUnitName   String? // e.g., "banana" when defaultUnit is "other"
+  customUnitAmount Float? // e.g., 1 (meaning 1 banana is the reference)
+  customUnitGrams  Float? // e.g., 120 (meaning 1 banana = 120g)
+  isMealItem       Boolean  @default(false) // If true, shows in meal plan ingredient list
+  category         String   @default("") // e.g., "Produce", "Meat & Fish", "Dairy & Eggs"
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  household         Household?         @relation(fields: [householdId], references: [id])
+  household         Household?           @relation(fields: [householdId], references: [id])
   nutrientValues    IngredientNutrient[]
   recipeIngredients RecipeIngredient[]
   mealLogs          MealLog[]
   favorites         IngredientFavorite[]
+  dayTemplateItems  DayTemplateItem[]
 
   @@unique([name, householdId])
   @@index([householdId])
@@ -144,13 +147,13 @@ model IngredientFavorite {
 
 // Junction table: Ingredients to Nutrients (per 100g)
 model IngredientNutrient {
-  id            Int       @id @default(autoincrement())
-  ingredientId  Int
-  nutrientId    Int
-  value         Float     // per 100g
+  id           Int   @id @default(autoincrement())
+  ingredientId Int
+  nutrientId   Int
+  value        Float // per 100g
 
-  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  nutrient      Nutrient   @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  nutrient   Nutrient   @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
 
   @@unique([ingredientId, nutrientId])
   @@index([ingredientId])
@@ -158,32 +161,33 @@ model IngredientNutrient {
 
 // Recipes containing multiple ingredients (household-scoped)
 model Recipe {
-  id            Int       @id @default(autoincrement())
-  householdId   Int?
-  name          String
-  servingSize   Float     // number of servings
-  servingUnit   String    @default("servings") // "servings", "g", "ml", etc.
-  instructions  String    // markdown format
-  sourceApp     String?   // e.g., "Pestle"
-  isComplete    Boolean   @default(true) // whether all ingredients are specified
-  tags          String    @default("") // comma-separated recipe categories: breakfast, lunch, dinner, snack, side, dessert, beverage
-  prepTime      Int?      // minutes
-  cookTime      Int?      // minutes
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  householdId  Int?
+  name         String
+  servingSize  Float // number of servings
+  servingUnit  String   @default("servings") // "servings", "g", "ml", etc.
+  instructions String // markdown format
+  sourceApp    String? // e.g., "Pestle"
+  isComplete   Boolean  @default(true) // whether all ingredients are specified
+  tags         String   @default("") // comma-separated recipe categories: breakfast, lunch, dinner, snack, side, dessert, beverage
+  prepTime     Int? // minutes
+  cookTime     Int? // minutes
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  image         String?   // optional image URL
+  image String? // optional image URL
 
   // AI analysis — stored results, run once on save/import
-  optimizeAnalysis  String?   // JSON: optimization suggestions
-  mealPrepAnalysis  String?   // JSON: meal prep candidacy + notes
-  analysisModel     String?   // model used, e.g. "claude-sonnet-4-20250514"
-  analyzedAt        DateTime? // when analysis was last run
+  optimizeAnalysis String? // JSON: optimization suggestions
+  mealPrepAnalysis String? // JSON: meal prep candidacy + notes
+  analysisModel    String? // model used, e.g. "claude-sonnet-4-20250514"
+  analyzedAt       DateTime? // when analysis was last run
 
-  household   Household?       @relation(fields: [householdId], references: [id])
-  ingredients RecipeIngredient[]
-  mealLogs    MealLog[]
-  favorites   RecipeFavorite[]
+  household        Household?         @relation(fields: [householdId], references: [id])
+  ingredients      RecipeIngredient[]
+  mealLogs         MealLog[]
+  favorites        RecipeFavorite[]
+  dayTemplateItems DayTemplateItem[]
 
   @@index([householdId])
   @@index([isComplete])
@@ -205,17 +209,17 @@ model RecipeFavorite {
 
 // Junction table: Recipes to Ingredients
 model RecipeIngredient {
-  id                Int       @id @default(autoincrement())
-  recipeId          Int
-  ingredientId      Int
-  quantity          Float     // amount in specified unit
-  unit              String    // e.g., "cup", "tsp", "g", "ml"
-  conversionGrams   Float?    // cached gram equivalent for quick lookup
-  notes             String?   // optional notes for this ingredient
-  section           String?   // ingredient group label (e.g. "Almond Paste Topping")
+  id              Int     @id @default(autoincrement())
+  recipeId        Int
+  ingredientId    Int
+  quantity        Float // amount in specified unit
+  unit            String // e.g., "cup", "tsp", "g", "ml"
+  conversionGrams Float? // cached gram equivalent for quick lookup
+  notes           String? // optional notes for this ingredient
+  section         String? // ingredient group label (e.g. "Almond Paste Topping")
 
-  recipe            Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 
   @@index([recipeId])
   @@index([ingredientId])
@@ -223,18 +227,18 @@ model RecipeIngredient {
 
 // Weekly meal plans (household-scoped, person-filtered)
 model MealPlan {
-  id               Int      @id @default(autoincrement())
-  householdId      Int?
-  weekStartDate    DateTime
-  personId         Int?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  shoppingChecked  String   @default("")
+  id              Int      @id @default(autoincrement())
+  householdId     Int?
+  weekStartDate   DateTime
+  personId        Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  shoppingChecked String   @default("")
 
-  household       Household?      @relation(fields: [householdId], references: [id])
-  person          Person?         @relation(fields: [personId], references: [id])
-  mealLogs        MealLog[]
-  nutritionGoals  NutritionGoal[]
+  household      Household?      @relation(fields: [householdId], references: [id])
+  person         Person?         @relation(fields: [personId], references: [id])
+  mealLogs       MealLog[]
+  nutritionGoals NutritionGoal[]
 
   @@index([householdId])
   @@index([personId])
@@ -244,21 +248,21 @@ model MealPlan {
 // Daily meal entries (breakfast, lunch, dinner, snacks)
 // Can contain either a Recipe OR a standalone Ingredient (for snacks, single items, etc.)
 model MealLog {
-  id         Int       @id @default(autoincrement())
-  mealPlanId Int
-  date       DateTime  // specific date in the week
-  mealType   String    // "breakfast", "lunch", "dinner", "side", "dessert", "beverage"
-  recipeId   Int?      // recipe-based meal (null if ingredient-based)
-  ingredientId Int?    // ingredient-based meal (null if recipe-based)
-  quantity   Float?    // quantity for ingredient-based meals
-  unit       String?   // unit for ingredient-based meals (e.g., "g", "ml", "banana")
-  servings   Float     @default(1) // servings for recipe-based meals
-  notes      String?   // optional notes
-  position   Int       @default(0) // display order within a day
-  createdAt  DateTime  @default(now())
+  id           Int      @id @default(autoincrement())
+  mealPlanId   Int
+  date         DateTime // specific date in the week
+  mealType     String // "breakfast", "lunch", "dinner", "side", "dessert", "beverage"
+  recipeId     Int? // recipe-based meal (null if ingredient-based)
+  ingredientId Int? // ingredient-based meal (null if recipe-based)
+  quantity     Float? // quantity for ingredient-based meals
+  unit         String? // unit for ingredient-based meals (e.g., "g", "ml", "banana")
+  servings     Float    @default(1) // servings for recipe-based meals
+  notes        String? // optional notes
+  position     Int      @default(0) // display order within a day
+  createdAt    DateTime @default(now())
 
-  mealPlan   MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
-  recipe     Recipe?   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  mealPlan   MealPlan    @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  recipe     Recipe?     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredient Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 
   @@index([mealPlanId, date])
@@ -268,27 +272,68 @@ model MealLog {
 
 // Daily nutrient goals per meal plan (scoped through MealPlan)
 model NutritionGoal {
-  id           Int       @id @default(autoincrement())
-  mealPlanId   Int
-  nutrientId   Int
-  lowGoal      Float?    // minimum daily intake (null = no min)
-  highGoal     Float?    // maximum daily intake (null = no max)
+  id         Int    @id @default(autoincrement())
+  mealPlanId Int
+  nutrientId Int
+  lowGoal    Float? // minimum daily intake (null = no min)
+  highGoal   Float? // maximum daily intake (null = no max)
 
-  mealPlan     MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
-  nutrient     Nutrient  @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
+  mealPlan MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  nutrient Nutrient @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
 
   @@unique([mealPlanId, nutrientId])
   @@index([mealPlanId])
 }
 
+// A saved day pattern that can be applied to any future day to populate cells.
+// Captured from the matrix planner's "save this day as template" action.
+model DayTemplate {
+  id          Int      @id @default(autoincrement())
+  householdId Int
+  personId    Int? // whose matrix it was saved from (nullable for attribution)
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household         @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  person    Person?           @relation(fields: [personId], references: [id], onDelete: SetNull)
+  items     DayTemplateItem[]
+
+  @@index([householdId])
+  @@index([personId])
+  @@index([householdId, name])
+}
+
+// One item inside a day template — mirrors MealLog minus date and meal-plan binding.
+model DayTemplateItem {
+  id            Int     @id @default(autoincrement())
+  dayTemplateId Int
+  mealType      String // breakfast | lunch | dinner | snack | side | dessert | beverage
+  position      Int     @default(0)
+  recipeId      Int?
+  servings      Float?
+  ingredientId  Int?
+  quantity      Float?
+  unit          String?
+  notes         String?
+
+  dayTemplate DayTemplate @relation(fields: [dayTemplateId], references: [id], onDelete: Cascade)
+  recipe      Recipe?     @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  ingredient  Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: SetNull)
+
+  @@index([dayTemplateId])
+  @@index([recipeId])
+  @@index([ingredientId])
+}
+
 // Key-value store for app-level settings (household-scoped)
 model SystemSetting {
-  id           Int        @id @default(autoincrement())
-  householdId  Int?
-  key          String
-  value        String
+  id          Int    @id @default(autoincrement())
+  householdId Int?
+  key         String
+  value       String
 
-  household    Household? @relation(fields: [householdId], references: [id])
+  household Household? @relation(fields: [householdId], references: [id])
 
   @@unique([key, householdId])
 }
@@ -303,7 +348,7 @@ model ApiUsageLog {
   inputTokens  Int      @default(0)
   outputTokens Int      @default(0)
 
-  household    Household? @relation(fields: [householdId], references: [id])
+  household Household? @relation(fields: [householdId], references: [id])
 }
 
 // Globally shared parsed USDA ingredient data (no household scope)
@@ -324,10 +369,10 @@ model GlobalIngredient {
 
 // Junction table: GlobalIngredient to Nutrients (per 100g)
 model GlobalIngredientNutrient {
-  id                 Int              @id @default(autoincrement())
+  id                 Int   @id @default(autoincrement())
   globalIngredientId Int
   nutrientId         Int
-  value              Float            // per 100g
+  value              Float // per 100g
 
   globalIngredient GlobalIngredient @relation(fields: [globalIngredientId], references: [id], onDelete: Cascade)
   nutrient         Nutrient         @relation(fields: [nutrientId], references: [id])
@@ -340,7 +385,7 @@ model GlobalIngredientNutrient {
 model UsdaSearchCache {
   id        Int      @id @default(autoincrement())
   query     String   @unique // lowercase-normalized search term
-  response  Json     // full filtered USDA response
+  response  Json // full filtered USDA response
   createdAt DateTime @default(now())
 }
 
@@ -348,22 +393,22 @@ model UsdaSearchCache {
 model UsdaFoodCache {
   id        Int      @id @default(autoincrement())
   fdcId     String   @unique
-  response  Json     // full USDA food detail response
+  response  Json // full USDA food detail response
   createdAt DateTime @default(now())
 }
 
 // Global nutrient goals per person (household-scoped)
 model GlobalNutritionGoal {
-  id         Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   householdId Int?
-  nutrientId Int
-  personId   Int?
-  lowGoal    Float?
-  highGoal   Float?
+  nutrientId  Int
+  personId    Int?
+  lowGoal     Float?
+  highGoal    Float?
 
-  household  Household? @relation(fields: [householdId], references: [id])
-  nutrient   Nutrient @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
-  person     Person?  @relation(fields: [personId], references: [id])
+  household Household? @relation(fields: [householdId], references: [id])
+  nutrient  Nutrient   @relation(fields: [nutrientId], references: [id], onDelete: Cascade)
+  person    Person?    @relation(fields: [personId], references: [id])
 
   @@unique([nutrientId, personId, householdId])
   @@index([personId])
