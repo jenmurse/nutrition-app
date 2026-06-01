@@ -1301,6 +1301,8 @@ function PlannerPage() {
                 const fat = nutrientCell(day, ["total fat", "fat"], (v) => `${Math.round(v)}g`);
                 const sat = nutrientCell(day, ["saturated"], (v) => `${Math.round(v)}g`);
                 const na = nutrientCell(day, ["sodium"], (v) => `${Math.round(v)}mg`);
+                const carb = nutrientCell(day, ["carbohydrate", "carb"], (v) => `${Math.round(v)}g`);
+                const sugar = nutrientCell(day, ["sugar"], (v) => `${Math.round(v)}g`);
                 const prot = nutrientCell(day, ["protein"], (v) => `${Math.round(v)}g`);
                 const fiber = nutrientCell(day, ["fiber"], (v) => `${Math.round(v)}g`);
                 const rows = [
@@ -1308,6 +1310,8 @@ function PlannerPage() {
                   { k: "Fat", c: fat },
                   { k: "Sat Fat", c: sat },
                   { k: "Sodium", c: na },
+                  { k: "Carbs", c: carb },
+                  { k: "Sugar", c: sugar },
                   { k: "Protein", c: prot },
                   { k: "Fiber", c: fiber },
                 ];
