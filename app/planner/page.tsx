@@ -1353,7 +1353,7 @@ function PlannerPage() {
                 const isToday = d.toDateString() === today.toDateString();
                 return (
                   <div className={`mx-day-head${isToday ? " is-today-col" : ""}`} key={d.toISOString()}>
-                    <div className="mx-day-name">{DAY_NAMES[d.getDay()]}</div>
+                    <div className={`mx-day-name${isToday ? " is-today" : ""}`}>{DAY_NAMES[d.getDay()]}</div>
                     <div className={`mx-day-num${isToday ? " today" : ""}`}>{d.getDate()}</div>
                   </div>
                 );

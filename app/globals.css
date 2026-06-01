@@ -1519,11 +1519,13 @@ input[type="number"]:focus {
   color: var(--fg);
 }
 .mx-day-num.today { color: var(--accent); }
-/* Highlight today's column (header + every cell + totals) */
+.mx-day-name.is-today { color: var(--accent); }
+/* Highlight today's column (header + every cell + totals) using the
+   theme's accent tint — matches the dashboard week strip. */
 .mx-day-head.is-today-col,
 .mx-cell.is-today-col,
 .mx-totals.is-today-col {
-  background: var(--bg-2);
+  background: var(--accent-l);
 }
 .mx-slot-label {
   border-right: 1px solid var(--rule);
