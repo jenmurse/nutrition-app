@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
@@ -369,9 +369,12 @@ function PlannerPage() {
     if (!saveTplOpen || !plan) return;
     const dateISO = `${saveTplOpen.date.getFullYear()}-${String(saveTplOpen.date.getMonth() + 1).padStart(2, "0")}-${String(saveTplOpen.date.getDate()).padStart(2, "0")}`;
     const planId = plan.id;
-    // Close dialog FIRST so its backdrop is unmounted before any async work — this
-    // prevents the iOS Safari chrome from holding the dimmed-page tint after success.
-    setSaveTplOpen(null);
+    // flushSync forces React to commit + render synchronously, so the dialog's
+    // backdrop element is removed from the DOM before any async work.
+    // Without this React 18 may batch the unmount, leaving the dimmed backdrop
+    // mounted during the fetch — on iOS Safari the safe-area chrome holds
+    // that tint until the next interaction.
+    flushSync(() => { setSaveTplOpen(null); });
     try {
       const r = await fetch("/api/day-templates", {
         method: "POST",
@@ -412,10 +415,13 @@ function PlannerPage() {
   }
   async function doApplyTemplate(template: DayTemplate, date: Date, mode: "replace" | "append") {
     if (!plan) return;
-    // Close any open dialog/menu FIRST so the backdrop unmounts before the async
-    // work — otherwise iOS Safari can hold the dimmed-chrome state until reload.
-    setApplyTpl(null);
-    setDayMenu(null);
+    // flushSync — force React to commit + render synchronously so the dialog +
+    // menu backdrops are removed from DOM before any async work. Otherwise
+    // iOS Safari holds the dimmed page-background in the safe-area chrome.
+    flushSync(() => {
+      setApplyTpl(null);
+      setDayMenu(null);
+    });
     const planId = plan.id;
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     try {
