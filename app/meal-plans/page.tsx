@@ -826,6 +826,16 @@ const MealPlansPage = () => {
 
 
 
+        {/* Try matrix planner — beta cross-link */}
+        <Link
+          href={selectedPlan ? `/planner?planId=${selectedPlan.id}` : "/planner"}
+          className="ed-btn-text"
+          aria-label="Try the matrix planner (beta)"
+          title="Matrix planner (beta)"
+        >
+          Matrix <span aria-hidden="true">→</span>
+        </Link>
+
         {/* Right group: + New Plan, separator, edit controls, nutrition, person chips */}
         <div className="pl-right-group">
           <button

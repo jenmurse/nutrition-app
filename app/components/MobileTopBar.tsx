@@ -117,7 +117,7 @@ export default function MobileTopBar() {
             </Suspense>
           ) : (
             <>
-              {pathname === "/home" && <PersonPulldown />}
+              {(pathname === "/home" || pathname === "/planner") && <PersonPulldown />}
               <button
                 className="mob-topbar-trigger"
                 onClick={() => setMenuOpen(true)}

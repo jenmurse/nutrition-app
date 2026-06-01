@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix mode v4 — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #FFFFFF;
+    --bg-2: #F5F5F4;
+    --bg-3: #ECECEA;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #B43A1F;
+    --ok: #4F6B3A;
+    --accent: #7C8C5F;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-3);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1700px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: -12px 0 24px;
+  }
+  .surface {
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    overflow: visible;
+    position: relative;
+  }
+  .pl-toolbar {
+    display: flex; align-items: center; gap: 18px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pl-range {
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+  }
+  .pl-nav-btn {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 4px 6px;
+  }
+  .pl-nav-btn:hover { color: var(--fg); }
+  .pl-spacer { flex: 1; }
+  .ed-btn-text {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 4px 6px;
+  }
+  .ed-btn-text:hover { color: var(--fg); }
+  .ed-toolbar-sep { width: 1px; height: 12px; background: var(--rule); }
+  .pl-person-chips { display: flex; gap: 4px; }
+  .pl-person-chip {
+    background: transparent; border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 5px 9px;
+  }
+  .pl-person-chip.is-active { border-color: var(--fg); color: var(--fg); }
+  .ed-btn-primary {
+    background: var(--fg); color: var(--bg);
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    padding: 7px 12px;
+  }
+
+  /* Matrix grid */
+  .mx {
+    display: grid;
+    grid-template-columns: 110px repeat(7, 1fr);
+  }
+  .mx-corner {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-day-head {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 14px 12px;
+  }
+  .mx-day-head:last-child { border-right: 0; }
+  .mx-day-name {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mx-day-num {
+    font-family: var(--font-sans);
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .mx-day-num.today { color: var(--accent); }
+  .mx-slot-label {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 18px 14px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: flex-start; gap: 8px;
+    cursor: grab;
+  }
+  .mx-slot-grip {
+    color: var(--rule); font-size: 10px;
+    line-height: 1; user-select: none;
+  }
+  .mx-cell {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 14px;
+    min-height: 76px;
+    cursor: pointer;
+    transition: background 120ms var(--ease-out);
+    position: relative;
+  }
+  .mx-cell:last-child { border-right: 0; }
+  .mx-cell:hover { background: var(--bg-2); }
+  .mx-cell.is-target {
+    background: var(--bg-2);
+    box-shadow: inset 0 0 0 2px var(--fg);
+  }
+  .mx-cell-name {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .mx-cell-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-cell-empty .mx-cell-add {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); opacity: 0.6;
+  }
+  .mx-addslot {
+    grid-column: 1 / -1;
+    padding: 14px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .mx-addslot-label {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-addslot-btn {
+    background: transparent; border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; padding: 5px 10px;
+  }
+  .mx-totals-label {
+    border-right: 1px solid var(--rule);
+    padding: 14px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-totals {
+    border-right: 1px solid var(--rule);
+    padding: 14px;
+  }
+  .mx-totals:last-child { border-right: 0; }
+  .mx-tot-row {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 0;
+  }
+  .mx-tot-key {
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-tot-val {
+    font-weight: 600; color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .mx-tot-val.over { color: var(--err); }
+  .mx-tot-val.met { color: var(--ok); }
+
+  /* Browse all - sliding right sheet */
+  .browse-stage {
+    position: relative;
+    background: var(--bg-3);
+    padding: 0;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .browse-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.15);
+    z-index: 4;
+  }
+  .browse-sheet {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 460px;
+    background: var(--bg);
+    border-left: 1px solid var(--fg);
+    box-shadow: -12px 0 32px rgba(0,0,0,0.12);
+    z-index: 5;
+    display: flex; flex-direction: column;
+  }
+  .browse-head {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .browse-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+  }
+  .browse-x {
+    cursor: pointer; color: var(--muted);
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .browse-title {
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+  .browse-search {
+    border: 1px solid var(--rule);
+    padding: 8px 10px; width: 100%;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    background: var(--bg);
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .browse-toolbar {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .browse-chip {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; padding: 0;
+  }
+  .browse-chip.is-active { color: var(--fg); }
+  .browse-spacer { flex: 1; }
+  .browse-count {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .browse-list { flex: 1; overflow-y: auto; }
+  .browse-item {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px; align-items: center;
+    cursor: pointer;
+  }
+  .browse-item:hover { background: var(--bg-2); }
+  .browse-thumb {
+    width: 44px; height: 44px;
+    background: var(--bg-3);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .browse-thumb.has-img {
+    background: linear-gradient(135deg, #b8a784, #8c7a5c);
+  }
+  .browse-thumb .initials {
+    font-family: var(--font-sans);
+    font-size: 11px; font-weight: 600;
+    color: var(--muted);
+    opacity: 0.6;
+  }
+  .browse-info { min-width: 0; }
+  .browse-name {
+    font-family: var(--font-sans);
+    font-size: 14px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 3px;
+  }
+  .browse-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .browse-fav {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+  .browse-fav.on { color: var(--fg); }
+  .browse-section-head {
+    padding: 10px 24px 6px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* Mobile */
+  .mob-stage {
+    display: flex; gap: 32px;
+    align-items: flex-start;
+  }
+  .mob-frame {
+    width: 390px;
+    border: 1px solid var(--fg);
+    background: var(--bg);
+    border-radius: 28px;
+    overflow: hidden;
+  }
+
+  /* Real mobile top bar — wordmark left, person + hamburger right */
+  .mob-topbar {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg);
+  }
+  .mob-topbar-left { flex: 1; }
+  .mob-topbar-wordmark {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .mob-topbar-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mob-topbar-person {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+    border: 1px solid var(--rule);
+    padding: 5px 10px;
+    background: transparent;
+  }
+  .mob-topbar-trigger {
+    background: transparent; border: 0;
+    padding: 4px; cursor: pointer;
+    color: var(--fg);
+  }
+
+  /* Mobile second toolbar — now just week + nav */
+  .mob-tb {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-week {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .mob-arrows {
+    display: flex; gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .mob-daystrip {
+    display: flex;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-daypill {
+    flex: 1;
+    padding: 12px 6px 10px;
+    text-align: center;
+    border-right: 1px solid var(--rule);
+    cursor: pointer;
+  }
+  .mob-daypill:last-child { border-right: 0; }
+  .mob-daypill.active { background: var(--bg-2); }
+  .mob-daypill .dn {
+    font-family: var(--font-mono);
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 2px;
+  }
+  .mob-daypill.active .dn { color: var(--fg); }
+  .mob-daypill .ddn {
+    font-family: var(--font-sans);
+    font-size: 14px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .mob-daypill.active .ddn { color: var(--accent); }
+  .mob-daypill .ddot {
+    width: 4px; height: 4px;
+    background: var(--rule);
+    border-radius: 50%;
+    margin: 4px auto 0;
+  }
+  .mob-daypill.has-meals .ddot { background: var(--fg); }
+
+  .mob-slot {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-slot-label {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+  }
+  .mob-slot-name {
+    font-family: var(--font-sans);
+    font-size: 16px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+  }
+  .mob-slot-meta {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .mob-slot.empty .mob-slot-name {
+    color: var(--muted); font-size: 13px; opacity: 0.7;
+  }
+  .mob-addslot {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .mob-addslot .lbl {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px; align-self: center;
+  }
+  .mob-addslot button {
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 5px 9px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+  }
+  .mob-totals {
+    padding: 14px 18px;
+    background: var(--bg-2);
+  }
+  .mob-totals-head {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .mob-totals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px 16px;
+  }
+  .mob-tot-cell .k {
+    font-family: var(--font-mono);
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mob-tot-cell .v {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .mob-tot-cell .v.over { color: var(--err); }
+  .mob-tot-cell .v.met { color: var(--ok); }
+
+  .anno {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 8px;
+  }
+  .qbox {
+    border-left: 2px solid var(--rule);
+    padding: 4px 0 4px 14px;
+    margin: 0 0 6px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .qbox strong { color: var(--fg); font-weight: 600; }
+
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .col-label {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .col-label .x {
+    color: var(--err); text-decoration: line-through;
+  }
+  .col-label .check {
+    color: var(--ok);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-title">Matrix mode v4</div>
+  <div class="doc-intro">
+    Fixed: white background (matching real app), browse-all shown in actual matrix context, mobile top bar reorganized to match the real <code>MobileTopBar</code> pattern (wordmark left, person + hamburger right).
+  </div>
+
+  <!-- ============== SECTION 1 — Browse all in matrix context ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">Browse all — in matrix context</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ FULL MATRIX VISIBLE BEHIND · 460PX SHEET ON RIGHT · WED LUNCH BEING PICKED</div>
+
+    <div class="browse-stage">
+      <!-- The matrix behind -->
+      <div class="surface" style="border: 0;">
+        <div class="pl-toolbar">
+          <span class="pl-range">Jan 15–21</span>
+          <button class="pl-nav-btn">‹ Prev</button>
+          <button class="pl-nav-btn">Next ›</button>
+          <button class="pl-nav-btn">This week</button>
+          <div class="pl-spacer"></div>
+          <button class="ed-btn-text">Cart</button>
+          <div class="ed-toolbar-sep"></div>
+          <div class="pl-person-chips">
+            <button class="pl-person-chip is-active">Jen</button>
+            <button class="pl-person-chip">Sam</button>
+            <button class="pl-person-chip">Everyone</button>
+          </div>
+          <div class="ed-toolbar-sep"></div>
+          <button class="ed-btn-primary">+ New Plan</button>
+        </div>
+
+        <div class="mx">
+          <div class="mx-corner"></div>
+          <div class="mx-day-head"><div class="mx-day-name">Mon</div><div class="mx-day-num">15</div></div>
+          <div class="mx-day-head"><div class="mx-day-name">Tue</div><div class="mx-day-num">16</div></div>
+          <div class="mx-day-head"><div class="mx-day-name">Wed</div><div class="mx-day-num today">17</div></div>
+          <div class="mx-day-head"><div class="mx-day-name">Thu</div><div class="mx-day-num">18</div></div>
+          <div class="mx-day-head"><div class="mx-day-name">Fri</div><div class="mx-day-num">19</div></div>
+          <div class="mx-day-head"><div class="mx-day-name">Sat</div><div class="mx-day-num">20</div></div>
+          <div class="mx-day-head"><div class="mx-day-name">Sun</div><div class="mx-day-num">21</div></div>
+
+          <div class="mx-slot-label"><span class="mx-slot-grip">⋮⋮</span>Breakfast</div>
+          <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">420 · 18g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Greek yogurt</div><div class="mx-cell-meta">340 · 22g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Veggie scramble</div><div class="mx-cell-meta">410 · 26g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">420 · 18g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Spinach omelet</div><div class="mx-cell-meta">380 · 28g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Weekend pancakes</div><div class="mx-cell-meta">510 · 14g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Greek yogurt</div><div class="mx-cell-meta">340 · 22g P</div></div>
+
+          <div class="mx-slot-label"><span class="mx-slot-grip">⋮⋮</span>Lunch</div>
+          <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Lentil tomato soup</div><div class="mx-cell-meta">390 · 22g P</div></div>
+          <!-- The cell being filled — highlighted target -->
+          <div class="mx-cell mx-cell-empty is-target">
+            <div class="mx-cell-add">Choosing…</div>
+          </div>
+          <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Quinoa bowl</div><div class="mx-cell-meta">490 · 19g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Tuna salad</div><div class="mx-cell-meta">440 · 34g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Lentil soup</div><div class="mx-cell-meta">390 · 22g P</div></div>
+
+          <div class="mx-slot-label"><span class="mx-slot-grip">⋮⋮</span>Dinner</div>
+          <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken</div><div class="mx-cell-meta">540 · 44g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Beef stir fry</div><div class="mx-cell-meta">610 · 38g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Turkey ragù pasta</div><div class="mx-cell-meta">560 · 32g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken</div><div class="mx-cell-meta">540 · 44g P</div></div>
+          <div class="mx-cell"><div class="mx-cell-name">Veggie chili</div><div class="mx-cell-meta">450 · 24g P</div></div>
+
+          <div class="mx-addslot">
+            <span class="mx-addslot-label">Need more?</span>
+            <button class="mx-addslot-btn">+ Snack</button>
+            <button class="mx-addslot-btn">+ Side</button>
+            <button class="mx-addslot-btn">+ Dessert</button>
+            <button class="mx-addslot-btn">+ Beverage</button>
+          </div>
+
+          <div class="mx-totals-label">Daily totals</div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,520</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">98g</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">26g</span></div>
+          </div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,270</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">88g</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">30g</span></div>
+          </div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">—</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">—</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">—</span></div>
+          </div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,500</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">88g</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">28g</span></div>
+          </div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,450</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">96g</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">31g</span></div>
+          </div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,490</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">90g</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">25g</span></div>
+          </div>
+          <div class="mx-totals">
+            <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,180</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">78g</span></div>
+            <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">29g</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backdrop dim -->
+      <div class="browse-backdrop"></div>
+
+      <!-- Sheet -->
+      <div class="browse-sheet">
+        <div class="browse-head">
+          <div class="browse-eyebrow">
+            <span>§ ALL LUNCH RECIPES</span>
+            <button class="browse-x">✕ CLOSE</button>
+          </div>
+          <div class="browse-title">For Wed lunch.</div>
+          <input class="browse-search" placeholder="Search lunch recipes…" />
+          <div class="browse-toolbar">
+            <button class="browse-chip is-active">All</button>
+            <button class="browse-chip">★ Favorites</button>
+            <div class="browse-spacer"></div>
+            <span class="browse-count">38 recipes</span>
+          </div>
+        </div>
+        <div class="browse-list">
+          <div class="browse-section-head">★ Favorites · 5</div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Chicken caesar wrap</div>
+              <div class="browse-meta">520 · 38g P · 12g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Lentil tomato soup</div>
+              <div class="browse-meta">390 · 22g P · 14g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Tuna salad on greens</div>
+              <div class="browse-meta">440 · 34g P · 8g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb"><span class="initials">QB</span></div>
+            <div class="browse-info">
+              <div class="browse-name">Quinoa bowl with chickpeas</div>
+              <div class="browse-meta">490 · 19g P · 11g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Mediterranean grain bowl</div>
+              <div class="browse-meta">510 · 17g P · 13g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-section-head">All · 33</div>
+          <div class="browse-item">
+            <div class="browse-thumb"><span class="initials">TS</span></div>
+            <div class="browse-info">
+              <div class="browse-name">Tomato basil salad</div>
+              <div class="browse-meta">280 · 8g P · 6g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">BLT on sourdough</div>
+              <div class="browse-meta">580 · 24g P · 6g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb"><span class="initials">CS</span></div>
+            <div class="browse-info">
+              <div class="browse-name">Cobb salad</div>
+              <div class="browse-meta">540 · 36g P · 8g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Vietnamese banh mi</div>
+              <div class="browse-meta">620 · 28g P · 7g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb"><span class="initials">FF</span></div>
+            <div class="browse-info">
+              <div class="browse-name">Falafel pita</div>
+              <div class="browse-meta">540 · 16g P · 10g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>The target cell</strong> (Wed lunch) gets a 2px black box-shadow so you don't lose track of what you're filling.
+      Cell content shows "Choosing…" instead of "+ pick" while the sheet is open.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Sectioned list</strong> instead of just "favorites first." Sticky <em>★ Favorites · 5</em> head, then <em>All · 33</em> head. Less ambiguous than just trusting sort order.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>★ toggle on each row</strong> — favorite/unfavorite without leaving the sheet. Important for first-time seeding.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 2 — Mobile with corrected top bar ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Mobile — corrected top bar</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ WORDMARK + PERSON CHIP + HAMBURGER · SECOND TOOLBAR JUST WEEK NAV</div>
+
+    <div class="compare-row">
+      <div>
+        <div class="col-label"><span class="x">Before — crowded second toolbar</span></div>
+        <div class="mob-frame">
+          <div class="mob-topbar">
+            <div class="mob-topbar-left">
+              <span class="mob-topbar-wordmark">Good Measure</span>
+            </div>
+            <div class="mob-topbar-right">
+              <button class="mob-topbar-trigger">
+                <svg viewBox="0 0 18 12" width="18" height="12" aria-hidden="true">
+                  <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" stroke-width="1"/>
+                  <line x1="0" y1="6"  x2="18" y2="6"  stroke="currentColor" stroke-width="1"/>
+                  <line x1="0" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="mob-tb" style="gap: 10px; flex-wrap: wrap;">
+            <div class="mob-week">Jan 15–21</div>
+            <div class="mob-arrows">‹ ·  ›</div>
+            <button class="mob-topbar-person" style="font-size: 8px; padding: 4px 8px;">Jen ▾</button>
+          </div>
+          <div class="mob-daystrip">
+            <div class="mob-daypill has-meals"><div class="dn">Mon</div><div class="ddn">15</div><div class="ddot"></div></div>
+            <div class="mob-daypill active has-meals"><div class="dn">Tue</div><div class="ddn">16</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Wed</div><div class="ddn">17</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Thu</div><div class="ddn">18</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Fri</div><div class="ddn">19</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Sat</div><div class="ddn">20</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Sun</div><div class="ddn">21</div><div class="ddot"></div></div>
+          </div>
+          <div class="mob-slot">
+            <div class="mob-slot-label"><span>Breakfast</span><span>★</span></div>
+            <div class="mob-slot-name">Greek yogurt + granola</div>
+            <div class="mob-slot-meta">340 · 22g P</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="col-label"><span class="check">After — person up top, toolbar clean</span></div>
+        <div class="mob-frame">
+          <div class="mob-topbar">
+            <div class="mob-topbar-left">
+              <span class="mob-topbar-wordmark">Good Measure</span>
+            </div>
+            <div class="mob-topbar-right">
+              <button class="mob-topbar-person">Jen ▾</button>
+              <button class="mob-topbar-trigger">
+                <svg viewBox="0 0 18 12" width="18" height="12" aria-hidden="true">
+                  <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" stroke-width="1"/>
+                  <line x1="0" y1="6"  x2="18" y2="6"  stroke="currentColor" stroke-width="1"/>
+                  <line x1="0" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="mob-tb">
+            <div class="mob-week">Jan 15–21</div>
+            <div class="mob-arrows">‹ Prev · Next ›</div>
+          </div>
+          <div class="mob-daystrip">
+            <div class="mob-daypill has-meals"><div class="dn">Mon</div><div class="ddn">15</div><div class="ddot"></div></div>
+            <div class="mob-daypill has-meals"><div class="dn">Tue</div><div class="ddn">16</div><div class="ddot"></div></div>
+            <div class="mob-daypill active has-meals"><div class="dn">Wed</div><div class="ddn">17</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Thu</div><div class="ddn">18</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Fri</div><div class="ddn">19</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Sat</div><div class="ddn">20</div><div class="ddot"></div></div>
+            <div class="mob-daypill"><div class="dn">Sun</div><div class="ddn">21</div><div class="ddot"></div></div>
+          </div>
+          <div class="mob-slot">
+            <div class="mob-slot-label"><span>Breakfast</span><span>★</span></div>
+            <div class="mob-slot-name">Veggie scramble + toast</div>
+            <div class="mob-slot-meta">410 · 26g P</div>
+          </div>
+          <div class="mob-slot">
+            <div class="mob-slot-label"><span>Lunch</span><span>★</span></div>
+            <div class="mob-slot-name">Tuna salad on greens</div>
+            <div class="mob-slot-meta">440 · 34g P</div>
+          </div>
+          <div class="mob-slot">
+            <div class="mob-slot-label"><span>Dinner</span><span>★</span></div>
+            <div class="mob-slot-name">Beef stir fry</div>
+            <div class="mob-slot-meta">610 · 38g P</div>
+          </div>
+          <div class="mob-slot empty">
+            <div class="mob-slot-label"><span>Snack</span></div>
+            <div class="mob-slot-name">+ pick</div>
+          </div>
+          <div class="mob-addslot">
+            <span class="lbl">Need more?</span>
+            <button>+ Side</button>
+            <button>+ Dessert</button>
+            <button>+ Bev</button>
+          </div>
+          <div class="mob-totals">
+            <div class="mob-totals-head">Wed totals</div>
+            <div class="mob-totals-grid">
+              <div class="mob-tot-cell"><div class="k">Cal</div><div class="v">1,460</div></div>
+              <div class="mob-tot-cell"><div class="k">Fat</div><div class="v">56g</div></div>
+              <div class="mob-tot-cell"><div class="k">Sat F</div><div class="v over">20g</div></div>
+              <div class="mob-tot-cell"><div class="k">Na</div><div class="v over">2,460mg</div></div>
+              <div class="mob-tot-cell"><div class="k">Carb</div><div class="v">164g</div></div>
+              <div class="mob-tot-cell"><div class="k">Sugar</div><div class="v">38g</div></div>
+              <div class="mob-tot-cell"><div class="k">Prot</div><div class="v met">108g</div></div>
+              <div class="mob-tot-cell"><div class="k">Fiber</div><div class="v">22g</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      Person chip lives in the top bar next to the hamburger — same pattern as <code>PersonPulldown</code> on the dashboard. Precedent exists, no new chrome.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      Second toolbar slims down to just <strong>week range + prev/next arrows</strong>. Clean.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>The wordmark stays as Good Measure</strong> — the real <code>BrandName</code> component. Not a chip.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 3 — Final answers ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Your other questions answered</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="anno">What did I mean by "Recent" tab?</div>
+    <p class="qbox">
+      A picker tab showing recipes you've added to plans in the last ~30 days. Useful for "I cooked that two weeks ago, it worked, let me put it in again."
+      Requires tracking that we may or may not already do via MealLog timestamps. <strong>Defer to Phase 2</strong> — Favorites + All covers the immediate need.
+    </p>
+
+    <div class="anno">"+ New Plan" / duplicate from old plan</div>
+    <p class="qbox">
+      Works the same. Matrix is just a different rendering of <code>MealLog</code> data. Duplicate-plan copies the MealLogs from the source week. The matrix renders them as filled cells. Same model, no migration.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      The "Duplicate from…" affordance in New Plan creation stays intact. Possibly even more useful in matrix because you can immediately see what got copied and swap a few cells before saving.
+    </p>
+
+    <div class="anno">Background color</div>
+    <p class="qbox">
+      Fixed throughout. Mockups now use <code>--bg: #FFFFFF</code>, with <code>--bg-2: #F5F5F4</code> for raised surfaces and <code>--bg-3: #ECECEA</code> for hover/tags. Matches the real app.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
