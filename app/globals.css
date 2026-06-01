@@ -1829,6 +1829,349 @@ input[type="number"]:focus {
   text-align: center;
 }
 
+/* ── Day overflow (⋯) button on column headers ───────────────── */
+.mx-day-overflow {
+  position: absolute;
+  top: 10px;
+  right: 8px;
+  background: transparent;
+  border: 0;
+  width: 24px;
+  height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms var(--ease-out), color 120ms var(--ease-out), background 120ms var(--ease-out);
+  z-index: 5;
+}
+.mx-day-head:hover .mx-day-overflow,
+.mx-day-overflow.is-open { opacity: 1; }
+.mx-day-overflow:hover { color: var(--fg); }
+.mx-day-overflow.is-open {
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  color: var(--fg);
+}
+
+/* Mobile toolbar ⋯ */
+.mx-mob-overflow {
+  background: transparent;
+  border: 1px solid var(--rule);
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--fg);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.mx-mob-overflow:hover { border-color: var(--fg); }
+
+/* ── Day menu portal ─────────────────────────────────────────── */
+.mx-day-menu-backdrop {
+  position: fixed; inset: 0;
+  z-index: 9400;
+  background: transparent;
+}
+.mx-day-menu {
+  position: fixed;
+  z-index: 9401;
+  min-width: 260px;
+  max-width: 300px;
+  max-height: 70vh;
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex; flex-direction: column;
+  animation: pickerIn 160ms var(--ease-out) both;
+  overflow: hidden;
+}
+.mx-day-menu-scroll { flex: 1; overflow-y: auto; }
+.mx-day-menu-section {
+  border-bottom: 1px solid var(--rule);
+}
+.mx-day-menu-section:last-child { border-bottom: 0; }
+.mx-day-menu-head {
+  padding: 8px 14px 4px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mx-day-menu-item {
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+.mx-day-menu-item:hover { background: var(--bg-2); }
+.mx-day-menu-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.mx-day-menu-item.is-template {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  text-transform: none;
+  color: var(--fg);
+}
+.mx-day-menu-item-meta {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.mx-day-menu-search {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.mx-day-menu-search input {
+  width: 100%;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  padding: 5px 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  box-sizing: border-box;
+}
+.mx-day-menu-search input:focus { outline: none; border-color: var(--fg); }
+.mx-day-menu-empty {
+  padding: 16px 14px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-align: center;
+}
+.mx-day-menu-foot {
+  padding: 11px 14px;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: center;
+  border: 0;
+  width: 100%;
+  display: block;
+  transition: background 120ms var(--ease-out);
+}
+.mx-day-menu-foot:hover { background: var(--fg-2); color: var(--bg); }
+
+/* Mobile: day menu becomes a bottom sheet */
+@media (max-width: 767px) {
+  .mx-day-menu {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 75vh;
+    border: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding-top: 6px;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    animation: mxSheetUp 240ms var(--ease-out) both;
+  }
+  .mx-day-menu::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    margin: 4px auto 8px;
+  }
+  .mx-day-menu-backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ── Manage templates sheet ──────────────────────────────────── */
+.mx-manage-sheet {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 460px;
+  max-width: 100vw;
+  z-index: 9101;
+  background: var(--bg);
+  border-left: 1px solid var(--fg);
+  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.12);
+  display: flex; flex-direction: column;
+  animation: mxBrowseSlideIn 240ms var(--ease-out) both;
+}
+.mx-manage-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.mx-manage-eyebrow {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mx-manage-x {
+  background: transparent; border: 0;
+  cursor: pointer;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 4px;
+}
+.mx-manage-x:hover { color: var(--fg); }
+.mx-manage-title {
+  font-family: var(--sans);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-bottom: 14px;
+}
+.mx-manage-search {
+  width: 100%;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  padding: 8px 10px;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  box-sizing: border-box;
+}
+.mx-manage-search:focus { outline: none; border-color: var(--fg); }
+.mx-manage-list { flex: 1; overflow-y: auto; }
+.mx-manage-item {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.mx-manage-item:hover { background: var(--bg-2); }
+.mx-manage-name {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  margin-bottom: 4px;
+  overflow-wrap: break-word;
+}
+.mx-manage-meta {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mx-manage-meta-attrib {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mx-manage-meta-attrib-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.mx-manage-actions {
+  display: flex;
+  gap: 4px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.mx-manage-actions button {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 6px 8px;
+}
+.mx-manage-actions button:hover { color: var(--fg); }
+.mx-manage-actions .danger:hover { color: var(--err); }
+.mx-manage-empty {
+  padding: 64px 24px;
+  text-align: center;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.mx-manage-inline-rename {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mx-manage-inline-rename input {
+  flex: 1;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  padding: 5px 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+}
+.mx-manage-inline-rename input:focus { outline: none; }
+@media (max-width: 767px) {
+  .mx-manage-sheet {
+    width: 100%;
+    max-width: 100%;
+    border-left: 0;
+  }
+}
+
 /* ── New plan dialog ─────────────────────────────────────────── */
 .mx-newplan-backdrop {
   position: fixed; inset: 0;

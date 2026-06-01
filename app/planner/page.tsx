@@ -119,6 +119,41 @@ type PickerState = {
   rect: { top: number; left: number; bottom: number; right: number };
 };
 
+type DayTemplate = {
+  id: number;
+  name: string;
+  personId: number | null;
+  createdAt: string;
+  person: { id: number; name: string; color: string } | null;
+  items: Array<{
+    id: number;
+    mealType: string;
+    position: number;
+    recipeId: number | null;
+    servings: number | null;
+    ingredientId: number | null;
+    quantity: number | null;
+    unit: string | null;
+    notes: string | null;
+  }>;
+};
+
+type DayMenuState = {
+  date: Date;
+  rect: { top: number; left: number; bottom: number; right: number };
+};
+
+type SaveTemplateState = {
+  date: Date;
+  itemCount: number;
+};
+
+type ApplyConfirmState = {
+  template: DayTemplate;
+  date: Date;
+  existingCount: number;
+};
+
 export default function PlannerPageWrapper() {
   return (
     <Suspense>
@@ -153,6 +188,12 @@ function PlannerPage() {
   const [otherPersonPlans, setOtherPersonPlans] = useState<Array<{ personId: number; planId: number; name: string; color: string }>>([]);
   const [alsoForPlans, setAlsoForPlans] = useState<Set<number>>(new Set());
   const [newPlanOpen, setNewPlanOpen] = useState(false);
+  // ── Day template state ──────────────────────────────────────
+  const [templates, setTemplates] = useState<DayTemplate[]>([]);
+  const [dayMenu, setDayMenu] = useState<DayMenuState | null>(null);
+  const [saveTplOpen, setSaveTplOpen] = useState<SaveTemplateState | null>(null);
+  const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
+  const [manageOpen, setManageOpen] = useState(false);
 
   // ── Mobile detection ─────────────────────────────────────────
   useEffect(() => {
@@ -266,6 +307,168 @@ function PlannerPage() {
     loadPlanDetails(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planIdParam, plans]);
+
+  // ── Day templates: load list ─────────────────────────────────
+  useEffect(() => {
+    const cached = clientCache.get<DayTemplate[]>("/api/day-templates");
+    if (cached) setTemplates(cached);
+    fetch("/api/day-templates")
+      .then((r) => r.json())
+      .then((data: DayTemplate[]) => {
+        if (Array.isArray(data)) {
+          clientCache.set("/api/day-templates", data);
+          setTemplates(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  async function refreshTemplates() {
+    try {
+      const r = await fetch("/api/day-templates");
+      if (!r.ok) return;
+      const data: DayTemplate[] = await r.json();
+      if (Array.isArray(data)) {
+        clientCache.set("/api/day-templates", data);
+        setTemplates(data);
+      }
+    } catch {}
+  }
+
+  // ── Day overflow menu ────────────────────────────────────────
+  function openDayMenu(date: Date, e: React.MouseEvent<HTMLElement>) {
+    const r = e.currentTarget.getBoundingClientRect();
+    setDayMenu({
+      date,
+      rect: { top: r.top, left: r.left, bottom: r.bottom, right: r.right },
+    });
+  }
+  function closeDayMenu() { setDayMenu(null); }
+
+  useEffect(() => {
+    if (!dayMenu) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeDayMenu(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [dayMenu]);
+
+  // ── Save template flow ──────────────────────────────────────
+  function openSaveTemplate(date: Date) {
+    if (!plan) return;
+    const itemCount = plan.mealLogs.filter(
+      (l) => parseUTCDate(l.date).toDateString() === date.toDateString()
+    ).length;
+    if (itemCount === 0) {
+      toast.error("Add meals first");
+      return;
+    }
+    closeDayMenu();
+    setSaveTplOpen({ date, itemCount });
+  }
+  async function submitSaveTemplate(name: string) {
+    if (!saveTplOpen || !plan) return;
+    const dateISO = `${saveTplOpen.date.getFullYear()}-${String(saveTplOpen.date.getMonth() + 1).padStart(2, "0")}-${String(saveTplOpen.date.getDate()).padStart(2, "0")}`;
+    try {
+      const r = await fetch("/api/day-templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planId: plan.id,
+          date: dateISO,
+          name,
+          personId: selectedPersonId,
+        }),
+      });
+      if (r.status === 409) {
+        toast.error("A template with that name already exists");
+        return;
+      }
+      if (!r.ok) throw new Error("Failed");
+      toast.success(`Saved "${name}"`);
+      setSaveTplOpen(null);
+      await refreshTemplates();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to save template");
+    }
+  }
+
+  // ── Apply template flow ─────────────────────────────────────
+  function startApplyTemplate(template: DayTemplate, date: Date) {
+    if (!plan) return;
+    const existingCount = plan.mealLogs.filter(
+      (l) => parseUTCDate(l.date).toDateString() === date.toDateString()
+    ).length;
+    closeDayMenu();
+    if (existingCount > 0) {
+      setApplyTpl({ template, date, existingCount });
+    } else {
+      // No existing meals → just apply directly (replace mode is fine, deletes 0)
+      doApplyTemplate(template, date, "replace");
+    }
+  }
+  async function doApplyTemplate(template: DayTemplate, date: Date, mode: "replace" | "append") {
+    if (!plan) return;
+    const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    try {
+      const r = await fetch(`/api/day-templates/${template.id}/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: plan.id, date: dateISO, mode }),
+      });
+      if (!r.ok) throw new Error("Failed");
+      const result: { applied: number; skipped: number; templateName: string } = await r.json();
+      const msg = result.skipped > 0
+        ? `Applied "${result.templateName}" — ${result.skipped} item${result.skipped === 1 ? "" : "s"} skipped (deleted recipe)`
+        : `Applied "${result.templateName}"`;
+      toast.success(msg);
+      setApplyTpl(null);
+      await refreshPlan();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to apply template");
+    }
+  }
+
+  // ── Template rename / delete ────────────────────────────────
+  async function renameTemplate(id: number, name: string): Promise<boolean> {
+    try {
+      const r = await fetch(`/api/day-templates/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (r.status === 409) {
+        toast.error("A template with that name already exists");
+        return false;
+      }
+      if (!r.ok) throw new Error("Failed");
+      await refreshTemplates();
+      return true;
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to rename");
+      return false;
+    }
+  }
+  async function deleteTemplate(template: DayTemplate) {
+    const ok = await dialog.confirm({
+      title: `Delete "${template.name}"?`,
+      body: "This can't be undone.",
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      const r = await fetch(`/api/day-templates/${template.id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Failed");
+      toast.success("Deleted");
+      await refreshTemplates();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to delete");
+    }
+  }
 
   // ── Load other household members' plans for the same week ────
   useEffect(() => {
@@ -1208,9 +1411,23 @@ function PlannerPage() {
                   >›</button>
                 </div>
                 <button
+                  type="button"
+                  className="mx-mob-overflow"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (selectedDay) openDayMenu(selectedDay, e);
+                  }}
+                  aria-label={selectedDay ? `Day options for ${DAY_NAMES[selectedDay.getDay()]} ${selectedDay.getDate()}` : "Day options"}
+                  aria-haspopup="menu"
+                  aria-expanded={!!dayMenu}
+                  disabled={!selectedDay}
+                  style={{ marginLeft: 6 }}
+                >⋯</button>
+                <button
                   className="ed-btn-primary mx-mob-new"
                   onClick={openNewPlanDialog}
                   aria-label="Create new plan"
+                  style={{ marginLeft: 6 }}
                 >+ NEW</button>
               </div>
 
@@ -1351,10 +1568,19 @@ function PlannerPage() {
               <div className="mx-corner" />
               {days.map((d) => {
                 const isToday = d.toDateString() === today.toDateString();
+                const menuOpen = dayMenu?.date.toDateString() === d.toDateString();
                 return (
                   <div className={`mx-day-head${isToday ? " is-today-col" : ""}`} key={d.toISOString()}>
                     <div className={`mx-day-name${isToday ? " is-today" : ""}`}>{DAY_NAMES[d.getDay()]}</div>
                     <div className={`mx-day-num${isToday ? " today" : ""}`}>{d.getDate()}</div>
+                    <button
+                      type="button"
+                      className={`mx-day-overflow${menuOpen ? " is-open" : ""}`}
+                      onClick={(e) => { e.stopPropagation(); openDayMenu(d, e); }}
+                      aria-label={`Day options for ${DAY_NAMES[d.getDay()]} ${d.getDate()}`}
+                      aria-haspopup="menu"
+                      aria-expanded={menuOpen}
+                    >⋯</button>
                   </div>
                 );
               })}
@@ -1716,6 +1942,56 @@ function PlannerPage() {
             defaultDate={nextSundayAfter(plans)}
             onClose={() => setNewPlanOpen(false)}
             onSubmit={submitNewPlan}
+          />,
+          document.body
+        )}
+
+      {/* ── Day overflow menu ─────────────────────────────────── */}
+      {dayMenu && typeof window !== "undefined" &&
+        createPortal(
+          <DayOverflowMenu
+            menu={dayMenu}
+            templates={templates}
+            mealLogsOnDay={plan ? plan.mealLogs.filter((l) => parseUTCDate(l.date).toDateString() === dayMenu.date.toDateString()) : []}
+            onClose={closeDayMenu}
+            onSave={() => openSaveTemplate(dayMenu.date)}
+            onApply={(t) => startApplyTemplate(t, dayMenu.date)}
+            onOpenManage={() => { closeDayMenu(); setManageOpen(true); }}
+          />,
+          document.body
+        )}
+
+      {/* ── Save template dialog ──────────────────────────────── */}
+      {saveTplOpen && typeof window !== "undefined" &&
+        createPortal(
+          <SaveTemplateDialog
+            state={saveTplOpen}
+            mealLogsOnDay={plan ? plan.mealLogs.filter((l) => parseUTCDate(l.date).toDateString() === saveTplOpen.date.toDateString()) : []}
+            onClose={() => setSaveTplOpen(null)}
+            onSubmit={submitSaveTemplate}
+          />,
+          document.body
+        )}
+
+      {/* ── Apply confirm dialog ──────────────────────────────── */}
+      {applyTpl && typeof window !== "undefined" &&
+        createPortal(
+          <ApplyTemplateConfirm
+            state={applyTpl}
+            onClose={() => setApplyTpl(null)}
+            onApply={(mode) => doApplyTemplate(applyTpl.template, applyTpl.date, mode)}
+          />,
+          document.body
+        )}
+
+      {/* ── Manage templates sheet ────────────────────────────── */}
+      {manageOpen && typeof window !== "undefined" &&
+        createPortal(
+          <ManageTemplatesSheet
+            templates={templates}
+            onClose={() => setManageOpen(false)}
+            onRename={renameTemplate}
+            onDelete={deleteTemplate}
           />,
           document.body
         )}
@@ -2185,5 +2461,380 @@ function AlsoAddToRow({
         })}
       </div>
     </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// DayOverflowMenu — the ⋯ menu on day-column headers (+ mobile toolbar)
+// ──────────────────────────────────────────────────────────────
+function DayOverflowMenu({
+  menu,
+  templates,
+  mealLogsOnDay,
+  onClose,
+  onSave,
+  onApply,
+  onOpenManage,
+}: {
+  menu: DayMenuState;
+  templates: DayTemplate[];
+  mealLogsOnDay: MealLog[];
+  onClose: () => void;
+  onSave: () => void;
+  onApply: (t: DayTemplate) => void;
+  onOpenManage: () => void;
+}) {
+  const [search, setSearch] = useState("");
+  const SHOW_SEARCH = templates.length > 6;
+  const itemCount = mealLogsOnDay.length;
+  const canSave = itemCount > 0;
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return templates;
+    const q = search.toLowerCase();
+    return templates.filter((t) => t.name.toLowerCase().includes(q));
+  }, [templates, search]);
+
+  // Position: anchored to ⋯ button bottom; flip up if it would clip
+  const position = useMemo(() => {
+    if (typeof window === "undefined") return { top: 0, left: 0 };
+    const MENU_WIDTH = 280;
+    const MENU_MAX_H = Math.min(window.innerHeight * 0.7, 460);
+    const margin = 8;
+
+    let top = menu.rect.bottom + 4;
+    let left = menu.rect.right - MENU_WIDTH;
+
+    if (top + MENU_MAX_H > window.innerHeight - margin) {
+      top = Math.max(margin, menu.rect.top - MENU_MAX_H - 4);
+    }
+    if (left < margin) left = margin;
+    if (left + MENU_WIDTH > window.innerWidth - margin) {
+      left = Math.max(margin, window.innerWidth - MENU_WIDTH - margin);
+    }
+    return { top, left };
+  }, [menu.rect]);
+
+  return (
+    <>
+      <div className="mx-day-menu-backdrop" onClick={onClose} aria-hidden="true" />
+      <div
+        className="mx-day-menu"
+        style={{ top: position.top, left: position.left }}
+        role="menu"
+        aria-label="Day options"
+      >
+        <div className="mx-day-menu-scroll">
+          <div className="mx-day-menu-section">
+            <div className="mx-day-menu-head">Save</div>
+            <button
+              type="button"
+              className="mx-day-menu-item"
+              onClick={onSave}
+              disabled={!canSave}
+              title={canSave ? "Save this day's meals as a reusable template" : "Add meals first"}
+            >
+              <span>Save this day as template…</span>
+            </button>
+          </div>
+
+          <div className="mx-day-menu-section">
+            <div className="mx-day-menu-head">Apply template</div>
+            {SHOW_SEARCH && (
+              <div className="mx-day-menu-search">
+                <input
+                  type="search"
+                  placeholder="Search templates…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            )}
+            {templates.length === 0 ? (
+              <div className="mx-day-menu-empty">No templates yet. Save one to start.</div>
+            ) : filtered.length === 0 ? (
+              <div className="mx-day-menu-empty">No matches.</div>
+            ) : (
+              filtered.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className="mx-day-menu-item is-template"
+                  onClick={() => onApply(t)}
+                >
+                  <span>{t.name}</span>
+                  <span className="mx-day-menu-item-meta">{t.items.length}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="mx-day-menu-foot"
+          onClick={onOpenManage}
+        >
+          Manage templates →
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// SaveTemplateDialog
+// ──────────────────────────────────────────────────────────────
+function SaveTemplateDialog({
+  state,
+  mealLogsOnDay,
+  onClose,
+  onSubmit,
+}: {
+  state: SaveTemplateState;
+  mealLogsOnDay: MealLog[];
+  onClose: () => void;
+  onSubmit: (name: string) => Promise<void>;
+}) {
+  const [name, setName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !submitting) onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose, submitting]);
+
+  const dayName = state.date.toLocaleString("default", { weekday: "long" });
+
+  // Summary by slot type
+  const breakdown = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const log of mealLogsOnDay) {
+      counts.set(log.mealType, (counts.get(log.mealType) ?? 0) + 1);
+    }
+    const parts: string[] = [];
+    for (const [type, count] of counts.entries()) {
+      parts.push(`${count} ${type}${count === 1 ? "" : "s"}`);
+    }
+    return parts.join(", ");
+  }, [mealLogsOnDay]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSubmitting(true);
+    try {
+      await onSubmit(name.trim());
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="mx-newplan-backdrop" onClick={!submitting ? onClose : undefined} aria-hidden="true" />
+      <div className="mx-newplan-dialog" role="dialog" aria-modal="true" aria-label="Save template">
+        <form onSubmit={handleSubmit}>
+          <div className="mx-newplan-eyebrow">§ SAVE TEMPLATE</div>
+          <h2 className="mx-newplan-title">Save {dayName} as a template.</h2>
+          <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 20, fontSize: 13 }}>
+            Reusable on any future day. The current recipes, ingredients, servings, and quantities are captured.
+          </p>
+
+          <label className="mx-newplan-label" htmlFor="tpl-name">Template name</label>
+          <input
+            id="tpl-name"
+            type="text"
+            className="mx-newplan-input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Workout day, Travel day…"
+            required
+            autoFocus
+            maxLength={80}
+          />
+
+          <div style={{ borderLeft: "2px solid var(--rule)", padding: "6px 0 6px 14px", marginTop: 16, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+            Capturing <strong style={{ color: "var(--fg)" }}>{state.itemCount} item{state.itemCount === 1 ? "" : "s"}</strong>{breakdown && `: ${breakdown}`}.
+          </div>
+
+          <div className="mx-newplan-actions">
+            <button type="button" className="ed-btn-text" onClick={onClose} disabled={submitting}>Cancel</button>
+            <button type="submit" className="ed-btn-primary" disabled={submitting || !name.trim()}>
+              {submitting ? "Saving…" : "Save template"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// ApplyTemplateConfirm — three options: Cancel / Append / Replace
+// ──────────────────────────────────────────────────────────────
+function ApplyTemplateConfirm({
+  state,
+  onClose,
+  onApply,
+}: {
+  state: ApplyConfirmState;
+  onClose: () => void;
+  onApply: (mode: "replace" | "append") => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const dayName = state.date.toLocaleString("default", { weekday: "long" });
+
+  return (
+    <>
+      <div className="mx-newplan-backdrop" onClick={onClose} aria-hidden="true" />
+      <div className="mx-newplan-dialog" style={{ width: 440 }} role="dialog" aria-modal="true" aria-label="Apply template">
+        <div className="mx-newplan-eyebrow">§ APPLY TEMPLATE</div>
+        <h2 className="mx-newplan-title">Replace {dayName}'s meals?</h2>
+        <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 20, fontSize: 13 }}>
+          {dayName} already has <strong style={{ color: "var(--fg)" }}>{state.existingCount} meal{state.existingCount === 1 ? "" : "s"}</strong>.
+          Applying "{state.template.name}" ({state.template.items.length} items) will replace them. Or append to keep both.
+        </p>
+
+        <div className="mx-newplan-actions">
+          <button type="button" className="ed-btn-text" onClick={onClose}>Cancel</button>
+          <button type="button" className="ed-btn-text" style={{ color: "var(--fg)" }} onClick={() => onApply("append")}>Append instead</button>
+          <button type="button" className="ed-btn-primary" onClick={() => onApply("replace")}>Replace</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// ManageTemplatesSheet — right-side sheet
+// ──────────────────────────────────────────────────────────────
+function ManageTemplatesSheet({
+  templates,
+  onClose,
+  onRename,
+  onDelete,
+}: {
+  templates: DayTemplate[];
+  onClose: () => void;
+  onRename: (id: number, name: string) => Promise<boolean>;
+  onDelete: (template: DayTemplate) => Promise<void>;
+}) {
+  const [search, setSearch] = useState("");
+  const [renaming, setRenaming] = useState<{ id: number; value: string } | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return templates;
+    const q = search.toLowerCase();
+    return templates.filter((t) => t.name.toLowerCase().includes(q));
+  }, [templates, search]);
+
+  async function commitRename() {
+    if (!renaming) return;
+    const value = renaming.value.trim();
+    if (!value) { setRenaming(null); return; }
+    const ok = await onRename(renaming.id, value);
+    if (ok) setRenaming(null);
+  }
+
+  return (
+    <>
+      <div className="mx-browse-backdrop" onClick={onClose} aria-hidden="true" />
+      <div className="mx-manage-sheet" role="dialog" aria-modal="true" aria-label="Manage day templates">
+        <div className="mx-manage-head">
+          <div className="mx-manage-eyebrow">
+            <span>§ DAY TEMPLATES</span>
+            <button className="mx-manage-x" onClick={onClose} aria-label="Close">✕ CLOSE</button>
+          </div>
+          <div className="mx-manage-title">Saved days.</div>
+          <input
+            className="mx-manage-search"
+            type="search"
+            placeholder="Search templates…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="mx-manage-list">
+          {templates.length === 0 ? (
+            <div className="mx-manage-empty">
+              No templates yet.<br />
+              Save a day from the planner ⋯ menu.
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="mx-manage-empty">No matches.</div>
+          ) : (
+            filtered.map((t) => {
+              const isRenaming = renaming?.id === t.id;
+              const created = new Date(t.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              return (
+                <div key={t.id} className="mx-manage-item">
+                  <div>
+                    {isRenaming ? (
+                      <div className="mx-manage-inline-rename">
+                        <input
+                          value={renaming.value}
+                          onChange={(e) => setRenaming({ id: t.id, value: e.target.value })}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") { e.preventDefault(); commitRename(); }
+                            else if (e.key === "Escape") setRenaming(null);
+                          }}
+                          autoFocus
+                          maxLength={80}
+                        />
+                      </div>
+                    ) : (
+                      <div className="mx-manage-name">{t.name}</div>
+                    )}
+                    <div className="mx-manage-meta">
+                      {t.person && (
+                        <>
+                          <span className="mx-manage-meta-attrib">
+                            <span className="mx-manage-meta-attrib-dot" style={{ background: t.person.color || "var(--accent)" }} />
+                            From {t.person.name}
+                          </span>
+                          <span>·</span>
+                        </>
+                      )}
+                      <span>{t.items.length} item{t.items.length === 1 ? "" : "s"}</span>
+                      <span>·</span>
+                      <span>Saved {created}</span>
+                    </div>
+                  </div>
+                  <div className="mx-manage-actions">
+                    {isRenaming ? (
+                      <>
+                        <button type="button" onClick={commitRename}>Save</button>
+                        <button type="button" onClick={() => setRenaming(null)}>Cancel</button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="button" onClick={() => setRenaming({ id: t.id, value: t.name })}>Rename</button>
+                        <button type="button" className="danger" onClick={() => onDelete(t)}>Delete</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </>
   );
 }
