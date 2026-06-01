@@ -796,8 +796,8 @@
             <button style="background: transparent; border: 1px solid var(--rule); width: 36px; height: 30px; font-family: var(--font-mono); font-size: 18px; color: var(--fg);">‹</button>
             <button style="background: transparent; border: 1px solid var(--rule); width: 36px; height: 30px; font-family: var(--font-mono); font-size: 18px; color: var(--fg);">›</button>
           </div>
-          <button style="background: var(--fg); color: var(--bg); border: 0; height: 30px; padding: 0 12px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;">+ NEW</button>
-          <button style="background: transparent; border: 1px solid var(--rule); width: 30px; height: 30px; font-family: var(--font-mono); font-size: 14px; color: var(--fg); margin-left: 6px;" aria-label="Day options">⋯</button>
+          <button style="background: transparent; border: 1px solid var(--rule); width: 30px; height: 30px; font-family: var(--font-mono); font-size: 14px; color: var(--fg);" aria-label="Day options">⋯</button>
+          <button style="background: var(--fg); color: var(--bg); border: 0; height: 30px; padding: 0 12px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; margin-left: 6px;">+ NEW</button>
         </div>
 
         <!-- Day strip placeholder -->
@@ -848,7 +848,7 @@
       <div style="max-width: 360px;">
         <div class="anno">Mobile placement — no new chrome</div>
         <p class="qbox">
-          <strong>⋯ added to the existing toolbar</strong>, right after + NEW. The button is 30×30 with a subtle outline. It refers to the active day (whichever pill is highlighted in the day strip).
+          <strong>⋯ added to the existing toolbar</strong>, to the LEFT of + NEW so the primary action stays flush right (matches the convention on every other mobile screen). The button is 30×30 with a subtle outline. It refers to the active day (whichever pill is highlighted in the day strip).
         </p>
         <p class="qbox" style="margin-top: 8px;">
           <strong>Tap → bottom sheet.</strong> Reuses the matrix's existing iOS-style sheet styling (handle, rounded corners). Same Save / Apply structure as desktop. Switching days re-targets the menu's "this day" without closing.
