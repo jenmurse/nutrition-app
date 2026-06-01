@@ -368,12 +368,16 @@ function PlannerPage() {
   async function submitSaveTemplate(name: string) {
     if (!saveTplOpen || !plan) return;
     const dateISO = `${saveTplOpen.date.getFullYear()}-${String(saveTplOpen.date.getMonth() + 1).padStart(2, "0")}-${String(saveTplOpen.date.getDate()).padStart(2, "0")}`;
+    const planId = plan.id;
+    // Close dialog FIRST so its backdrop is unmounted before any async work — this
+    // prevents the iOS Safari chrome from holding the dimmed-page tint after success.
+    setSaveTplOpen(null);
     try {
       const r = await fetch("/api/day-templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          planId: plan.id,
+          planId,
           date: dateISO,
           name,
           personId: selectedPersonId,
@@ -385,7 +389,6 @@ function PlannerPage() {
       }
       if (!r.ok) throw new Error("Failed");
       toast.success(`Saved "${name}"`);
-      setSaveTplOpen(null);
       await refreshTemplates();
     } catch (e) {
       console.error(e);
@@ -409,12 +412,17 @@ function PlannerPage() {
   }
   async function doApplyTemplate(template: DayTemplate, date: Date, mode: "replace" | "append") {
     if (!plan) return;
+    // Close any open dialog/menu FIRST so the backdrop unmounts before the async
+    // work — otherwise iOS Safari can hold the dimmed-chrome state until reload.
+    setApplyTpl(null);
+    setDayMenu(null);
+    const planId = plan.id;
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     try {
       const r = await fetch(`/api/day-templates/${template.id}/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan.id, date: dateISO, mode }),
+        body: JSON.stringify({ planId, date: dateISO, mode }),
       });
       if (!r.ok) throw new Error("Failed");
       const result: { applied: number; skipped: number; templateName: string } = await r.json();
@@ -422,7 +430,6 @@ function PlannerPage() {
         ? `Applied "${result.templateName}" — ${result.skipped} item${result.skipped === 1 ? "" : "s"} skipped (deleted recipe)`
         : `Applied "${result.templateName}"`;
       toast.success(msg);
-      setApplyTpl(null);
       await refreshPlan();
     } catch (e) {
       console.error(e);
