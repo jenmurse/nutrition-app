@@ -848,10 +848,11 @@ function PlannerPage() {
 
   // Add or swap a meal in a cell
   // Add a recipe to the active picker's cell (multi-select model)
-  async function pickRecipe(recipeId: number) {
-    if (!picker || !plan) return;
-    const date = picker.date;
-    const slot = picker.slot;
+  // Add a recipe to a specific (slot, date). Used by both the picker (via
+  // wrapper) and by the browse-all sheet (called directly so it doesn't
+  // depend on the async picker-state update).
+  async function addRecipeAt(recipeId: number, slot: SlotType, date: Date) {
+    if (!plan) return;
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const recipe = recipes.find((r) => r.id === recipeId);
     const cellKey = `${date.toDateString()}|${slot}`;
@@ -898,17 +899,28 @@ function PlannerPage() {
     }
   }
 
-  // Toggle a recipe in/out of the picker's cell — used in picker
-  async function toggleRecipeInCell(recipeId: number) {
-    if (!picker || !plan) return;
-    const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
+  async function pickRecipe(recipeId: number) {
+    if (!picker) return;
+    return addRecipeAt(recipeId, picker.slot, picker.date);
+  }
+
+  // Toggle a recipe in/out of a specific cell — direct, no picker state dependency
+  async function toggleRecipeAt(recipeId: number, slot: SlotType, date: Date) {
+    if (!plan) return;
+    const cellKey = `${date.toDateString()}|${slot}`;
     const logs = cellMap.get(cellKey) ?? [];
     const existing = logs.find((l) => l.recipeId === recipeId);
     if (existing) {
       await removeLogById(existing.id);
     } else {
-      await pickRecipe(recipeId);
+      await addRecipeAt(recipeId, slot, date);
     }
+  }
+
+  // Picker-context wrapper
+  async function toggleRecipeInCell(recipeId: number) {
+    if (!picker) return;
+    return toggleRecipeAt(recipeId, picker.slot, picker.date);
   }
 
   // Add a pantry ingredient to the active picker's cell
@@ -1942,16 +1954,7 @@ function PlannerPage() {
             getKcal={getRecipeKcal}
             onClose={closeBrowse}
             onPick={async (recipeId) => {
-              // Set picker context so toggleRecipeInCell can read it
-              setPicker({
-                slot: browse.slot,
-                date: browse.date,
-                rect: { top: 0, left: 0, bottom: 0, right: 0 },
-              });
-              await Promise.resolve();
-              await toggleRecipeInCell(recipeId);
-              // Keep browse sheet open so user can add multiple, but clear the bogus picker rect
-              setPicker(null);
+              await toggleRecipeAt(recipeId, browse.slot, browse.date);
             }}
             onToggleFavorite={toggleRecipeFavorite}
           />,
