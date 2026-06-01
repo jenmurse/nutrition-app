@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.3.0',
+  version: '1.4.0',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -705,6 +705,265 @@ from list_meal_plans.`,
         content: [{ type: 'text' as const, text: `Failed to get meal plan week: ${message}` }],
         isError: true,
       };
+    }
+  }
+);
+
+// ── Tool: add_meal ────────────────────────────────────────────────────────────
+
+const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'side', 'snack', 'dessert', 'beverage'] as const;
+
+server.tool(
+  'add_meal',
+  `Add a recipe or pantry ingredient to a meal plan on a specific day.
+Pass either recipe_id (with optional servings, default 1) OR ingredient_id + quantity + unit.
+Get meal_plan_id from list_meal_plans, recipe_id from list_recipes, ingredient_id from list_ingredients.
+Confirm with the user before calling — this writes to their plan.`,
+  {
+    meal_plan_id: z.number().int().positive().describe('Meal plan id from list_meal_plans'),
+    date: z.string().describe('Date as YYYY-MM-DD'),
+    meal_type: z.enum(MEAL_TYPES).describe('Meal slot'),
+    recipe_id: z.number().int().positive().optional().describe('Recipe to add (mutually exclusive with ingredient_id)'),
+    ingredient_id: z.number().int().positive().optional().describe('Pantry ingredient to add (requires quantity + unit)'),
+    servings: z.number().positive().optional().describe('Servings of the recipe (default 1)'),
+    quantity: z.number().positive().optional().describe('Quantity of the ingredient'),
+    unit: z.string().optional().describe('Unit for the ingredient quantity, e.g. "g", "cup", "piece"'),
+    notes: z.string().optional(),
+  },
+  async ({ meal_plan_id, date, meal_type, recipe_id, ingredient_id, servings, quantity, unit, notes }) => {
+    try {
+      const result = await apiFetch(`/api/mcp/meal-plans/${meal_plan_id}/meals`, {
+        method: 'POST',
+        body: JSON.stringify({
+          recipeId: recipe_id,
+          ingredientId: ingredient_id,
+          servings,
+          quantity,
+          unit,
+          date,
+          mealType: meal_type,
+          notes,
+        }),
+      }) as { id: number; recipe?: { name: string } | null; ingredient?: { name: string } | null };
+      const label = result.recipe?.name ?? result.ingredient?.name ?? 'meal';
+      return {
+        content: [{ type: 'text' as const, text: `✓ Added ${label} to ${date} (${meal_type}). Meal log id: ${result.id}` }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to add meal: ${message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: remove_meal ─────────────────────────────────────────────────────────
+
+server.tool(
+  'remove_meal',
+  `Remove a single meal log from a plan. Destructive — confirm with the user first.
+Get meal_log_id from the per-meal output of get_meal_plan_week.`,
+  {
+    meal_plan_id: z.number().int().positive(),
+    meal_log_id: z.number().int().positive().describe('The meal log id to delete'),
+  },
+  async ({ meal_plan_id, meal_log_id }) => {
+    try {
+      await apiFetch(`/api/mcp/meal-plans/${meal_plan_id}/meals/${meal_log_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text' as const, text: `✓ Removed meal log ${meal_log_id}.` }] };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to remove meal: ${message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: update_meal ─────────────────────────────────────────────────────────
+
+server.tool(
+  'update_meal',
+  `Adjust a meal log in place — change servings, quantity, unit, slot, or notes.
+For swapping the recipe/ingredient itself, use swap_meal.`,
+  {
+    meal_plan_id: z.number().int().positive(),
+    meal_log_id: z.number().int().positive(),
+    servings: z.number().positive().optional().describe('New servings (recipe meals)'),
+    quantity: z.number().positive().optional().describe('New quantity (ingredient meals)'),
+    unit: z.string().optional().describe('New unit (ingredient meals)'),
+    meal_type: z.enum(MEAL_TYPES).optional().describe('New meal slot'),
+    notes: z.string().optional(),
+  },
+  async ({ meal_plan_id, meal_log_id, servings, quantity, unit, meal_type, notes }) => {
+    try {
+      const body: Record<string, unknown> = {};
+      if (servings !== undefined) body.servings = servings;
+      if (quantity !== undefined) body.quantity = quantity;
+      if (unit !== undefined) body.unit = unit;
+      if (meal_type !== undefined) body.mealType = meal_type;
+      if (notes !== undefined) body.notes = notes;
+      if (Object.keys(body).length === 0) {
+        return { content: [{ type: 'text' as const, text: 'No fields to update.' }], isError: true };
+      }
+      const updated = await apiFetch(`/api/mcp/meal-plans/${meal_plan_id}/meals/${meal_log_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }) as { recipe?: { name: string } | null; ingredient?: { name: string } | null };
+      const label = updated.recipe?.name ?? updated.ingredient?.name ?? 'meal';
+      return { content: [{ type: 'text' as const, text: `✓ Updated ${label} (meal log ${meal_log_id}).` }] };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to update meal: ${message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: swap_meal ───────────────────────────────────────────────────────────
+
+server.tool(
+  'swap_meal',
+  `Swap a meal log's referent — point it at a different recipe or ingredient.
+Provide exactly one of recipe_id or ingredient_id. For ingredients, quantity + unit are required.
+Confirm with the user before calling — this rewrites the meal.`,
+  {
+    meal_plan_id: z.number().int().positive(),
+    meal_log_id: z.number().int().positive(),
+    recipe_id: z.number().int().positive().optional(),
+    ingredient_id: z.number().int().positive().optional(),
+    servings: z.number().positive().optional().describe('Servings if swapping to a recipe (default 1)'),
+    quantity: z.number().positive().optional().describe('Required if swapping to an ingredient'),
+    unit: z.string().optional().describe('Required if swapping to an ingredient'),
+  },
+  async ({ meal_plan_id, meal_log_id, recipe_id, ingredient_id, servings, quantity, unit }) => {
+    if (!recipe_id && !ingredient_id) {
+      return { content: [{ type: 'text' as const, text: 'Provide recipe_id or ingredient_id.' }], isError: true };
+    }
+    if (recipe_id && ingredient_id) {
+      return { content: [{ type: 'text' as const, text: 'Provide recipe_id OR ingredient_id, not both.' }], isError: true };
+    }
+    try {
+      const body: Record<string, unknown> = {};
+      if (recipe_id) {
+        body.recipeId = recipe_id;
+        if (servings !== undefined) body.servings = servings;
+      } else {
+        body.ingredientId = ingredient_id;
+        if (quantity === undefined || !unit) {
+          return { content: [{ type: 'text' as const, text: 'quantity and unit are required for ingredient swap.' }], isError: true };
+        }
+        body.quantity = quantity;
+        body.unit = unit;
+      }
+      const updated = await apiFetch(`/api/mcp/meal-plans/${meal_plan_id}/meals/${meal_log_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }) as { recipe?: { name: string } | null; ingredient?: { name: string } | null };
+      const label = updated.recipe?.name ?? updated.ingredient?.name ?? 'meal';
+      return { content: [{ type: 'text' as const, text: `✓ Swapped meal log ${meal_log_id} to ${label}.` }] };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to swap meal: ${message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: list_day_templates ──────────────────────────────────────────────────
+
+server.tool(
+  'list_day_templates',
+  `List saved day templates in this household. Optionally filter by person_id —
+templates without a person are always included regardless of filter.`,
+  {
+    person_id: z.number().int().positive().optional(),
+  },
+  async ({ person_id }) => {
+    try {
+      const path = person_id ? `/api/mcp/day-templates?personId=${person_id}` : '/api/mcp/day-templates';
+      const templates = await apiFetch(path) as {
+        id: number;
+        name: string;
+        person?: { id: number; name: string } | null;
+        items: { mealType: string; recipeId: number | null; ingredientId: number | null; servings: number | null; quantity: number | null; unit: string | null }[];
+      }[];
+
+      if (templates.length === 0) {
+        return { content: [{ type: 'text' as const, text: 'No day templates saved.' }] };
+      }
+
+      const lines = templates.map((t) => {
+        const owner = t.person ? ` · ${t.person.name}` : '';
+        const counts: Record<string, number> = {};
+        for (const i of t.items) counts[i.mealType] = (counts[i.mealType] ?? 0) + 1;
+        const breakdown = Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(', ');
+        return `  • [${t.id}] ${t.name}${owner} — ${t.items.length} items (${breakdown})`;
+      });
+
+      return { content: [{ type: 'text' as const, text: `${templates.length} day template(s):\n${lines.join('\n')}` }] };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to list templates: ${message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: save_day_template ───────────────────────────────────────────────────
+
+server.tool(
+  'save_day_template',
+  `Snapshot the meals on a (plan_id, date) into a reusable day template.
+Useful when the user has built a day they'd like to repeat later.
+Names must be unique within the household; the call returns 409 on collision.`,
+  {
+    plan_id: z.number().int().positive(),
+    date: z.string().describe('YYYY-MM-DD — the day to snapshot'),
+    name: z.string().min(1).describe('Template name, unique within household'),
+    person_id: z.number().int().positive().optional().describe('Attribution; defaults to the token owner'),
+  },
+  async ({ plan_id, date, name, person_id }) => {
+    try {
+      const result = await apiFetch('/api/mcp/day-templates', {
+        method: 'POST',
+        body: JSON.stringify({ planId: plan_id, date, name, personId: person_id }),
+      }) as { id: number; name: string; items: unknown[] };
+      return {
+        content: [{ type: 'text' as const, text: `✓ Saved day template "${result.name}" (id ${result.id}) with ${result.items.length} item(s).` }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to save template: ${message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: apply_day_template ──────────────────────────────────────────────────
+
+server.tool(
+  'apply_day_template',
+  `Apply a saved day template to a target (plan_id, date).
+mode="replace" deletes any existing meals on that day first.
+mode="append" smart-merges: duplicates of the same recipe+slot (or ingredient+slot+unit)
+sum into the existing log instead of stacking. Destructive when mode is "replace" —
+confirm with the user first.`,
+  {
+    template_id: z.number().int().positive(),
+    plan_id: z.number().int().positive(),
+    date: z.string().describe('YYYY-MM-DD — target day'),
+    mode: z.enum(['replace', 'append']),
+  },
+  async ({ template_id, plan_id, date, mode }) => {
+    try {
+      const result = await apiFetch(`/api/mcp/day-templates/${template_id}/apply`, {
+        method: 'POST',
+        body: JSON.stringify({ planId: plan_id, date, mode }),
+      }) as { applied: number; created: number; merged: number; skipped: number; templateName: string };
+      const parts = [
+        `✓ Applied "${result.templateName}" (${mode}) to ${date}.`,
+        `  created: ${result.created}`,
+        result.merged > 0 ? `  merged: ${result.merged}` : null,
+        result.skipped > 0 ? `  skipped (deleted refs): ${result.skipped}` : null,
+      ].filter(Boolean);
+      return { content: [{ type: 'text' as const, text: parts.join('\n') }] };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: 'text' as const, text: `Failed to apply template: ${message}` }], isError: true };
     }
   }
 );
