@@ -336,11 +336,11 @@ export default function Home() {
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 20px` }}>
             <div>
               {/* Eyebrow: date */}
-              <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '2px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
+              <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '1px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{dateStr}</span>
               </div>
               {/* Greeting */}
-              <div className="font-sans hm-greeting-text" style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-6px' }}>
+              <div className="font-sans hm-greeting-text" style={{ fontWeight: 500, lineHeight: 0.91, letterSpacing: '-0.03em', color: 'var(--fg)', marginLeft: '-5px' }}>
                 <span className="block" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 40ms both' }}>{getGreeting()}</span>
                 <span className="block text-[var(--accent)]" style={{ animation: 'hmFadeUp 500ms var(--ease-out) 130ms both' }}>{selectedPerson?.name ?? ""}</span>
               </div>
