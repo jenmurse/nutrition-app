@@ -32,13 +32,13 @@
     --destructive-border: var(--rule);
     --destructive-ink:    var(--fg-2);
 
-    /* Status — warm palette (Design System v3) */
-    --status-success-ink:  #4A6B3A;   /* olive green — pill text + dot */
-    --status-success-tint: #E8EDDF;   /* olive green — pill background */
-    --status-warning-ink:  #9C5E1F;   /* toasted ochre — pill text + dot */
-    --status-warning-tint: #F5E5D2;   /* toasted ochre — pill background */
-    --status-error-ink:    #A33A28;   /* iron-oxide red — pill text + dot */
-    --status-error-tint:   #F0DCD6;   /* iron-oxide red — pill background */
+    /* Status — warm palette (Design System v3.1: saturation bump for legibility at small sizes) */
+    --status-success-ink:  #2F8B33;   /* clean green — pill text + dot */
+    --status-success-tint: #D8E8D5;   /* green — pill background */
+    --status-warning-ink:  #C97A1A;   /* amber — pill text + dot */
+    --status-warning-tint: #F8E5C8;   /* amber — pill background */
+    --status-error-ink:    #CC3823;   /* signal red — pill text + dot */
+    --status-error-tint:   #F5D5CD;   /* red — pill background */
 
     /* Status — deprecated aliases (point to new warm values; remove when components updated) */
     --ok:      var(--status-success-ink);
