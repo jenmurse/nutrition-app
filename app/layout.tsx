@@ -73,8 +73,10 @@ export const metadata: Metadata = {
     apple: "/PWA_icon-180x180.png",
   },
 
-  // ── Favicon theme colour (Android Chrome, Safari pinned tab) ──
-  themeColor: "#E8E8E8",
+  // ── Theme colour for browser chrome (status bar, address bar) ──
+  // Pure white matches the page background so iOS Safari's chrome stays clean
+  // even after temporary backdrop overlays close.
+  themeColor: "#FFFFFF",
 
   // ── PWA manifest ─────────────────────────────────────────────
   manifest: "/manifest.json",

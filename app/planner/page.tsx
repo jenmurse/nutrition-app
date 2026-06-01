@@ -367,23 +367,46 @@ function PlannerPage() {
   }
 
   // Defensive cleanup — manually remove any backdrop elements that might be
-  // stuck in the DOM and nudge iOS Safari to repaint its chrome.
-  // Belt-and-suspenders for the iOS sticky-overlay quirk where React's
-  // unmount doesn't immediately clear the visual layer.
+  // stuck in the DOM and force iOS Safari to re-sample its chrome (status bar
+  // and address bar). iOS caches the page colour those areas are tinted with;
+  // when a dimmed backdrop closes, the chrome holds the dim until something
+  // forces a re-sample.
   function scrubOverlays() {
     if (typeof document === "undefined") return;
+
+    // 1. Remove any orphaned backdrop / dialog elements at document.body
     document
       .querySelectorAll(".mx-newplan-backdrop, .mx-day-menu-backdrop, .mx-day-menu, .mx-newplan-dialog")
       .forEach((el) => {
-        // Only remove if the element is detached/stale (no React mount tracking it)
         const parent = el.parentElement;
         if (parent === document.body) el.remove();
       });
-    // Force a chrome repaint via a microscopic body transform toggle
+
+    // 2. Cycle the meta theme-color tag — forces iOS Safari to re-evaluate
+    //    chrome tinting based on the page's declared colour.
+    const themeMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (themeMeta) {
+      const orig = themeMeta.getAttribute("content") ?? "#FFFFFF";
+      themeMeta.setAttribute("content", "#FEFEFE");
+      requestAnimationFrame(() => {
+        themeMeta.setAttribute("content", orig);
+      });
+    }
+
+    // 3. Force a paint/scroll resample. Brief body bg toggle + a 0-pixel
+    //    scroll dispatch nudges iOS to re-render the chrome regions.
     const body = document.body;
-    body.style.transform = "translateZ(0)";
+    const html = document.documentElement;
+    const originalBodyBg = body.style.backgroundColor;
+    body.style.backgroundColor = "#FFFFFF";
+    html.style.backgroundColor = "#FFFFFF";
     requestAnimationFrame(() => {
-      body.style.transform = "";
+      body.style.backgroundColor = originalBodyBg;
+      html.style.backgroundColor = "";
+      try {
+        window.scrollBy(0, 0);
+        window.dispatchEvent(new Event("scroll"));
+      } catch {}
     });
   }
 
