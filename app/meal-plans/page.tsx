@@ -376,8 +376,6 @@ const MealPlansPage = () => {
   const [sundayOptions, setSundayOptions] = useState<string[]>([]);
   const [summaryPanelOpen, setSummaryPanelOpen] = useState(false);
   const [mobNutSheetOpen, setMobNutSheetOpen] = useState(false);
-  const [mobilePeopleOpen, setMobilePeopleOpen] = useState(false);
-  const mobilePeopleRef = useRef<HTMLDivElement>(null);
 
   const prevPersonId = useRef<number | null>(null);
 
@@ -430,15 +428,6 @@ const MealPlansPage = () => {
     // Default the week start to this Sunday if not already set
     setNewWeekStartDate(prev => prev || options[4]);
   }, []);
-
-  // Close mobile people dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (mobilePeopleRef.current && !mobilePeopleRef.current.contains(e.target as Node)) setMobilePeopleOpen(false);
-    };
-    if (mobilePeopleOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [mobilePeopleOpen]);
 
   // Load plans + auto-select + fetch details in one flow (no waterfall)
   useEffect(() => {
@@ -1005,70 +994,6 @@ const MealPlansPage = () => {
               })() : 'Meal Plans'}
             </span>
             <span className="pl-toolbar-spacer" />
-            {persons.length > 0 && mealPlans.length > 0 && (persons.length === 1 ? (
-              <div className="person-chip-static" aria-label={selectedPerson?.name}>
-                <span className="person-chip-dot" style={{ background: selectedPerson?.color || 'var(--accent)' }} />
-                <span>{selectedPerson?.name}</span>
-              </div>
-            ) : (
-              <div className="pl-mob-person-wrap" ref={mobilePeopleRef}>
-                <button
-                  className="pl-mob-person-btn"
-                  onClick={() => setMobilePeopleOpen(o => !o)}
-                  aria-haspopup="listbox"
-                  aria-expanded={mobilePeopleOpen}
-                  aria-label="Switch person or view"
-                >
-                  <span
-                    className="pl-mob-person-dot"
-                    style={{ background: viewMode === 'both' ? 'var(--fg-2)' : selectedPerson?.color || 'var(--accent)' }}
-                  />
-                  <span className="pl-mob-person-name">
-                    {viewMode === 'both' ? 'Everyone' : selectedPerson?.name || 'Me'}
-                  </span>
-                  <span className="pl-mob-person-arrow" aria-hidden>▾</span>
-                </button>
-                {mobilePeopleOpen && (
-                  <div className="pl-mob-person-menu" role="listbox">
-                    {persons.map((p) => {
-                      const isActive = viewMode === 'personal' && selectedPersonId === p.id;
-                      return (
-                        <button
-                          key={p.id}
-                          role="option"
-                          aria-selected={isActive}
-                          className={`pl-mob-person-item${isActive ? ' on' : ''}`}
-                          onClick={() => {
-                            const wasEveryone = viewMode === 'both';
-                            setViewMode('personal');
-                            if (wasEveryone && selectedPersonId === p.id) {
-                              if (selectedPlan?.id) fetchMealPlanDetails(selectedPlan.id);
-                            } else {
-                              setSelectedPersonId(p.id);
-                            }
-                            setMobilePeopleOpen(false);
-                          }}
-                        >
-                          <span className="pl-mob-person-dot" style={{ background: p.color || 'var(--accent)' }} />
-                          {p.name}
-                        </button>
-                      );
-                    })}
-                    {persons.length > 1 && (
-                      <button
-                        role="option"
-                        aria-selected={viewMode === 'both'}
-                        className={`pl-mob-person-item${viewMode === 'both' ? ' on' : ''}`}
-                        onClick={() => { setViewMode('both'); setMobilePeopleOpen(false); }}
-                      >
-                        <span className="pl-mob-person-dot" style={{ background: 'var(--fg-2)' }} />
-                        Everyone
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
             {selectedPlan && viewMode === 'personal' && (
               <button
                 className="ed-btn-text"
