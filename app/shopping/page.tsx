@@ -198,7 +198,9 @@ export default function ShoppingPage() {
     <div className="flex h-full flex-col animate-page-enter">
       <div className="pl-shop-body">
         {shopLoading ? (
-          <div className="shop-loading">Loading…</div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="font-mono text-[13px] text-[var(--muted)] animate-loading">Loading shopping list…</div>
+          </div>
         ) : isEmpty ? (
           noPlanForWeek ? (
             <EmptyState

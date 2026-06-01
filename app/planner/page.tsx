@@ -152,6 +152,7 @@ function PlannerPage() {
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [otherPersonPlans, setOtherPersonPlans] = useState<Array<{ personId: number; planId: number; name: string; color: string }>>([]);
   const [alsoForPlans, setAlsoForPlans] = useState<Set<number>>(new Set());
+  const [newPlanOpen, setNewPlanOpen] = useState(false);
 
   // ── Mobile detection ─────────────────────────────────────────
   useEffect(() => {
@@ -423,27 +424,45 @@ function PlannerPage() {
     router.push(`/planner?${params.toString()}`);
   }
 
-  async function createNewPlan() {
+  function openNewPlanDialog() {
+    setNewPlanOpen(true);
+  }
+
+  async function submitNewPlan({ weekStartDate, copyFromId }: { weekStartDate: string; copyFromId: number | null }) {
     if (selectedPersonId == null) return;
-    const startDate = nextSundayAfter(plans);
-    const dateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`;
     try {
-      const r = await fetch("/api/meal-plans", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weekStartDate: dateStr, personId: selectedPersonId }),
-      });
-      if (!r.ok) throw new Error("Failed");
-      const newPlan: { id: number } = await r.json();
-      const key = `/api/meal-plans?personId=${selectedPersonId}`;
-      clientCache.set(key, null as unknown as MealPlanSummary[]);
+      let newPlanId: number;
+      if (copyFromId) {
+        // Duplicate endpoint will create a new plan and copy meals
+        const r = await fetch(`/api/meal-plans/${copyFromId}/duplicate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ targetWeekStartDate: weekStartDate, personId: selectedPersonId }),
+        });
+        if (!r.ok) throw new Error("Failed to copy plan");
+        const result: { id?: number; planId?: number; mealPlan?: { id: number } } = await r.json();
+        newPlanId = result.id ?? result.planId ?? result.mealPlan?.id ?? 0;
+      } else {
+        const r = await fetch("/api/meal-plans", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ weekStartDate, personId: selectedPersonId }),
+        });
+        if (!r.ok) throw new Error("Failed to create plan");
+        const result: { id: number } = await r.json();
+        newPlanId = result.id;
+      }
+      // Bust cache, navigate
+      clientCache.set(`/api/meal-plans?personId=${selectedPersonId}`, null as unknown as MealPlanSummary[]);
       const params = new URLSearchParams(searchParams?.toString());
-      params.set("planId", String(newPlan.id));
+      params.set("planId", String(newPlanId));
       router.push(`/planner?${params.toString()}`);
-      toast.success("New plan created");
+      toast.success(copyFromId ? "Plan copied" : "New plan created");
+      setNewPlanOpen(false);
     } catch (err) {
       console.error(err);
       toast.error("Failed to create plan");
+      throw err;
     }
   }
 
@@ -1141,7 +1160,7 @@ function PlannerPage() {
 
         <button
           className="ed-btn-primary"
-          onClick={createNewPlan}
+          onClick={openNewPlanDialog}
           aria-label="Create new plan"
         >+ NEW PLAN</button>
       </div>
@@ -1190,7 +1209,7 @@ function PlannerPage() {
                 <div className="flex-1" />
                 <button
                   className="ed-btn-primary mx-mob-new"
-                  onClick={createNewPlan}
+                  onClick={openNewPlanDialog}
                   aria-label="Create new plan"
                 >+ NEW</button>
               </div>
@@ -1257,7 +1276,7 @@ function PlannerPage() {
                               : log.recipe
                               ? "1 serving"
                               : log.quantity
-                              ? `${log.quantity}${log.unit ?? ""}`
+                              ? `${log.quantity} ${log.unit ?? ""}`
                               : ""}
                           </div>
                         </div>
@@ -1425,7 +1444,7 @@ function PlannerPage() {
                                   : log.recipe
                                   ? "1 serving"
                                   : log.quantity
-                                  ? `${log.quantity}${log.unit ?? ""}`
+                                  ? `${log.quantity} ${log.unit ?? ""}`
                                   : ""}
                               </div>
                             </div>
@@ -1705,6 +1724,18 @@ function PlannerPage() {
           />,
           document.body
         )}
+
+      {/* ── New plan dialog ──────────────────────────────────── */}
+      {newPlanOpen && typeof window !== "undefined" &&
+        createPortal(
+          <NewPlanDialog
+            plans={plans}
+            defaultDate={nextSundayAfter(plans)}
+            onClose={() => setNewPlanOpen(false)}
+            onSubmit={submitNewPlan}
+          />,
+          document.body
+        )}
     </div>
   );
 }
@@ -1955,5 +1986,122 @@ function BrowseRow({
         {r.isFavorited ? "★" : "☆"}
       </button>
     </button>
+  );
+}
+
+function NewPlanDialog({
+  plans,
+  defaultDate,
+  onClose,
+  onSubmit,
+}: {
+  plans: MealPlanSummary[];
+  defaultDate: Date;
+  onClose: () => void;
+  onSubmit: (args: { weekStartDate: string; copyFromId: number | null }) => Promise<void>;
+}) {
+  const toIso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  const [weekStartDate, setWeekStartDate] = useState(toIso(defaultDate));
+  const [copyFromId, setCopyFromId] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !submitting) onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose, submitting]);
+
+  // Sort plans newest first for the dropdown
+  const sortedPlans = useMemo(() => {
+    return [...plans].sort((a, b) => {
+      const da = parseUTCDate(a.weekStartDate).getTime();
+      const db = parseUTCDate(b.weekStartDate).getTime();
+      return db - da;
+    });
+  }, [plans]);
+
+  function formatWeek(date: string | Date) {
+    const s = parseUTCDate(date);
+    const e = new Date(s);
+    e.setDate(e.getDate() + 6);
+    const sm = s.toLocaleString("default", { month: "short" });
+    const em = e.toLocaleString("default", { month: "short" });
+    if (sm === em) return `${sm} ${s.getDate()}–${e.getDate()}`;
+    return `${sm} ${s.getDate()} – ${em} ${e.getDate()}`;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        weekStartDate,
+        copyFromId: copyFromId ? Number(copyFromId) : null,
+      });
+    } catch {
+      setSubmitting(false);
+    }
+  };
+
+  const hasPlans = sortedPlans.length > 0;
+
+  return (
+    <>
+      <div className="mx-newplan-backdrop" onClick={!submitting ? onClose : undefined} aria-hidden="true" />
+      <div className="mx-newplan-dialog" role="dialog" aria-modal="true" aria-label="New plan">
+        <form onSubmit={handleSubmit}>
+          <div className="mx-newplan-eyebrow">§ NEW PLAN</div>
+          <h2 className="mx-newplan-title">A new week.</h2>
+
+          <label className="mx-newplan-label" htmlFor="np-date">Week starts (Sunday)</label>
+          <input
+            id="np-date"
+            type="date"
+            className="mx-newplan-input"
+            value={weekStartDate}
+            onChange={(e) => setWeekStartDate(e.target.value)}
+            required
+            autoFocus
+          />
+
+          {hasPlans && (
+            <>
+              <label className="mx-newplan-label" htmlFor="np-copy">Copy from a previous plan</label>
+              <select
+                id="np-copy"
+                className="mx-newplan-select"
+                value={copyFromId}
+                onChange={(e) => setCopyFromId(e.target.value)}
+              >
+                <option value="">None — start empty</option>
+                {sortedPlans.map((p) => (
+                  <option key={p.id} value={p.id}>{formatWeek(p.weekStartDate)}</option>
+                ))}
+              </select>
+            </>
+          )}
+
+          <div className="mx-newplan-actions">
+            <button
+              type="button"
+              className="ed-btn-text"
+              onClick={onClose}
+              disabled={submitting}
+            >Cancel</button>
+            <button
+              type="submit"
+              className="ed-btn-primary"
+              disabled={submitting || !weekStartDate}
+            >
+              {submitting ? "Creating…" : copyFromId ? "Create + Copy" : "Create"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 }
