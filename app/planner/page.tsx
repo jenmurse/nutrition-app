@@ -139,7 +139,6 @@ function PlannerPage() {
   const [recipes, setRecipes] = useState<RecipeSlim[]>([]);
   const [ingredients, setIngredients] = useState<IngredientSlim[]>([]);
   const [picker, setPicker] = useState<PickerState | null>(null);
-  const [userAddedSlots, setUserAddedSlots] = useState<SlotType[]>([]);
   const [slotOrder, setSlotOrder] = useState<SlotType[]>([]);
   const [draggingSlot, setDraggingSlot] = useState<SlotType | null>(null);
   const [dropBeforeSlot, setDropBeforeSlot] = useState<SlotType | null>(null);
@@ -162,23 +161,12 @@ function PlannerPage() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // ── Persist user-added slot rows + slot order per plan ────────
-  const extraSlotsKey = plan ? `gm-matrix-extra-slots-${plan.id}` : null;
+  // ── Persist slot order per plan (UI preference; rows derive from meal data) ──
   const slotOrderKey = plan ? `gm-matrix-slot-order-${plan.id}` : null;
 
   useEffect(() => {
-    if (!extraSlotsKey || !slotOrderKey) return;
+    if (!slotOrderKey) return;
     if (typeof window === "undefined") return;
-    try {
-      const storedExtras = window.localStorage.getItem(extraSlotsKey);
-      const parsedExtras: unknown = storedExtras ? JSON.parse(storedExtras) : [];
-      const validExtras = Array.isArray(parsedExtras)
-        ? (parsedExtras.filter((s): s is SlotType => ADD_SLOTS.includes(s as (typeof ADD_SLOTS)[number])) as SlotType[])
-        : [];
-      setUserAddedSlots(validExtras);
-    } catch {
-      setUserAddedSlots([]);
-    }
     try {
       const storedOrder = window.localStorage.getItem(slotOrderKey);
       const parsedOrder: unknown = storedOrder ? JSON.parse(storedOrder) : [];
@@ -189,16 +177,7 @@ function PlannerPage() {
     } catch {
       setSlotOrder([]);
     }
-  }, [extraSlotsKey, slotOrderKey]);
-
-  function persistAddedSlots(next: SlotType[]) {
-    setUserAddedSlots(next);
-    if (extraSlotsKey && typeof window !== "undefined") {
-      try {
-        window.localStorage.setItem(extraSlotsKey, JSON.stringify(next));
-      } catch {}
-    }
-  }
+  }, [slotOrderKey]);
 
   function persistSlotOrder(next: SlotType[]) {
     setSlotOrder(next);
@@ -406,21 +385,20 @@ function PlannerPage() {
 
   const slotRows: SlotType[] = useMemo(() => {
     if (!plan) return [...BASE_SLOTS];
-    // Eligible: base slots + any extra with meals or user-added
+    // Eligible: base slots + any extra that has at least one meal logged.
+    // Rows are derived from the actual MealLog data so the matrix is
+    // consistent across devices.
     const eligible = new Set<SlotType>(BASE_SLOTS);
     for (const extra of ADD_SLOTS) {
       const hasAny = plan.mealLogs.some((l) => l.mealType === extra);
-      const userAdded = userAddedSlots.includes(extra);
-      if (hasAny || userAdded) eligible.add(extra);
+      if (hasAny) eligible.add(extra);
     }
-    // Start with the user's saved order, filtering to eligible
     const ordered: SlotType[] = slotOrder.filter((s) => eligible.has(s));
-    // Append any eligible slot not yet in the order (preserving default order)
     for (const s of ALL_SLOTS) {
       if (eligible.has(s) && !ordered.includes(s)) ordered.push(s);
     }
     return ordered;
-  }, [plan, userAddedSlots, slotOrder]);
+  }, [plan, slotOrder]);
 
   const dailyTotals = useMemo(() => {
     const arr = plan?.weeklySummary?.dailyNutritions ?? [];
@@ -838,39 +816,50 @@ function PlannerPage() {
     }
   }
 
-  function addSlotRow(slot: SlotType) {
-    if (userAddedSlots.includes(slot)) return;
-    persistAddedSlots([...userAddedSlots, slot]);
+  // Click a "+ Snack/Side/Dessert/Beverage" button → open picker for that
+  // slot on today (or the first day of the week, or selectedDay on mobile).
+  // Once the user picks something, the MealLog appears and the row shows
+  // automatically on every device.
+  function openAddSlotPicker(slot: SlotType, e: React.MouseEvent<HTMLElement>) {
+    if (days.length === 0) return;
+    const todayKey = today.toDateString();
+    const target =
+      (isMobile && selectedDay)
+        ? selectedDay
+        : (days.find((d) => d.toDateString() === todayKey) ?? days[0]);
+    const r = e.currentTarget.getBoundingClientRect();
+    setPicker({
+      slot,
+      date: target,
+      rect: { top: r.top, left: r.left, bottom: r.bottom, right: r.right },
+    });
   }
 
   async function removeSlotRow(slot: SlotType) {
     if (!plan) return;
     if (BASE_SLOTS.includes(slot as (typeof BASE_SLOTS)[number])) return;
     const mealsInRow = plan.mealLogs.filter((l) => l.mealType === slot);
-    if (mealsInRow.length > 0) {
-      const ok = await dialog.confirm({
-        title: `Remove the ${SLOT_LABELS[slot]} row?`,
-        body: `${mealsInRow.length} ${SLOT_LABELS[slot].toLowerCase()} meal${mealsInRow.length === 1 ? "" : "s"} on this week will be deleted.`,
-        confirmLabel: "Remove",
-        danger: true,
-      });
-      if (!ok) return;
-      // Optimistic: drop those logs locally
-      setPlan((prev) => prev ? { ...prev, mealLogs: prev.mealLogs.filter((l) => l.mealType !== slot) } : prev);
-      try {
-        await Promise.all(
-          mealsInRow.map((l) =>
-            fetch(`/api/meal-plans/${plan.id}/meals/${l.id}`, { method: "DELETE" })
-          )
-        );
-        await refreshPlan();
-      } catch (e) {
-        console.error(e);
-        toast.error("Couldn't remove all meals");
-        await refreshPlan();
-      }
+    if (mealsInRow.length === 0) return;
+    const ok = await dialog.confirm({
+      title: `Remove all ${SLOT_LABELS[slot].toLowerCase()} meals?`,
+      body: `${mealsInRow.length} ${SLOT_LABELS[slot].toLowerCase()} meal${mealsInRow.length === 1 ? "" : "s"} on this week will be deleted.`,
+      confirmLabel: "Remove",
+      danger: true,
+    });
+    if (!ok) return;
+    setPlan((prev) => prev ? { ...prev, mealLogs: prev.mealLogs.filter((l) => l.mealType !== slot) } : prev);
+    try {
+      await Promise.all(
+        mealsInRow.map((l) =>
+          fetch(`/api/meal-plans/${plan.id}/meals/${l.id}`, { method: "DELETE" })
+        )
+      );
+      await refreshPlan();
+    } catch (e) {
+      console.error(e);
+      toast.error("Couldn't remove all meals");
+      await refreshPlan();
     }
-    persistAddedSlots(userAddedSlots.filter((s) => s !== slot));
   }
 
   // ── Picker positioning ───────────────────────────────────────
@@ -1126,8 +1115,8 @@ function PlannerPage() {
                       key={s}
                       type="button"
                       className="mx-mob-addslot-btn"
-                      onClick={() => addSlotRow(s)}
-                      aria-label={`Add ${SLOT_LABELS[s]} row`}
+                      onClick={(e) => openAddSlotPicker(s, e)}
+                      aria-label={`Add ${SLOT_LABELS[s]}`}
                     >+ {SLOT_LABELS[s]}</button>
                   ))}
                 </div>
@@ -1288,25 +1277,22 @@ function PlannerPage() {
                 );
               })}
 
-              <div className="mx-addslot">
-                <span className="mx-addslot-label">Need more?</span>
-                {ADD_SLOTS.filter((s) => !slotRows.includes(s)).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    className="mx-addslot-btn"
-                    onClick={() => addSlotRow(s)}
-                    aria-label={`Add ${SLOT_LABELS[s]} row`}
-                  >
-                    + {SLOT_LABELS[s]}
-                  </button>
-                ))}
-                {ADD_SLOTS.every((s) => slotRows.includes(s)) && (
-                  <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">
-                    All slot types in use
-                  </span>
-                )}
-              </div>
+              {ADD_SLOTS.some((s) => !slotRows.includes(s)) && (
+                <div className="mx-addslot">
+                  <span className="mx-addslot-label">Need more?</span>
+                  {ADD_SLOTS.filter((s) => !slotRows.includes(s)).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className="mx-addslot-btn"
+                      onClick={(e) => openAddSlotPicker(s, e)}
+                      aria-label={`Add ${SLOT_LABELS[s]}`}
+                    >
+                      + {SLOT_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <div className="mx-totals-label">Daily totals</div>
               {days.map((d) => {
@@ -1318,11 +1304,11 @@ function PlannerPage() {
                 const prot = nutrientCell(day, ["protein"], (v) => `${Math.round(v)}g`);
                 const fiber = nutrientCell(day, ["fiber"], (v) => `${Math.round(v)}g`);
                 const rows = [
-                  { k: "Cal", c: cal },
+                  { k: "Calories", c: cal },
                   { k: "Fat", c: fat },
-                  { k: "SatF", c: sat },
-                  { k: "Na", c: na },
-                  { k: "Prot", c: prot },
+                  { k: "Sat Fat", c: sat },
+                  { k: "Sodium", c: na },
+                  { k: "Protein", c: prot },
                   { k: "Fiber", c: fiber },
                 ];
                 return (
