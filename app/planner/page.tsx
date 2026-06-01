@@ -605,17 +605,14 @@ function PlannerPage() {
     }
   }
 
-  // Adjust servings (recipes) or quantity (ingredients) by delta
-  async function bumpAmount(log: MealLog, delta: number) {
+  // Set the exact servings (recipes) or quantity (ingredients) value
+  async function setAmount(log: MealLog, value: number) {
     if (!plan) return;
     const isRecipe = log.recipeId != null;
-    const current = (isRecipe ? log.servings : log.quantity) ?? 1;
-    const next = current + delta;
-    if (next <= 0) {
+    if (!Number.isFinite(value) || value <= 0) {
       await removeLogById(log.id);
       return;
     }
-    // Optimistic
     setPlan((prev) => {
       if (!prev) return prev;
       return {
@@ -623,14 +620,14 @@ function PlannerPage() {
         mealLogs: prev.mealLogs.map((l) =>
           l.id === log.id
             ? isRecipe
-              ? { ...l, servings: next }
-              : { ...l, quantity: next }
+              ? { ...l, servings: value }
+              : { ...l, quantity: value }
             : l
         ),
       };
     });
     try {
-      const body = isRecipe ? { servings: next } : { quantity: next };
+      const body = isRecipe ? { servings: value } : { quantity: value };
       const r = await fetch(`/api/meal-plans/${plan.id}/meals/${log.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -640,9 +637,18 @@ function PlannerPage() {
       await refreshPlan();
     } catch (err) {
       console.error(err);
-      toast.error("Couldn't update servings");
+      toast.error("Couldn't update");
       await refreshPlan();
     }
+  }
+
+  // Bump by a relative delta (+/- buttons). Smart steps for grams: ±10.
+  async function bumpAmount(log: MealLog, delta: number) {
+    const isRecipe = log.recipeId != null;
+    const current = (isRecipe ? log.servings : log.quantity) ?? 1;
+    const unit = (log.unit ?? "").toLowerCase();
+    const stepSize = !isRecipe && (unit === "g" || unit === "ml") ? 10 : 1;
+    await setAmount(log, current + delta * stepSize);
   }
 
   async function removeLogById(logId: number) {
@@ -1386,32 +1392,29 @@ function PlannerPage() {
                             const isCurrent = !!log;
                             const servings = log?.servings ?? 1;
                             return (
-                              <button
+                              <div
                                 key={`r-${r.id}`}
-                                type="button"
+                                role="button"
+                                tabIndex={0}
                                 className="mx-picker-opt"
                                 aria-current={isCurrent ? "true" : undefined}
                                 onClick={() => toggleRecipeInCell(r.id)}
+                                onKeyDown={(e) => {
+                                  if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+                                    e.preventDefault();
+                                    toggleRecipeInCell(r.id);
+                                  }
+                                }}
                               >
                                 <span className="mx-picker-name">{r.name}</span>
                                 {isCurrent && log && (
-                                  <span className="mx-picker-step" onClick={(e) => e.stopPropagation()}>
-                                    <button
-                                      type="button"
-                                      className="mx-picker-step-btn"
-                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, -1); }}
-                                      aria-label="Decrease servings"
-                                    >−</button>
-                                    <span className="mx-picker-step-val">{servings}</span>
-                                    <button
-                                      type="button"
-                                      className="mx-picker-step-btn"
-                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, 1); }}
-                                      aria-label="Increase servings"
-                                    >+</button>
-                                  </span>
+                                  <PickerStepper
+                                    value={servings}
+                                    onCommit={(next) => setAmount(log, next)}
+                                    onBump={(delta) => bumpAmount(log, delta)}
+                                  />
                                 )}
-                              </button>
+                              </div>
                             );
                           })}
                         </>
@@ -1426,34 +1429,32 @@ function PlannerPage() {
                             const qty = log?.quantity ?? 1;
                             const displayUnit = ingredientDisplayUnit(i);
                             return (
-                              <button
+                              <div
                                 key={`i-${i.id}`}
-                                type="button"
+                                role="button"
+                                tabIndex={0}
                                 className="mx-picker-opt"
                                 aria-current={isCurrent ? "true" : undefined}
                                 onClick={() => toggleIngredientInCell(i.id)}
+                                onKeyDown={(e) => {
+                                  if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+                                    e.preventDefault();
+                                    toggleIngredientInCell(i.id);
+                                  }
+                                }}
                               >
                                 <span className="mx-picker-name">{i.name}</span>
                                 {isCurrent && log ? (
-                                  <span className="mx-picker-step" onClick={(e) => e.stopPropagation()}>
-                                    <button
-                                      type="button"
-                                      className="mx-picker-step-btn"
-                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, -1); }}
-                                      aria-label="Decrease quantity"
-                                    >−</button>
-                                    <span className="mx-picker-step-val">{qty} {log.unit || displayUnit}</span>
-                                    <button
-                                      type="button"
-                                      className="mx-picker-step-btn"
-                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, 1); }}
-                                      aria-label="Increase quantity"
-                                    >+</button>
-                                  </span>
+                                  <PickerStepper
+                                    value={qty}
+                                    unit={log.unit || displayUnit}
+                                    onCommit={(next) => setAmount(log, next)}
+                                    onBump={(delta) => bumpAmount(log, delta)}
+                                  />
                                 ) : (
                                   <span className="mx-picker-kcal">{displayUnit}</span>
                                 )}
-                              </button>
+                              </div>
                             );
                           })}
                         </>
@@ -1518,6 +1519,74 @@ function PlannerPage() {
           document.body
         )}
     </div>
+  );
+}
+
+function PickerStepper({
+  value,
+  unit,
+  onCommit,
+  onBump,
+}: {
+  value: number;
+  unit?: string | null;
+  onCommit: (next: number) => void | Promise<void>;
+  onBump: (delta: number) => void | Promise<void>;
+}) {
+  const [local, setLocal] = useState(String(value));
+  const lastValue = useRef(value);
+  useEffect(() => {
+    if (value !== lastValue.current) {
+      setLocal(String(value));
+      lastValue.current = value;
+    }
+  }, [value]);
+  const commit = () => {
+    const n = parseFloat(local);
+    if (!Number.isFinite(n)) {
+      setLocal(String(value));
+      return;
+    }
+    if (n === value) return;
+    onCommit(n);
+  };
+  return (
+    <span
+      className="mx-picker-step"
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        className="mx-picker-step-btn"
+        onClick={(e) => { e.stopPropagation(); onBump(-1); }}
+        aria-label="Decrease"
+      >−</button>
+      <input
+        type="number"
+        className="mx-picker-step-input"
+        value={local}
+        onChange={(e) => setLocal(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            (e.currentTarget as HTMLInputElement).blur();
+          }
+        }}
+        onClick={(e) => e.stopPropagation()}
+        min={0}
+        step="any"
+        inputMode="decimal"
+      />
+      {unit && <span className="mx-picker-step-unit">{unit}</span>}
+      <button
+        type="button"
+        className="mx-picker-step-btn"
+        onClick={(e) => { e.stopPropagation(); onBump(1); }}
+        aria-label="Increase"
+      >+</button>
+    </span>
   );
 }
 
