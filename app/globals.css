@@ -2785,7 +2785,10 @@ input[type="number"]:focus {
   display: flex; flex-direction: column;
   position: relative;
 }
-.mx-mob-slot:hover { background: var(--bg-2); }
+/* Scope hover to non-touch — iOS leaves :hover state sticky after a tap */
+@media (hover: hover) and (pointer: fine) {
+  .mx-mob-slot:hover { background: var(--bg-2); }
+}
 .mx-mob-slot-label {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;

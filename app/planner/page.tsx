@@ -806,19 +806,36 @@ function PlannerPage() {
   const pickerOptions = useMemo(() => {
     if (!picker) return [];
     const slot = picker.slot;
-    return recipes
-      .filter((r) => r.isFavorited)
-      .filter((r) => {
-        const tags = (r.tags ?? "").toLowerCase().split(",").map((t) => t.trim());
-        return tags.includes(slot);
-      });
-  }, [picker, recipes]);
+    // Recipes currently in this cell — always show so user can toggle them off
+    // even if they're not favorited (e.g., applied via a day template).
+    const cellKey = `${picker.date.toDateString()}|${slot}`;
+    const inCellRecipeIds = new Set(
+      (cellMap.get(cellKey) ?? [])
+        .map((l) => l.recipeId)
+        .filter((id): id is number => id != null)
+    );
+    return recipes.filter((r) => {
+      if (inCellRecipeIds.has(r.id)) return true;
+      if (!r.isFavorited) return false;
+      const tags = (r.tags ?? "").toLowerCase().split(",").map((t) => t.trim());
+      return tags.includes(slot);
+    });
+  }, [picker, recipes, cellMap]);
 
-  // Pantry items filtered for the picker — favorited + flagged as meal-eligible
+  // Pantry items filtered for the picker — favorited meal-items, plus any
+  // currently in the cell (so the user can always toggle them off).
   const pantryOptions = useMemo(() => {
     if (!picker) return [];
-    return ingredients.filter((i) => i.isFavorited && i.isMealItem);
-  }, [picker, ingredients]);
+    const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
+    const inCellIngredientIds = new Set(
+      (cellMap.get(cellKey) ?? [])
+        .map((l) => l.ingredientId)
+        .filter((id): id is number => id != null)
+    );
+    return ingredients.filter(
+      (i) => inCellIngredientIds.has(i.id) || (i.isFavorited && i.isMealItem)
+    );
+  }, [picker, ingredients, cellMap]);
 
   function getRecipeKcal(r: RecipeSlim): number | null {
     if (!r.totals) return null;
