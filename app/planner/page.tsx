@@ -1111,7 +1111,7 @@ function PlannerPage() {
                         </div>
                       ))
                     ) : (
-                      <div className="mx-mob-slot-name">+ pick</div>
+                      <div className="mx-mob-slot-name">+ add</div>
                     )}
                   </button>
                 );
@@ -1279,7 +1279,7 @@ function PlannerPage() {
                             </div>
                           ))
                         ) : (
-                          <div className="mx-cell-add">+ pick</div>
+                          <div className="mx-cell-add">+ add</div>
                         )}
                       </div>
                     );

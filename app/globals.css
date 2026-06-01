@@ -1485,7 +1485,6 @@ input[type="number"]:focus {
 .mx {
   display: grid;
   grid-template-columns: 140px repeat(7, minmax(0, 1fr));
-  border-top: 1px solid var(--rule);
 }
 .mx-corner {
   border-right: 1px solid var(--rule);
@@ -1543,22 +1542,25 @@ input[type="number"]:focus {
 .mx-slot-label:hover .mx-slot-remove { opacity: 1; }
 .mx-slot-remove:hover { color: var(--err); }
 
-/* Drag handle (grip) */
+/* Drag handle (grip) — grip sits absolute in the left margin so the
+   label text itself aligns with the wordmark at 40px */
 .mx-slot-handle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline;
   cursor: grab;
   user-select: none;
 }
 .mx-slot-handle:active { cursor: grabbing; }
 .mx-slot-grip {
+  position: absolute;
+  left: 18px;
+  top: 18px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   line-height: 1;
   letter-spacing: 0;
   color: var(--rule);
   transition: color 120ms var(--ease-out);
+  pointer-events: none;
 }
 .mx-slot-label:hover .mx-slot-grip { color: var(--muted); }
 .mx-slot-label.is-dragging .mx-slot-handle { opacity: 0.4; }
