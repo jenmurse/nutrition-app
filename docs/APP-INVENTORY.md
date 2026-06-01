@@ -4,26 +4,55 @@ Tracker for what's left to do, design decisions locked, known stragglers, and op
 
 ---
 
-## What's left
+## What's left (as of June 2026)
 
-### In-flight queue: empty
+### Queued — features with planning docs
 
-All briefs from the April 26–27 sessions have shipped and verified. The visual reset, onboarding flow, dashboard polish, dialog sweep, empty states, and Person/Invite model are all in production.
+**1. Pantry pre-fill / starter seeding** — `briefs/pantry-seeding.md`
+Seed a starter set of GlobalIngredients on onboarding completion, update checklist item copy, add contextual tip on pantry page, add bulk-delete UX to pantry index. Pre-launch quality-of-life feature.
 
-What remains is the design pass and a few deferred decisions.
+**2. Added sugar tracking** — `briefs/added-sugar-tracking.md`
+Adds a new canonical nutrient with manual capture (USDA doesn't reliably distinguish added vs. natural sugar). Updates recipe forms, nutrition panel, matrix totals. Resolve the data-capture story before coding.
 
-### Queued — remaining design pass steps
+**3. Day templates** — feature shipped. Brief at `briefs/day-templates.md` includes follow-up section for MCP write tools.
 
-Steps 1–5 of the design pass are complete. Status on remaining steps:
+**4. Playbook stories** — `briefs/playbook-stories.md`
+Six starter stories outlined, story #6 ("Saving the day that worked") added. Shell at `/playbook` (logged-out + logged-in chrome) plus the content for each story. Content authorship is the blocker.
+
+### Queued — MCP follow-up
+
+After day templates shipped, the planned MCP write tools were deferred to a separate commit. Spec in `briefs/day-templates.md` under "MCP follow-up":
+
+**Planner write tools:**
+- `add_meal(plan_id, date, meal_type, recipe_id?, ingredient_id?, servings?, quantity?, unit?)`
+- `remove_meal(meal_log_id)`
+- `update_meal(meal_log_id, servings?, quantity?, mealType?)`
+- `swap_meal(meal_log_id, recipe_id?, ingredient_id?)`
+
+**Day template write tools:**
+- `list_day_templates(person_id?)`
+- `save_day_template(plan_id, date, name)`
+- `apply_day_template(template_id, plan_id, date, mode: 'replace' | 'append')`
+
+These wrap the API endpoints the UI already uses; the work is just MCP tool registration + schemas. Once landed, Claude can analyze, suggest, and (with user confirmation on destructive ops) write changes back.
+
+### Smaller follow-ups
+
+- **Dashboard stat selection → server-side.** Currently in localStorage (`dashboard-stats`). Move to a per-person preference column on `Person` so it survives Safari cache clears and syncs across devices.
+- **Matrix slot order → server-side.** Same situation as dashboard stats — currently localStorage per-plan.
+- **"Also add to N people" pulldown** when household > 4. Current chip layout wraps. Spec from picker mockups: collapse to a compact `ALSO ADD TO [2 ▾]` pulldown above the wrap threshold.
+- **"Recent" tab in picker.** Was deferred — would show recipes added to plans in the last ~30 days. Needs MealLog timestamp tracking infra check.
+- **Per-person dietary restrictions on Person model.** Depends on Playbook story #6 (Pescatarian household).
+- **Compact summaries / weekly nutrition totals** in matrix. Decided against during build (per-day is the actionable unit), but could revisit if useful for goal tracking.
+
+### Post-launch design pass
 
 | Step | Description | Status |
 |---|---|---|
 | Step 9 | Wordmark integration pass — apply wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav). Current spec: DM Sans 600, 13px, -0.03em, Title Case ("Good Measure") | ☐ |
-| Step 10 | Type leading and tracking pass — verify every surface uses the correct type token | ✓ Done May 2 |
-| Step 11 | Surface coherence check — full sweep of every screen, desktop + mobile | ✓ Done May 2 |
-| Step 12 | Email templates — refresh 6 Supabase templates with locked visual language. All 6 done May 3. Reauthentication uses a display code (not a link) so token_hash fix didn't apply — visual language updated. | ✓ Done May 3 |
-
-This pass is post-launch polish, not a launch blocker.
+| Step 10 | Type leading and tracking pass | ✓ Done May 2 |
+| Step 11 | Surface coherence check | ✓ Done May 2 |
+| Step 12 | Email templates | ✓ Done May 3 |
 
 ### Deferred indefinitely
 
@@ -107,6 +136,68 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.
 - Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
 
+**Shipped this session (May 31 – June 1):**
+
+*Major: Matrix planner system*
+- `/planner` is the primary Planner route. `/meal-plans` still works but is no longer in any nav; can be retired entirely once stable.
+- Matrix is a 7-day × N-slot grid. Slot rows: Breakfast / Lunch / Dinner default; Snack / Side / Dessert / Beverage appear when any meal of that type exists on the week. Rows are server-derived from MealLogs (cross-device consistent).
+- Per-cell picker: favorites-first (recipes + pantry items), with "Browse all X recipes →" footer that opens a right-side sheet. Multi-select toggle pattern — click any row to add/remove. Inline `−/+` stepper with editable number input. Smart step size (10 for grams/ml).
+- "Also add to [person]" chip mirrors picks to other household members' plans for the same week.
+- Drag-reorder slot labels (HTML5 drag). Drag-between-cells to move/swap meals.
+- Day-column ⋯ menu (desktop) / toolbar ⋯ (mobile) for day templates (see below).
+- Daily totals strip below each column: 8 metrics, three-state colour (over / met / empty).
+- Today highlight uses `var(--accent-l)` to match dashboard week strip.
+- Full toolbar built out: range, prev/next/this-week, cart icon, + NEW PLAN (with copy-from-previous dialog).
+
+*Major: Day templates*
+- New `DayTemplate` + `DayTemplateItem` models. Household-scoped, with `personId` for attribution chip.
+- Endpoints: GET/POST `/api/day-templates`, PATCH/DELETE `/api/day-templates/[id]`, POST `/api/day-templates/[id]/apply`.
+- Save dialog with item breakdown. Apply confirm with Replace/Append (black primary, not red — apply is user-initiated, not destructive in the way Delete is).
+- **Smart merge on append**: items matching `(recipeId + mealType)` for recipes, or `(ingredientId + mealType + unit)` for ingredients, sum servings/quantity into the existing log instead of stacking duplicates.
+- Silent skip for items whose referenced recipe/ingredient was deleted; toast surfaces the count.
+- Manage sheet (right-side) with search, inline rename, per-row attribution chip + colour dot.
+
+*Major: Favorites system extended*
+- `IngredientFavorite` model added, person-scoped.
+- Star glyph (`★/☆`, 14px DM Mono globally, 17px mobile) on pantry grid + list, recipe grid + list, recipe detail header, pantry detail header.
+- "Favorites" filter chip on pantry + recipes index toolbars.
+- Picker filters non-favorited recipes/pantry items but always shows what's currently in the cell (so user can remove items applied via template that weren't favorited).
+
+*URL rename*
+- `/ingredients` → `/pantry`. Permanent redirect via `next.config.mjs`. API endpoints stay at `/api/ingredients` (correct data-model name). Nav links updated.
+
+*Status colours*
+- `--ok` `#4A6B3A → #2F8B33` (cleaner green). `--err` `#A33A28 → #CC3823` (signal red). `--warn` `#9C5E1F → #C97A1A` (amber, was brown). Tints lifted proportionally. About 15–25% more saturation so 9–11px tabular numbers read as actual signal, not "two shades of dark text."
+
+*Mobile padding unification*
+- `--pad` clamp min lowered `28px → 18px` to match matrix. Recipe grid cards bumped `16px → 18px`. Now consistent across nav, dashboard, settings, recipe detail, pantry, recipes, matrix.
+
+*New Plan dialog*
+- + NEW PLAN button on the matrix opens a small dialog: week date input + "Copy from previous plan" dropdown. Submit creates empty or duplicates via existing `POST /api/meal-plans/[id]/duplicate` endpoint.
+
+*Various polish*
+- Mobile day-strip person picker moved to top bar (matches dashboard pattern).
+- Recipe list nutrition matches pantry styling (9px mono with space between number and label, "kcal" → "CAL").
+- Daily totals labels: full words on desktop (Calories / Sat Fat / Sodium / etc.), abbreviated on mobile.
+- Quantity display spacing fix ("1 can" not "1can"). Custom unit display for "other"-type ingredients (shows actual unit name like "oz" instead of "OTHER").
+- iOS Safari chrome cache fix for backdrop closes — `flushSync` + `scrubOverlays()` (theme-color cycling, opaque-white safe-area panels, scroll dispatch).
+- Global `themeColor` `#E8E8E8 → #FFFFFF` so iOS Safari chrome stays clean.
+- Mobile slot `:hover` scoped to `@media (hover: hover)` to fix sticky iOS hover state after touch.
+- Browse-all sheet picks now actually add to the cell (closure timing race fixed; refactored `pickRecipe` → `addRecipeAt(recipeId, slot, date)` with explicit params).
+- Various optical-alignment nudges (nav wordmark, date range, recipe card eyebrows, dashboard hero, slot labels).
+- Recipe + pantry list mobile: star glyph inline next to name (was stacked below).
+
+**Shipped this session (May 28):**
+- **Toolbar primary buttons → black fill** — NEW PLAN, + New recipe, + Add pantry changed from `ed-btn-outline` to `ed-btn-primary` (black bg, white text) across planner, recipes, and ingredients pages. Improves discoverability.
+- **Planner PREV/NEXT navigation fixed** — buttons were silently doing nothing at boundaries. Fixed with `currentPlanIdx` computed at render, `disabled` prop, and `ed-btn-text:disabled { opacity: 0.3 }` CSS.
+- **USDA lookup Enter key** — pressing Enter on the USDA search input now fires the lookup (both create and edit ingredient forms). The 500ms debounce on keystroke still fires automatically; Enter triggers immediately.
+- **Add Meal inline expand (Option A)** — meal chips expand inline with servings/qty input + ADD TO PLAN button. CSS moved to global scope (was scoped to mobile media query, breaking desktop). Padding uses `8px` globally; mobile full-sheet overrides with `var(--pad)`.
+- **"Also add to [person]" moved inline** — checkboxes now appear inside the inline expand (below ADD TO PLAN), not in a detached footer. Both desktop (`add-meal/page.tsx`) and mobile (`AddMealSheet.tsx`) supported.
+- **Mobile AddMealSheet: "Also add to" added** — was completely missing on mobile. Now fetches matching plans for other household members and posts to all selected plan IDs.
+- **Mobile planner: EDIT mode contextual toolbar** — EDIT button appears in the main toolbar row (alongside NEW PLAN). When tapped, the entire toolbar row transforms into a contextual edit bar (`{n} selected · DELETE · DONE`), then restores on DONE. No second row.
+- **Hairline between chip and expand removed** — on both mobile and desktop.
+- **Garbled servings text removed** — `{recipe.servingSize} {recipe.servingUnit} / serving` context text removed from expand; chip subtitle already shows this.
+
 **Shipped this session (May 3):**
 - **Invite-only gate** — `/invite` page (two-step: code validation → signup form). Single shared `INVITE_CODE` env var. Server-side validation only.
 - **Waitlist** — `/waitlist` and `/waitlist-success` pages. Entries saved to `Waitlist` table in Railway Postgres. Admin view at `/admin/waitlist` (password-gated).
@@ -120,7 +211,9 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 ## Open questions
 
 1. **Brand mark** — current interim spec: DM Sans 600, 13px, -0.03em, Title Case ("Good Measure"). Designed SVG wordmark still pending. Step 9 covers applying it across all surfaces.
-2. ~~**Account deletion**~~ — shipped (May 3). See `decisions-pending.md`.
+2. **`/meal-plans` retirement** — the classic planner still works at its URL. Once the matrix has run for a few weeks without issues, delete the route and its supporting components.
+3. **Dashboard "Today's meals" reskin** — mockup at `public/mockup-dashboard-planner.html` showing the editorial 3-column cards reskinned to match the matrix slot-row style with a totals strip. Decided to keep the existing layout for now (per session notes) — revisit if the visual coherence gap starts to matter.
+4. ~~**Account deletion**~~ — shipped (May 3). See `decisions-pending.md`.
 
 Resolved this session, no longer open:
 - ~~Mobile recipes card view~~ — deferred to post-launch design pass
