@@ -469,56 +469,64 @@ function PlannerPage() {
   }
 
   // Add or swap a meal in a cell
+  // Add a recipe to the active picker's cell (multi-select model)
   async function pickRecipe(recipeId: number) {
     if (!picker || !plan) return;
     const date = picker.date;
     const slot = picker.slot;
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    const cellKey = `${date.toDateString()}|${slot}`;
-    const existingLogs = cellMap.get(cellKey) ?? [];
-    const existing = existingLogs[0];
-
-    closePicker();
-
-    // Optimistic update
     const recipe = recipes.find((r) => r.id === recipeId);
+    const cellKey = `${date.toDateString()}|${slot}`;
     const optimisticLog: MealLog = {
-      id: existing ? existing.id : -Date.now(),
+      id: -Date.now(),
       date: dateISO,
       mealType: slot,
       servings: 1,
       recipeId,
       recipe: recipe ? { id: recipe.id, name: recipe.name, servingSize: 1, servingUnit: "serving" } : undefined,
-      position: existing?.position ?? 0,
+      position: (cellMap.get(cellKey)?.length ?? 0),
     };
 
-    setPlan((prev) => {
-      if (!prev) return prev;
-      const logs = [...prev.mealLogs];
-      if (existing) {
-        const idx = logs.findIndex((l) => l.id === existing.id);
-        if (idx >= 0) logs[idx] = optimisticLog;
-      } else {
-        logs.push(optimisticLog);
-      }
-      return { ...prev, mealLogs: logs };
-    });
+    setPlan((prev) => prev ? { ...prev, mealLogs: [...prev.mealLogs, optimisticLog] } : prev);
 
     try {
-      if (existing) {
-        const delRes = await fetch(`/api/meal-plans/${plan.id}/meals/${existing.id}`, { method: "DELETE" });
-        if (!delRes.ok) throw new Error("Failed to swap");
-      }
       const postRes = await fetch(`/api/meal-plans/${plan.id}/meals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipeId, date: dateISO, mealType: slot, servings: 1 }),
       });
-      if (!postRes.ok) throw new Error("Failed to add meal");
+      if (!postRes.ok) throw new Error("Failed");
       await refreshPlan();
     } catch (err) {
       console.error(err);
-      toast.error("Couldn't save change");
+      toast.error("Couldn't add meal");
+      await refreshPlan();
+    }
+  }
+
+  // Toggle a recipe in/out of the picker's cell — used in picker
+  async function toggleRecipeInCell(recipeId: number) {
+    if (!picker || !plan) return;
+    const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
+    const logs = cellMap.get(cellKey) ?? [];
+    const existing = logs.find((l) => l.recipeId === recipeId);
+    if (existing) {
+      await removeLogById(existing.id);
+    } else {
+      await pickRecipe(recipeId);
+    }
+  }
+
+  async function removeLogById(logId: number) {
+    if (!plan) return;
+    setPlan((prev) => prev ? { ...prev, mealLogs: prev.mealLogs.filter((l) => l.id !== logId) } : prev);
+    try {
+      const r = await fetch(`/api/meal-plans/${plan.id}/meals/${logId}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Failed");
+      await refreshPlan();
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't remove meal");
       await refreshPlan();
     }
   }
@@ -729,32 +737,6 @@ function PlannerPage() {
       }
     }
     persistAddedSlots(userAddedSlots.filter((s) => s !== slot));
-  }
-
-  async function removeMeal() {
-    if (!picker || !plan) return;
-    const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
-    const existing = cellMap.get(cellKey)?.[0];
-    if (!existing) {
-      closePicker();
-      return;
-    }
-    closePicker();
-
-    setPlan((prev) => {
-      if (!prev) return prev;
-      return { ...prev, mealLogs: prev.mealLogs.filter((l) => l.id !== existing.id) };
-    });
-
-    try {
-      const r = await fetch(`/api/meal-plans/${plan.id}/meals/${existing.id}`, { method: "DELETE" });
-      if (!r.ok) throw new Error("Failed to remove");
-      await refreshPlan();
-    } catch (err) {
-      console.error(err);
-      toast.error("Couldn't remove meal");
-      await refreshPlan();
-    }
   }
 
   // ── Picker positioning ───────────────────────────────────────
@@ -977,22 +959,23 @@ function PlannerPage() {
                         >✕</span>
                       )}
                     </div>
-                    {first ? (
-                      <>
-                        <div className="mx-mob-slot-name">
-                          {first.recipe?.name ?? first.ingredient?.name ?? "Unnamed"}
+                    {logs.length > 0 ? (
+                      logs.map((log, idx) => (
+                        <div key={log.id} style={idx > 0 ? { marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--rule)" } : undefined}>
+                          <div className="mx-mob-slot-name">
+                            {log.recipe?.name ?? log.ingredient?.name ?? "Unnamed"}
+                          </div>
+                          <div className="mx-mob-slot-meta">
+                            {log.servings && log.servings !== 1
+                              ? `${log.servings}× serving`
+                              : log.recipe
+                              ? "1 serving"
+                              : log.quantity
+                              ? `${log.quantity}${log.unit ?? ""}`
+                              : ""}
+                          </div>
                         </div>
-                        <div className="mx-mob-slot-meta">
-                          {first.servings && first.servings !== 1
-                            ? `${first.servings}× serving`
-                            : first.recipe
-                            ? "1 serving"
-                            : first.quantity
-                            ? `${first.quantity}${first.unit ?? ""}`
-                            : ""}
-                        </div>
-                        {extra > 0 && <div className="mx-mob-slot-extra">+{extra} more</div>}
-                      </>
+                      ))
                     ) : (
                       <div className="mx-mob-slot-name">+ pick</div>
                     )}
@@ -1117,8 +1100,8 @@ function PlannerPage() {
                     return (
                       <div
                         className={`mx-cell is-clickable${isOpen ? " is-target" : ""}${isDropTarget && dragKind === "slot" ? " is-drop-before" : ""}${isCellTarget ? " is-cell-target" : ""}${isCellDragging ? " is-cell-dragging" : ""}`}
-                        draggable={!!first}
-                        onDragStart={(e) => first ? onCellDragStart(d, slot, first.id, e) : undefined}
+                        draggable={!!first && logs.length === 1}
+                        onDragStart={(e) => first && logs.length === 1 ? onCellDragStart(d, slot, first.id, e) : undefined}
                         onDragEnd={onCellDragEnd}
                         onDragOver={(e) => {
                           if (dragKind === "cell") onCellDragOver(d, slot, e);
@@ -1144,22 +1127,23 @@ function PlannerPage() {
                         }}
                         aria-label={first ? `${SLOT_LABELS[slot]} ${d.toDateString()}: ${first.recipe?.name ?? first.ingredient?.name ?? "meal"}` : `Add ${SLOT_LABELS[slot]} for ${d.toDateString()}`}
                       >
-                        {first ? (
-                          <>
-                            <div className="mx-cell-name">
-                              {first.recipe?.name ?? first.ingredient?.name ?? "Unnamed"}
+                        {logs.length > 0 ? (
+                          logs.map((log) => (
+                            <div className="mx-cell-item" key={log.id}>
+                              <div className="mx-cell-name">
+                                {log.recipe?.name ?? log.ingredient?.name ?? "Unnamed"}
+                              </div>
+                              <div className="mx-cell-meta">
+                                {log.servings && log.servings !== 1
+                                  ? `${log.servings}× serving`
+                                  : log.recipe
+                                  ? "1 serving"
+                                  : log.quantity
+                                  ? `${log.quantity}${log.unit ?? ""}`
+                                  : ""}
+                              </div>
                             </div>
-                            <div className="mx-cell-meta">
-                              {first.servings && first.servings !== 1
-                                ? `${first.servings}× serving`
-                                : first.recipe
-                                ? "1 serving"
-                                : first.quantity
-                                ? `${first.quantity}${first.unit ?? ""}`
-                                : ""}
-                            </div>
-                            {extra > 0 && <div className="mx-cell-extra">+{extra} more</div>}
-                          </>
+                          ))
                         ) : (
                           <div className="mx-cell-add">+ pick</div>
                         )}
@@ -1238,63 +1222,66 @@ function PlannerPage() {
               role="dialog"
               aria-label={`Pick a ${SLOT_LABELS[picker.slot]} for ${picker.date.toDateString()}`}
             >
-              <div className="mx-picker-head">
-                <span>§ {SLOT_LABELS[picker.slot].toUpperCase()} · FAVORITES</span>
-                <span>{pickerOptions.length}</span>
-              </div>
-
               {(() => {
                 const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
-                const currentLog = cellMap.get(cellKey)?.[0];
-                if (currentLog) {
-                  return (
+                const currentLogs = cellMap.get(cellKey) ?? [];
+                const currentRecipeIds = new Set(currentLogs.map((l) => l.recipeId).filter((n): n is number => n != null));
+                return (
+                  <>
+                    <div className="mx-picker-head">
+                      <span>§ {SLOT_LABELS[picker.slot].toUpperCase()} · FAVORITES</span>
+                      <span>
+                        {currentLogs.length > 0
+                          ? `${currentLogs.length} picked`
+                          : `${pickerOptions.length}`}
+                      </span>
+                    </div>
+
+                    <div className="mx-picker-list">
+                      {pickerOptions.length === 0 ? (
+                        <div className="mx-picker-empty">
+                          No favorited {SLOT_LABELS[picker.slot].toLowerCase()} recipes yet.
+                        </div>
+                      ) : (
+                        pickerOptions.map((r) => {
+                          const isCurrent = currentRecipeIds.has(r.id);
+                          const kcal = getRecipeKcal(r);
+                          return (
+                            <button
+                              key={r.id}
+                              type="button"
+                              className="mx-picker-opt"
+                              aria-current={isCurrent ? "true" : undefined}
+                              onClick={() => toggleRecipeInCell(r.id)}
+                            >
+                              <span className="mx-picker-name">{r.name}</span>
+                              <span className="mx-picker-kcal">{kcal != null ? kcal : "—"}</span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+
                     <button
                       type="button"
-                      className="mx-picker-remove"
-                      onClick={removeMeal}
+                      className="mx-picker-foot"
+                      onClick={openBrowse}
                     >
-                      ✕ Remove current
+                      <span>Browse all {SLOT_LABELS[picker.slot].toLowerCase()} recipes</span>
+                      <span>→</span>
                     </button>
-                  );
-                }
-                return null;
-              })()}
-
-              <div className="mx-picker-list">
-                {pickerOptions.length === 0 ? (
-                  <div className="mx-picker-empty">
-                    No favorited {SLOT_LABELS[picker.slot].toLowerCase()} recipes yet.
-                  </div>
-                ) : (
-                  pickerOptions.map((r) => {
-                    const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
-                    const currentLog = cellMap.get(cellKey)?.[0];
-                    const isCurrent = currentLog?.recipeId === r.id;
-                    const kcal = getRecipeKcal(r);
-                    return (
+                    {currentLogs.length > 0 && (
                       <button
-                        key={r.id}
                         type="button"
-                        className="mx-picker-opt"
-                        aria-current={isCurrent ? "true" : undefined}
-                        onClick={() => pickRecipe(r.id)}
+                        className="mx-picker-done"
+                        onClick={closePicker}
                       >
-                        <span className="mx-picker-name">{r.name}</span>
-                        <span className="mx-picker-kcal">{kcal != null ? kcal : "—"}</span>
+                        Done
                       </button>
-                    );
-                  })
-                )}
-              </div>
-
-              <button
-                type="button"
-                className="mx-picker-foot"
-                onClick={openBrowse}
-              >
-                <span>Browse all {SLOT_LABELS[picker.slot].toLowerCase()} recipes</span>
-                <span>→</span>
-              </button>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </>,
           document.body
@@ -1317,16 +1304,16 @@ function PlannerPage() {
             getKcal={getRecipeKcal}
             onClose={closeBrowse}
             onPick={async (recipeId) => {
-              // Open the picker briefly to reuse pickRecipe (it needs `picker`)
+              // Set picker context so toggleRecipeInCell can read it
               setPicker({
                 slot: browse.slot,
                 date: browse.date,
                 rect: { top: 0, left: 0, bottom: 0, right: 0 },
               });
-              // Wait one tick so setPicker takes effect before pickRecipe reads it
               await Promise.resolve();
-              await pickRecipe(recipeId);
-              closeBrowse();
+              await toggleRecipeInCell(recipeId);
+              // Keep browse sheet open so user can add multiple, but clear the bogus picker rect
+              setPicker(null);
             }}
             onToggleFavorite={toggleRecipeFavorite}
           />,

@@ -1628,6 +1628,36 @@ input[type="number"]:focus {
   color: var(--muted);
   margin-top: 4px;
 }
+.mx-cell-item + .mx-cell-item {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+}
+/* Picker option styling: ✓ checkmark on selected items, click-to-toggle */
+.mx-picker-opt[aria-current="true"] .mx-picker-name::before {
+  content: "✓ ";
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  color: var(--fg);
+}
+.mx-picker-opt.is-pending {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.mx-picker-done {
+  padding: 10px 14px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  background: transparent;
+  border-left: 0; border-right: 0; border-bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+.mx-picker-done:hover { color: var(--fg); }
 
 /* "Need more?" footer row */
 .mx-addslot {
@@ -1681,16 +1711,17 @@ input[type="number"]:focus {
   justify-content: space-between;
   align-items: baseline;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 10px;
-  padding: 2px 0;
+  font-size: 11px;
+  padding: 3px 0;
 }
 .mx-tot-key {
+  font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .mx-tot-val {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--fg);
   font-variant-numeric: tabular-nums;
 }
@@ -2188,15 +2219,15 @@ input[type="number"]:focus {
 }
 .mx-mob-tot-cell .k {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .mx-mob-tot-cell .v {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   margin-top: 2px;
   color: var(--fg);
