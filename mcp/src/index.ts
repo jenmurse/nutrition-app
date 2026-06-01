@@ -45,7 +45,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 const server = new McpServer({
   name: 'good-measure',
-  version: '1.4.0',
+  version: '1.4.1',
 });
 
 // ── Tool: save_recipe ─────────────────────────────────────────────────────────
@@ -625,6 +625,7 @@ from list_meal_plans.`,
         days: {
           date: string;
           meals: {
+            mealLogId: number;
             mealType: string;
             servings: number;
             recipe?: { id: number; name: string };
@@ -667,13 +668,13 @@ from list_meal_plans.`,
           : day.meals.map((m) => {
               if (m.recipe) {
                 const srv = m.servings !== 1 ? ` × ${m.servings}` : '';
-                return `  • ${m.mealType}: ${m.recipe.name}${srv} [recipe:${m.recipe.id}]`;
+                return `  • ${m.mealType}: ${m.recipe.name}${srv} [log:${m.mealLogId} recipe:${m.recipe.id}]`;
               }
               if (m.ingredient) {
                 const qty = m.ingredient.quantity != null ? `${m.ingredient.quantity} ${m.ingredient.unit ?? ''} ` : '';
-                return `  • ${m.mealType}: ${qty}${m.ingredient.name} [ing:${m.ingredient.id}]`;
+                return `  • ${m.mealType}: ${qty}${m.ingredient.name} [log:${m.mealLogId} ing:${m.ingredient.id}]`;
               }
-              return `  • ${m.mealType}: (empty)`;
+              return `  • ${m.mealType}: (empty) [log:${m.mealLogId}]`;
             });
 
         const summary = dailyByDate[day.date];

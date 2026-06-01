@@ -49,6 +49,7 @@ export async function GET(request: Request, { params }: Ctx) {
   const days: Record<string, {
     date: string;
     meals: {
+      mealLogId: number;
       mealType: string;
       servings: number;
       recipe?: { id: number; name: string };
@@ -61,6 +62,7 @@ export async function GET(request: Request, { params }: Ctx) {
     const dateKey = log.date.toISOString().slice(0, 10);
     if (!days[dateKey]) days[dateKey] = { date: dateKey, meals: [] };
     days[dateKey].meals.push({
+      mealLogId: log.id,
       mealType: log.mealType,
       servings: log.servings,
       recipe: log.recipe ? { id: log.recipe.id, name: log.recipe.name } : undefined,
