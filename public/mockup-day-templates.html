@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day templates — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #FFFFFF;
+    --bg-2: #F5F5F4;
+    --bg-3: #ECECEA;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #B43A1F;
+    --ok: #4F6B3A;
+    --accent: #7C8C5F;
+    --accent-l: rgba(124, 140, 95, 0.10);
+    --sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-3);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1700px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: -12px 0 24px;
+  }
+
+  /* Surface */
+  .surface {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    overflow: visible;
+    position: relative;
+  }
+
+  /* Matrix grid (compacted) */
+  .mx {
+    display: grid;
+    grid-template-columns: 140px repeat(7, minmax(0, 1fr));
+  }
+  .mx-corner {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-day-head {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 14px 12px;
+    position: relative;
+  }
+  .mx-day-head:last-of-type { border-right: 0; }
+  .mx-day-head.is-today-col {
+    background: var(--accent-l);
+  }
+  .mx-day-name {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mx-day-name.is-today { color: var(--accent); }
+  .mx-day-num {
+    font-family: var(--sans);
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .mx-day-num.today { color: var(--accent); }
+  .mx-slot-label {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 14px 18px 40px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-cell {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 14px;
+    min-height: 56px;
+    display: flex; flex-direction: column;
+  }
+  .mx-cell:last-of-type { border-right: 0; }
+  .mx-cell-name {
+    font-family: var(--sans);
+    font-size: 12px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  .mx-cell-meta {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-cell-add {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.55;
+  }
+
+  /* The new ⋯ trigger on the day column header */
+  .mx-day-overflow {
+    position: absolute;
+    top: 12px;
+    right: 8px;
+    background: transparent;
+    border: 0;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 120ms var(--ease-out), color 120ms var(--ease-out);
+  }
+  .mx-day-head:hover .mx-day-overflow,
+  .mx-day-overflow.is-open { opacity: 1; }
+  .mx-day-overflow:hover { color: var(--fg); }
+  .mx-day-overflow.is-open {
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    color: var(--fg);
+  }
+
+  /* Day overflow menu */
+  .mx-day-menu {
+    position: absolute;
+    top: 38px;
+    right: 0;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+    width: 240px;
+    z-index: 20;
+  }
+  .mx-day-menu-section {
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-day-menu-section:last-child { border-bottom: 0; }
+  .mx-day-menu-head {
+    padding: 8px 14px 4px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-day-menu-item {
+    background: transparent;
+    border: 0; border-top: 0; border-bottom: 0;
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg);
+  }
+  .mx-day-menu-item:hover { background: var(--bg-2); }
+  .mx-day-menu-item.is-action {
+    color: var(--fg);
+  }
+  .mx-day-menu-item.is-template {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-transform: none;
+    color: var(--fg);
+  }
+  .mx-day-menu-item-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-day-menu-empty {
+    padding: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-align: center;
+  }
+  .mx-day-menu-foot {
+    padding: 10px 14px;
+    background: var(--fg);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  /* Save template dialog */
+  .dialog-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.40);
+    z-index: 100;
+  }
+  .dialog {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    width: 440px;
+    padding: 28px 32px 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    z-index: 101;
+  }
+  .dialog-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .dialog-title {
+    font-size: 24px; font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .dialog-lede {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .dialog-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 16px 0 6px;
+  }
+  .dialog-label:first-of-type { margin-top: 0; }
+  .dialog-input {
+    width: 100%;
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    padding: 9px 11px;
+    font-family: var(--sans);
+    font-size: 14px;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    box-sizing: border-box;
+  }
+  .dialog-summary {
+    border-left: 2px solid var(--rule);
+    padding: 6px 0 6px 14px;
+    margin: 16px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .dialog-summary strong { color: var(--fg); }
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    align-items: center;
+    margin-top: 28px;
+  }
+  .ed-btn-text {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; padding: 6px 8px;
+  }
+  .ed-btn-primary {
+    background: var(--fg); color: var(--bg);
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    padding: 9px 14px;
+  }
+
+  /* Manage templates sheet (right-side, like browse-all) */
+  .manage-sheet {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 420px;
+    background: var(--bg);
+    border-left: 1px solid var(--fg);
+    box-shadow: -12px 0 32px rgba(0,0,0,0.12);
+    z-index: 50;
+    display: flex; flex-direction: column;
+  }
+  .manage-head {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .manage-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+  }
+  .manage-x {
+    background: transparent; border: 0; cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .manage-title {
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .manage-list { flex: 1; overflow-y: auto; }
+  .manage-item {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .manage-item:hover { background: var(--bg-2); }
+  .manage-name {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+  }
+  .manage-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .manage-actions {
+    display: flex; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .manage-actions button {
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--muted);
+    padding: 4px 6px;
+  }
+  .manage-actions button:hover { color: var(--fg); }
+  .manage-actions .danger:hover { color: var(--err); }
+
+  /* Mobile */
+  .mob-stage {
+    display: flex; gap: 32px;
+    align-items: flex-start;
+  }
+  .mob-frame {
+    width: 390px;
+    border: 1px solid var(--fg);
+    background: var(--bg);
+    border-radius: 28px;
+    overflow: hidden;
+  }
+  .mob-topbar {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-topbar-left { flex: 1; }
+  .mob-topbar-wordmark {
+    font-family: var(--sans);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .mob-tb {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-week {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .mob-day-tile-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--accent-l);
+  }
+  .mob-day-tile-row .left {
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .mob-day-tile-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .mob-day-tile-num {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+  }
+  .mob-day-overflow {
+    background: transparent;
+    border: 1px solid var(--rule);
+    width: 32px; height: 32px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--fg);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Annotations */
+  .anno {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 8px;
+  }
+  .qbox {
+    border-left: 2px solid var(--rule);
+    padding: 4px 0 4px 14px;
+    margin: 0 0 6px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .qbox strong { color: var(--fg); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-title">Day templates</div>
+  <div class="doc-intro">
+    Save the current day as a named, reusable template. Apply any template to any day to populate that day's cells in one action. The "good day formula" reuse loop.
+  </div>
+
+  <!-- ============== SECTION 1 — The trigger ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">The trigger lives on the day column header</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ HOVER A DAY HEADER · ⋯ FADES IN · CLICK OPENS THE MENU</div>
+
+    <div class="surface" style="border-bottom: 0;">
+      <div class="mx">
+        <div class="mx-corner"></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sun</div><div class="mx-day-num">14</div><button class="mx-day-overflow" aria-label="Day options">⋯</button></div>
+        <div class="mx-day-head"><div class="mx-day-name">Mon</div><div class="mx-day-num">15</div><button class="mx-day-overflow" aria-label="Day options">⋯</button></div>
+        <div class="mx-day-head"><div class="mx-day-name">Tue</div><div class="mx-day-num">16</div><button class="mx-day-overflow" aria-label="Day options">⋯</button></div>
+        <div class="mx-day-head is-today-col">
+          <div class="mx-day-name is-today">Wed</div>
+          <div class="mx-day-num today">17</div>
+          <button class="mx-day-overflow is-open" aria-label="Day options">⋯</button>
+          <!-- The menu, open on Wed -->
+          <div class="mx-day-menu">
+            <div class="mx-day-menu-section">
+              <div class="mx-day-menu-head">Save</div>
+              <button class="mx-day-menu-item is-action">
+                <span>Save this day as template…</span>
+              </button>
+            </div>
+            <div class="mx-day-menu-section">
+              <div class="mx-day-menu-head">Apply template</div>
+              <button class="mx-day-menu-item is-template">
+                <span>Workout day</span>
+                <span class="mx-day-menu-item-meta">5 items</span>
+              </button>
+              <button class="mx-day-menu-item is-template">
+                <span>Travel day</span>
+                <span class="mx-day-menu-item-meta">3 items</span>
+              </button>
+              <button class="mx-day-menu-item is-template">
+                <span>Sunday batch cook</span>
+                <span class="mx-day-menu-item-meta">7 items</span>
+              </button>
+              <button class="mx-day-menu-item is-template">
+                <span>High protein day</span>
+                <span class="mx-day-menu-item-meta">6 items</span>
+              </button>
+            </div>
+            <button class="mx-day-menu-foot">Manage templates →</button>
+          </div>
+        </div>
+        <div class="mx-day-head"><div class="mx-day-name">Thu</div><div class="mx-day-num">18</div><button class="mx-day-overflow" aria-label="Day options">⋯</button></div>
+        <div class="mx-day-head"><div class="mx-day-name">Fri</div><div class="mx-day-num">19</div><button class="mx-day-overflow" aria-label="Day options">⋯</button></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sat</div><div class="mx-day-num">20</div><button class="mx-day-overflow" aria-label="Day options">⋯</button></div>
+
+        <!-- A few cells to give context -->
+        <div class="mx-slot-label">Breakfast</div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Veggie scramble</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Spinach omelet</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Weekend pancakes</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt</div><div class="mx-cell-meta">1 serving</div></div>
+
+        <div class="mx-slot-label">Lunch</div>
+        <div class="mx-cell"><div class="mx-cell-name">Chicken caesar</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Lentil soup</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Tuna salad</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-add">+ add</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Quinoa bowl</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Tuna salad</div><div class="mx-cell-meta">1 serving</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Lentil soup</div><div class="mx-cell-meta">1 serving</div></div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>Hover behavior:</strong> the ⋯ button is invisible by default. Hover the day header → fades in to 100% opacity. Click → menu opens, button stays visible.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Two sections in the menu:</strong> Save (this day → template) and Apply template (existing templates → this day). The clean separation lets the same trigger handle both directions without modal switching.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Apply list is sorted most-recent-first.</strong> Item count shown on the right for context.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>"Manage templates →"</strong> at the bottom of the menu opens the manage sheet (§04).
+    </p>
+  </div>
+
+  <!-- ============== SECTION 2 — Save dialog ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Save dialog</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ TRIGGERED BY "SAVE THIS DAY AS TEMPLATE…"</div>
+
+    <div class="surface" style="min-height: 500px;">
+      <div class="dialog-backdrop"></div>
+      <div class="dialog">
+        <div class="dialog-eyebrow">§ SAVE TEMPLATE</div>
+        <h2 class="dialog-title">Save Wednesday as a template.</h2>
+        <p class="dialog-lede">Reusable on any future day. The current servings, recipes, and pantry items are captured.</p>
+
+        <label class="dialog-label" for="np-name">Template name</label>
+        <input id="np-name" type="text" class="dialog-input" placeholder="e.g. Workout day, Travel day…" value="Workout day" autofocus />
+
+        <div class="dialog-summary">
+          Capturing <strong>5 items</strong>: 1 breakfast, 1 lunch, 1 dinner, 1 snack, 1 beverage.
+        </div>
+
+        <div class="dialog-actions">
+          <button class="ed-btn-text">Cancel</button>
+          <button class="ed-btn-primary">Save template</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>Empty day:</strong> if the day has zero items, the "Save this day as template…" menu item is disabled with a hint "Add meals first".
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Duplicate name:</strong> if the name already exists, submit shows an inline error "A template called 'Workout day' already exists. Rename or overwrite?" with Overwrite / Cancel buttons.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 3 — Apply confirm (target day has meals) ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Apply confirm — target day has meals</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ APPLYING TO A DAY THAT ALREADY HAS MEALS · USES dialog.confirm</div>
+
+    <div class="surface" style="min-height: 380px;">
+      <div class="dialog-backdrop"></div>
+      <div class="dialog" style="width: 420px;">
+        <div class="dialog-eyebrow">§ APPLY TEMPLATE</div>
+        <h2 class="dialog-title">Replace Wednesday's meals?</h2>
+        <p class="dialog-lede">
+          Wednesday already has <strong style="color: var(--fg)">4 meals</strong>. Applying "Workout day" (5 items) will replace them. Or append to keep both.
+        </p>
+
+        <div class="dialog-actions">
+          <button class="ed-btn-text">Cancel</button>
+          <button class="ed-btn-text" style="color: var(--fg);">Append instead</button>
+          <button class="ed-btn-primary">Replace</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>Three options:</strong>
+      <strong>Replace</strong> deletes existing meals and creates new ones from the template.
+      <strong>Append</strong> adds template items on top of what's there (could result in 2 breakfasts, etc.).
+      <strong>Cancel</strong> closes without changes.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Empty target:</strong> if the day has no meals, no confirm needed — apply directly + toast "Applied 'Workout day' to Wednesday".
+    </p>
+  </div>
+
+  <!-- ============== SECTION 4 — Manage sheet ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <div class="section-title">Manage templates sheet</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ RIGHT-SIDE SHEET · SAME PATTERN AS BROWSE ALL</div>
+
+    <div class="surface" style="min-height: 500px;">
+      <div class="manage-sheet">
+        <div class="manage-head">
+          <div class="manage-eyebrow">
+            <span>§ DAY TEMPLATES</span>
+            <button class="manage-x">✕ CLOSE</button>
+          </div>
+          <div class="manage-title">Saved days.</div>
+          <input
+            type="search"
+            placeholder="Search templates…"
+            style="width: 100%; margin-top: 14px; border: 1px solid var(--rule); background: var(--bg); padding: 8px 10px; font-family: var(--sans); font-size: 13px; letter-spacing: -0.03em; color: var(--fg);"
+          />
+        </div>
+        <div class="manage-list">
+          <div class="manage-item">
+            <div>
+              <div class="manage-name">Workout day</div>
+              <div class="manage-meta">
+                <span style="display: inline-flex; align-items: center; gap: 5px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #E84828; display: inline-block;"></span>
+                  From Jen
+                </span>
+                <span style="margin: 0 6px;">·</span>
+                5 items · Saved Jan 12
+              </div>
+            </div>
+            <div class="manage-actions">
+              <button>Rename</button>
+              <button class="danger">Delete</button>
+            </div>
+          </div>
+          <div class="manage-item">
+            <div>
+              <div class="manage-name">Travel day</div>
+              <div class="manage-meta">
+                <span style="display: inline-flex; align-items: center; gap: 5px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #5A9B6A; display: inline-block;"></span>
+                  From Sam
+                </span>
+                <span style="margin: 0 6px;">·</span>
+                3 items · Saved Jan 8
+              </div>
+            </div>
+            <div class="manage-actions">
+              <button>Rename</button>
+              <button class="danger">Delete</button>
+            </div>
+          </div>
+          <div class="manage-item">
+            <div>
+              <div class="manage-name">Sunday batch cook</div>
+              <div class="manage-meta">
+                <span style="display: inline-flex; align-items: center; gap: 5px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #E84828; display: inline-block;"></span>
+                  From Jen
+                </span>
+                <span style="margin: 0 6px;">·</span>
+                7 items · Saved Jan 5
+              </div>
+            </div>
+            <div class="manage-actions">
+              <button>Rename</button>
+              <button class="danger">Delete</button>
+            </div>
+          </div>
+          <div class="manage-item">
+            <div>
+              <div class="manage-name">High protein day</div>
+              <div class="manage-meta">
+                <span style="display: inline-flex; align-items: center; gap: 5px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #E84828; display: inline-block;"></span>
+                  From Jen
+                </span>
+                <span style="margin: 0 6px;">·</span>
+                6 items · Saved Dec 28
+              </div>
+            </div>
+            <div class="manage-actions">
+              <button>Rename</button>
+              <button class="danger">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      Same right-side sheet pattern as the picker's "Browse all" — visually consistent.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Rename:</strong> inline replaces the name with an input.
+      <strong>Delete:</strong> confirm dialog "Delete 'Workout day'?" with body "This can't be undone."
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Empty:</strong> "No templates yet. Save a day from the planner ⋯ menu."
+    </p>
+  </div>
+
+  <!-- ============== SECTION 5 — Mobile ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <div class="section-title">Mobile — the ⋯ lives next to the active day</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ NO NEW CHROME · ⋯ TUCKED INTO THE EXISTING TOOLBAR</div>
+
+    <div class="mob-stage">
+      <div class="mob-frame">
+        <div class="mob-topbar">
+          <span class="mob-topbar-wordmark">Good Measure</span>
+          <span style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg);">JEN ▾ ☰</span>
+        </div>
+        <div class="mob-tb">
+          <span class="mob-week">May 31–Jun 6</span>
+          <div style="display: flex; gap: 6px;">
+            <button style="background: transparent; border: 1px solid var(--rule); width: 36px; height: 30px; font-family: var(--font-mono); font-size: 18px; color: var(--fg);">‹</button>
+            <button style="background: transparent; border: 1px solid var(--rule); width: 36px; height: 30px; font-family: var(--font-mono); font-size: 18px; color: var(--fg);">›</button>
+          </div>
+          <button style="background: var(--fg); color: var(--bg); border: 0; height: 30px; padding: 0 12px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;">+ NEW</button>
+          <button style="background: transparent; border: 1px solid var(--rule); width: 30px; height: 30px; font-family: var(--font-mono); font-size: 14px; color: var(--fg); margin-left: 6px;" aria-label="Day options">⋯</button>
+        </div>
+
+        <!-- Day strip placeholder -->
+        <div style="display: flex; border-bottom: 1px solid var(--rule);">
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center; border-right: 1px solid var(--rule);">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">M</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600;">15</div>
+          </div>
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center; border-right: 1px solid var(--rule); background: var(--accent-l);">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);">T</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--accent);">16</div>
+          </div>
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center; border-right: 1px solid var(--rule);">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">W</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600;">17</div>
+          </div>
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center; border-right: 1px solid var(--rule);">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">T</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600;">18</div>
+          </div>
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center; border-right: 1px solid var(--rule);">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">F</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600;">19</div>
+          </div>
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center; border-right: 1px solid var(--rule);">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">S</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600;">20</div>
+          </div>
+          <div style="flex: 1; padding: 12px 4px 10px; text-align: center;">
+            <div style="font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">S</div>
+            <div style="font-family: var(--sans); font-size: 14px; font-weight: 600;">21</div>
+          </div>
+        </div>
+
+        <!-- Slot row preview — sits directly after day strip, no extra chrome -->
+        <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+          <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px;">Breakfast</div>
+          <div style="font-family: var(--sans); font-size: 16px; font-weight: 500; letter-spacing: -0.03em;">Greek yogurt + granola</div>
+          <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 4px;">1 serving</div>
+        </div>
+        <div style="padding: 16px 18px; border-bottom: 1px solid var(--rule);">
+          <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px;">Lunch</div>
+          <div style="font-family: var(--sans); font-size: 16px; font-weight: 500; letter-spacing: -0.03em;">Lentil tomato soup</div>
+          <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 4px;">1 serving</div>
+        </div>
+      </div>
+
+      <div style="max-width: 360px;">
+        <div class="anno">Mobile placement — no new chrome</div>
+        <p class="qbox">
+          <strong>⋯ added to the existing toolbar</strong>, right after + NEW. The button is 30×30 with a subtle outline. It refers to the active day (whichever pill is highlighted in the day strip).
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>Tap → bottom sheet.</strong> Reuses the matrix's existing iOS-style sheet styling (handle, rounded corners). Same Save / Apply structure as desktop. Switching days re-targets the menu's "this day" without closing.
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>No active-day tile.</strong> The accent-tinted day pill already communicates "you're looking at this day" — the heavy tile in v1 was duplicating that signal.
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>Meal count</strong> moves into the bottom sheet header ("Tuesday · 3 meals") rather than being shown inline above the slots. Quieter.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SECTION 6 — Open questions ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">06</div>
+      <div class="section-title">Open questions</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="anno">Resolved</div>
+    <p class="qbox">
+      <strong>Apply default:</strong> Replace, primary button, black (not red). Red is reserved for true destructive actions (delete account, delete plan).
+      <br><strong>Templates household-scoped + tagged with personId.</strong> Manage list shows a small attribution chip per row ("From Jen", color dot). Future use: filtering, MCP-aware scaling suggestions.
+      <br><strong>Servings preserved.</strong> No rescaling on apply.
+      <br><strong>Missing recipe on apply:</strong> silent skip, toast "Applied 'Workout day' — 1 item skipped (recipe deleted)."
+      <br><strong>Search:</strong> include from v1. Small input above the list in the manage sheet. Above the apply menu when count &gt; 6.
+      <br><strong>Mobile trigger:</strong> small ⋯ button in the existing toolbar, no new chrome.
+    </p>
+
+    <div class="anno">Remaining design call</div>
+    <p class="qbox">
+      <strong>Empty day handling.</strong> If the user opens ⋯ on a day with zero meals, do we:
+      <br>(a) Disable "Save this day as template…" with hint "Add meals first," OR
+      <br>(b) Hide the Save section entirely so the menu only shows Apply?
+      <br>Leaning (a) — visible affordance + explanation is better discovery than a missing menu.
+    </p>
+
+    <div class="anno">Playbook note</div>
+    <p class="qbox">
+      Adding <strong>Story #6: "Saving the day that worked"</strong> to <code>briefs/playbook-stories.md</code> — covers the matrix + day templates loop. The "good day formula" framing is the marketing/teaching hook.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
