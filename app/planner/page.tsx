@@ -366,48 +366,51 @@ function PlannerPage() {
     setSaveTplOpen({ date, itemCount });
   }
 
-  // Defensive cleanup — manually remove any backdrop elements that might be
-  // stuck in the DOM and force iOS Safari to re-sample its chrome (status bar
-  // and address bar). iOS caches the page colour those areas are tinted with;
-  // when a dimmed backdrop closes, the chrome holds the dim until something
-  // forces a re-sample.
+  // Defensive cleanup — iOS Safari caches the page colour it samples for the
+  // chrome (status bar, address bar). When a dimmed backdrop closes, the
+  // chrome holds the dim until something forces a re-sample. This function
+  // throws multiple cues at iOS to make it repaint the chrome regions.
   function scrubOverlays() {
     if (typeof document === "undefined") return;
 
-    // 1. Remove any orphaned backdrop / dialog elements at document.body
+    // 1. Remove orphaned backdrop / dialog elements at document.body
     document
       .querySelectorAll(".mx-newplan-backdrop, .mx-day-menu-backdrop, .mx-day-menu, .mx-newplan-dialog")
       .forEach((el) => {
-        const parent = el.parentElement;
-        if (parent === document.body) el.remove();
+        if (el.parentElement === document.body) el.remove();
       });
 
-    // 2. Cycle the meta theme-color tag — forces iOS Safari to re-evaluate
-    //    chrome tinting based on the page's declared colour.
+    // 2. Cycle the meta theme-color tag — forces iOS to re-evaluate chrome
     const themeMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
     if (themeMeta) {
       const orig = themeMeta.getAttribute("content") ?? "#FFFFFF";
-      themeMeta.setAttribute("content", "#FEFEFE");
-      requestAnimationFrame(() => {
-        themeMeta.setAttribute("content", orig);
-      });
+      themeMeta.setAttribute("content", "#FFFFFE");
+      requestAnimationFrame(() => themeMeta.setAttribute("content", orig));
     }
 
-    // 3. Force a paint/scroll resample. Brief body bg toggle + a 0-pixel
-    //    scroll dispatch nudges iOS to re-render the chrome regions.
-    const body = document.body;
-    const html = document.documentElement;
-    const originalBodyBg = body.style.backgroundColor;
-    body.style.backgroundColor = "#FFFFFF";
-    html.style.backgroundColor = "#FFFFFF";
-    requestAnimationFrame(() => {
-      body.style.backgroundColor = originalBodyBg;
-      html.style.backgroundColor = "";
-      try {
-        window.scrollBy(0, 0);
-        window.dispatchEvent(new Event("scroll"));
-      } catch {}
-    });
+    // 3. The nuclear option — drop opaque white panels at the top and bottom
+    //    of the viewport for ~80ms. iOS Safari samples those areas to colour
+    //    its status bar and address bar; the white panels force a clean
+    //    sample, after which the page underneath (already white) sustains it.
+    const top = document.createElement("div");
+    top.style.cssText =
+      "position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,0px) + 60px);background:#FFFFFF;z-index:99999;pointer-events:none;";
+    const bottom = document.createElement("div");
+    bottom.style.cssText =
+      "position:fixed;bottom:0;left:0;right:0;height:calc(env(safe-area-inset-bottom,0px) + 80px);background:#FFFFFF;z-index:99999;pointer-events:none;";
+    document.body.appendChild(top);
+    document.body.appendChild(bottom);
+
+    // Trigger a 1px scroll then back — iOS recomputes chrome on scroll change
+    try {
+      window.scrollBy(0, 1);
+      requestAnimationFrame(() => window.scrollBy(0, -1));
+    } catch {}
+
+    window.setTimeout(() => {
+      top.remove();
+      bottom.remove();
+    }, 100);
   }
 
   async function submitSaveTemplate(name: string) {
