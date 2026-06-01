@@ -1505,6 +1505,7 @@ input[type="number"]:focus {
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   padding: 14px 14px 12px;
+  position: relative;
 }
 .mx-day-head:last-of-type { border-right: 0; }
 .mx-day-name {
