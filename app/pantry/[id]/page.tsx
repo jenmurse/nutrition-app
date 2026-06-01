@@ -341,7 +341,7 @@ export default function IngredientDetailPage() {
         );
       }
       toast.success(`${ingredient.name} deleted`);
-      router.push("/ingredients");
+      router.push("/pantry");
     } catch (err) {
       console.error(err);
       toast.error(
@@ -537,7 +537,7 @@ export default function IngredientDetailPage() {
           savedCount > 0 ? ` with ${savedCount} nutrient values` : ""
         }`
       );
-      router.push("/ingredients");
+      router.push("/pantry");
     } catch (e) {
       console.error(e);
       toast.error(
@@ -568,7 +568,7 @@ export default function IngredientDetailPage() {
           headline="Nothing here."
           lede="This ingredient may have been deleted or the link is broken."
           ctaLabel="← BACK TO PANTRY"
-          ctaHref="/ingredients"
+          ctaHref="/pantry"
         />
       </div>
     );
@@ -860,7 +860,7 @@ export default function IngredientDetailPage() {
 
           {/* ── Button Row ── */}
           <div className="flex justify-end gap-[10px]" style={{ marginTop: 64 }}>
-            <button className="ed-btn ghost" onClick={() => router.push("/ingredients")} disabled={saving} aria-label="Cancel editing">Cancel</button>
+            <button className="ed-btn ghost" onClick={() => router.push("/pantry")} disabled={saving} aria-label="Cancel editing">Cancel</button>
             <button className="ed-btn" onClick={handleReset} disabled={saving} aria-label="Reset form">Reset</button>
             <button className="ed-btn primary" onClick={handleSave} disabled={saving} aria-label="Save ingredient">
               {saving ? "Saving…" : "Save"}

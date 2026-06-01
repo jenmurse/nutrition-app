@@ -9,7 +9,7 @@ import { BrandName } from "./BrandName";
 const navItems = [
   { href: "/planner", label: "Planner" },
   { href: "/recipes", label: "Recipes" },
-  { href: "/ingredients", label: "Pantry" },
+  { href: "/pantry", label: "Pantry" },
 ];
 
 export default function TopNav() {

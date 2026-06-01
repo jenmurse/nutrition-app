@@ -149,7 +149,7 @@ function IngredientsPage() {
     const params = new URLSearchParams(searchParams?.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    startTransition(() => { router.replace(`/ingredients?${params.toString()}`); });
+    startTransition(() => { router.replace(`/pantry?${params.toString()}`); });
   };
 
   const loadIngredients = async () => {
@@ -294,7 +294,7 @@ function IngredientsPage() {
           >Filter{activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}</button>
           {/* + ADD */}
           <button
-            onClick={() => router.push("/ingredients/create")}
+            onClick={() => router.push("/pantry/create")}
             className="ed-btn-primary"
             aria-label="Add new ingredient"
           >+ Add</button>
@@ -372,7 +372,7 @@ function IngredientsPage() {
 
             {/* + Add */}
             <button
-              onClick={() => router.push("/ingredients/create")}
+              onClick={() => router.push("/pantry/create")}
               className="ed-btn-primary"
               aria-label="Add new ingredient"
             >+ Add</button>
@@ -428,7 +428,7 @@ function IngredientsPage() {
                 headline="An empty pantry."
                 lede={<>Add what you cook with often,<br />or look it up as you go.</>}
                 ctaLabel="+ ADD INGREDIENT →"
-                onCta={() => router.push("/ingredients/create")}
+                onCta={() => router.push("/pantry/create")}
               />
             ) : (
               <EmptyState
@@ -465,15 +465,15 @@ function IngredientsPage() {
                   className="pantry-item group"
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/ingredients/${ingredient.id}`)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
+                  onClick={() => router.push(`/pantry/${ingredient.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/pantry/${ingredient.id}`); } }}
                   aria-label={ingredient.name}
                   style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
                   {/* Action buttons */}
                   <div className="ing-card-actions absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
                     <button
-                      onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
+                      onClick={(e) => { e.stopPropagation(); router.push(`/pantry/${ingredient.id}`); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
                       aria-label={`Edit ${ingredient.name}`}
                     >
@@ -524,8 +524,8 @@ function IngredientsPage() {
                   data-cursor="card"
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/ingredients/${ingredient.id}`)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/ingredients/${ingredient.id}`); } }}
+                  onClick={() => router.push(`/pantry/${ingredient.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/pantry/${ingredient.id}`); } }}
                   aria-label={ingredient.name}
                   className="ing-list-row flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
                   style={{
@@ -560,7 +560,7 @@ function IngredientsPage() {
                   {/* Action buttons — always visible, subtle until hover */}
                   <div className="ing-list-actions flex gap-[4px] shrink-0 opacity-[0.4] group-hover:opacity-100 transition-opacity duration-150">
                     <button
-                      onClick={(e) => { e.stopPropagation(); router.push(`/ingredients/${ingredient.id}`); }}
+                      onClick={(e) => { e.stopPropagation(); router.push(`/pantry/${ingredient.id}`); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-transparent border border-[var(--rule)] text-[var(--muted)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
                       aria-label={`Edit ${ingredient.name}`}
                     >

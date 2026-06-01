@@ -12,7 +12,7 @@ const SECTIONS = [
   { href: "/home",        label: "Home"     },
   { href: "/planner",     label: "Planner"  },
   { href: "/recipes",     label: "Recipes"  },
-  { href: "/ingredients", label: "Pantry"   },
+  { href: "/pantry", label: "Pantry"   },
   { href: "/shopping",    label: "Shopping" },
   { href: "/settings",    label: "Settings" },
 ];
@@ -28,10 +28,10 @@ function isActive(href: string, pathname: string) {
 function isBackPage(pathname: string) {
   return (
     pathname === "/recipes/new" ||
-    pathname === "/ingredients/new" ||
+    pathname === "/pantry/new" ||
     pathname === "/meal-plans/add-meal" ||
     /^\/recipes\/[^/]+\/edit$/.test(pathname) ||
-    /^\/ingredients\/[^/]+\/edit$/.test(pathname)
+    /^\/pantry\/[^/]+\/edit$/.test(pathname)
   );
 }
 

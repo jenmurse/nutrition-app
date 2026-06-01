@@ -285,7 +285,7 @@ export default function CreateIngredientPage() {
       clientCache.set(`/api/ingredients/${created.id}`, created);
       clientCache.delete("/api/ingredients?slim=true");
       toast.success(`${created.name} created`);
-      router.push("/ingredients");
+      router.push("/pantry");
     } catch (e) {
       console.error(e);
       toast.error(`Failed to create: ${e instanceof Error ? e.message : "Unknown error"}`);
@@ -566,7 +566,7 @@ export default function CreateIngredientPage() {
 
           {/* ── Button Row ── */}
           <div className="flex justify-end gap-[10px]" style={{ marginTop: 64 }}>
-            <button className="ed-btn ghost" onClick={() => router.push("/ingredients")} disabled={saving} aria-label="Cancel">Cancel</button>
+            <button className="ed-btn ghost" onClick={() => router.push("/pantry")} disabled={saving} aria-label="Cancel">Cancel</button>
             <button className="ed-btn primary" onClick={handleCreate} disabled={saving} aria-label="Create ingredient">
               {saving ? "Creating…" : "Create"}
             </button>
