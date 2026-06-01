@@ -89,6 +89,15 @@ type RecipeSlim = {
   totals?: Array<{ nutrientId: number; displayName: string; value: number; unit: string }>;
 };
 
+type IngredientSlim = {
+  id: number;
+  name: string;
+  defaultUnit: string;
+  isMealItem?: boolean;
+  isFavorited?: boolean;
+  category?: string | null;
+};
+
 type BrowseState = {
   slot: SlotType;
   date: Date;
@@ -120,6 +129,7 @@ function PlannerPage() {
   const [plan, setPlan] = useState<MealPlanDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [recipes, setRecipes] = useState<RecipeSlim[]>([]);
+  const [ingredients, setIngredients] = useState<IngredientSlim[]>([]);
   const [picker, setPicker] = useState<PickerState | null>(null);
   const [userAddedSlots, setUserAddedSlots] = useState<SlotType[]>([]);
   const [slotOrder, setSlotOrder] = useState<SlotType[]>([]);
@@ -266,6 +276,21 @@ function PlannerPage() {
     loadPlanDetails(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planIdParam, plans]);
+
+  // ── Load pantry items (ingredients) for the picker ───────────
+  useEffect(() => {
+    const cached = clientCache.get<IngredientSlim[]>("/api/ingredients");
+    if (cached) setIngredients(cached);
+    fetch("/api/ingredients")
+      .then((r) => r.json())
+      .then((data: IngredientSlim[]) => {
+        if (Array.isArray(data)) {
+          clientCache.set("/api/ingredients", data);
+          setIngredients(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // ── Load recipes (slim) once for the picker; upgrade to full lazily ──
   useEffect(() => {
@@ -459,6 +484,12 @@ function PlannerPage() {
       });
   }, [picker, recipes]);
 
+  // Pantry items filtered for the picker — favorited + flagged as meal-eligible
+  const pantryOptions = useMemo(() => {
+    if (!picker) return [];
+    return ingredients.filter((i) => i.isFavorited && i.isMealItem);
+  }, [picker, ingredients]);
+
   function getRecipeKcal(r: RecipeSlim): number | null {
     if (!r.totals) return null;
     const match = r.totals.find((t) => {
@@ -514,6 +545,94 @@ function PlannerPage() {
       await removeLogById(existing.id);
     } else {
       await pickRecipe(recipeId);
+    }
+  }
+
+  // Add a pantry ingredient to the active picker's cell
+  async function pickIngredient(ingredientId: number) {
+    if (!picker || !plan) return;
+    const date = picker.date;
+    const slot = picker.slot;
+    const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const ing = ingredients.find((i) => i.id === ingredientId);
+    if (!ing) return;
+    const cellKey = `${date.toDateString()}|${slot}`;
+    const optimisticLog: MealLog = {
+      id: -Date.now(),
+      date: dateISO,
+      mealType: slot,
+      quantity: 1,
+      unit: ing.defaultUnit,
+      ingredientId,
+      ingredient: { id: ing.id, name: ing.name, defaultUnit: ing.defaultUnit },
+      position: (cellMap.get(cellKey)?.length ?? 0),
+    };
+    setPlan((prev) => prev ? { ...prev, mealLogs: [...prev.mealLogs, optimisticLog] } : prev);
+    try {
+      const r = await fetch(`/api/meal-plans/${plan.id}/meals`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ingredientId, date: dateISO, mealType: slot, quantity: 1, unit: ing.defaultUnit }),
+      });
+      if (!r.ok) throw new Error("Failed");
+      await refreshPlan();
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't add pantry item");
+      await refreshPlan();
+    }
+  }
+
+  // Toggle a pantry ingredient in/out of the picker's cell
+  async function toggleIngredientInCell(ingredientId: number) {
+    if (!picker || !plan) return;
+    const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
+    const logs = cellMap.get(cellKey) ?? [];
+    const existing = logs.find((l) => l.ingredientId === ingredientId);
+    if (existing) {
+      await removeLogById(existing.id);
+    } else {
+      await pickIngredient(ingredientId);
+    }
+  }
+
+  // Adjust servings (recipes) or quantity (ingredients) by delta
+  async function bumpAmount(log: MealLog, delta: number) {
+    if (!plan) return;
+    const isRecipe = log.recipeId != null;
+    const current = (isRecipe ? log.servings : log.quantity) ?? 1;
+    const next = current + delta;
+    if (next <= 0) {
+      await removeLogById(log.id);
+      return;
+    }
+    // Optimistic
+    setPlan((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        mealLogs: prev.mealLogs.map((l) =>
+          l.id === log.id
+            ? isRecipe
+              ? { ...l, servings: next }
+              : { ...l, quantity: next }
+            : l
+        ),
+      };
+    });
+    try {
+      const body = isRecipe ? { servings: next } : { quantity: next };
+      const r = await fetch(`/api/meal-plans/${plan.id}/meals/${log.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error("Failed");
+      await refreshPlan();
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't update servings");
+      await refreshPlan();
     }
   }
 
@@ -1225,40 +1344,113 @@ function PlannerPage() {
               {(() => {
                 const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
                 const currentLogs = cellMap.get(cellKey) ?? [];
-                const currentRecipeIds = new Set(currentLogs.map((l) => l.recipeId).filter((n): n is number => n != null));
+                const recipeLogsById = new Map<number, MealLog>();
+                const ingredientLogsById = new Map<number, MealLog>();
+                for (const l of currentLogs) {
+                  if (l.recipeId != null) recipeLogsById.set(l.recipeId, l);
+                  if (l.ingredientId != null) ingredientLogsById.set(l.ingredientId, l);
+                }
+                const hasAny = pickerOptions.length > 0 || pantryOptions.length > 0;
                 return (
                   <>
                     <div className="mx-picker-head">
-                      <span>§ {SLOT_LABELS[picker.slot].toUpperCase()} · FAVORITES</span>
+                      <span>§ {SLOT_LABELS[picker.slot].toUpperCase()}</span>
                       <span>
                         {currentLogs.length > 0
                           ? `${currentLogs.length} picked`
-                          : `${pickerOptions.length}`}
+                          : `${pickerOptions.length + pantryOptions.length}`}
                       </span>
                     </div>
 
                     <div className="mx-picker-list">
-                      {pickerOptions.length === 0 ? (
+                      {!hasAny && (
                         <div className="mx-picker-empty">
-                          No favorited {SLOT_LABELS[picker.slot].toLowerCase()} recipes yet.
+                          No favorited {SLOT_LABELS[picker.slot].toLowerCase()} recipes or pantry items yet.
                         </div>
-                      ) : (
-                        pickerOptions.map((r) => {
-                          const isCurrent = currentRecipeIds.has(r.id);
-                          const kcal = getRecipeKcal(r);
-                          return (
-                            <button
-                              key={r.id}
-                              type="button"
-                              className="mx-picker-opt"
-                              aria-current={isCurrent ? "true" : undefined}
-                              onClick={() => toggleRecipeInCell(r.id)}
-                            >
-                              <span className="mx-picker-name">{r.name}</span>
-                              <span className="mx-picker-kcal">{kcal != null ? kcal : "—"}</span>
-                            </button>
-                          );
-                        })
+                      )}
+
+                      {pickerOptions.length > 0 && (
+                        <>
+                          <div className="mx-picker-section-head">★ Recipes</div>
+                          {pickerOptions.map((r) => {
+                            const log = recipeLogsById.get(r.id);
+                            const isCurrent = !!log;
+                            const kcal = getRecipeKcal(r);
+                            const servings = log?.servings ?? 1;
+                            return (
+                              <button
+                                key={`r-${r.id}`}
+                                type="button"
+                                className="mx-picker-opt"
+                                aria-current={isCurrent ? "true" : undefined}
+                                onClick={() => toggleRecipeInCell(r.id)}
+                              >
+                                <span className="mx-picker-name">{r.name}</span>
+                                {isCurrent && log ? (
+                                  <span className="mx-picker-step" onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                      type="button"
+                                      className="mx-picker-step-btn"
+                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, -1); }}
+                                      aria-label="Decrease servings"
+                                    >−</button>
+                                    <span className="mx-picker-step-val">{servings}</span>
+                                    <button
+                                      type="button"
+                                      className="mx-picker-step-btn"
+                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, 1); }}
+                                      aria-label="Increase servings"
+                                    >+</button>
+                                  </span>
+                                ) : (
+                                  <span className="mx-picker-kcal">{kcal != null ? kcal : "—"}</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </>
+                      )}
+
+                      {pantryOptions.length > 0 && (
+                        <>
+                          <div className="mx-picker-section-head">★ Pantry</div>
+                          {pantryOptions.map((i) => {
+                            const log = ingredientLogsById.get(i.id);
+                            const isCurrent = !!log;
+                            const qty = log?.quantity ?? 1;
+                            const unit = log?.unit ?? i.defaultUnit;
+                            return (
+                              <button
+                                key={`i-${i.id}`}
+                                type="button"
+                                className="mx-picker-opt"
+                                aria-current={isCurrent ? "true" : undefined}
+                                onClick={() => toggleIngredientInCell(i.id)}
+                              >
+                                <span className="mx-picker-name">{i.name}</span>
+                                {isCurrent && log ? (
+                                  <span className="mx-picker-step" onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                      type="button"
+                                      className="mx-picker-step-btn"
+                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, -1); }}
+                                      aria-label="Decrease quantity"
+                                    >−</button>
+                                    <span className="mx-picker-step-val">{qty}{unit ? ` ${unit}` : ""}</span>
+                                    <button
+                                      type="button"
+                                      className="mx-picker-step-btn"
+                                      onClick={(e) => { e.stopPropagation(); bumpAmount(log, 1); }}
+                                      aria-label="Increase quantity"
+                                    >+</button>
+                                  </span>
+                                ) : (
+                                  <span className="mx-picker-kcal">{i.defaultUnit}</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </>
                       )}
                     </div>
 
