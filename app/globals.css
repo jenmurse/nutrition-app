@@ -802,6 +802,9 @@ input[type="number"]:focus {
   /* Cat + name padding */
   .recipe-grid-item__cat,
   .recipe-grid-item__name { padding-left: 18px; padding-right: 18px; }
+  /* Optical: mono uppercase eyebrow needs 1px nudge to visually align */
+  .recipe-grid-item__cat,
+  .recipe-grid-item.rg-typographic .ghost-eyebrow { text-indent: 1px; }
   /* Typographic cell: square aspect matches photo cell weight; larger display type */
   .recipe-grid-item.rg-typographic {
     aspect-ratio: 4 / 3;
@@ -911,11 +914,12 @@ input[type="number"]:focus {
     flex-shrink: 0;
   }
   .recipe-list-row__main {
-    padding: 0 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    justify-content: center;
+    padding: 0 18px;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
     min-height: 72px;
   }
   .recipe-list-row__name {
@@ -2344,9 +2348,12 @@ input[type="number"]:focus {
 .mx-mob-week {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  /* Optical: mono uppercase rests slightly leftward against rounded glyphs;
+     nudge text in 1px to align with surrounding eyebrows. */
+  text-indent: 1px;
   color: var(--fg);
 }
 .mx-mob-arrows {
@@ -4519,6 +4526,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     letter-spacing: -0.03em;
     color: var(--fg);
     text-decoration: none;
+    /* Optical: nudge a hair left so the wordmark visually hugs the edge */
+    margin-left: -1px;
   }
   .mob-topbar-back {
     font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
