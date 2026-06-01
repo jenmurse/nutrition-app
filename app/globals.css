@@ -1912,6 +1912,58 @@ input[type="number"]:focus {
   color: var(--muted);
   text-transform: none;
 }
+.mx-picker-also {
+  padding: 10px 14px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mx-picker-also-label {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mx-picker-also-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mx-picker-also-chip {
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 4px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 120ms var(--ease-out), color 120ms var(--ease-out), background 120ms var(--ease-out);
+}
+.mx-picker-also-chip:hover {
+  border-color: var(--fg);
+  color: var(--fg);
+}
+.mx-picker-also-chip.on {
+  border-color: var(--fg);
+  color: var(--fg);
+  background: var(--bg-2);
+}
+.mx-picker-also-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 .mx-picker-foot {
   padding: 10px 14px;
   border-top: 1px solid var(--rule);

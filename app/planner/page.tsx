@@ -131,7 +131,7 @@ function PlannerPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planIdParam = searchParams?.get("planId");
-  const { selectedPersonId } = usePersonContext();
+  const { persons, selectedPersonId } = usePersonContext();
 
   const [plans, setPlans] = useState<MealPlanSummary[]>([]);
   const [plan, setPlan] = useState<MealPlanDetails | null>(null);
@@ -150,6 +150,8 @@ function PlannerPage() {
   const [browseSearch, setBrowseSearch] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+  const [otherPersonPlans, setOtherPersonPlans] = useState<Array<{ personId: number; planId: number; name: string; color: string }>>([]);
+  const [alsoForPlans, setAlsoForPlans] = useState<Set<number>>(new Set());
 
   // ── Mobile detection ─────────────────────────────────────────
   useEffect(() => {
@@ -263,6 +265,44 @@ function PlannerPage() {
     loadPlanDetails(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planIdParam, plans]);
+
+  // ── Load other household members' plans for the same week ────
+  useEffect(() => {
+    if (!plan || persons.length < 2 || !selectedPersonId) {
+      setOtherPersonPlans([]);
+      return;
+    }
+    let cancelled = false;
+    const wsd = parseUTCDate(plan.weekStartDate);
+    const weekStartTime = wsd.getTime();
+    Promise.all(
+      persons
+        .filter((p) => p.id !== selectedPersonId)
+        .map(async (p) => {
+          try {
+            const r = await fetch(`/api/meal-plans?personId=${p.id}`);
+            if (!r.ok) return null;
+            const list: Array<{ id: number; weekStartDate: string }> = await r.json();
+            const match = list.find(
+              (pl) => parseUTCDate(pl.weekStartDate).getTime() === weekStartTime
+            );
+            if (match) return { personId: p.id, planId: match.id, name: p.name, color: p.color };
+          } catch {}
+          return null;
+        })
+    ).then((results) => {
+      if (cancelled) return;
+      setOtherPersonPlans(
+        results.filter((r): r is { personId: number; planId: number; name: string; color: string } => r !== null)
+      );
+    });
+    return () => { cancelled = true; };
+  }, [plan, persons, selectedPersonId]);
+
+  // Reset "Also for" toggles when the active plan or person changes
+  useEffect(() => {
+    setAlsoForPlans(new Set());
+  }, [plan?.id, selectedPersonId]);
 
   // ── Load pantry items (ingredients) for the picker ───────────
   useEffect(() => {
@@ -506,13 +546,29 @@ function PlannerPage() {
 
     setPlan((prev) => prev ? { ...prev, mealLogs: [...prev.mealLogs, optimisticLog] } : prev);
 
+    const body = { recipeId, date: dateISO, mealType: slot, servings: 1 };
     try {
       const postRes = await fetch(`/api/meal-plans/${plan.id}/meals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipeId, date: dateISO, mealType: slot, servings: 1 }),
+        body: JSON.stringify(body),
       });
       if (!postRes.ok) throw new Error("Failed");
+
+      // Mirror to any "also add to" plans (best-effort; failures are toasted but don't fail the main add)
+      if (alsoForPlans.size > 0) {
+        await Promise.all(
+          Array.from(alsoForPlans).map((otherPlanId) =>
+            fetch(`/api/meal-plans/${otherPlanId}/meals`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            }).then((r) => { if (!r.ok) throw new Error(); }).catch(() => {
+              toast.error("Couldn't mirror to another plan");
+            })
+          )
+        );
+      }
       await refreshPlan();
     } catch (err) {
       console.error(err);
@@ -555,13 +611,28 @@ function PlannerPage() {
       position: (cellMap.get(cellKey)?.length ?? 0),
     };
     setPlan((prev) => prev ? { ...prev, mealLogs: [...prev.mealLogs, optimisticLog] } : prev);
+    const body = { ingredientId, date: dateISO, mealType: slot, quantity: 1, unit: sendUnit };
     try {
       const r = await fetch(`/api/meal-plans/${plan.id}/meals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredientId, date: dateISO, mealType: slot, quantity: 1, unit: sendUnit }),
+        body: JSON.stringify(body),
       });
       if (!r.ok) throw new Error("Failed");
+
+      if (alsoForPlans.size > 0) {
+        await Promise.all(
+          Array.from(alsoForPlans).map((otherPlanId) =>
+            fetch(`/api/meal-plans/${otherPlanId}/meals`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            }).then((r) => { if (!r.ok) throw new Error(); }).catch(() => {
+              toast.error("Couldn't mirror to another plan");
+            })
+          )
+        );
+      }
       await refreshPlan();
     } catch (err) {
       console.error(err);
@@ -1450,6 +1521,40 @@ function PlannerPage() {
                         </>
                       )}
                     </div>
+
+                    {otherPersonPlans.length > 0 && (
+                      <div className="mx-picker-also">
+                        <span className="mx-picker-also-label">Also add to</span>
+                        <div className="mx-picker-also-chips">
+                          {otherPersonPlans.map((op) => {
+                            const on = alsoForPlans.has(op.planId);
+                            return (
+                              <button
+                                key={op.planId}
+                                type="button"
+                                className={`mx-picker-also-chip${on ? " on" : ""}`}
+                                onClick={() => {
+                                  setAlsoForPlans((prev) => {
+                                    const next = new Set(prev);
+                                    if (on) next.delete(op.planId);
+                                    else next.add(op.planId);
+                                    return next;
+                                  });
+                                }}
+                                aria-pressed={on}
+                              >
+                                <span
+                                  className="mx-picker-also-dot"
+                                  style={{ background: op.color || "var(--accent)" }}
+                                  aria-hidden="true"
+                                />
+                                {op.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
                     <button
                       type="button"
