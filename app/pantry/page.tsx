@@ -547,14 +547,14 @@ function IngredientsPage() {
                   {/* Macros — all nutrients, right-aligned */}
                   {macros && (
                     <div className="ing-list-macros flex gap-[16px] items-baseline shrink-0 ml-auto">
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)]">kcal</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)]">fat</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.satFat}g</strong> <span className="text-[var(--muted)]">sat</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sodium}mg</strong> <span className="text-[var(--muted)]">sod</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)]">carbs</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sugar}g</strong> <span className="text-[var(--muted)]">sugar</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)]">prot</span></span>
-                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fiber}g</strong> <span className="text-[var(--muted)]">fiber</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.kcal}</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">cal</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fat}g</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">fat</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.satFat}g</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">sat</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sodium}mg</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">sod</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.carbs}g</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">carbs</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.sugar}g</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">sugar</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.protein}g</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">prot</span></span>
+                      <span className="font-mono text-[9px] tabular-nums whitespace-nowrap"><strong className="text-[var(--fg)] font-normal">{macros.fiber}g</strong> <span className="text-[var(--muted)] uppercase tracking-[0.14em]">fiber</span></span>
                     </div>
                   )}
                   {/* Action buttons — always visible, subtle until hover */}

@@ -828,10 +828,14 @@ function RecipesPage() {
             {sortedRecipes.map((recipe, idx) => {
               const macros = getCardMacros(recipe);
               const category = recipe.tags?.split(",")[0]?.trim();
-              const kcal  = macros ? Math.round(macros.kcal)    : null;
-              const fat   = macros ? Math.round(macros.fat)     : null;
-              const carbs = macros ? Math.round(macros.carbs)   : null;
-              const prot  = macros ? Math.round(macros.protein) : null;
+              const kcal    = macros ? Math.round(macros.kcal)         : null;
+              const fat     = macros ? Math.round(macros.fat)          : null;
+              const satFat  = macros ? Math.round(macros.saturatedFat) : null;
+              const sodium  = macros ? Math.round(macros.sodium)       : null;
+              const carbs   = macros ? Math.round(macros.carbs)        : null;
+              const sugar   = macros ? Math.round(macros.sugar)        : null;
+              const prot    = macros ? Math.round(macros.protein)      : null;
+              const fiber   = macros ? Math.round(macros.fiber)        : null;
               return (
                 <div
                   key={recipe.id}
@@ -867,10 +871,14 @@ function RecipesPage() {
                   </div>
                   {/* Nutrition values */}
                   <div className="recipe-list-row__vals">
-                    <span>{kcal ?? "—"}<span className="u">kcal</span></span>
-                    <span>{fat ?? "—"}<span className="u">g fat</span></span>
-                    <span>{carbs ?? "—"}<span className="u">g carbs</span></span>
-                    <span>{prot ?? "—"}<span className="u">g prot</span></span>
+                    <span>{kcal ?? "—"}<span className="u">cal</span></span>
+                    <span>{fat ?? "—"}g<span className="u">fat</span></span>
+                    <span>{satFat ?? "—"}g<span className="u">sat</span></span>
+                    <span>{sodium ?? "—"}<span className="u">mg sod</span></span>
+                    <span>{carbs ?? "—"}g<span className="u">carbs</span></span>
+                    <span>{sugar ?? "—"}g<span className="u">sugar</span></span>
+                    <span>{prot ?? "—"}g<span className="u">prot</span></span>
+                    <span>{fiber ?? "—"}g<span className="u">fiber</span></span>
                   </div>
                 </div>
               );

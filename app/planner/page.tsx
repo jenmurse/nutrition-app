@@ -1189,9 +1189,10 @@ function PlannerPage() {
 
           {plan && isMobile && selectedDay && (
             <>
-              {/* Mobile second toolbar — week, prev/next, + new */}
+              {/* Mobile second toolbar — week left; arrows + new pinned right */}
               <div className="mx-mob-tb">
                 <span className="mx-mob-week">{rangeLabel}</span>
+                <div className="flex-1" />
                 <div className="mx-mob-arrows">
                   <button
                     className="mx-mob-arrow"
@@ -1206,7 +1207,6 @@ function PlannerPage() {
                     aria-label="Next week"
                   >›</button>
                 </div>
-                <div className="flex-1" />
                 <button
                   className="ed-btn-primary mx-mob-new"
                   onClick={openNewPlanDialog}
@@ -1352,7 +1352,7 @@ function PlannerPage() {
               {days.map((d) => {
                 const isToday = d.toDateString() === today.toDateString();
                 return (
-                  <div className="mx-day-head" key={d.toISOString()}>
+                  <div className={`mx-day-head${isToday ? " is-today-col" : ""}`} key={d.toISOString()}>
                     <div className="mx-day-name">{DAY_NAMES[d.getDay()]}</div>
                     <div className={`mx-day-num${isToday ? " today" : ""}`}>{d.getDate()}</div>
                   </div>
@@ -1402,9 +1402,10 @@ function PlannerPage() {
                     const isCellDragging = dragKind === "cell"
                       && draggingCell?.date.toDateString() === d.toDateString()
                       && draggingCell?.slot === slot;
+                    const isTodayCol = d.toDateString() === today.toDateString();
                     return (
                       <div
-                        className={`mx-cell is-clickable${isOpen ? " is-target" : ""}${isDropTarget && dragKind === "slot" ? " is-drop-before" : ""}${isCellTarget ? " is-cell-target" : ""}${isCellDragging ? " is-cell-dragging" : ""}`}
+                        className={`mx-cell is-clickable${isOpen ? " is-target" : ""}${isDropTarget && dragKind === "slot" ? " is-drop-before" : ""}${isCellTarget ? " is-cell-target" : ""}${isCellDragging ? " is-cell-dragging" : ""}${isTodayCol ? " is-today-col" : ""}`}
                         draggable={!!first && logs.length === 1}
                         onDragStart={(e) => first && logs.length === 1 ? onCellDragStart(d, slot, first.id, e) : undefined}
                         onDragEnd={onCellDragEnd}
@@ -1497,8 +1498,9 @@ function PlannerPage() {
                   { k: "Protein", c: prot },
                   { k: "Fiber", c: fiber },
                 ];
+                const isTodayCol = d.toDateString() === today.toDateString();
                 return (
-                  <div className="mx-totals" key={`tot-${d.toISOString()}`}>
+                  <div className={`mx-totals${isTodayCol ? " is-today-col" : ""}`} key={`tot-${d.toISOString()}`}>
                     {rows.map((r) => (
                       <div className="mx-tot-row" key={r.k}>
                         <span className="mx-tot-key">{r.k}</span>
@@ -1634,37 +1636,18 @@ function PlannerPage() {
                     </div>
 
                     {otherPersonPlans.length > 0 && (
-                      <div className="mx-picker-also">
-                        <span className="mx-picker-also-label">Also add to</span>
-                        <div className="mx-picker-also-chips">
-                          {otherPersonPlans.map((op) => {
-                            const on = alsoForPlans.has(op.planId);
-                            return (
-                              <button
-                                key={op.planId}
-                                type="button"
-                                className={`mx-picker-also-chip${on ? " on" : ""}`}
-                                onClick={() => {
-                                  setAlsoForPlans((prev) => {
-                                    const next = new Set(prev);
-                                    if (on) next.delete(op.planId);
-                                    else next.add(op.planId);
-                                    return next;
-                                  });
-                                }}
-                                aria-pressed={on}
-                              >
-                                <span
-                                  className="mx-picker-also-dot"
-                                  style={{ background: op.color || "var(--accent)" }}
-                                  aria-hidden="true"
-                                />
-                                {op.name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
+                      <AlsoAddToRow
+                        people={otherPersonPlans}
+                        selected={alsoForPlans}
+                        onToggle={(planId) => {
+                          setAlsoForPlans((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(planId)) next.delete(planId);
+                            else next.add(planId);
+                            return next;
+                          });
+                        }}
+                      />
                     )}
 
                     <button
@@ -2103,5 +2086,104 @@ function NewPlanDialog({
         </form>
       </div>
     </>
+  );
+}
+
+function AlsoAddToRow({
+  people,
+  selected,
+  onToggle,
+}: {
+  people: Array<{ personId: number; planId: number; name: string; color: string }>;
+  selected: Set<number>;
+  onToggle: (planId: number) => void;
+}) {
+  // Switch to pulldown when chips would crowd the picker (~3+ others)
+  const useCompact = people.length > 3;
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  if (useCompact) {
+    const selectedCount = people.filter((p) => selected.has(p.planId)).length;
+    return (
+      <div className="mx-picker-also">
+        <span className="mx-picker-also-label">Also add to</span>
+        <div className="mx-picker-also-pulldown" ref={ref}>
+          <button
+            type="button"
+            className={`mx-picker-also-trigger${selectedCount > 0 ? " on" : ""}`}
+            onClick={() => setOpen((o) => !o)}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+          >
+            {selectedCount === 0
+              ? `${people.length} people`
+              : `${selectedCount} of ${people.length}`}
+            <span aria-hidden="true">▾</span>
+          </button>
+          {open && (
+            <div className="mx-picker-also-menu" role="listbox" aria-label="Mirror picks to other plans">
+              {people.map((p) => {
+                const on = selected.has(p.planId);
+                return (
+                  <button
+                    key={p.planId}
+                    type="button"
+                    role="option"
+                    aria-selected={on}
+                    className={`mx-picker-also-mitem${on ? " on" : ""}`}
+                    onClick={() => onToggle(p.planId)}
+                  >
+                    <span className="mx-picker-also-dot" style={{ background: p.color || "var(--accent)" }} aria-hidden="true" />
+                    <span className="mx-picker-also-mname">{p.name}</span>
+                    {on && <span aria-hidden="true">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Default: chips
+  return (
+    <div className="mx-picker-also">
+      <span className="mx-picker-also-label">Also add to</span>
+      <div className="mx-picker-also-chips">
+        {people.map((p) => {
+          const on = selected.has(p.planId);
+          return (
+            <button
+              key={p.planId}
+              type="button"
+              className={`mx-picker-also-chip${on ? " on" : ""}`}
+              onClick={() => onToggle(p.planId)}
+              aria-pressed={on}
+            >
+              <span className="mx-picker-also-dot" style={{ background: p.color || "var(--accent)" }} aria-hidden="true" />
+              {p.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
