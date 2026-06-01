@@ -90,45 +90,104 @@ export const POST = withAuth(async (auth, request: Request, { params }: Ctx) => 
   });
   const skipped = template.items.length - applicable.length;
 
+  let merged = 0;
+  let created = 0;
+
   await prisma.$transaction(async (tx) => {
     if (mode === "replace") {
       await tx.mealLog.deleteMany({
         where: { mealPlanId: planId, date: { gte: dayStart, lte: dayEnd } },
       });
+      // Replace mode: create everything fresh
+      if (applicable.length > 0) {
+        await tx.mealLog.createMany({
+          data: applicable.map((item, idx) => ({
+            mealPlanId: planId,
+            date: dateObj,
+            mealType: item.mealType,
+            position: idx,
+            recipeId: item.recipeId,
+            servings: item.servings,
+            ingredientId: item.ingredientId,
+            quantity: item.quantity,
+            unit: item.unit,
+            notes: item.notes,
+          })),
+        });
+        created = applicable.length;
+      }
+      return;
     }
 
-    // Determine starting position
-    let startPos = 0;
-    if (mode === "append") {
-      const last = await tx.mealLog.findFirst({
-        where: { mealPlanId: planId, date: { gte: dayStart, lte: dayEnd } },
-        orderBy: { position: "desc" },
-        select: { position: true },
-      });
-      startPos = last ? last.position + 1 : 0;
-    }
+    // Append mode: smart merge.
+    // For each template item, if an existing meal on this day matches by
+    // (recipeId + mealType) for recipes, or (ingredientId + mealType + unit)
+    // for ingredients, sum the servings/quantity into the existing log
+    // instead of creating a duplicate.
+    const existing = await tx.mealLog.findMany({
+      where: { mealPlanId: planId, date: { gte: dayStart, lte: dayEnd } },
+      orderBy: { position: "asc" },
+    });
 
-    if (applicable.length > 0) {
-      await tx.mealLog.createMany({
-        data: applicable.map((item, idx) => ({
-          mealPlanId: planId,
-          date: dateObj,
-          mealType: item.mealType,
-          position: startPos + idx,
-          recipeId: item.recipeId,
-          servings: item.servings,
-          ingredientId: item.ingredientId,
-          quantity: item.quantity,
-          unit: item.unit,
-          notes: item.notes,
-        })),
-      });
+    let nextPos = existing.length > 0
+      ? Math.max(...existing.map((e) => e.position)) + 1
+      : 0;
+
+    for (const item of applicable) {
+      let match: typeof existing[number] | undefined;
+      if (item.recipeId != null) {
+        match = existing.find(
+          (e) => e.recipeId === item.recipeId && e.mealType === item.mealType
+        );
+      } else if (item.ingredientId != null) {
+        match = existing.find(
+          (e) =>
+            e.ingredientId === item.ingredientId &&
+            e.mealType === item.mealType &&
+            (e.unit ?? null) === (item.unit ?? null)
+        );
+      }
+
+      if (match) {
+        // Sum into existing log
+        if (item.recipeId != null) {
+          await tx.mealLog.update({
+            where: { id: match.id },
+            data: { servings: (match.servings ?? 1) + (item.servings ?? 1) },
+          });
+        } else {
+          await tx.mealLog.update({
+            where: { id: match.id },
+            data: { quantity: (match.quantity ?? 1) + (item.quantity ?? 1) },
+          });
+        }
+        merged++;
+      } else {
+        // Create new log at the end
+        await tx.mealLog.create({
+          data: {
+            mealPlanId: planId,
+            date: dateObj,
+            mealType: item.mealType,
+            position: nextPos++,
+            recipeId: item.recipeId,
+            servings: item.servings,
+            ingredientId: item.ingredientId,
+            quantity: item.quantity,
+            unit: item.unit,
+            notes: item.notes,
+          },
+        });
+        created++;
+      }
     }
   });
 
   return NextResponse.json({
     ok: true,
     applied: applicable.length,
+    created,
+    merged,
     skipped,
     templateName: template.name,
   });

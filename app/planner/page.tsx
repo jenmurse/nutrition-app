@@ -478,10 +478,21 @@ function PlannerPage() {
         body: JSON.stringify({ planId, date: dateISO, mode }),
       });
       if (!r.ok) throw new Error("Failed");
-      const result: { applied: number; skipped: number; templateName: string } = await r.json();
-      const msg = result.skipped > 0
-        ? `Applied "${result.templateName}" — ${result.skipped} item${result.skipped === 1 ? "" : "s"} skipped (deleted recipe)`
-        : `Applied "${result.templateName}"`;
+      const result: {
+        applied: number;
+        created?: number;
+        merged?: number;
+        skipped: number;
+        templateName: string;
+      } = await r.json();
+      const parts: string[] = [`Applied "${result.templateName}"`];
+      if ((result.merged ?? 0) > 0) {
+        parts.push(`${result.merged} merged into existing`);
+      }
+      if (result.skipped > 0) {
+        parts.push(`${result.skipped} skipped (deleted recipe)`);
+      }
+      const msg = parts.length === 1 ? parts[0] : `${parts[0]} — ${parts.slice(1).join(", ")}`;
       toast.success(msg);
       await refreshPlan();
     } catch (e) {
