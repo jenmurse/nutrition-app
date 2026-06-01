@@ -365,16 +365,37 @@ function PlannerPage() {
     closeDayMenu();
     setSaveTplOpen({ date, itemCount });
   }
+
+  // Defensive cleanup — manually remove any backdrop elements that might be
+  // stuck in the DOM and nudge iOS Safari to repaint its chrome.
+  // Belt-and-suspenders for the iOS sticky-overlay quirk where React's
+  // unmount doesn't immediately clear the visual layer.
+  function scrubOverlays() {
+    if (typeof document === "undefined") return;
+    document
+      .querySelectorAll(".mx-newplan-backdrop, .mx-day-menu-backdrop, .mx-day-menu, .mx-newplan-dialog")
+      .forEach((el) => {
+        // Only remove if the element is detached/stale (no React mount tracking it)
+        const parent = el.parentElement;
+        if (parent === document.body) el.remove();
+      });
+    // Force a chrome repaint via a microscopic body transform toggle
+    const body = document.body;
+    body.style.transform = "translateZ(0)";
+    requestAnimationFrame(() => {
+      body.style.transform = "";
+    });
+  }
+
   async function submitSaveTemplate(name: string) {
     if (!saveTplOpen || !plan) return;
     const dateISO = `${saveTplOpen.date.getFullYear()}-${String(saveTplOpen.date.getMonth() + 1).padStart(2, "0")}-${String(saveTplOpen.date.getDate()).padStart(2, "0")}`;
     const planId = plan.id;
     // flushSync forces React to commit + render synchronously, so the dialog's
     // backdrop element is removed from the DOM before any async work.
-    // Without this React 18 may batch the unmount, leaving the dimmed backdrop
-    // mounted during the fetch — on iOS Safari the safe-area chrome holds
-    // that tint until the next interaction.
     flushSync(() => { setSaveTplOpen(null); });
+    // Defensive scrub — iOS Safari sometimes holds the dimmed-chrome state.
+    scrubOverlays();
     try {
       const r = await fetch("/api/day-templates", {
         method: "POST",
@@ -416,12 +437,12 @@ function PlannerPage() {
   async function doApplyTemplate(template: DayTemplate, date: Date, mode: "replace" | "append") {
     if (!plan) return;
     // flushSync — force React to commit + render synchronously so the dialog +
-    // menu backdrops are removed from DOM before any async work. Otherwise
-    // iOS Safari holds the dimmed page-background in the safe-area chrome.
+    // menu backdrops are removed from DOM before any async work.
     flushSync(() => {
       setApplyTpl(null);
       setDayMenu(null);
     });
+    scrubOverlays();
     const planId = plan.id;
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     try {
