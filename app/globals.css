@@ -1484,7 +1484,7 @@ input[type="number"]:focus {
 /* ── Matrix planner grid ─────────────────────────────────────── */
 .mx {
   display: grid;
-  grid-template-columns: 110px repeat(7, minmax(0, 1fr));
+  grid-template-columns: 140px repeat(7, minmax(0, 1fr));
   border-top: 1px solid var(--rule);
 }
 .mx-corner {
@@ -1516,7 +1516,7 @@ input[type="number"]:focus {
 .mx-slot-label {
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
-  padding: 18px 14px;
+  padding: 18px 14px 18px 40px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
@@ -1644,20 +1644,21 @@ input[type="number"]:focus {
   pointer-events: none;
 }
 .mx-picker-done {
-  padding: 10px 14px;
-  border-top: 1px solid var(--rule);
+  padding: 12px 14px;
+  border: 0;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--bg);
+  background: var(--fg);
   cursor: pointer;
-  background: transparent;
-  border-left: 0; border-right: 0; border-bottom: 0;
   width: 100%;
   text-align: center;
+  transition: background 120ms var(--ease-out);
 }
-.mx-picker-done:hover { color: var(--fg); }
+.mx-picker-done:hover { background: var(--fg-2); color: var(--bg); }
 .mx-picker-section-head {
   padding: 8px 14px 4px;
   background: var(--bg-2);
@@ -1679,7 +1680,9 @@ input[type="number"]:focus {
 .mx-picker-step-btn {
   background: transparent;
   border: 1px solid var(--rule);
-  width: 22px; height: 22px;
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
   padding: 0;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 12px;
@@ -1692,13 +1695,16 @@ input[type="number"]:focus {
 .mx-picker-step-btn:hover { border-color: var(--fg); }
 .mx-picker-step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .mx-picker-step-input {
-  width: 42px;
+  width: 44px;
+  height: 24px;
+  box-sizing: border-box;
   border: 1px solid var(--rule);
   background: var(--bg);
-  padding: 2px 5px;
+  padding: 0 5px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 11px;
   font-weight: 500;
+  line-height: 22px;
   color: var(--fg);
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -1725,7 +1731,7 @@ input[type="number"]:focus {
 /* "Need more?" footer row */
 .mx-addslot {
   grid-column: 1 / -1;
-  padding: 14px 28px;
+  padding: 14px 40px;
   border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: center;
@@ -1757,12 +1763,13 @@ input[type="number"]:focus {
 /* Totals row */
 .mx-totals-label {
   border-right: 1px solid var(--rule);
-  padding: 14px;
+  padding: 14px 14px 14px 40px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
+  line-height: 1.4;
 }
 .mx-totals {
   border-right: 1px solid var(--rule);
@@ -2299,7 +2306,7 @@ input[type="number"]:focus {
 .mx-mob-tot-cell .v.met  { color: var(--ok); }
 .mx-mob-tot-cell .v.empty { color: var(--muted); opacity: 0.4; }
 
-/* Mobile picker becomes a bottom sheet */
+/* Mobile picker becomes a bottom sheet — matches app's iOS-style sheets */
 @media (max-width: 767px) {
   .mx-picker {
     position: fixed !important;
@@ -2310,14 +2317,26 @@ input[type="number"]:focus {
     width: 100% !important;
     max-width: 100% !important;
     max-height: 75vh;
-    border-left: 0;
-    border-right: 0;
-    border-bottom: 0;
-    animation: mxSheetUp 220ms var(--ease-out) both;
+    border: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding-top: 6px;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    animation: mxSheetUp 240ms var(--ease-out) both;
   }
   @keyframes mxSheetUp {
     from { transform: translateY(100%); }
     to   { transform: translateY(0); }
+  }
+  /* Handle bar */
+  .mx-picker::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    margin: 4px auto 8px;
   }
   .mx-picker-backdrop {
     background: rgba(0, 0, 0, 0.4);

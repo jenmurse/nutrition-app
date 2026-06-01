@@ -1620,7 +1620,7 @@ function BrowseSheet({
   onToggleFavorite: (recipeId: number, next: boolean) => void | Promise<void>;
 }) {
   const slotLabel = SLOT_LABELS[browse.slot];
-  const dateLabel = browse.date.toLocaleString("default", { weekday: "short" }) + " " + slotLabel.toLowerCase();
+  const dateLabel = browse.date.toLocaleString("default", { weekday: "long" }) + " " + slotLabel.toLowerCase();
   const totalCount = filtered.favorites.length + filtered.rest.length;
 
   const showFavorites = tab === "favorites" || tab === "all";
