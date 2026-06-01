@@ -93,10 +93,18 @@ type IngredientSlim = {
   id: number;
   name: string;
   defaultUnit: string;
+  customUnitName?: string | null;
+  customUnitAmount?: number | null;
+  customUnitGrams?: number | null;
   isMealItem?: boolean;
   isFavorited?: boolean;
   category?: string | null;
 };
+
+function ingredientDisplayUnit(ing: { defaultUnit: string; customUnitName?: string | null }): string {
+  if (ing.defaultUnit === "other" && ing.customUnitName) return ing.customUnitName;
+  return ing.defaultUnit;
+}
 
 type BrowseState = {
   slot: SlotType;
@@ -556,13 +564,14 @@ function PlannerPage() {
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const ing = ingredients.find((i) => i.id === ingredientId);
     if (!ing) return;
+    const sendUnit = ingredientDisplayUnit(ing);
     const cellKey = `${date.toDateString()}|${slot}`;
     const optimisticLog: MealLog = {
       id: -Date.now(),
       date: dateISO,
       mealType: slot,
       quantity: 1,
-      unit: ing.defaultUnit,
+      unit: sendUnit,
       ingredientId,
       ingredient: { id: ing.id, name: ing.name, defaultUnit: ing.defaultUnit },
       position: (cellMap.get(cellKey)?.length ?? 0),
@@ -572,7 +581,7 @@ function PlannerPage() {
       const r = await fetch(`/api/meal-plans/${plan.id}/meals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredientId, date: dateISO, mealType: slot, quantity: 1, unit: ing.defaultUnit }),
+        body: JSON.stringify({ ingredientId, date: dateISO, mealType: slot, quantity: 1, unit: sendUnit }),
       });
       if (!r.ok) throw new Error("Failed");
       await refreshPlan();
@@ -1375,7 +1384,6 @@ function PlannerPage() {
                           {pickerOptions.map((r) => {
                             const log = recipeLogsById.get(r.id);
                             const isCurrent = !!log;
-                            const kcal = getRecipeKcal(r);
                             const servings = log?.servings ?? 1;
                             return (
                               <button
@@ -1386,7 +1394,7 @@ function PlannerPage() {
                                 onClick={() => toggleRecipeInCell(r.id)}
                               >
                                 <span className="mx-picker-name">{r.name}</span>
-                                {isCurrent && log ? (
+                                {isCurrent && log && (
                                   <span className="mx-picker-step" onClick={(e) => e.stopPropagation()}>
                                     <button
                                       type="button"
@@ -1402,8 +1410,6 @@ function PlannerPage() {
                                       aria-label="Increase servings"
                                     >+</button>
                                   </span>
-                                ) : (
-                                  <span className="mx-picker-kcal">{kcal != null ? kcal : "—"}</span>
                                 )}
                               </button>
                             );
@@ -1418,7 +1424,7 @@ function PlannerPage() {
                             const log = ingredientLogsById.get(i.id);
                             const isCurrent = !!log;
                             const qty = log?.quantity ?? 1;
-                            const unit = log?.unit ?? i.defaultUnit;
+                            const displayUnit = ingredientDisplayUnit(i);
                             return (
                               <button
                                 key={`i-${i.id}`}
@@ -1436,7 +1442,7 @@ function PlannerPage() {
                                       onClick={(e) => { e.stopPropagation(); bumpAmount(log, -1); }}
                                       aria-label="Decrease quantity"
                                     >−</button>
-                                    <span className="mx-picker-step-val">{qty}{unit ? ` ${unit}` : ""}</span>
+                                    <span className="mx-picker-step-val">{qty} {log.unit || displayUnit}</span>
                                     <button
                                       type="button"
                                       className="mx-picker-step-btn"
@@ -1445,7 +1451,7 @@ function PlannerPage() {
                                     >+</button>
                                   </span>
                                 ) : (
-                                  <span className="mx-picker-kcal">{i.defaultUnit}</span>
+                                  <span className="mx-picker-kcal">{displayUnit}</span>
                                 )}
                               </button>
                             );
