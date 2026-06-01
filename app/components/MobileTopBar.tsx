@@ -9,13 +9,12 @@ import { BrandName } from "./BrandName";
 import PersonPulldown from "./PersonPulldown";
 
 const SECTIONS = [
-  { href: "/home",        label: "Home"            },
-  { href: "/meal-plans",  label: "Planner"         },
-  { href: "/planner",     label: "Matrix (beta)"   },
-  { href: "/recipes",     label: "Recipes"         },
-  { href: "/ingredients", label: "Pantry"          },
-  { href: "/shopping",    label: "Shopping"        },
-  { href: "/settings",    label: "Settings"        },
+  { href: "/home",        label: "Home"     },
+  { href: "/planner",     label: "Planner"  },
+  { href: "/recipes",     label: "Recipes"  },
+  { href: "/ingredients", label: "Pantry"   },
+  { href: "/shopping",    label: "Shopping" },
+  { href: "/settings",    label: "Settings" },
 ];
 
 const HIDDEN = new Set(["/", "/login", "/preview", "/onboarding", "/landing", "/waitlist", "/waitlist-success", "/invite", "/privacy", "/admin/waitlist"]);

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { BrandName } from "./BrandName";
 
 const navItems = [
-  { href: "/meal-plans", label: "Planner" },
+  { href: "/planner", label: "Planner" },
   { href: "/recipes", label: "Recipes" },
   { href: "/ingredients", label: "Pantry" },
 ];

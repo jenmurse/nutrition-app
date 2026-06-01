@@ -2186,14 +2186,15 @@ input[type="number"]:focus {
   border: 0;
   padding: 4px 8px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0;
   color: var(--muted);
   cursor: pointer;
+  line-height: 1;
 }
 .mx-mob-arrow:hover { color: var(--fg); }
 .mx-mob-arrow:disabled { opacity: 0.3; cursor: default; }
+.mx-mob-new { padding: 6px 10px; }
 
 .mx-mob-daystrip {
   display: flex;

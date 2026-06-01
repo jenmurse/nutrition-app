@@ -377,6 +377,81 @@ function PlannerPage() {
     await loadPlanDetails(plan.id);
   }
 
+  // ── Plan navigation helpers ──────────────────────────────────
+  function nextSundayAfter(list: MealPlanSummary[]): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const thisSunday = new Date(today);
+    thisSunday.setDate(today.getDate() - today.getDay());
+    if (list.length === 0) return thisSunday;
+    const latest = list.reduce<Date>((acc, p) => {
+      const d = parseUTCDate(p.weekStartDate);
+      return d > acc ? d : acc;
+    }, parseUTCDate(list[0].weekStartDate));
+    if (latest >= thisSunday) {
+      const next = new Date(latest);
+      next.setDate(next.getDate() + 7);
+      return next;
+    }
+    return thisSunday;
+  }
+
+  function goToPlan(idx: number) {
+    if (idx < 0 || idx >= plans.length) return;
+    const target = plans[idx];
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set("planId", String(target.id));
+    router.push(`/planner?${params.toString()}`);
+  }
+
+  function goToThisWeek() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const matches = plans.filter((p) => {
+      const ws = parseUTCDate(p.weekStartDate);
+      const we = new Date(ws);
+      we.setDate(we.getDate() + 6);
+      return today >= ws && today <= we;
+    });
+    const pick = matches.find((p) => parseUTCDate(p.weekStartDate).getDay() === 0) ?? matches[0];
+    if (!pick) {
+      toast.error("No plan covers this week. Create a new one.");
+      return;
+    }
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set("planId", String(pick.id));
+    router.push(`/planner?${params.toString()}`);
+  }
+
+  async function createNewPlan() {
+    if (selectedPersonId == null) return;
+    const startDate = nextSundayAfter(plans);
+    const dateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`;
+    try {
+      const r = await fetch("/api/meal-plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekStartDate: dateStr, personId: selectedPersonId }),
+      });
+      if (!r.ok) throw new Error("Failed");
+      const newPlan: { id: number } = await r.json();
+      const key = `/api/meal-plans?personId=${selectedPersonId}`;
+      clientCache.set(key, null as unknown as MealPlanSummary[]);
+      const params = new URLSearchParams(searchParams?.toString());
+      params.set("planId", String(newPlan.id));
+      router.push(`/planner?${params.toString()}`);
+      toast.success("New plan created");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to create plan");
+    }
+  }
+
+  const currentPlanIdx = useMemo(() => {
+    if (!plan) return -1;
+    return plans.findIndex((p) => p.id === plan.id);
+  }, [plans, plan]);
+
   // ── Derive grid data ─────────────────────────────────────────
   const days = useMemo(() => {
     if (!plan) return [];
@@ -1024,18 +1099,51 @@ function PlannerPage() {
   return (
     <div className="h-full flex flex-col">
       <div className="pl-toolbar">
-        <span className="pl-range">{rangeLabel || "Matrix planner"}</span>
-        <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">
-          Beta
-        </span>
+        <span className="pl-range">{rangeLabel || "Planner"}</span>
+
+        {plans.length > 1 && plan && (
+          <>
+            <button
+              className="ed-btn-text"
+              disabled={currentPlanIdx < 0 || currentPlanIdx >= plans.length - 1}
+              onClick={() => goToPlan(currentPlanIdx + 1)}
+              aria-label="Previous week"
+            >‹ PREV</button>
+            <button
+              className="ed-btn-text"
+              disabled={currentPlanIdx <= 0}
+              onClick={() => goToPlan(currentPlanIdx - 1)}
+              aria-label="Next week"
+            >NEXT ›</button>
+            <button
+              className="ed-btn-text"
+              onClick={goToThisWeek}
+              aria-label="Go to this week"
+            >This Week</button>
+          </>
+        )}
+
         <div className="flex-1" />
-        <Link
-          href={plan ? `/meal-plans?planId=${plan.id}` : "/meal-plans"}
-          className="ed-btn-text"
-          aria-label="Back to the classic planner"
-        >
-          <span aria-hidden="true">←</span> Classic
-        </Link>
+
+        {plan && (
+          <Link
+            href={`/shopping?week=${plan.weekStartDate}`}
+            className="pl-cart-btn"
+            aria-label="View shopping list"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </Link>
+        )}
+
+        <button
+          className="ed-btn-primary"
+          onClick={createNewPlan}
+          aria-label="Create new plan"
+        >+ NEW PLAN</button>
       </div>
 
       <div className="list-scroll flex-1 overflow-y-auto relative">
@@ -1062,45 +1170,29 @@ function PlannerPage() {
 
           {plan && isMobile && selectedDay && (
             <>
-              {/* Mobile second toolbar — week + prev/next */}
+              {/* Mobile second toolbar — week, prev/next, + new */}
               <div className="mx-mob-tb">
                 <span className="mx-mob-week">{rangeLabel}</span>
                 <div className="mx-mob-arrows">
                   <button
                     className="mx-mob-arrow"
-                    disabled={(() => {
-                      const idx = plans.findIndex((p) => p.id === plan.id);
-                      return idx < 0 || idx >= plans.length - 1;
-                    })()}
-                    onClick={() => {
-                      const idx = plans.findIndex((p) => p.id === plan.id);
-                      if (idx >= 0 && idx < plans.length - 1) {
-                        const next = plans[idx + 1];
-                        const params = new URLSearchParams(searchParams?.toString());
-                        params.set("planId", String(next.id));
-                        router.push(`/planner?${params.toString()}`);
-                      }
-                    }}
+                    disabled={currentPlanIdx < 0 || currentPlanIdx >= plans.length - 1}
+                    onClick={() => goToPlan(currentPlanIdx + 1)}
                     aria-label="Previous week"
-                  >‹ Prev</button>
+                  >‹</button>
                   <button
                     className="mx-mob-arrow"
-                    disabled={(() => {
-                      const idx = plans.findIndex((p) => p.id === plan.id);
-                      return idx <= 0;
-                    })()}
-                    onClick={() => {
-                      const idx = plans.findIndex((p) => p.id === plan.id);
-                      if (idx > 0) {
-                        const prev = plans[idx - 1];
-                        const params = new URLSearchParams(searchParams?.toString());
-                        params.set("planId", String(prev.id));
-                        router.push(`/planner?${params.toString()}`);
-                      }
-                    }}
+                    disabled={currentPlanIdx <= 0}
+                    onClick={() => goToPlan(currentPlanIdx - 1)}
                     aria-label="Next week"
-                  >Next ›</button>
+                  >›</button>
                 </div>
+                <div className="flex-1" />
+                <button
+                  className="ed-btn-primary mx-mob-new"
+                  onClick={createNewPlan}
+                  aria-label="Create new plan"
+                >+ NEW</button>
               </div>
 
               {/* Day strip */}
