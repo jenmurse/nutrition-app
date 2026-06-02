@@ -11,22 +11,14 @@ Tracker for what's left to do, design decisions locked, known stragglers, and op
 **1. Pantry pre-fill / starter seeding** — `briefs/pantry-seeding.md`
 Seed a starter set of GlobalIngredients on onboarding completion, update checklist item copy, add contextual tip on pantry page, add bulk-delete UX to pantry index. Pre-launch quality-of-life feature.
 
-**2. Added sugar tracking** — `briefs/added-sugar-tracking.md`
-Adds a new canonical nutrient with manual capture (USDA doesn't reliably distinguish added vs. natural sugar). Updates recipe forms, nutrition panel, matrix totals. Resolve the data-capture story before coding.
+**2. Day templates** — feature shipped. Brief at `briefs/day-templates.md` includes follow-up section for MCP write tools.
 
-**3. Day templates** — feature shipped. Brief at `briefs/day-templates.md` includes follow-up section for MCP write tools.
-
-**4. Playbook stories** — `briefs/playbook-stories.md`
+**3. Playbook stories** — `briefs/playbook-stories.md`
 Six starter stories outlined, story #6 ("Saving the day that worked") added. Shell at `/playbook` (logged-out + logged-in chrome) plus the content for each story. Content authorship is the blocker.
 
 ### Smaller follow-ups
 
-- **Dashboard stat selection → server-side.** Currently in localStorage (`dashboard-stats`). Move to a per-person preference column on `Person` so it survives Safari cache clears and syncs across devices.
-- **Matrix slot order → server-side.** Same situation as dashboard stats — currently localStorage per-plan.
-- **"Also add to N people" pulldown** when household > 4. Current chip layout wraps. Spec from picker mockups: collapse to a compact `ALSO ADD TO [2 ▾]` pulldown above the wrap threshold.
-- **"Recent" tab in picker.** Was deferred — would show recipes added to plans in the last ~30 days. Needs MealLog timestamp tracking infra check.
-- **Per-person dietary restrictions on Person model.** Depends on Playbook story #6 (Pescatarian household).
-- **Compact summaries / weekly nutrition totals** in matrix. Decided against during build (per-day is the actionable unit), but could revisit if useful for goal tracking.
+- **Per-person dietary restrictions on Person model.** Depends on Playbook story #6 (Pescatarian household). Adds the data field, picker filters, and allergen-warning UI.
 
 ### Post-launch design pass
 
@@ -118,6 +110,29 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Onboarding Welcome and Ready screens: no wordmark or check icon in the body. Topbar wordmark is the only brand moment. Center body wordmark and animated check icon both removed as visual clutter.
 - Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.
 - Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
+
+**Shipped this session (June 2 — Added Sugar tracking):**
+
+- **New `addedSugar` Nutrient row** (id 17, orderIndex 6, between Sugar and Protein). Polymorphic schema means no migration needed — just an INSERT plus orderIndex bumps to protein/fiber.
+- **Null-poisoning aggregation:** Recipe per-serving totals and matrix daily totals render `—` (unknown) when any contributing ingredient lacks an `addedSugar` value. Distinct from explicit `0g` for whole foods.
+- **USDA whole-food whitelist** in `lib/usdaAddedSugar.ts` — when USDA omits "Sugars, added" (typical for raw produce, meats, oils, grains, etc.), the food's category determines whether to default to 0 or stay null. Fixes a latent sugar/added-sugar precedence bug in 4 mapping locations.
+- **Backfill script** `scripts/add-added-sugar-nutrient.ts` — idempotent. Inserts the Nutrient row + renumbers orderIndexes + writes `addedSugar = 0` rows for whitelisted GlobalIngredient and household Ingredient entries. Run once against Railway.
+- **Onboarding presets** (Maintain / Lean / Build) all default `addedSugarHighGoal: 25g`.
+- **Settings:** GOALS_LAYOUT slots Added Sugar next to Sugar (5 left / 4 right). Dashboard stat selector now includes Added Sugar as a checkbox option.
+- **Pantry forms** render the input polymorphically (no code change needed beyond the data layer).
+- **Pantry grid card** shows Added Sugar as a 9th row.
+- **Recipe detail panel** shows Added Sugar row with `—` + contextual hint (margin-note style) when unknown.
+- **Recipe compare table** includes Added Sugar.
+- **Matrix daily totals** show 9 rows; Added Sugar slotted between Sugar and Protein per Variant A of the mockup.
+- **Mockup** at `public/mockup-added-sugar.html`.
+- Intentionally NOT updated: pantry list and recipe list cards (compact 4-stat displays by design).
+
+**Shipped this session (June 1–2 — Matrix slot order syncs, day-template save-over + drag-reorder):**
+
+- **Matrix slot order moved server-side.** New `MealPlan.slotOrder` column (CSV) + `PATCH /api/meal-plans/[id]/slot-order` endpoint. Planner reads from `plan.slotOrder`, falls back to legacy localStorage on first load and silently uploads + clears the legacy key.
+- **Save over an existing day template.** New `PUT /api/day-templates/[id]/snapshot` replaces a template's items from a (planId, date). Save-as-template dialog gains an "or update an existing template" pulldown — picking one flips the dialog into replace mode with a "Replace contents" confirm button. Keeps id, name, personId.
+- **Drag-to-reorder templates** in the manage sheet. New `DayTemplate.sortIndex` column + `PATCH /api/day-templates/reorder` endpoint. ⋮⋮ drag handle on each row with HTML5 drag-and-drop, 2px top-border drop indicator, opacity dimming on the source. List endpoints (app + MCP) sort by `[sortIndex asc, createdAt desc]`. Optimistic UI with revert on failure.
+- **Manage sheet polish:** removed "Saved {date}" from row meta (just name + person attribution + item count now).
 
 **Shipped this session (June 1 — MCP write tools):**
 
