@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
 
 type Nutrient = { id: number; name: string; displayName: string; unit: string; orderIndex: number };
@@ -25,6 +24,18 @@ export default function FillDataPage() {
   const [drafts, setDrafts] = useState<Record<number, string>>({}); // input strings keyed by ingredient.id
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [nutOpen, setNutOpen] = useState(false);
+  const nutRef = useRef<HTMLDivElement | null>(null);
+
+  // Close nutrient dropdown on outside click
+  useEffect(() => {
+    if (!nutOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (nutRef.current && !nutRef.current.contains(e.target as Node)) setNutOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [nutOpen]);
 
   // Load nutrients + ingredients
   useEffect(() => {
@@ -192,10 +203,6 @@ export default function FillDataPage() {
   return (
     <div style={{ height: "100%", overflowY: "auto" }}>
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 40px 96px" }}>
-      <div style={{ marginBottom: 32 }}>
-        <Link href="/settings" className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)]">← Settings</Link>
-      </div>
-
       <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ FILL DATA</div>
       <h1 className="form-title">Fill missing nutrient data.</h1>
       <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 32, marginTop: 16 }}>
@@ -203,24 +210,52 @@ export default function FillDataPage() {
       </p>
 
       {/* ── Nutrient picker ─────────────────────────── */}
-      <div style={{ marginBottom: 24, maxWidth: 280 }}>
-        <label className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]" style={{ display: "block", marginBottom: 6 }}>
+      <div style={{ marginBottom: 24 }}>
+        <label className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]" style={{ display: "block", marginBottom: 8 }}>
           Nutrient
         </label>
-        <select
-          className="ed-select"
-          value={selectedNutrientId ?? ""}
-          onChange={(e) => {
-            setSelectedNutrientId(Number(e.target.value));
-            setDrafts({});
-          }}
-        >
-          {nutrients.map((n) => (
-            <option key={n.id} value={n.id}>
-              {n.displayName}
-            </option>
-          ))}
-        </select>
+        <div ref={nutRef} className="sort-control">
+          <button
+            type="button"
+            onClick={() => setNutOpen((o) => !o)}
+            aria-haspopup="listbox"
+            aria-expanded={nutOpen}
+            className="sort-field"
+            style={{ fontSize: 11 }}
+          >
+            {selectedNutrient?.displayName ?? "Select…"}
+            <span className="sort-caret" aria-hidden="true" />
+          </button>
+          {nutOpen && (
+            <div
+              role="listbox"
+              aria-label="Nutrient"
+              className="sort-dropdown min-w-[180px] bg-[var(--bg)] border border-[var(--rule)] py-[3px] dropdown-enter"
+              style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+            >
+              {nutrients.map((n) => (
+                <button
+                  key={n.id}
+                  type="button"
+                  role="option"
+                  aria-selected={n.id === selectedNutrientId}
+                  onClick={() => {
+                    setSelectedNutrientId(n.id);
+                    setDrafts({});
+                    setNutOpen(false);
+                  }}
+                  className={`block w-full text-left font-mono text-[9px] tracking-[0.06em] uppercase py-[6px] px-[12px] border-0 cursor-pointer transition-colors ${
+                    n.id === selectedNutrientId
+                      ? "text-[var(--fg)] bg-transparent"
+                      : "text-[var(--muted)] bg-transparent hover:text-[var(--fg)] hover:bg-[var(--bg-2)]"
+                  }`}
+                >
+                  {n.displayName}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Summary ─────────────────────────────────── */}
