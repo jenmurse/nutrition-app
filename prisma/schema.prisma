@@ -234,6 +234,7 @@ model MealPlan {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   shoppingChecked String   @default("")
+  slotOrder       String   @default("") // CSV of meal slot types (e.g. "breakfast,lunch,dinner,snack"); empty = default order
 
   household      Household?      @relation(fields: [householdId], references: [id])
   person         Person?         @relation(fields: [personId], references: [id])

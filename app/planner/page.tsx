@@ -66,6 +66,7 @@ type MealPlanDetails = {
   id: number;
   weekStartDate: string | Date;
   personId: number | null;
+  slotOrder?: string;
   mealLogs: MealLog[];
   weeklySummary?: { dailyNutritions?: DailyNutrition[] };
   recipeCaloriesMap?: Record<number, number>;
@@ -205,31 +206,60 @@ function PlannerPage() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // ── Persist slot order per plan (UI preference; rows derive from meal data) ──
-  const slotOrderKey = plan ? `gm-matrix-slot-order-${plan.id}` : null;
-
+  // ── Slot order persists on MealPlan.slotOrder (server-side, syncs across devices) ──
+  // One-time migration: read any legacy localStorage value and clear it on first load
+  // per plan, so users coming from the localStorage era don't lose their order.
   useEffect(() => {
-    if (!slotOrderKey) return;
-    if (typeof window === "undefined") return;
+    if (!plan) return;
+    const fromServer = typeof plan.slotOrder === "string" && plan.slotOrder.length > 0
+      ? plan.slotOrder.split(",").filter((s): s is SlotType => ALL_SLOTS.includes(s as SlotType))
+      : [];
+
+    if (fromServer.length > 0) {
+      setSlotOrder(fromServer);
+      return;
+    }
+
+    // No server value — check legacy localStorage and upgrade silently
+    if (typeof window === "undefined") {
+      setSlotOrder([]);
+      return;
+    }
+    const legacyKey = `gm-matrix-slot-order-${plan.id}`;
     try {
-      const storedOrder = window.localStorage.getItem(slotOrderKey);
-      const parsedOrder: unknown = storedOrder ? JSON.parse(storedOrder) : [];
-      const validOrder = Array.isArray(parsedOrder)
-        ? (parsedOrder.filter((s): s is SlotType => ALL_SLOTS.includes(s as SlotType)) as SlotType[])
+      const stored = window.localStorage.getItem(legacyKey);
+      const parsed: unknown = stored ? JSON.parse(stored) : [];
+      const migrated = Array.isArray(parsed)
+        ? (parsed.filter((s): s is SlotType => ALL_SLOTS.includes(s as SlotType)) as SlotType[])
         : [];
-      setSlotOrder(validOrder);
+      setSlotOrder(migrated);
+      if (migrated.length > 0) {
+        // Push to server, then clear the legacy key on success
+        fetch(`/api/meal-plans/${plan.id}/slot-order`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slotOrder: migrated }),
+        })
+          .then((r) => {
+            if (r.ok) window.localStorage.removeItem(legacyKey);
+          })
+          .catch(() => {});
+      }
     } catch {
       setSlotOrder([]);
     }
-  }, [slotOrderKey]);
+  }, [plan]);
 
   function persistSlotOrder(next: SlotType[]) {
-    setSlotOrder(next);
-    if (slotOrderKey && typeof window !== "undefined") {
-      try {
-        window.localStorage.setItem(slotOrderKey, JSON.stringify(next));
-      } catch {}
-    }
+    setSlotOrder(next); // optimistic
+    if (!plan) return;
+    fetch(`/api/meal-plans/${plan.id}/slot-order`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slotOrder: next }),
+    }).catch(() => {
+      // network errors are silent — local state is still updated for this session
+    });
   }
 
   // ── Load plan list + auto-select active plan ─────────────────
