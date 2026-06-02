@@ -196,29 +196,24 @@ export default function FillDataPage() {
         <Link href="/settings" className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)]">← Settings</Link>
       </div>
 
-      <div style={{ marginBottom: 8 }}>
-        <span className="font-mono text-[13px] font-semibold text-[var(--rule)] tracking-[0.14em]">§ FILL DATA</span>
-      </div>
-      <h1 style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.03em", marginBottom: 8 }}>
-        Fill missing nutrient data.
-      </h1>
-      <p style={{ color: "var(--muted)", lineHeight: 1.6, maxWidth: 720, marginBottom: 32 }}>
+      <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ FILL DATA</div>
+      <h1 className="form-title">Fill missing nutrient data.</h1>
+      <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 32, marginTop: 16 }}>
         Bulk-edit nutrient values across your pantry. A blank input means unknown — the recipe panel will show <span style={{ color: "var(--fg)" }}>—</span> instead of <span style={{ color: "var(--fg)" }}>0g</span>. Type a number (including <code>0</code>) for an explicit value.
       </p>
 
       {/* ── Nutrient picker ─────────────────────────── */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 24, maxWidth: 280 }}>
         <label className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]" style={{ display: "block", marginBottom: 6 }}>
           Nutrient
         </label>
         <select
-          className="ed-input"
+          className="ed-select"
           value={selectedNutrientId ?? ""}
           onChange={(e) => {
             setSelectedNutrientId(Number(e.target.value));
             setDrafts({});
           }}
-          style={{ maxWidth: 280 }}
         >
           {nutrients.map((n) => (
             <option key={n.id} value={n.id}>
