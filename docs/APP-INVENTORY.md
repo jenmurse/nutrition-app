@@ -19,23 +19,6 @@ Adds a new canonical nutrient with manual capture (USDA doesn't reliably disting
 **4. Playbook stories** — `briefs/playbook-stories.md`
 Six starter stories outlined, story #6 ("Saving the day that worked") added. Shell at `/playbook` (logged-out + logged-in chrome) plus the content for each story. Content authorship is the blocker.
 
-### Queued — MCP follow-up
-
-After day templates shipped, the planned MCP write tools were deferred to a separate commit. Spec in `briefs/day-templates.md` under "MCP follow-up":
-
-**Planner write tools:**
-- `add_meal(plan_id, date, meal_type, recipe_id?, ingredient_id?, servings?, quantity?, unit?)`
-- `remove_meal(meal_log_id)`
-- `update_meal(meal_log_id, servings?, quantity?, mealType?)`
-- `swap_meal(meal_log_id, recipe_id?, ingredient_id?)`
-
-**Day template write tools:**
-- `list_day_templates(person_id?)`
-- `save_day_template(plan_id, date, name)`
-- `apply_day_template(template_id, plan_id, date, mode: 'replace' | 'append')`
-
-These wrap the API endpoints the UI already uses; the work is just MCP tool registration + schemas. Once landed, Claude can analyze, suggest, and (with user confirmation on destructive ops) write changes back.
-
 ### Smaller follow-ups
 
 - **Dashboard stat selection → server-side.** Currently in localStorage (`dashboard-stats`). Move to a per-person preference column on `Person` so it survives Safari cache clears and syncs across devices.
@@ -135,6 +118,21 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Onboarding Welcome and Ready screens: no wordmark or check icon in the body. Topbar wordmark is the only brand moment. Center body wordmark and animated check icon both removed as visual clutter.
 - Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.
 - Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
+
+**Shipped this session (June 1 — MCP write tools):**
+
+- **7 new MCP write tools** registered in `mcp/src/index.ts`, published as `good-measure-mcp@1.4.1`:
+  - Planner: `add_meal`, `remove_meal`, `update_meal`, `swap_meal`
+  - Day templates: `list_day_templates`, `save_day_template`, `apply_day_template`
+- **4 new Bearer-auth API routes** under `/api/mcp/*` mirroring the cookie-auth app endpoints:
+  - `meal-plans/[id]/meals/route.ts` (POST)
+  - `meal-plans/[id]/meals/[mealId]/route.ts` (PATCH with swap support, DELETE)
+  - `day-templates/route.ts` (GET with `?personId=` filter, POST)
+  - `day-templates/[id]/apply/route.ts` (POST — mirrors smart-merge on append)
+- Pattern: thin Bearer-auth wrappers using `getMcpAuth()`, logic duplicated inline (not refactored — short enough that duplication is cleaner than indirection).
+- `swap_meal` is a PATCH extension that accepts `recipeId`/`ingredientId` and clears the opposite field set.
+- `get_meal_plan_week` now includes `mealLogId` in both the JSON response and the formatted text output (`[log:N recipe:N]`) — required so Claude can target a specific log for update/remove/swap. Fixed in 1.4.1.
+- Once-Claude-Desktop-reloads, Claude can analyze a plan against goals and write changes back with user confirmation. Verified end-to-end on June 1 (add, save+apply day template, update servings, remove meals).
 
 **Shipped this session (May 31 – June 1):**
 
