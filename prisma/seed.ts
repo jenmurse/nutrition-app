@@ -46,16 +46,22 @@ async function main() {
         orderIndex: 5,
       },
       {
+        name: "addedSugar",
+        displayName: "Added Sugar",
+        unit: "g",
+        orderIndex: 6,
+      },
+      {
         name: "protein",
         displayName: "Protein",
         unit: "g",
-        orderIndex: 6,
+        orderIndex: 7,
       },
       {
         name: "fiber",
         displayName: "Fiber",
         unit: "g",
-        orderIndex: 7,
+        orderIndex: 8,
       },
     ],
   });

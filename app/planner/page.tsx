@@ -59,6 +59,7 @@ type DailyNutrition = {
     lowGoal?: number | null;
     highGoal?: number | null;
     status?: "ok" | "warning" | "error";
+    unknown?: boolean;
   }>;
 };
 
@@ -886,13 +887,18 @@ function PlannerPage() {
   function nutrientCell(
     day: ReturnType<typeof totalsForDay>,
     keys: string[],
-    fmt: (v: number) => string
+    fmt: (v: number) => string,
+    opts?: { exact?: boolean }
   ) {
-    if (!day) return { value: "—", over: false, met: false, hasGoal: false, empty: true };
+    if (!day) return { value: "—", over: false, met: false, hasGoal: false, empty: true, unknown: false };
     const match = day.nutrients.find((n) =>
-      keys.some((k) => n.displayName.toLowerCase().includes(k))
+      opts?.exact
+        ? keys.some((k) => n.displayName.toLowerCase() === k)
+        : keys.some((k) => n.displayName.toLowerCase().includes(k))
     );
-    if (!match || match.value === 0) return { value: "—", over: false, met: false, hasGoal: false, empty: true };
+    if (!match) return { value: "—", over: false, met: false, hasGoal: false, empty: true, unknown: false };
+    if (match.unknown) return { value: "—", over: false, met: false, hasGoal: false, empty: false, unknown: true };
+    if (match.value === 0) return { value: "—", over: false, met: false, hasGoal: false, empty: true, unknown: false };
     const over = match.highGoal != null && match.value > match.highGoal;
     const met = match.lowGoal != null && match.value >= match.lowGoal;
     return {
@@ -901,6 +907,7 @@ function PlannerPage() {
       met: met && !over,
       hasGoal: match.highGoal != null || match.lowGoal != null,
       empty: false,
+      unknown: false,
     };
   }
 
@@ -1692,7 +1699,8 @@ function PlannerPage() {
                 const sat = nutrientCell(day, ["saturated"], (v) => `${Math.round(v)}g`);
                 const na = nutrientCell(day, ["sodium"], (v) => `${Math.round(v)}mg`);
                 const carb = nutrientCell(day, ["carbohydrate", "carb"], (v) => `${Math.round(v)}g`);
-                const sugar = nutrientCell(day, ["sugar"], (v) => `${Math.round(v)}g`);
+                const sugar = nutrientCell(day, ["sugar"], (v) => `${Math.round(v)}g`, { exact: true });
+                const addedSugar = nutrientCell(day, ["added sugar"], (v) => `${Math.round(v)}g`, { exact: true });
                 const prot = nutrientCell(day, ["protein"], (v) => `${Math.round(v)}g`);
                 const fiber = nutrientCell(day, ["fiber"], (v) => `${Math.round(v)}g`);
                 const cells = [
@@ -1702,6 +1710,7 @@ function PlannerPage() {
                   { k: "Na", c: na },
                   { k: "Carb", c: carb },
                   { k: "Sugar", c: sugar },
+                  { k: "Add S", c: addedSugar },
                   { k: "Prot", c: prot },
                   { k: "Fiber", c: fiber },
                 ];
@@ -1714,7 +1723,7 @@ function PlannerPage() {
                       {cells.map((r) => (
                         <div className="mx-mob-tot-cell" key={r.k}>
                           <div className="k">{r.k}</div>
-                          <div className={`v${r.c.over ? " over" : r.c.met ? " met" : ""}${r.c.empty ? " empty" : ""}`}>
+                          <div className={`v${r.c.over ? " over" : r.c.met ? " met" : ""}${r.c.empty ? " empty" : ""}${r.c.unknown ? " unknown" : ""}`}>
                             {r.c.value}
                           </div>
                         </div>
@@ -1874,7 +1883,8 @@ function PlannerPage() {
                 const sat = nutrientCell(day, ["saturated"], (v) => `${Math.round(v)}g`);
                 const na = nutrientCell(day, ["sodium"], (v) => `${Math.round(v)}mg`);
                 const carb = nutrientCell(day, ["carbohydrate", "carb"], (v) => `${Math.round(v)}g`);
-                const sugar = nutrientCell(day, ["sugar"], (v) => `${Math.round(v)}g`);
+                const sugar = nutrientCell(day, ["sugar"], (v) => `${Math.round(v)}g`, { exact: true });
+                const addedSugar = nutrientCell(day, ["added sugar"], (v) => `${Math.round(v)}g`, { exact: true });
                 const prot = nutrientCell(day, ["protein"], (v) => `${Math.round(v)}g`);
                 const fiber = nutrientCell(day, ["fiber"], (v) => `${Math.round(v)}g`);
                 const rows = [
@@ -1884,6 +1894,7 @@ function PlannerPage() {
                   { k: "Sodium", c: na },
                   { k: "Carbs", c: carb },
                   { k: "Sugar", c: sugar },
+                  { k: "Added Sug", c: addedSugar },
                   { k: "Protein", c: prot },
                   { k: "Fiber", c: fiber },
                 ];
@@ -1894,7 +1905,7 @@ function PlannerPage() {
                       <div className="mx-tot-row" key={r.k}>
                         <span className="mx-tot-key">{r.k}</span>
                         <span
-                          className={`mx-tot-val${r.c.over ? " over" : r.c.met ? " met" : ""}${r.c.empty ? " empty" : ""}`}
+                          className={`mx-tot-val${r.c.over ? " over" : r.c.met ? " met" : ""}${r.c.empty ? " empty" : ""}${r.c.unknown ? " unknown" : ""}`}
                         >
                           {r.c.value}
                         </span>

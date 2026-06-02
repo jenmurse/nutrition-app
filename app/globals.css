@@ -1823,6 +1823,7 @@ input[type="number"]:focus {
 .mx-tot-val.over { color: var(--err); }
 .mx-tot-val.met  { color: var(--ok); }
 .mx-tot-val.empty { color: var(--muted); opacity: 0.4; }
+.mx-tot-val.unknown { color: var(--muted); }
 
 /* Empty state for matrix */
 .mx-empty {
@@ -2920,6 +2921,7 @@ input[type="number"]:focus {
 .mx-mob-tot-cell .v.over { color: var(--err); }
 .mx-mob-tot-cell .v.met  { color: var(--ok); }
 .mx-mob-tot-cell .v.empty { color: var(--muted); opacity: 0.4; }
+.mx-mob-tot-cell .v.unknown { color: var(--muted); }
 
 /* Mobile picker becomes a bottom sheet — matches app's iOS-style sheets */
 @media (max-width: 767px) {

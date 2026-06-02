@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
 import type { Nutrient } from "@/types";
+import { resolveAddedSugarFromUsda } from "@/lib/usdaAddedSugar";
 
 type NutrientValue = { nutrientId: number; value: number };
 
@@ -180,6 +181,7 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
         1093: "sodium",
         1005: "carbs",
         2000: "sugar",
+        1235: "addedSugar",
         1003: "protein",
         1079: "fiber",
       };
@@ -199,6 +201,14 @@ export default function IngredientForm({ onCreated }: { onCreated?: () => void }
           if (ourNutrientId) newValues[ourNutrientId] = String(amount);
         }
       });
+
+      // Whole-food whitelist fallback: if USDA didn't list added sugar but
+      // the food's category is a whole-food category, default to 0g.
+      const addedSugarId = ourNutrientMap["addedSugar"];
+      if (addedSugarId && newValues[addedSugarId] === undefined) {
+        const fallback = resolveAddedSugarFromUsda(data);
+        if (fallback !== null) newValues[addedSugarId] = String(fallback);
+      }
 
       setValues((s) => ({ ...s, ...newValues }));
       if (data.description) setName(data.description);

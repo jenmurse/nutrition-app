@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { toast } from "@/lib/toast";
 import { clientCache } from "@/lib/clientCache";
 import type { Nutrient } from "@/types";
+import { resolveAddedSugarFromUsda } from "@/lib/usdaAddedSugar";
 
 type USDAResult = {
   fdcId: string;
@@ -139,6 +140,8 @@ export default function CreateIngredientModal({
         else if (usdaName.includes("saturated")) dbName = "satFat";
         else if (usdaName.includes("sodium")) dbName = "sodium";
         else if (usdaName.includes("carbohydrate")) dbName = "carbs";
+        // Order matters: "added sugar" must match before plain "sugar"
+        else if (usdaName.includes("added") && usdaName.includes("sugar")) dbName = "addedSugar";
         else if (usdaName.includes("sugar")) dbName = "sugar";
         else if (usdaName.includes("protein")) dbName = "protein";
         else if (usdaName.includes("fiber")) dbName = "fiber";
@@ -149,6 +152,16 @@ export default function CreateIngredientModal({
             updates.push({ nutrientId: matched.id, value });
             seen.add(matched.id);
           }
+        }
+      }
+
+      // Whole-food whitelist fallback for added sugar
+      const addedSugarNutrient = nutrients.find((n) => n.name === "addedSugar");
+      if (addedSugarNutrient && !seen.has(addedSugarNutrient.id)) {
+        const fallback = resolveAddedSugarFromUsda(data);
+        if (fallback !== null) {
+          updates.push({ nutrientId: addedSugarNutrient.id, value: fallback });
+          seen.add(addedSugarNutrient.id);
         }
       }
 

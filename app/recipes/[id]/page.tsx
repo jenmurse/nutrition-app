@@ -326,13 +326,14 @@ export default function RecipeDetailPage() {
   };
 
   // Nutrition helpers
-  const GRID_KEYS: { match: string[]; label: string; exact?: boolean }[] = [
+  const GRID_KEYS: { match: string[]; label: string; exact?: boolean; nutrientName?: string }[] = [
     { match: ["energy", "calorie"], label: "CALORIES" },
     { match: ["fat"], label: "FAT", exact: true },
     { match: ["saturated"], label: "SAT FAT" },
     { match: ["sodium"], label: "SODIUM" },
     { match: ["carbohydrate", "carb"], label: "CARBS" },
-    { match: ["sugar"], label: "SUGAR" },
+    { match: ["sugar"], label: "SUGAR", exact: true },
+    { match: ["added sugar"], label: "ADDED SUGAR", exact: true, nutrientName: "addedSugar" },
     { match: ["protein"], label: "PROTEIN" },
     { match: ["fiber"], label: "FIBER" },
   ];
@@ -606,10 +607,11 @@ export default function RecipeDetailPage() {
                   <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)] mb-3">Per serving · vs goals</div>
                 )}
                 <div className="flex flex-col gap-[10px]">
-                  {GRID_KEYS.map(({ match, label, exact }) => {
+                  {GRID_KEYS.map(({ match, label, exact, nutrientName }) => {
                     const n = getNutrient(recipe.totals, match, exact);
+                    const isUnknown = !n && nutrientName === "addedSugar";
                     const value = n ? Math.round(n.value * 10) / 10 : 0;
-                    const unit = n?.unit ?? "";
+                    const unit = n?.unit ?? (nutrientName === "addedSugar" ? "g" : "");
                     const goal = goals.find(g => {
                       const gName = g.nutrient.displayName.toLowerCase();
                       return exact ? match.some(k => gName === k) : match.some(k => gName.includes(k));
@@ -623,11 +625,13 @@ export default function RecipeDetailPage() {
                         <div className="flex justify-between items-baseline mb-1">
                           <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--fg-2)]">{label}</span>
                           <span className="font-mono text-[9px] text-[var(--fg)] tabular-nums">
-                            {Math.round(value)}{unit !== "kcal" ? unit : ""}
+                            {isUnknown
+                              ? <span className="text-[var(--muted)]">—</span>
+                              : <>{Math.round(value)}{unit !== "kcal" ? unit : ""}</>}
                             {target > 0 && <span className="text-[9px] text-[var(--muted)]"> / {Math.round(target)}{unit !== "kcal" ? unit : ""}</span>}
                           </span>
                         </div>
-                        {target > 0 && (
+                        {target > 0 && !isUnknown && (
                           <div className="h-[3px] bg-[var(--rule)] overflow-hidden">
                             <div className={`h-full transition-[width] duration-700 ${fillClass}`} style={{ width: `${Math.min(pct, 100)}%`, transitionTimingFunction: "var(--ease-out)" }} />
                           </div>
@@ -636,6 +640,16 @@ export default function RecipeDetailPage() {
                     );
                   })}
                 </div>
+                {(() => {
+                  // Show the contextual hint if added sugar is unknown (no row in totals)
+                  const addedSugarRow = recipe.totals?.find(t => t.displayName === "Added Sugar");
+                  if (addedSugarRow) return null;
+                  return (
+                    <div style={{ borderLeft: "2px solid var(--rule)", padding: "8px 0 8px 14px", marginTop: 16, fontSize: 11, lineHeight: 1.5, color: "var(--muted)" }}>
+                      Added-sugar total unknown — at least one ingredient in this recipe lacks data. Edit the ingredient in your pantry to enter the value.
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

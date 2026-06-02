@@ -6,6 +6,7 @@ import { toast } from "@/lib/toast";
 import { clientCache } from "@/lib/clientCache";
 import ContextualTip from "../../components/ContextualTip";
 import type { Nutrient } from "@/types";
+import { resolveAddedSugarFromUsda } from "@/lib/usdaAddedSugar";
 
 /* ── Utilities ── */
 
@@ -222,10 +223,19 @@ export default function CreateIngredientPage() {
           else if (lowerName.includes("saturated")) nutrientMap["satFat"] = Math.round(value * 10) / 10;
           else if (lowerName.includes("sodium")) nutrientMap["sodium"] = Math.round(value);
           else if (lowerName.includes("carbohydrate")) nutrientMap["carbs"] = Math.round(value * 10) / 10;
+          // Order matters: "added sugar" must match before plain "sugar"
+          else if (lowerName.includes("added") && lowerName.includes("sugar")) nutrientMap["addedSugar"] = Math.round(value * 10) / 10;
           else if (lowerName.includes("sugar")) nutrientMap["sugar"] = Math.round(value * 10) / 10;
           else if (lowerName.includes("protein")) nutrientMap["protein"] = Math.round(value * 10) / 10;
           else if (lowerName.includes("fiber")) nutrientMap["fiber"] = Math.round(value * 10) / 10;
         });
+      }
+      // Whole-food whitelist: if USDA didn't list added sugar but the food's
+      // category is a known whole-food category (produce, raw meat, oils,
+      // grains, etc.), default to 0g.
+      if (nutrientMap["addedSugar"] === undefined) {
+        const fallback = resolveAddedSugarFromUsda(foodData);
+        if (fallback !== null) nutrientMap["addedSugar"] = fallback;
       }
       const newValues: Record<number, number> = {};
       nutrientsList.forEach((n: any) => {

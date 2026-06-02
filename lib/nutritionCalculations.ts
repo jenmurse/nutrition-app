@@ -10,6 +10,7 @@ export interface NutrientValue {
   lowGoal?: number;
   highGoal?: number;
   status?: 'ok' | 'warning' | 'error'; // 'ok' = in range, 'warning' = below low goal, 'error' = above high goal
+  unknown?: boolean; // true when the value is poisoned — at least one input lacked data (used for Added Sugar)
 }
 
 export interface RecipeNutrition {
@@ -398,6 +399,33 @@ export async function getWeeklyNutritionSummary(
   const recipeMap = new Map(recipes.map((r) => [r.id, r]));
   const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
 
+  // Identify the addedSugar nutrient. Daily totals apply a "null-poisoning"
+  // rule: if any meal that day contributes unknown addedSugar (recipe with
+  // missing ingredients OR ingredient lacking the value), the day's addedSugar
+  // is unknown.
+  const addedSugarNutrient = allNutrients.find((n) => n.name === 'addedSugar');
+  const addedSugarId = addedSugarNutrient?.id ?? null;
+
+  // Precompute "recipe has unknown added sugar" + "ingredient has added sugar"
+  const recipeAddedSugarUnknown = new Map<number, boolean>();
+  if (addedSugarId !== null) {
+    for (const r of recipes) {
+      const anyMissing = r.ingredients.some(
+        (ri) => !ri.ingredient.nutrientValues.some((nv) => nv.nutrientId === addedSugarId)
+      );
+      recipeAddedSugarUnknown.set(r.id, anyMissing);
+    }
+  }
+  const ingredientHasAddedSugar = new Map<number, boolean>();
+  if (addedSugarId !== null) {
+    for (const ing of ingredients) {
+      ingredientHasAddedSugar.set(
+        ing.id,
+        ing.nutrientValues.some((nv) => nv.nutrientId === addedSugarId)
+      );
+    }
+  }
+
   // Calculate all 7 days synchronously (data already in memory)
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -414,10 +442,20 @@ export async function getWeeklyNutritionSummary(
     const totalNutrients: Record<number, number> = {};
     for (const n of allNutrients) totalNutrients[n.id] = 0;
 
+    // Default to true only if there are meals AND the addedSugar nutrient exists.
+    // An empty day shows the empty `—` state (no meals → addedSugar isn't unknown,
+    // it's just not present).
+    let addedSugarUnknown = false;
+    let hasAnyMeal = false;
+
     for (const mealLog of dayLogs) {
       if (mealLog.recipeId) {
         const recipe = recipeMap.get(mealLog.recipeId);
         if (recipe) {
+          hasAnyMeal = true;
+          if (addedSugarId !== null && recipeAddedSugarUnknown.get(recipe.id)) {
+            addedSugarUnknown = true;
+          }
           const nutrition = _computeRecipeNutritionFromData(recipe, allNutrients);
           const servings = Number(mealLog.servings ?? 1);
           const multiplier = servings / (recipe.servingSize || 1);
@@ -428,6 +466,10 @@ export async function getWeeklyNutritionSummary(
       } else if (mealLog.ingredientId && mealLog.quantity != null && mealLog.unit) {
         const ingredient = ingredientMap.get(mealLog.ingredientId);
         if (ingredient) {
+          hasAnyMeal = true;
+          if (addedSugarId !== null && !ingredientHasAddedSugar.get(ingredient.id)) {
+            addedSugarUnknown = true;
+          }
           const mealNutrients = _computeIngredientNutrition(ingredient, mealLog.quantity, mealLog.unit);
           for (const [id, value] of Object.entries(mealNutrients)) {
             totalNutrients[Number(id)] += value;
@@ -436,13 +478,19 @@ export async function getWeeklyNutritionSummary(
       }
     }
 
-    const totalNutrientValues: NutrientValue[] = allNutrients.map((n) => ({
-      nutrientId: n.id,
-      nutrientName: n.name,
-      displayName: n.displayName,
-      unit: n.unit,
-      value: Math.round(totalNutrients[n.id] * 10) / 10,
-    }));
+    const totalNutrientValues: NutrientValue[] = allNutrients.map((n) => {
+      const base: NutrientValue = {
+        nutrientId: n.id,
+        nutrientName: n.name,
+        displayName: n.displayName,
+        unit: n.unit,
+        value: Math.round(totalNutrients[n.id] * 10) / 10,
+      };
+      if (hasAnyMeal && addedSugarUnknown && n.id === addedSugarId) {
+        return { ...base, value: 0, unknown: true };
+      }
+      return base;
+    });
 
     return {
       date,
@@ -521,11 +569,41 @@ export function computeRecipeServingTotals(
 ): RecipeServingTotal[] {
   const totals: Record<number, RecipeServingTotal> = {};
 
+  // Discover the addedSugar nutrient ID by display name (if any ingredient has it).
+  // Added Sugar uses a "null-poisoning" rule: if ANY ingredient lacks an explicit
+  // value for it, the recipe's total is unknown (omitted from output entirely).
+  let addedSugarId: number | null = null;
+  for (const ri of ingredients) {
+    if (!ri.ingredient) continue;
+    for (const iv of ri.ingredient.nutrientValues) {
+      if (iv.nutrient.displayName === "Added Sugar") {
+        addedSugarId = iv.nutrient.id;
+        break;
+      }
+    }
+    if (addedSugarId !== null) break;
+  }
+
+  let addedSugarUnknown = false;
+  if (addedSugarId !== null) {
+    for (const ri of ingredients) {
+      if (!ri.ingredient) continue;
+      const hasAddedSugar = ri.ingredient.nutrientValues.some(iv => iv.nutrient.id === addedSugarId);
+      if (!hasAddedSugar) { addedSugarUnknown = true; break; }
+    }
+  } else {
+    // Added Sugar nutrient exists in the system but no ingredient in this recipe
+    // has a value — treat as unknown. The presence of *any* row would have set
+    // addedSugarId above.
+    addedSugarUnknown = true;
+  }
+
   for (const ri of ingredients) {
     if (!ri.ingredient) continue;
     const grams = ri.conversionGrams ?? 0;
     for (const iv of ri.ingredient.nutrientValues) {
       const nid = iv.nutrient.id;
+      if (addedSugarUnknown && nid === addedSugarId) continue;
       const contribution = (iv.value * grams) / USDA_BASE_GRAMS;
       if (!totals[nid]) {
         totals[nid] = { nutrientId: nid, displayName: iv.nutrient.displayName, value: 0, unit: iv.nutrient.unit };

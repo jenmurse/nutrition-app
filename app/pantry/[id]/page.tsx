@@ -9,6 +9,7 @@ import { clientCache } from "@/lib/clientCache";
 import ContextualTip from "../../components/ContextualTip";
 import EmptyState from "../../components/EmptyState";
 import type { Nutrient } from "@/types";
+import { resolveAddedSugarFromUsda } from "@/lib/usdaAddedSugar";
 
 /* ── Types ── */
 
@@ -428,6 +429,9 @@ export default function IngredientDetailPage() {
           nutrientMap["sodium"] = Math.round(value);
         else if (lowerName.includes("carbohydrate"))
           nutrientMap["carbs"] = Math.round(value * 10) / 10;
+        // Order matters: "added sugar" must match before plain "sugar"
+        else if (lowerName.includes("added") && lowerName.includes("sugar"))
+          nutrientMap["addedSugar"] = Math.round(value * 10) / 10;
         else if (lowerName.includes("sugar"))
           nutrientMap["sugar"] = Math.round(value * 10) / 10;
         else if (lowerName.includes("protein"))
@@ -435,6 +439,11 @@ export default function IngredientDetailPage() {
         else if (lowerName.includes("fiber"))
           nutrientMap["fiber"] = Math.round(value * 10) / 10;
       });
+    }
+    // Whole-food whitelist fallback for added sugar
+    if (nutrientMap["addedSugar"] === undefined) {
+      const fallback = resolveAddedSugarFromUsda(foodData);
+      if (fallback !== null) nutrientMap["addedSugar"] = fallback;
     }
 
     let nutrientsList = nutrients;
