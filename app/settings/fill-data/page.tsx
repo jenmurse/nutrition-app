@@ -155,6 +155,38 @@ export default function FillDataPage() {
     }
   }
 
+  async function clearRow(ing: IngredientRow) {
+    if (!selectedNutrient) return;
+    setSaving(true);
+    try {
+      const r = await fetch("/api/ingredients/bulk-nutrient", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nutrientId: selectedNutrient.id,
+          updates: [{ ingredientId: ing.id, value: null }],
+        }),
+      });
+      if (!r.ok) throw new Error("clear failed");
+      setIngredients((prev) =>
+        prev.map((i) => {
+          if (i.id !== ing.id) return i;
+          const next = { ...i.nutrientValues };
+          delete next[selectedNutrient.id];
+          return { ...i, nutrientValues: next };
+        })
+      );
+      setDrafts((prev) => {
+        const { [ing.id]: _, ...rest } = prev;
+        return rest;
+      });
+    } catch {
+      toast.error("Failed to clear");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function bulkSetUnknownToZero() {
     if (!selectedNutrient) return;
     const targets = filtered.filter((i) => i.nutrientValues[selectedNutrient.id] === undefined);
@@ -370,11 +402,8 @@ export default function FillDataPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      setDraft(ing.id, "");
-                      saveRow({ ...ing, nutrientValues: { ...ing.nutrientValues, [selectedNutrient.id]: undefined } });
-                    }}
-                    disabled={isUnknown}
+                    onClick={() => clearRow(ing)}
+                    disabled={isUnknown || saving}
                     className="font-mono text-[9px] uppercase tracking-[0.14em]"
                     style={{
                       padding: "6px 10px",
