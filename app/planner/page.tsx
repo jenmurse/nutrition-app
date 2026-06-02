@@ -2960,16 +2960,6 @@ function ManageTemplatesSheet({
   const isFiltered = search.trim().length > 0;
   const canReorder = !isFiltered && templates.length > 1;
 
-  function moveTemplate(id: number, direction: -1 | 1) {
-    const idx = templates.findIndex((t) => t.id === id);
-    if (idx < 0) return;
-    const target = idx + direction;
-    if (target < 0 || target >= templates.length) return;
-    const next = [...templates];
-    [next[idx], next[target]] = [next[target], next[idx]];
-    onReorder(next.map((t) => t.id));
-  }
-
   function onRowDragStart(id: number, e: React.DragEvent<HTMLElement>) {
     if (!canReorder) return;
     setDragId(id);
@@ -3092,27 +3082,6 @@ function ManageTemplatesSheet({
                       </>
                     ) : (
                       <>
-                        {!isFiltered && (() => {
-                          const idx = templates.findIndex((x) => x.id === t.id);
-                          return (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => moveTemplate(t.id, -1)}
-                                disabled={idx <= 0}
-                                aria-label={`Move ${t.name} up`}
-                                title="Move up"
-                              >↑</button>
-                              <button
-                                type="button"
-                                onClick={() => moveTemplate(t.id, 1)}
-                                disabled={idx >= templates.length - 1}
-                                aria-label={`Move ${t.name} down`}
-                                title="Move down"
-                              >↓</button>
-                            </>
-                          );
-                        })()}
                         <button type="button" onClick={() => setRenaming({ id: t.id, value: t.name })}>Rename</button>
                         <button type="button" className="danger" onClick={() => onDelete(t)}>Delete</button>
                       </>
