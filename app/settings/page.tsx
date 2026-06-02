@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { APP_NAME } from '@/lib/brand';
 import { usePersonContext } from '@/app/components/PersonContext';
 import { createClient } from '@/lib/supabase/client';
@@ -1215,6 +1216,16 @@ const SettingsPage = () => {
               ════════════════════════════════════════════════════════════════════ */}
           <div id="set-sec-data" style={{ padding: '56px 0' }}>
             <SectionHeader number="05" title="Data" />
+
+            <div style={{ marginBottom: 40 }}>
+              <div className="ed-label mb-[8px]">Fill missing nutrient data</div>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
+                Bulk-edit nutrient values across your pantry. Useful for filling in Added Sugar (or any nutrient) on ingredients USDA didn't provide.
+              </p>
+              <Link href="/settings/fill-data" className="ed-btn" aria-label="Open fill missing data tool">
+                OPEN FILL DATA TOOL →
+              </Link>
+            </div>
 
             <div>
               <div className="ed-label mb-[8px]">Export</div>
