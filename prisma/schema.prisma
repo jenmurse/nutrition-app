@@ -293,6 +293,7 @@ model DayTemplate {
   householdId Int
   personId    Int? // whose matrix it was saved from (nullable for attribution)
   name        String
+  sortIndex   Int      @default(0) // user-controlled ordering in manage sheet (ascending)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

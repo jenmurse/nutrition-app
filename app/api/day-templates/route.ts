@@ -29,7 +29,7 @@ export const GET = withAuth(async (auth) => {
         select: { id: true, name: true, color: true },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ sortIndex: "asc" }, { createdAt: "desc" }],
   });
   return NextResponse.json(templates);
 }, "Failed to load day templates");

@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       },
       person: { select: { id: true, name: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ sortIndex: 'asc' }, { createdAt: 'desc' }],
   });
 
   return NextResponse.json(templates);

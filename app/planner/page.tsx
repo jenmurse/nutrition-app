@@ -582,6 +582,28 @@ function PlannerPage() {
     }
   }
 
+  async function reorderTemplates(nextOrder: number[]) {
+    // Optimistic — reorder local state immediately, revert on failure
+    const idToTpl = new Map(templates.map((t) => [t.id, t]));
+    const reordered = nextOrder
+      .map((id) => idToTpl.get(id))
+      .filter((t): t is DayTemplate => !!t);
+    const prev = templates;
+    setTemplates(reordered);
+    try {
+      const r = await fetch("/api/day-templates/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: nextOrder }),
+      });
+      if (!r.ok) throw new Error("Failed");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to reorder");
+      setTemplates(prev);
+    }
+  }
+
   // ── Load other household members' plans for the same week ────
   useEffect(() => {
     if (!plan || persons.length < 2 || !selectedPersonId) {
@@ -2125,6 +2147,7 @@ function PlannerPage() {
             onClose={() => setManageOpen(false)}
             onRename={renameTemplate}
             onDelete={deleteTemplate}
+            onReorder={reorderTemplates}
           />,
           document.body
         )}
@@ -2899,11 +2922,13 @@ function ManageTemplatesSheet({
   onClose,
   onRename,
   onDelete,
+  onReorder,
 }: {
   templates: DayTemplate[];
   onClose: () => void;
   onRename: (id: number, name: string) => Promise<boolean>;
   onDelete: (template: DayTemplate) => Promise<void>;
+  onReorder: (nextOrder: number[]) => Promise<void>;
 }) {
   const [search, setSearch] = useState("");
   const [renaming, setRenaming] = useState<{ id: number; value: string } | null>(null);
@@ -2926,6 +2951,19 @@ function ManageTemplatesSheet({
     if (!value) { setRenaming(null); return; }
     const ok = await onRename(renaming.id, value);
     if (ok) setRenaming(null);
+  }
+
+  // Reordering is disabled while a search filter is active — moving within the
+  // filtered view would be ambiguous against the underlying full order.
+  const isFiltered = search.trim().length > 0;
+  function moveTemplate(id: number, direction: -1 | 1) {
+    const idx = templates.findIndex((t) => t.id === id);
+    if (idx < 0) return;
+    const target = idx + direction;
+    if (target < 0 || target >= templates.length) return;
+    const next = [...templates];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    onReorder(next.map((t) => t.id));
   }
 
   return (
@@ -3001,6 +3039,27 @@ function ManageTemplatesSheet({
                       </>
                     ) : (
                       <>
+                        {!isFiltered && (() => {
+                          const idx = templates.findIndex((x) => x.id === t.id);
+                          return (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => moveTemplate(t.id, -1)}
+                                disabled={idx <= 0}
+                                aria-label={`Move ${t.name} up`}
+                                title="Move up"
+                              >↑</button>
+                              <button
+                                type="button"
+                                onClick={() => moveTemplate(t.id, 1)}
+                                disabled={idx >= templates.length - 1}
+                                aria-label={`Move ${t.name} down`}
+                                title="Move down"
+                              >↓</button>
+                            </>
+                          );
+                        })()}
                         <button type="button" onClick={() => setRenaming({ id: t.id, value: t.name })}>Rename</button>
                         <button type="button" className="danger" onClick={() => onDelete(t)}>Delete</button>
                       </>
