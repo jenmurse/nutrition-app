@@ -182,10 +182,15 @@ export default function FillDataPage() {
   }
 
   if (loading) {
-    return <div style={{ padding: 64, color: "var(--muted)" }}>Loading…</div>;
+    return (
+      <div style={{ height: "100%", overflowY: "auto" }}>
+        <div style={{ padding: 64, color: "var(--muted)" }}>Loading…</div>
+      </div>
+    );
   }
 
   return (
+    <div style={{ height: "100%", overflowY: "auto" }}>
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 40px 96px" }}>
       <div style={{ marginBottom: 32 }}>
         <Link href="/settings" className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)]">← Settings</Link>
@@ -359,6 +364,7 @@ export default function FillDataPage() {
           )}
         </div>
       )}
+    </div>
     </div>
   );
 }
