@@ -443,7 +443,7 @@ function PlannerPage() {
     }, 100);
   }
 
-  async function submitSaveTemplate(name: string) {
+  async function submitSaveTemplate(payload: { name: string } | { overwriteId: number; overwriteName: string }) {
     if (!saveTplOpen || !plan) return;
     const dateISO = `${saveTplOpen.date.getFullYear()}-${String(saveTplOpen.date.getMonth() + 1).padStart(2, "0")}-${String(saveTplOpen.date.getDate()).padStart(2, "0")}`;
     const planId = plan.id;
@@ -453,13 +453,24 @@ function PlannerPage() {
     // Defensive scrub — iOS Safari sometimes holds the dimmed-chrome state.
     scrubOverlays();
     try {
+      if ("overwriteId" in payload) {
+        const r = await fetch(`/api/day-templates/${payload.overwriteId}/snapshot`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ planId, date: dateISO }),
+        });
+        if (!r.ok) throw new Error("Failed");
+        toast.success(`Updated "${payload.overwriteName}"`);
+        await refreshTemplates();
+        return;
+      }
       const r = await fetch("/api/day-templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           planId,
           date: dateISO,
-          name,
+          name: payload.name,
           personId: selectedPersonId,
         }),
       });
@@ -468,7 +479,7 @@ function PlannerPage() {
         return;
       }
       if (!r.ok) throw new Error("Failed");
-      toast.success(`Saved "${name}"`);
+      toast.success(`Saved "${payload.name}"`);
       await refreshTemplates();
     } catch (e) {
       console.error(e);
@@ -2088,6 +2099,7 @@ function PlannerPage() {
           <SaveTemplateDialog
             state={saveTplOpen}
             mealLogsOnDay={plan ? plan.mealLogs.filter((l) => parseUTCDate(l.date).toDateString() === saveTplOpen.date.toDateString()) : []}
+            existingTemplates={templates}
             onClose={() => setSaveTplOpen(null)}
             onSubmit={submitSaveTemplate}
           />,
@@ -2709,16 +2721,24 @@ function DayOverflowMenu({
 function SaveTemplateDialog({
   state,
   mealLogsOnDay,
+  existingTemplates,
   onClose,
   onSubmit,
 }: {
   state: SaveTemplateState;
   mealLogsOnDay: MealLog[];
+  existingTemplates: DayTemplate[];
   onClose: () => void;
-  onSubmit: (name: string) => Promise<void>;
+  onSubmit: (payload: { name: string } | { overwriteId: number; overwriteName: string }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
+  const [overwriteId, setOverwriteId] = useState<number | "">("");
   const [submitting, setSubmitting] = useState(false);
+
+  const isOverwriting = overwriteId !== "";
+  const overwriteTemplate = isOverwriting
+    ? existingTemplates.find((t) => t.id === overwriteId)
+    : null;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -2745,14 +2765,19 @@ function SaveTemplateDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
     setSubmitting(true);
     try {
-      await onSubmit(name.trim());
+      if (isOverwriting && overwriteTemplate) {
+        await onSubmit({ overwriteId: overwriteTemplate.id, overwriteName: overwriteTemplate.name });
+      } else if (name.trim()) {
+        await onSubmit({ name: name.trim() });
+      }
     } finally {
       setSubmitting(false);
     }
   }
+
+  const canSubmit = isOverwriting ? !!overwriteTemplate : !!name.trim();
 
   return (
     <>
@@ -2760,23 +2785,54 @@ function SaveTemplateDialog({
       <div className="mx-newplan-dialog" role="dialog" aria-modal="true" aria-label="Save template">
         <form onSubmit={handleSubmit}>
           <div className="mx-newplan-eyebrow">§ SAVE TEMPLATE</div>
-          <h2 className="mx-newplan-title">Save {dayName} as a template.</h2>
+          <h2 className="mx-newplan-title">
+            {isOverwriting
+              ? `Replace "${overwriteTemplate?.name ?? ""}".`
+              : `Save ${dayName} as a template.`}
+          </h2>
           <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 20, fontSize: 13 }}>
-            Reusable on any future day. The current recipes, ingredients, servings, and quantities are captured.
+            {isOverwriting
+              ? `The existing items in this template will be replaced with ${dayName}'s meals.`
+              : "Reusable on any future day. The current recipes, ingredients, servings, and quantities are captured."}
           </p>
 
-          <label className="mx-newplan-label" htmlFor="tpl-name">Template name</label>
-          <input
-            id="tpl-name"
-            type="text"
-            className="mx-newplan-input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Workout day, Travel day…"
-            required
-            autoFocus
-            maxLength={80}
-          />
+          {!isOverwriting && (
+            <>
+              <label className="mx-newplan-label" htmlFor="tpl-name">Template name</label>
+              <input
+                id="tpl-name"
+                type="text"
+                className="mx-newplan-input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Workout day, Travel day…"
+                autoFocus
+                maxLength={80}
+              />
+            </>
+          )}
+
+          {existingTemplates.length > 0 && (
+            <div style={{ marginTop: isOverwriting ? 0 : 16 }}>
+              <label className="mx-newplan-label" htmlFor="tpl-overwrite">
+                {isOverwriting ? "Updating template" : "…or update an existing template"}
+              </label>
+              <select
+                id="tpl-overwrite"
+                className="mx-newplan-input"
+                value={overwriteId}
+                onChange={(e) => setOverwriteId(e.target.value === "" ? "" : Number(e.target.value))}
+                disabled={submitting}
+              >
+                <option value="">— New template —</option>
+                {existingTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}{t.person ? ` · ${t.person.name}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div style={{ borderLeft: "2px solid var(--rule)", padding: "6px 0 6px 14px", marginTop: 16, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
             Capturing <strong style={{ color: "var(--fg)" }}>{state.itemCount} item{state.itemCount === 1 ? "" : "s"}</strong>{breakdown && `: ${breakdown}`}.
@@ -2784,8 +2840,8 @@ function SaveTemplateDialog({
 
           <div className="mx-newplan-actions">
             <button type="button" className="ed-btn-text" onClick={onClose} disabled={submitting}>Cancel</button>
-            <button type="submit" className="ed-btn-primary" disabled={submitting || !name.trim()}>
-              {submitting ? "Saving…" : "Save template"}
+            <button type="submit" className="ed-btn-primary" disabled={submitting || !canSubmit}>
+              {submitting ? "Saving…" : isOverwriting ? "Replace contents" : "Save template"}
             </button>
           </div>
         </form>
