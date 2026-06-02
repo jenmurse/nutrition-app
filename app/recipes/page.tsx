@@ -116,7 +116,8 @@ function RecipesPage() {
     { label: 'Saturated Fat', unit: 'g',    keys: ['saturated'],              lowerIsBetter: true  },
     { label: 'Sodium',        unit: 'mg',   keys: ['sodium'],                 lowerIsBetter: true  },
     { label: 'Carbs',         unit: 'g',    keys: ['carbohydrate', 'carb'],   lowerIsBetter: true  },
-    { label: 'Sugar',         unit: 'g',    keys: ['sugar'],                  lowerIsBetter: true  },
+    { label: 'Sugar',         unit: 'g',    keys: ['sugar'],                  lowerIsBetter: true,  exact: true } as const,
+    { label: 'Added Sugar',   unit: 'g',    keys: ['added sugar'],            lowerIsBetter: true,  exact: true } as const,
     { label: 'Protein',       unit: 'g',    keys: ['protein'],                lowerIsBetter: false },
     { label: 'Fiber',         unit: 'g',    keys: ['fiber'],                  lowerIsBetter: false },
   ] as const;
@@ -127,11 +128,11 @@ function RecipesPage() {
     );
   };
 
-  const getCompareValue = (recipe: RecipeSummary, keys: readonly string[]): number => {
+  const getCompareValue = (recipe: RecipeSummary, keys: readonly string[], exact?: boolean): number => {
     if (!recipe.totals) return 0;
     const match = recipe.totals.find(t => {
       const name = t.displayName.toLowerCase();
-      return keys.some(k => name.includes(k));
+      return exact ? keys.some(k => name === k) : keys.some(k => name.includes(k));
     });
     return match ? Math.round(match.value) : 0;
   };
@@ -342,20 +343,22 @@ function RecipesPage() {
       fat: find(["fat"], true),
       saturatedFat: find(["saturated"]),
       sodium: find(["sodium"]),
-      sugar: find(["sugar"]),
+      sugar: find(["sugar"], true),
+      addedSugar: find(["added sugar"], true),
       fiber: find(["fiber"]),
     };
   };
 
   // Canonical nutrient name map matching dashboard
-  const STAT_CANONICAL_ORDER = ['calories', 'fat', 'sat-fat', 'sodium', 'carbs', 'sugar', 'protein', 'fiber'];
-  const STAT_KEY_MAP: Record<string, { keys: string[]; label: string; unit: string }> = {
+  const STAT_CANONICAL_ORDER = ['calories', 'fat', 'sat-fat', 'sodium', 'carbs', 'sugar', 'added-sugar', 'protein', 'fiber'];
+  const STAT_KEY_MAP: Record<string, { keys: string[]; label: string; unit: string; exact?: boolean }> = {
     calories: { keys: ['energy', 'calorie'], label: 'cal', unit: '' },
     fat:      { keys: ['total fat', 'fat'],  label: 'fat', unit: 'g' },
     'sat-fat':{ keys: ['saturated'],         label: 'sat', unit: 'g' },
     sodium:   { keys: ['sodium'],            label: 'na',  unit: 'mg' },
     carbs:    { keys: ['carbohydrate','carb'],label: 'carbs',unit: 'g' },
-    sugar:    { keys: ['sugar'],             label: 'sugar',unit: 'g' },
+    sugar:    { keys: ['sugar'],             label: 'sugar',unit: 'g', exact: true },
+    'added-sugar': { keys: ['added sugar'],  label: 'add s',unit: 'g', exact: true },
     protein:  { keys: ['protein'],           label: 'prot', unit: 'g' },
     fiber:    { keys: ['fiber'],             label: 'fiber',unit: 'g' },
   };
@@ -368,7 +371,7 @@ function RecipesPage() {
       if (!cfg) return null;
       const match = recipe.totals!.find(t => {
         const name = t.displayName.toLowerCase();
-        return cfg.keys.some(k => name.includes(k));
+        return cfg.exact ? cfg.keys.some(k => name === k) : cfg.keys.some(k => name.includes(k));
       });
       return match ? { label: cfg.label, value: Math.round(match.value), unit: cfg.unit } : null;
     }).filter(Boolean) as { label: string; value: number; unit: string }[];
@@ -947,7 +950,7 @@ function RecipesPage() {
 
                 {/* Nutrient rows — always 5 value cells */}
                 {COMPARE_NUTRIENTS.map(n => {
-                  const vals = compareRecipes.map(r => getCompareValue(r, n.keys));
+                  const vals = compareRecipes.map(r => getCompareValue(r, n.keys, (n as { exact?: boolean }).exact));
                   const winner = n.lowerIsBetter ? Math.min(...vals) : Math.max(...vals);
                   return (
                     <React.Fragment key={`row-${n.label}`}>

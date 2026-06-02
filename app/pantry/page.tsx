@@ -185,10 +185,10 @@ function IngredientsPage() {
   // Extract macros for list view — all nutrients
   const getCardMacros = (ingredient: Ingredient) => {
     if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
-    const find = (keys: string[]) => {
+    const find = (keys: string[], exact?: boolean) => {
       const n = ingredient.nutrientValues.find(nv => {
         const name = nv.nutrient.displayName.toLowerCase();
-        return keys.some(k => name.includes(k));
+        return exact ? keys.some(k => name === k) : keys.some(k => name.includes(k));
       });
       return n ? Math.round(n.value) : 0;
     };
@@ -199,7 +199,7 @@ function IngredientsPage() {
       fat: find(["total fat", "fat"]),
       satFat: find(["saturated"]),
       sodium: find(["sodium"]),
-      sugar: find(["sugar"]),
+      sugar: find(["sugar"], true),
       fiber: find(["fiber"]),
     };
   };
@@ -207,20 +207,23 @@ function IngredientsPage() {
   // Extract full nutrition for grid cards
   const getFullNutrition = (ingredient: Ingredient) => {
     if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;
-    const find = (keys: string[]) => {
+    const find = (keys: string[], exact?: boolean) => {
       const n = ingredient.nutrientValues.find(nv => {
         const name = (nv.nutrient.displayName || nv.nutrient.name).toLowerCase();
-        return keys.some(k => name.includes(k));
+        return exact ? keys.some(k => name === k) : keys.some(k => name.includes(k));
       });
       return n ? { value: n.value, unit: n.nutrient.unit } : null;
     };
+    // Distinguish "unknown" (no IngredientNutrient row) from "explicit 0".
+    // For addedSugar specifically: returning null means render `—`.
     return {
       calories: find(["energy", "calorie"]),
       fat: find(["total fat", "fat"]),
       saturatedFat: find(["saturated"]),
       sodium: find(["sodium"]),
       carbs: find(["carbohydrate", "carb"]),
-      sugar: find(["sugar"]),
+      sugar: find(["sugar"], true),
+      addedSugar: find(["added sugar"], true),
       protein: find(["protein"]),
       fiber: find(["fiber"]),
     };
@@ -456,6 +459,7 @@ function IngredientsPage() {
                 { label: "Sodium",   val: n?.sodium ? formatNutrient(n.sodium.value) : "0",     unit: n?.sodium?.unit || "mg" },
                 { label: "Carbs",    val: n?.carbs ? formatNutrient(n.carbs.value) : "0",       unit: n?.carbs?.unit || "g" },
                 { label: "Sugar",    val: n?.sugar ? formatNutrient(n.sugar.value) : "0",       unit: n?.sugar?.unit || "g" },
+                { label: "Added Sug", val: n?.addedSugar ? formatNutrient(n.addedSugar.value) : "—", unit: n?.addedSugar ? (n.addedSugar.unit || "g") : "" },
                 { label: "Protein",  val: n?.protein ? formatNutrient(n.protein.value) : "0",   unit: n?.protein?.unit || "g" },
                 { label: "Fiber",    val: n?.fiber ? formatNutrient(n.fiber.value) : "0",       unit: n?.fiber?.unit || "g" },
               ];

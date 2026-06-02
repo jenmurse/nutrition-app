@@ -23,6 +23,7 @@ const DASHBOARD_STAT_OPTIONS = [
   { key: 'sodium', label: 'Sodium' },
   { key: 'carbs', label: 'Carbs' },
   { key: 'sugar', label: 'Sugar' },
+  { key: 'added-sugar', label: 'Added Sugar' },
   { key: 'protein', label: 'Protein' },
   { key: 'fiber', label: 'Fiber' },
 ];
