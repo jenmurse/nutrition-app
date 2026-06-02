@@ -3035,7 +3035,6 @@ function ManageTemplatesSheet({
           ) : (
             filtered.map((t) => {
               const isRenaming = renaming?.id === t.id;
-              const created = new Date(t.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" });
               const dragEnabled = canReorder && !isRenaming;
               const isDragging = dragId === t.id;
               const isDropTarget = dropBeforeId === t.id && dragId != null && dragId !== t.id;
@@ -3083,8 +3082,6 @@ function ManageTemplatesSheet({
                         </>
                       )}
                       <span>{t.items.length} item{t.items.length === 1 ? "" : "s"}</span>
-                      <span>·</span>
-                      <span>Saved {created}</span>
                     </div>
                   </div>
                   <div className="mx-manage-actions">
