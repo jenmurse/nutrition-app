@@ -1175,13 +1175,13 @@ function PlannerPage() {
   }
 
   // ── Slot drag-reorder ────────────────────────────────────────
-  function onSlotDragStart(slot: SlotType, e: React.DragEvent<HTMLDivElement>) {
+  function onSlotDragStart(slot: SlotType, e: React.DragEvent<HTMLElement>) {
     setDragKind("slot");
     setDraggingSlot(slot);
     e.dataTransfer.effectAllowed = "move";
     try { e.dataTransfer.setData("text/plain", `slot:${slot}`); } catch {}
   }
-  function onSlotDragOver(slot: SlotType, e: React.DragEvent<HTMLDivElement>) {
+  function onSlotDragOver(slot: SlotType, e: React.DragEvent<HTMLElement>) {
     if (dragKind !== "slot" || !draggingSlot || draggingSlot === slot) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
@@ -1190,7 +1190,7 @@ function PlannerPage() {
   function onSlotDragLeave(slot: SlotType) {
     if (dropBeforeSlot === slot) setDropBeforeSlot(null);
   }
-  function onSlotDrop(targetSlot: SlotType, e: React.DragEvent<HTMLDivElement>) {
+  function onSlotDrop(targetSlot: SlotType, e: React.DragEvent<HTMLElement>) {
     e.preventDefault();
     if (dragKind !== "slot" || !draggingSlot || draggingSlot === targetSlot) {
       clearAllDrag();
@@ -1228,7 +1228,7 @@ function PlannerPage() {
     try { e.dataTransfer.setData("text/plain", `meal:${logId}`); } catch {}
   }
 
-  function onCellDragOver(date: Date, slot: SlotType, e: React.DragEvent<HTMLDivElement>) {
+  function onCellDragOver(date: Date, slot: SlotType, e: React.DragEvent<HTMLElement>) {
     if (dragKind !== "cell" || !draggingCell) return;
     if (draggingCell.date.toDateString() === date.toDateString() && draggingCell.slot === slot) return;
     e.preventDefault();
@@ -1245,7 +1245,7 @@ function PlannerPage() {
     }
   }
 
-  async function onCellDrop(targetDate: Date, targetSlot: SlotType, e: React.DragEvent<HTMLDivElement>) {
+  async function onCellDrop(targetDate: Date, targetSlot: SlotType, e: React.DragEvent<HTMLElement>) {
     e.preventDefault();
     const src = draggingCell;
     if (dragKind !== "cell" || !src || !plan) { clearAllDrag(); return; }
@@ -2932,6 +2932,8 @@ function ManageTemplatesSheet({
 }) {
   const [search, setSearch] = useState("");
   const [renaming, setRenaming] = useState<{ id: number; value: string } | null>(null);
+  const [dragId, setDragId] = useState<number | null>(null);
+  const [dropBeforeId, setDropBeforeId] = useState<number | null>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -2956,6 +2958,8 @@ function ManageTemplatesSheet({
   // Reordering is disabled while a search filter is active — moving within the
   // filtered view would be ambiguous against the underlying full order.
   const isFiltered = search.trim().length > 0;
+  const canReorder = !isFiltered && templates.length > 1;
+
   function moveTemplate(id: number, direction: -1 | 1) {
     const idx = templates.findIndex((t) => t.id === id);
     if (idx < 0) return;
@@ -2964,6 +2968,41 @@ function ManageTemplatesSheet({
     const next = [...templates];
     [next[idx], next[target]] = [next[target], next[idx]];
     onReorder(next.map((t) => t.id));
+  }
+
+  function onRowDragStart(id: number, e: React.DragEvent<HTMLElement>) {
+    if (!canReorder) return;
+    setDragId(id);
+    e.dataTransfer.effectAllowed = "move";
+    try { e.dataTransfer.setData("text/plain", `tpl:${id}`); } catch {}
+  }
+  function onRowDragOver(targetId: number, e: React.DragEvent<HTMLElement>) {
+    if (!canReorder || dragId == null || dragId === targetId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dropBeforeId !== targetId) setDropBeforeId(targetId);
+  }
+  function onRowDragLeave(targetId: number) {
+    if (dropBeforeId === targetId) setDropBeforeId(null);
+  }
+  function onRowDrop(targetId: number, e: React.DragEvent<HTMLElement>) {
+    e.preventDefault();
+    if (!canReorder || dragId == null || dragId === targetId) {
+      setDragId(null);
+      setDropBeforeId(null);
+      return;
+    }
+    const next = templates.filter((t) => t.id !== dragId);
+    const targetIdx = next.findIndex((t) => t.id === targetId);
+    const moving = templates.find((t) => t.id === dragId);
+    if (moving && targetIdx >= 0) next.splice(targetIdx, 0, moving);
+    setDragId(null);
+    setDropBeforeId(null);
+    onReorder(next.map((t) => t.id));
+  }
+  function onRowDragEnd() {
+    setDragId(null);
+    setDropBeforeId(null);
   }
 
   return (
@@ -2997,8 +3036,25 @@ function ManageTemplatesSheet({
             filtered.map((t) => {
               const isRenaming = renaming?.id === t.id;
               const created = new Date(t.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              const dragEnabled = canReorder && !isRenaming;
+              const isDragging = dragId === t.id;
+              const isDropTarget = dropBeforeId === t.id && dragId != null && dragId !== t.id;
               return (
-                <div key={t.id} className="mx-manage-item">
+                <div
+                  key={t.id}
+                  className={`mx-manage-item${isDragging ? " is-dragging" : ""}${isDropTarget ? " is-drop-before" : ""}`}
+                  onDragOver={dragEnabled ? (e) => onRowDragOver(t.id, e) : undefined}
+                  onDragLeave={dragEnabled ? () => onRowDragLeave(t.id) : undefined}
+                  onDrop={dragEnabled ? (e) => onRowDrop(t.id, e) : undefined}
+                >
+                  <span
+                    className={`mx-manage-handle${dragEnabled ? "" : " is-disabled"}`}
+                    draggable={dragEnabled}
+                    onDragStart={dragEnabled ? (e) => onRowDragStart(t.id, e) : undefined}
+                    onDragEnd={dragEnabled ? onRowDragEnd : undefined}
+                    aria-hidden="true"
+                    title={dragEnabled ? "Drag to reorder" : undefined}
+                  >⋮⋮</span>
                   <div>
                     {isRenaming ? (
                       <div className="mx-manage-inline-rename">

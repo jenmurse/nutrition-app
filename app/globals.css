@@ -2087,11 +2087,26 @@ input[type="number"]:focus {
   padding: 14px 24px;
   border-bottom: 1px solid var(--rule);
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   gap: 14px;
   align-items: center;
+  transition: background 120ms var(--ease-out), border-color 120ms var(--ease-out);
 }
 .mx-manage-item:hover { background: var(--bg-2); }
+.mx-manage-item.is-dragging { opacity: 0.4; }
+.mx-manage-item.is-drop-before { border-top: 2px solid var(--fg); }
+.mx-manage-handle {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: grab;
+  user-select: none;
+  padding: 4px 2px;
+  line-height: 1;
+}
+.mx-manage-handle:hover { color: var(--fg); }
+.mx-manage-handle:active { cursor: grabbing; }
+.mx-manage-handle.is-disabled { opacity: 0.3; cursor: default; }
 .mx-manage-name {
   font-family: var(--sans);
   font-size: 15px;
