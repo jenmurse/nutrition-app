@@ -345,7 +345,7 @@ function IngredientsPage() {
               after the All/Items/Ingredients pills were removed, which left
               an awkward empty span) */}
           {selectMode ? (
-            <div className="list-controls flex gap-[18px] items-center ml-auto">
+            <div className="list-controls flex gap-[18px] items-center flex-1">
               <span className="ed-count">
                 <strong>{selectedIds.size}</strong> selected
               </span>
@@ -380,7 +380,7 @@ function IngredientsPage() {
               >DONE</button>
             </div>
           ) : (
-          <div className="list-controls flex gap-[18px] items-center ml-auto">
+          <div className="list-controls flex gap-[18px] items-center flex-1">
             {/* Favorites toggle */}
             <button
               onClick={() => setShowFavorites(prev => !prev)}
