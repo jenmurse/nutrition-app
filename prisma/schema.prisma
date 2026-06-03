@@ -36,6 +36,7 @@ model Person {
   onboardingComplete Boolean  @default(false)
   trackedOnly        Boolean  @default(false) // true = nutrition tracked, no login (e.g., children)
   dismissedTips      String   @default("[]") // JSON array of dismissed tip IDs
+  dashboardStats     String   @default("calories,protein,fiber") // CSV of dashboard stat keys (per-person; up to 3)
   createdAt          DateTime @default(now())
 
   mealPlans            MealPlan[]

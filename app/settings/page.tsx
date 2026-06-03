@@ -120,16 +120,42 @@ const SettingsPage = () => {
   const [goalsLoaded, setGoalsLoaded] = useState(false);
   const [goalsSaving, setGoalsSaving] = useState(false);
 
-  // Dashboard prefs (localStorage)
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats>(() => {
-    if (typeof window === 'undefined') return { enabledStats: [], showGreeting: true };
-    const defaults = { enabledStats: [], showGreeting: true };
-    try {
-      const stored = localStorage.getItem('dashboard-stats');
-      if (stored) return JSON.parse(stored);
-    } catch {}
-    return defaults;
-  });
+  // Dashboard prefs (per-person, server-side via Person.dashboardStats).
+  // Initialised from selectedPerson once persons load (see effect below).
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({ enabledStats: [], showGreeting: true });
+
+  // Sync local dashboardStats state from the selected person whenever it changes.
+  useEffect(() => {
+    const person = persons.find((p) => p.id === selectedPersonId);
+    if (!person) return;
+    const serverCsv = (person.dashboardStats ?? "").trim();
+    if (serverCsv) {
+      setDashboardStats({ enabledStats: serverCsv.split(",").filter(Boolean), showGreeting: true });
+      return;
+    }
+    // One-time migration: if this person has no server value but localStorage
+    // has a saved selection from before the per-person change, lift it up and
+    // persist server-side.
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("dashboard-stats");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed.enabledStats) && parsed.enabledStats.length > 0) {
+            setDashboardStats({ enabledStats: parsed.enabledStats, showGreeting: true });
+            fetch(`/api/persons/${person.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ dashboardStats: parsed.enabledStats }),
+            }).then(() => refreshPersons()).catch(() => {});
+            return;
+          }
+        }
+      } catch {}
+    }
+    setDashboardStats({ enabledStats: [], showGreeting: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPersonId, persons]);
 
   // Jump nav active section
   const [activeSection, setActiveSection] = useState(JUMP_SECTIONS[0].id);
@@ -341,9 +367,19 @@ const SettingsPage = () => {
 
   const saveDashboardStats = (updated: DashboardStats) => {
     setDashboardStats(updated);
-    // _configured: true marks that the user has explicitly saved stat preferences.
-    // GettingStartedCard requires this flag so auto-written defaults don't count.
-    localStorage.setItem('dashboard-stats', JSON.stringify({ ...updated, _configured: true }));
+    // Mirror to localStorage so the checklist still has a quick read for
+    // "has the user configured stats yet?" (keeps the existing card check working).
+    try {
+      localStorage.setItem('dashboard-stats', JSON.stringify({ ...updated, _configured: true }));
+    } catch {}
+    // Persist to the selected person server-side.
+    if (selectedPersonId) {
+      fetch(`/api/persons/${selectedPersonId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dashboardStats: updated.enabledStats }),
+      }).then(() => refreshPersons()).catch(() => {});
+    }
   };
 
   const toggleDashboardStat = (key: string) => {

@@ -11,6 +11,7 @@ export interface Person {
   onboardingComplete?: boolean;
   trackedOnly?: boolean; // true = nutrition tracked, no login (e.g., children)
   dismissedTips: string[]; // parsed from JSON string in DB
+  dashboardStats?: string; // CSV of stat keys (max 3) — per-person dashboard preference
 }
 
 interface PersonContextValue {

@@ -190,17 +190,23 @@ export default function Home() {
 
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
-  // Dashboard stat preferences from settings
-  const [enabledStats, setEnabledStats] = useState<string[]>([]);
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('dashboard-stats');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.enabledStats) setEnabledStats(parsed.enabledStats);
-      }
-    } catch {}
-  }, []);
+  // Dashboard stat preferences (per-person, server-side).
+  // Falls back to legacy localStorage value once if the person has no
+  // server value yet (then Settings will lift it on next visit).
+  const enabledStats = (() => {
+    const serverCsv = (selectedPerson?.dashboardStats ?? "").trim();
+    if (serverCsv) return serverCsv.split(",").filter(Boolean);
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("dashboard-stats");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed.enabledStats)) return parsed.enabledStats as string[];
+        }
+      } catch {}
+    }
+    return [];
+  })();
 
   // Map stat keys to nutrient lookup
   const STAT_KEY_MAP: Record<string, { match: (n: DayNutrient) => boolean; label: string; unit: string }> = {

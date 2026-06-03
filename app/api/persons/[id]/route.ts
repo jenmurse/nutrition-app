@@ -52,6 +52,15 @@ export const PUT = withAuth(async (auth, request: Request, { params }: Ctx) => {
     data.trackedOnly = Boolean(body.trackedOnly);
   }
 
+  if (body.dashboardStats !== undefined) {
+    // Accept array of strings or already-CSV string; persist as CSV.
+    if (Array.isArray(body.dashboardStats)) {
+      data.dashboardStats = body.dashboardStats.filter((s: unknown) => typeof s === "string").join(",");
+    } else if (typeof body.dashboardStats === "string") {
+      data.dashboardStats = body.dashboardStats;
+    }
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
