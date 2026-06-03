@@ -109,7 +109,6 @@ function IngredientsPage() {
 
   // Filters
   const searchQuery = searchParams?.get("search") || "";
-  const [foodFilter, setFoodFilter] = useState<'all' | 'foods' | 'ingredients'>('all');
   const [showFavorites, setShowFavorites] = useState(false);
 
   // View mode
@@ -134,17 +133,8 @@ function IngredientsPage() {
   }, []);
 
   // Filter sheet (mobile bottom sheet)
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  useEffect(() => {
-    if (!filterSheetOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFilterSheetOpen(false); };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [filterSheetOpen]);
-  const activeFilterCount = foodFilter !== 'all' ? 1 : 0;
-
   const [, startTransition] = useTransition();
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -234,8 +224,6 @@ function IngredientsPage() {
 
   const filteredIngredients = ingredients.filter((ing) => {
     if (searchQuery && !ing.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (foodFilter === 'foods' && !ing.isMealItem) return false;
-    if (foodFilter === 'ingredients' && ing.isMealItem) return false;
     if (showFavorites && !ing.isFavorited) return false;
     return true;
   });
@@ -343,13 +331,6 @@ function IngredientsPage() {
               aria-label="Search ingredients"
             />
           </div>
-          {/* Filter */}
-          <button
-            onClick={() => setFilterSheetOpen(true)}
-            className={`mob-filter-text${activeFilterCount > 0 ? " active" : ""}`}
-            aria-label={`Filter${activeFilterCount > 0 ? `, ${activeFilterCount} active` : ""}`}
-            aria-haspopup="dialog"
-          >Filter{activeFilterCount > 0 && <span className="mob-filter-badge" aria-hidden="true">{activeFilterCount}</span>}</button>
           {/* + ADD */}
           <button
             onClick={() => router.push("/pantry/create")}
@@ -362,24 +343,6 @@ function IngredientsPage() {
         <div className="desk-tb">
           {/* Filter chips */}
           <div className="list-tags">
-          <button
-            onClick={() => setFoodFilter('all')}
-            className={`ed-chip${foodFilter === 'all' ? " is-active" : ""}`}
-            aria-label="Show all ingredients"
-            aria-pressed={foodFilter === 'all'}
-          >All</button>
-          <button
-            onClick={() => setFoodFilter('foods')}
-            className={`ed-chip${foodFilter === 'foods' ? " is-active" : ""}`}
-            aria-label="Show only items"
-            aria-pressed={foodFilter === 'foods'}
-          >Items</button>
-          <button
-            onClick={() => setFoodFilter('ingredients')}
-            className={`ed-chip${foodFilter === 'ingredients' ? " is-active" : ""}`}
-            aria-label="Show only ingredients"
-            aria-pressed={foodFilter === 'ingredients'}
-          >Ingredients</button>
           <button
             onClick={() => setShowFavorites(prev => !prev)}
             className={`ed-chip flex items-center gap-[5px]${showFavorites ? " is-active" : ""}`}
@@ -483,37 +446,6 @@ function IngredientsPage() {
         </div>
       </div>
 
-      {/* ── Mobile Filter Sheet ── */}
-      {filterSheetOpen && (
-        <>
-          <div className="mob-sheet-backdrop" onClick={() => setFilterSheetOpen(false)} aria-hidden="true" />
-          <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Filter ingredients">
-            <div className="mob-sheet-handle" aria-hidden="true" />
-            <div className="mob-sheet-header">
-              <span className="mob-sheet-title">Filter</span>
-              {activeFilterCount > 0 && (
-                <button
-                  className="mob-sheet-clear"
-                  onClick={() => setFoodFilter('all')}
-                  aria-label="Clear filter"
-                >CLEAR</button>
-              )}
-            </div>
-
-            {/* Type */}
-            <div className="mob-sheet-section">
-              <div className="mob-sheet-section-label">Type</div>
-              <div className="mob-sheet-chips">
-                <button className={`mob-sheet-chip${foodFilter === 'all' ? " on" : ""}`} onClick={() => setFoodFilter('all')} aria-pressed={foodFilter === 'all'}>All</button>
-                <button className={`mob-sheet-chip${foodFilter === 'foods' ? " on" : ""}`} onClick={() => setFoodFilter('foods')} aria-pressed={foodFilter === 'foods'}>Items</button>
-                <button className={`mob-sheet-chip${foodFilter === 'ingredients' ? " on" : ""}`} onClick={() => setFoodFilter('ingredients')} aria-pressed={foodFilter === 'ingredients'}>Ingredients</button>
-              </div>
-            </div>
-
-            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>DONE</button>
-          </div>
-        </>
-      )}
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto relative">
@@ -539,13 +471,13 @@ function IngredientsPage() {
                 headline="Nothing matches that."
                 lede={<>Try a different search, or clear the filters<br />to see everything.</>}
                 ctaLabel="CLEAR FILTERS →"
-                onCta={() => { updateSearchParam('search', ''); setFoodFilter('all'); }}
+                onCta={() => { updateSearchParam('search', ''); setShowFavorites(false); }}
               />
             )}
           </div>
         ) : viewMode === "grid" ? (
           /* ── Ruled Grid (BRIEF-07) ── */
-          <div key={`grid-${viewMode}-${foodFilter}`} className="pantry-grid">
+          <div key={`grid-${viewMode}`} className="pantry-grid">
             {sortedIngredients.map((ingredient, idx) => {
               const n = getFullNutrition(ingredient);
               const category = ingredient.category || (ingredient.isMealItem ? "Item" : "Ingredient");
@@ -642,7 +574,7 @@ function IngredientsPage() {
           </div>
         ) : (
           /* ── List View — staggered animation, mockup styling ── */
-          <div key={`list-${viewMode}-${foodFilter}`}>
+          <div key={`list-${viewMode}`}>
             {sortedIngredients.map((ingredient, idx) => {
               const macros = getCardMacros(ingredient);
               const category = ingredient.category || (ingredient.isMealItem ? "ITEM" : "INGREDIENT");
