@@ -307,14 +307,15 @@ function IngredientsPage() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* ── Starter pantry tip (dismissed after first review) ── */}
-      <div style={{ padding: "16px var(--pad) 0" }}>
-        <ContextualTip tipId="starter-pantry" label="Your starter pantry">
-          We've added common ingredients to get you started. Remove anything that
-          doesn't fit, add what's missing, and your recipes will match against
-          what you actually have.
-        </ContextualTip>
-      </div>
+      {/* ── Starter pantry tip (dismissed after first review) ──
+           No wrapper div around the tip — when ContextualTip returns null
+           on dismissal, any wrapper padding would still render as empty
+           space above the toolbar. */}
+      <ContextualTip tipId="starter-pantry" label="Your starter pantry">
+        We've added common ingredients to get you started. Remove anything that
+        doesn't fit, add what's missing, and your recipes will match against
+        what you actually have.
+      </ContextualTip>
 
       {/* ── Filter Bar ── */}
       <div className="ed-toolbar list-toolbar">
