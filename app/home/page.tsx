@@ -70,7 +70,7 @@ const MEAL_TYPES = ["breakfast", "lunch", "dinner", "side"];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Canonical display order for dashboard stats — matches settings page order
-const STAT_CANONICAL_ORDER = ['calories', 'fat', 'sat-fat', 'sodium', 'carbs', 'sugar', 'protein', 'fiber'];
+const STAT_CANONICAL_ORDER = ['calories', 'fat', 'sat-fat', 'sodium', 'carbs', 'sugar', 'added-sugar', 'protein', 'fiber'];
 
 // Map stat keys to nutrient displayNames used in the API
 const STAT_NUTRIENT_NAMES: Record<string, string[]> = {
@@ -210,6 +210,7 @@ export default function Home() {
     sodium: { match: (n) => n.displayName === 'Sodium', label: 'Sodium', unit: 'mg' },
     carbs: { match: (n) => (n.displayName === 'Carbs' || n.displayName === 'Carbohydrate'), label: 'Carbs', unit: 'g' },
     sugar: { match: (n) => n.displayName === 'Sugar', label: 'Sugar', unit: 'g' },
+    'added-sugar': { match: (n) => n.displayName === 'Added Sugar', label: 'Added Sugar', unit: 'g' },
     protein: { match: (n) => n.displayName === 'Protein', label: 'Protein', unit: 'g' },
     fiber: { match: (n) => n.displayName === 'Fiber', label: 'Fiber', unit: 'g' },
   };
