@@ -21,14 +21,16 @@ Six starter stories outlined, story #6 ("Saving the day that worked") added. She
 
 | Step | Description | Status |
 |---|---|---|
-| Step 9 | Wordmark integration pass — apply wordmark to all surfaces (landing nav, auth topbar, onboarding topbar, app nav). Current spec: DM Sans 600, 13px, -0.03em, Title Case ("Good Measure") | ☐ |
+| Step 9 | Wordmark integration pass — DM Sans 600, 13px, -0.03em, Title Case ("Good Measure") applied across all surfaces. Decision: text-only treatment IS the wordmark; no custom logotype planned. Revisit only if a brand-design exercise produces a designed mark. | ✓ Locked |
 | Step 10 | Type leading and tracking pass | ✓ Done May 2 |
 | Step 11 | Surface coherence check | ✓ Done May 2 |
 | Step 12 | Email templates | ✓ Done May 3 |
 
-### Deferred indefinitely
+### Won't do (unless conditions change)
 
-**RLS (Row Level Security).** Documented in `rls_plan.md`. Not blocking launch.
+**RLS (Row Level Security).** Documented in `rls_plan.md`. Not pursuing for v1 public launch. The current `withAuth` pattern is solid — every API endpoint scopes queries by `auth.householdId` explicitly, and the surface is small enough that this is consistent and auditable. RLS would add per-query session-context overhead for a threat model that doesn't justify it.
+
+**Revisit only if** (a) the app is opened fully public and we want extra defense in depth, or (b) a security review specifically asks for it.
 
 ---
 
@@ -230,7 +232,7 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 
 ## Open questions
 
-1. **Brand mark** — current interim spec: DM Sans 600, 13px, -0.03em, Title Case ("Good Measure"). Designed SVG wordmark still pending. Step 9 covers applying it across all surfaces.
+1. ~~**Brand mark**~~ — locked. Text-only treatment (DM Sans 600, 13px, -0.03em, "Good Measure") is the wordmark. No custom logotype planned. Revisit if a brand-design pass produces one.
 2. **`/meal-plans` retirement** — the classic planner still works at its URL. Once the matrix has run for a few weeks without issues, delete the route and its supporting components.
 3. **Dashboard "Today's meals" reskin** — mockup at `public/mockup-dashboard-planner.html` showing the editorial 3-column cards reskinned to match the matrix slot-row style with a totals strip. Decided to keep the existing layout for now (per session notes) — revisit if the visual coherence gap starts to matter.
 4. ~~**Account deletion**~~ — shipped (May 3). See `decisions-pending.md`.
