@@ -194,6 +194,7 @@ const SettingsPage = () => {
   const [revokingMcpToken, setRevokingMcpToken] = useState(false);
   const [mcpCopied, setMcpCopied] = useState(false);
   const [configBlockCopied, setConfigBlockCopied] = useState(false);
+  const [configBlockMode, setConfigBlockMode] = useState<'firstTime' | 'addToExisting'>('firstTime');
 
   // Data export / import
   const [exportLoading, setExportLoading] = useState(false);
@@ -1185,43 +1186,93 @@ const SettingsPage = () => {
               <div>
                 <div className="flex items-baseline gap-[10px] mb-[16px]">
                   <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">03</span>
-                  <span className="ed-label">Add this to your config file&apos;s <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">mcpServers</code> object</span>
+                  <span className="ed-label">Paste this into your config file</span>
                 </div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[10px]">
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[14px]">
                   {newMcpToken
-                    ? <><strong className="text-[var(--fg)]">Your token is pre-filled below.</strong> Copy the block and paste it into your config file.</>
+                    ? <><strong className="text-[var(--fg)]">Your token is pre-filled below.</strong> Pick the option that matches your situation, then copy and paste into the file.</>
                     : 'Generate a token in step 1 to pre-fill your token in the block below.'}
                 </p>
-                <div className="bg-[var(--bg-2)] rounded-none px-[20px] py-[16px] relative overflow-x-auto">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
+
+                {/* Mode toggle */}
+                <div className="flex gap-0 mb-[12px] border border-[var(--rule)] w-fit">
                   <button
-                    onClick={() => {
-                      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                      const token = newMcpToken ?? 'YOUR_TOKEN_HERE';
-                      navigator.clipboard.writeText(`"good-measure": {\n  "command": "npx",\n  "args": ["-y", "good-measure-mcp"],\n  "env": {\n    "GOOD_MEASURE_API_URL": "${origin}",\n    "GOOD_MEASURE_API_TOKEN": "${token}"\n  }\n}`);
-                      setConfigBlockCopied(true);
-                      setTimeout(() => setConfigBlockCopied(false), 2000);
+                    type="button"
+                    onClick={() => setConfigBlockMode('firstTime')}
+                    className="font-mono text-[9px] uppercase tracking-[0.14em] px-[14px] py-[8px] border-0 cursor-pointer transition-colors"
+                    style={{
+                      background: configBlockMode === 'firstTime' ? 'var(--fg)' : 'transparent',
+                      color: configBlockMode === 'firstTime' ? 'var(--bg)' : 'var(--muted)',
                     }}
-                    className="text-[var(--fg)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
-                    aria-label="Copy configuration block"
-                  >
-                    {configBlockCopied ? (
-                      <span className="font-mono text-[9px] uppercase tracking-[0.14em]">Copied ✓</span>
-                    ) : (
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
-                    )}
-                  </button>
-                  <pre className="font-mono text-[11px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{`"good-measure": {
+                    aria-pressed={configBlockMode === 'firstTime'}
+                  >First time setting up MCP</button>
+                  <button
+                    type="button"
+                    onClick={() => setConfigBlockMode('addToExisting')}
+                    className="font-mono text-[9px] uppercase tracking-[0.14em] px-[14px] py-[8px] border-0 border-l border-l-[var(--rule)] cursor-pointer transition-colors"
+                    style={{
+                      background: configBlockMode === 'addToExisting' ? 'var(--fg)' : 'transparent',
+                      color: configBlockMode === 'addToExisting' ? 'var(--bg)' : 'var(--muted)',
+                    }}
+                    aria-pressed={configBlockMode === 'addToExisting'}
+                  >Adding to existing MCP servers</button>
+                </div>
+
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[10px]">
+                  {configBlockMode === 'firstTime'
+                    ? <>Paste the whole block into your config file. If the file is empty or doesn&apos;t exist yet, create it with these contents.</>
+                    : <>Paste the inner <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">&quot;good-measure&quot;</code> entry inside your existing <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">mcpServers</code> object. <strong className="text-[var(--fg)]">Add a comma after the previous server</strong> so the JSON stays valid.</>}
+                </p>
+
+                {(() => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                  const token = newMcpToken ?? 'YOUR_TOKEN_HERE';
+                  const inner = `"good-measure": {
   "command": "npx",
   "args": ["-y", "good-measure-mcp"],
   "env": {
-    "GOOD_MEASURE_API_URL": "${typeof window !== 'undefined' ? window.location.origin : ''}",
-    "GOOD_MEASURE_API_TOKEN": "${newMcpToken ?? 'YOUR_TOKEN_HERE'}"
+    "GOOD_MEASURE_API_URL": "${origin}",
+    "GOOD_MEASURE_API_TOKEN": "${token}"
   }
-}`}</pre>
-                </div>
+}`;
+                  const fullFile = `{
+  "mcpServers": {
+    ${inner.split('\n').join('\n    ')}
+  }
+}`;
+                  const toCopy = configBlockMode === 'firstTime' ? fullFile : inner;
+                  const display = toCopy;
+                  return (
+                    <div className="bg-[var(--bg-2)] rounded-none px-[20px] py-[16px] relative overflow-x-auto">
+                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(toCopy);
+                          setConfigBlockCopied(true);
+                          setTimeout(() => setConfigBlockCopied(false), 2000);
+                        }}
+                        className="text-[var(--fg)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                        aria-label="Copy configuration block"
+                      >
+                        {configBlockCopied ? (
+                          <span className="font-mono text-[9px] uppercase tracking-[0.14em]">Copied ✓</span>
+                        ) : (
+                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
+                        )}
+                      </button>
+                      <pre className="font-mono text-[11px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{display}</pre>
+                    </div>
+                  );
+                })()}
+
+                {/* AI-assisted merge tip */}
                 <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--muted)] leading-[1.6]">
-                  <strong className="text-[var(--fg-2)]">Mac + Homebrew?</strong> If the MCP server fails to start, in the command line above, replace <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> with the full path: <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code>
+                  <strong className="text-[var(--fg-2)]">Not sure how to edit JSON?</strong> Open your AI assistant in a regular chat (no MCP needed yet), paste the snippet above plus the current contents of your config file, and ask it to merge them. That&apos;s the most foolproof path if JSON isn&apos;t familiar.
+                </div>
+
+                {/* Troubleshooting — npx PATH issues */}
+                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[8px] text-[11px] text-[var(--muted)] leading-[1.6]">
+                  <strong className="text-[var(--fg-2)]">If the server fails to start:</strong> Your AI assistant might not have <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> in its PATH. Replace <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> in the snippet with the full path. To find it, open Terminal and run <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">which npx</code> — paste that result in place of <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code>. Common locations: <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code> (Apple Silicon Mac with Homebrew), <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/usr/local/bin/npx</code> (Intel Mac or system Node).
                 </div>
               </div>
 
@@ -1242,6 +1293,9 @@ const SettingsPage = () => {
                     &ldquo;{prompt}&rdquo;
                   </div>
                 ))}
+                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--muted)] leading-[1.6]">
+                  <strong className="text-[var(--fg-2)]">Not seeing results?</strong> Check the assistant&apos;s tool/MCP indicator. Claude Desktop shows a small slider icon near the message box that lists connected MCPs — <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">good-measure</code> should appear there. If it doesn&apos;t, recheck the file path, your token, and the JSON syntax.
+                </div>
               </div>
 
             </div>
