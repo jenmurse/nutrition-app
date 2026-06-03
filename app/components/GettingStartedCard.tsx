@@ -32,7 +32,7 @@ interface PendingInvite {
 const TASKS: Task[] = [
   { id: "goals", text: "Set nutrition goals", note: "", href: "/settings#goals", checkKey: "hasGoals" },
   { id: "recipe", text: "Import your first recipe", note: "", href: "/recipes", checkKey: "hasRecipe" },
-  { id: "pantry", text: "Add your first ingredient", note: "", href: "/pantry", checkKey: "hasIngredient" },
+  { id: "pantry", text: "Review your starter pantry", note: "We've added common ingredients to get you cooking — edit or remove what doesn't fit.", href: "/pantry", checkKey: "hasIngredient" },
   { id: "plan", text: "Plan your first week", note: "", href: "/meal-plans", checkKey: "hasMealPlan" },
   { id: "dashboard", text: "Customize your dashboard stats", note: "", href: "/settings#dashboard", checkKey: "hasDashboardStats" },
 ];

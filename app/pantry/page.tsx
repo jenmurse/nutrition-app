@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { clientCache } from "@/lib/clientCache";
 import { toast } from "@/lib/toast";
 import EmptyState from "@/app/components/EmptyState";
+import ContextualTip from "@/app/components/ContextualTip";
 import { dialog } from "@/lib/dialog";
 import type { Nutrient } from "@/types";
 
@@ -134,6 +135,8 @@ function IngredientsPage() {
 
   // Filter sheet (mobile bottom sheet)
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   useEffect(() => {
     if (!filterSheetOpen) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFilterSheetOpen(false); };
@@ -257,6 +260,49 @@ function IngredientsPage() {
     }
   }
 
+  function toggleSelect(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function exitSelectMode() {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }
+
+  async function handleBulkDelete() {
+    if (selectedIds.size === 0) return;
+    const ok = await dialog.confirm({
+      title: `Delete ${selectedIds.size} ingredient${selectedIds.size === 1 ? "" : "s"}?`,
+      body: "This can't be undone.",
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      const ids = Array.from(selectedIds);
+      const res = await fetch("/api/ingredients/bulk", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const { deleted } = await res.json();
+      const idSet = new Set(ids);
+      setIngredients((prev) => prev.filter((i) => !idSet.has(i.id)));
+      clientCache.set("/api/ingredients", ingredients.filter((i) => !idSet.has(i.id)));
+      for (const id of ids) clientCache.delete(`/api/ingredients/${id}`);
+      toast.success(`Deleted ${deleted} item${deleted === 1 ? "" : "s"}`);
+      exitSelectMode();
+    } catch (err) {
+      toast.error(`Bulk delete failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    }
+  }
+
   async function handleDelete(ingredient: Ingredient) {
     if (!await dialog.confirm({ title: `Delete "${ingredient.name}"?`, body: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
     try {
@@ -273,6 +319,15 @@ function IngredientsPage() {
 
   return (
     <div className="h-full flex flex-col">
+      {/* ── Starter pantry tip (dismissed after first review) ── */}
+      <div style={{ padding: "16px var(--pad) 0" }}>
+        <ContextualTip tipId="starter-pantry" label="Your starter pantry">
+          We've added common ingredients to get you started. Remove anything that
+          doesn't fit, add what's missing, and your recipes will match against
+          what you actually have.
+        </ContextualTip>
+      </div>
+
       {/* ── Filter Bar ── */}
       <div className="ed-toolbar list-toolbar">
         {/* ── Mobile toolbar — CSS shows on mobile only ── */}
@@ -337,6 +392,42 @@ function IngredientsPage() {
           </div>
 
           {/* Right side controls */}
+          {selectMode ? (
+            <div className="list-controls flex gap-[18px] items-center ml-auto">
+              <span className="ed-count">
+                <strong>{selectedIds.size}</strong> selected
+              </span>
+              <div className="ed-toolbar-sep" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={() => {
+                  const allVisible = filteredIngredients.map((i) => i.id);
+                  if (allVisible.every((id) => selectedIds.has(id))) setSelectedIds(new Set());
+                  else setSelectedIds(new Set(allVisible));
+                }}
+                className="ed-btn-text"
+                aria-label="Toggle select all"
+              >
+                {filteredIngredients.length > 0 && filteredIngredients.every((i) => selectedIds.has(i.id))
+                  ? "DESELECT ALL"
+                  : "SELECT ALL"}
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                disabled={selectedIds.size === 0}
+                className="ed-btn-text"
+                style={{ color: selectedIds.size === 0 ? "var(--muted)" : "var(--err)" }}
+                aria-label="Delete selected"
+              >DELETE</button>
+              <button
+                type="button"
+                onClick={exitSelectMode}
+                className="ed-btn"
+                aria-label="Exit select mode"
+              >DONE</button>
+            </div>
+          ) : (
           <div className="list-controls flex gap-[18px] items-center ml-auto">
             {/* Count */}
             <span className="ed-count">
@@ -373,6 +464,14 @@ function IngredientsPage() {
               />
             </div>
 
+            {/* Select toggle */}
+            <button
+              type="button"
+              onClick={() => setSelectMode(true)}
+              className="ed-btn-text"
+              aria-label="Enter select mode"
+            >SELECT</button>
+
             {/* + Add */}
             <button
               onClick={() => router.push("/pantry/create")}
@@ -380,6 +479,7 @@ function IngredientsPage() {
               aria-label="Add new ingredient"
             >+ Add</button>
           </div>
+          )}
         </div>
       </div>
 
@@ -466,16 +566,40 @@ function IngredientsPage() {
               return (
                 <article
                   key={ingredient.id}
-                  className="pantry-item group"
+                  className={`pantry-item group${selectMode && selectedIds.has(ingredient.id) ? " is-selected" : ""}`}
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/pantry/${ingredient.id}`)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/pantry/${ingredient.id}`); } }}
+                  onClick={() => {
+                    if (selectMode) toggleSelect(ingredient.id);
+                    else router.push(`/pantry/${ingredient.id}`);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      if (selectMode) toggleSelect(ingredient.id);
+                      else router.push(`/pantry/${ingredient.id}`);
+                    }
+                  }}
                   aria-label={ingredient.name}
+                  aria-pressed={selectMode ? selectedIds.has(ingredient.id) : undefined}
                   style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
+                  {/* Select checkbox (only in select mode) */}
+                  {selectMode && (
+                    <div
+                      className="absolute top-[10px] left-[10px] z-10 w-[18px] h-[18px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] font-mono text-[10px] leading-none"
+                      style={{
+                        background: selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--bg)",
+                        color: selectedIds.has(ingredient.id) ? "var(--bg)" : "transparent",
+                        borderColor: selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--rule)",
+                      }}
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </div>
+                  )}
                   {/* Action buttons */}
-                  <div className="ing-card-actions absolute top-[10px] right-[10px] flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+                  <div className={`ing-card-actions absolute top-[10px] right-[10px] flex gap-[4px] ${selectMode ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-150 z-10`}>
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push(`/pantry/${ingredient.id}`); }}
                       className="w-[22px] h-[22px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] text-[var(--muted)] cursor-pointer hover:text-[var(--fg)] hover:border-[var(--fg)] transition-colors"
@@ -528,14 +652,39 @@ function IngredientsPage() {
                   data-cursor="card"
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/pantry/${ingredient.id}`)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/pantry/${ingredient.id}`); } }}
+                  onClick={() => {
+                    if (selectMode) toggleSelect(ingredient.id);
+                    else router.push(`/pantry/${ingredient.id}`);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      if (selectMode) toggleSelect(ingredient.id);
+                      else router.push(`/pantry/${ingredient.id}`);
+                    }
+                  }}
                   aria-label={ingredient.name}
-                  className="ing-list-row flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative"
+                  aria-pressed={selectMode ? selectedIds.has(ingredient.id) : undefined}
+                  className={`ing-list-row flex items-center gap-[16px] border-b border-[var(--rule)] cursor-pointer group relative${selectMode && selectedIds.has(ingredient.id) ? " is-selected" : ""}`}
                   style={{
                     animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 12) * 25}ms both`,
+                    background: selectMode && selectedIds.has(ingredient.id) ? "var(--bg-2)" : undefined,
                   }}
                 >
+                  {/* Select checkbox (only in select mode) */}
+                  {selectMode && (
+                    <div
+                      className="w-[18px] h-[18px] flex items-center justify-center font-mono text-[10px] leading-none shrink-0"
+                      style={{
+                        background: selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--bg)",
+                        color: selectedIds.has(ingredient.id) ? "var(--bg)" : "transparent",
+                        border: `1px solid ${selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--rule)"}`,
+                      }}
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </div>
+                  )}
                   {/* Name + category inline */}
                   <div className="flex-1 min-w-0 flex items-baseline gap-[12px]">
                     <span className="ing-list-name">{ingredient.name}</span>
