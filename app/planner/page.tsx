@@ -966,8 +966,12 @@ function PlannerPage() {
         .map((l) => l.ingredientId)
         .filter((id): id is number => id != null)
     );
+    // Show ALL pantry items flagged as meal-items (not just favorited ones)
+    // so users discover what they can drop into a slot without first having
+    // to star it. Items already in this cell are also included so they can
+    // be toggled off. Favorited items still surface first per the sort below.
     return ingredients.filter(
-      (i) => inCellIngredientIds.has(i.id) || (i.isFavorited && i.isMealItem)
+      (i) => inCellIngredientIds.has(i.id) || i.isMealItem
     );
   }, [picker, ingredients, cellMap]);
 

@@ -499,7 +499,7 @@ export default function CreateIngredientPage() {
               <input type="checkbox" checked={isMealItem} onChange={(e) => setIsMealItem(e.target.checked)} className="cursor-pointer" id="pf-meal-check" aria-label="Meal item" />
               <label htmlFor="pf-meal-check" className="cursor-pointer">
                 <span className="text-[13px] text-[var(--fg)]">This is a standalone item</span>
-                <span className="text-[13px] text-[var(--muted)]"> — something eaten directly (apple, glass of wine, granola bar), not a recipe ingredient (flour, salt, butter)</span>
+                <span className="text-[13px] text-[var(--muted)]"> — something eaten directly (apple, glass of wine, granola bar), not a recipe ingredient (flour, salt, butter). Standalone items appear in the matrix planner picker alongside recipes.</span>
               </label>
             </div>
           </div>
