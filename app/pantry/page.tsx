@@ -381,7 +381,33 @@ function IngredientsPage() {
               >DONE</button>
             </div>
           ) : (
-          <div className="list-controls flex gap-[18px] items-center">
+          <>
+          {/* ── Left cluster — Search + primary action (matches recipes' filter
+              chips position; in the pantry the primary actions sit here so the
+              toolbar has weight on both sides) ── */}
+          <div className="list-tags flex gap-[18px] items-center">
+            {/* Search */}
+            <div className="ed-search">
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => updateSearchParam("search", e.target.value)}
+                aria-label="Search ingredients"
+              />
+            </div>
+
+            {/* + Add */}
+            <button
+              onClick={() => router.push("/pantry/create")}
+              className="ed-btn-primary"
+              aria-label="Add new ingredient"
+            >+ Add</button>
+          </div>
+
+          {/* ── Right cluster — secondary controls ── */}
+          <div className="list-controls flex gap-[18px] items-center ml-auto">
             {/* Favorites toggle */}
             <button
               onClick={() => setShowFavorites(prev => !prev)}
@@ -418,18 +444,6 @@ function IngredientsPage() {
               >List</button>
             </div>
 
-            {/* Search */}
-            <div className="ed-search">
-              <input
-                ref={searchRef}
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => updateSearchParam("search", e.target.value)}
-                aria-label="Search ingredients"
-              />
-            </div>
-
             {/* Select toggle */}
             <button
               type="button"
@@ -437,14 +451,8 @@ function IngredientsPage() {
               className="ed-btn-text"
               aria-label="Enter select mode"
             >SELECT</button>
-
-            {/* + Add */}
-            <button
-              onClick={() => router.push("/pantry/create")}
-              className="ed-btn-primary"
-              aria-label="Add new ingredient"
-            >+ Add</button>
           </div>
+          </>
           )}
         </div>
       </div>
