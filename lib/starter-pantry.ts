@@ -137,7 +137,6 @@ export const STARTER_PANTRY: StarterItem[] = [
   { name: "Garlic powder", category: "Spices & Seasonings" },
   { name: "Onion powder", category: "Spices & Seasonings" },
   { name: "Paprika", category: "Spices & Seasonings" },
-  { name: "Smoked paprika", category: "Spices & Seasonings" },
   { name: "Cinnamon, ground", category: "Spices & Seasonings" },
   { name: "Cumin", category: "Spices & Seasonings" },
   { name: "Oregano, dried", category: "Spices & Seasonings" },
