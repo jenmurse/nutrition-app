@@ -440,7 +440,7 @@ export default function Home() {
                 <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px', borderTop: 'none' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">This week</span>
                   <Link
-                    href={`/meal-plans?planId=${weekPlanId}`}
+                    href={`/planner?planId=${weekPlanId}`}
                     className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
                   >
                     Full planner →
@@ -464,7 +464,7 @@ export default function Home() {
               <div className="hm-keymeal-hdr hm-reveal flex items-center justify-between border-t border-[var(--rule)]" style={{ padding: '56px 0 28px' }}>
                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">Today&apos;s key meals</span>
                 <Link
-                  href={`/meal-plans?planId=${weekPlanId}`}
+                  href={`/planner?planId=${weekPlanId}`}
                   className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
                 >
                   Open planner →
@@ -546,7 +546,7 @@ export default function Home() {
                 <div className="hm-thisweek-hdr hm-reveal flex items-center justify-between" style={{ padding: '40px 0 28px' }}>
                   <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">This week</span>
                   <Link
-                    href={`/meal-plans?planId=${weekPlanId}`}
+                    href={`/planner?planId=${weekPlanId}`}
                     className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg)] no-underline hover:opacity-70 transition-opacity"
                   >
                     Full planner →
@@ -664,7 +664,7 @@ function WeekOverview({
               })}
               {dayMeals.length === 0 && (
                 <Link
-                  href={`/meal-plans?planId=${weekPlanId}`}
+                  href={`/planner?planId=${weekPlanId}`}
                   className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] no-underline hover:text-[var(--fg)] transition-colors block py-[6px]"
                 >
                   + Add
