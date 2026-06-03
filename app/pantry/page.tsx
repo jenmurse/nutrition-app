@@ -341,20 +341,9 @@ function IngredientsPage() {
 
         {/* ── Desktop toolbar — CSS shows on desktop only ── */}
         <div className="desk-tb">
-          {/* Filter chips */}
-          <div className="list-tags">
-          <button
-            onClick={() => setShowFavorites(prev => !prev)}
-            className={`ed-chip flex items-center gap-[5px]${showFavorites ? " is-active" : ""}`}
-            aria-label="Show only favorites"
-            aria-pressed={showFavorites}
-          >
-            <span aria-hidden="true">★</span>
-            Favorites
-          </button>
-          </div>
-
-          {/* Right side controls */}
+          {/* Right side controls (Favorites moved here — was alone on the left
+              after the All/Items/Ingredients pills were removed, which left
+              an awkward empty span) */}
           {selectMode ? (
             <div className="list-controls flex gap-[18px] items-center ml-auto">
               <span className="ed-count">
@@ -392,6 +381,19 @@ function IngredientsPage() {
             </div>
           ) : (
           <div className="list-controls flex gap-[18px] items-center ml-auto">
+            {/* Favorites toggle */}
+            <button
+              onClick={() => setShowFavorites(prev => !prev)}
+              className={`ed-chip flex items-center gap-[5px]${showFavorites ? " is-active" : ""}`}
+              aria-label="Show only favorites"
+              aria-pressed={showFavorites}
+            >
+              <span aria-hidden="true">★</span>
+              Favorites
+            </button>
+
+            <div className="ed-toolbar-sep" aria-hidden="true" />
+
             {/* Count */}
             <span className="ed-count">
               <strong>{filteredIngredients.length}</strong> item{filteredIngredients.length !== 1 ? "s" : ""}
