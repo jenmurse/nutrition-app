@@ -584,20 +584,6 @@ function IngredientsPage() {
                   aria-pressed={selectMode ? selectedIds.has(ingredient.id) : undefined}
                   style={{ animation: `cardIn 350ms var(--ease-out) ${Math.min(idx, 8) * 30}ms both` }}
                 >
-                  {/* Select checkbox (only in select mode) */}
-                  {selectMode && (
-                    <div
-                      className="absolute top-[10px] left-[10px] z-10 w-[18px] h-[18px] flex items-center justify-center bg-[var(--bg)] border border-[var(--rule)] font-mono text-[10px] leading-none"
-                      style={{
-                        background: selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--bg)",
-                        color: selectedIds.has(ingredient.id) ? "var(--bg)" : "transparent",
-                        borderColor: selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--rule)",
-                      }}
-                      aria-hidden="true"
-                    >
-                      ✓
-                    </div>
-                  )}
                   {/* Action buttons */}
                   <div className={`ing-card-actions absolute top-[10px] right-[10px] flex gap-[4px] ${selectMode ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-150 z-10`}>
                     <button
@@ -617,6 +603,20 @@ function IngredientsPage() {
                   </div>
 
                   <div className="pantry-item__cat-row">
+                    {selectMode && (
+                      <div
+                        className="w-[14px] h-[14px] flex items-center justify-center font-mono text-[9px] leading-none shrink-0"
+                        style={{
+                          background: selectedIds.has(ingredient.id) ? "var(--fg)" : "transparent",
+                          color: selectedIds.has(ingredient.id) ? "var(--bg)" : "transparent",
+                          border: `1px solid ${selectedIds.has(ingredient.id) ? "var(--fg)" : "var(--rule)"}`,
+                          marginRight: 4,
+                        }}
+                        aria-hidden="true"
+                      >
+                        ✓
+                      </div>
+                    )}
                     <div className="pantry-item__cat">{category}</div>
                     <button
                       type="button"
