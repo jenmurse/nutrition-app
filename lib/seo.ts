@@ -15,7 +15,7 @@ export const SEO = {
 
   // ── Canonical URL ────────────────────────────────────────────
   // Update this when you connect a custom domain.
-  siteUrl: "https://withgoodmeasure.com",
+  siteUrl: "https://www.withgoodmeasure.com",
 
   // ── Open Graph (Facebook, iMessage, Slack, etc.) ─────────────
   ogTitle:       "Good Measure — Cook by the gram. Plan by the week.",
