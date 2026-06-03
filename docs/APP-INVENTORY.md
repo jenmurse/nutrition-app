@@ -15,7 +15,7 @@ Six starter stories outlined, story #6 ("Saving the day that worked") added. She
 
 ### Smaller follow-ups
 
-- **Per-person dietary restrictions on Person model.** Depends on Playbook story #6 (Pescatarian household). Adds the data field, picker filters, and allergen-warning UI.
+(None outstanding.)
 
 ### Post-launch design pass
 
@@ -31,6 +31,8 @@ Six starter stories outlined, story #6 ("Saving the day that worked") added. She
 **RLS (Row Level Security).** Documented in `rls_plan.md`. Not pursuing for v1 public launch. The current `withAuth` pattern is solid — every API endpoint scopes queries by `auth.householdId` explicitly, and the surface is small enough that this is consistent and auditable. RLS would add per-query session-context overhead for a threat model that doesn't justify it.
 
 **Revisit only if** (a) the app is opened fully public and we want extra defense in depth, or (b) a security review specifically asks for it.
+
+**Per-person dietary restrictions.** Not building. Good Measure is a measurement / tracking / planning tool, not a recipe-discovery tool — filtering recipes by dietary attributes (vegetarian, GF, allergens) is what AllRecipes / NYT Cooking / Pinterest do. Within Good Measure, the household manages this socially: once a recipe is in the library, users know what they cook for whom. Building the feature would require either manual tagging of every recipe or messy ingredient-level inference, both with ongoing maintenance cost, for a problem the editorial voice of the app says is the cook's call. Playbook story #6 (Pescatarian household) can be reframed to demonstrate manual two-plan management instead of requiring the feature.
 
 ---
 
