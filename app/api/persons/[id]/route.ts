@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { withAuth } from "@/lib/apiUtils";
 import { themeHex } from "@/lib/themes";
+import { seedPantryForHousehold } from "@/lib/pantry-seed";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -60,6 +61,20 @@ export const PUT = withAuth(async (auth, request: Request, { params }: Ctx) => {
       where: { id: personId },
       data,
     });
+
+    // First-time onboarding completion → seed starter pantry.
+    // Failure is swallowed — never block the onboarding flow on a seed error.
+    if (data.onboardingComplete === true) {
+      try {
+        const result = await seedPantryForHousehold(auth.householdId);
+        if (result.seeded > 0) {
+          console.log(`[pantry-seed] household ${auth.householdId}: seeded ${result.seeded} starter ingredients`);
+        }
+      } catch (err) {
+        console.error(`[pantry-seed] household ${auth.householdId}: seed failed`, err);
+      }
+    }
+
     return NextResponse.json(person);
   } catch {
     return NextResponse.json({ error: "Person not found" }, { status: 404 });
