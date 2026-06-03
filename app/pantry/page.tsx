@@ -444,13 +444,13 @@ function IngredientsPage() {
               >List</button>
             </div>
 
-            {/* Select toggle */}
+            {/* Edit mode toggle (bulk-action on multiple items) */}
             <button
               type="button"
               onClick={() => setSelectMode(true)}
               className="ed-btn-text"
-              aria-label="Enter select mode"
-            >SELECT</button>
+              aria-label="Enter edit mode"
+            >EDIT</button>
           </div>
           </>
           )}
