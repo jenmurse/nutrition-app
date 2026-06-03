@@ -8,13 +8,10 @@ Tracker for what's left to do, design decisions locked, known stragglers, and op
 
 ### Queued — features with planning docs
 
-**1. Pantry pre-fill / starter seeding** — `briefs/pantry-seeding.md`
-Seed a starter set of GlobalIngredients on onboarding completion, update checklist item copy, add contextual tip on pantry page, add bulk-delete UX to pantry index. Pre-launch quality-of-life feature.
-
-**2. Day templates** — feature shipped. Brief at `briefs/day-templates.md` includes follow-up section for MCP write tools.
-
-**3. Playbook stories** — `briefs/playbook-stories.md`
+**1. Playbook stories** — `briefs/playbook-stories.md`
 Six starter stories outlined, story #6 ("Saving the day that worked") added. Shell at `/playbook` (logged-out + logged-in chrome) plus the content for each story. Content authorship is the blocker.
+
+**Shipped, retained for reference:** `briefs/day-templates.md`, `briefs/added-sugar-tracking.md`, `briefs/pantry-seeding.md` — all built; briefs kept for historical context.
 
 ### Smaller follow-ups
 
@@ -110,6 +107,16 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 - Onboarding Welcome and Ready screens: no wordmark or check icon in the body. Topbar wordmark is the only brand moment. Center body wordmark and animated check icon both removed as visual clutter.
 - Nutrition bar color policy (§2e): three-way logic keyed on goal type. `highGoal` exceeded → `--err` red. `lowGoal` only, value ≥ target → `--ok` green. Everything else → neutral. `--warn` amber removed from all nutrition bars. Callout rows: `.warn-chip` (plain, no bg) for below-min, `.err-chip` (tinted red) for over-limit. Dashboard stats strip follows the same three-way rule.
 - Dead code sweep completed (April 30): removed 4 unused `.module.css` files (`meal-plans`, `MealPlanWeek`, `DailySummary`, `settings`), `DailySummary.tsx` component, 95 HTML mockup files from `/public/`, dead globals.css classes (`.fill-warn`, `.ob-wordmark`, `.ob-check-icon`). Superseded brief drafts archived to `briefs/_archived/`.
+
+**Shipped this session (June 2 — Pantry seeding + recipe matcher + dashboard per-person):**
+
+- **Pantry seeding shipped.** 110 curated USDA-sourced starter ingredients seeded into every new household on onboarding complete. `lib/starter-pantry.ts` is the single source of truth (name + category). `lib/pantry-seed.ts#seedPantryForHousehold(id)` is idempotent — skips households that already have ingredients. Wired into `PATCH /api/persons/[id]` when `onboardingComplete=true`. Bootstrap done via `scripts/seed-global-ingredients.ts` (USDA fetch + GlobalIngredient + GlobalIngredientNutrient + cache populate; explicit fdcId overrides for items USDA search returns nonsense for; fallback-on-404 for Foundation IDs that vanish from `/food`).
+- **Getting Started checklist task** renamed `Add your first ingredient` → `Review your starter pantry` with new descriptive copy.
+- **ContextualTip `starter-pantry`** at the top of `/pantry` — one-time, server-dismissed via PersonContext.
+- **SELECT mode on pantry toolbar.** Click SELECT → right-side controls swap to `{n} selected · SELECT ALL · DELETE · DONE`. Grid cards get a checkbox inline in the category-row; list rows get one at the start with `bg-2` highlight. SELECT ALL respects current filter/search. `DELETE /api/ingredients/bulk` endpoint with household-scoped delete + count return.
+- **Recipe-import matcher (`lib/ingredientMatcher.ts`) smarter.** Expanded STOPWORDS to include prep adjectives (`raw`, `dried`, `frozen`, `canned`, `cooked`, `boneless`, `skinless`, `lean`, `large`, `medium`) and size descriptors. Bidirectional substring containment (so `onion` matches `Yellow onion` via reverse direction). Naive plural singularization in token matching (`carrots → carrot`, `eggs → egg`, `berries → berry`). Should reduce duplicate stubs when importing recipes against the seeded pantry.
+- **Dashboard stats moved per-person.** New `Person.dashboardStats` CSV column (default `calories,protein,fiber`). `PUT /api/persons/[id]` accepts `dashboardStats` (array or CSV). Settings and Home both read/write through the selected Person via PersonContext. localStorage migration on first read so existing setups carry over. Switching people now shows each person's own selection.
+- **Added Sugar dashboard tile** — `STAT_KEY_MAP` and `STAT_CANONICAL_ORDER` in `app/home/page.tsx` updated to include `added-sugar`. Selecting it in Settings now actually renders on dashboard + meal cards.
 
 **Shipped this session (June 2 — Added Sugar tracking):**
 
