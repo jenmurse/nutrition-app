@@ -9,6 +9,7 @@ import NumberInputHandler from "./components/NumberInputHandler";
 import TopNav from "./components/TopNav";
 import MobileTopBar from "./components/MobileTopBar";
 import Toaster from "./components/Toaster";
+import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
 import ConfirmModal from "./components/ConfirmModal";
 import CustomCursor from "./components/CustomCursor";
 import { PersonProvider } from "./components/PersonContext";
@@ -108,6 +109,7 @@ export default function RootLayout({
           <NumberInputHandler />
           <Toaster />
           <ConfirmModal />
+          <ServiceWorkerRegister />
           <div className="app-shell flex flex-col h-screen" style={{ height: '100dvh' }}>
             <Suspense>
               <TopNav />
