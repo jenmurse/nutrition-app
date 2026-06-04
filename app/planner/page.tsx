@@ -1559,7 +1559,7 @@ function PlannerPage() {
                 headline="A blank planner."
                 lede={<>Create your first meal plan to start using<br />the matrix view.</>}
                 ctaLabel="+ NEW PLAN →"
-                onCta={() => router.push("/meal-plans?showForm=true")}
+                onCta={openNewPlanDialog}
               />
             </div>
           )}

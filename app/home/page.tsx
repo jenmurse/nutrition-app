@@ -417,7 +417,7 @@ export default function Home() {
               headline="A blank week."
               lede={<>Drop in recipes for the days ahead<br />and the nutritional math handles itself.</>}
               ctaLabel="+ CREATE PLAN →"
-              ctaHref="/meal-plans"
+              ctaHref="/planner"
             />
           </div>
 
@@ -429,8 +429,8 @@ export default function Home() {
                 eyebrow="§ NOTHING TODAY"
                 headline="No meals logged."
                 lede={<>Open the planner to add meals<br />for today.</>}
-                ctaLabel="+ ADD MEAL →"
-                ctaHref={`/meal-plans/add-meal?planId=${weekPlanId}&date=${todayISO}`}
+                ctaLabel="OPEN PLANNER →"
+                ctaHref={`/planner?planId=${weekPlanId}`}
               />
             </div>
 
@@ -534,8 +534,8 @@ export default function Home() {
                   eyebrow="§ NOTHING TODAY"
                   headline="No meals logged."
                   lede={<>Open the planner to add meals<br />for today.</>}
-                  ctaLabel="+ ADD MEAL →"
-                  ctaHref={`/meal-plans/add-meal?planId=${weekPlanId}&date=${todayISO}`}
+                  ctaLabel="OPEN PLANNER →"
+                  ctaHref={`/planner?planId=${weekPlanId}`}
                 />
               )}
             </div>

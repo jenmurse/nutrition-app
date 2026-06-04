@@ -190,7 +190,7 @@ export default function ShoppingPage() {
   const rangeDisplay = weekRange ? `§ ${weekRange.toUpperCase()}` : '§';
 
   // Build planner link with week context for empty state CTAs
-  const plannerHref = weekParam ? `/meal-plans?week=${weekParam}` : '/meal-plans';
+  const plannerHref = weekParam ? `/planner?week=${weekParam}` : '/planner';
 
   const isEmpty = !shopLoading && (noPlanForWeek || shopItems.length === 0);
 
