@@ -56,7 +56,13 @@ self.addEventListener("fetch", (event) => {
   const sameOrigin = url.origin === self.location.origin;
 
   // 1. API requests — network-first, cache fallback
+  //    EXCEPT /api/health which the offline indicator uses to probe
+  //    reachability — it must hit the real network or fail cleanly.
   if (sameOrigin && url.pathname.startsWith("/api/")) {
+    if (url.pathname === "/api/health") {
+      // Pass through to the browser's default fetch; no caching.
+      return;
+    }
     event.respondWith(networkFirst(request, API_CACHE));
     return;
   }

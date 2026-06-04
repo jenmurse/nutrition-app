@@ -3,37 +3,77 @@
 import { useEffect, useState } from "react";
 
 /**
- * Registers the service worker and renders a tiny offline indicator.
+ * Registers the service worker and renders an offline indicator.
  *
- * Visual: a thin banner across the top when navigator.onLine is false.
- * Editorial tone: factual, not alarming. The app is still usable for
- * anything the user has already loaded; the banner just communicates
- * that fresh data won't arrive until they reconnect.
+ * Detection strategy:
+ *   - navigator.onLine + online/offline events (cheap, fast on most browsers)
+ *   - Periodic ping every 20s to /api/health (catches iOS Safari + standalone
+ *     PWA cases where navigator.onLine reports incorrectly)
+ *   - Cache-busting ping URL so the SW can't return a stale cached 200
  *
- * Auto-hides when the connection comes back.
+ * Editorial tone: factual, not alarming. Banner auto-hides on reconnect.
  */
 export default function ServiceWorkerRegister() {
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    // Only register in production. Dev hot-reload + service workers fight.
     if (typeof window === "undefined") return;
+
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
-        .catch((err) => {
-          console.warn("Service worker registration failed:", err);
-        });
+        .catch((err) => console.warn("Service worker registration failed:", err));
     }
 
-    setOnline(navigator.onLine);
-    const handleOnline = () => setOnline(true);
+    // ── Active probe — the truth source on iOS Safari ─────────────
+    let cancelled = false;
+    let pingTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const ping = async () => {
+      try {
+        const res = await fetch(`/api/health?ts=${Date.now()}`, {
+          method: "GET",
+          cache: "no-store",
+        });
+        if (!cancelled) setOnline(res.ok);
+      } catch {
+        if (!cancelled) setOnline(false);
+      }
+    };
+
+    const schedule = (delay: number) => {
+      if (pingTimer) clearTimeout(pingTimer);
+      pingTimer = setTimeout(async () => {
+        await ping();
+        if (!cancelled) schedule(20000); // ping every 20s
+      }, delay);
+    };
+
+    // Initial check immediate, then poll
+    ping();
+    schedule(20000);
+
+    // ── Cheap event listeners as additional signals ─────────────
+    const handleOnline = () => {
+      setOnline(true);
+      ping(); // verify the browser isn't lying
+    };
     const handleOffline = () => setOnline(false);
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
+    // ── Re-probe when the tab becomes visible (PWA wake) ────────
+    const handleVisible = () => {
+      if (document.visibilityState === "visible") ping();
+    };
+    document.addEventListener("visibilitychange", handleVisible);
+
     return () => {
+      cancelled = true;
+      if (pingTimer) clearTimeout(pingTimer);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      document.removeEventListener("visibilitychange", handleVisible);
     };
   }, []);
 
