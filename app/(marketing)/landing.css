@@ -454,13 +454,17 @@
   .mkt .iface-tabs { gap: 12px; }
 
   /* Landing figures fill the screen edge-to-edge on mobile.
-     The .iface-img wrapper breaks out of the section's --pad inset via
-     negative margins and drops its left/right border for a clean edge.
-     Top + bottom borders stay as a hairline divider. Captions (siblings)
-     remain inset. */
+     Uses 100vw + center-translate instead of negative margins (negative
+     margins on a grid child were interfering with iOS Safari's native
+     momentum scroll). The 100vw approach computes width from the
+     viewport directly so it's immune to ancestor box-model math.
+     Captions (siblings outside .iface-img) remain inset. */
   .mkt .iface-img {
-    margin-left: calc(-1 * var(--pad));
-    margin-right: calc(-1 * var(--pad));
+    width: 100vw;
+    max-width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
     border-left: 0;
     border-right: 0;
   }
