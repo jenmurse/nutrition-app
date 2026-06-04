@@ -29,7 +29,7 @@ export default function ChapterOptimization() {
           </p>
 
           <p className="ch-p">
-            The agent doesn&apos;t just suggest — it executes. Plan a whole day,
+            The agent doesn&apos;t just suggest. It executes. Plan a whole day,
             swap a meal, save a day that worked as a template, apply it to next
             week. You confirm the destructive moves; the agent handles the
             fussy edits. Because Good Measure talks to the agent, you don&apos;t

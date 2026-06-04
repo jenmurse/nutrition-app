@@ -37,8 +37,8 @@ export default function ChapterWeek() {
           </p>
 
           <p className="ch-p">
-            When a day pulls clean — calories right, protein on, fiber where it
-            should be — save it as a template. Apply it to any future day with
+            When a day pulls clean (calories right, protein on, fiber where it
+            should be), save it as a template. Apply it to any future day with
             one click, or build a rotation from the handful of days that
             consistently work.
           </p>

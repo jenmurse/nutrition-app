@@ -1872,8 +1872,8 @@ export default function LandingScreenCycle() {
         </div>
         <footer className="lp-cta-footer lp-cta-footer--pinned">
           © 2026 Made by{" "}
-          <a href="https://www.jenmurse.com/" target="_blank" rel="noopener noreferrer" className="lp-mob-legal-link">
-            Jen Murse
+          <a href="https://www.mersostudio.com/" target="_blank" rel="noopener noreferrer" className="lp-mob-legal-link">
+            Mer So Studio, LLC
           </a>
         </footer>
       </section>
