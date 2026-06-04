@@ -453,6 +453,18 @@
   .mkt .iface-top .lg { font-size: 10px; }
   .mkt .iface-tabs { gap: 12px; }
 
+  /* Landing figures fill the screen edge-to-edge on mobile.
+     The .iface-img wrapper breaks out of the section's --pad inset via
+     negative margins and drops its left/right border for a clean edge.
+     Top + bottom borders stay as a hairline divider. Captions (siblings)
+     remain inset. */
+  .mkt .iface-img {
+    margin-left: calc(-1 * var(--pad));
+    margin-right: calc(-1 * var(--pad));
+    border-left: 0;
+    border-right: 0;
+  }
+
   .mkt .pan-cell { padding: 10px 10px 10px 0; }
   .mkt .pan-cell:nth-child(2n) { padding-left: 10px; }
   .mkt .pan-name { font-size: 11.5px; }
