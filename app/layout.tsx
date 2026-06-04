@@ -10,6 +10,7 @@ import TopNav from "./components/TopNav";
 import MobileTopBar from "./components/MobileTopBar";
 import Toaster from "./components/Toaster";
 import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
+import OfflinePrefetcher from "./components/OfflinePrefetcher";
 import ConfirmModal from "./components/ConfirmModal";
 import CustomCursor from "./components/CustomCursor";
 import { PersonProvider } from "./components/PersonContext";
@@ -110,6 +111,7 @@ export default function RootLayout({
           <Toaster />
           <ConfirmModal />
           <ServiceWorkerRegister />
+          <OfflinePrefetcher />
           <div className="app-shell flex flex-col h-screen" style={{ height: '100dvh' }}>
             <Suspense>
               <TopNav />
