@@ -5144,15 +5144,9 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   }
   .mob-menu-signout:hover { color: var(--fg); }
 
-  /* Home hero: on mobile the editorial 'greeting hangs at viewport bottom'
-     desktop pattern reads as a bug — there's no fold to anchor against. Let
-     content flow naturally from the top instead. */
-  .hm-hero { min-height: 0; }
-  .hm-greeting-block {
-    flex: 0 0 auto !important;
-    align-items: stretch !important;
-    padding-top: 24px !important;
-  }
+  /* Home hero: fill the viewport so the stats strip can anchor to the
+     bottom while the greeting flows naturally from the top. */
+  .hm-hero { min-height: calc(100dvh - var(--nav-h) - env(safe-area-inset-top, 0px)); }
 
   /* Scrollable content: clear iOS home indicator */
   .hm-bottom-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
