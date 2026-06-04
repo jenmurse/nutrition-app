@@ -340,7 +340,7 @@ export default function Home() {
             <GettingStartedCard />
           </div>
 
-          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 20px` }}>
+          <div className="hm-greeting-block" style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 20px` }}>
             <div>
               {/* Eyebrow: date */}
               <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '1px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
