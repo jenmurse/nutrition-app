@@ -340,7 +340,7 @@ export default function Home() {
             <GettingStartedCard />
           </div>
 
-          <div className="hm-greeting-block" style={{ padding: `24px var(--pad) 20px` }}>
+          <div className="hm-greeting-block" style={{ flex: 1, display: 'flex', alignItems: 'flex-end', padding: `0 var(--pad) 20px` }}>
             <div>
               {/* Eyebrow: date */}
               <div className="flex items-center gap-3 mb-4" style={{ marginLeft: '1px', animation: 'hmFadeIn 500ms var(--ease-out) both' }}>
@@ -353,11 +353,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* Spacer — pushes the stats strip to the bottom of the hero
-              so the dashboard reads top-aligned content + bottom-anchored
-              stats summary. */}
-          <div style={{ flex: 1 }} aria-hidden="true" />
 
           {/* Stats strip */}
           <div className={`hm-stats-border border-t border-[var(--rule)]${statEntries.length === 0 ? ' border-b' : ''}`}>
