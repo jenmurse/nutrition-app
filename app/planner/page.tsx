@@ -922,6 +922,19 @@ function PlannerPage() {
     return `${sm} ${s.getDate()} – ${em} ${e.getDate()}`;
   }, [plan, days]);
 
+  // True when the currently-loaded plan covers today's date. Used to gate
+  // visibility of the 'This Week' shortcut — there's no point showing it
+  // when you're already on the current week.
+  const isOnCurrentWeek = useMemo(() => {
+    if (!plan) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const ws = parseUTCDate(plan.weekStartDate);
+    const we = new Date(ws);
+    we.setDate(we.getDate() + 6);
+    return today >= ws && today <= we;
+  }, [plan]);
+
   // ── Cell click → open picker ─────────────────────────────────
   function openPicker(slot: SlotType, date: Date, e: React.MouseEvent<HTMLDivElement>) {
     const r = e.currentTarget.getBoundingClientRect();
@@ -1511,11 +1524,13 @@ function PlannerPage() {
               onClick={() => goToPlan(currentPlanIdx - 1)}
               aria-label="Next week"
             >NEXT ›</button>
-            <button
-              className="ed-btn-text"
-              onClick={goToThisWeek}
-              aria-label="Go to this week"
-            >This Week</button>
+            {!isOnCurrentWeek && (
+              <button
+                className="ed-btn-text"
+                onClick={goToThisWeek}
+                aria-label="Go to this week"
+              >This Week</button>
+            )}
           </>
         )}
 
@@ -1584,6 +1599,15 @@ function PlannerPage() {
                     aria-label="Next week"
                   >›</button>
                 </div>
+                {!isOnCurrentWeek && (
+                  <button
+                    type="button"
+                    className="ed-btn-text"
+                    onClick={goToThisWeek}
+                    aria-label="Go to this week"
+                    style={{ marginLeft: 6, fontSize: 9 }}
+                  >Now</button>
+                )}
                 <button
                   type="button"
                   className="mx-mob-overflow"
