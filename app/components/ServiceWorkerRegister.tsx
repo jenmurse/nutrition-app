@@ -79,25 +79,27 @@ export default function ServiceWorkerRegister() {
 
   if (online) return null;
 
+  // Flow-positioned banner (not fixed) — sits above the nav inside .app-shell
+  // and pushes everything down by its height. Includes safe-area-inset-top
+  // padding so on iOS standalone PWAs it clears the notch/dynamic island.
   return (
     <div
       role="status"
       aria-live="polite"
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999,
         background: "var(--fg)",
         color: "var(--bg)",
-        padding: "8px 16px",
+        paddingTop: `calc(env(safe-area-inset-top, 0px) + 8px)`,
+        paddingBottom: 8,
+        paddingLeft: 16,
+        paddingRight: 16,
         fontFamily: "var(--font-mono), 'DM Mono', ui-monospace, monospace",
         fontSize: 9,
         letterSpacing: "0.14em",
         textTransform: "uppercase",
         textAlign: "center",
         lineHeight: 1.4,
+        flexShrink: 0,
       }}
     >
       Offline — showing your last-loaded data. Changes will fail until you reconnect.

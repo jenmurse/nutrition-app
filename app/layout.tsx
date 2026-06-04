@@ -110,9 +110,12 @@ export default function RootLayout({
           <NumberInputHandler />
           <Toaster />
           <ConfirmModal />
-          <ServiceWorkerRegister />
           <OfflinePrefetcher />
           <div className="app-shell flex flex-col h-screen" style={{ height: '100dvh' }}>
+            {/* Offline banner — renders nothing when online, slides everything
+                else down when offline. Lives inside .app-shell so it pushes
+                the nav down instead of overlaying it. */}
+            <ServiceWorkerRegister />
             <Suspense>
               <TopNav />
             </Suspense>
