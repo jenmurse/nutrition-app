@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix mode — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #F5F4EF;
+    --bg-2: #EEEAE3;
+    --bg-3: #E6E2D8;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #B43A1F;
+    --ok: #4F6B3A;
+    --accent: #7C8C5F;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+
+  /* ── Section heads ── */
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: -12px 0 24px;
+  }
+
+  /* ── Mock surface frame ── */
+  .surface {
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  /* ── Planner toolbar ── */
+  .pl-toolbar {
+    display: flex; align-items: center; gap: 18px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pl-range {
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+  }
+  .pl-nav-btn {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 4px 6px;
+  }
+  .pl-nav-btn:hover { color: var(--fg); }
+  .pl-spacer { flex: 1; }
+  .ed-btn-text {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 4px 6px;
+  }
+  .ed-btn-text:hover { color: var(--fg); }
+  .ed-btn-text.is-active { color: var(--fg); }
+  .ed-toolbar-sep {
+    width: 1px; height: 12px; background: var(--rule);
+  }
+  .pl-person-chips {
+    display: flex; gap: 4px;
+  }
+  .pl-person-chip {
+    background: transparent; border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 5px 9px;
+  }
+  .pl-person-chip.is-active {
+    border-color: var(--fg); color: var(--fg);
+  }
+  .ed-btn-primary {
+    background: var(--fg); color: var(--bg);
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    padding: 7px 12px;
+  }
+
+  /* ── Matrix grid ── */
+  .mx {
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+  }
+  .mx-corner {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-day-head {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 14px 12px;
+    text-align: left;
+  }
+  .mx-day-head:last-child { border-right: 0; }
+  .mx-day-name {
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mx-day-num {
+    font-family: var(--font-sans);
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+  }
+  .mx-day-num.today { color: var(--accent); }
+
+  .mx-slot-label {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 18px 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: flex-start;
+  }
+  .mx-cell {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 14px;
+    min-height: 76px;
+    cursor: pointer;
+    transition: background 120ms var(--ease-out);
+    position: relative;
+  }
+  .mx-cell:last-child { border-right: 0; }
+  .mx-cell:hover { background: var(--bg-2); }
+  .mx-cell-name {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .mx-cell-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-cell-empty {
+    border: 1px dashed var(--rule);
+    border-bottom: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    margin: 0; padding: 12px 14px;
+    background: transparent;
+  }
+  .mx-cell-empty:last-child { border-right: 0; }
+  .mx-cell-add {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-cell-empty:hover .mx-cell-add { color: var(--fg); }
+
+  /* ── Totals row ── */
+  .mx-totals-label {
+    border-right: 1px solid var(--rule);
+    padding: 16px 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: flex-start;
+  }
+  .mx-totals {
+    border-right: 1px solid var(--rule);
+    padding: 14px;
+  }
+  .mx-totals:last-child { border-right: 0; }
+  .mx-tot-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 0;
+  }
+  .mx-tot-key {
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-tot-val {
+    font-weight: 600;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .mx-tot-val.over { color: var(--err); }
+  .mx-tot-val.met { color: var(--ok); }
+
+  /* ── Picker dropdown ── */
+  .mx-picker {
+    position: absolute;
+    top: calc(100% - 1px); left: -1px;
+    width: calc(100% + 2px);
+    min-width: 240px;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    z-index: 10;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  }
+  .mx-picker-head {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+  .mx-picker-opt {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .mx-picker-opt:last-child { border-bottom: 0; }
+  .mx-picker-opt:hover { background: var(--bg-2); }
+  .mx-picker-name {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+  }
+  .mx-picker-kcal {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-picker-foot {
+    padding: 10px 12px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+    cursor: pointer;
+  }
+  .mx-picker-foot:hover { color: var(--fg); }
+
+  /* ── Footer action strip ── */
+  .mx-footer {
+    display: flex; align-items: center; gap: 18px;
+    padding: 16px 28px;
+    border-top: 1px solid var(--rule);
+    background: var(--bg);
+  }
+  .mx-footer-meta {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Annotations ── */
+  .anno {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 24px 0 8px;
+  }
+  .qbox {
+    border-left: 2px solid var(--rule);
+    padding: 4px 0 4px 14px;
+    margin: 0 0 6px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .qbox strong { color: var(--fg); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-title">Matrix mode</div>
+  <div class="doc-intro">
+    Mockups for the matrix planner view. Day columns × meal-slot rows. Each cell is a dropdown
+    of favorited recipes filtered by the slot's tag. Live nutrition totals per day column.
+    Toggle lives on the planner toolbar as a peer of NUTRITION.
+  </div>
+
+  <!-- ============== SECTION 1 — Filled state ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">Filled state — a fully populated week</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ MATRIX VIEW · DESKTOP · ACTIVE PERSON: JEN</div>
+
+    <div class="surface">
+      <!-- Toolbar -->
+      <div class="pl-toolbar">
+        <span class="pl-range">Jan 15–21</span>
+        <button class="pl-nav-btn">‹ Prev</button>
+        <button class="pl-nav-btn">Next ›</button>
+        <button class="pl-nav-btn">This week</button>
+        <div class="pl-spacer"></div>
+        <button class="ed-btn-text">Cart</button>
+        <button class="ed-btn-text">Nutrition ›</button>
+        <button class="ed-btn-text is-active">Matrix ›</button>
+        <div class="ed-toolbar-sep"></div>
+        <div class="pl-person-chips">
+          <button class="pl-person-chip is-active">Jen</button>
+          <button class="pl-person-chip">Sam</button>
+          <button class="pl-person-chip">Everyone</button>
+        </div>
+        <div class="ed-toolbar-sep"></div>
+        <button class="ed-btn-primary">+ New Plan</button>
+      </div>
+
+      <!-- Matrix -->
+      <div class="mx">
+        <!-- Header row -->
+        <div class="mx-corner"></div>
+        <div class="mx-day-head"><div class="mx-day-name">Mon</div><div class="mx-day-num">15</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Tue</div><div class="mx-day-num">16</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Wed</div><div class="mx-day-num today">17</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Thu</div><div class="mx-day-num">18</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Fri</div><div class="mx-day-num">19</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sat</div><div class="mx-day-num">20</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sun</div><div class="mx-day-num">21</div></div>
+
+        <!-- Breakfast row -->
+        <div class="mx-slot-label">Breakfast</div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats with berries</div><div class="mx-cell-meta">420 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt + granola</div><div class="mx-cell-meta">340 · 22g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Veggie scramble + toast</div><div class="mx-cell-meta">410 · 26g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats with berries</div><div class="mx-cell-meta">420 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Spinach mushroom omelet</div><div class="mx-cell-meta">380 · 28g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Weekend pancakes</div><div class="mx-cell-meta">510 · 14g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt + granola</div><div class="mx-cell-meta">340 · 22g P</div></div>
+
+        <!-- Lunch row -->
+        <div class="mx-slot-label">Lunch</div>
+        <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Lentil tomato soup</div><div class="mx-cell-meta">390 · 22g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Tuna salad on greens</div><div class="mx-cell-meta">440 · 34g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Quinoa bowl with chickpeas</div><div class="mx-cell-meta">490 · 19g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Tuna salad on greens</div><div class="mx-cell-meta">440 · 34g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Lentil tomato soup</div><div class="mx-cell-meta">390 · 22g P</div></div>
+
+        <!-- Dinner row -->
+        <div class="mx-slot-label">Dinner</div>
+        <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken &amp; veg</div><div class="mx-cell-meta">540 · 44g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Beef stir fry</div><div class="mx-cell-meta">610 · 38g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Pasta with turkey ragù</div><div class="mx-cell-meta">560 · 32g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken &amp; veg</div><div class="mx-cell-meta">540 · 44g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Veggie chili</div><div class="mx-cell-meta">450 · 24g P</div></div>
+
+        <!-- Snack row -->
+        <div class="mx-slot-label">Snack</div>
+        <div class="mx-cell"><div class="mx-cell-name">Apple + almond butter</div><div class="mx-cell-meta">220 · 6g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Cottage cheese + berries</div><div class="mx-cell-meta">180 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Apple + almond butter</div><div class="mx-cell-meta">220 · 6g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Hard boiled eggs</div><div class="mx-cell-meta">140 · 12g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Trail mix</div><div class="mx-cell-meta">280 · 8g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Cottage cheese + berries</div><div class="mx-cell-meta">180 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Apple + almond butter</div><div class="mx-cell-meta">220 · 6g P</div></div>
+
+        <!-- Totals row -->
+        <div class="mx-totals-label">Daily totals</div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,740</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">62g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">18g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,840mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">182g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">42g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">104g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">32g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,450</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">48g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">12g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,620mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">148g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">38g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">106g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">36g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,580</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">58g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val over">22g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val over">2,640mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">164g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">38g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">118g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">28g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,640</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">52g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">14g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,920mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">178g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">36g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">96g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">30g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,790</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">60g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">16g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,780mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">186g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">44g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">112g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">34g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,710</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">64g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">18g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">2,100mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">172g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val over">68g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">102g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">31g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,390</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">46g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">12g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,540mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carb</span><span class="mx-tot-val">146g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">34g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">88g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">29g</span></div>
+        </div>
+      </div>
+
+      <!-- Footer actions -->
+      <div class="mx-footer">
+        <span class="mx-footer-meta">28 of 28 slots filled</span>
+        <div class="pl-spacer"></div>
+        <button class="ed-btn-text">Reset</button>
+        <button class="ed-btn-text">Save as template…</button>
+        <div class="ed-toolbar-sep"></div>
+        <button class="ed-btn-primary">Commit week →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SECTION 2 — Empty state with picker open ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Empty cells + picker open</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ MATRIX VIEW · FRESH STATE · WEDNESDAY LUNCH PICKER OPEN</div>
+
+    <div class="surface">
+      <!-- Toolbar -->
+      <div class="pl-toolbar">
+        <span class="pl-range">Jan 22–28</span>
+        <button class="pl-nav-btn">‹ Prev</button>
+        <button class="pl-nav-btn">Next ›</button>
+        <div class="pl-spacer"></div>
+        <button class="ed-btn-text">Nutrition ›</button>
+        <button class="ed-btn-text is-active">Matrix ›</button>
+        <div class="ed-toolbar-sep"></div>
+        <div class="pl-person-chips">
+          <button class="pl-person-chip is-active">Jen</button>
+          <button class="pl-person-chip">Sam</button>
+        </div>
+      </div>
+
+      <!-- Matrix - mostly empty -->
+      <div class="mx">
+        <div class="mx-corner"></div>
+        <div class="mx-day-head"><div class="mx-day-name">Mon</div><div class="mx-day-num">22</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Tue</div><div class="mx-day-num">23</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Wed</div><div class="mx-day-num">24</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Thu</div><div class="mx-day-num">25</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Fri</div><div class="mx-day-num">26</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sat</div><div class="mx-day-num">27</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sun</div><div class="mx-day-num">28</div></div>
+
+        <div class="mx-slot-label">Breakfast</div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">420 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt + granola</div><div class="mx-cell-meta">340 · 22g P</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+
+        <div class="mx-slot-label">Lunch</div>
+        <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <!-- Wed lunch with picker open -->
+        <div class="mx-cell" style="background: var(--bg-2);">
+          <div class="mx-cell-add" style="color: var(--fg);">+ pick</div>
+          <div class="mx-picker">
+            <div class="mx-picker-head">
+              <span>Favorites · Lunch</span>
+              <span>★ 5</span>
+            </div>
+            <div class="mx-picker-opt">
+              <span class="mx-picker-name">Chicken caesar wrap</span>
+              <span class="mx-picker-kcal">520</span>
+            </div>
+            <div class="mx-picker-opt">
+              <span class="mx-picker-name">Lentil tomato soup</span>
+              <span class="mx-picker-kcal">390</span>
+            </div>
+            <div class="mx-picker-opt">
+              <span class="mx-picker-name">Tuna salad on greens</span>
+              <span class="mx-picker-kcal">440</span>
+            </div>
+            <div class="mx-picker-opt">
+              <span class="mx-picker-name">Quinoa bowl with chickpeas</span>
+              <span class="mx-picker-kcal">490</span>
+            </div>
+            <div class="mx-picker-opt">
+              <span class="mx-picker-name">Mediterranean grain bowl</span>
+              <span class="mx-picker-kcal">510</span>
+            </div>
+            <div class="mx-picker-foot">
+              <span>Browse all lunch recipes</span>
+              <span>→</span>
+            </div>
+          </div>
+        </div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+
+        <div class="mx-slot-label">Dinner</div>
+        <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken</div><div class="mx-cell-meta">540 · 44g P</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+
+        <div class="mx-slot-label">Snack</div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+        <div class="mx-cell mx-cell-empty"><div class="mx-cell-add">+ pick</div></div>
+
+        <!-- Totals - mostly empty -->
+        <div class="mx-totals-label">Daily totals</div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,520</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">98g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">22g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">880</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">66g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">14g</span></div>
+        </div>
+        <div class="mx-totals"><div class="mx-tot-row"><span class="mx-tot-key">—</span><span class="mx-tot-val">—</span></div></div>
+        <div class="mx-totals"><div class="mx-tot-row"><span class="mx-tot-key">—</span><span class="mx-tot-val">—</span></div></div>
+        <div class="mx-totals"><div class="mx-tot-row"><span class="mx-tot-key">—</span><span class="mx-tot-val">—</span></div></div>
+        <div class="mx-totals"><div class="mx-tot-row"><span class="mx-tot-key">—</span><span class="mx-tot-val">—</span></div></div>
+        <div class="mx-totals"><div class="mx-tot-row"><span class="mx-tot-key">—</span><span class="mx-tot-val">—</span></div></div>
+      </div>
+
+      <div class="mx-footer">
+        <span class="mx-footer-meta">5 of 28 slots filled</span>
+        <div class="pl-spacer"></div>
+        <button class="ed-btn-text" style="opacity: 0.4;">Commit week →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SECTION 3 — Open questions ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Open questions</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="anno">A · Slot rows</div>
+    <p class="qbox">
+      Default to <strong>4 slots</strong> (Breakfast / Lunch / Dinner / Snack). Side / Dessert / Beverage are hidden by default.
+      Add a small <strong>"+ Add slot"</strong> control at the bottom of the slot column to expose the others when needed.
+      Alternative: show all 7 always — but the matrix gets noisy and most days don't have a dessert.
+    </p>
+
+    <div class="anno">B · Picker contents</div>
+    <p class="qbox">
+      First page = <strong>favorited recipes filtered by slot tag</strong>. Footer link "Browse all lunch recipes →" opens a larger sheet
+      with the full library if you want something outside favorites. Keeps the curated experience but doesn't trap you.
+    </p>
+
+    <div class="anno">C · Totals shown</div>
+    <p class="qbox">
+      In the filled state above each column gets the full 8-metric stack. Tight column widths
+      compress the labels but keep all the data. If this feels too dense we can collapse to <strong>Cal · Prot · Fiber</strong>
+      only by default and let the user expand to all 8 — but I think the full stack is the right call. It's the whole point of matrix mode.
+    </p>
+
+    <div class="anno">D · Commit semantics</div>
+    <p class="qbox">
+      "Commit week" replaces the existing plan's meals for that week. Confirmation dialog: <strong>"Replace this week's plan with 28 matrix meals?"</strong>
+      Alternative: append (add matrix meals on top of existing) — but this gets messy fast. Replace is cleaner.
+    </p>
+
+    <div class="anno">E · Per-person matrix</div>
+    <p class="qbox">
+      Matrix runs against the <strong>active person's favorites</strong>. Switching person chips re-populates the picker. EVERYONE mode is a Phase 3 question (probably shows only recipes favorited by all selected people).
+    </p>
+
+    <div class="anno">F · Empty favorites in a slot</div>
+    <p class="qbox">
+      If a slot has zero matching favorites, the picker shows: <strong>"No favorited lunch recipes."</strong> with one link: <strong>"Browse all lunch recipes →"</strong>.
+      Don't fall back to showing everything — that defeats the curation layer.
+    </p>
+
+    <div class="anno">G · Mobile</div>
+    <p class="qbox">
+      Phase 2 problem per the brief. On iPad it works fine on the desktop layout. iPhone gets deferred.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

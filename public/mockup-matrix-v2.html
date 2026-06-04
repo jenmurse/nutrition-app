@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix mode v2 — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #F5F4EF;
+    --bg-2: #EEEAE3;
+    --bg-3: #E6E2D8;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #B43A1F;
+    --ok: #4F6B3A;
+    --accent: #7C8C5F;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: -12px 0 24px;
+  }
+
+  /* ── Mock surface ── */
+  .surface {
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    overflow: visible;
+  }
+
+  /* ── Toolbar ── */
+  .pl-toolbar {
+    display: flex; align-items: center; gap: 18px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pl-range {
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+  }
+  .pl-nav-btn {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 4px 6px;
+  }
+  .pl-nav-btn:hover { color: var(--fg); }
+  .pl-spacer { flex: 1; }
+  .ed-btn-text {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 4px 6px;
+  }
+  .ed-btn-text:hover { color: var(--fg); }
+  .ed-btn-text.is-active { color: var(--fg); }
+  .ed-toolbar-sep { width: 1px; height: 12px; background: var(--rule); }
+  .pl-person-chips { display: flex; gap: 4px; }
+  .pl-person-chip {
+    background: transparent; border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 5px 9px;
+  }
+  .pl-person-chip.is-active { border-color: var(--fg); color: var(--fg); }
+  .ed-btn-primary {
+    background: var(--fg); color: var(--bg);
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    padding: 7px 12px;
+  }
+
+  /* ── Matrix grid (Approach A — global rows) ── */
+  .mx {
+    display: grid;
+    grid-template-columns: 110px repeat(7, 1fr);
+  }
+  .mx-corner {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-day-head {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 14px 12px;
+    text-align: left;
+  }
+  .mx-day-head:last-child { border-right: 0; }
+  .mx-day-name {
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mx-day-num {
+    font-family: var(--font-sans);
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+  }
+  .mx-day-num.today { color: var(--accent); }
+
+  .mx-slot-label {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 18px 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: flex-start; gap: 8px;
+    cursor: grab;
+  }
+  .mx-slot-grip {
+    color: var(--rule);
+    font-size: 10px;
+    line-height: 1;
+    user-select: none;
+  }
+  .mx-slot-label:hover .mx-slot-grip { color: var(--muted); }
+
+  .mx-cell {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 14px;
+    min-height: 76px;
+    cursor: pointer;
+    transition: background 120ms var(--ease-out);
+    position: relative;
+  }
+  .mx-cell:last-child { border-right: 0; }
+  .mx-cell:hover { background: var(--bg-2); }
+  .mx-cell-name {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .mx-cell-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-cell-empty {
+    background: transparent;
+  }
+  .mx-cell-add {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.6;
+  }
+  .mx-cell:hover .mx-cell-add { color: var(--fg); opacity: 1; }
+
+  /* Totals */
+  .mx-totals-label {
+    border-right: 1px solid var(--rule);
+    padding: 16px 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: flex-start;
+  }
+  .mx-totals {
+    border-right: 1px solid var(--rule);
+    padding: 14px;
+  }
+  .mx-totals:last-child { border-right: 0; }
+  .mx-tot-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 0;
+  }
+  .mx-tot-key {
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-tot-val {
+    font-weight: 600;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .mx-tot-val.over { color: var(--err); }
+  .mx-tot-val.met { color: var(--ok); }
+
+  /* "+ Add slot" footer row */
+  .mx-addslot {
+    grid-column: 1 / -1;
+    padding: 14px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; gap: 18px;
+    background: transparent;
+  }
+  .mx-addslot-label {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-addslot-btn {
+    background: transparent; border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    padding: 5px 10px;
+  }
+  .mx-addslot-btn:hover { border-color: var(--fg); color: var(--fg); }
+
+  /* ── Per-day stack (Approach B) ── */
+  .mxb {
+    display: grid;
+    grid-template-columns: 110px repeat(7, 1fr);
+    align-items: stretch;
+  }
+  .mxb-corner {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mxb-day-col {
+    border-right: 1px solid var(--rule);
+    display: flex; flex-direction: column;
+  }
+  .mxb-day-col:last-child { border-right: 0; }
+  .mxb-rowlabel-col {
+    border-right: 1px solid var(--rule);
+    display: flex; flex-direction: column;
+  }
+  .mxb-day-head {
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 14px 12px;
+  }
+  .mxb-rowlabel {
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    min-height: 76px;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .mxb-rowlabel.is-totals {
+    border-bottom: 0; color: var(--muted); min-height: auto; padding: 16px 14px;
+  }
+  .mxb-cell {
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 14px;
+    min-height: 76px;
+    cursor: pointer;
+    position: relative;
+  }
+  .mxb-cell:hover { background: var(--bg-2); }
+  .mxb-add-here {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.55;
+    cursor: pointer;
+    text-align: center;
+  }
+  .mxb-day-col:hover .mxb-add-here { opacity: 1; color: var(--fg); }
+  .mxb-day-col .mxb-totals {
+    padding: 14px;
+  }
+
+  /* ── Picker dropdown ── */
+  .mx-picker {
+    position: absolute;
+    top: calc(100% - 1px); left: -1px;
+    width: calc(100% + 2px);
+    min-width: 260px;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    z-index: 10;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  }
+  .mx-picker-head {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+  .mx-picker-opt {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .mx-picker-opt:last-child { border-bottom: 0; }
+  .mx-picker-opt:hover { background: var(--bg-2); }
+  .mx-picker-name {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+  }
+  .mx-picker-kcal {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-picker-foot {
+    padding: 10px 12px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+    cursor: pointer;
+  }
+  .mx-picker-foot:hover { color: var(--fg); }
+
+  /* Slot type picker (when adding a new slot) */
+  .slot-type-picker {
+    border: 1px solid var(--fg);
+    background: var(--bg);
+    min-width: 200px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  }
+  .slot-type-opt {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+  }
+  .slot-type-opt:last-child { border-bottom: 0; }
+  .slot-type-opt:hover { background: var(--bg-2); }
+  .slot-type-opt .hint {
+    color: var(--muted);
+    font-size: 9px;
+    margin-left: 8px;
+    letter-spacing: 0.14em;
+  }
+
+  /* ── Reorder indicator ── */
+  .mx-slot-label.dragging {
+    background: var(--bg-2);
+    cursor: grabbing;
+  }
+  .drop-target {
+    border-top: 2px solid var(--fg) !important;
+  }
+
+  /* ── Annotations ── */
+  .anno {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 8px;
+  }
+  .qbox {
+    border-left: 2px solid var(--rule);
+    padding: 4px 0 4px 14px;
+    margin: 0 0 6px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .qbox strong { color: var(--fg); font-weight: 600; }
+
+  .side-by-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .side-by-side .approach-label {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .side-by-side .approach-desc {
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.6;
+    font-size: 12px;
+  }
+
+  .inline-frame {
+    border: 1px solid var(--rule);
+    padding: 24px;
+    background: var(--bg);
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-title">Matrix mode v2</div>
+  <div class="doc-intro">
+    Revised. Resolving the slot questions: typed vs generic, default count, reorder, how extras work.
+    The matrix replaces the planner under a feature flag (stage 1). Cell picks save immediately — no commit step.
+  </div>
+
+  <!-- ============== SECTION 1 — Baseline ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">Baseline — three slots, the common case</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ 3 SLOTS · BREAKFAST · LUNCH · DINNER · MOST DAYS LOOK LIKE THIS</div>
+
+    <div class="surface">
+      <div class="pl-toolbar">
+        <span class="pl-range">Jan 15–21</span>
+        <button class="pl-nav-btn">‹ Prev</button>
+        <button class="pl-nav-btn">Next ›</button>
+        <button class="pl-nav-btn">This week</button>
+        <div class="pl-spacer"></div>
+        <button class="ed-btn-text">Cart</button>
+        <button class="ed-btn-text">Nutrition ›</button>
+        <div class="ed-toolbar-sep"></div>
+        <div class="pl-person-chips">
+          <button class="pl-person-chip is-active">Jen</button>
+          <button class="pl-person-chip">Sam</button>
+          <button class="pl-person-chip">Everyone</button>
+        </div>
+        <div class="ed-toolbar-sep"></div>
+        <button class="ed-btn-primary">+ New Plan</button>
+      </div>
+
+      <div class="mx">
+        <div class="mx-corner"></div>
+        <div class="mx-day-head"><div class="mx-day-name">Mon</div><div class="mx-day-num">15</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Tue</div><div class="mx-day-num">16</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Wed</div><div class="mx-day-num today">17</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Thu</div><div class="mx-day-num">18</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Fri</div><div class="mx-day-num">19</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sat</div><div class="mx-day-num">20</div></div>
+        <div class="mx-day-head"><div class="mx-day-name">Sun</div><div class="mx-day-num">21</div></div>
+
+        <!-- Breakfast -->
+        <div class="mx-slot-label"><span class="mx-slot-grip">⋮⋮</span>Breakfast</div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">420 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt + granola</div><div class="mx-cell-meta">340 · 22g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Veggie scramble</div><div class="mx-cell-meta">410 · 26g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Overnight oats</div><div class="mx-cell-meta">420 · 18g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Spinach omelet</div><div class="mx-cell-meta">380 · 28g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Weekend pancakes</div><div class="mx-cell-meta">510 · 14g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Greek yogurt + granola</div><div class="mx-cell-meta">340 · 22g P</div></div>
+
+        <!-- Lunch -->
+        <div class="mx-slot-label"><span class="mx-slot-grip">⋮⋮</span>Lunch</div>
+        <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Lentil tomato soup</div><div class="mx-cell-meta">390 · 22g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Tuna salad on greens</div><div class="mx-cell-meta">440 · 34g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Chicken caesar wrap</div><div class="mx-cell-meta">520 · 38g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Quinoa bowl</div><div class="mx-cell-meta">490 · 19g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Tuna salad on greens</div><div class="mx-cell-meta">440 · 34g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Lentil tomato soup</div><div class="mx-cell-meta">390 · 22g P</div></div>
+
+        <!-- Dinner -->
+        <div class="mx-slot-label"><span class="mx-slot-grip">⋮⋮</span>Dinner</div>
+        <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken</div><div class="mx-cell-meta">540 · 44g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Beef stir fry</div><div class="mx-cell-meta">610 · 38g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Turkey ragù pasta</div><div class="mx-cell-meta">560 · 32g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Salmon, rice, broccoli</div><div class="mx-cell-meta">580 · 42g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Sheet-pan chicken</div><div class="mx-cell-meta">540 · 44g P</div></div>
+        <div class="mx-cell"><div class="mx-cell-name">Veggie chili</div><div class="mx-cell-meta">450 · 24g P</div></div>
+
+        <!-- + Add slot footer row -->
+        <div class="mx-addslot">
+          <span class="mx-addslot-label">Need more?</span>
+          <button class="mx-addslot-btn">+ Snack</button>
+          <button class="mx-addslot-btn">+ Side</button>
+          <button class="mx-addslot-btn">+ Dessert</button>
+          <button class="mx-addslot-btn">+ Beverage</button>
+          <button class="mx-addslot-btn">+ Custom</button>
+        </div>
+
+        <!-- Totals -->
+        <div class="mx-totals-label">Daily totals</div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,520</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">52g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">14g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,640mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">98g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">26g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,270</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">42g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">10g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,440mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">88g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">30g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,460</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">56g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val over">20g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val over">2,460mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">108g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">22g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,500</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">48g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">12g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,840mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">88g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">28g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,450</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">52g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">14g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,720mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val met">96g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">31g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,490</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">58g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">16g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,820mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">90g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val">25g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Cal</span><span class="mx-tot-val">1,180</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">40g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">SatF</span><span class="mx-tot-val">10g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Na</span><span class="mx-tot-val">1,380mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Prot</span><span class="mx-tot-val">78g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">29g</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>The slot model:</strong> A "Breakfast slot" is a <em>typed</em> slot that holds breakfast.
+      That's what filters the picker to only show breakfast-tagged favorites. Generic slots would lose the filtering, which is the whole point.
+      Default = 3 typed slots (B/L/D). The "Need more?" row exposes typed additions — Snack / Side / Dessert / Beverage / Custom.
+      Slot labels are draggable to reorder (the ⋮⋮ grip).
+    </p>
+  </div>
+
+  <!-- ============== SECTION 2 — Approach A vs B ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Adding a snack — two approaches</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ THE BIG OPEN QUESTION · GLOBAL ROW VS PER-DAY STACK</div>
+
+    <div class="side-by-side">
+      <!-- APPROACH A -->
+      <div>
+        <div class="approach-label">A · Global rows</div>
+        <div class="approach-desc">
+          Add a Snack row once → it appears across all 7 days. Most days are empty (just "+ pick"). Strict grid. Tidy, consistent, scannable.
+          Once a row exists, it's a recurring presence — nudging you to consider whether you want a snack each day.
+        </div>
+        <div class="surface">
+          <div class="mx" style="grid-template-columns: 80px repeat(7, 1fr);">
+            <div class="mx-corner"></div>
+            <div class="mx-day-head"><div class="mx-day-name">M</div><div class="mx-day-num">15</div></div>
+            <div class="mx-day-head"><div class="mx-day-name">T</div><div class="mx-day-num">16</div></div>
+            <div class="mx-day-head"><div class="mx-day-name">W</div><div class="mx-day-num">17</div></div>
+            <div class="mx-day-head"><div class="mx-day-name">T</div><div class="mx-day-num">18</div></div>
+            <div class="mx-day-head"><div class="mx-day-name">F</div><div class="mx-day-num">19</div></div>
+            <div class="mx-day-head"><div class="mx-day-name">S</div><div class="mx-day-num">20</div></div>
+            <div class="mx-day-head"><div class="mx-day-name">S</div><div class="mx-day-num">21</div></div>
+
+            <div class="mx-slot-label" style="padding: 14px 8px;"><span style="font-size: 8px;">Brk</span></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Oats</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Yogurt</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Scramble</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Oats</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Omelet</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Pancakes</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Yogurt</div></div>
+
+            <div class="mx-slot-label" style="padding: 14px 8px;"><span style="font-size: 8px;">Lun</span></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Wrap</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Soup</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Tuna</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Wrap</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Bowl</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Tuna</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Soup</div></div>
+
+            <div class="mx-slot-label" style="padding: 14px 8px;"><span style="font-size: 8px;">Din</span></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Salmon</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Chicken</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Stir fry</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Ragù</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Salmon</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Chicken</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Chili</div></div>
+
+            <!-- Snack row added globally -->
+            <div class="mx-slot-label" style="padding: 14px 8px; background: var(--bg-2);"><span style="font-size: 8px;">Snk</span></div>
+            <div class="mx-cell mx-cell-empty" style="min-height: 48px; padding: 8px;"><div class="mx-cell-add">+ pick</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Apple</div></div>
+            <div class="mx-cell mx-cell-empty" style="min-height: 48px; padding: 8px;"><div class="mx-cell-add">+ pick</div></div>
+            <div class="mx-cell mx-cell-empty" style="min-height: 48px; padding: 8px;"><div class="mx-cell-add">+ pick</div></div>
+            <div class="mx-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Eggs</div></div>
+            <div class="mx-cell mx-cell-empty" style="min-height: 48px; padding: 8px;"><div class="mx-cell-add">+ pick</div></div>
+            <div class="mx-cell mx-cell-empty" style="min-height: 48px; padding: 8px;"><div class="mx-cell-add">+ pick</div></div>
+          </div>
+        </div>
+        <p class="qbox" style="margin-top: 16px;">
+          <strong>Pros:</strong> Strict grid alignment. Easy comparison across days. The "+ pick" affordances nudge consistency.
+          <br><strong>Cons:</strong> 7-day snack row when you only want one snack on Tuesday feels heavy. Lots of empty cells.
+        </p>
+      </div>
+
+      <!-- APPROACH B -->
+      <div>
+        <div class="approach-label">B · Per-day stacks</div>
+        <div class="approach-desc">
+          Add a Snack only on Tuesday → only Tuesday gets a snack cell. Each day column has its own height. More honest to how people eat — most days don't get a snack.
+          The slot label column stays for B/L/D rows, but day-specific additions append to each column's bottom.
+        </div>
+        <div class="surface">
+          <div class="mxb" style="grid-template-columns: 80px repeat(7, 1fr);">
+            <div class="mxb-rowlabel-col">
+              <div class="mxb-day-head"></div>
+              <div class="mxb-rowlabel" style="min-height: 48px; padding: 14px 8px;"><span style="font-size: 8px;">Brk</span></div>
+              <div class="mxb-rowlabel" style="min-height: 48px; padding: 14px 8px;"><span style="font-size: 8px;">Lun</span></div>
+              <div class="mxb-rowlabel" style="min-height: 48px; padding: 14px 8px;"><span style="font-size: 8px;">Din</span></div>
+            </div>
+            <!-- Mon -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">M</div><div class="mx-day-num">15</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Oats</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Wrap</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Salmon</div></div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+            <!-- Tue with snack -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">T</div><div class="mx-day-num">16</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Yogurt</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Soup</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Chicken</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px; background: var(--bg-2);">
+                <div class="mx-cell-name" style="font-size: 11px;">Apple</div>
+                <div class="mx-cell-meta" style="font-size: 7px; margin-top: 2px;">Snack</div>
+              </div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+            <!-- Wed -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">W</div><div class="mx-day-num">17</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Scramble</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Tuna</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Stir fry</div></div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+            <!-- Thu -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">T</div><div class="mx-day-num">18</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Oats</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Wrap</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Ragù</div></div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+            <!-- Fri with snack -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">F</div><div class="mx-day-num">19</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Omelet</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Bowl</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Salmon</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px; background: var(--bg-2);">
+                <div class="mx-cell-name" style="font-size: 11px;">Eggs</div>
+                <div class="mx-cell-meta" style="font-size: 7px; margin-top: 2px;">Snack</div>
+              </div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+            <!-- Sat -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">S</div><div class="mx-day-num">20</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Pancakes</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Tuna</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Chicken</div></div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+            <!-- Sun -->
+            <div class="mxb-day-col">
+              <div class="mxb-day-head"><div class="mx-day-name">S</div><div class="mx-day-num">21</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Yogurt</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Soup</div></div>
+              <div class="mxb-cell" style="min-height: 48px; padding: 8px;"><div class="mx-cell-name" style="font-size: 11px;">Chili</div></div>
+              <div class="mxb-add-here">+ add</div>
+            </div>
+          </div>
+        </div>
+        <p class="qbox" style="margin-top: 16px;">
+          <strong>Pros:</strong> Honest to lived eating patterns. No wasted "+ pick" cells. Less clutter when you only snack occasionally.
+          <br><strong>Cons:</strong> Loses strict row alignment — Tuesday and Friday are taller than other days. Less grid-y.
+        </p>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>My recommendation:</strong> Approach <strong>A · Global rows</strong>. The strict grid is a load-bearing part of the aesthetic — it's what made you say the matrix matches the rest of the app and the planner doesn't.
+      The empty "+ pick" cells in the snack row aren't waste — they're invitations. If your snack pattern is "only on workout days," you fill some and leave others. The row is a recurring question, not a demand.
+      And the rare case where you want one truly one-off addition (cocktail on Friday night) can use the "+ Custom" affordance from the "Need more?" footer row, which we can decide later whether to make per-day or global.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 3 — Adding a slot type ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Adding slots — the "Need more?" affordance</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ TYPED ADDITIONS · NEW SLOT TYPE APPEARS AS A ROW</div>
+
+    <p class="qbox">
+      The bottom row of the matrix has the "Need more?" affordance with explicit chips for each typed addition.
+      Clicking <strong>+ Snack</strong> adds a Snack row to the matrix (global, Approach A) above the "Need more?" row.
+      The order: B / L / D / [user additions in add-order] / "Need more?". Once a row is added, you can drag-reorder via the slot label.
+    </p>
+
+    <div class="inline-frame" style="display: block; max-width: 480px;">
+      <div class="mx-addslot" style="border: 1px solid var(--rule); padding: 14px;">
+        <span class="mx-addslot-label">Need more?</span>
+        <button class="mx-addslot-btn">+ Snack</button>
+        <button class="mx-addslot-btn">+ Side</button>
+        <button class="mx-addslot-btn">+ Dessert</button>
+        <button class="mx-addslot-btn">+ Beverage</button>
+        <button class="mx-addslot-btn">+ Custom</button>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 20px;">
+      <strong>Removing a slot:</strong> hover the slot label → small × appears next to ⋮⋮. Click to remove the row.
+      If the row has any filled cells, confirm dialog: <em>"Remove the Snack row? 3 snacks across this week will be deleted."</em>
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>"+ Custom" affordance:</strong> for one-off rows. Opens a small dialog: name the row (e.g. "Late-night tea") + pick a meal-type for picker filtering. Probably defer to phase 2.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 4 — Reordering ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <div class="section-title">Reordering slots</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ DRAG THE ⋮⋮ GRIP ON THE SLOT LABEL</div>
+
+    <p class="qbox">
+      Why reorder? If you eat dinner early and have a snack later, you might want <em>Breakfast / Lunch / Snack / Dinner</em>.
+      Drag the ⋮⋮ grip on the slot label to reorder. Drop targets show a 2px black bar between rows.
+    </p>
+
+    <p class="qbox" style="margin-top: 12px;">
+      <strong>Slot order is per-plan, not global.</strong> So different weeks can have different orderings (workout week vs travel week).
+      Maybe later we add saved orderings as part of "Saved day templates." Phase 3.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 5 — Picker ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <div class="section-title">Cell picker — favorites first, browse all escape</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ CLICK A CELL · DROPDOWN OPENS BELOW · FILTERED BY SLOT TYPE</div>
+
+    <div class="inline-frame" style="padding: 32px;">
+      <div style="position: relative; width: 220px; min-height: 76px; border: 1px solid var(--rule); padding: 12px 14px; background: var(--bg-2);">
+        <div class="mx-cell-add" style="color: var(--fg);">+ pick</div>
+        <div class="mx-picker" style="position: static; margin-top: 14px;">
+          <div class="mx-picker-head">
+            <span>Favorites · Lunch</span>
+            <span>★ 5</span>
+          </div>
+          <div class="mx-picker-opt"><span class="mx-picker-name">Chicken caesar wrap</span><span class="mx-picker-kcal">520</span></div>
+          <div class="mx-picker-opt"><span class="mx-picker-name">Lentil tomato soup</span><span class="mx-picker-kcal">390</span></div>
+          <div class="mx-picker-opt"><span class="mx-picker-name">Tuna salad on greens</span><span class="mx-picker-kcal">440</span></div>
+          <div class="mx-picker-opt"><span class="mx-picker-name">Quinoa bowl</span><span class="mx-picker-kcal">490</span></div>
+          <div class="mx-picker-opt"><span class="mx-picker-name">Mediterranean grain bowl</span><span class="mx-picker-kcal">510</span></div>
+          <div class="mx-picker-foot">
+            <span>Browse all lunch recipes</span>
+            <span>→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 20px;">
+      Picker logic: favorited recipes whose <code>tags</code> field contains the slot's mealType.
+      Footer link opens the full Recipes index filtered to that mealType — non-favorited recipes too.
+      If zero matching favorites: skip the favorites list and show only "Browse all lunch recipes →" with a small "No favorited lunch recipes yet" note.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 6 — Resolved decisions + remaining questions ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">06</div>
+      <div class="section-title">Resolved + remaining</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="anno">Resolved</div>
+    <p class="qbox">
+      <strong>Direction:</strong> Replace planner with matrix under a feature flag. Stage 1 builds at the same URL.<br>
+      <strong>Slots are typed.</strong> Breakfast slot, not generic slot 1.<br>
+      <strong>Default 3 slots (B/L/D)</strong> for new plans.<br>
+      <strong>Slots are reorderable</strong> via drag grip.<br>
+      <strong>"Need more?" footer row</strong> exposes typed additions.<br>
+      <strong>No commit step</strong> — picks save immediately.
+    </p>
+
+    <div class="anno">Remaining questions</div>
+    <p class="qbox">
+      <strong>Q1 · Approach A vs B?</strong> Side-by-side in §02. I recommend A (global rows) for the grid aesthetic. <em>Need your call.</em>
+    </p>
+    <p class="qbox" style="margin-top: 8px;">
+      <strong>Q2 · What happens to existing meal plans?</strong> The data model is unchanged (MealLog stays). Existing plans render fine in matrix view because each MealLog already has a mealType. The only quirk: plans created in the old UI may have multiple meals per (date, mealType) — matrix shows them as one cell? Or splits into sub-cells? Probably show the first and a "+1 more" indicator. <em>Need your call.</em>
+    </p>
+    <p class="qbox" style="margin-top: 8px;">
+      <strong>Q3 · Feature flag mechanism?</strong> Settings toggle ("Use new planner view") that defaults to off, or env-based for now? <em>I'd say settings toggle — easier to test side by side.</em>
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

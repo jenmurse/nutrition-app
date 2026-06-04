@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix mode v3 — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #F5F4EF;
+    --bg-2: #EEEAE3;
+    --bg-3: #E6E2D8;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #B43A1F;
+    --ok: #4F6B3A;
+    --accent: #7C8C5F;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: -12px 0 24px;
+  }
+
+  /* ───────── Browse all sheet ───────── */
+  .browse-stage {
+    position: relative;
+    background: var(--bg-3);
+    padding: 40px;
+    border: 1px solid var(--rule);
+    min-height: 720px;
+    overflow: hidden;
+  }
+  .browse-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.20);
+  }
+  .browse-sheet {
+    position: absolute;
+    top: 40px; right: 40px; bottom: 40px;
+    width: 460px;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    display: flex; flex-direction: column;
+  }
+  .browse-head {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .browse-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .browse-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .browse-search {
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--fg);
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .browse-toolbar {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .browse-chip {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; padding: 0;
+  }
+  .browse-chip.is-active { color: var(--fg); }
+  .browse-spacer { flex: 1; }
+  .browse-count {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .browse-list {
+    flex: 1; overflow-y: auto;
+  }
+  .browse-item {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px; align-items: center;
+    cursor: pointer;
+  }
+  .browse-item:hover { background: var(--bg-2); }
+  .browse-thumb {
+    width: 44px; height: 44px;
+    background: var(--bg-3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-sans);
+    font-size: 9px; font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    opacity: 0.5;
+    overflow: hidden;
+  }
+  .browse-thumb.has-img {
+    background: linear-gradient(135deg, #c4b89e, #9c8b6f);
+    opacity: 1;
+  }
+  .browse-info { min-width: 0; }
+  .browse-name {
+    font-family: var(--font-sans);
+    font-size: 14px; font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    margin-bottom: 4px;
+  }
+  .browse-meta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .browse-fav {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .browse-fav.on { color: var(--fg); }
+
+  /* ───────── Mobile mockup ───────── */
+  .mob-stage {
+    display: flex; gap: 32px;
+    align-items: flex-start;
+  }
+  .mob-frame {
+    width: 390px;
+    border: 1px solid var(--fg);
+    background: var(--bg);
+    border-radius: 28px;
+    overflow: hidden;
+    padding: 14px 0;
+  }
+  .mob-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 18px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-wm {
+    font-family: var(--font-sans);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .mob-pchip {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+    border: 1px solid var(--rule);
+    padding: 4px 10px;
+  }
+  .mob-tb {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-week {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .mob-arrows {
+    display: flex; gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Mobile: day strip horizontal */
+  .mob-daystrip {
+    display: flex;
+    border-bottom: 1px solid var(--rule);
+    padding: 0;
+  }
+  .mob-daypill {
+    flex: 1;
+    padding: 12px 6px 10px;
+    text-align: center;
+    border-right: 1px solid var(--rule);
+    cursor: pointer;
+  }
+  .mob-daypill:last-child { border-right: 0; }
+  .mob-daypill.active {
+    background: var(--bg-2);
+  }
+  .mob-daypill .dn {
+    font-family: var(--font-mono);
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .mob-daypill.active .dn { color: var(--fg); }
+  .mob-daypill .ddn {
+    font-family: var(--font-sans);
+    font-size: 14px; font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .mob-daypill.active .ddn { color: var(--accent); }
+  .mob-daypill .ddot {
+    width: 4px; height: 4px;
+    background: var(--rule);
+    border-radius: 50%;
+    margin: 4px auto 0;
+  }
+  .mob-daypill.has-meals .ddot { background: var(--fg); }
+
+  /* Mobile: slot rows for the active day */
+  .mob-slot {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .mob-slot-label {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+  }
+  .mob-slot-name {
+    font-family: var(--font-sans);
+    font-size: 16px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+  }
+  .mob-slot-meta {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .mob-slot.empty .mob-slot-name {
+    color: var(--muted);
+    font-style: normal;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+
+  .mob-addslot {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .mob-addslot .lbl {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+    align-self: center;
+  }
+  .mob-addslot button {
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 5px 9px;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+  }
+
+  /* Mobile totals strip */
+  .mob-totals {
+    padding: 14px 18px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-totals-head {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .mob-totals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px 16px;
+  }
+  .mob-tot-cell .k {
+    font-family: var(--font-mono);
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mob-tot-cell .v {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .mob-tot-cell .v.over { color: var(--err); }
+  .mob-tot-cell .v.met { color: var(--ok); }
+
+  /* Mobile bottom sheet picker */
+  .mob-sheet-stage {
+    position: relative;
+    background: var(--bg-3);
+    padding: 40px;
+    border: 1px solid var(--rule);
+  }
+  .mob-sheet-frame {
+    width: 390px;
+    margin: 0 auto;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    border-radius: 28px 28px 0 0;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    height: 540px;
+  }
+  .mob-sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    margin: 12px auto 8px;
+  }
+  .mob-sheet-head {
+    padding: 14px 22px 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-sheet-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mob-sheet-title {
+    font-size: 17px; font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+  .mob-sheet-search {
+    width: 100%;
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    letter-spacing: -0.03em;
+    background: var(--bg);
+  }
+  .mob-sheet-toggles {
+    display: flex; gap: 16px;
+    padding: 10px 22px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-sheet-toggle {
+    background: transparent; border: 0;
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; padding: 0;
+  }
+  .mob-sheet-toggle.is-active { color: var(--fg); }
+  .mob-sheet-list { flex: 1; overflow-y: auto; }
+  .mob-sheet-item {
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  }
+  .mob-sheet-iname {
+    font-size: 14px; font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+  .mob-sheet-imeta {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .mob-sheet-kcal {
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Annotations */
+  .anno {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 8px;
+  }
+  .qbox {
+    border-left: 2px solid var(--rule);
+    padding: 4px 0 4px 14px;
+    margin: 0 0 6px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .qbox strong { color: var(--fg); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="doc-title">Matrix mode v3</div>
+  <div class="doc-intro">
+    Answering: what does "Browse all lunch recipes" actually look like, and how does the whole matrix render on mobile.
+    Custom row dropped — every meal fits an existing typed slot.
+  </div>
+
+  <!-- ============== SECTION 1 — Browse all sheet ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">"Browse all" — right-side sheet over the matrix</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ FAVORITES PICKER ESCAPED · FULL LIBRARY · SEARCHABLE</div>
+
+    <div class="browse-stage">
+      <div class="browse-backdrop"></div>
+      <div class="browse-sheet">
+        <div class="browse-head">
+          <div class="browse-eyebrow">§ ALL LUNCH RECIPES</div>
+          <div class="browse-title">For Wed lunch</div>
+          <input class="browse-search" placeholder="Search lunch recipes…" />
+          <div class="browse-toolbar">
+            <button class="browse-chip is-active">All</button>
+            <button class="browse-chip">★ Favorites only</button>
+            <button class="browse-chip">Recent</button>
+            <div class="browse-spacer"></div>
+            <span class="browse-count">38 recipes</span>
+          </div>
+        </div>
+        <div class="browse-list">
+          <!-- Favorites first (visually flagged) -->
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Chicken caesar wrap</div>
+              <div class="browse-meta">520 · 38g P · 12g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Lentil tomato soup</div>
+              <div class="browse-meta">390 · 22g P · 14g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Tuna salad on greens</div>
+              <div class="browse-meta">440 · 34g P · 8g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb">QB</div>
+            <div class="browse-info">
+              <div class="browse-name">Quinoa bowl with chickpeas</div>
+              <div class="browse-meta">490 · 19g P · 11g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Mediterranean grain bowl</div>
+              <div class="browse-meta">510 · 17g P · 13g fiber</div>
+            </div>
+            <div class="browse-fav on">★</div>
+          </div>
+          <!-- Non-favorites -->
+          <div class="browse-item">
+            <div class="browse-thumb">TS</div>
+            <div class="browse-info">
+              <div class="browse-name">Tomato basil salad</div>
+              <div class="browse-meta">280 · 8g P · 6g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">BLT on sourdough</div>
+              <div class="browse-meta">580 · 24g P · 6g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb">CS</div>
+            <div class="browse-info">
+              <div class="browse-name">Cobb salad</div>
+              <div class="browse-meta">540 · 36g P · 8g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb has-img"></div>
+            <div class="browse-info">
+              <div class="browse-name">Vietnamese banh mi</div>
+              <div class="browse-meta">620 · 28g P · 7g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+          <div class="browse-item">
+            <div class="browse-thumb">FF</div>
+            <div class="browse-info">
+              <div class="browse-name">Falafel pita</div>
+              <div class="browse-meta">540 · 16g P · 10g fiber</div>
+            </div>
+            <div class="browse-fav">☆</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>Sheet behavior:</strong> slides in from right over the matrix. Backdrop dims the rest.
+      Favorites sorted first by default, then non-favorites. Each row has a ★ toggle so you can favorite right here without leaving the picker — important when seeding your rotation.
+      Click a row → fills the cell → sheet closes.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Search</strong> filters the whole list, not just visible.
+      <strong>Sort/filter chips</strong> mirror the Recipes index pattern but compact (All / Favorites only / Recent).
+      <strong>Width 460px</strong> — wide enough for full names + macros, narrow enough to keep some matrix visible on the left as context.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 2 — Mobile layout ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Mobile — one day at a time</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ DAY STRIP AT TOP · SLOT ROWS FOR THE ACTIVE DAY · TOTALS BELOW</div>
+
+    <div class="mob-stage">
+      <div class="mob-frame">
+        <div class="mob-topbar">
+          <div class="mob-wm">Good Measure</div>
+          <div class="mob-pchip">Jen ▾</div>
+        </div>
+
+        <div class="mob-tb">
+          <div class="mob-week">Jan 15–21</div>
+          <div class="mob-arrows">‹ Prev · Next ›</div>
+        </div>
+
+        <!-- Day strip — same pattern as current planner mobile -->
+        <div class="mob-daystrip">
+          <div class="mob-daypill has-meals">
+            <div class="dn">Mon</div>
+            <div class="ddn">15</div>
+            <div class="ddot"></div>
+          </div>
+          <div class="mob-daypill has-meals">
+            <div class="dn">Tue</div>
+            <div class="ddn">16</div>
+            <div class="ddot"></div>
+          </div>
+          <div class="mob-daypill active has-meals">
+            <div class="dn">Wed</div>
+            <div class="ddn">17</div>
+            <div class="ddot"></div>
+          </div>
+          <div class="mob-daypill">
+            <div class="dn">Thu</div>
+            <div class="ddn">18</div>
+            <div class="ddot"></div>
+          </div>
+          <div class="mob-daypill">
+            <div class="dn">Fri</div>
+            <div class="ddn">19</div>
+            <div class="ddot"></div>
+          </div>
+          <div class="mob-daypill">
+            <div class="dn">Sat</div>
+            <div class="ddn">20</div>
+            <div class="ddot"></div>
+          </div>
+          <div class="mob-daypill">
+            <div class="dn">Sun</div>
+            <div class="ddn">21</div>
+            <div class="ddot"></div>
+          </div>
+        </div>
+
+        <!-- Slots for the active day -->
+        <div class="mob-slot">
+          <div class="mob-slot-label"><span>Breakfast</span><span>★</span></div>
+          <div class="mob-slot-name">Veggie scramble + toast</div>
+          <div class="mob-slot-meta">410 · 26g P</div>
+        </div>
+        <div class="mob-slot">
+          <div class="mob-slot-label"><span>Lunch</span><span>★</span></div>
+          <div class="mob-slot-name">Tuna salad on greens</div>
+          <div class="mob-slot-meta">440 · 34g P</div>
+        </div>
+        <div class="mob-slot">
+          <div class="mob-slot-label"><span>Dinner</span><span>★</span></div>
+          <div class="mob-slot-name">Beef stir fry</div>
+          <div class="mob-slot-meta">610 · 38g P</div>
+        </div>
+        <div class="mob-slot empty">
+          <div class="mob-slot-label"><span>Snack</span></div>
+          <div class="mob-slot-name">+ pick</div>
+        </div>
+
+        <div class="mob-addslot">
+          <span class="lbl">Need more?</span>
+          <button>+ Side</button>
+          <button>+ Dessert</button>
+          <button>+ Bev</button>
+        </div>
+
+        <div class="mob-totals">
+          <div class="mob-totals-head">Wed totals</div>
+          <div class="mob-totals-grid">
+            <div class="mob-tot-cell"><div class="k">Cal</div><div class="v">1,460</div></div>
+            <div class="mob-tot-cell"><div class="k">Fat</div><div class="v">56g</div></div>
+            <div class="mob-tot-cell"><div class="k">Sat F</div><div class="v over">20g</div></div>
+            <div class="mob-tot-cell"><div class="k">Na</div><div class="v over">2,460mg</div></div>
+            <div class="mob-tot-cell"><div class="k">Carb</div><div class="v">164g</div></div>
+            <div class="mob-tot-cell"><div class="k">Sugar</div><div class="v">38g</div></div>
+            <div class="mob-tot-cell"><div class="k">Prot</div><div class="v met">108g</div></div>
+            <div class="mob-tot-cell"><div class="k">Fiber</div><div class="v">22g</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 360px;">
+        <div class="anno">Mobile model</div>
+        <p class="qbox">
+          <strong>One day at a time.</strong> Day pills horizontal at top (the existing planner mobile pattern). Tap a pill to switch day.
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>Slot rows full-width.</strong> Breakfast / Lunch / Dinner stacked vertically. Each row shows recipe name, macros, ★ if favorited.
+          Tap an empty slot to open the bottom-sheet picker.
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>"Need more?" footer</strong> exposes Side / Dessert / Beverage chips. Adding one inserts a slot row above. Snack is shown by default if any slot in the week has one (global pattern carries over).
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>Day totals at the bottom</strong> — 8 metrics in a 4-col grid. Three-state color same as desktop.
+        </p>
+        <p class="qbox" style="margin-top: 8px;">
+          <strong>Pl day-pill dots</strong> indicate days with meals (solid) vs empty (hollow). Quick scan of week status.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SECTION 3 — Mobile picker sheet ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Mobile cell picker — bottom sheet</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="section-note">§ TAP A SLOT · BOTTOM SHEET SLIDES UP · SAME PATTERN AS ADD MEAL TODAY</div>
+
+    <div class="mob-sheet-stage">
+      <div class="mob-sheet-frame">
+        <div class="mob-sheet-handle"></div>
+        <div class="mob-sheet-head">
+          <div class="mob-sheet-eyebrow">§ WED · LUNCH</div>
+          <div class="mob-sheet-title">Pick a recipe</div>
+          <input class="mob-sheet-search" placeholder="Search lunch recipes…" />
+        </div>
+        <div class="mob-sheet-toggles">
+          <button class="mob-sheet-toggle is-active">★ Favorites (5)</button>
+          <button class="mob-sheet-toggle">All (38)</button>
+          <button class="mob-sheet-toggle">Recent</button>
+        </div>
+        <div class="mob-sheet-list">
+          <div class="mob-sheet-item">
+            <div>
+              <div class="mob-sheet-iname">Chicken caesar wrap</div>
+              <div class="mob-sheet-imeta">38g P · 12g fiber</div>
+            </div>
+            <div class="mob-sheet-kcal">520</div>
+          </div>
+          <div class="mob-sheet-item">
+            <div>
+              <div class="mob-sheet-iname">Lentil tomato soup</div>
+              <div class="mob-sheet-imeta">22g P · 14g fiber</div>
+            </div>
+            <div class="mob-sheet-kcal">390</div>
+          </div>
+          <div class="mob-sheet-item">
+            <div>
+              <div class="mob-sheet-iname">Tuna salad on greens</div>
+              <div class="mob-sheet-imeta">34g P · 8g fiber</div>
+            </div>
+            <div class="mob-sheet-kcal">440</div>
+          </div>
+          <div class="mob-sheet-item">
+            <div>
+              <div class="mob-sheet-iname">Quinoa bowl with chickpeas</div>
+              <div class="mob-sheet-imeta">19g P · 11g fiber</div>
+            </div>
+            <div class="mob-sheet-kcal">490</div>
+          </div>
+          <div class="mob-sheet-item">
+            <div>
+              <div class="mob-sheet-iname">Mediterranean grain bowl</div>
+              <div class="mob-sheet-imeta">17g P · 13g fiber</div>
+            </div>
+            <div class="mob-sheet-kcal">510</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="qbox" style="margin-top: 24px;">
+      <strong>Bottom sheet</strong> — same pattern as the existing AddMealSheet. Handle, head with eyebrow + search, segmented toggles (Favorites / All / Recent), scrollable list.
+      Tap a recipe to fill the slot and dismiss the sheet.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>The toggle order matters:</strong> Favorites first (default tab), All for the escape, Recent for "I cooked that last week and liked it." Recent should probably ship in phase 2 if we don't have the tracking infra yet.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 4 — MCP/swap thinking ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <div class="section-title">What about the nutrition pull-out + swap?</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <p class="qbox">
+      <strong>The current planner's nutrition pull-out</strong> is two things at once:
+      (1) a per-day totals view, (2) a "click a meal to see what to swap to hit goals" affordance.
+      Matrix already does (1) better — totals live below every day column, always visible, no toggle needed.
+      What's lost is (2): the swap suggestion.
+    </p>
+    <p class="qbox" style="margin-top: 8px;">
+      <strong>Replacing swap with Claude via MCP:</strong> add two MCP tools — <code>get_meal_plan_week(planId)</code> and <code>swap_meal(mealLogId, recipeId)</code>.
+      In the Optimization prompt block (already exists on recipes), add a planner variant: <em>"Wednesday is over on sat fat and sodium. What can I swap?"</em>
+      Claude reads the structured plan, the per-recipe nutrition, the user's goals, and the favorited candidates — then suggests swaps with rationale.
+    </p>
+    <p class="qbox" style="margin-top: 8px;">
+      <strong>This is actually stronger than the current swap UI</strong> — the swap tool today shows you alternatives by nutrient, not by your goals as a whole. Claude with full context can balance everything at once.
+      Phase 2. Not blocking matrix shipping.
+    </p>
+    <p class="qbox" style="margin-top: 8px;">
+      <strong>For now (Phase 1):</strong> the three-state color on the totals row tells you which days are over. You click an over-limit cell and pick something different from your favorites. Manual swap. Good enough to ship.
+    </p>
+  </div>
+
+  <!-- ============== SECTION 5 — Final open items ============== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <div class="section-title">What I still need from you</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <p class="qbox">
+      <strong>Q1 · Confirm Approach A (global rows)</strong> — locked unless you want to revisit.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Q2 · Browse-all sheet width/position OK?</strong> — 460px right-side, dims rest of matrix. Alternative: full-screen takeover. I think the right-side sheet is the right call because it preserves spatial context.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Q3 · Mobile day-strip pills</strong> — using the existing planner pattern. Sound right?
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Q4 · Recent tab</strong> — defer to phase 2 unless we already track this somewhere.
+    </p>
+    <p class="qbox" style="margin-top: 6px;">
+      <strong>Q5 · Existing plans with 2+ meals in the same (date, mealType)</strong> — show first + "+1 more" indicator? Or stack them in one cell? I lean +1 more indicator with a click-through.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorite glyph mockups — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --bg: #F5F4EF;
+    --bg-2: #EEEAE3;
+    --bg-3: #E6E2D8;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  h1 {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .intro {
+    color: var(--muted);
+    margin-bottom: 56px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 8px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 8px 0 28px;
+  }
+  .variant-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 16px;
+  }
+  .variant-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .variant-desc {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+    margin-top: 8px;
+  }
+
+  /* ── Shared glyph ── */
+  .fav {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: none; border: 0;
+    padding: 4px 6px;
+    cursor: pointer;
+    color: var(--muted);
+    line-height: 1;
+    transition: color 120ms var(--ease-out);
+  }
+  .fav:hover { color: var(--fg); }
+  .fav.on { color: var(--fg); }
+
+  /* ── Recipe grid card (matches real layout: photo top, text bottom-left) ── */
+  .rg {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--rule);
+  }
+  .rg-card {
+    aspect-ratio: 1 / 1;
+    position: relative;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+  }
+  .rg-card:nth-child(2n) { border-right: none; }
+  .rg-card.no-photo {
+    background: var(--bg);
+  }
+  .rg-text {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    right: 24px;
+  }
+  .rg-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .rg-name {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .rg-card .fav-top-right {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(245, 244, 239, 0.85);
+    padding: 6px 8px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ── Recipe list row (matches real layout: thumb · name · eyebrow inline · nutrition right) ── */
+  .rl { border-top: 1px solid var(--rule); }
+  .rl-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 60px 50px 60px 50px 40px;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .rl-thumb {
+    width: 60px; height: 45px;
+    background: var(--bg-3);
+    background-size: cover; background-position: center;
+  }
+  .rl-name-block {
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .rl-name {
+    font-size: 17px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .rl-eye {
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rl-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 500;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .rl-num small {
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 2px;
+  }
+  .rl-fav { text-align: right; }
+
+  /* ── Pantry grid (matches real layout: eyebrow top, name, unit, nutrition table) ── */
+  .pg {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--rule);
+  }
+  .pg-card {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 22px 28px 28px;
+    position: relative;
+  }
+  .pg-card:nth-child(2n) { border-right: none; }
+  .pg-eyebrow-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .pg-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pg-name {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .pg-unit {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .pg-nut {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .pg-nut-row {
+    display: flex; justify-content: space-between;
+  }
+  .pg-nut-row > span:first-child {
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+
+  /* ── Pantry list row (name · eyebrow inline · 8 nutrition values · edit/delete icons) ── */
+  .pl { border-top: 1px solid var(--rule); }
+  .pl-row {
+    display: grid;
+    grid-template-columns: 1fr repeat(8, 56px) 36px 50px;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pl-name-block {
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  .pl-name {
+    font-size: 15px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .pl-eye {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pl-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .pl-num small {
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 1px;
+    font-size: 10px;
+  }
+  .pl-icons {
+    display: flex; gap: 4px; justify-content: flex-end;
+  }
+  .pl-icon-btn {
+    width: 24px; height: 24px;
+    border: 1px solid var(--rule);
+    background: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* placeholder gradients (real product uses real photos) */
+  .ph-1 { background: linear-gradient(135deg, #c4986e, #8b6440); }
+  .ph-2 { background: linear-gradient(135deg, #6e8c5a, #3d5a30); }
+  .ph-3 { background: linear-gradient(135deg, #a85a3a, #5e2818); }
+  .ph-4 { background: linear-gradient(135deg, #d9c89a, #998358); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Favorite glyph — placement options</h1>
+<p class="intro">
+  This pass matches the actual layouts from screenshots: recipe grid is photo-dominant with text bottom-left; recipe list has eyebrow inline next to the name; pantry grid has eyebrow at top with a full nutrition table; pantry list has eyebrow inline with the name and a trailing edit/delete column. Each surface shows three placement variants for the favorite glyph so you can compare.
+</p>
+
+<!-- ── RECIPE GRID ── -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <span class="section-title">Recipe grid</span>
+    <div class="section-rule"></div>
+  </div>
+  <div class="section-note">Photo dominant. Text block sits bottom-left.</div>
+
+  <div class="variant-row">
+    <div>
+      <div class="variant-label">A — Top-right corner with translucent backing</div>
+      <div class="rg">
+        <div class="rg-card ph-1">
+          <button class="fav on fav-top-right">★</button>
+          <div class="rg-text" style="color: white;">
+            <div class="rg-eyebrow" style="color: rgba(255,255,255,0.8);">Breakfast</div>
+            <div class="rg-name">Overnight Oats PB</div>
+          </div>
+        </div>
+        <div class="rg-card no-photo">
+          <button class="fav fav-top-right" style="background: transparent;">☆</button>
+          <div class="rg-text">
+            <div class="rg-eyebrow">Dessert</div>
+            <div class="rg-name">Almond Croissant Blondies</div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Top-right corner with a subtle blur backing for readability over photos. Always in the same spot. Risk: still sits ON the photo even with the backing.</p>
+    </div>
+
+    <div>
+      <div class="variant-label">B — Inline with eyebrow (in text area, never on photo)</div>
+      <div class="rg">
+        <div class="rg-card ph-1">
+          <div class="rg-text" style="color: white;">
+            <div class="rg-eyebrow" style="color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 10px;">
+              <span>Breakfast</span>
+              <button class="fav on" style="color: white;">★</button>
+            </div>
+            <div class="rg-name">Overnight Oats PB</div>
+          </div>
+        </div>
+        <div class="rg-card no-photo">
+          <div class="rg-text">
+            <div class="rg-eyebrow" style="display: flex; align-items: center; gap: 10px;">
+              <span>Dessert</span>
+              <button class="fav">☆</button>
+            </div>
+            <div class="rg-name">Almond Croissant Blondies</div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Glyph sits next to the category eyebrow, inside the text block. Always in the text zone, never overlaying the photo. Reads as metadata.</p>
+    </div>
+  </div>
+
+  <div class="variant-row" style="grid-template-columns: 1fr; max-width: 540px;">
+    <div>
+      <div class="variant-label">C — Standalone bar at top of text block (above eyebrow)</div>
+      <div class="rg">
+        <div class="rg-card ph-1">
+          <div class="rg-text" style="color: white;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+              <div class="rg-eyebrow" style="color: rgba(255,255,255,0.8); margin: 0;">Breakfast</div>
+              <button class="fav on" style="color: white; padding: 0;">★</button>
+            </div>
+            <div class="rg-name">Overnight Oats PB</div>
+          </div>
+        </div>
+        <div class="rg-card no-photo">
+          <div class="rg-text">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+              <div class="rg-eyebrow" style="margin: 0;">Dessert</div>
+              <button class="fav" style="padding: 0;">☆</button>
+            </div>
+            <div class="rg-name">Almond Croissant Blondies</div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Eyebrow on the left, glyph on the right, on the same line — like a header row above the title. Maximum prominence within the text area. Title still gets the main visual weight.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── RECIPE LIST ── -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <span class="section-title">Recipe list</span>
+    <div class="section-rule"></div>
+  </div>
+  <div class="section-note">Thumb · name + eyebrow inline · 4 nutrition columns at right.</div>
+
+  <div class="variant-label">A — Trailing column at far right</div>
+  <div class="rl">
+    <div class="rl-row">
+      <div class="rl-thumb ph-1"></div>
+      <div class="rl-name-block">
+        <span class="rl-name">Overnight Oats PB</span>
+        <span class="rl-eye">Breakfast</span>
+      </div>
+      <div class="rl-num">367<small>kcal</small></div>
+      <div class="rl-num">11<small>fat</small></div>
+      <div class="rl-num">36<small>carb</small></div>
+      <div class="rl-num">33<small>prot</small></div>
+      <div class="rl-fav"><button class="fav on">★</button></div>
+    </div>
+    <div class="rl-row">
+      <div class="rl-thumb ph-2"></div>
+      <div class="rl-name-block">
+        <span class="rl-name">Roasted Turmeric Cauliflower</span>
+        <span class="rl-eye">Dinner</span>
+      </div>
+      <div class="rl-num">509<small>kcal</small></div>
+      <div class="rl-num">10<small>fat</small></div>
+      <div class="rl-num">64<small>carb</small></div>
+      <div class="rl-num">27<small>prot</small></div>
+      <div class="rl-fav"><button class="fav">☆</button></div>
+    </div>
+  </div>
+  <p class="variant-desc">Glyph sits in its own column at the far right. Same vertical rhythm as the nutrition values. Always in the same horizontal position.</p>
+
+  <div class="variant-label" style="margin-top: 36px;">B — Inline next to eyebrow (just after the category)</div>
+  <div class="rl">
+    <div class="rl-row" style="grid-template-columns: 60px 1fr 60px 50px 60px 50px;">
+      <div class="rl-thumb ph-1"></div>
+      <div class="rl-name-block">
+        <span class="rl-name">Overnight Oats PB</span>
+        <span class="rl-eye">Breakfast</span>
+        <button class="fav on" style="margin-left: 6px;">★</button>
+      </div>
+      <div class="rl-num">367<small>kcal</small></div>
+      <div class="rl-num">11<small>fat</small></div>
+      <div class="rl-num">36<small>carb</small></div>
+      <div class="rl-num">33<small>prot</small></div>
+    </div>
+    <div class="rl-row" style="grid-template-columns: 60px 1fr 60px 50px 60px 50px;">
+      <div class="rl-thumb ph-2"></div>
+      <div class="rl-name-block">
+        <span class="rl-name">Roasted Turmeric Cauliflower</span>
+        <span class="rl-eye">Dinner</span>
+        <button class="fav" style="margin-left: 6px;">☆</button>
+      </div>
+      <div class="rl-num">509<small>kcal</small></div>
+      <div class="rl-num">10<small>fat</small></div>
+      <div class="rl-num">64<small>carb</small></div>
+      <div class="rl-num">27<small>prot</small></div>
+    </div>
+  </div>
+  <p class="variant-desc">Glyph rides with the name + eyebrow. Saves a column. Lives where the eye scans for "what is this row."</p>
+</div>
+
+<!-- ── PANTRY GRID ── -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <span class="section-title">Pantry grid</span>
+    <div class="section-rule"></div>
+  </div>
+  <div class="section-note">Eyebrow at top, name, unit, then 8-row nutrition table.</div>
+
+  <div class="variant-row">
+    <div>
+      <div class="variant-label">A — Trailing the eyebrow at top</div>
+      <div class="pg">
+        <div class="pg-card">
+          <div class="pg-eyebrow-row">
+            <span class="pg-eyebrow">Nuts &amp; Seeds</span>
+            <button class="fav on" style="padding: 0;">★</button>
+          </div>
+          <div class="pg-name">Almond butter</div>
+          <div class="pg-unit">2 Tbsp (32g)</div>
+          <div class="pg-nut">
+            <div class="pg-nut-row"><span>Calories</span><span>656</span></div>
+            <div class="pg-nut-row"><span>Fat</span><span>53g</span></div>
+            <div class="pg-nut-row"><span>Sat fat</span><span>5g</span></div>
+            <div class="pg-nut-row"><span>Sodium</span><span>0mg</span></div>
+          </div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-eyebrow-row">
+            <span class="pg-eyebrow">Baking</span>
+            <button class="fav" style="padding: 0;">☆</button>
+          </div>
+          <div class="pg-name">Almond extract</div>
+          <div class="pg-unit">1 tsp (4g)</div>
+          <div class="pg-nut">
+            <div class="pg-nut-row"><span>Calories</span><span>300</span></div>
+            <div class="pg-nut-row"><span>Fat</span><span>0g</span></div>
+            <div class="pg-nut-row"><span>Sat fat</span><span>0g</span></div>
+            <div class="pg-nut-row"><span>Sodium</span><span>0mg</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Glyph on the right end of the eyebrow row. Doesn't compete with the title. Lives at the top so it's findable.</p>
+    </div>
+
+    <div>
+      <div class="variant-label">B — Trailing the name (inline with title)</div>
+      <div class="pg">
+        <div class="pg-card">
+          <div class="pg-eyebrow">Nuts &amp; Seeds</div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <div class="pg-name">Almond butter</div>
+            <button class="fav on" style="">★</button>
+          </div>
+          <div class="pg-unit">2 Tbsp (32g)</div>
+          <div class="pg-nut">
+            <div class="pg-nut-row"><span>Calories</span><span>656</span></div>
+            <div class="pg-nut-row"><span>Fat</span><span>53g</span></div>
+            <div class="pg-nut-row"><span>Sat fat</span><span>5g</span></div>
+            <div class="pg-nut-row"><span>Sodium</span><span>0mg</span></div>
+          </div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-eyebrow">Baking</div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <div class="pg-name">Almond extract</div>
+            <button class="fav" style="">☆</button>
+          </div>
+          <div class="pg-unit">1 tsp (4g)</div>
+          <div class="pg-nut">
+            <div class="pg-nut-row"><span>Calories</span><span>300</span></div>
+            <div class="pg-nut-row"><span>Fat</span><span>0g</span></div>
+            <div class="pg-nut-row"><span>Sat fat</span><span>0g</span></div>
+            <div class="pg-nut-row"><span>Sodium</span><span>0mg</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="variant-desc">Slightly larger glyph riding the title line. More visible but takes weight from the name itself.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANTRY LIST ── -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">04</span>
+    <span class="section-title">Pantry list</span>
+    <div class="section-rule"></div>
+  </div>
+  <div class="section-note">Name + eyebrow inline · 8 nutrition values · edit/delete icons at right.</div>
+
+  <div class="variant-label">A — Glyph at far right, before edit/delete icons</div>
+  <div class="pl">
+    <div class="pl-row">
+      <div class="pl-name-block">
+        <span class="pl-name">Almond butter</span>
+        <span class="pl-eye">Nuts &amp; Seeds</span>
+      </div>
+      <div class="pl-num">656<small>kcal</small></div>
+      <div class="pl-num">53<small>g fat</small></div>
+      <div class="pl-num">5<small>g sat</small></div>
+      <div class="pl-num">0<small>mg sod</small></div>
+      <div class="pl-num">19<small>g carb</small></div>
+      <div class="pl-num">3<small>g sug</small></div>
+      <div class="pl-num">19<small>g prot</small></div>
+      <div class="pl-num">6<small>g fib</small></div>
+      <div><button class="fav on" style="padding: 0; ">★</button></div>
+      <div class="pl-icons">
+        <button class="pl-icon-btn">✎</button>
+        <button class="pl-icon-btn">×</button>
+      </div>
+    </div>
+    <div class="pl-row">
+      <div class="pl-name-block">
+        <span class="pl-name">Almond extract</span>
+        <span class="pl-eye">Baking</span>
+      </div>
+      <div class="pl-num">300<small>kcal</small></div>
+      <div class="pl-num">0<small>g fat</small></div>
+      <div class="pl-num">0<small>g sat</small></div>
+      <div class="pl-num">0<small>mg sod</small></div>
+      <div class="pl-num">0<small>g carb</small></div>
+      <div class="pl-num">25<small>g sug</small></div>
+      <div class="pl-num">0<small>g prot</small></div>
+      <div class="pl-num">0<small>g fib</small></div>
+      <div><button class="fav" style="padding: 0; ">☆</button></div>
+      <div class="pl-icons">
+        <button class="pl-icon-btn">✎</button>
+        <button class="pl-icon-btn">×</button>
+      </div>
+    </div>
+  </div>
+  <p class="variant-desc">New column between the nutrition values and the edit/delete icons. Symmetric with recipe list variant A.</p>
+
+  <div class="variant-label" style="margin-top: 36px;">B — Inline with the name + eyebrow</div>
+  <div class="pl">
+    <div class="pl-row" style="grid-template-columns: 1fr repeat(8, 56px) 50px;">
+      <div class="pl-name-block">
+        <span class="pl-name">Almond butter</span>
+        <span class="pl-eye">Nuts &amp; Seeds</span>
+        <button class="fav on" style="margin-left: 8px;">★</button>
+      </div>
+      <div class="pl-num">656<small>kcal</small></div>
+      <div class="pl-num">53<small>g fat</small></div>
+      <div class="pl-num">5<small>g sat</small></div>
+      <div class="pl-num">0<small>mg sod</small></div>
+      <div class="pl-num">19<small>g carb</small></div>
+      <div class="pl-num">3<small>g sug</small></div>
+      <div class="pl-num">19<small>g prot</small></div>
+      <div class="pl-num">6<small>g fib</small></div>
+      <div class="pl-icons">
+        <button class="pl-icon-btn">✎</button>
+        <button class="pl-icon-btn">×</button>
+      </div>
+    </div>
+    <div class="pl-row" style="grid-template-columns: 1fr repeat(8, 56px) 50px;">
+      <div class="pl-name-block">
+        <span class="pl-name">Almond extract</span>
+        <span class="pl-eye">Baking</span>
+        <button class="fav" style="margin-left: 8px;">☆</button>
+      </div>
+      <div class="pl-num">300<small>kcal</small></div>
+      <div class="pl-num">0<small>g fat</small></div>
+      <div class="pl-num">0<small>g sat</small></div>
+      <div class="pl-num">0<small>mg sod</small></div>
+      <div class="pl-num">0<small>g carb</small></div>
+      <div class="pl-num">25<small>g sug</small></div>
+      <div class="pl-num">0<small>g prot</small></div>
+      <div class="pl-num">0<small>g fib</small></div>
+      <div class="pl-icons">
+        <button class="pl-icon-btn">✎</button>
+        <button class="pl-icon-btn">×</button>
+      </div>
+    </div>
+  </div>
+  <p class="variant-desc">Glyph rides with the name + eyebrow. Saves a column. Symmetric with recipe list variant B.</p>
+</div>
+
+</div>
+</body>
+</html>

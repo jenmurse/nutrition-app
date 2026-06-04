@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe grid favorite — comparison with real photos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --bg: #F5F4EF;
+    --bg-2: #EEEAE3;
+    --bg-3: #E6E2D8;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  h1 {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .intro {
+    color: var(--muted);
+    margin-bottom: 56px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+  .section { margin-bottom: 80px; }
+  .variant-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .variant-desc {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 760px;
+  }
+
+  .fav {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: none; border: 0;
+    cursor: pointer;
+    line-height: 1;
+    color: var(--muted);
+    transition: color 120ms var(--ease-out);
+  }
+  .fav:hover { color: var(--fg); }
+  .fav.on { color: var(--fg); }
+
+  /* ── Recipe grid card — actual layout: photo on top, text below in white space ── */
+  .rg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--rule);
+  }
+  .rg-card {
+    aspect-ratio: 3 / 4;
+    position: relative;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .rg-card:nth-child(4n) { border-right: none; }
+  .rg-photo {
+    flex: 1;
+    background-size: cover; background-position: center;
+    background-color: var(--bg);
+  }
+  .rg-card.no-photo .rg-photo { display: none; }
+  .rg-text {
+    padding: 16px 24px 24px;
+  }
+  .rg-card.no-photo {
+    justify-content: flex-end;
+  }
+  .rg-card.no-photo .rg-name {
+    font-size: 32px;
+    line-height: 1.05;
+  }
+  .rg-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .rg-name {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--fg);
+  }
+
+  /* Variant A — top-right corner with translucent backing (overlays photo) */
+  .fav-corner {
+    position: absolute;
+    top: 14px; right: 14px;
+    padding: 8px 10px;
+    background: rgba(245, 244, 239, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1;
+  }
+  .fav-corner .fav { color: var(--muted); }
+  .fav-corner .fav.on { color: var(--fg); }
+
+  /* Variant B — inline with eyebrow in the text block (paper area below photo)
+     Baseline alignment is critical so the glyph sits ON the same line as the
+     uppercase eyebrow text instead of floating above it. */
+  .rg-eyebrow-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .rg-eyebrow-row .rg-eyebrow { margin: 0; }
+  /* Star glyph in the eyebrow row — same 13px as all other surfaces.
+     Baseline alignment handles the visual centering with the 9px eyebrow text. */
+  .rg-eyebrow-row .fav {
+    line-height: 1;
+    padding: 0;
+    letter-spacing: 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Recipe grid — A vs B revised (text never overlays photo)</h1>
+<p class="intro">
+  Now matches the actual recipe grid layout: photo sits on top of the cell, text block sits below in the paper area. No overlay. Two variants below — corner glyph (A) sits in the top-right of the photo area; inline glyph (B) sits with the eyebrow in the paper text block below.
+</p>
+
+<!-- ── Variant A — top-right corner with translucent backing ── -->
+<div class="section">
+  <div class="variant-label">A — Top-right corner of photo, with translucent paper pill</div>
+  <div class="rg">
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80');"></div>
+      <div class="fav-corner"><button class="fav on">★</button></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow">Breakfast</div>
+        <div class="rg-name">Overnight Oats PB</div>
+      </div>
+    </div>
+    <div class="rg-card no-photo">
+      <div class="fav-corner"><button class="fav">☆</button></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow">Dessert</div>
+        <div class="rg-name">Almond Croissant Blondies</div>
+      </div>
+    </div>
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80');"></div>
+      <div class="fav-corner"><button class="fav on">★</button></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow">Snack</div>
+        <div class="rg-name">Apple Slices with Almond Butter</div>
+      </div>
+    </div>
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80');"></div>
+      <div class="fav-corner"><button class="fav">☆</button></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow">Snack</div>
+        <div class="rg-name">Avocado with Olive Oil</div>
+      </div>
+    </div>
+  </div>
+  <p class="variant-desc">
+    Glyph sits in top-right corner of the photo area. Paper-color pill with subtle blur so it reads against any photo. Always in the same screen position. On no-photo cells, it sits in the empty top area. Drawback: it does overlay the photo — a small but real intrusion.
+  </p>
+</div>
+
+<!-- ── Variant B — inline with eyebrow in text block (paper area, never on photo) ── -->
+<div class="section">
+  <div class="variant-label">B — Inline with eyebrow in the paper text block</div>
+  <div class="rg">
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80');"></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow-row">
+          <span class="rg-eyebrow">Breakfast</span>
+          <button class="fav on">★</button>
+        </div>
+        <div class="rg-name">Overnight Oats PB</div>
+      </div>
+    </div>
+    <div class="rg-card no-photo">
+      <div class="rg-text">
+        <div class="rg-eyebrow-row">
+          <span class="rg-eyebrow">Dessert</span>
+          <button class="fav">☆</button>
+        </div>
+        <div class="rg-name">Almond Croissant Blondies</div>
+      </div>
+    </div>
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80');"></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow-row">
+          <span class="rg-eyebrow">Snack</span>
+          <button class="fav on">★</button>
+        </div>
+        <div class="rg-name">Apple Slices with Almond Butter</div>
+      </div>
+    </div>
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80');"></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow-row">
+          <span class="rg-eyebrow">Snack</span>
+          <button class="fav">☆</button>
+        </div>
+        <div class="rg-name">Avocado with Olive Oil</div>
+      </div>
+    </div>
+  </div>
+  <p class="variant-desc">
+    Glyph rides with the eyebrow in the text block, below the photo. Photo is untouched. Symmetric with the recipe list pattern you chose (B). Drawback: less prominent than the corner — quieter overall.
+  </p>
+</div>
+
+<!-- ── Variant B2 — eyebrow row split: eyebrow left, glyph far right ── -->
+<div class="section">
+  <div class="variant-label">B2 — Eyebrow row split: eyebrow left, glyph far right (in text block)</div>
+  <div class="rg">
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80');"></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow-row" style="justify-content: space-between;">
+          <span class="rg-eyebrow">Breakfast</span>
+          <button class="fav on">★</button>
+        </div>
+        <div class="rg-name">Overnight Oats PB</div>
+      </div>
+    </div>
+    <div class="rg-card no-photo">
+      <div class="rg-text">
+        <div class="rg-eyebrow-row" style="justify-content: space-between;">
+          <span class="rg-eyebrow">Dessert</span>
+          <button class="fav">☆</button>
+        </div>
+        <div class="rg-name">Almond Croissant Blondies</div>
+      </div>
+    </div>
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80');"></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow-row" style="justify-content: space-between;">
+          <span class="rg-eyebrow">Snack</span>
+          <button class="fav on">★</button>
+        </div>
+        <div class="rg-name">Apple Slices with Almond Butter</div>
+      </div>
+    </div>
+    <div class="rg-card">
+      <div class="rg-photo" style="background-image: url('https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80');"></div>
+      <div class="rg-text">
+        <div class="rg-eyebrow-row" style="justify-content: space-between;">
+          <span class="rg-eyebrow">Snack</span>
+          <button class="fav">☆</button>
+        </div>
+        <div class="rg-name">Avocado with Olive Oil</div>
+      </div>
+    </div>
+  </div>
+  <p class="variant-desc">
+    Same as B but glyph anchored to the far right of the text block rather than just-after the eyebrow. More predictable position when scanning a column — glyph always lands at the right edge. Like the pantry grid A pattern.
+  </p>
+</div>
+
+</div>
+</body>
+</html>

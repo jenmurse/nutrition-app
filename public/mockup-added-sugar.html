@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Added sugar tracking — Good Measure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #FFFFFF;
+    --bg-2: #F5F5F4;
+    --bg-3: #ECECEA;
+    --fg: #1A1916;
+    --fg-2: #36342F;
+    --muted: #6B6860;
+    --rule: #D0CCC2;
+    --err: #CC3823;
+    --ok: #2F8B33;
+    --accent: #7C8C5F;
+    --accent-l: rgba(124, 140, 95, 0.10);
+    --sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-3);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 40px;
+    min-height: 100vh;
+    letter-spacing: -0.03em;
+  }
+  .container { max-width: 1500px; margin: 0 auto; }
+  .doc-title {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .doc-intro {
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 760px;
+    line-height: 1.7;
+  }
+  .section { margin-bottom: 72px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rule);
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-desc {
+    color: var(--muted);
+    margin-bottom: 24px;
+    max-width: 760px;
+    line-height: 1.6;
+  }
+  .surface {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    margin-bottom: 32px;
+  }
+  .surface-caption {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    margin-top: 24px;
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Matrix daily totals strip
+     ────────────────────────────────────────────────────────────── */
+  .mx-totals-row {
+    display: grid;
+    grid-template-columns: 140px repeat(3, 1fr);
+    border-top: 1px solid var(--rule);
+  }
+  .mx-totals-label {
+    border-right: 1px solid var(--rule);
+    padding: 14px 14px 14px 40px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .mx-totals {
+    border-right: 1px solid var(--rule);
+    padding: 14px;
+  }
+  .mx-totals:last-child { border-right: 0; }
+  .mx-totals.is-today-col { background: var(--accent-l); }
+  .mx-tot-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .mx-tot-row:last-child { margin-bottom: 0; }
+  .mx-tot-key {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mx-tot-val {
+    font-weight: 500;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .mx-tot-val.over { color: var(--err); }
+  .mx-tot-val.met  { color: var(--ok); }
+  .mx-tot-val.empty { color: var(--muted); opacity: 0.4; }
+  .mx-tot-val.unknown { color: var(--muted); }
+
+  /* The day-column header (just for context) */
+  .mx-day-head {
+    padding: 16px 14px 12px 14px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-day-head:last-of-type { border-right: 0; }
+  .mx-day-head.is-today-col { background: var(--accent-l); }
+  .mx-day-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .mx-day-date {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .mx-row-spacer {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mx-row-spacer:last-of-type { border-right: 0; }
+
+  /* ──────────────────────────────────────────────────────────────
+     Recipe nutrition panel
+     ────────────────────────────────────────────────────────────── */
+  .rd-nut {
+    padding: 32px 28px;
+    max-width: 540px;
+  }
+  .rd-nut-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rule);
+    margin-bottom: 8px;
+  }
+  .rd-nut-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .rd-nut-rows {
+    display: flex; flex-direction: column;
+  }
+  .rd-nut-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 10px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .rd-nut-row:last-child { border-bottom: 1px solid var(--rule); }
+  .rd-nut-key {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rd-nut-val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .rd-nut-goal {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .rd-nut-val.over { color: var(--err); }
+  .rd-nut-val.met  { color: var(--ok); }
+  .rd-nut-val.unknown { color: var(--muted); }
+  .rd-nut-hint {
+    border-left: 2px solid var(--rule);
+    padding: 8px 0 8px 14px;
+    margin-top: 16px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  /* Variant labels */
+  .variant-grid {
+    display: grid; gap: 32px;
+    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    margin-top: 24px;
+  }
+  .variant {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+  }
+  .variant-label {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .variant-body { padding: 0; }
+
+  .note {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 720px;
+  }
+  .note strong { color: var(--fg); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="doc-title">Added sugar tracking — UI study</div>
+  <p class="doc-intro">
+    Two surfaces benefit from a quick design pass before coding: the daily totals strip on the matrix planner (which gains a 9th row), and the recipe nutrition panel (which introduces the new "unknown" state — the first time a value renders as <code>—</code> instead of <code>0</code>). Other surfaces (pantry form input, Settings goals layout, Dashboard stats) are mechanical and inherit from the patterns established here.
+  </p>
+
+  <!-- ════════════════════════════════════════════════════════════
+       §01 — Matrix daily totals
+       ════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">§ 01</span>
+      <span class="section-title">Matrix daily totals — 9-row variant</span>
+    </div>
+    <p class="section-desc">
+      Adding Added Sugar bumps the strip from 8 rows to 9. Stacked vertically, this is fine — no horizontal layout question. The decisions are <strong>placement</strong> (where in the order) and <strong>unknown-state visual</strong> (when one ingredient on the day lacks data).
+    </p>
+
+    <div class="surface-caption">Variant A — Added Sugar paired with Sugar (recommended)</div>
+    <div class="surface">
+      <div class="mx-totals-row" style="border-top: 0;">
+        <div class="mx-day-head" style="border-right: 1px solid var(--rule);">&nbsp;</div>
+        <div class="mx-day-head">
+          <div class="mx-day-eyebrow">MON</div>
+          <div class="mx-day-date">Jun 1</div>
+        </div>
+        <div class="mx-day-head is-today-col">
+          <div class="mx-day-eyebrow">TUE</div>
+          <div class="mx-day-date">Jun 2</div>
+        </div>
+        <div class="mx-day-head">
+          <div class="mx-day-eyebrow">WED</div>
+          <div class="mx-day-date">Jun 3</div>
+        </div>
+      </div>
+      <div class="mx-totals-row">
+        <div class="mx-totals-label">Daily totals</div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Calories</span><span class="mx-tot-val">1940</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">62g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sat Fat</span><span class="mx-tot-val">18g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sodium</span><span class="mx-tot-val">1820mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carbs</span><span class="mx-tot-val">232g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">48g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Added Sug</span><span class="mx-tot-val met">18g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Protein</span><span class="mx-tot-val met">140g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">28g</span></div>
+        </div>
+        <div class="mx-totals is-today-col">
+          <div class="mx-tot-row"><span class="mx-tot-key">Calories</span><span class="mx-tot-val">2080</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">71g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sat Fat</span><span class="mx-tot-val">20g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sodium</span><span class="mx-tot-val">2150mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carbs</span><span class="mx-tot-val">245g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">62g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Added Sug</span><span class="mx-tot-val unknown">—</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Protein</span><span class="mx-tot-val met">128g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">26g</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Calories</span><span class="mx-tot-val">2240</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">79g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sat Fat</span><span class="mx-tot-val">25g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sodium</span><span class="mx-tot-val">2280mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carbs</span><span class="mx-tot-val">268g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">71g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Added Sug</span><span class="mx-tot-val over">32g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Protein</span><span class="mx-tot-val met">132g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">24g</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      <strong>Three states shown:</strong> Mon has a clean 18g, met against the 25g target → green-met chrome. Tue has an unknown ingredient → renders as <code>—</code> in standard muted color (no special opacity, since this is a real signal not an empty cell). Wed exceeds the cap → red.
+      <br><br>
+      <strong>Label abbreviation:</strong> "Added Sug" used to fit the column width without truncation. Could also use "Add. Sugar" or two-line wrap — but mono at 9px reads cleanly as the abbreviation.
+      <br><br>
+      <strong>Recommendation:</strong> ship this variant. Sugar + Added Sugar adjacent is the most readable grouping; the user's eye naturally compares them.
+    </p>
+
+    <div class="surface-caption">Variant B — Added Sugar at the end (de-emphasized)</div>
+    <div class="surface">
+      <div class="mx-totals-row" style="border-top: 0;">
+        <div class="mx-day-head" style="border-right: 1px solid var(--rule);">&nbsp;</div>
+        <div class="mx-day-head">
+          <div class="mx-day-eyebrow">MON</div>
+          <div class="mx-day-date">Jun 1</div>
+        </div>
+        <div class="mx-day-head is-today-col">
+          <div class="mx-day-eyebrow">TUE</div>
+          <div class="mx-day-date">Jun 2</div>
+        </div>
+        <div class="mx-day-head">
+          <div class="mx-day-eyebrow">WED</div>
+          <div class="mx-day-date">Jun 3</div>
+        </div>
+      </div>
+      <div class="mx-totals-row">
+        <div class="mx-totals-label">Daily totals</div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Calories</span><span class="mx-tot-val">1940</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">62g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sat Fat</span><span class="mx-tot-val">18g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sodium</span><span class="mx-tot-val">1820mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carbs</span><span class="mx-tot-val">232g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">48g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Protein</span><span class="mx-tot-val met">140g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">28g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Added Sug</span><span class="mx-tot-val met">18g</span></div>
+        </div>
+        <div class="mx-totals is-today-col">
+          <div class="mx-tot-row"><span class="mx-tot-key">Calories</span><span class="mx-tot-val">2080</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">71g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sat Fat</span><span class="mx-tot-val">20g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sodium</span><span class="mx-tot-val">2150mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carbs</span><span class="mx-tot-val">245g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">62g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Protein</span><span class="mx-tot-val met">128g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">26g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Added Sug</span><span class="mx-tot-val unknown">—</span></div>
+        </div>
+        <div class="mx-totals">
+          <div class="mx-tot-row"><span class="mx-tot-key">Calories</span><span class="mx-tot-val">2240</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fat</span><span class="mx-tot-val">79g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sat Fat</span><span class="mx-tot-val">25g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sodium</span><span class="mx-tot-val">2280mg</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Carbs</span><span class="mx-tot-val">268g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Sugar</span><span class="mx-tot-val">71g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Protein</span><span class="mx-tot-val met">132g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Fiber</span><span class="mx-tot-val met">24g</span></div>
+          <div class="mx-tot-row"><span class="mx-tot-key">Added Sug</span><span class="mx-tot-val over">32g</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      <strong>The case against:</strong> Added Sugar is arguably <em>more</em> important than total Sugar for most users — burying it at the bottom hides the metric you care about. Variant A wins.
+    </p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       §02 — Recipe nutrition panel
+       ════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">§ 02</span>
+      <span class="section-title">Recipe nutrition panel — the unknown state</span>
+    </div>
+    <p class="section-desc">
+      This is the first place in the app where a missing value renders as <code>—</code> instead of <code>0</code>. The visual decision is how to read the unknown clearly without making it feel like an error. Two scenarios shown: a recipe where added sugar is known (built from ingredients that all have data), and one where it's unknown (at least one ingredient lacks added-sugar data).
+    </p>
+
+    <div class="variant-grid">
+      <div class="variant">
+        <div class="variant-label">Known — recipe has full data</div>
+        <div class="variant-body">
+          <div class="rd-nut">
+            <div class="rd-nut-eyebrow">§ NUTRITION</div>
+            <div class="rd-nut-title">Per serving</div>
+            <div class="rd-nut-rows">
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Calories</span>
+                <span class="rd-nut-val">420</span>
+                <span class="rd-nut-goal">/ 550</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Fat</span>
+                <span class="rd-nut-val">14g</span>
+                <span class="rd-nut-goal">/ 19g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Sat Fat</span>
+                <span class="rd-nut-val">4g</span>
+                <span class="rd-nut-goal">/ 5g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Sodium</span>
+                <span class="rd-nut-val">380mg</span>
+                <span class="rd-nut-goal">/ 575mg</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Carbs</span>
+                <span class="rd-nut-val">52g</span>
+                <span class="rd-nut-goal">/ 81g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Sugar</span>
+                <span class="rd-nut-val">12g</span>
+                <span class="rd-nut-goal">&nbsp;</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Added Sugar</span>
+                <span class="rd-nut-val">4g</span>
+                <span class="rd-nut-goal">/ 6g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Protein</span>
+                <span class="rd-nut-val met">32g</span>
+                <span class="rd-nut-goal">/ 35g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Fiber</span>
+                <span class="rd-nut-val">6g</span>
+                <span class="rd-nut-goal">&nbsp;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="variant-label">Unknown — one ingredient lacks data</div>
+        <div class="variant-body">
+          <div class="rd-nut">
+            <div class="rd-nut-eyebrow">§ NUTRITION</div>
+            <div class="rd-nut-title">Per serving</div>
+            <div class="rd-nut-rows">
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Calories</span>
+                <span class="rd-nut-val">420</span>
+                <span class="rd-nut-goal">/ 550</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Fat</span>
+                <span class="rd-nut-val">14g</span>
+                <span class="rd-nut-goal">/ 19g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Sat Fat</span>
+                <span class="rd-nut-val">4g</span>
+                <span class="rd-nut-goal">/ 5g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Sodium</span>
+                <span class="rd-nut-val">380mg</span>
+                <span class="rd-nut-goal">/ 575mg</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Carbs</span>
+                <span class="rd-nut-val">52g</span>
+                <span class="rd-nut-goal">/ 81g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Sugar</span>
+                <span class="rd-nut-val">12g</span>
+                <span class="rd-nut-goal">&nbsp;</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Added Sugar</span>
+                <span class="rd-nut-val unknown">—</span>
+                <span class="rd-nut-goal">/ 6g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Protein</span>
+                <span class="rd-nut-val met">32g</span>
+                <span class="rd-nut-goal">/ 35g</span>
+              </div>
+              <div class="rd-nut-row">
+                <span class="rd-nut-key">Fiber</span>
+                <span class="rd-nut-val">6g</span>
+                <span class="rd-nut-goal">&nbsp;</span>
+              </div>
+            </div>
+            <div class="rd-nut-hint">
+              Added-sugar total unknown — <strong>1 ingredient</strong> in this recipe lacks data. Edit it in your pantry to enter the value, or this recipe will keep showing —.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      <strong>The unknown state visual</strong> uses <code>—</code> at <code>color: var(--muted)</code> with no opacity reduction — distinct from the "empty" state (which uses opacity 0.4 for cells with no value entered at all). Goal `/ 6g` still renders so the user sees the target they're missing.
+      <br><br>
+      <strong>The contextual hint</strong> uses the existing margin-note pattern (left-rule, no fill, 11px), with the count of ingredients responsible. The hint is scoped to this nutrient — not a banner — because only the added-sugar row is affected.
+      <br><br>
+      <strong>Editorial copy:</strong> "Added-sugar total unknown" reads as factual, not error-like. Tells the user what's missing and what they can do about it.
+    </p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       §03 — Decisions to lock in
+       ════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">§ 03</span>
+      <span class="section-title">Decisions to lock in</span>
+    </div>
+    <p class="section-desc">
+      Before code:
+    </p>
+    <ul style="line-height: 1.8; color: var(--muted); padding-left: 24px;">
+      <li><strong style="color: var(--fg);">Placement:</strong> Variant A — Added Sugar paired with Sugar.</li>
+      <li><strong style="color: var(--fg);">Label:</strong> "Added Sug" in 9px mono at narrow widths; "Added Sugar" anywhere with room.</li>
+      <li><strong style="color: var(--fg);">Unknown render:</strong> <code>—</code> in <code>var(--muted)</code>, no opacity adjustment. Distinct from empty (0.4 opacity).</li>
+      <li><strong style="color: var(--fg);">Goal still renders</strong> next to <code>—</code> so the user sees the target.</li>
+      <li><strong style="color: var(--fg);">Contextual hint</strong> appears only on the recipe nutrition panel, only when the value is unknown. Daily totals don't get a hint — the value alone is enough signal.</li>
+      <li><strong style="color: var(--fg);">Color rule:</strong> standard three-state (over=red, met=green, neutral=fg). Plus a fourth "unknown" mapping to muted. No green-met state for added sugar (it's a cap, not a minimum).</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
