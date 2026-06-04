@@ -66,7 +66,7 @@ export default function PrivacyPage() {
           <Section heading="Contact">
             <p style={bodyStyle}>
               Questions about your data? Email{" "}
-              <a href="mailto:hello@jenmurse.com" style={{ ...linkStyle, textDecoration: "underline" }}>hello@jenmurse.com</a>
+              <a href="mailto:hello@mersostudio.com" style={{ ...linkStyle, textDecoration: "underline" }}>hello@mersostudio.com</a>
             </p>
           </Section>
 
