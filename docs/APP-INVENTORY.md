@@ -11,7 +11,15 @@ Tracker for what's left to do, design decisions locked, known stragglers, and op
 **1. Playbook stories** — `briefs/playbook-stories.md`
 Six starter stories outlined, story #6 ("Saving the day that worked") added. Shell at `/playbook` (logged-out + logged-in chrome) plus the content for each story. Content authorship is the blocker.
 
+**2. Native app — Track 1 (Capacitor wrap)** — `briefs/native-app-tracks.md`
+Wrap the existing Next.js app in Capacitor → iOS App Store + Google Play Store. Same backend (Railway), same Supabase auth, same data. Pending Apple Developer account (DUNS in flight). 4–8 weeks of focused work once started. Phase 1A is the build-pipeline scaffolding. Adds "Sign in with Apple" to Supabase as a peer to Google OAuth (required by Apple for App Store approval). Privacy policy expansion required for store submission. **Triggers to start:** DUNS resolves + Apple Developer account approved.
+
 **Shipped, retained for reference:** `briefs/day-templates.md`, `briefs/added-sugar-tracking.md`, `briefs/pantry-seeding.md` — all built; briefs kept for historical context.
+
+### Long-term architectural option (not committed)
+
+**Native app — Track 2 (Local-first with Yjs sync)** — `briefs/native-app-tracks.md`
+Real architectural shift: SQLite/IndexedDB on each device, Yjs CRDT sync through a tiny relay server, Tauri desktop companion for MCP. ~35 weeks. Documented as a future possibility, not pursuing now. **Triggers to re-evaluate:** ~50+ App Store installs + signs of real-product momentum, recurring offline-write or cross-device-sync requests, or Railway bill crossing ~$50/mo.
 
 ### Smaller follow-ups
 
