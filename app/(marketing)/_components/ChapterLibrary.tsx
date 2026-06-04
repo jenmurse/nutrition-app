@@ -18,12 +18,14 @@ export default function ChapterLibrary() {
           </h3>
 
           <p className="ch-p">
-            Every ingredient you cook with lives in a pantry you build once, with
-            full nutrition from the USDA when it exists, and from the package in
-            front of you when it doesn&apos;t. Import a recipe or create one from
-            scratch. Recipes draw from the pantry, so the numbers follow the
-            ingredients. Change two tablespoons of olive oil to one and the recipe
-            details update automatically.
+            Every ingredient you cook with lives in a pantry. Common staples are
+            there from day one — over a hundred USDA-sourced items so most
+            recipes match against something real on first import. You add
+            anything specific to how you cook, with full nutrition from the
+            USDA when it exists, and from the package in front of you when it
+            doesn&apos;t. Recipes draw from the pantry, so the numbers follow
+            the ingredients. Change two tablespoons of olive oil to one and the
+            recipe details update automatically.
           </p>
         </div>
 

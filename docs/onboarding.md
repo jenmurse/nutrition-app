@@ -71,9 +71,9 @@ A bordered card on the dashboard with a progress bar and a list of auto-completi
 |---|---|---|---|
 | Set nutrition goals | `hasGoals` | API | Settings → Daily Goals |
 | Import your first recipe | `hasRecipe` | API | Recipes |
-| Add your first ingredient | `hasIngredient` | API | Pantry |
+| Review your starter pantry | `hasIngredient` | API (auto-true after seeding) | Pantry |
 | Plan your first week | `hasMealPlan` | API | Planner |
-| Customize your dashboard stats | `hasDashboardStats` | Client (localStorage) | Settings → Dashboard |
+| Customize your dashboard stats | `hasDashboardStats` | Person.dashboardStats column (per-person, server-side; localStorage migration fallback only on first read) | Settings → Dashboard |
 | **Optional:** Set up AI optimization | `hasMcp` | API | Settings → MCP |
 
 If the user added pending household invites, those appear as additional tasks at the top ("Send X an invite") with inline copy-link UX.
@@ -81,7 +81,13 @@ If the user added pending household invites, those appear as additional tasks at
 ### Sources
 
 - 5 of the 6 checks hit `/api/onboarding`, which returns booleans for goals, recipes, ingredients, meal plans, and MCP configuration.
-- The dashboard-stats check reads `localStorage('dashboard-stats')` and requires both `_configured: true` and exactly 3 enabled stats. The flag is only set when the user explicitly saves stat preferences in settings — auto-written defaults don't count.
+- The dashboard-stats check now reads from the active `Person.dashboardStats` CSV column (moved from localStorage). The Settings page still mirrors to localStorage on save so the checklist's quick "has it been configured at all?" check keeps working without an extra fetch — but the canonical state lives on the Person row.
+
+### Starter pantry seeding
+
+`hasIngredient` is auto-true for any new household — the onboarding-complete flow seeds 110 curated USDA-sourced starter ingredients into the household's pantry (idempotent; skips if the household already has any). See `lib/pantry-seed.ts` + `lib/starter-pantry.ts`. The checklist task copy reads "Review your starter pantry" with the descriptive sub-text "We've added common ingredients to get you cooking — edit or remove what doesn't fit."
+
+Existing households (pre-seeding rollout) aren't seeded retroactively — `hasIngredient` was already true for them via whatever they had built manually.
 
 ### Dismissal
 
@@ -107,6 +113,7 @@ One-time dismissible tip cards placed on specific pages. Each is tracked individ
 | tipId | Page | Location |
 |---|---|---|
 | `household-switch` | Dashboard | Above the Getting Started card |
+| `starter-pantry` | Pantry index | Top of the pantry page (above the toolbar). Explains that the household was seeded with starter ingredients. |
 | `usda-search` | Pantry form (`+ New`) | Below the title, above the Lookup section |
 | `nutrition-guidance` | Recipe form | Above the guidance toggle |
 | `ai-optimize` | Recipe Detail | Top of the Optimization section |

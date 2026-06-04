@@ -35,6 +35,13 @@ export default function ChapterWeek() {
             making, down to the gram. Check things off as you shop. Share the list
             with whoever&apos;s going.
           </p>
+
+          <p className="ch-p">
+            When a day pulls clean — calories right, protein on, fiber where it
+            should be — save it as a template. Apply it to any future day with
+            one click, or build a rotation from the handful of days that
+            consistently work.
+          </p>
         </div>
 
         <div className="ch-vis">

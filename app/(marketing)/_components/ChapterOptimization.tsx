@@ -24,10 +24,16 @@ export default function ChapterOptimization() {
             real pantry and recipes, not a generic database. It returns specific
             swaps with the math attached. Cut the miso paste from 4 tsp to 2 tsp.
             Swap to no-salt cannellini beans. Drop the recipe from 1,858mg sodium
-            to about 950mg. You approve the change and Good Measure writes the new
-            version into your library. You can optimize a single recipe or a whole
-            week, and because Good Measure talks to the agent you don&apos;t have
-            to do any of the fussy edits.
+            to about 950mg. You approve the change and the new version lands in
+            your library.
+          </p>
+
+          <p className="ch-p">
+            The agent doesn&apos;t just suggest — it executes. Plan a whole day,
+            swap a meal, save a day that worked as a template, apply it to next
+            week. You confirm the destructive moves; the agent handles the
+            fussy edits. Because Good Measure talks to the agent, you don&apos;t
+            have to babysit it.
           </p>
         </div>
 

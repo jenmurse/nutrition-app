@@ -12,16 +12,16 @@ A hosted, multi-user nutrition tracking and meal planning web app. Built as a da
 
 ## What it does
 
-Users build a household (multiple people with shared ingredients and recipes), track nutrition live as they build recipes, and plan weekly meals per person. An AI optimization workflow (via Claude Desktop + MCP) lets users get swap suggestions and meal prep plans without any in-app API cost.
+Users build a household (multiple people with shared ingredients and recipes), track nutrition live as they build recipes, and plan weekly meals per person. An AI workflow (via Claude Desktop + MCP) lets users get swap suggestions, plan whole days, and execute meal-plan changes directly — without any in-app API cost.
 
 **Five top-level areas:**
-1. **Dashboard** — today's nutrition snapshot, this week's plan at a glance
-2. **Planner** — weekly meal plan grid per person, daily nutrition totals, side-by-side "Everyone" view
-3. **Recipes** — import via URL or .md file, build from scratch, nutrition calculates live, compare mode (up to 4 recipes side-by-side; desktop/iPad only)
-4. **Pantry** — personal ingredient library (USDA lookup or manual entry; shared across household)
-5. **Settings** — people, daily goals, dashboard stats, MCP integration, data import/export
+1. **Dashboard** — today's nutrition snapshot, this week's plan at a glance. Stats are configurable per-person.
+2. **Planner** — matrix view at `/planner` is the primary route (7-day × N-slot grid per person with daily totals and templates). The classic weekly grid still exists at `/meal-plans` but is unlinked from nav and scheduled for retirement.
+3. **Recipes** — import via URL or .md file, build from scratch, nutrition calculates live, compare mode (up to 5 recipes side-by-side; desktop/iPad only).
+4. **Pantry** — ingredient library shared across the household. New households are seeded with 110 USDA-sourced staples on onboarding completion. Bulk delete + favorites + a Settings-side bulk-fill tool for missing nutrient data.
+5. **Settings** — people, daily goals, dashboard stats, MCP integration, data import/export, and a "Fill missing nutrient data" tool under §05 Data for editing any nutrient across the whole pantry at once.
 
-Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 sections of the page, not as a top-level area.
+Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 sections of the page, not as a top-level area. **Day templates** (save a day's meals as a reusable template, then apply to any future day in replace or append mode with smart-merge) are part of the matrix planner.
 
 ---
 
@@ -31,10 +31,11 @@ Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 
 |---|---|
 | Framework | Next.js 15 (App Router) |
 | Hosting | Railway — push to `main` auto-deploys |
-| Database | Railway Postgres via Prisma (14 models, fully normalized) |
-| Auth | Supabase Auth — email/password + Google OAuth. Middleware validates session and injects `x-supabase-user-id` header |
-| AI | MCP-based — Claude Desktop + `good-measure-mcp` npm package. No in-app AI API calls |
-| PWA | Installed and working — usable as an app on Mac, iPhone, iPad |
+| Database | Railway Postgres via Prisma (~20 models, fully normalized — Household, Person, Ingredient, Recipe, RecipeIngredient, MealPlan, MealLog, Nutrient, IngredientNutrient, GlobalNutritionGoal, NutritionGoal, HouseholdMember, HouseholdInvite, GlobalIngredient, GlobalIngredientNutrient, UsdaFoodCache, RecipeFavorite, IngredientFavorite, DayTemplate, DayTemplateItem, Waitlist, SystemSetting) |
+| Auth | Supabase Auth — email/password + Google OAuth. Middleware validates session and injects `x-supabase-user-id` header. Apple Sign-In will be added before App Store submission. |
+| AI | MCP-based — Claude Desktop + `good-measure-mcp` npm package (v1.4.x). **Read tools** (list_recipes, get_recipe, list_meal_plans, get_meal_plan_week, list_ingredients, list_people, get_person_goals, list_day_templates) **and write tools** (save_recipe, add_meal, update_meal, remove_meal, swap_meal, save_day_template, apply_day_template, save_optimization_notes, save_meal_prep_notes). No in-app AI API calls. |
+| Offline | Service worker (`public/sw.js`) caches pages, API GETs, static assets, and images. `OfflinePrefetcher` warms the cache on app load (lists + current week's plan + every recipe in it + favorites). Mutations remain network-only and fail loudly when offline. |
+| PWA | Manifest at `public/manifest.json`; installable on Mac, iPhone, iPad. Combined with the service worker, the PWA install is the recommended path for the best offline experience. |
 | Styling | Custom CSS design system (no Tailwind for layout) — see design-system.md |
 
 ---
@@ -43,12 +44,17 @@ Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 
 
 ### Data model highlights
 - `Household` — top-level container; every user belongs to one
-- `Person` — multiple people per household (e.g. Jen + Garth). Each has independent meal plans and nutrition goals
+- `Person` — multiple people per household (e.g. Jen + Garth). Each has independent meal plans, nutrition goals, dashboard stats, and dismissed tips
 - `Ingredient`, `Recipe`, `RecipeIngredient` — shared across the household (no `personId`)
-- `MealPlan`, `MealPlanEntry` — per-person
-- `GlobalNutritionGoal` — per-person daily targets
+- `Nutrient`, `IngredientNutrient` — polymorphic key-value (lets us add nutrients like `addedSugar` without a schema change)
+- `MealPlan`, `MealLog` — per-person. `MealLog` (not `MealPlanEntry`) is the actual meal-entry row.
+- `GlobalNutritionGoal`, `NutritionGoal` — per-person daily targets (global = default, NutritionGoal = per-plan override)
 - `HouseholdMember`, `HouseholdInvite` — invite system
-- `UsedaIngredientCache` — shared nutrition data cache across all users
+- `RecipeFavorite`, `IngredientFavorite` — per-person favorites
+- `DayTemplate`, `DayTemplateItem` — saved-day-pattern feature, household-scoped with optional `personId` attribution
+- `GlobalIngredient`, `GlobalIngredientNutrient` — the curated starter-pantry source; copied into household `Ingredient` on signup
+- `UsdaFoodCache` — shared nutrition cache for the USDA FoodData Central API responses
+- `Waitlist`, `SystemSetting` — admin tables for pre-launch ops
 
 ### Auth flow
 - Middleware (`proxy.ts` at project root — named proxy.ts, not middleware.ts) checks the Supabase session cookie on every request
@@ -134,6 +140,7 @@ See `ai_analysis.md` for full workflow details.
 - .md file import: Pestle-format markdown
 - Inline create: build from scratch in the recipe form
 - Unmatched ingredients flagged with "Add to library" → opens USDA search inline
+- Matcher in `lib/ingredientMatcher.ts` handles prep-adjective stopwords (raw, dried, etc.), bidirectional substring containment, and plural singularization so recipe text matches cleanly against the seeded pantry names
 
 ### Recipe images
 - URL import extracts from Schema.org
@@ -155,6 +162,26 @@ See `ai_analysis.md` for full workflow details.
 - Grouped by ingredient category (15 categories)
 - Per-category select-all, share to clipboard
 - Renders via portal above the bottom nav
+
+### Day templates
+- Save the meals on any (planId, date) as a reusable template via the day-column ⋯ menu
+- Apply to any future day in **replace** or **append** mode. Append uses smart-merge: items matching (recipeId + mealType) for recipes or (ingredientId + mealType + unit) for ingredients sum into existing meal logs instead of stacking
+- Manage sheet: rename, drag-reorder, delete, search; personId attribution chips
+- Snapshot endpoint (`PUT /api/day-templates/[id]/snapshot`) supports "save over" — replacing a template's items from the current day without changing its id or name
+- Mirrored to MCP write tools (`save_day_template`, `apply_day_template`, `list_day_templates`)
+
+### Added Sugar tracking
+- New `addedSugar` Nutrient row (id 17, orderIndex 6 between Sugar and Protein). Polymorphic schema; no migration was needed
+- Null-poisoning aggregation: recipe per-serving and matrix daily totals render `—` (not `0g`) when any contributing ingredient lacks an addedSugar value
+- USDA whole-food whitelist in `lib/usdaAddedSugar.ts` defaults raw produce / meats / oils / grains to 0; everything else stays null until manually filled
+- Onboarding presets (Maintain / Lean / Build) all default `addedSugarHighGoal: 25g`
+- Settings → Daily Goals editor includes Added Sugar. Dashboard stat selector and Recipe Compare both include it.
+
+### Offline support
+- Service worker (`public/sw.js`) installs on first production load. Strategies: pages and API GETs network-first with cache fallback; static assets and images cache-first; mutations network-only.
+- `OfflinePrefetcher.tsx` runs ~3s after app mount and pulls list endpoints + this week's plan detail + each recipe in the current week + up to 20 favorited recipes. Result: opening the app at home before leaving means everything you need at the grocery store is already cached.
+- `ServiceWorkerRegister.tsx` renders a flow-positioned "OFFLINE" banner at the top of `.app-shell` based on a 20s `/api/health` ping (more reliable than `navigator.onLine` on iOS Safari).
+- `app/offline/page.tsx` is the pre-cached static fallback shown when navigating to a route that hasn't been visited yet this session.
 
 ---
 
