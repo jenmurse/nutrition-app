@@ -4858,6 +4858,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
     width: unset !important;
   }
 
+  /* Marketing pages need the native document scroll, so .app-shell can't
+     be fixed-viewport on those routes. Restore static flow so the body
+     can grow tall and the document scrolls normally. */
+  html[data-marketing] .app-shell {
+    position: static !important;
+    inset: unset !important;
+    height: auto !important;
+    min-height: 100dvh;
+  }
+
   /* ── Prevent content bleeding behind Safari toolbar ── */
   html, body { overscroll-behavior-y: none; }
   /* Marketing pages restore native scroll + pull-to-refresh */
