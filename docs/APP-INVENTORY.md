@@ -178,7 +178,7 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 **Shipped this session (May 31 – June 1):**
 
 *Major: Matrix planner system*
-- `/planner` is the primary Planner route. `/meal-plans` still works but is no longer in any nav; can be retired entirely once stable.
+- `/planner` is the primary Planner route. (`/meal-plans` was retired June 5, 2026 — route now redirects to `/planner`.)
 - Matrix is a 7-day × N-slot grid. Slot rows: Breakfast / Lunch / Dinner default; Snack / Side / Dessert / Beverage appear when any meal of that type exists on the week. Rows are server-derived from MealLogs (cross-device consistent).
 - Per-cell picker: favorites-first (recipes + pantry items), with "Browse all X recipes →" footer that opens a right-side sheet. Multi-select toggle pattern — click any row to add/remove. Inline `−/+` stepper with editable number input. Smart step size (10 for grams/ml).
 - "Also add to [person]" chip mirrors picks to other household members' plans for the same week.

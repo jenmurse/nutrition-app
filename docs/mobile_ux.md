@@ -105,24 +105,9 @@ The person-switching dropdowns on the mobile planner and dashboard use `border: 
 - Scaling rule: full name when ≤3 people in the household, initial only when 4+.
 - Classes: `.hm-mob-person-chip`, `.hm-mob-person-chip.on`.
 
-### Add Meal mobile (two-step sheet)
+### Add Meal (matrix planner)
 
-Add Meal on mobile is a bottom sheet (`AddMealSheet`) rendered via `createPortal(el, document.body)`. It is not a page navigation — the planner page stays mounted underneath.
-
-**Sheet structure:**
-- **Step 1 — Picker:** meal type list (`maxHeight: 75vh`). Tapping a type expands to Step 2.
-- **Step 2 — Browse:** recipe/ingredient search + servings/quantity controls + Add to Plan CTA (`maxHeight: calc(100dvh - 60px)`).
-- Step transition: CSS `max-height 360ms var(--ease-out)` on the sheet element — it expands in place. No cross-slide between steps.
-
-**Backdrop:** `.mob-sheet-backdrop--above-nav` (z-index 290). Covers the full viewport including the top bar — same behavior as the nutrition summary sheet.
-
-**Animation:** `.mob-sheet` class gives `sheetUp 360ms var(--ease-out)` slide-in on mount. **Do NOT add `sheet-delay-touch`** — that class overrides the `animation` property (same specificity, declared later) and kills the slide-in, making the sheet appear instantly.
-
-**Drag-to-dismiss:** `touchstart/touchend` delta > 60px downward closes the sheet.
-
-**Data refresh:** after a successful add, `onMealAdded()` callback triggers `fetchMealPlanDetails()` on the parent planner page. No full-page reload.
-
-**Desktop:** clicking `+ ADD` on a planner day navigates to `/meal-plans/add-meal` (page-based flow, unchanged).
+The classic `AddMealSheet` and `/meal-plans/add-meal` flow were retired June 2026 along with the classic planner. The matrix planner at `/planner` uses an inline per-cell picker (favorites-first, with a right-side "Browse all" sheet for the full library) on both desktop and mobile — see the Planner section in `app-overview.md`.
 
 ### Recipe builder ingredient rows (mobile)
 
