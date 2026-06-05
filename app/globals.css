@@ -1846,13 +1846,14 @@ input[type="number"]:focus {
   line-height: 1;
   color: var(--muted);
   cursor: pointer;
-  opacity: 0;
+  opacity: 0.55;
   transition: opacity 120ms var(--ease-out), color 120ms var(--ease-out), background 120ms var(--ease-out);
   z-index: 5;
 }
 .mx-day-head:hover .mx-day-overflow,
+.mx-day-overflow:focus-visible,
 .mx-day-overflow.is-open { opacity: 1; }
-.mx-day-overflow:hover { color: var(--fg); }
+.mx-day-overflow:hover { color: var(--fg); opacity: 1; }
 .mx-day-overflow.is-open {
   background: var(--bg);
   border: 1px solid var(--fg);
