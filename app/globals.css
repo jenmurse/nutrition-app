@@ -1626,7 +1626,6 @@ input[type="number"]:focus {
 .mx-cell-name.is-eatout,
 .mx-mob-slot-name.is-eatout {
   color: var(--muted);
-  font-style: italic;
   font-weight: 400;
   overflow-wrap: break-word;
 }
@@ -1676,6 +1675,7 @@ input[type="number"]:focus {
 .mx-picker-done {
   padding: 12px 14px;
   border: 0;
+  border-top: 1px solid var(--bg);
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   font-weight: 500;
