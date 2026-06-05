@@ -1615,7 +1615,7 @@ input[type="number"]:focus {
 }
 .pl-strip-mobile .pl-strip-grid {
   grid-template-rows: 26px 56px;
-  grid-template-columns: repeat(35, 44px);
+  grid-template-columns: repeat(35, 46px);
   padding: 0 18px;
   min-width: auto;
   width: max-content;
