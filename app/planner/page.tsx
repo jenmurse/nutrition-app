@@ -2182,18 +2182,27 @@ function PlannerPage() {
                       />
                     )}
 
-                    {/* Eating-out row — collapsed by default, expands to a label input */}
+                    {/* Eating-out section — same "§ HEAD + row" pattern as Recipes/Pantry */}
+                    <div className="mx-picker-section-head">§ Other</div>
                     {!eatingOutOpen ? (
-                      <button
-                        type="button"
-                        className="mx-picker-eatout"
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        className="mx-picker-opt is-eatout-row"
                         onClick={() => { setEatingOutOpen(true); setEatingOutLabel(""); }}
+                        onKeyDown={(e) => {
+                          if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+                            e.preventDefault();
+                            setEatingOutOpen(true);
+                            setEatingOutLabel("");
+                          }
+                        }}
                       >
-                        <span>＋ Eating out</span>
-                        <span aria-hidden="true">→</span>
-                      </button>
+                        <span className="mx-picker-name">Eating out</span>
+                        <span className="mx-picker-kcal">no nutrition</span>
+                      </div>
                     ) : (
-                      <div className="mx-picker-eatout is-open">
+                      <div className="mx-picker-eatout-form">
                         <input
                           autoFocus
                           type="text"
@@ -2230,11 +2239,10 @@ function PlannerPage() {
 
                     <button
                       type="button"
-                      className="mx-picker-foot"
+                      className="mx-picker-browse-foot"
                       onClick={openBrowse}
                     >
-                      <span>Browse all {SLOT_LABELS[picker.slot].toLowerCase()} recipes</span>
-                      <span>→</span>
+                      Browse all {SLOT_LABELS[picker.slot].toLowerCase()} recipes →
                     </button>
                     {currentLogs.length > 0 && (
                       <button
