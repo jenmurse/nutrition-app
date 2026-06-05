@@ -756,12 +756,15 @@ function PlannerPage() {
     if (idx < 0 || idx >= plans.length) return;
     const target = plans[idx];
     if (!target || target.id === plan?.id) return;
-    const params = new URLSearchParams(searchParams?.toString());
-    params.set("planId", String(target.id));
-    router.push(`/planner?${params.toString()}`);
-    // Load directly — don't rely on the URL effect, which can bail
-    // when planIdParam identity doesn't refresh on shallow App-Router
-    // navigations. Belt-and-suspenders so PREV/NEXT always advances.
+    // Update URL via history API directly — router.push to the same path
+    // with a different searchParam was unreliable (no-op on some clicks).
+    // This guarantees the address bar reflects the loaded plan for
+    // share/back-button without triggering Next's full navigation.
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("planId", String(target.id));
+      window.history.replaceState(null, "", `/planner?${params.toString()}`);
+    }
     loadPlanDetails(target.id);
   }
 
@@ -826,16 +829,13 @@ function PlannerPage() {
     }
   }
 
-  // Track current index from the URL (source of truth) rather than the
-  // loaded `plan` state. After clicking PREV/NEXT, the URL updates
-  // synchronously while `plan` lags until the fetch resolves — using
-  // `plan` here caused fast double-clicks to compute against a stale
-  // position (skip two, or no-op).
+  // Track current index from the actually-loaded plan. The URL is best-
+  // effort (router.push can be flaky on same-path searchParam changes in
+  // App Router), but `plan.id` is always the truth of what's on screen.
   const currentPlanIdx = useMemo(() => {
-    const id = planIdParam ? Number(planIdParam) : (plan?.id ?? null);
-    if (id == null) return -1;
-    return plans.findIndex((p) => p.id === id);
-  }, [plans, planIdParam, plan]);
+    if (!plan) return -1;
+    return plans.findIndex((p) => p.id === plan.id);
+  }, [plans, plan]);
 
   // ── Derive grid data ─────────────────────────────────────────
   const days = useMemo(() => {
