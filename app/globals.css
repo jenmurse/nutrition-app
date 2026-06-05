@@ -1488,7 +1488,7 @@ input[type="number"]:focus {
 .pl-toolbar {
   display:flex; align-items:center; gap:20px; padding:0 40px;
   height:44px; flex-shrink:0; border-bottom:1px solid var(--rule);
-  background:var(--bg); position:sticky; top:0; z-index:20;
+  background:var(--bg); position:sticky; top:0; z-index:40;
   transition:background 0.5s;
 }
 
