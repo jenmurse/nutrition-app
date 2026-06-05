@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { dialog } from "@/lib/dialog";
 import { BrandName } from "./BrandName";
@@ -29,25 +29,8 @@ function isBackPage(pathname: string) {
   return (
     pathname === "/recipes/new" ||
     pathname === "/pantry/new" ||
-    pathname === "/meal-plans/add-meal" ||
     /^\/recipes\/[^/]+\/edit$/.test(pathname) ||
     /^\/pantry\/[^/]+\/edit$/.test(pathname)
-  );
-}
-
-function AddMealRightSlot() {
-  const params = useSearchParams();
-  const date = params?.get("date");
-  const person = params?.get("person");
-  if (!date) return null;
-  const d = new Date(date + "T00:00:00");
-  const dStr = d
-    .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
-    .toUpperCase();
-  return (
-    <span className="mob-topbar-status">
-      {dStr}{person ? ` · ${person.toUpperCase()}` : ""}
-    </span>
   );
 }
 
@@ -73,7 +56,6 @@ export default function MobileTopBar() {
   if (!pathname || HIDDEN.has(pathname)) return null;
 
   const isBack = isBackPage(pathname);
-  const isAddMeal = pathname === "/meal-plans/add-meal";
 
   const handleSignOut = async () => {
     const confirmed = await dialog.confirm({
@@ -111,28 +93,20 @@ export default function MobileTopBar() {
           )}
         </div>
         <div className="mob-topbar-right">
-          {isAddMeal ? (
-            <Suspense fallback={null}>
-              <AddMealRightSlot />
-            </Suspense>
-          ) : (
-            <>
-              {(pathname === "/home" || pathname === "/planner" || pathname === "/meal-plans") && <PersonPulldown />}
-              <button
-                className="mob-topbar-trigger"
-                onClick={() => setMenuOpen(true)}
-                aria-expanded={menuOpen}
-                aria-haspopup="dialog"
-                aria-label="Open menu"
-              >
-                <svg viewBox="0 0 18 12" width="18" height="12" aria-hidden="true">
-                  <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" strokeWidth="1"/>
-                  <line x1="0" y1="6"  x2="18" y2="6"  stroke="currentColor" strokeWidth="1"/>
-                  <line x1="0" y1="11" x2="18" y2="11" stroke="currentColor" strokeWidth="1"/>
-                </svg>
-              </button>
-            </>
-          )}
+          {(pathname === "/home" || pathname === "/planner") && <PersonPulldown />}
+          <button
+            className="mob-topbar-trigger"
+            onClick={() => setMenuOpen(true)}
+            aria-expanded={menuOpen}
+            aria-haspopup="dialog"
+            aria-label="Open menu"
+          >
+            <svg viewBox="0 0 18 12" width="18" height="12" aria-hidden="true">
+              <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" strokeWidth="1"/>
+              <line x1="0" y1="6"  x2="18" y2="6"  stroke="currentColor" strokeWidth="1"/>
+              <line x1="0" y1="11" x2="18" y2="11" stroke="currentColor" strokeWidth="1"/>
+            </svg>
+          </button>
         </div>
       </header>
 

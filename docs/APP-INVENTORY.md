@@ -250,9 +250,8 @@ For full rationale and code examples, see `design-system.md`. Headlines:
 ## Open questions
 
 1. ~~**Brand mark**~~ — locked. Text-only treatment (DM Sans 600, 13px, -0.03em, "Good Measure") is the wordmark. No custom logotype planned. Revisit if a brand-design pass produces one.
-2. **`/meal-plans` retirement** — the classic planner still works at its URL. Once the matrix has run for a few weeks without issues, delete the route and its supporting components.
-3. **Dashboard "Today's meals" reskin** — mockup at `public/mockup-dashboard-planner.html` showing the editorial 3-column cards reskinned to match the matrix slot-row style with a totals strip. Decided to keep the existing layout for now (per session notes) — revisit if the visual coherence gap starts to matter.
-4. ~~**Account deletion**~~ — shipped (May 3). See `decisions-pending.md`.
+2. **Dashboard "Today's meals" reskin** — mockup at `public/mockup-dashboard-planner.html` showing the editorial 3-column cards reskinned to match the matrix slot-row style with a totals strip. Decided to keep the existing layout for now (per session notes) — revisit if the visual coherence gap starts to matter.
+3. ~~**Account deletion**~~ — shipped (May 3). See `decisions-pending.md`.
 
 Resolved this session, no longer open:
 - ~~Mobile recipes card view~~ — deferred to post-launch design pass

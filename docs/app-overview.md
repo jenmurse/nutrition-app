@@ -16,7 +16,7 @@ Users build a household (multiple people with shared ingredients and recipes), t
 
 **Five top-level areas:**
 1. **Dashboard** — today's nutrition snapshot, this week's plan at a glance. Stats are configurable per-person.
-2. **Planner** — matrix view at `/planner` is the primary route (7-day × N-slot grid per person with daily totals and templates). The classic weekly grid still exists at `/meal-plans` but is unlinked from nav and scheduled for retirement.
+2. **Planner** — matrix view at `/planner` (7-day × N-slot grid per person with daily totals and templates). The classic weekly grid at `/meal-plans` was retired June 2026; the route now permanently redirects to `/planner`.
 3. **Recipes** — import via URL or .md file, build from scratch, nutrition calculates live, compare mode (up to 5 recipes side-by-side; desktop/iPad only).
 4. **Pantry** — ingredient library shared across the household. New households are seeded with 110 USDA-sourced staples on onboarding completion. Bulk delete + favorites + a Settings-side bulk-fill tool for missing nutrient data.
 5. **Settings** — people, daily goals, dashboard stats, MCP integration, data import/export, and a "Fill missing nutrient data" tool under §05 Data for editing any nutrient across the whole pantry at once.
