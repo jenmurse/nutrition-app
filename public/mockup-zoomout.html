@@ -14,6 +14,7 @@
     --fg-2: #36342F;
     --muted: #6B6860;
     --rule: #D0CCC2;
+    --err: #B43A1F;
     --ok: #4F6B3A;
     --accent: #7C8C5F;
     --accent-l: rgba(124, 140, 95, 0.10);
@@ -26,587 +27,613 @@
     color: var(--fg);
     font-family: var(--sans);
     font-size: 13px;
-    padding: 40px;
+    padding: 32px;
     min-height: 100vh;
     letter-spacing: -0.03em;
   }
-  .container { max-width: 1300px; margin: 0 auto; }
-  .doc-title {
-    font-size: 28px; font-weight: 500; margin-bottom: 8px;
-  }
-  .doc-intro {
-    color: var(--muted);
-    margin-bottom: 56px;
-    max-width: 760px;
-    line-height: 1.7;
-  }
-  .section { margin-bottom: 80px; }
-  .section-head {
-    display: flex; align-items: baseline; gap: 16px;
-    margin-bottom: 8px;
-  }
+  .container { max-width: 1500px; margin: 0 auto; }
+  .doc-title { font-size: 28px; font-weight: 500; margin-bottom: 8px; }
+  .doc-intro { color: var(--muted); margin-bottom: 48px; max-width: 760px; line-height: 1.7; }
+  .section { margin-bottom: 72px; }
+  .section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
   .section-head h2 { font-size: 18px; font-weight: 500; }
   .section-head .tag {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
   }
-  .section-note {
-    color: var(--muted);
-    margin-bottom: 24px;
-    max-width: 720px;
-    line-height: 1.65;
-    font-size: 13.5px;
-  }
-  .frame {
+  .section-note { color: var(--muted); margin-bottom: 24px; max-width: 760px; line-height: 1.65; }
+  .frame-wrap {
     background: var(--bg);
     border: 1px solid var(--rule);
-    border-radius: 0;
+    overflow: hidden;
+  }
+  .frame-label {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px;
   }
 
-  /* ── A. Compact 30-day strip above matrix ────────────────────── */
-  .strip {
-    display: grid;
-    grid-template-columns: repeat(30, 1fr);
+  /* ── Replica: pl-toolbar (desktop) ─────────────────────────────── */
+  .pl-toolbar {
+    display: flex; align-items: center; gap: 20px; padding: 0 40px;
+    height: 44px; border-bottom: 1px solid var(--rule); background: var(--bg);
+  }
+  .pl-range {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--fg); padding-left: 4px; padding-right: 8px;
+    min-width: 100px;
+  }
+  .ed-btn-text {
+    background: transparent; border: 0; padding: 0;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+  }
+  .ed-btn-text:hover { color: var(--fg); }
+  .ed-btn-text.disabled { opacity: 0.3; cursor: default; }
+  .ed-spacer { flex: 1; }
+  .pl-cart-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border: 1px solid var(--rule);
+    color: var(--muted); cursor: pointer; background: var(--bg);
+  }
+  .pl-cart-btn:hover { color: var(--fg); border-color: var(--fg); }
+  .ed-btn-primary {
+    background: var(--fg); color: var(--bg); border: 0;
+    padding: 0 14px; height: 30px;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    font-weight: 500; cursor: pointer;
+  }
+
+  /* ── The 30-day strip ─────────────────────────────────────────── */
+  .strip-wrap {
     border-bottom: 1px solid var(--rule);
+    background: var(--bg-2);
+    position: relative;
+  }
+  .strip-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+  .strip-scroll::-webkit-scrollbar { height: 4px; }
+  .strip-scroll::-webkit-scrollbar-thumb { background: var(--rule); }
+  .strip {
+    display: flex;
+    min-width: 100%;
+    padding: 10px 16px 6px;
   }
   .strip-day {
-    aspect-ratio: 1 / 1.6;
-    padding: 6px 4px;
-    border-right: 1px solid var(--rule);
+    flex: 0 0 36px;            /* fixed cell width */
+    height: 56px;
+    padding: 4px 0 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     position: relative;
-    background: var(--bg);
+    border-radius: 2px;
   }
-  .strip-day:last-child { border-right: 0; }
-  .strip-day:hover { background: var(--bg-2); }
+  .strip-day:hover { background: var(--bg-3); }
   .strip-day-num {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--muted); letter-spacing: 0.04em;
   }
-  .strip-day.is-today .strip-day-num { color: var(--err, #B43A1F); }
+  .strip-day-dow {
+    font-family: var(--font-mono); font-size: 7px;
+    color: var(--muted); letter-spacing: 0.14em;
+    text-transform: uppercase; margin-top: 1px;
+  }
+  .strip-day.is-today .strip-day-num { color: var(--err); font-weight: 600; }
   .strip-day.in-current-week { background: var(--accent-l); }
-  /* fill bar — height = % of slots filled */
+  .strip-day.in-current-week .strip-day-num { color: var(--fg); }
+  /* fill bar */
   .strip-fill {
-    width: 6px;
+    width: 16px;
     background: var(--bg-3);
-    border-radius: 0;
     position: relative;
-    height: 26px;
+    height: 22px;
     display: flex;
     flex-direction: column-reverse;
+    border: 1px solid var(--rule);
   }
-  .strip-fill-bar {
-    width: 100%;
+  .strip-fill-bar { width: 100%; background: var(--fg); }
+  .strip-day.is-empty .strip-fill { background: transparent; border-color: var(--bg-3); }
+  /* Month divider — vertical tick between month boundaries */
+  .strip-month-divider {
+    flex: 0 0 1px;
     background: var(--fg);
+    margin: 0 4px;
+    align-self: stretch;
+    position: relative;
   }
-  .strip-day.is-empty .strip-fill-bar { background: transparent; }
   .strip-month-label {
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
     position: absolute;
-    top: -10px;
-    left: 4px;
-    background: var(--bg);
-    padding: 2px 4px;
+    top: -6px;
+    left: 6px;
+    font-family: var(--font-mono); font-size: 8px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg-2);
+    background: var(--bg-2);
+    padding: 0 3px;
+    white-space: nowrap;
   }
-  /* matrix preview underneath */
+  .strip-month-label.first {
+    left: -36px;
+  }
+  /* Legend below */
+  .strip-legend {
+    display: flex; align-items: center; gap: 14px;
+    padding: 4px 20px 8px;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px dashed var(--rule);
+  }
+  .strip-legend .swatch {
+    display: inline-block; width: 8px; height: 8px; margin-right: 5px;
+    vertical-align: middle; border: 1px solid var(--rule);
+  }
+  .strip-legend .swatch.full { background: var(--fg); border-color: var(--fg); }
+  .strip-legend .swatch.curr { background: var(--accent-l); border-color: var(--accent); }
+  .strip-legend .swatch.today { background: var(--err); border-color: var(--err); }
+
+  /* ── Matrix preview (just the header, to show it sits below) ───── */
   .matrix-preview {
     display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
+    grid-template-columns: 140px repeat(7, 1fr);
     background: var(--bg);
+    border-top: 1px solid var(--rule);
   }
   .mxp-corner { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
   .mxp-day {
     border-right: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
-    padding: 10px;
+    padding: 10px 8px;
     text-align: center;
   }
   .mxp-day-name {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    color: var(--muted);
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
   }
-  .mxp-day-num {
-    font-size: 16px;
-    font-weight: 500;
-    margin-top: 4px;
-  }
-  .mxp-day.is-today .mxp-day-num { color: var(--err, #B43A1F); }
+  .mxp-day-num { font-size: 16px; font-weight: 500; margin-top: 4px; }
+  .mxp-day.is-today { background: var(--accent-l); }
+  .mxp-day.is-today .mxp-day-num { color: var(--err); }
   .mxp-slot-label {
-    padding: 12px 10px;
-    border-right: 1px solid var(--rule);
+    padding: 14px 12px; border-right: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
   }
   .mxp-cell {
-    padding: 10px;
-    border-right: 1px solid var(--rule);
+    padding: 12px; border-right: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
-    font-size: 11px;
-    color: var(--muted);
+    font-size: 12px; color: var(--fg);
+    min-height: 56px;
   }
-  .mxp-cell.has { color: var(--fg); }
+  .mxp-cell .meta {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    margin-top: 4px;
+  }
+  .mxp-cell.empty { color: var(--muted); font-size: 11px; }
+  .mxp-cell.is-today-col { background: var(--accent-l); }
 
-  /* ── B. Month grid ─────────────────────────────────────────────── */
-  .monthgrid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: 96px;
-  }
-  .monthgrid-head {
-    padding: 8px;
-    border-right: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    background: var(--bg-2);
-  }
-  .monthgrid-cell {
-    padding: 8px;
-    border-right: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    position: relative;
-    background: var(--bg);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .monthgrid-cell:hover { background: var(--bg-2); }
-  .monthgrid-cell.out { background: var(--bg-2); color: var(--muted); }
-  .monthgrid-cell.in-current-week { background: var(--accent-l); }
-  .monthgrid-num {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--fg);
-  }
-  .monthgrid-cell.out .monthgrid-num { color: var(--muted); font-weight: 400; }
-  .monthgrid-cell.is-today .monthgrid-num { color: var(--err, #B43A1F); }
-  .monthgrid-dot-row {
-    display: flex;
-    gap: 2px;
-    margin-top: 2px;
-  }
-  .monthgrid-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--fg);
-  }
-  .monthgrid-dot.empty { background: var(--rule); }
-  .monthgrid-dinner {
-    font-size: 11px;
-    line-height: 1.2;
-    color: var(--fg);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-top: auto;
-  }
-
-  /* ── C. Coming-up list ────────────────────────────────────────── */
-  .weekcard {
+  /* ── Mobile replica ────────────────────────────────────────────── */
+  .mobile-frame {
+    width: 390px;
     border: 1px solid var(--rule);
     background: var(--bg);
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    display: grid;
-    grid-template-columns: 120px 1fr 80px;
-    gap: 24px;
-    align-items: center;
+    margin: 0 auto;
+    overflow: hidden;
   }
-  .weekcard:hover { background: var(--bg-2); }
-  .weekcard.current { border-color: var(--fg); }
-  .weekcard-range {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--fg);
+  .mob-tb1 {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 18px; height: 44px;
+    border-bottom: 1px solid var(--rule);
   }
-  .weekcard-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
+  .mob-tb1 .gm {
+    font-size: 16px; font-weight: 600; letter-spacing: -0.03em;
   }
-  .weekcard-dinners {
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--fg);
+  .mob-tb1 .person {
+    margin-left: auto;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 3px 8px; border: 1px solid var(--rule); border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 6px;
   }
-  .weekcard-dinners .sep { color: var(--rule); margin: 0 8px; }
-  .weekcard.dim .weekcard-dinners { color: var(--muted); }
-  .weekcard-fill {
-    text-align: right;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
+  .mob-tb1 .person .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--err);
   }
-  .weekcard-fill .big {
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--fg);
-    display: block;
-    margin-bottom: 2px;
-    letter-spacing: -0.03em;
-    font-family: var(--sans);
+  .mob-tb1 .hamburger {
+    font-size: 18px; color: var(--fg); padding: 0 4px;
+  }
+  .mob-tb2 {
+    display: flex; align-items: center;
+    padding: 12px 18px; gap: 6px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-tb2 .week {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .mob-tb2 .grow { flex: 1; }
+  .mob-tb2 .arrow {
+    width: 32px; height: 28px;
+    border: 1px solid var(--rule);
+    font-size: 16px; line-height: 1; background: transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .mob-tb2 .overflow {
+    width: 32px; height: 28px;
+    border: 1px solid var(--rule);
+    font-size: 16px; line-height: 1; background: transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .mob-tb2 .new {
+    background: var(--fg); color: var(--bg); border: 0;
+    height: 28px; padding: 0 10px;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500;
   }
 
-  /* Pros/Cons block under each */
-  .pc {
-    margin-top: 18px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.6;
+  /* Mobile strip — narrower cells, scrollable */
+  .mob-strip-wrap {
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--rule);
   }
-  .pc h4 {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--fg);
-    margin-bottom: 6px;
+  .mob-strip-scroll { overflow-x: auto; }
+  .mob-strip {
+    display: flex; padding: 8px 18px 4px;
   }
-  .pc ul { padding-left: 18px; }
-  .pc li { margin-bottom: 4px; }
+  .mob-strip .strip-day { flex: 0 0 28px; height: 48px; }
+  .mob-strip .strip-fill { width: 12px; height: 18px; }
+  .mob-strip .strip-day-num { font-size: 9px; }
+  .mob-strip .strip-month-divider { margin: 0 3px; }
+  .mob-strip-legend {
+    padding: 3px 18px 6px;
+    font-family: var(--font-mono); font-size: 8px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  }
 
-  .verdict {
-    margin-top: 64px;
-    padding: 24px 28px;
+  /* Day strip (existing mobile pattern) */
+  .mob-daystrip {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-day {
+    padding: 10px 4px; text-align: center;
+    border-right: 1px solid var(--rule);
+  }
+  .mob-day:last-child { border-right: 0; }
+  .mob-day .dn {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase;
+  }
+  .mob-day .num { font-size: 16px; font-weight: 500; margin-top: 4px; }
+  .mob-day.active { background: var(--accent-l); }
+  .mob-day.active .num { color: var(--err); }
+  .mob-day .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--fg); margin: 4px auto 0; }
+  .mob-day.empty .dot { background: transparent; }
+
+  .mob-slot {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: start; gap: 12px;
+  }
+  .mob-slot .slot-label {
+    flex: 0 0 80px;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    padding-top: 2px;
+  }
+  .mob-slot .slot-body .name { font-size: 14px; font-weight: 500; }
+  .mob-slot .slot-body .meta {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; color: var(--muted); margin-top: 4px;
+  }
+  .mob-slot.empty .name { color: var(--muted); font-size: 13px; }
+
+  /* Layout columns for the desktop+mobile pair */
+  .twoup {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* Q&A block */
+  .qa {
+    margin: 12px 0 32px;
+    padding: 18px 22px;
     background: var(--bg);
     border-left: 3px solid var(--fg);
-    max-width: 760px;
   }
-  .verdict h3 {
-    font-size: 14px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
+  .qa h4 {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg); margin-bottom: 4px;
   }
-  .verdict p { line-height: 1.7; color: var(--fg-2); }
+  .qa p { line-height: 1.65; color: var(--fg-2); margin-bottom: 12px; }
+  .qa p:last-child { margin-bottom: 0; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1 class="doc-title">Planner zoom-out</h1>
+  <h1 class="doc-title">Planner zoom-out — Option A in context</h1>
   <p class="doc-intro">
-    Three ways to show "more than one week at a glance," ranked from least to most disruptive.
-    Each shows the same data: 4–5 weeks of planning state. Click any day/week to jump the matrix to it.
+    Mocked up against the real toolbars so you can see exactly where the 30-day strip lives and how it scales.
+    Each cell = one day. Bar height = % of slots filled. Current week highlighted in soft green. Today is the orange number.
   </p>
 
   <!-- ────────────────────────────────────────────────── -->
-  <!-- A. 30-day strip                                     -->
+  <!-- Desktop view                                        -->
   <!-- ────────────────────────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>A — 30-day strip above the matrix</h2>
-      <span class="tag">Recommended</span>
+      <h2>Desktop</h2>
+      <span class="tag">1200+ px viewport</span>
     </div>
     <p class="section-note">
-      A 30-day sparkline that lives above the existing matrix. Each bar's height = how much of the day is planned (slot fill %).
-      Current week is highlighted in green. Click any day → matrix jumps to that week. The matrix stays the source of truth;
-      this is just a small navigation + density hint.
+      The strip slides in between the toolbar and the matrix header. 30 days is wider than the matrix grid (which is fixed-7-col),
+      so on narrow desktops it scrolls horizontally. On wide displays it fits without scroll.
     </p>
 
-    <div class="frame">
-      <div class="strip" id="stripA"></div>
-      <div class="matrix-preview" id="matrixPreviewA"></div>
-    </div>
-
-    <div class="pc">
-      <div>
-        <h4>+ Pros</h4>
-        <ul>
-          <li>Doesn't replace the matrix — pure additive</li>
-          <li>Cells small enough that "density at a glance" is the right reduction</li>
-          <li>Works on mobile (horizontal scroll if needed)</li>
-          <li>Shows "I haven't planned far ahead" at a glance</li>
-        </ul>
+    <div class="frame-wrap">
+      <!-- Toolbar -->
+      <div class="pl-toolbar">
+        <span class="pl-range">May 31 — Jun 6</span>
+        <button class="ed-btn-text">‹ Prev</button>
+        <button class="ed-btn-text">Next ›</button>
+        <div class="ed-spacer"></div>
+        <button class="ed-btn-text">Hide nutrition</button>
+        <button class="pl-cart-btn">🛒</button>
+        <button class="ed-btn-primary">+ New plan</button>
       </div>
-      <div>
-        <h4>− Cons</h4>
-        <ul>
-          <li>Doesn't tell you what's on each day, only how full</li>
-          <li>Some users may not see what the bar heights mean without a legend</li>
-        </ul>
+
+      <!-- 30-day strip -->
+      <div class="strip-wrap">
+        <div class="strip-scroll">
+          <div class="strip" id="stripDesktop"></div>
+        </div>
+        <div class="strip-legend">
+          <span><span class="swatch full"></span>filled</span>
+          <span><span class="swatch"></span>empty</span>
+          <span><span class="swatch curr"></span>this week</span>
+          <span><span class="swatch today"></span>today</span>
+          <span style="margin-left:auto;color:var(--muted);">Click any day → jump matrix to that week</span>
+        </div>
+      </div>
+
+      <!-- Matrix header (showing current week, dimmed cells) -->
+      <div class="matrix-preview">
+        <div class="mxp-corner"></div>
+        <div class="mxp-day"><div class="mxp-day-name">Sun</div><div class="mxp-day-num">31</div></div>
+        <div class="mxp-day"><div class="mxp-day-name">Mon</div><div class="mxp-day-num">1</div></div>
+        <div class="mxp-day"><div class="mxp-day-name">Tue</div><div class="mxp-day-num">2</div></div>
+        <div class="mxp-day"><div class="mxp-day-name">Wed</div><div class="mxp-day-num">3</div></div>
+        <div class="mxp-day"><div class="mxp-day-name">Thu</div><div class="mxp-day-num">4</div></div>
+        <div class="mxp-day is-today"><div class="mxp-day-name">Fri</div><div class="mxp-day-num">5</div></div>
+        <div class="mxp-day"><div class="mxp-day-name">Sat</div><div class="mxp-day-num">6</div></div>
+
+        <div class="mxp-slot-label">Breakfast</div>
+        <div class="mxp-cell">Overnight Oats<div class="meta">1 serving</div></div>
+        <div class="mxp-cell">Overnight Oats<div class="meta">1 serving</div></div>
+        <div class="mxp-cell">Overnight Oats<div class="meta">1 serving</div></div>
+        <div class="mxp-cell">Overnight Oats<div class="meta">1 serving</div></div>
+        <div class="mxp-cell">Overnight Oats<div class="meta">1 serving</div></div>
+        <div class="mxp-cell is-today-col">Overnight Oats<div class="meta">1 serving</div></div>
+        <div class="mxp-cell empty">+ add</div>
+
+        <div class="mxp-slot-label">Lunch</div>
+        <div class="mxp-cell">Lunch Salad<div class="meta">1 serving</div></div>
+        <div class="mxp-cell" style="color:var(--muted)">Eating out</div>
+        <div class="mxp-cell">Lunch Salad<div class="meta">1 serving</div></div>
+        <div class="mxp-cell empty">+ add</div>
+        <div class="mxp-cell">Lunch Salad<div class="meta">1 serving</div></div>
+        <div class="mxp-cell is-today-col">Lunch Salad<div class="meta">1 serving</div></div>
+        <div class="mxp-cell empty">+ add</div>
       </div>
     </div>
   </div>
 
   <!-- ────────────────────────────────────────────────── -->
-  <!-- B. Month grid                                       -->
+  <!-- Mobile view                                         -->
   <!-- ────────────────────────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>B — Month grid</h2>
-      <span class="tag">Reference / probably no</span>
+      <h2>Mobile</h2>
+      <span class="tag">390px viewport (iPhone 14 Pro)</span>
     </div>
     <p class="section-note">
-      A literal calendar month. Each cell shows the dinner name + dots for filled slots. Current week is highlighted.
-      Click any day → matrix jumps to that week. Shown here so we can see what's lost.
+      Same idea, smaller cells (28px wide), always horizontally scrollable. Sits between the second mobile toolbar
+      (MAY 31 – JUN 6 / arrows / ⋯ / + NEW) and the existing 7-day day-strip below. Lets users sense ahead without
+      sacrificing the day-strip's tap targets.
     </p>
 
-    <div class="frame">
-      <div class="monthgrid" id="monthgridB"></div>
-    </div>
-
-    <div class="pc">
-      <div>
-        <h4>+ Pros</h4>
-        <ul>
-          <li>Familiar mental model (everyone knows calendars)</li>
-          <li>Shows dinner name → "have I cooked this recently?"</li>
-        </ul>
+    <div class="mobile-frame">
+      <!-- Top app toolbar -->
+      <div class="mob-tb1">
+        <span class="gm">Good Measure</span>
+        <span class="person"><span class="dot"></span>Jen ▾</span>
+        <span class="hamburger">≡</span>
       </div>
-      <div>
-        <h4>− Cons</h4>
-        <ul>
-          <li>Cells too cramped on mobile to read meal names</li>
-          <li>Replaces the matrix or adds a second navigation surface that competes with it</li>
-          <li>Lunch/breakfast/snacks invisible — only dinner fits</li>
-          <li>Maintaining two layouts that show overlapping data is fragile</li>
-        </ul>
+
+      <!-- Second toolbar -->
+      <div class="mob-tb2">
+        <span class="week">May 31 – Jun 6</span>
+        <span class="grow"></span>
+        <button class="arrow">‹</button>
+        <button class="arrow">›</button>
+        <button class="overflow">⋯</button>
+        <button class="new">+ New</button>
+      </div>
+
+      <!-- NEW: mobile 30-day strip -->
+      <div class="mob-strip-wrap">
+        <div class="mob-strip-scroll">
+          <div class="mob-strip" id="stripMobile"></div>
+        </div>
+        <div class="mob-strip-legend">↔ Scroll · tap a day to jump weeks</div>
+      </div>
+
+      <!-- Existing 7-day day strip -->
+      <div class="mob-daystrip">
+        <div class="mob-day"><div class="dn">Sun</div><div class="num">31</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Mon</div><div class="num">1</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Tue</div><div class="num">2</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Wed</div><div class="num">3</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Thu</div><div class="num">4</div><div class="dot"></div></div>
+        <div class="mob-day active"><div class="dn">Fri</div><div class="num">5</div><div class="dot"></div></div>
+        <div class="mob-day empty"><div class="dn">Sat</div><div class="num">6</div><div class="dot"></div></div>
+      </div>
+
+      <!-- A few sample slots -->
+      <div class="mob-slot">
+        <div class="slot-label">Breakfast</div>
+        <div class="slot-body">
+          <div class="name">Overnight Oats</div>
+          <div class="meta">1 serving</div>
+        </div>
+      </div>
+      <div class="mob-slot">
+        <div class="slot-label">Lunch</div>
+        <div class="slot-body">
+          <div class="name">Lunch Salad w/Salmon</div>
+          <div class="meta">1 serving</div>
+        </div>
+      </div>
+      <div class="mob-slot">
+        <div class="slot-label">Dinner</div>
+        <div class="slot-body">
+          <div class="name">Pan-seared Tilapia</div>
+          <div class="meta">1 serving</div>
+        </div>
+      </div>
+      <div class="mob-slot empty">
+        <div class="slot-label">Side</div>
+        <div class="slot-body">
+          <div class="name">+ add</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ────────────────────────────────────────────────── -->
-  <!-- C. Coming-up list                                   -->
-  <!-- ────────────────────────────────────────────────── -->
+  <!-- Q&A -->
   <div class="section">
     <div class="section-head">
-      <h2>C — "Coming up" week cards</h2>
-      <span class="tag">Alternative</span>
-    </div>
-    <p class="section-note">
-      A vertical list of upcoming weeks. Each card shows the week range, dinner names, and a fill %.
-      Click → jump matrix to that week. No calendar grid — reads like an editorial list.
-    </p>
-
-    <div class="frame" style="padding: 16px;">
-      <div id="weekcardsC"></div>
+      <h2>Your questions</h2>
     </div>
 
-    <div class="pc">
-      <div>
-        <h4>+ Pros</h4>
-        <ul>
-          <li>Reads great on mobile (vertical list, no grid math)</li>
-          <li>Shows actual meal names — answers "have I cooked X recently?"</li>
-          <li>Editorial tone fits the rest of the app</li>
-        </ul>
-      </div>
-      <div>
-        <h4>− Cons</h4>
-        <ul>
-          <li>Not really a "zoom out" — more like a week index</li>
-          <li>Adds a third surface (matrix, browse, this) that you have to maintain</li>
-          <li>Hard to fit on desktop without feeling sparse</li>
-        </ul>
-      </div>
+    <div class="qa">
+      <h4>Q · Are the MAY / JUN tags visible?</h4>
+      <p>
+        Yes — but in this new draft they're rendered as a small vertical divider between months with the abbreviation
+        floating above it, instead of sitting on top of a single cell. Cleaner than my first pass.
+      </p>
     </div>
-  </div>
 
-  <div class="verdict">
-    <h3>My take</h3>
-    <p>
-      Build <strong>A</strong>. It's small, additive, doesn't fork the matrix as the primary surface,
-      and gives a real signal (where are the planning gaps?) without faking that we can fit five weeks of meal names on one screen.
-      C is good but solves a different problem ("what did I plan?") that we can revisit later.
-      B is the option that sounds right but doesn't survive contact with real cell sizes.
-    </p>
+    <div class="qa">
+      <h4>Q · Does the bar scroll horizontally?</h4>
+      <p>
+        Yes. On desktop it fits without scroll on wide screens (~1100px+ of usable width) but scrolls if the planner is narrower.
+        On mobile it always scrolls. The viewport snaps softly to keep the current week roughly centered on initial load, but
+        users can drag left or right to look at past or future weeks.
+      </p>
+    </div>
+
+    <div class="qa">
+      <h4>Q · How does it work on mobile?</h4>
+      <p>
+        Cells shrink to ~28px wide and the strip always scrolls. It lives between the date/arrow toolbar and the 7-day day-strip
+        (the one with Sun/Mon/Tue tap targets that already exists). The day-strip stays primary — the 30-day strip is just for
+        sensing past/future. Tap a day → matrix jumps to that week and the day-strip updates to show that week's days.
+      </p>
+    </div>
+
+    <div class="qa">
+      <h4>What clicking does</h4>
+      <p>
+        Click any day in the strip → the planner navigates to the plan covering that week. If no plan exists yet for that week,
+        we could either (a) show an empty matrix with "Create plan for this week" or (b) make those days dim/unclickable.
+        I'd start with (b) to keep it pure-navigation, no surprise plan creation.
+      </p>
+    </div>
   </div>
 </div>
 
 <script>
-  // ── Data shape: 30 days of fake fill data ─────────────────────
-  // Pretend today is day 14 of the strip; week boundaries are Sun→Sat.
-  const today = 14; // 0-indexed
+  // Generate 30 days of fill data. Today = day 14 (0-indexed in the 30-day window).
+  // Each fillData[i] = % of slots filled (0–100). Months: 2 days of "May" (29–31) then "Jun".
   const fillData = [
-    // Week 1
-    100, 100, 100, 100, 100, 60, 40,
-    // Week 2
-    100, 100, 100, 80, 100, 100, 0,
-    // Week 3 (current)
-    100, 100, 80, 60, 0, 0, 0,
-    // Week 4
-    20, 0, 0, 0, 0, 0, 0,
-    // Week 5 (partial)
-    0, 0,
+    100, 100, 100, 100, 100, 60, 40,    // week 1 (last week)
+    100, 100, 100, 80, 100, 100, 0,     // week 2 (2 weeks ago)
+    100, 100, 80, 60, 0, 0, 0,          // week 3 (current week)
+    20, 0, 0, 0, 0, 0, 0,               // week 4 (next week)
+    0, 0,                                // week 5 (partial)
   ];
-  const dayNumbers = [
-    18, 19, 20, 21, 22, 23, 24,
-    25, 26, 27, 28, 29, 30, 31,
-    1, 2, 3, 4, 5, 6, 7,
-    8, 9, 10, 11, 12, 13, 14,
-    15, 16,
+  // Dates: start May 18, run through Jun 16
+  const dates = [
+    {d:18,m:'May'},{d:19,m:'May'},{d:20,m:'May'},{d:21,m:'May'},{d:22,m:'May'},{d:23,m:'May'},{d:24,m:'May'},
+    {d:25,m:'May'},{d:26,m:'May'},{d:27,m:'May'},{d:28,m:'May'},{d:29,m:'May'},{d:30,m:'May'},{d:31,m:'May'},
+    {d:1,m:'Jun'}, {d:2,m:'Jun'}, {d:3,m:'Jun'}, {d:4,m:'Jun'}, {d:5,m:'Jun'}, {d:6,m:'Jun'}, {d:7,m:'Jun'},
+    {d:8,m:'Jun'}, {d:9,m:'Jun'}, {d:10,m:'Jun'},{d:11,m:'Jun'},{d:12,m:'Jun'},{d:13,m:'Jun'},{d:14,m:'Jun'},
+    {d:15,m:'Jun'},{d:16,m:'Jun'},
   ];
+  const dows = ['S','M','T','W','T','F','S'];
+  const todayIdx = 18; // Jun 5
+  const currentWeekStart = 14; // Jun 1 (Sun)
+  const currentWeekEnd = 20;   // Jun 7 (Sat)
 
-  const currentWeekStart = 14; // Sun of current week (index in strip)
-  const currentWeekEnd = 20;   // Sat of current week (index in strip)
+  function buildStrip(target, isMobile) {
+    let prevMonth = null;
+    let html = '';
+    dates.forEach((dt, i) => {
+      // Month divider
+      if (prevMonth && prevMonth !== dt.m) {
+        const showLabel = true;
+        html += `<div class="strip-month-divider">${showLabel ? `<span class="strip-month-label">${dt.m}</span>` : ''}</div>`;
+      } else if (i === 0) {
+        // First-day label
+        html += `<div class="strip-month-divider" style="background:transparent;"><span class="strip-month-label first">${dt.m}</span></div>`;
+      }
+      prevMonth = dt.m;
 
-  // Build strip A
-  const strip = document.getElementById('stripA');
-  for (let i = 0; i < 30; i++) {
-    const day = document.createElement('div');
-    day.className = 'strip-day';
-    if (i === today) day.classList.add('is-today');
-    if (i >= currentWeekStart && i <= currentWeekEnd) day.classList.add('in-current-week');
-    if (fillData[i] === 0) day.classList.add('is-empty');
+      const classes = ['strip-day'];
+      if (i === todayIdx) classes.push('is-today');
+      if (i >= currentWeekStart && i <= currentWeekEnd) classes.push('in-current-week');
+      if (fillData[i] === 0) classes.push('is-empty');
+      const dow = dows[(0 + i) % 7]; // assume strip starts Sun
 
-    const monthLabel = (i === 0 || dayNumbers[i] === 1)
-      ? `<span class="strip-month-label">${i === 0 ? 'May' : 'Jun'}</span>` : '';
+      html += `
+        <div class="${classes.join(' ')}" title="${dt.m} ${dt.d}">
+          <div class="strip-day-num">${dt.d}</div>
+          <div class="strip-fill"><div class="strip-fill-bar" style="height:${fillData[i]}%"></div></div>
+          <div class="strip-day-dow">${dow}</div>
+        </div>
+      `;
+    });
+    target.innerHTML = html;
 
-    day.innerHTML = `
-      ${monthLabel}
-      <div class="strip-day-num">${dayNumbers[i]}</div>
-      <div class="strip-fill">
-        <div class="strip-fill-bar" style="height: ${fillData[i]}%;"></div>
-      </div>
-    `;
-    strip.appendChild(day);
+    // Scroll the strip so the current week is roughly centered
+    requestAnimationFrame(() => {
+      const scroller = target.parentElement;
+      if (!scroller) return;
+      const stripEl = target;
+      const totalWidth = stripEl.scrollWidth;
+      const visible = scroller.clientWidth;
+      // approximate scroll-to: position currentWeekStart at left edge then nudge to center
+      const approxCellWidth = totalWidth / dates.length;
+      const targetLeft = (currentWeekStart * approxCellWidth) - visible/2 + (3.5 * approxCellWidth);
+      scroller.scrollLeft = Math.max(0, targetLeft);
+    });
   }
 
-  // Matrix preview (current week only)
-  const mxp = document.getElementById('matrixPreviewA');
-  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  const dayNums = dayNumbers.slice(currentWeekStart, currentWeekEnd + 1);
-  mxp.innerHTML = `
-    <div class="mxp-corner"></div>
-    ${days.map((d, i) => `
-      <div class="mxp-day${dayNumbers[currentWeekStart + i] === dayNumbers[today] ? ' is-today' : ''}">
-        <div class="mxp-day-name">${d}</div>
-        <div class="mxp-day-num">${dayNums[i]}</div>
-      </div>
-    `).join('')}
-    <div class="mxp-slot-label">Breakfast</div>
-    ${[1,1,1,1,1,1,0].map(v => `<div class="mxp-cell${v ? ' has' : ''}">${v ? 'Overnight Oats' : '+ add'}</div>`).join('')}
-    <div class="mxp-slot-label">Lunch</div>
-    ${[1,1,0,0,0,0,0].map(v => `<div class="mxp-cell${v ? ' has' : ''}">${v ? 'Lunch Salad' : '+ add'}</div>`).join('')}
-    <div class="mxp-slot-label">Dinner</div>
-    ${[1,1,1,1,0,0,0].map((v,i) => `<div class="mxp-cell${v ? ' has' : ''}">${v ? ['Thai Curry','Fish Soup','Indian','Stew','','',''][i] : '+ add'}</div>`).join('')}
-  `;
-
-  // Build month grid B
-  const mg = document.getElementById('monthgridB');
-  const weekdays = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  mg.innerHTML = weekdays.map(d => `<div class="monthgrid-head">${d}</div>`).join('') +
-    (() => {
-      // 5 weeks × 7 days = 35 cells; first cell = Jun 1 starts on Sun (just for mockup)
-      const cells = [];
-      const dinners = [
-        '','','','','','','',
-        'Thai Curry','Tahini Cauli','Salmon','Fish Soup','Indian','Bean Stew','Out',
-        'Thai Curry','Fish Soup','Indian Fish','Bean Stew','','','',
-        '','','','','','','',
-        '','','','','','','',
-      ];
-      const slotsFilled = [
-        0,0,0,0,0,0,0,
-        3,3,3,2,3,3,1,
-        3,3,2,2,0,0,0,
-        1,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,
-      ];
-      const currentWeek = 2; // 3rd row in the month grid (index 2)
-      for (let i = 0; i < 35; i++) {
-        const week = Math.floor(i / 7);
-        const isCurrentWeek = week === currentWeek;
-        const isToday = i === currentWeek * 7 + 2; // wed of current week
-        const isOut = i < 7;  // first row is "out of month" for demo
-        const classes = ['monthgrid-cell'];
-        if (isOut) classes.push('out');
-        if (isCurrentWeek) classes.push('in-current-week');
-        if (isToday) classes.push('is-today');
-        const slots = slotsFilled[i];
-        const dots = Array.from({length: 3}, (_, j) =>
-          `<div class="monthgrid-dot${j < slots ? '' : ' empty'}"></div>`
-        ).join('');
-        const num = isOut ? (25 + i) : (i - 6);
-        cells.push(`
-          <div class="${classes.join(' ')}">
-            <div class="monthgrid-num">${num}</div>
-            <div class="monthgrid-dot-row">${dots}</div>
-            <div class="monthgrid-dinner">${dinners[i]}</div>
-          </div>
-        `);
-      }
-      return cells.join('');
-    })();
-
-  // Build weekcards C
-  const wc = document.getElementById('weekcardsC');
-  const weekData = [
-    {
-      range: 'May 25 – 31',
-      eyebrow: '§ Last week',
-      dinners: ['Thai Curry', 'Fish Soup', 'Tahini Cauliflower', 'Bean Stew', 'Salmon', 'Eating out', 'Indian Fish'],
-      fill: 100,
-      dim: true,
-    },
-    {
-      range: 'Jun 1 – 7',
-      eyebrow: '§ This week',
-      dinners: ['Thai Curry', 'Fish Soup', 'Indian Fish', 'Bean Stew', '—', '—', '—'],
-      fill: 57,
-      current: true,
-    },
-    {
-      range: 'Jun 8 – 14',
-      eyebrow: '§ Next',
-      dinners: ['Thai Curry', 'Noodle Bowl', '—', '—', '—', '—', '—'],
-      fill: 28,
-    },
-    {
-      range: 'Jun 15 – 21',
-      eyebrow: '§ + 2 weeks',
-      dinners: ['—', '—', '—', '—', '—', '—', '—'],
-      fill: 0,
-      dim: true,
-    },
-  ];
-  wc.innerHTML = weekData.map(w => `
-    <div class="weekcard${w.current ? ' current' : ''}${w.dim ? ' dim' : ''}">
-      <div>
-        <div class="weekcard-eyebrow">${w.eyebrow}</div>
-        <div class="weekcard-range">${w.range}</div>
-      </div>
-      <div class="weekcard-dinners">
-        ${w.dinners.filter(d => d !== '—').join(' <span class="sep">·</span> ') || '<span style="color:var(--muted)">No meals planned yet</span>'}
-      </div>
-      <div class="weekcard-fill">
-        <span class="big">${w.fill}%</span>
-        planned
-      </div>
-    </div>
-  `).join('');
+  buildStrip(document.getElementById('stripDesktop'), false);
+  buildStrip(document.getElementById('stripMobile'), true);
 </script>
 </body>
 </html>
