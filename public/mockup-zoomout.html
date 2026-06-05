@@ -199,10 +199,7 @@
   }
   .strip-legend .swatch.full { background: var(--fg); border-color: var(--fg); }
   .strip-legend .swatch.curr { background: var(--accent-l); border-color: var(--accent); }
-  .strip-legend .swatch.today {
-    background: transparent; border: 0; color: var(--err);
-    font-weight: 600; width: auto; height: auto;
-  }
+  .strip-legend .swatch.today { background: var(--err); border-color: var(--err); }
 
   /* ── Matrix preview ────────────────────────────────────────────── */
   .matrix-preview {
@@ -273,25 +270,30 @@
   .mob-tb1 .hamburger { font-size: 18px; color: var(--fg); padding: 0 4px; }
   .mob-tb2 {
     display: flex; align-items: center;
-    padding: 12px 18px; gap: 6px;
+    padding: 12px 18px; gap: 4px;
     border-bottom: 1px solid var(--rule);
   }
   .mob-tb2 .week {
     font-family: var(--font-mono); font-size: 10px;
-    letter-spacing: 0.14em; text-transform: uppercase;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    white-space: nowrap;
   }
   .mob-tb2 .grow { flex: 1; }
   .mob-tb2 .arrow,
   .mob-tb2 .overflow,
-  .mob-tb2 .view {
-    height: 28px; padding: 0 8px;
+  .mob-tb2 .view,
+  .mob-tb2 .today {
+    height: 28px;
     border: 1px solid var(--rule);
-    font-size: 14px; line-height: 1; background: transparent;
+    background: transparent;
     display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1;
   }
-  .mob-tb2 .arrow { width: 32px; }
-  .mob-tb2 .overflow { width: 32px; font-size: 16px; }
-  .mob-tb2 .view {
+  .mob-tb2 .arrow { width: 30px; font-size: 14px; }
+  .mob-tb2 .overflow { width: 30px; font-size: 16px; }
+  .mob-tb2 .view,
+  .mob-tb2 .today {
+    padding: 0 8px;
     font-family: var(--font-mono); font-size: 9px;
     letter-spacing: 0.14em; text-transform: uppercase;
     color: var(--muted);
@@ -301,6 +303,7 @@
     height: 28px; padding: 0 10px;
     font-family: var(--font-mono); font-size: 9px;
     letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500;
+    margin-left: 2px;
   }
 
   /* Mobile strip — narrower cells */
@@ -430,7 +433,7 @@
           <span><span class="swatch full"></span>Planned</span>
           <span><span class="swatch"></span>Not planned</span>
           <span><span class="swatch curr"></span>This week</span>
-          <span><span class="swatch today">5</span>Today</span>
+          <span><span class="swatch today"></span>Today</span>
           <span style="margin-left:auto;color:var(--muted);text-transform:none;letter-spacing:0;font-family:var(--sans);">Click any day to jump the matrix to that week</span>
         </div>
       </div>
@@ -472,24 +475,22 @@
   <!-- ────────────────────────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>Mobile</h2>
-      <span class="tag">390px · VIEW sheet open</span>
+      <h2>Mobile · on current week</h2>
+      <span class="tag">390px · 5 buttons + range</span>
     </div>
     <p class="section-note">
-      Second toolbar gets a compact <code>VIEW</code> button between the arrows and the ⋯ menu. Tapping opens a small bottom-sheet (shown here) with the same toggles as desktop. Frees the existing ⋯ menu to stay day-scoped (templates).
+      Date range abbreviated to <code>5/31 – 6/6</code> (full month names cost ~115px which we can't spare).
+      Five compact controls fit comfortably: <code>‹</code> <code>›</code> VIEW <code>⋯</code> + NEW.
     </p>
 
     <div class="mobile-frame">
-      <!-- Top app toolbar -->
       <div class="mob-tb1">
         <span class="gm">Good Measure</span>
         <span class="person"><span class="dot"></span>Jen ▾</span>
         <span class="hamburger">≡</span>
       </div>
-
-      <!-- Second toolbar -->
       <div class="mob-tb2">
-        <span class="week">May 31 – Jun 6</span>
+        <span class="week">5/31 – 6/6</span>
         <span class="grow"></span>
         <button class="arrow">‹</button>
         <button class="arrow">›</button>
@@ -498,7 +499,96 @@
         <button class="new">+ New</button>
       </div>
 
-      <!-- View options sheet (shown open) -->
+      <div class="mob-strip-wrap">
+        <div class="mob-strip-scroll">
+          <div class="strip-grid mob-strip-grid" id="stripMobile1"></div>
+        </div>
+        <div class="mob-strip-legend">↔ Scroll · tap a day to jump weeks</div>
+      </div>
+
+      <div class="mob-daystrip">
+        <div class="mob-day"><div class="dn">Sun</div><div class="num">31</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Mon</div><div class="num">1</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Tue</div><div class="num">2</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Wed</div><div class="num">3</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Thu</div><div class="num">4</div><div class="dot"></div></div>
+        <div class="mob-day active"><div class="dn">Fri</div><div class="num">5</div><div class="dot"></div></div>
+        <div class="mob-day empty"><div class="dn">Sat</div><div class="num">6</div><div class="dot"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Mobile · off current week (TODAY button visible)</h2>
+      <span class="tag">390px · the tight case</span>
+    </div>
+    <p class="section-note">
+      When you're viewing an older or future week, the TODAY button appears. Six controls + the abbreviated range
+      still fit. Total width budget: 36px padding + ~75 range + 30+30 arrows + 50 TODAY + 50 VIEW + 30 ⋯ + 56 + NEW + 4×6 gaps ≈ 367px.
+    </p>
+
+    <div class="mobile-frame">
+      <div class="mob-tb1">
+        <span class="gm">Good Measure</span>
+        <span class="person"><span class="dot"></span>Jen ▾</span>
+        <span class="hamburger">≡</span>
+      </div>
+      <div class="mob-tb2">
+        <span class="week">5/18 – 5/24</span>
+        <span class="grow"></span>
+        <button class="arrow">‹</button>
+        <button class="arrow">›</button>
+        <button class="today">Today</button>
+        <button class="view">View</button>
+        <button class="overflow">⋯</button>
+        <button class="new">+ New</button>
+      </div>
+
+      <div class="mob-strip-wrap">
+        <div class="mob-strip-scroll">
+          <div class="strip-grid mob-strip-grid" id="stripMobile2"></div>
+        </div>
+        <div class="mob-strip-legend">↔ Scroll · current week is highlighted</div>
+      </div>
+
+      <div class="mob-daystrip">
+        <div class="mob-day"><div class="dn">Sun</div><div class="num">18</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Mon</div><div class="num">19</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Tue</div><div class="num">20</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Wed</div><div class="num">21</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Thu</div><div class="num">22</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Fri</div><div class="num">23</div><div class="dot"></div></div>
+        <div class="mob-day"><div class="dn">Sat</div><div class="num">24</div><div class="dot"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Mobile · VIEW sheet open</h2>
+      <span class="tag">View options expanded</span>
+    </div>
+    <p class="section-note">
+      Tapping VIEW opens a small sheet positioned below the toolbar with the two toggles. Both default ON, persist per-device.
+    </p>
+
+    <div class="mobile-frame">
+      <div class="mob-tb1">
+        <span class="gm">Good Measure</span>
+        <span class="person"><span class="dot"></span>Jen ▾</span>
+        <span class="hamburger">≡</span>
+      </div>
+      <div class="mob-tb2">
+        <span class="week">5/31 – 6/6</span>
+        <span class="grow"></span>
+        <button class="arrow">‹</button>
+        <button class="arrow">›</button>
+        <button class="view" style="border-color: var(--fg); color: var(--fg);">View</button>
+        <button class="overflow">⋯</button>
+        <button class="new">+ New</button>
+      </div>
+
       <div class="mob-sheet">
         <div class="mob-sheet-head">View options</div>
         <div class="view-menu-item on">
@@ -511,15 +601,13 @@
         </div>
       </div>
 
-      <!-- Mobile 30-day strip -->
       <div class="mob-strip-wrap">
         <div class="mob-strip-scroll">
-          <div class="strip-grid mob-strip-grid" id="stripMobile"></div>
+          <div class="strip-grid mob-strip-grid" id="stripMobile3"></div>
         </div>
         <div class="mob-strip-legend">↔ Scroll · tap a day to jump weeks</div>
       </div>
 
-      <!-- Existing 7-day day strip -->
       <div class="mob-daystrip">
         <div class="mob-day"><div class="dn">Sun</div><div class="num">31</div><div class="dot"></div></div>
         <div class="mob-day"><div class="dn">Mon</div><div class="num">1</div><div class="dot"></div></div>
@@ -562,9 +650,9 @@
     </div>
 
     <div class="qa">
-      <h4>Open question · Default state</h4>
+      <h4>Decided · Defaults</h4>
       <p>
-        Both toggles default ON on first launch, but persist per-device (localStorage) — same pattern we used for HIDE NUTRITION. If you'd rather the month strip default OFF (opt-in for the curious), let me know.
+        Both toggles default <strong>ON</strong>, persist per-device in localStorage (same pattern as the current HIDE NUTRITION).
       </p>
     </div>
   </div>
@@ -639,7 +727,9 @@
   }
 
   buildStrip(document.getElementById('stripDesktop'));
-  buildStrip(document.getElementById('stripMobile'));
+  buildStrip(document.getElementById('stripMobile1'));
+  buildStrip(document.getElementById('stripMobile2'));
+  buildStrip(document.getElementById('stripMobile3'));
 </script>
 </body>
 </html>
