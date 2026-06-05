@@ -2527,12 +2527,10 @@ input[type="number"]:focus {
 .mx-picker-foot:hover { color: var(--fg); }
 .mx-picker-foot:disabled { cursor: not-allowed; opacity: 0.5; }
 
-/* Eating-out row — content row style; italic name so it reads as a placeholder */
-.mx-picker-opt.is-eatout-row .mx-picker-name {
-  font-style: italic;
-  color: var(--muted);
-}
-.mx-picker-opt.is-eatout-row:hover .mx-picker-name { color: var(--fg); }
+/* Eating-out row — same content style as other rows, just muted as a hint
+   that it's not a real recipe. No italic. */
+.mx-picker-opt.is-eatout-row .mx-picker-name { color: var(--fg); }
+.mx-picker-opt.is-eatout-row .mx-picker-kcal { color: var(--muted); }
 
 /* Inline label-input form when the eating-out row is expanded */
 .mx-picker-eatout-form {

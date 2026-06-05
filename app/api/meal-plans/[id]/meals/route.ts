@@ -111,7 +111,7 @@ export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx)
       servings: normalizedServings,
       notes: notes || null,
     };
-  } else {
+  } else if (isIngredientBased) {
     // Ingredient-based meal validation
     const ingredient = await prisma.ingredient.findUnique({
       where: { id: ingredientId },
