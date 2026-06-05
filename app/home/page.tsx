@@ -22,6 +22,17 @@ function parseUTCDate(dateStr: string | Date): Date {
   return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
+function isEatingOut(m: MealLog): boolean {
+  return m.recipe == null && m.ingredient == null && m.externalLabel != null;
+}
+
+function mealName(m: MealLog): string {
+  if (isEatingOut(m)) {
+    return m.externalLabel ? `Eating out — ${m.externalLabel}` : "Eating out";
+  }
+  return m.recipe?.name ?? m.ingredient?.name ?? "";
+}
+
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning,";
@@ -53,6 +64,7 @@ type MealLog = {
   quantity?: number;
   recipe?: { id: number; name: string } | null;
   ingredient?: { name: string } | null;
+  externalLabel?: string | null;
 };
 
 type PlanDetail = {
@@ -480,7 +492,8 @@ export default function Home() {
                       style={{ transitionDelay: `${idx * 70}ms` }}
                     >
                       {col.logs.map((m, mi) => {
-                        const name = m.recipe?.name ?? m.ingredient?.name ?? "";
+                        const name = mealName(m);
+                        const eatout = isEatingOut(m);
                         const mealStats = getMealNutrients(m);
                         return (
                           <div key={m.id}>
@@ -502,12 +515,15 @@ export default function Home() {
                                 </div>
                               </Link>
                             ) : (
-                              <div className="meal-card-name" style={{ textWrap: 'balance' }}>
+                              <div
+                                className="meal-card-name"
+                                style={{ textWrap: 'balance', color: eatout ? 'var(--muted)' : undefined }}
+                              >
                                 {name}
                               </div>
                             )}
-                            {/* Nutrient rows — 3 selected stats */}
-                            {mealStats.map((s) => (
+                            {/* Nutrient rows — 3 selected stats; suppressed for eating-out (no nutrition data) */}
+                            {!eatout && mealStats.map((s) => (
                               <div key={s.label} className="flex justify-between items-center py-[6px] border-b border-[var(--rule)]">
                                 <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)]">{s.label}</span>
                                 <span className="font-sans text-[16px] font-semibold tracking-[-0.01em] tabular-nums">
@@ -643,7 +659,8 @@ function WeekOverview({
             {/* Meals */}
             <div className="hm-day-meals" style={{ padding: '8px 14px 72px' }}>
               {dayMeals.map((m) => {
-                const name = m.recipe?.name ?? m.ingredient?.name ?? "";
+                const name = mealName(m);
+                const eatout = isEatingOut(m);
                 let kcal: number | null = null;
                 if (m.recipe?.id && recipeCaloriesMap[m.recipe.id] != null) {
                   kcal = Math.round(recipeCaloriesMap[m.recipe.id] * (m.servings ?? 1));
@@ -655,8 +672,11 @@ function WeekOverview({
                     <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--muted)] mb-[2px]">
                       {m.mealType}
                     </div>
-                    <div className="font-sans text-[11px] text-[var(--fg)] leading-[1.35]">{name}</div>
-                    {kcal != null && (
+                    <div
+                      className="font-sans text-[11px] leading-[1.35]"
+                      style={{ color: eatout ? 'var(--muted)' : 'var(--fg)' }}
+                    >{name}</div>
+                    {!eatout && kcal != null && (
                       <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">{kcal} kcal</div>
                     )}
                   </div>
