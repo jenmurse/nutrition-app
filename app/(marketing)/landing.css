@@ -565,12 +565,17 @@ html[data-marketing] {
   color: var(--muted);
 }
 
-/* ── CTA BUTTONS — reuse global .ed-btn-* with landing-tuned padding ── */
+/* ── CTA BUTTONS — reuse global .ed-btn-* with landing-tuned padding ──
+   Explicit color needed: `.ln a { color: inherit }` has higher
+   specificity (class + element) than the base .ed-btn-* class rules. */
 .ln .ed-btn-outline,
 .ln .ed-btn-primary {
   padding: 12px 18px;
   font-size: 9px;
+  display: inline-block;
 }
+.ln .ed-btn-primary { color: var(--bg); }
+.ln .ed-btn-outline { color: var(--fg); }
 
 /* ── MOBILE ── */
 @media (max-width: 880px) {

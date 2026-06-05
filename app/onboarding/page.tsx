@@ -243,7 +243,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob-page">
-      <EditorialBackground />
+      <EditorialBackground register="editorial" />
 
       {/* Full-width top bar */}
       <div className="ob-topbar">
