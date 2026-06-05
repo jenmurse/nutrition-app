@@ -1496,6 +1496,13 @@ input[type="number"]:focus {
   transition:background 0.5s;
 }
 
+/* Planner contextual-tip wrapper — keeps tips inside the matrix gutter on
+   desktop and full-bleed (with mobile pad) on small screens. */
+.pl-tip-wrap { padding: 16px 40px 0; }
+@media (max-width: 767px) {
+  .pl-tip-wrap { padding: 12px var(--pad) 0; }
+}
+
 /* ── VIEW menu (toolbar popover) ──────────────────────────────── */
 .pl-view-anchor { position: relative; }
 .pl-view-caret { font-size: 8px; margin-left: 2px; }

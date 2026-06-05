@@ -118,6 +118,7 @@ One-time dismissible tip cards placed on specific pages. Each is tracked individ
 | `nutrition-guidance` | Recipe form | Above the guidance toggle |
 | `ai-optimize` | Recipe Detail | Top of the Optimization section |
 | `ai-meal-prep` | Recipe Detail | Top of the Meal Prep section |
+| `planner-eating-out` | Planner | Above the matrix. Surfaces the new Eating-out meal type. |
 
 The two AI tips include a conditional "Set up MCP in Settings →" deep link, shown only when MCP isn't yet configured (checked via `/api/onboarding`).
 

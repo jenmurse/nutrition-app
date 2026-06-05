@@ -9,6 +9,7 @@ import { usePersonContext } from "@/app/components/PersonContext";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import EmptyState from "@/app/components/EmptyState";
+import ContextualTip from "@/app/components/ContextualTip";
 
 /** Parse an ISO date string to a local Date preserving the calendar day. */
 function parseUTCDate(dateStr: string | Date): Date {
@@ -1879,6 +1880,13 @@ function PlannerPage() {
         )}
 
         <div className="animate-page-enter" style={{ minHeight: "100%" }}>
+          {plan && (
+            <div className="pl-tip-wrap">
+              <ContextualTip tipId="planner-eating-out" label="Going out?">
+                Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as <em>Eating out</em> placeholders. Tap any meal slot, then look under <strong>§ Other</strong>. They show in the day without affecting nutrition or the shopping list.
+              </ContextualTip>
+            </div>
+          )}
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
               <EmptyState
