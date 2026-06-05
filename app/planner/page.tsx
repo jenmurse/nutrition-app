@@ -1776,18 +1776,24 @@ function PlannerPage() {
 
         {plans.length > 1 && plan && (
           <>
-            <button
-              className="ed-btn-text"
-              disabled={currentPlanIdx < 0 || currentPlanIdx >= plans.length - 1}
-              onClick={() => goToPlan(currentPlanIdx + 1)}
-              aria-label="Previous week"
-            >‹ PREV</button>
-            <button
-              className="ed-btn-text"
-              disabled={currentPlanIdx <= 0}
-              onClick={() => goToPlan(currentPlanIdx - 1)}
-              aria-label="Next week"
-            >NEXT ›</button>
+            {/* PREV/NEXT hidden when the monthly strip is on — strip
+                clicks cover the same job and feel duplicative otherwise. */}
+            {!showMonthStrip && (
+              <>
+                <button
+                  className="ed-btn-text"
+                  disabled={currentPlanIdx < 0 || currentPlanIdx >= plans.length - 1}
+                  onClick={() => goToPlan(currentPlanIdx + 1)}
+                  aria-label="Previous week"
+                >‹ PREV</button>
+                <button
+                  className="ed-btn-text"
+                  disabled={currentPlanIdx <= 0}
+                  onClick={() => goToPlan(currentPlanIdx - 1)}
+                  aria-label="Next week"
+                >NEXT ›</button>
+              </>
+            )}
             {!isOnCurrentWeek && (
               <button
                 className="ed-btn-text"
@@ -1836,7 +1842,7 @@ function PlannerPage() {
                     className={`pl-view-item${showMonthStrip ? " is-on" : ""}`}
                     onClick={toggleMonthStrip}
                   >
-                    <span>Month strip</span>
+                    <span>Monthly plan</span>
                     <span className="pl-view-toggle" aria-hidden="true" />
                   </button>
                 </div>
@@ -1894,20 +1900,22 @@ function PlannerPage() {
               <div className="mx-mob-tb">
                 <span className="mx-mob-week">{shortRangeLabel}</span>
                 <div className="flex-1" />
-                <div className="mx-mob-arrows">
-                  <button
-                    className="mx-mob-arrow"
-                    disabled={currentPlanIdx < 0 || currentPlanIdx >= plans.length - 1}
-                    onClick={() => goToPlan(currentPlanIdx + 1)}
-                    aria-label="Previous week"
-                  >‹</button>
-                  <button
-                    className="mx-mob-arrow"
-                    disabled={currentPlanIdx <= 0}
-                    onClick={() => goToPlan(currentPlanIdx - 1)}
-                    aria-label="Next week"
-                  >›</button>
-                </div>
+                {!showMonthStrip && (
+                  <div className="mx-mob-arrows">
+                    <button
+                      className="mx-mob-arrow"
+                      disabled={currentPlanIdx < 0 || currentPlanIdx >= plans.length - 1}
+                      onClick={() => goToPlan(currentPlanIdx + 1)}
+                      aria-label="Previous week"
+                    >‹</button>
+                    <button
+                      className="mx-mob-arrow"
+                      disabled={currentPlanIdx <= 0}
+                      onClick={() => goToPlan(currentPlanIdx - 1)}
+                      aria-label="Next week"
+                    >›</button>
+                  </div>
+                )}
                 {!isOnCurrentWeek && (
                   <button
                     type="button"
@@ -1968,7 +1976,7 @@ function PlannerPage() {
                       className={`pl-view-item${showMonthStrip ? " is-on" : ""}`}
                       onClick={toggleMonthStrip}
                     >
-                      <span>Month strip</span>
+                      <span>Monthly plan</span>
                       <span className="pl-view-toggle" aria-hidden="true" />
                     </button>
                   </div>
