@@ -1,4 +1,9 @@
+import type { Viewport } from "next";
 import MarketingScrollFix from "./_components/MarketingScrollFix";
+
+export const viewport: Viewport = {
+  themeColor: "#F5F4EF", // cream — match the editorial body bg in iOS safe-area
+};
 
 /**
  * Marketing layout — adds data-marketing to <html> so globals.css can

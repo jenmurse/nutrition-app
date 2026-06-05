@@ -33,6 +33,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",   // required for env(safe-area-inset-*) to work on iOS PWA
+  // Default app chrome — white. Editorial routes (/, /login, /invite,
+  // /onboarding, /privacy) override this via their own viewport export
+  // so iOS Safari's status-bar / notch zone matches the cream body.
+  themeColor: "#FFFFFF",
 };
 
 export const metadata: Metadata = {
@@ -74,11 +78,6 @@ export const metadata: Metadata = {
     icon: "/favicon.svg",
     apple: "/PWA_icon-180x180.png",
   },
-
-  // ── Theme colour for browser chrome (status bar, address bar) ──
-  // Pure white matches the page background so iOS Safari's chrome stays clean
-  // even after temporary backdrop overlays close.
-  themeColor: "#FFFFFF",
 
   // ── PWA manifest ─────────────────────────────────────────────
   manifest: "/manifest.json",
