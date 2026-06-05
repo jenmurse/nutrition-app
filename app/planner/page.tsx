@@ -1883,7 +1883,7 @@ function PlannerPage() {
           {plan && (
             <div className="pl-tip-wrap">
               <ContextualTip tipId="planner-eating-out" label="Going out?">
-                Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as Eating out placeholders. Tap any meal slot, then look under <strong>§ Other</strong>. They show in the day without affecting nutrition or the shopping list.
+                Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as Eating out placeholders. Tap any meal slot, then look under § Other. They show in the day without affecting nutrition or the shopping list.
               </ContextualTip>
             </div>
           )}

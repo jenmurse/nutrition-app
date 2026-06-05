@@ -126,6 +126,10 @@ The two AI tips include a conditional "Set up MCP in Settings →" deep link, sh
 
 The tip card uses the person's theme accent color: `var(--accent-l)` background, `var(--accent)` left border and label/icon. This is **intentional** — tips are identity-adjacent (they appear because *this person* hasn't seen them yet) and use the same theme color as the person's avatar and selected day in the planner. See `feedback_design_system_enforcement.md` for the rule.
 
+### Copy convention
+
+Tip bodies are plain prose. **No inline emphasis** (`<em>`, `<strong>`, `<i>`, `<b>`). Glyphs like `§` and `→` carry their own typographic weight; bolding them would compete with the accent-tinted label above. The only structural inline element used is a styled `Link` at the end of a tip when it deep-links to a related action (see `ai-optimize` / `ai-meal-prep` for the pattern).
+
 ### Key files
 
 - `app/components/ContextualTip.tsx` — reusable component, props: `tipId`, `label`, `children`
