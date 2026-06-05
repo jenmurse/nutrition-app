@@ -821,10 +821,16 @@ function PlannerPage() {
     }
   }
 
+  // Track current index from the URL (source of truth) rather than the
+  // loaded `plan` state. After clicking PREV/NEXT, the URL updates
+  // synchronously while `plan` lags until the fetch resolves — using
+  // `plan` here caused fast double-clicks to compute against a stale
+  // position (skip two, or no-op).
   const currentPlanIdx = useMemo(() => {
-    if (!plan) return -1;
-    return plans.findIndex((p) => p.id === plan.id);
-  }, [plans, plan]);
+    const id = planIdParam ? Number(planIdParam) : (plan?.id ?? null);
+    if (id == null) return -1;
+    return plans.findIndex((p) => p.id === id);
+  }, [plans, planIdParam, plan]);
 
   // ── Derive grid data ─────────────────────────────────────────
   const days = useMemo(() => {
