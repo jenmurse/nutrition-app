@@ -1615,13 +1615,13 @@ input[type="number"]:focus {
 }
 .pl-strip-mobile .pl-strip-grid {
   grid-template-rows: 26px 56px;
-  grid-template-columns: repeat(35, 46px);
+  grid-template-columns: repeat(35, 48px);
   padding: 0 18px;
   min-width: auto;
   width: max-content;
 }
 .pl-strip-mobile .pl-strip-day { padding: 8px 0; }
-.pl-strip-mobile .pl-strip-fill { width: 18px; height: 26px; }
+.pl-strip-mobile .pl-strip-fill { width: 16px; height: 26px; }
 .pl-strip-mobile .pl-strip-num { font-size: 11px; }
 .pl-strip-mobile .pl-strip-month {
   font-size: 10px;
