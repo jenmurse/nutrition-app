@@ -150,7 +150,7 @@
 
   }
 
-  /* ── Editorial register — landing, auth, onboarding ────────────────── */
+  /* ── Editorial register — onboarding (paper) ───────────────────────── */
   [data-register="editorial"] {
     --bg:    #F5F4EF;
     --bg-2:  #EEEAE3;
@@ -159,6 +159,17 @@
     --fg-2:  #36342F;
     --muted: #6B6860;
     --rule:  #D0CCC2;
+  }
+
+  /* ── Marketing register — landing, auth, invite, waitlist, privacy (white) ── */
+  [data-register="marketing"] {
+    --bg:    #FFFFFF;
+    --bg-2:  #F7F6F2;
+    --bg-3:  #ECECEA;
+    --fg:    #1A1916;
+    --fg-2:  #36342F;
+    --muted: #6B6860;
+    --rule:  #E2DFD8;
   }
 
   /* ── Person Themes (accent-only — unchanged across registers) ──────── */

@@ -1,30 +1,25 @@
-export default function Close() {
-  return (
-    <section className="close">
-      <div className="close-head">
-        <div>
-          <span className="n">§ The Invitation</span>
-        </div>
-      </div>
+import Link from "next/link";
 
-      <div className="close-col">
-        <h2 className="close-h cl-h">
-          Cook by the gram.<br />Plan by the week.
-        </h2>
-        <div className="close-body">
-          <p className="cl-body">
-            I built Good Measure for myself and I use it every day. If you have
-            been looking for something that can give you more control over what you
-            eat, it&apos;s here for you to try. Right now it&apos;s invite-only for friends and family.
-          </p>
-          <div className="close-cta cl-cta" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <a href="/invite" className="btn">
-              I have an invite <span className="arr" aria-hidden="true">↗</span>
-            </a>
-            <a href="/waitlist" className="btn ghost">
-              Join waitlist
-            </a>
-          </div>
+export default function Close({
+  eyebrow,
+  headline,
+  body,
+}: {
+  eyebrow: string;
+  headline: string;
+  body: string;
+}) {
+  return (
+    <section className="ln-close">
+      <span className="ln-eyebrow">{eyebrow}</span>
+      <h2>{headline}</h2>
+      <div className="ln-close-grid">
+        <div>
+          <p>{body}</p>
+        </div>
+        <div className="ln-close-ctas">
+          <Link className="ed-btn-outline" href="/waitlist">Join waitlist</Link>
+          <Link className="ed-btn-primary" href="/invite">I have an invite →</Link>
         </div>
       </div>
     </section>

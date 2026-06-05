@@ -40,7 +40,7 @@ export default function WaitlistPage() {
   };
 
   return (
-    <div className="standalone-page" data-register="editorial">
+    <div className="standalone-page" data-register="marketing">
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
         <Link href="/" className="standalone-back-link">← Back</Link>

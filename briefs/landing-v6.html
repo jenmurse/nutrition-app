@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure · landing v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --bg-2:#F7F6F2;
+    --fg:#1A1916;
+    --fg-2:#36342F;
+    --muted:#6B6860;
+    --rule:#E2DFD8;
+    --accent:#5A9B6A;
+    --font-sans:'DM Sans',sans-serif;
+    --font-mono:'DM Mono',monospace;
+    --pad:clamp(24px,4.5vw,72px);
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-snap-type:y proximity;scroll-padding-top:44px;scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--fg);font-family:var(--font-sans);font-size:13px;
+       -webkit-font-smoothing:antialiased;letter-spacing:0;line-height:1.6;}
+
+  .eyebrow{font-family:var(--font-mono);font-size:9px;font-weight:400;letter-spacing:0.14em;
+           text-transform:uppercase;color:var(--muted);}
+
+  /* topbar */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+          padding:20px var(--pad);background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);
+          border-bottom:1px solid transparent;
+          transition:border-color 320ms var(--ease-out),padding 320ms var(--ease-out);}
+  .topbar.is-engaged{border-bottom-color:var(--rule);padding:12px var(--pad);}
+  .wm{font-weight:600;font-size:16px;letter-spacing:-0.03em;
+      transition:font-size 320ms var(--ease-out);}
+  .topbar.is-engaged .wm{font-size:13px;}
+  .topbar .right{display:flex;gap:28px;opacity:0;pointer-events:none;
+                 transition:opacity 320ms var(--ease-out);}
+  .topbar .right.is-visible{opacity:1;pointer-events:auto;}
+  /* Topbar links: plain mono text, no border, no fill */
+  .topbar .nav-link{font-family:var(--font-mono);font-size:10px;font-weight:400;letter-spacing:0.14em;
+                    text-transform:uppercase;color:var(--fg);text-decoration:none;
+                    transition:opacity 120ms;}
+  .topbar .nav-link:hover{opacity:0.6;}
+
+  /* Buttons for hero, close, in-page CTAs (NOT topbar) */
+  .btn{font-family:var(--font-mono);font-size:9px;font-weight:400;letter-spacing:0.14em;
+       text-transform:uppercase;text-decoration:none;padding:12px 18px;border:1px solid var(--rule);
+       color:var(--fg);transition:border-color 120ms,opacity 120ms;cursor:pointer;display:inline-block;}
+  .btn:hover{border-color:var(--fg);}
+  .btn-fill{background:var(--fg);color:var(--bg);border-color:var(--fg);}
+  .btn-fill:hover{opacity:0.9;border-color:var(--fg);}
+
+  /* ── HERO ── */
+  /* No internal hairline. Headline + sub + CTAs read as one composition. */
+  .hero{padding:clamp(140px,18vh,220px) var(--pad) clamp(80px,11vh,140px);max-width:1600px;margin:0 auto;
+        scroll-snap-align:start;scroll-snap-stop:normal;}
+  .hero-eyebrow{display:block;margin-bottom:20px;font-family:var(--font-mono);font-size:10px;
+                letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+  .hero h1{font-family:var(--font-sans);font-size:clamp(56px,10vw,148px);font-weight:500;
+           letter-spacing:-0.02em;line-height:0.94;color:var(--fg);}
+  .hero-bottom{display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:end;
+               margin-top:clamp(32px,4vh,56px);}
+  .hero-sub{font-size:17px;color:var(--fg-2);max-width:48ch;line-height:1.65;letter-spacing:0;
+            text-wrap:pretty;}
+  .hero-ctas{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+
+  /* ── IMAGE BAND — full-bleed edge to edge ── */
+  .imgband{width:100%;background:var(--bg-2);
+           border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+           scroll-snap-align:center;scroll-snap-stop:normal;}
+  .imgband-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);
+                width:100%;}
+  .imgband-tile{aspect-ratio:1/1;background:var(--bg-2);position:relative;overflow:hidden;
+                display:flex;align-items:center;justify-content:center;}
+  .imgband-tile .lbl{position:absolute;top:18px;left:18px;font-family:var(--font-mono);font-size:9px;
+                     letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+  .imgband-tile .hint{font-family:var(--font-mono);font-size:9px;letter-spacing:0.14em;
+                      text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.9;padding:20px;}
+
+  /* ── SCENARIO ── */
+  /* Head and lede sit together as one composition, no internal hairline below. */
+  /* Section boundary is implied by the image band above/below or the natural break. */
+  .scn{max-width:1600px;margin:0 auto;padding:0 var(--pad);}
+  .scn-head{padding:clamp(96px,14vh,180px) 0 clamp(56px,8vh,96px);
+            scroll-snap-align:start;scroll-snap-stop:normal;}
+  .scn-num{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.14em;color:var(--fg);}
+  .scn-head h2{font-family:var(--font-sans);font-size:clamp(48px,7.5vw,120px);font-weight:500;
+               letter-spacing:-0.02em;line-height:1.0;
+               margin-top:24px;text-wrap:balance;max-width:16ch;}
+  .scn-head .lede{font-size:17px;color:var(--fg-2);max-width:48ch;margin-top:36px;line-height:1.65;
+                  letter-spacing:0;text-wrap:pretty;}
+
+  .scn-track{padding:0 0 clamp(80px,12vh,180px);
+             display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+
+  .stage-col{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;}
+  .stage{width:100%;max-width:580px;aspect-ratio:4/3;position:relative;
+         border:1px solid var(--rule);background:var(--bg-2);overflow:hidden;}
+  .state{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+         opacity:0;transition:opacity 700ms var(--ease-out);padding:24px;}
+  .state.is-active{opacity:1;}
+  .state-tag{position:absolute;top:18px;left:20px;font-family:var(--font-mono);font-size:9px;
+             font-weight:400;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);
+             display:flex;gap:8px;align-items:baseline;z-index:2;}
+  .state-tag .step{color:var(--fg);font-weight:600;}
+
+  /* Beats: ALL beats center the same way — including the first one.
+     This restores alignment with the centered stage. */
+  .beats-col{padding:0 0 50vh;}
+  .beat{min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+        scroll-snap-align:center;scroll-snap-stop:normal;}
+  /* First beat: no snap — flows from the scenario head naturally */
+  .beat:first-child{scroll-snap-align:none;}
+  .beat-tag{font-family:var(--font-mono);font-size:9px;font-weight:400;letter-spacing:0.14em;
+            text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:baseline;}
+  .beat-tag .step{color:var(--fg);font-weight:600;}
+  .beat h3{font-family:var(--font-sans);font-size:clamp(28px,3.4vw,48px);font-weight:600;
+           letter-spacing:-0.01em;line-height:1.1;margin-top:20px;text-wrap:balance;max-width:16ch;}
+  .beat p{font-size:15px;color:var(--fg-2);max-width:42ch;margin-top:22px;line-height:1.7;
+          letter-spacing:0;text-wrap:pretty;}
+  .beat .prompt{border-left:2px solid var(--rule);padding:16px 0 16px 22px;margin-top:28px;
+                font-size:15px;color:var(--fg);max-width:42ch;line-height:1.7;letter-spacing:0;}
+
+  /* Placeholder UI primitives */
+  .ph{position:absolute;inset:16% 10% 12% 10%;border:1px solid var(--rule);background:var(--bg);
+      display:flex;flex-direction:column;}
+  .ph-bar{height:22px;border-bottom:1px solid var(--rule);background:var(--bg-2);}
+  .ph-grid{flex:1;display:grid;grid-template-columns:repeat(7,1fr);}
+  .ph-grid > div{border-right:1px solid var(--rule);position:relative;}
+  .ph-grid > div:last-child{border-right:none;}
+  .ph-cell{position:absolute;left:6px;right:6px;height:8px;background:var(--rule);}
+  .ph-cell.brk{top:14px;} .ph-cell.lun{top:30px;} .ph-cell.din{top:46px;}
+  .ph-cell.swap{background:var(--accent);}
+  .ph-chat{position:absolute;inset:22% 14% 18% 14%;background:var(--bg);border:1px solid var(--rule);
+           padding:20px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.02em;
+           color:var(--fg-2);line-height:1.8;text-align:left;text-transform:none;}
+  .ph-chat .from{font-family:var(--font-mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;
+                 color:var(--muted);display:block;margin-bottom:10px;}
+  .ph-recipe{position:absolute;inset:18% 14% 12% 14%;background:var(--bg);border:1px solid var(--rule);
+             display:flex;flex-direction:column;padding:20px;gap:12px;}
+  .ph-recipe .rh{height:13px;background:var(--fg);width:60%;}
+  .ph-recipe .rl{height:7px;background:var(--rule);width:90%;}
+  .ph-recipe .rl.short{width:55%;}
+  .ph-recipe .rl.green{background:var(--accent);}
+  .ph-day{position:absolute;inset:14% 30% 12% 30%;background:var(--bg);border:1px solid var(--rule);
+          display:flex;flex-direction:column;}
+  .ph-day .dh{height:22px;background:var(--bg-2);border-bottom:1px solid var(--rule);}
+  .ph-day .ds{flex:1;display:flex;flex-direction:column;padding:14px 12px;gap:12px;}
+  .ph-day .ds .ph-cell{position:static;height:8px;background:var(--rule);width:100%;}
+  .ph-day .totals{height:20px;background:var(--accent);opacity:0.55;}
+  .ph-dialog{position:absolute;inset:22% 16% 22% 16%;background:var(--bg);border:1px solid var(--rule);
+             padding:22px;display:flex;flex-direction:column;gap:16px;}
+  .ph-dialog .dt{height:13px;background:var(--fg);width:50%;}
+  .ph-dialog .di{height:30px;border-bottom:1px solid var(--rule);}
+
+  /* ── SHOPPING CALLOUT — small editorial block between scenario 02 and interstitial ── */
+  .callout{max-width:1600px;margin:0 auto;padding:clamp(60px,8vh,100px) var(--pad);
+           display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+  .callout-eyebrow{font-family:var(--font-mono);font-size:9px;font-weight:400;letter-spacing:0.14em;
+                   text-transform:uppercase;color:var(--muted);}
+  .callout h3{font-family:var(--font-sans);font-size:clamp(24px,2.6vw,36px);font-weight:500;
+              letter-spacing:-0.02em;line-height:1.1;margin-top:18px;text-wrap:balance;max-width:18ch;}
+  .callout p{font-size:15px;color:var(--fg-2);max-width:46ch;line-height:1.7;letter-spacing:0;
+             margin-top:0;text-wrap:pretty;}
+  .callout-right{padding-top:clamp(32px,4vh,56px);}
+  @media(max-width:880px){
+    .callout{grid-template-columns:1fr;gap:24px;}
+    .callout-right{padding-top:0;}
+  }
+
+  /* ── INTERSTITIAL — full-bleed edge to edge ── */
+  .interstitial{width:100%;background:var(--bg-2);
+                border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+                scroll-snap-align:center;scroll-snap-stop:normal;}
+  .interstitial-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--rule);width:100%;}
+  .interstitial-tile{aspect-ratio:4/3;background:var(--bg-2);position:relative;
+                     display:flex;align-items:center;justify-content:center;}
+  .interstitial-tile .lbl{position:absolute;top:18px;left:18px;font-family:var(--font-mono);font-size:9px;
+                          letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+  .interstitial-tile .hint{font-family:var(--font-mono);font-size:9px;letter-spacing:0.14em;
+                           text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.9;padding:20px;}
+
+  /* ── ARCHITECTURE ── */
+  /* Keep the bracketing hairlines because this IS the section boundary device for this section. */
+  .why{max-width:1600px;margin:0 auto;padding:clamp(96px,14vh,180px) var(--pad);
+       border-top:1px solid var(--rule);
+       scroll-snap-align:start;scroll-snap-stop:normal;}
+  .why .eyebrow{display:block;margin-bottom:40px;}
+  .why h2{font-family:var(--font-sans);font-size:clamp(48px,8vw,120px);font-weight:500;
+          letter-spacing:-0.02em;line-height:1.0;text-wrap:balance;max-width:22ch;}
+  .why p{font-size:17px;color:var(--fg-2);max-width:52ch;margin-top:48px;line-height:1.65;
+         letter-spacing:0;text-wrap:pretty;}
+
+  /* ── CLOSE ── */
+  /* No internal hairline. Headline + body + CTAs as one composition. */
+  /* No snap — allows scroll past to footer */
+  .close{max-width:1600px;margin:0 auto;padding-top:clamp(120px,16vh,200px);
+         padding-bottom:clamp(80px,12vh,150px);padding-left:var(--pad);padding-right:var(--pad);}
+  .close .eyebrow{display:block;}
+  .close h2{font-family:var(--font-sans);font-size:clamp(56px,9vw,140px);font-weight:500;
+            letter-spacing:-0.02em;line-height:1.0;margin-top:28px;text-wrap:balance;max-width:14ch;}
+  .close-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:end;
+              margin-top:clamp(56px,8vh,96px);}
+  .close p{font-size:16px;color:var(--fg-2);max-width:48ch;line-height:1.65;letter-spacing:0;
+           text-wrap:pretty;}
+  .close-ctas{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+
+  footer{max-width:1600px;margin:0 auto;padding:12px var(--pad) 20px;display:flex;
+         justify-content:space-between;align-items:center;}
+  footer .eyebrow{color:var(--muted);}
+  footer .flinks{display:flex;gap:20px;}
+  footer .flinks a{font-family:var(--font-mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;
+                   color:var(--muted);text-decoration:none;}
+
+  /* MOBILE */
+  @media(max-width:880px){
+    html{scroll-snap-type:none;}
+    .scn-head{padding:clamp(72px,10vh,120px) 0 clamp(36px,5vh,64px);}
+    .scn-track{grid-template-columns:1fr;gap:0;padding:0 0 clamp(60px,10vh,120px);}
+    .stage-col{display:none;}
+    .beats-col{padding:0;}
+    .beat{min-height:auto;padding:48px 0 64px;border-top:1px solid var(--rule);
+          scroll-snap-align:none;}
+    .beat:first-child{border-top:none;padding-top:8px;min-height:auto;padding-bottom:64px;}
+    .beat-shot{margin-top:36px;width:100%;aspect-ratio:9/16;max-width:none;
+               border:1px solid var(--rule);background:var(--bg-2);
+               position:relative;overflow:hidden;
+               opacity:0;transform:translateY(20px);
+               transition:opacity 600ms var(--ease-out),transform 600ms var(--ease-out);}
+    .beat-shot.in{opacity:1;transform:none;}
+    .beat-shot .state-tag{top:14px;left:14px;}
+    .beat-shot .ph,.beat-shot .ph-recipe,.beat-shot .ph-chat,.beat-shot .ph-day,.beat-shot .ph-dialog{
+      inset:24% 10% 14% 10%;}
+    .hero-bottom,.close-grid{grid-template-columns:1fr;gap:32px;}
+    .hero-ctas,.close-ctas{justify-content:flex-start;}
+    .imgband-grid{grid-template-columns:repeat(2,1fr);}
+    .interstitial-grid{grid-template-columns:1fr;}
+  }
+  @media(min-width:881px){
+    .beat-shot{display:none;}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-snap-type:none;}
+    .stage-col{display:none;}
+    .beat{min-height:auto;padding:48px 0;}
+    .beat-shot{display:block;opacity:1;transform:none;transition:none;}
+    .state{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wm">Good Measure</div>
+  <div class="right">
+    <a class="nav-link" href="#">Have a code? →</a>
+    <a class="nav-link" href="#">Sign in →</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-eyebrow">§ A nutrition &amp; meal-planning tool</span>
+  <h1>Measure<br>what matters.</h1>
+  <div class="hero-bottom">
+    <p class="hero-sub">Most nutrition apps log what you eat. Most recipe apps store what you cook. Good Measure puts the two together. A single tool for your pantry, your recipes, and your week of meals. One ingredient library, nutrition calculated to the gram, and plans optimized with AI.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="#scn01">See how it works ↓</a>
+      <a class="btn btn-fill" href="#">I have an invite →</a>
+    </div>
+  </div>
+</section>
+
+<!-- IMAGE BAND — full-bleed -->
+<section class="imgband">
+  <div class="imgband-grid">
+    <div class="imgband-tile"><span class="lbl">Breakfast</span><div class="hint">[ Photo ]<br>Turmeric waffles</div></div>
+    <div class="imgband-tile"><span class="lbl">Lunch</span><div class="hint">[ Photo ]<br>Lunch salad<br>with tuna</div></div>
+    <div class="imgband-tile"><span class="lbl">Dinner</span><div class="hint">[ Photo ]<br>Black bean<br>&amp; lentil chili</div></div>
+    <div class="imgband-tile"><span class="lbl">Dessert</span><div class="hint">[ Photo ]<br>Almond croissant<br>blondies</div></div>
+  </div>
+</section>
+
+<!-- SCENARIO 01 -->
+<section class="scn" id="scn01">
+  <div class="scn-head">
+    <span class="scn-num">01</span>
+    <h2>You found a recipe. Dial it in.</h2>
+    <p class="lede">Save a recipe from anywhere. Chat with your AI about what you'd like to change. Actual ingredients, actual amounts. Save a new version that's yours. The original stays untouched.</p>
+  </div>
+
+  <div class="scn-track">
+    <div class="stage-col">
+      <div class="stage" data-stage="01">
+        <div class="state is-active" data-state="0">
+          <span class="state-tag"><span class="step">A</span> Original</span>
+          <div class="ph-recipe">
+            <div class="rh"></div>
+            <div class="rl"></div><div class="rl short"></div><div class="rl"></div><div class="rl short"></div>
+          </div>
+        </div>
+        <div class="state" data-state="1">
+          <span class="state-tag"><span class="step">B</span> Conversation</span>
+          <div class="ph-chat">
+            <span class="from">You → your AI</span>
+            Pull up this recipe. Lower the sodium without changing what the dish basically is.
+          </div>
+        </div>
+        <div class="state" data-state="2">
+          <span class="state-tag"><span class="step">C</span> Saved</span>
+          <div class="ph-recipe">
+            <div class="rh"></div>
+            <div class="rl green"></div><div class="rl short"></div><div class="rl green"></div><div class="rl short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="beats-col">
+      <div class="beat" data-beat="0" data-stage="01">
+        <span class="beat-tag"><span class="step">A</span> Original</span>
+        <h3>It enters exactly as published.</h3>
+        <p>Paste a URL. Good Measure pulls the recipe apart to the gram and matches every ingredient against your pantry. Over a hundred USDA-sourced staples are there from day one, so most recipes match against something real on first import.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">A</span> Original</span><div class="ph-recipe"><div class="rh"></div><div class="rl"></div><div class="rl short"></div><div class="rl"></div><div class="rl short"></div></div></div>
+      </div>
+      <div class="beat" data-beat="1" data-stage="01">
+        <span class="beat-tag"><span class="step">B</span> Conversation</span>
+        <h3>Ask for the version you actually want.</h3>
+        <p>Your AI reads the real recipe through the connection and returns specific swaps with the math attached. Not "use less sugar," but which ingredient, what amount, what it does to the numbers.</p>
+        <div class="prompt">"Cut the miso paste from 4 tsp to 2 tsp. Swap to no-salt cannellini beans. Drops the dish from 1,858mg sodium to about 950mg."</div>
+        <div class="beat-shot"><span class="state-tag"><span class="step">B</span> Conversation</span><div class="ph-chat"><span class="from">You → your AI</span>Pull up this recipe. Lower the sodium without changing what the dish basically is.</div></div>
+      </div>
+      <div class="beat" data-beat="2" data-stage="01">
+        <span class="beat-tag"><span class="step">C</span> Saved</span>
+        <h3>Keep the version that's yours.</h3>
+        <p>You approve the change and the new version lands in your library. The original stays where it was. Recipes draw from the pantry, so the numbers follow the ingredients. Change two tablespoons of olive oil to one and the details update automatically.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">C</span> Saved</span><div class="ph-recipe"><div class="rh"></div><div class="rl green"></div><div class="rl short"></div><div class="rl green"></div><div class="rl short"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERSTITIAL — full-bleed -->
+<section class="interstitial">
+  <div class="interstitial-grid">
+    <div class="interstitial-tile"><span class="lbl">Snack</span><div class="hint">[ Photo ]<br>Apple slices<br>with almond butter</div></div>
+    <div class="interstitial-tile"><span class="lbl">Side</span><div class="hint">[ Photo ]<br>Sesame miso lentils</div></div>
+  </div>
+</section>
+
+<!-- SCENARIO 02 -->
+<section class="scn" id="scn02">
+  <div class="scn-head">
+    <span class="scn-num">02</span>
+    <h2>You're staring at a blank week. Describe what you want.</h2>
+    <p class="lede">Good Measure was built for people who want more control over what they cook, whether it's for one person or a household. My husband and I cook from the same kitchen but we have different needs and goals. Every person has their own plan and their own targets running against the shared recipe and pantry library.</p>
+  </div>
+
+  <div class="scn-track">
+    <div class="stage-col">
+      <div class="stage" data-stage="02">
+        <div class="state is-active" data-state="0">
+          <span class="state-tag"><span class="step">A</span> Empty week</span>
+          <div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+        </div>
+        <div class="state" data-state="1">
+          <span class="state-tag"><span class="step">B</span> Asking</span>
+          <div class="ph-chat"><span class="from">You → your AI</span>Propose a week of dinners that hits my protein without going over on sodium, using what's already in my library.</div>
+        </div>
+        <div class="state" data-state="2">
+          <span class="state-tag"><span class="step">C</span> Filled</span>
+          <div class="ph"><div class="ph-bar"></div><div class="ph-grid">
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+          </div></div>
+        </div>
+        <div class="state" data-state="3">
+          <span class="state-tag"><span class="step">D</span> Swap</span>
+          <div class="ph"><div class="ph-bar"></div><div class="ph-grid">
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun swap"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+            <div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="beats-col">
+      <div class="beat" data-beat="0" data-stage="02">
+        <span class="beat-tag"><span class="step">A</span> Empty week</span>
+        <h3>Seven days. Every slot. Nothing in them yet.</h3>
+        <p>The blank week is where most plans die. Good Measure assumes you don't want to fill it by hand, meal by meal, recipe by recipe.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">A</span> Empty week</span><div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>
+      </div>
+      <div class="beat" data-beat="1" data-stage="02">
+        <span class="beat-tag"><span class="step">B</span> Asking</span>
+        <h3>Describe the week you want.</h3>
+        <p>Your AI already sees your recipes, your goals, and your plan through the connection. You just say what you're going for, in plain language.</p>
+        <div class="prompt">"Propose a week of dinners that hits my protein without going over on sodium, using what's already in my library."</div>
+        <div class="beat-shot"><span class="state-tag"><span class="step">B</span> Asking</span><div class="ph-chat"><span class="from">You → your AI</span>Propose a week of dinners that hits my protein without going over on sodium, using what's already in my library.</div></div>
+      </div>
+      <div class="beat" data-beat="2" data-stage="02">
+        <span class="beat-tag"><span class="step">C</span> Filled</span>
+        <h3>It writes the plan in.</h3>
+        <p>The actual meals, in the actual planner, with daily totals showing whether each day landed clean. Not a list of suggestions in a chat window. The week, in the app, ready to cook from.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">C</span> Filled</span><div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div></div></div></div>
+      </div>
+      <div class="beat" data-beat="3" data-stage="02">
+        <span class="beat-tag"><span class="step">D</span> Swap</span>
+        <h3>Change your mind out loud.</h3>
+        <p>The plan isn't final. You talk to it. The agent doesn't just suggest. It executes the swap, in place, in the app.</p>
+        <div class="prompt">"Tuesday's protein is low. Swap the lunch for something with more."</div>
+        <div class="beat-shot"><span class="state-tag"><span class="step">D</span> Swap</span><div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun swap"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div><div><div class="ph-cell brk"></div><div class="ph-cell lun"></div><div class="ph-cell din"></div></div></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOPPING CALLOUT -->
+<section class="callout">
+  <div>
+    <span class="callout-eyebrow">§ And the list writes itself</span>
+    <h3>Once the week is planned, the shopping list writes itself.</h3>
+  </div>
+  <div class="callout-right">
+    <p>Every ingredient from every recipe, grouped by where you'll find it in the store. Quantities scaled to the servings you're actually making, down to the gram. Check things off as you shop. Share the list with whoever's going.</p>
+  </div>
+</section>
+
+<!-- INTERSTITIAL -->
+<section class="interstitial">
+  <div class="interstitial-grid">
+    <div class="interstitial-tile"><span class="lbl">Breakfast</span><div class="hint">[ Photo ]<br>Overnight oats<br>with peanut butter</div></div>
+    <div class="interstitial-tile"><span class="lbl">Dinner</span><div class="hint">[ Photo ]<br>One-pan Indian style<br>fish &amp; chickpeas</div></div>
+  </div>
+</section>
+
+<!-- SCENARIO 03 -->
+<section class="scn" id="scn03">
+  <div class="scn-head">
+    <span class="scn-num">03</span>
+    <h2>A day that worked is a day you can reuse.</h2>
+    <p class="lede">When a day pulls clean (calories right, protein on, fiber where it should be), save it as a template. Apply it to any future day with one click, or build a rotation from the handful of days that consistently work.</p>
+  </div>
+
+  <div class="scn-track">
+    <div class="stage-col">
+      <div class="stage" data-stage="03">
+        <div class="state is-active" data-state="0">
+          <span class="state-tag"><span class="step">A</span> A clean day</span>
+          <div class="ph-day"><div class="dh"></div><div class="ds"><div class="ph-cell"></div><div class="ph-cell"></div><div class="ph-cell"></div></div><div class="totals"></div></div>
+        </div>
+        <div class="state" data-state="1">
+          <span class="state-tag"><span class="step">B</span> Save it</span>
+          <div class="ph-dialog"><div class="dt"></div><div class="di"></div><div class="di"></div></div>
+        </div>
+        <div class="state" data-state="2">
+          <span class="state-tag"><span class="step">C</span> Empty week</span>
+          <div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+        </div>
+        <div class="state" data-state="3">
+          <span class="state-tag"><span class="step">D</span> Applied</span>
+          <div class="ph"><div class="ph-bar"></div><div class="ph-grid">
+            <div></div>
+            <div><div class="ph-cell brk swap"></div><div class="ph-cell lun swap"></div><div class="ph-cell din swap"></div></div>
+            <div></div><div></div><div></div><div></div><div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="beats-col">
+      <div class="beat" data-beat="0" data-stage="03">
+        <span class="beat-tag"><span class="step">A</span> A clean day</span>
+        <h3>Some days just hit.</h3>
+        <p>Calories landed, protein was on, fiber was where it should be. Instead of rebuilding that day from scratch next week, save it.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">A</span> A clean day</span><div class="ph-day"><div class="dh"></div><div class="ds"><div class="ph-cell"></div><div class="ph-cell"></div><div class="ph-cell"></div></div><div class="totals"></div></div></div>
+      </div>
+      <div class="beat" data-beat="1" data-stage="03">
+        <span class="beat-tag"><span class="step">B</span> Save it</span>
+        <h3>Name it for what it is.</h3>
+        <p>Workout day. Light Friday. Mediterranean. Your AI can save templates too. "Save this as Workout day" and it does.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">B</span> Save it</span><div class="ph-dialog"><div class="dt"></div><div class="di"></div><div class="di"></div></div></div>
+      </div>
+      <div class="beat" data-beat="2" data-stage="03">
+        <span class="beat-tag"><span class="step">C</span> Empty week</span>
+        <h3>Later, a new week.</h3>
+        <p>You're filling next Tuesday. A blank day waiting.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">C</span> Empty week</span><div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>
+      </div>
+      <div class="beat" data-beat="3" data-stage="03">
+        <span class="beat-tag"><span class="step">D</span> Applied</span>
+        <h3>Apply the template. The day fills.</h3>
+        <p>A good formula, captured once, reused without effort. The planner stops being weekly busywork and becomes a set of patterns you reuse.</p>
+        <div class="beat-shot"><span class="state-tag"><span class="step">D</span> Applied</span><div class="ph"><div class="ph-bar"></div><div class="ph-grid"><div></div><div><div class="ph-cell brk swap"></div><div class="ph-cell lun swap"></div><div class="ph-cell din swap"></div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="why">
+  <span class="eyebrow">§ Why it works this way</span>
+  <h2>Good Measure measures. Your AI thinks.</h2>
+  <p>The measuring lives in the app. The grams, the goals, the plan, the library. The thinking part lives in the AI you already use. Good Measure connects the two through a simple install of the Good Measure MCP. You add it to your AI once, and from then on your assistant can read and write your kitchen. And the agent doesn't just suggest. It executes. Plan a whole day, swap a meal, save a day that worked as a template, apply it to next week. You confirm the destructive moves; the agent handles the fussy edits.</p>
+</section>
+
+<!-- CLOSE -->
+<section class="close">
+  <span class="eyebrow">§ The invitation</span>
+  <h2>Cook by the gram. Plan by the week.</h2>
+  <div class="close-grid">
+    <div>
+      <p>I built Good Measure for myself and I use it every day. If you have been looking for something that can give you more control over what you eat, it's here for you to try. Right now it's invite-only, for friends and family.</p>
+    </div>
+    <div class="close-ctas">
+      <a class="btn" href="#">Join waitlist</a>
+      <a class="btn btn-fill" href="#">I have an invite →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="eyebrow">© 2026 · Mer So Studio, LLC</span>
+  <div class="flinks">
+    <a href="#">Contact</a>
+    <a href="#">Privacy</a>
+  </div>
+</footer>
+
+<script>
+  // Topbar engagement: hidden chrome while hero is in view, full chrome (CTAs + hairline) once scrolled past
+  const hero = document.querySelector('.hero');
+  const topbar = document.querySelector('.topbar');
+  const topbarRight = document.querySelector('.topbar .right');
+  if (hero && topbar && topbarRight) {
+    const heroObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        const engaged = !e.isIntersecting;
+        topbarRight.classList.toggle('is-visible', engaged);
+        topbar.classList.toggle('is-engaged', engaged);
+      });
+    }, { threshold: 0, rootMargin: '-64px 0px 0px 0px' });
+    heroObs.observe(hero);
+  }
+
+  document.querySelectorAll('.scn').forEach(scn => {
+    const stage = scn.querySelector('.stage');
+    if (!stage) return;
+    const states = stage.querySelectorAll('.state');
+    const beats = scn.querySelectorAll('.beat');
+    const setActive = (i) => states.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const i = parseInt(e.target.dataset.beat, 10);
+          setActive(i);
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    beats.forEach(b => obs.observe(b));
+  });
+
+  const shots = document.querySelectorAll('.beat-shot');
+  const mobObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.2 });
+  shots.forEach(s => mobObs.observe(s));
+</script>
+</body>
+</html>

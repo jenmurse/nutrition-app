@@ -2,7 +2,7 @@ import type { Viewport } from "next";
 import MarketingScrollFix from "./_components/MarketingScrollFix";
 
 export const viewport: Viewport = {
-  themeColor: "#F5F4EF", // cream — match the editorial body bg in iOS safe-area
+  themeColor: "#FFFFFF", // white — match the marketing body bg in iOS safe-area
 };
 
 /**
@@ -14,7 +14,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <>
       <MarketingScrollFix />
-      <div data-register="editorial">
+      <div data-register="marketing">
         {children}
       </div>
     </>

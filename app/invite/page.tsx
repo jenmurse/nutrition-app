@@ -100,7 +100,7 @@ export default function InvitePage() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page" data-register="marketing">
       <EditorialBackground />
       <nav className="auth-nav">
         <Link href="/" className="auth-nav-logo">Good Measure</Link>
