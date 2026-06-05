@@ -1728,10 +1728,7 @@ function PlannerPage() {
           className="pl-strip-scroll"
           ref={(el) => { stripScrollRefs.current[variant] = el; }}
         >
-          <div
-            className="pl-strip-grid"
-            style={{ gridTemplateColumns: `repeat(${stripCells.length}, auto)` }}
-          >
+          <div className="pl-strip-grid">
             {stripMonthGroups.map((g, idx) => (
               <div
                 key={`m-${idx}`}
