@@ -7,18 +7,17 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap');
   :root {
+    /* Matches app tokens. Accent shown here = Jen's coral theme (per-person);
+       the real value swaps based on the active person. */
     --bg: #FFFFFF;
     --bg-2: #F5F5F4;
     --bg-3: #ECECEA;
     --fg: #1A1916;
-    --fg-2: #36342F;
-    --muted: #6B6860;
-    --rule: #D0CCC2;
-    --err: #B43A1F;
-    --ok: #4F6B3A;
-    --accent: #7C8C5F;
-    --accent-l: rgba(124, 140, 95, 0.10);
-    --accent-m: rgba(124, 140, 95, 0.22);
+    --fg-2: #2A2A2A;
+    --muted: #6E6E6E;
+    --rule: #D8D8D6;
+    --accent:   #E84828;                       /* coral — Jen's theme */
+    --accent-l: rgba(232, 72, 40, 0.09);       /* peach tint — today column bg */
     --sans: 'DM Sans', sans-serif;
     --font-mono: 'DM Mono', monospace;
   }
@@ -165,7 +164,7 @@
     color: var(--muted); letter-spacing: 0.04em;
   }
   .strip-day.is-today .strip-day-num {
-    color: var(--err); font-weight: 600;
+    color: var(--accent); font-weight: 600;
   }
   .strip-day.in-current-week {
     background: var(--accent-l);
@@ -199,7 +198,7 @@
   }
   .strip-legend .swatch.full { background: var(--fg); border-color: var(--fg); }
   .strip-legend .swatch.curr { background: var(--accent-l); border-color: var(--accent); }
-  .strip-legend .swatch.today { background: var(--err); border-color: var(--err); }
+  .strip-legend .swatch.today { background: var(--accent); border-color: var(--accent); }
 
   /* ── Matrix preview ────────────────────────────────────────────── */
   .matrix-preview {
@@ -221,7 +220,7 @@
   }
   .mxp-day-num { font-size: 16px; font-weight: 500; margin-top: 4px; }
   .mxp-day.is-today { background: var(--accent-l); }
-  .mxp-day.is-today .mxp-day-num { color: var(--err); }
+  .mxp-day.is-today .mxp-day-num { color: var(--accent); }
   .mxp-slot-label {
     padding: 14px 12px; border-right: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
@@ -265,7 +264,7 @@
     display: inline-flex; align-items: center; gap: 6px;
   }
   .mob-tb1 .person .dot {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--err);
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
   }
   .mob-tb1 .hamburger { font-size: 18px; color: var(--fg); padding: 0 4px; }
   .mob-tb2 {
@@ -341,7 +340,7 @@
   }
   .mob-day .num { font-size: 16px; font-weight: 500; margin-top: 4px; }
   .mob-day.active { background: var(--accent-l); }
-  .mob-day.active .num { color: var(--err); }
+  .mob-day.active .num { color: var(--accent); }
   .mob-day .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--fg); margin: 4px auto 0; }
   .mob-day.empty .dot { background: transparent; }
 
