@@ -1500,17 +1500,19 @@ input[type="number"]:focus {
 .pl-view-menu {
   position: absolute; top: calc(100% + 6px); right: 0;
   min-width: 220px; background: var(--bg);
-  border: 1px solid var(--fg); padding: 4px 0;
+  border: 1px solid var(--fg); padding: 0 0 4px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.08);
   z-index: 26;
+  overflow: hidden;
 }
 .pl-view-menu-head {
-  padding: 8px 14px 6px;
+  padding: 10px 14px 8px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
   background: var(--bg-2);
   border-bottom: 1px solid var(--rule);
+  margin-bottom: 4px;
 }
 .pl-view-item {
   width: 100%;
@@ -1545,29 +1547,31 @@ input[type="number"]:focus {
 .pl-strip-scroll {
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin;
+  /* Hide scrollbar when content fits; show only when actually overflowing. */
+  scrollbar-width: none;
 }
-.pl-strip-scroll::-webkit-scrollbar { height: 4px; }
-.pl-strip-scroll::-webkit-scrollbar-thumb { background: var(--rule); }
+.pl-strip-scroll::-webkit-scrollbar { display: none; }
 .pl-strip-grid {
   display: grid;
-  grid-template-rows: 18px 50px;
+  grid-template-rows: 24px 52px;
   padding: 0 40px;
-  width: max-content;
+  /* Cells stretch evenly when there's room; minmax keeps them legible
+     on narrower screens by switching to scroll once below 36px each. */
+  grid-template-columns: repeat(35, minmax(36px, 1fr));
+  min-width: 100%;
 }
 .pl-strip-month {
   grid-row: 1;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
-  padding: 4px 6px 2px;
+  padding: 6px 8px 4px;
   border-bottom: 1px dashed var(--rule);
   align-self: end;
 }
 .pl-strip-day {
   grid-row: 2;
-  width: 36px;
-  padding: 6px 0;
+  padding: 8px 0;
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
   background: transparent; border: 0;
   cursor: pointer;
@@ -1593,15 +1597,22 @@ input[type="number"]:focus {
 .pl-strip-fill-bar { width: 100%; background: var(--fg); }
 .pl-strip-day.is-empty .pl-strip-fill { background: transparent; border-color: var(--bg-3); }
 
-/* Mobile strip: narrower cells, less padding */
-.pl-strip-mobile .pl-strip-grid {
-  grid-template-rows: 14px 40px;
-  padding: 0 14px;
+/* Mobile strip: narrower cells, less padding. Mobile keeps scroll on
+   because 35 × 28px = 980px > 390px viewport. */
+.pl-strip-mobile .pl-strip-scroll {
+  scrollbar-width: none;
 }
-.pl-strip-mobile .pl-strip-day { width: 28px; padding: 4px 0; }
+.pl-strip-mobile .pl-strip-grid {
+  grid-template-rows: 18px 38px;
+  grid-template-columns: repeat(35, 28px);
+  padding: 0 14px;
+  min-width: auto;
+  width: max-content;
+}
+.pl-strip-mobile .pl-strip-day { padding: 4px 0; }
 .pl-strip-mobile .pl-strip-fill { width: 12px; height: 18px; }
 .pl-strip-mobile .pl-strip-num { font-size: 9px; }
-.pl-strip-mobile .pl-strip-month { font-size: 8px; padding: 2px 4px 1px; }
+.pl-strip-mobile .pl-strip-month { font-size: 9px; padding: 4px 6px 2px; }
 
 /* ── Matrix planner grid ─────────────────────────────────────── */
 .mx {

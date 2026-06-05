@@ -198,7 +198,7 @@ function PlannerPage() {
   const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
   const [manageOpen, setManageOpen] = useState(false);
   const [showNutrition, setShowNutrition] = useState<boolean>(true);
-  const [showMonthStrip, setShowMonthStrip] = useState<boolean>(true);
+  const [showMonthStrip, setShowMonthStrip] = useState<boolean>(false);
   const [viewMenuOpen, setViewMenuOpen] = useState(false);
   type StripDay = { dateKey: string; planId: number | null; count: number; slots: number };
   const [stripDays, setStripDays] = useState<StripDay[]>([]);
@@ -213,7 +213,7 @@ function PlannerPage() {
       const n = window.localStorage.getItem("gm.planner.showNutrition");
       if (n === "false") setShowNutrition(false);
       const m = window.localStorage.getItem("gm.planner.showMonthStrip");
-      if (m === "false") setShowMonthStrip(false);
+      if (m === "true") setShowMonthStrip(true);
     } catch {}
   }, []);
   function toggleNutrition() {
@@ -1645,14 +1645,18 @@ function PlannerPage() {
   // Derived strip data: each day in the 35-day window with its fill ratio.
   // Falls back to walking the window if the API hasn't returned yet.
   const stripCells = useMemo(() => {
-    type Cell = { date: Date; dateKey: string; ratio: number; planId: number | null; isToday: boolean; inCurrentWeek: boolean };
+    type Cell = { date: Date; dateKey: string; ratio: number; planId: number | null; isToday: boolean; inLoadedWeek: boolean };
     const cells: Cell[] = [];
-    // Build current week bounds (Sun-Sat).
-    const sunday = new Date(today);
-    sunday.setDate(sunday.getDate() - sunday.getDay());
-    const weekStart = sunday;
-    const weekEnd = new Date(sunday);
-    weekEnd.setDate(weekEnd.getDate() + 6);
+    // The "loaded week" highlight tracks whichever plan is currently
+    // displayed in the matrix — moves with you when you click PREV/NEXT
+    // or click into a different week in the strip itself.
+    let loadedStart: Date | null = null;
+    let loadedEnd: Date | null = null;
+    if (plan) {
+      loadedStart = parseUTCDate(plan.weekStartDate);
+      loadedEnd = new Date(loadedStart);
+      loadedEnd.setDate(loadedEnd.getDate() + 6);
+    }
 
     const byKey = new Map(stripDays.map((d) => [d.dateKey, d] as const));
     for (let i = 0; i < 35; i++) {
@@ -1661,17 +1665,18 @@ function PlannerPage() {
       const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const data = byKey.get(dateKey);
       const ratio = data && data.slots > 0 ? Math.min(1, data.count / data.slots) : 0;
+      const inLoadedWeek = !!(loadedStart && loadedEnd && d >= loadedStart && d <= loadedEnd);
       cells.push({
         date: d,
         dateKey,
         ratio,
         planId: data?.planId ?? null,
         isToday: d.toDateString() === today.toDateString(),
-        inCurrentWeek: d >= weekStart && d <= weekEnd,
+        inLoadedWeek,
       });
     }
     return cells;
-  }, [stripDays, stripWindow.start, today]);
+  }, [stripDays, stripWindow.start, today, plan]);
 
   // Month-label groups for the band above the day cells: each contiguous
   // run of the same month → one label spanning N grid columns.
@@ -1692,6 +1697,26 @@ function PlannerPage() {
     return groups;
   }, [stripCells]);
 
+  // Refs for auto-scrolling each strip variant to center the loaded week.
+  const stripScrollRefs = useRef<{ desktop: HTMLDivElement | null; mobile: HTMLDivElement | null }>({ desktop: null, mobile: null });
+  useEffect(() => {
+    if (!showMonthStrip || stripCells.length === 0) return;
+    const loadedIdx = stripCells.findIndex((c) => c.inLoadedWeek);
+    if (loadedIdx < 0) return;
+    requestAnimationFrame(() => {
+      for (const variant of ["desktop", "mobile"] as const) {
+        const el = stripScrollRefs.current[variant];
+        if (!el) continue;
+        const totalW = el.scrollWidth;
+        const visibleW = el.clientWidth;
+        if (totalW <= visibleW) continue; // nothing to scroll
+        const cellW = totalW / stripCells.length;
+        const target = (loadedIdx * cellW) - visibleW / 2 + (3.5 * cellW);
+        el.scrollLeft = Math.max(0, target);
+      }
+    });
+  }, [showMonthStrip, stripCells]);
+
   // Render helper for the strip — same markup on desktop + mobile, sized by CSS.
   function renderStrip(variant: "desktop" | "mobile") {
     if (!showMonthStrip) return null;
@@ -1699,7 +1724,10 @@ function PlannerPage() {
     const className = variant === "desktop" ? "pl-strip pl-strip-desktop" : "pl-strip pl-strip-mobile";
     return (
       <div className={className}>
-        <div className="pl-strip-scroll">
+        <div
+          className="pl-strip-scroll"
+          ref={(el) => { stripScrollRefs.current[variant] = el; }}
+        >
           <div
             className="pl-strip-grid"
             style={{ gridTemplateColumns: `repeat(${stripCells.length}, auto)` }}
@@ -1714,7 +1742,7 @@ function PlannerPage() {
             {stripCells.map((c, i) => {
               const classes = ["pl-strip-day"];
               if (c.isToday) classes.push("is-today");
-              if (c.inCurrentWeek) classes.push("in-week");
+              if (c.inLoadedWeek) classes.push("in-week");
               if (c.ratio === 0) classes.push("is-empty");
               if (c.planId == null) classes.push("is-unplanned");
               return (
