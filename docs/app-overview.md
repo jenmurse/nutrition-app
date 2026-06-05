@@ -234,7 +234,7 @@ See `design-system.md` — source of truth for typography, color, layout, shape,
 Key tokens:
 - Surfaces: `--bg`, `--bg-2`, `--bg-3`
 - Foreground: `--fg`, `--fg-2`, `--muted`, `--rule`
-- Accent (theme-reactive, sage default): `--accent`, `--accent-l`
+- Accent (theme-reactive, ink default — shifts to a person's theme when one is active): `--accent`, `--accent-l`
 - Status: `--ok`, `--err`, `--warn` (each with `-l` tinted variant)
 - Fonts: `--font-sans` (DM Sans), `--font-mono` (DM Mono). Two typefaces only — no display font, no serif
 - Type scale: 9 / 11 / 13 / 16 / 20 / 28 / 36px (7 stops, no others)

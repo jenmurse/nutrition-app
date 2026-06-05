@@ -128,9 +128,13 @@ All colors are CSS variables. Never hardcode hex values.
   --muted: #6B6860;   /* labels, hints, disabled */
   --rule:  #D0CCC2;   /* hairlines, borders, dividers, outlined buttons */
 
-  /* Accent — driven by active person's theme */
-  --accent:    #5A9B6A;             /* default sage; theme-reactive */
-  --accent-l:  rgba(90,155,106,0.10);
+  /* Accent — driven by active person's theme. The :root default is ink,
+     not a colored theme. When a person is selected, PersonContext sets
+     [data-theme="<theme>"] on the html element and the accent shifts.
+     On no-person surfaces (auth, landing, sign-out), data-theme is
+     absent and the accent stays ink. */
+  --accent:    #111111;             /* ink default; theme-reactive */
+  --accent-l:  rgba(17,17,17,0.08);
 
   /* Status */
   --ok:       #5A9B6A;
@@ -154,7 +158,7 @@ Three buckets, no exceptions:
 
 Coral / theme accent should never appear on a primary CTA. Black should never appear on an identity marker.
 
-**Sage is a theme color, not a brand color.** The system has eight named themes; sage is one of them, used as the default when no person is selected (auth, onboarding bookends, landing — surfaces where the accent has no person to belong to). On in-app surfaces, the accent shifts with the active person's theme. The brand itself is paper and ink (`--bg` and `--fg`); sage and every other accent belong to the person, not the product.
+**No theme is the default.** The brand baseline is paper and ink (`--bg` and `--fg`). When no person is selected — auth, onboarding pre-pick, landing, sign-out states — `data-theme` is absent from `<html>` and `--accent` resolves to the `:root` value, which is ink (`#111111`). On in-app surfaces with a selected person, PersonContext sets `data-theme="<theme>"` and the accent shifts to one of the eight named themes (coral / terra / sage / cerulean / plum / slate / etc.). Sage is just one of those eight options, not the default.
 
 ### 2e. Nutrition panel semantic color policy
 
@@ -1151,7 +1155,7 @@ Decisions implemented as single-source variables so the whole app updates from o
 | Change | Where to edit |
 |---|---|
 | Background color | `:root { --bg: ... }` |
-| Accent (sage default) | `:root { --accent: ... }` (theme-reactive at runtime via JS) |
+| Accent (ink default; theme-reactive) | `:root { --accent: ... }` (shifts via `[data-theme="<name>"]` set by PersonContext) |
 | Body / mono font | `:root { --font-sans / --font-mono }` |
 | Nav height | `:root { --nav-h: 50px }` |
 | Page max-width | `.ed-container { max-width: ... }` |
