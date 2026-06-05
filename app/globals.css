@@ -1571,7 +1571,6 @@ input[type="number"]:focus {
      from sprawling on ultra-wide monitors (cells cap around 56px). */
   grid-template-columns: repeat(35, minmax(26px, 32px));
   width: 100%;
-  justify-content: space-between;
 }
 .pl-strip-month {
   grid-row: 1;
