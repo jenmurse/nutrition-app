@@ -1569,7 +1569,7 @@ input[type="number"]:focus {
   /* Stretch cells to span the matrix's width on normal displays. The
      1fr columns share extra space evenly. A max-width cap stops cells
      from sprawling on ultra-wide monitors (cells cap around 56px). */
-  grid-template-columns: repeat(35, minmax(32px, 38px));
+  grid-template-columns: repeat(35, minmax(26px, 32px));
   width: 100%;
   justify-content: space-between;
 }
