@@ -1568,7 +1568,7 @@ input[type="number"]:focus {
   padding: 0 40px;
   /* Fixed cell width so bar spacing stays consistent regardless of
      viewport width. Strip scrolls horizontally when it doesn't fit. */
-  grid-template-columns: repeat(35, 38px);
+  grid-template-columns: repeat(35, 44px);
   width: max-content;
 }
 .pl-strip-month {
