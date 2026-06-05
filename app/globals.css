@@ -1604,7 +1604,7 @@ input[type="number"]:focus {
 .pl-strip-day.in-week { background: var(--accent-l); }
 .pl-strip-day.in-week .pl-strip-num { color: var(--fg); }
 .pl-strip-fill {
-  width: 22px; height: 22px;
+  width: 18px; height: 22px;
   background: var(--bg-3);
   border: 1px solid var(--rule);
   display: flex; flex-direction: column-reverse;
