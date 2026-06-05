@@ -198,22 +198,35 @@ function PlannerPage() {
   const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
   const [manageOpen, setManageOpen] = useState(false);
   const [showNutrition, setShowNutrition] = useState<boolean>(true);
+  const [showMonthStrip, setShowMonthStrip] = useState<boolean>(true);
+  const [viewMenuOpen, setViewMenuOpen] = useState(false);
+  type StripDay = { dateKey: string; planId: number | null; count: number; slots: number };
+  const [stripDays, setStripDays] = useState<StripDay[]>([]);
   // Eating-out inline input within the picker (open + draft label).
   const [eatingOutOpen, setEatingOutOpen] = useState(false);
   const [eatingOutLabel, setEatingOutLabel] = useState("");
 
-  // ── Nutrition visibility (persisted per device) ──────────────
+  // ── View options (persisted per device) ──────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const stored = window.localStorage.getItem("gm.planner.showNutrition");
-      if (stored === "false") setShowNutrition(false);
+      const n = window.localStorage.getItem("gm.planner.showNutrition");
+      if (n === "false") setShowNutrition(false);
+      const m = window.localStorage.getItem("gm.planner.showMonthStrip");
+      if (m === "false") setShowMonthStrip(false);
     } catch {}
   }, []);
   function toggleNutrition() {
     setShowNutrition((prev) => {
       const next = !prev;
       try { window.localStorage.setItem("gm.planner.showNutrition", next ? "true" : "false"); } catch {}
+      return next;
+    });
+  }
+  function toggleMonthStrip() {
+    setShowMonthStrip((prev) => {
+      const next = !prev;
+      try { window.localStorage.setItem("gm.planner.showMonthStrip", next ? "true" : "false"); } catch {}
       return next;
     });
   }
@@ -756,6 +769,14 @@ function PlannerPage() {
     return thisSunday;
   }
 
+  // Strip-click handler — navigate to the plan covering this day (if any).
+  function jumpToStripDay(planId: number | null) {
+    if (planId == null) return;
+    const idx = plans.findIndex((p) => p.id === planId);
+    if (idx < 0) return;
+    goToPlan(idx);
+  }
+
   function goToPlan(idx: number) {
     if (idx < 0 || idx >= plans.length) return;
     const target = plans[idx];
@@ -858,6 +879,35 @@ function PlannerPage() {
     return t;
   }, []);
 
+  // ── 30-day zoom-out strip ───────────────────────────────────
+  // 5 weeks (35 days) centered on the current week. Start = Sunday two
+  // weeks before today's week, end = Saturday two weeks after.
+  const stripWindow = useMemo(() => {
+    const sunday = new Date(today);
+    sunday.setDate(sunday.getDate() - sunday.getDay()); // back to Sunday
+    const start = new Date(sunday);
+    start.setDate(start.getDate() - 14);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 34);
+    return { start, end };
+  }, [today]);
+
+  // Fetch fill data whenever the active person changes or the active
+  // plan's meals change (refreshPlan bumps `plan`).
+  useEffect(() => {
+    if (selectedPersonId == null) { setStripDays([]); return; }
+    if (!showMonthStrip) return; // skip when hidden
+    let cancelled = false;
+    const startISO = stripWindow.start.toISOString().slice(0, 10);
+    const endISO = stripWindow.end.toISOString().slice(0, 10);
+    const url = `/api/planner/strip?personId=${selectedPersonId}&start=${startISO}&end=${endISO}`;
+    fetch(url)
+      .then((r) => r.ok ? r.json() : Promise.reject(r))
+      .then((data: { days: StripDay[] }) => { if (!cancelled) setStripDays(data.days ?? []); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [selectedPersonId, plan, showMonthStrip, stripWindow.start, stripWindow.end]);
+
   // Default selected day: today if in the week, else the first day
   useEffect(() => {
     if (days.length === 0) return;
@@ -952,6 +1002,15 @@ function PlannerPage() {
     const em = e.toLocaleString("default", { month: "short" });
     if (sm === em) return `${sm} ${s.getDate()}–${e.getDate()}`;
     return `${sm} ${s.getDate()} – ${em} ${e.getDate()}`;
+  }, [plan, days]);
+
+  // Compact range for the mobile second toolbar — saves ~40px which we
+  // need to fit VIEW + TODAY + ⋯ + + NEW alongside the arrows.
+  const shortRangeLabel = useMemo(() => {
+    if (!plan || days.length === 0) return "";
+    const s = days[0];
+    const e = days[6];
+    return `${s.getMonth() + 1}/${s.getDate()} – ${e.getMonth() + 1}/${e.getDate()}`;
   }, [plan, days]);
 
   // True when the currently-loaded plan covers today's date. Used to gate
@@ -1583,6 +1642,104 @@ function PlannerPage() {
     }
   }
 
+  // Derived strip data: each day in the 35-day window with its fill ratio.
+  // Falls back to walking the window if the API hasn't returned yet.
+  const stripCells = useMemo(() => {
+    type Cell = { date: Date; dateKey: string; ratio: number; planId: number | null; isToday: boolean; inCurrentWeek: boolean };
+    const cells: Cell[] = [];
+    // Build current week bounds (Sun-Sat).
+    const sunday = new Date(today);
+    sunday.setDate(sunday.getDate() - sunday.getDay());
+    const weekStart = sunday;
+    const weekEnd = new Date(sunday);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    const byKey = new Map(stripDays.map((d) => [d.dateKey, d] as const));
+    for (let i = 0; i < 35; i++) {
+      const d = new Date(stripWindow.start);
+      d.setDate(d.getDate() + i);
+      const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const data = byKey.get(dateKey);
+      const ratio = data && data.slots > 0 ? Math.min(1, data.count / data.slots) : 0;
+      cells.push({
+        date: d,
+        dateKey,
+        ratio,
+        planId: data?.planId ?? null,
+        isToday: d.toDateString() === today.toDateString(),
+        inCurrentWeek: d >= weekStart && d <= weekEnd,
+      });
+    }
+    return cells;
+  }, [stripDays, stripWindow.start, today]);
+
+  // Month-label groups for the band above the day cells: each contiguous
+  // run of the same month → one label spanning N grid columns.
+  const stripMonthGroups = useMemo(() => {
+    if (stripCells.length === 0) return [];
+    const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const groups: Array<{ label: string; start: number; span: number }> = [];
+    let curr: { label: string; start: number; span: number } | null = null;
+    stripCells.forEach((c, i) => {
+      const m = c.date.getMonth();
+      if (!curr || curr.label !== MONTH_NAMES[m]) {
+        curr = { label: MONTH_NAMES[m], start: i + 1, span: 1 };
+        groups.push(curr);
+      } else {
+        curr.span += 1;
+      }
+    });
+    return groups;
+  }, [stripCells]);
+
+  // Render helper for the strip — same markup on desktop + mobile, sized by CSS.
+  function renderStrip(variant: "desktop" | "mobile") {
+    if (!showMonthStrip) return null;
+    if (stripCells.length === 0) return null;
+    const className = variant === "desktop" ? "pl-strip pl-strip-desktop" : "pl-strip pl-strip-mobile";
+    return (
+      <div className={className}>
+        <div className="pl-strip-scroll">
+          <div
+            className="pl-strip-grid"
+            style={{ gridTemplateColumns: `repeat(${stripCells.length}, auto)` }}
+          >
+            {stripMonthGroups.map((g, idx) => (
+              <div
+                key={`m-${idx}`}
+                className="pl-strip-month"
+                style={{ gridColumn: `${g.start} / ${g.start + g.span}` }}
+              >{g.label}</div>
+            ))}
+            {stripCells.map((c, i) => {
+              const classes = ["pl-strip-day"];
+              if (c.isToday) classes.push("is-today");
+              if (c.inCurrentWeek) classes.push("in-week");
+              if (c.ratio === 0) classes.push("is-empty");
+              if (c.planId == null) classes.push("is-unplanned");
+              return (
+                <button
+                  type="button"
+                  key={c.dateKey}
+                  className={classes.join(" ")}
+                  style={{ gridColumn: i + 1 }}
+                  onClick={() => jumpToStripDay(c.planId)}
+                  disabled={c.planId == null}
+                  aria-label={`${c.date.toDateString()}${c.planId ? "" : " (no plan)"}`}
+                >
+                  <span className="pl-strip-fill">
+                    <span className="pl-strip-fill-bar" style={{ height: `${Math.round(c.ratio * 100)}%` }} />
+                  </span>
+                  <span className="pl-strip-num">{c.date.getDate()}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Render ───────────────────────────────────────────────────
   return (
     <div className="h-full flex flex-col">
@@ -1616,14 +1773,48 @@ function PlannerPage() {
         <div className="flex-1" />
 
         {plan && (
-          <button
-            type="button"
-            className="ed-btn-text"
-            onClick={toggleNutrition}
-            aria-pressed={showNutrition}
-            aria-label={showNutrition ? "Hide nutrition totals" : "Show nutrition totals"}
-            title={showNutrition ? "Hide nutrition totals" : "Show nutrition totals"}
-          >{showNutrition ? "HIDE NUTRITION" : "SHOW NUTRITION"}</button>
+          <div className="pl-view-anchor">
+            <button
+              type="button"
+              className={`ed-btn-text${viewMenuOpen ? " is-active" : ""}`}
+              onClick={(e) => { e.stopPropagation(); setViewMenuOpen((v) => !v); }}
+              aria-haspopup="menu"
+              aria-expanded={viewMenuOpen}
+              aria-label="View options"
+            >VIEW <span style={{ fontSize: 8 }}>▾</span></button>
+            {viewMenuOpen && (
+              <>
+                <div
+                  className="pl-view-backdrop"
+                  onClick={() => setViewMenuOpen(false)}
+                  aria-hidden="true"
+                />
+                <div className="pl-view-menu" role="menu">
+                  <div className="pl-view-menu-head">View options</div>
+                  <button
+                    type="button"
+                    role="menuitemcheckbox"
+                    aria-checked={showNutrition}
+                    className={`pl-view-item${showNutrition ? " is-on" : ""}`}
+                    onClick={toggleNutrition}
+                  >
+                    <span>Nutrition totals</span>
+                    <span className="pl-view-toggle" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitemcheckbox"
+                    aria-checked={showMonthStrip}
+                    className={`pl-view-item${showMonthStrip ? " is-on" : ""}`}
+                    onClick={toggleMonthStrip}
+                  >
+                    <span>Month strip</span>
+                    <span className="pl-view-toggle" aria-hidden="true" />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         )}
 
         {plan && (
@@ -1671,9 +1862,9 @@ function PlannerPage() {
 
           {plan && isMobile && selectedDay && (
             <>
-              {/* Mobile second toolbar — week left; arrows + new pinned right */}
+              {/* Mobile second toolbar — abbreviated range + arrows + TODAY + VIEW + ⋯ + NEW */}
               <div className="mx-mob-tb">
-                <span className="mx-mob-week">{rangeLabel}</span>
+                <span className="mx-mob-week">{shortRangeLabel}</span>
                 <div className="flex-1" />
                 <div className="mx-mob-arrows">
                   <button
@@ -1692,12 +1883,19 @@ function PlannerPage() {
                 {!isOnCurrentWeek && (
                   <button
                     type="button"
-                    className="ed-btn-text"
+                    className="mx-mob-tbbtn"
                     onClick={goToThisWeek}
                     aria-label="Go to this week"
-                    style={{ marginLeft: 6, fontSize: 11 }}
                   >Today</button>
                 )}
+                <button
+                  type="button"
+                  className={`mx-mob-tbbtn${viewMenuOpen ? " is-active" : ""}`}
+                  onClick={(e) => { e.stopPropagation(); setViewMenuOpen((v) => !v); }}
+                  aria-label="View options"
+                  aria-haspopup="menu"
+                  aria-expanded={viewMenuOpen}
+                >View</button>
                 <button
                   type="button"
                   className="mx-mob-overflow"
@@ -1709,15 +1907,47 @@ function PlannerPage() {
                   aria-haspopup="menu"
                   aria-expanded={!!dayMenu}
                   disabled={!selectedDay}
-                  style={{ marginLeft: 6 }}
                 >⋯</button>
                 <button
                   className="ed-btn-primary mx-mob-new"
                   onClick={openNewPlanDialog}
                   aria-label="Create new plan"
-                  style={{ marginLeft: 6 }}
                 >+ NEW</button>
               </div>
+              {viewMenuOpen && (
+                <>
+                  <div
+                    className="pl-view-backdrop"
+                    onClick={() => setViewMenuOpen(false)}
+                    aria-hidden="true"
+                  />
+                  <div className="pl-view-menu pl-view-menu-mobile" role="menu">
+                    <div className="pl-view-menu-head">View options</div>
+                    <button
+                      type="button"
+                      role="menuitemcheckbox"
+                      aria-checked={showNutrition}
+                      className={`pl-view-item${showNutrition ? " is-on" : ""}`}
+                      onClick={toggleNutrition}
+                    >
+                      <span>Nutrition totals</span>
+                      <span className="pl-view-toggle" aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitemcheckbox"
+                      aria-checked={showMonthStrip}
+                      className={`pl-view-item${showMonthStrip ? " is-on" : ""}`}
+                      onClick={toggleMonthStrip}
+                    >
+                      <span>Month strip</span>
+                      <span className="pl-view-toggle" aria-hidden="true" />
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {renderStrip("mobile")}
 
               {/* Day strip */}
               <div className="mx-mob-daystrip">
@@ -1859,6 +2089,8 @@ function PlannerPage() {
               })()}
             </>
           )}
+
+          {plan && !isMobile && renderStrip("desktop")}
 
           {plan && !isMobile && (
             <div className="mx" key={plan.id}>

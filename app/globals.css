@@ -1492,6 +1492,117 @@ input[type="number"]:focus {
   transition:background 0.5s;
 }
 
+/* ── VIEW menu (toolbar popover) ──────────────────────────────── */
+.pl-view-anchor { position: relative; }
+.pl-view-backdrop {
+  position: fixed; inset: 0; z-index: 25; background: transparent;
+}
+.pl-view-menu {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  min-width: 220px; background: var(--bg);
+  border: 1px solid var(--fg); padding: 4px 0;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  z-index: 26;
+}
+.pl-view-menu-head {
+  padding: 8px 14px 6px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--rule);
+}
+.pl-view-item {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent; border: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--sans); font-size: 13px;
+  letter-spacing: -0.03em; color: var(--fg);
+  cursor: pointer; text-align: left;
+}
+.pl-view-item:hover { background: var(--bg-2); }
+.pl-view-toggle {
+  width: 28px; height: 16px; border-radius: 999px;
+  background: var(--bg-3); position: relative;
+  transition: background 120ms var(--ease-out);
+  flex-shrink: 0;
+}
+.pl-view-toggle::after {
+  content: ''; position: absolute; top: 1px; left: 1px;
+  width: 14px; height: 14px; background: var(--bg); border-radius: 50%;
+  border: 1px solid var(--rule);
+  transition: left 120ms var(--ease-out), border-color 120ms var(--ease-out);
+}
+.pl-view-item.is-on .pl-view-toggle { background: var(--fg); }
+.pl-view-item.is-on .pl-view-toggle::after { left: 13px; border-color: var(--fg); }
+
+/* ── 30-day zoom-out strip ────────────────────────────────────── */
+.pl-strip {
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--rule);
+}
+.pl-strip-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.pl-strip-scroll::-webkit-scrollbar { height: 4px; }
+.pl-strip-scroll::-webkit-scrollbar-thumb { background: var(--rule); }
+.pl-strip-grid {
+  display: grid;
+  grid-template-rows: 18px 50px;
+  padding: 0 40px;
+  width: max-content;
+}
+.pl-strip-month {
+  grid-row: 1;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  padding: 4px 6px 2px;
+  border-bottom: 1px dashed var(--rule);
+  align-self: end;
+}
+.pl-strip-day {
+  grid-row: 2;
+  width: 36px;
+  padding: 6px 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  background: transparent; border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pl-strip-day:hover:not(:disabled) { background: var(--bg-3); }
+.pl-strip-day:disabled { cursor: default; }
+.pl-strip-day:disabled .pl-strip-num { color: var(--rule); }
+.pl-strip-num {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 10px; letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.pl-strip-day.is-today .pl-strip-num { color: var(--accent); font-weight: 600; }
+.pl-strip-day.in-week { background: var(--accent-l); }
+.pl-strip-day.in-week .pl-strip-num { color: var(--fg); }
+.pl-strip-fill {
+  width: 16px; height: 22px;
+  background: var(--bg-3);
+  border: 1px solid var(--rule);
+  display: flex; flex-direction: column-reverse;
+}
+.pl-strip-fill-bar { width: 100%; background: var(--fg); }
+.pl-strip-day.is-empty .pl-strip-fill { background: transparent; border-color: var(--bg-3); }
+
+/* Mobile strip: narrower cells, less padding */
+.pl-strip-mobile .pl-strip-grid {
+  grid-template-rows: 14px 40px;
+  padding: 0 14px;
+}
+.pl-strip-mobile .pl-strip-day { width: 28px; padding: 4px 0; }
+.pl-strip-mobile .pl-strip-fill { width: 12px; height: 18px; }
+.pl-strip-mobile .pl-strip-num { font-size: 9px; }
+.pl-strip-mobile .pl-strip-month { font-size: 8px; padding: 2px 4px 1px; }
+
 /* ── Matrix planner grid ─────────────────────────────────────── */
 .mx {
   display: grid;
@@ -1872,7 +1983,7 @@ input[type="number"]:focus {
   background: transparent;
   border: 1px solid var(--rule);
   width: 30px;
-  height: 30px;
+  height: 28px;
   padding: 0;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 14px;
@@ -2770,33 +2881,56 @@ input[type="number"]:focus {
   justify-content: space-between;
   align-items: center;
   padding: 12px 18px;
+  gap: 4px;
   border-bottom: 1px solid var(--rule);
   background: var(--bg);
+  position: relative;
 }
 .mx-mob-week {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  /* Optical: mono uppercase rests slightly leftward against rounded glyphs;
-     nudge text in 1px to align with surrounding eyebrows. */
   text-indent: 1px;
   color: var(--fg);
+  white-space: nowrap;
 }
 .mx-mob-arrows {
   display: flex;
   gap: 2px;
-  margin-right: 8px;
+}
+/* Compact text button used in the mobile toolbar (TODAY, VIEW). */
+.mx-mob-tbbtn {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.mx-mob-tbbtn:hover { color: var(--fg); border-color: var(--fg); }
+.mx-mob-tbbtn.is-active { color: var(--fg); border-color: var(--fg); }
+/* Mobile view menu — sits inside the relative toolbar container */
+.pl-view-menu-mobile {
+  top: calc(100% + 6px);
+  right: 12px;
+  min-width: 220px;
 }
 .mx-mob-arrow {
   background: transparent;
   border: 1px solid var(--rule);
-  width: 36px;
-  height: 30px;
+  width: 30px;
+  height: 28px;
   padding: 0;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 18px;
+  font-size: 14px;
   letter-spacing: 0;
   color: var(--fg);
   cursor: pointer;
@@ -2809,8 +2943,8 @@ input[type="number"]:focus {
 .mx-mob-arrow:hover { border-color: var(--fg); }
 .mx-mob-arrow:disabled { opacity: 0.3; cursor: default; }
 .mx-mob-new {
-  height: 30px;
-  padding: 0 12px;
+  height: 28px;
+  padding: 0 10px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
