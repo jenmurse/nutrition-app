@@ -196,6 +196,23 @@ function PlannerPage() {
   const [saveTplOpen, setSaveTplOpen] = useState<SaveTemplateState | null>(null);
   const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
   const [manageOpen, setManageOpen] = useState(false);
+  const [showNutrition, setShowNutrition] = useState<boolean>(true);
+
+  // ── Nutrition visibility (persisted per device) ──────────────
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = window.localStorage.getItem("gm.planner.showNutrition");
+      if (stored === "false") setShowNutrition(false);
+    } catch {}
+  }, []);
+  function toggleNutrition() {
+    setShowNutrition((prev) => {
+      const next = !prev;
+      try { window.localStorage.setItem("gm.planner.showNutrition", next ? "true" : "false"); } catch {}
+      return next;
+    });
+  }
 
   // ── Mobile detection ─────────────────────────────────────────
   useEffect(() => {
@@ -1537,6 +1554,17 @@ function PlannerPage() {
         <div className="flex-1" />
 
         {plan && (
+          <button
+            type="button"
+            className="ed-btn-text"
+            onClick={toggleNutrition}
+            aria-pressed={showNutrition}
+            aria-label={showNutrition ? "Hide nutrition totals" : "Show nutrition totals"}
+            title={showNutrition ? "Hide nutrition totals" : "Show nutrition totals"}
+          >{showNutrition ? "HIDE NUTRITION" : "SHOW NUTRITION"}</button>
+        )}
+
+        {plan && (
           <Link
             href={`/shopping?week=${plan.weekStartDate}`}
             className="pl-cart-btn"
@@ -1720,7 +1748,7 @@ function PlannerPage() {
               )}
 
               {/* Day totals */}
-              {(() => {
+              {showNutrition && (() => {
                 const day = totalsForDay(selectedDay);
                 const cal = nutrientCell(day, ["calorie", "energy"], (v) => `${Math.round(v)}`);
                 const fat = nutrientCell(day, ["total fat", "fat"], (v) => `${Math.round(v)}g`);
@@ -1903,8 +1931,8 @@ function PlannerPage() {
                 </div>
               )}
 
-              <div className="mx-totals-label">Daily totals</div>
-              {days.map((d) => {
+              {showNutrition && <div className="mx-totals-label">Daily totals</div>}
+              {showNutrition && days.map((d) => {
                 const day = totalsForDay(d);
                 const cal = nutrientCell(day, ["calorie", "energy"], (v) => `${Math.round(v)}`);
                 const fat = nutrientCell(day, ["total fat", "fat"], (v) => `${Math.round(v)}g`);
