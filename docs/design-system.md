@@ -563,6 +563,8 @@ Text-label pattern (established by Briefs 2A and 2B). Sharp, `var(--fg-muted)` i
 
 **Rule:** never use a stroke border on a toolbar icon button. Stroke = filter chip semantics.
 
+**Multi-toggle menus** (e.g. the planner's `VIEW ▾`) follow the popover-with-checkboxes pattern. Each menu item is a row with the checkbox indicator on the right; the checkbox uses the locked §5f spec (sharp 14×14, black-filled when checked, white tick). Never pill-switch toggles. See `.pl-view-item` + `.pl-view-toggle` for the canonical implementation.
+
 ### 5h. Modal / dialog
 
 ```css
@@ -911,11 +913,33 @@ Stats configurable in Settings → Dashboard. Stored in `localStorage('dashboard
 
 Edge-to-edge full viewport.
 
-- Toolbar: date range, prev/next, `THIS WEEK`, cart icon, `+ NEW PLAN` (sharp black), edit, nutrition, person chips
-- Week grid: 7 columns, today's column tinted `--accent-l`
+- Toolbar: date range, prev/next (hidden when monthly strip on), `THIS WEEK`/`TODAY`, `VIEW ▾` menu, cart icon, `+ NEW PLAN` (sharp black). Toolbar z-index is `40` so popovers from it sit above the matrix and the strip.
+- Matrix grid: 7 columns, today's column tinted `--accent-l`.
 - Meal entries: ruled rows. Eyebrow (DINNER, LUNCH, etc.) → meal name (DM Sans) → kcal (mono). No card backgrounds, no rounded tiles.
 - Day kcal progress bar under each day number. Bar is always `--ok` green (or `--accent-btn` for today/selected); no semantic color state.
 - Sidebar (open via NUTRITION ›): hero kcal number + ruled nutrient rows (neutral `--muted` fill, `--err` red only for over-limit bars) + callout rows: `.err-chip` tinted for over-limit, `.warn-chip` plain ruled row for below-min. See §2e for the full nutrition panel color policy.
+
+#### Monthly strip (`.pl-strip`)
+
+Optional 35-day (5-week) zoom-out band between the toolbar and the matrix. Off by default; toggle via the VIEW menu. Persists per device in `localStorage` under `gm.planner.showMonthStrip`.
+
+- Each cell = one day. Bar height = `count / slots` capped at 1.
+- Loaded week is tinted `--accent-l` (matches today's column treatment below). Today's date number uses solid `--accent`.
+- Disabled cells (no plan covers this day) are dimmed and non-clickable. No surprise plan creation.
+- Month labels (`MAY`, `JUN`) sit in a band above the day cells, spanning their month's columns via CSS Grid `grid-column`. Labels align with the toolbar's date range (toolbar 40px L padding + label 4px L padding).
+- Mobile: fixed 32px cells (scrolls horizontally), auto-centers on the loaded week on first paint.
+- Desktop: `minmax(26px, 32px)` cells so the strip spans the matrix's full width on standard displays without ballooning on ultra-wide monitors.
+
+When the strip is visible, `PREV`/`NEXT` buttons are hidden (the strip covers that job). `TODAY` / `THIS WEEK` stays — it's a different intent (jump-to-today's plan).
+
+#### "Eating out" meals
+
+Third meal source alongside Recipe and Ingredient. A meal log with `externalLabel` set and no `recipeId` / `ingredientId` is an "eating out" placeholder.
+
+- Renders as `Eating out — <label>` (or just `Eating out` if no label) in `var(--muted)` upright (no italic).
+- Excluded from nutrition aggregation and shopping list automatically (both branches gate on recipe/ingredient).
+- Picked from the meal picker's `§ OTHER` section. Tap expands an inline label input; Enter commits.
+- Dashboard surfaces (`Today's key meals`, `This week`) use the `.is-eatout` modifier on `.meal-card-name` and `.hm-day-meal-name` — never inline-styled.
 
 ### 8e. Recipes (list and grid)
 

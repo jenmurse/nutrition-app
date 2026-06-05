@@ -516,8 +516,8 @@ export default function Home() {
                               </Link>
                             ) : (
                               <div
-                                className="meal-card-name"
-                                style={{ textWrap: 'balance', color: eatout ? 'var(--muted)' : undefined }}
+                                className={`meal-card-name${eatout ? ' is-eatout' : ''}`}
+                                style={{ textWrap: 'balance' }}
                               >
                                 {name}
                               </div>
@@ -673,8 +673,7 @@ function WeekOverview({
                       {m.mealType}
                     </div>
                     <div
-                      className="font-sans text-[11px] leading-[1.35]"
-                      style={{ color: eatout ? 'var(--muted)' : 'var(--fg)' }}
+                      className={`hm-day-meal-name font-sans text-[11px] leading-[1.35]${eatout ? ' is-eatout' : ''}`}
                     >{name}</div>
                     {!eatout && kcal != null && (
                       <div className="font-mono text-[9px] text-[var(--muted)] mt-[1px]">{kcal} kcal</div>

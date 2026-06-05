@@ -387,6 +387,10 @@ input[type="number"]:focus {
   color: var(--fg);
   margin-bottom: 12px;
 }
+/* Eating-out placeholders read softer — no nutrition data, no recipe link */
+.meal-card-name.is-eatout { color: var(--muted); font-weight: 500; }
+.hm-day-meal-name { color: var(--fg); }
+.hm-day-meal-name.is-eatout { color: var(--muted); }
 
 .ed-btn {
   font-family: var(--sans);
@@ -1494,6 +1498,7 @@ input[type="number"]:focus {
 
 /* ── VIEW menu (toolbar popover) ──────────────────────────────── */
 .pl-view-anchor { position: relative; }
+.pl-view-caret { font-size: 8px; margin-left: 2px; }
 .pl-view-backdrop {
   position: fixed; inset: 0; z-index: 25; background: transparent;
 }
@@ -1531,20 +1536,31 @@ input[type="number"]:focus {
 .pl-view-item.is-on:hover .pl-view-toggle {
   background: var(--fg-2);
 }
+/* Editorial checkbox indicator — matches the locked checkbox spec in §5f
+   of design-system.md. Sharp 14×14, black-filled when checked with a
+   white tick. Used by VIEW menu items here; could be reused by any
+   boolean control that wants the design-system pattern via class. */
 .pl-view-toggle {
-  width: 28px; height: 16px; border-radius: 999px;
-  background: var(--bg-3); position: relative;
-  transition: background 120ms var(--ease-out);
+  width: 14px; height: 14px;
+  border: 1.5px solid var(--rule);
+  background: var(--bg);
+  position: relative;
+  transition: background 120ms var(--ease-out), border-color 120ms var(--ease-out);
   flex-shrink: 0;
 }
-.pl-view-toggle::after {
-  content: ''; position: absolute; top: 1px; left: 1px;
-  width: 14px; height: 14px; background: var(--bg); border-radius: 50%;
-  border: 1px solid var(--rule);
-  transition: left 120ms var(--ease-out), border-color 120ms var(--ease-out);
+.pl-view-item.is-on .pl-view-toggle {
+  background: var(--fg);
+  border-color: var(--fg);
 }
-.pl-view-item.is-on .pl-view-toggle { background: var(--fg); }
-.pl-view-item.is-on .pl-view-toggle::after { left: 13px; border-color: var(--fg); }
+.pl-view-item.is-on .pl-view-toggle::after {
+  content: '';
+  position: absolute;
+  left: 3.5px; top: 0.5px;
+  width: 4px; height: 8px;
+  border: 1.5px solid var(--bg);
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
 
 /* ── 30-day zoom-out strip ────────────────────────────────────── */
 .pl-strip {

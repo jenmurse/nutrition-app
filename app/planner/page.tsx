@@ -1812,7 +1812,7 @@ function PlannerPage() {
               aria-haspopup="menu"
               aria-expanded={viewMenuOpen}
               aria-label="View options"
-            >VIEW <span style={{ fontSize: 8 }}>▾</span></button>
+            >VIEW <span className="pl-view-caret" aria-hidden="true">▾</span></button>
             {viewMenuOpen && (
               <>
                 <div
