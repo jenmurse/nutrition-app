@@ -1569,9 +1569,9 @@ input[type="number"]:focus {
   /* Stretch cells to span the matrix's width on normal displays. The
      1fr columns share extra space evenly. A max-width cap stops cells
      from sprawling on ultra-wide monitors (cells cap around 56px). */
-  grid-template-columns: repeat(35, minmax(36px, 1fr));
-  max-width: 2040px; /* 35 × 56 + 80 padding */
+  grid-template-columns: repeat(35, minmax(32px, 38px));
   width: 100%;
+  justify-content: space-between;
 }
 .pl-strip-month {
   grid-row: 1;
@@ -1604,7 +1604,7 @@ input[type="number"]:focus {
 .pl-strip-day.in-week { background: var(--accent-l); }
 .pl-strip-day.in-week .pl-strip-num { color: var(--fg); }
 .pl-strip-fill {
-  width: 16px; height: 22px;
+  width: 22px; height: 22px;
   background: var(--bg-3);
   border: 1px solid var(--rule);
   display: flex; flex-direction: column-reverse;
@@ -1619,13 +1619,13 @@ input[type="number"]:focus {
 }
 .pl-strip-mobile .pl-strip-grid {
   grid-template-rows: 26px 56px;
-  grid-template-columns: repeat(35, 48px);
+  grid-template-columns: repeat(35, 32px);
   padding: 0 18px;
   min-width: auto;
   width: max-content;
 }
 .pl-strip-mobile .pl-strip-day { padding: 8px 0; }
-.pl-strip-mobile .pl-strip-fill { width: 16px; height: 26px; }
+.pl-strip-mobile .pl-strip-fill { width: 20px; height: 26px; }
 .pl-strip-mobile .pl-strip-num { font-size: 11px; }
 .pl-strip-mobile .pl-strip-month {
   font-size: 10px;
