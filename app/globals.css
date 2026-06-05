@@ -1566,8 +1566,10 @@ input[type="number"]:focus {
      (40px) plus pl-range's padding-left (4px). Inner labels then have
      0 padding-left so they line up with the toolbar's MAY-17-23 label. */
   padding: 0 40px;
-  grid-template-columns: repeat(35, minmax(36px, 1fr));
-  min-width: 100%;
+  /* Fixed cell width so bar spacing stays consistent regardless of
+     viewport width. Strip scrolls horizontally when it doesn't fit. */
+  grid-template-columns: repeat(35, 38px);
+  width: max-content;
 }
 .pl-strip-month {
   grid-row: 1;
