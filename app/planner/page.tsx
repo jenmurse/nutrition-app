@@ -755,9 +755,14 @@ function PlannerPage() {
   function goToPlan(idx: number) {
     if (idx < 0 || idx >= plans.length) return;
     const target = plans[idx];
+    if (!target || target.id === plan?.id) return;
     const params = new URLSearchParams(searchParams?.toString());
     params.set("planId", String(target.id));
     router.push(`/planner?${params.toString()}`);
+    // Load directly — don't rely on the URL effect, which can bail
+    // when planIdParam identity doesn't refresh on shallow App-Router
+    // navigations. Belt-and-suspenders so PREV/NEXT always advances.
+    loadPlanDetails(target.id);
   }
 
   function goToThisWeek() {
