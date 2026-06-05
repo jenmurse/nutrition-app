@@ -428,13 +428,6 @@
         <div class="strip-scroll">
           <div class="strip-grid" id="stripDesktop"></div>
         </div>
-        <div class="strip-legend">
-          <span><span class="swatch full"></span>Planned</span>
-          <span><span class="swatch"></span>Not planned</span>
-          <span><span class="swatch curr"></span>This week</span>
-          <span><span class="swatch today"></span>Today</span>
-          <span style="margin-left:auto;color:var(--muted);text-transform:none;letter-spacing:0;font-family:var(--sans);">Click any day to jump the matrix to that week</span>
-        </div>
       </div>
 
       <!-- Matrix header preview -->
@@ -502,7 +495,6 @@
         <div class="mob-strip-scroll">
           <div class="strip-grid mob-strip-grid" id="stripMobile1"></div>
         </div>
-        <div class="mob-strip-legend">↔ Scroll · tap a day to jump weeks</div>
       </div>
 
       <div class="mob-daystrip">
@@ -548,7 +540,6 @@
         <div class="mob-strip-scroll">
           <div class="strip-grid mob-strip-grid" id="stripMobile2"></div>
         </div>
-        <div class="mob-strip-legend">↔ Scroll · current week is highlighted</div>
       </div>
 
       <div class="mob-daystrip">
@@ -604,7 +595,6 @@
         <div class="mob-strip-scroll">
           <div class="strip-grid mob-strip-grid" id="stripMobile3"></div>
         </div>
-        <div class="mob-strip-legend">↔ Scroll · tap a day to jump weeks</div>
       </div>
 
       <div class="mob-daystrip">
@@ -619,42 +609,6 @@
     </div>
   </div>
 
-  <!-- Q&A -->
-  <div class="section">
-    <div class="section-head"><h2>Answers to your feedback</h2></div>
-
-    <div class="qa">
-      <h4>Q · Don't love the MAY/JUN overlap</h4>
-      <p>Fixed. Month labels now sit in a band above the day cells, with a dashed underline marking the cell boundaries. No more stickers on top of cells, no overlap.</p>
-    </div>
-
-    <div class="qa">
-      <h4>Q · Is "click any day → jump matrix to that week" what you meant by Q&amp;A?</h4>
-      <p>Yes. The Q&amp;A block in the previous mock was just a section title I used for "questions you raised + my answers." The click behavior itself was the substantive thing: <strong>click any day in the strip and the matrix navigates to the plan covering that week.</strong> No surprise plan creation — days that have no plan are dim/unclickable.</p>
-    </div>
-
-    <div class="qa">
-      <h4>Q · Rename FILLED / EMPTY and use planner colors</h4>
-      <p>Done. Legend now reads <strong>PLANNED</strong> / <strong>NOT PLANNED</strong> / <strong>THIS WEEK</strong> / <strong>TODAY</strong>. This week uses the same soft green as the today-column in the matrix (<code>--accent-l</code>). Today uses the same orange as the today date number (<code>--err</code>) — shown as an example number "5" in the legend rather than a swatch, matching how it actually appears.</p>
-    </div>
-
-    <div class="qa">
-      <h4>Q · Should this be optional like Hide Nutrition?</h4>
-      <p>
-        Yes. Best move is to consolidate both toggles into a single <strong>VIEW ▾</strong> menu in the top toolbar (replacing the standalone HIDE NUTRITION button). Cleaner toolbar, and we get a natural home for future view options.
-      </p>
-      <p>
-        On mobile, I'd add a compact <code>VIEW</code> button to the second toolbar (between the arrows and the ⋯). The ⋯ stays day-scoped (templates), and view toggles live in their own small sheet. This avoids overloading ⋯ with mixed concerns.
-      </p>
-    </div>
-
-    <div class="qa">
-      <h4>Decided · Defaults</h4>
-      <p>
-        Both toggles default <strong>ON</strong>, persist per-device in localStorage (same pattern as the current HIDE NUTRITION).
-      </p>
-    </div>
-  </div>
 </div>
 
 <script>
