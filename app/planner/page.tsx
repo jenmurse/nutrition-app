@@ -1644,8 +1644,8 @@ function PlannerPage() {
                     className="ed-btn-text"
                     onClick={goToThisWeek}
                     aria-label="Go to this week"
-                    style={{ marginLeft: 6, fontSize: 9 }}
-                  >Now</button>
+                    style={{ marginLeft: 6, fontSize: 11 }}
+                  >Today</button>
                 )}
                 <button
                   type="button"
