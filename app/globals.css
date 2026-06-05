@@ -1523,7 +1523,14 @@ input[type="number"]:focus {
   letter-spacing: -0.03em; color: var(--fg);
   cursor: pointer; text-align: left;
 }
-.pl-view-item:hover { background: var(--bg-2); }
+/* No row-hover background — the toggle is the only affordance. Hover
+   the toggle thumb instead. */
+.pl-view-item:hover .pl-view-toggle {
+  background: var(--bg-3);
+}
+.pl-view-item.is-on:hover .pl-view-toggle {
+  background: var(--fg-2);
+}
 .pl-view-toggle {
   width: 28px; height: 16px; border-radius: 999px;
   background: var(--bg-3); position: relative;
@@ -1553,10 +1560,12 @@ input[type="number"]:focus {
 .pl-strip-scroll::-webkit-scrollbar { display: none; }
 .pl-strip-grid {
   display: grid;
-  grid-template-rows: 24px 52px;
+  /* Taller month-band row so MAY/JUN have breathing room above. */
+  grid-template-rows: 30px 52px;
+  /* Match the toolbar's effective text-start position — toolbar L padding
+     (40px) plus pl-range's padding-left (4px). Inner labels then have
+     0 padding-left so they line up with the toolbar's MAY-17-23 label. */
   padding: 0 40px;
-  /* Cells stretch evenly when there's room; minmax keeps them legible
-     on narrower screens by switching to scroll once below 36px each. */
   grid-template-columns: repeat(35, minmax(36px, 1fr));
   min-width: 100%;
 }
@@ -1565,7 +1574,9 @@ input[type="number"]:focus {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--muted);
-  padding: 6px 8px 4px;
+  /* Symmetric vertical space: ~8px above + 8px below mirrors the date
+     numbers' visual padding. */
+  padding: 10px 0 6px 4px;
   border-bottom: 1px dashed var(--rule);
   align-self: end;
 }

@@ -1949,39 +1949,39 @@ function PlannerPage() {
                   onClick={openNewPlanDialog}
                   aria-label="Create new plan"
                 >+ NEW</button>
+                {viewMenuOpen && (
+                  <>
+                    <div
+                      className="pl-view-backdrop"
+                      onClick={() => setViewMenuOpen(false)}
+                      aria-hidden="true"
+                    />
+                    <div className="pl-view-menu pl-view-menu-mobile" role="menu">
+                      <div className="pl-view-menu-head">View options</div>
+                      <button
+                        type="button"
+                        role="menuitemcheckbox"
+                        aria-checked={showNutrition}
+                        className={`pl-view-item${showNutrition ? " is-on" : ""}`}
+                        onClick={toggleNutrition}
+                      >
+                        <span>Nutrition totals</span>
+                        <span className="pl-view-toggle" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitemcheckbox"
+                        aria-checked={showMonthStrip}
+                        className={`pl-view-item${showMonthStrip ? " is-on" : ""}`}
+                        onClick={toggleMonthStrip}
+                      >
+                        <span>Monthly plan</span>
+                        <span className="pl-view-toggle" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
-              {viewMenuOpen && (
-                <>
-                  <div
-                    className="pl-view-backdrop"
-                    onClick={() => setViewMenuOpen(false)}
-                    aria-hidden="true"
-                  />
-                  <div className="pl-view-menu pl-view-menu-mobile" role="menu">
-                    <div className="pl-view-menu-head">View options</div>
-                    <button
-                      type="button"
-                      role="menuitemcheckbox"
-                      aria-checked={showNutrition}
-                      className={`pl-view-item${showNutrition ? " is-on" : ""}`}
-                      onClick={toggleNutrition}
-                    >
-                      <span>Nutrition totals</span>
-                      <span className="pl-view-toggle" aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      role="menuitemcheckbox"
-                      aria-checked={showMonthStrip}
-                      className={`pl-view-item${showMonthStrip ? " is-on" : ""}`}
-                      onClick={toggleMonthStrip}
-                    >
-                      <span>Monthly plan</span>
-                      <span className="pl-view-toggle" aria-hidden="true" />
-                    </button>
-                  </div>
-                </>
-              )}
 
               {renderStrip("mobile")}
 
