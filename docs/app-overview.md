@@ -165,10 +165,32 @@ See `ai_analysis.md` for full workflow details.
 
 ### Day templates
 - Save the meals on any (planId, date) as a reusable template via the day-column ⋯ menu
-- Apply to any future day in **replace** or **append** mode. Append uses smart-merge: items matching (recipeId + mealType) for recipes or (ingredientId + mealType + unit) for ingredients sum into existing meal logs instead of stacking
+- Apply to any future day in **replace** or **append** mode. Append uses smart-merge: items matching (recipeId + mealType) for recipes or (ingredientId + mealType + unit) for ingredients sum into existing meal logs instead of stacking. Eating-out items dedupe by (mealType + externalLabel)
 - Manage sheet: rename, drag-reorder, delete, search; personId attribution chips
 - Snapshot endpoint (`PUT /api/day-templates/[id]/snapshot`) supports "save over" — replacing a template's items from the current day without changing its id or name
 - Mirrored to MCP write tools (`save_day_template`, `apply_day_template`, `list_day_templates`)
+
+### Eating-out meals
+- A third meal source alongside Recipe and Ingredient: `MealLog.externalLabel` (nullable string). When set with `recipeId`/`ingredientId` both null, the log is an "eating out" placeholder
+- Optional free-text label (e.g. "Dinner w/ Stacey"); empty label is fine — the cell reads just "Eating out"
+- Renders muted in the matrix cell, mobile day list, and dashboard surfaces (`Today's key meals`, `This week`)
+- No nutrition contribution, no shopping-list contribution — both branches naturally skip non-recipe/ingredient logs
+- Picked from the meal picker's `§ Other` section with an inline label input
+- Preserved in day-template snapshot / apply
+
+### Monthly zoom-out strip
+- 35-day (5-week) sparkline above the matrix. Each cell = 1 day; bar height = `count / slots`
+- Off by default; toggle via the new VIEW menu in the planner toolbar. Persists per device under `gm.planner.showMonthStrip`
+- Loaded plan's week is tinted `--accent-l`. Today's date number is solid `--accent`. Theme-reactive per active person
+- Click any day → matrix jumps to the plan covering that day. Days outside a saved plan are dim and disabled (no surprise plan creation)
+- API: `GET /api/planner/strip?personId=&start=&end=` returns per-day fill data without loading recipes/nutrition. Cheap; safe to call often
+- When the strip is on, the toolbar's PREV/NEXT are hidden (strip clicks cover that job). TODAY / THIS WEEK stays — different intent.
+
+### Planner VIEW menu
+- Consolidates view toggles into one popover in the toolbar (replaces the standalone HIDE NUTRITION button)
+- Two toggles: Nutrition totals (default on), Monthly plan (default off). Both persist per device in localStorage
+- Menu items use the design-system §5f checkbox indicator (sharp 14×14, black-filled with white tick). Not pill switches.
+- Mobile gets a compact VIEW button in the second toolbar; the existing day-scoped ⋯ stays for templates
 
 ### Added Sugar tracking
 - New `addedSugar` Nutrient row (id 17, orderIndex 6 between Sugar and Protein). Polymorphic schema; no migration was needed

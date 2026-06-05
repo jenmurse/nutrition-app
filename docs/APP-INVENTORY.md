@@ -16,6 +16,13 @@ Wrap the existing Next.js app in Capacitor → iOS App Store + Google Play Store
 
 **Shipped, retained for reference:** `briefs/day-templates.md`, `briefs/added-sugar-tracking.md`, `briefs/pantry-seeding.md` — all built; briefs kept for historical context.
 
+**Shipped this session (June 2026):**
+- **Eating-out meal type** — third meal source alongside Recipe and Ingredient. `MealLog.externalLabel` column; renders muted in matrix cells, mobile day list, and dashboard (`Today's key meals` + `This week`). No nutrition contribution, no shopping-list contribution. Saved/applied in day templates. Picker entry under `§ Other` section with inline label input. Tip surfacing on planner (`planner-eating-out`).
+- **Monthly zoom-out strip** — 35-day (5-week) strip above the matrix. Off by default; toggled via the new VIEW menu. Loaded-week tinted `--accent-l`, today is solid `--accent`. Click-to-jump navigation across weeks. Auto-centers on the loaded week (mobile especially). Hides toolbar PREV/NEXT when on (strip replaces that affordance).
+- **Unified VIEW menu** — replaces the standalone HIDE NUTRITION button. Houses both view toggles (Nutrition totals, Monthly plan). Persists per device. Mobile gets a compact VIEW button in the second toolbar plus a sheet. Toggles use the design-system §5f checkbox indicator, not pill switches.
+- **Mobile toolbar refactor** — abbreviated date range (`5/31 – 6/6` form), shorter button heights, room for arrows + TODAY + VIEW + ⋯ + + NEW. Always-visible day-overflow `⋯` (was hover-only on desktop).
+- **PREV/NEXT bug fixes** — `currentPlanIdx` was lagging behind URL navigation, causing rapid double-clicks to no-op or skip two weeks. Switched to direct loadPlanDetails + `window.history.replaceState`.
+
 ### Long-term architectural option (not committed)
 
 **Native app — Track 2 (Local-first with Yjs sync)** — `briefs/native-app-tracks.md`
