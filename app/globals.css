@@ -1608,22 +1608,25 @@ input[type="number"]:focus {
 .pl-strip-fill-bar { width: 100%; background: var(--fg); }
 .pl-strip-day.is-empty .pl-strip-fill { background: transparent; border-color: var(--bg-3); }
 
-/* Mobile strip: narrower cells, less padding. Mobile keeps scroll on
-   because 35 × 28px = 980px > 390px viewport. */
+/* Mobile strip: bigger cells (was 28px — too small to tap or read).
+   35 × 38px = 1330px, scrolls horizontally on any mobile viewport. */
 .pl-strip-mobile .pl-strip-scroll {
   scrollbar-width: none;
 }
 .pl-strip-mobile .pl-strip-grid {
-  grid-template-rows: 18px 38px;
-  grid-template-columns: repeat(35, 28px);
-  padding: 0 14px;
+  grid-template-rows: 26px 56px;
+  grid-template-columns: repeat(35, 38px);
+  padding: 0 18px;
   min-width: auto;
   width: max-content;
 }
-.pl-strip-mobile .pl-strip-day { padding: 4px 0; }
-.pl-strip-mobile .pl-strip-fill { width: 12px; height: 18px; }
-.pl-strip-mobile .pl-strip-num { font-size: 9px; }
-.pl-strip-mobile .pl-strip-month { font-size: 9px; padding: 4px 6px 2px; }
+.pl-strip-mobile .pl-strip-day { padding: 8px 0; }
+.pl-strip-mobile .pl-strip-fill { width: 18px; height: 26px; }
+.pl-strip-mobile .pl-strip-num { font-size: 11px; }
+.pl-strip-mobile .pl-strip-month {
+  font-size: 10px;
+  padding: 8px 0 4px 4px;
+}
 
 /* ── Matrix planner grid ─────────────────────────────────────── */
 .mx {
