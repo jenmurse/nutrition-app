@@ -86,6 +86,8 @@ export const POST = withAuth(async (auth, request: Request, { params }: Ctx) => 
   const applicable = template.items.filter((item) => {
     if (item.recipeId != null) return recipeSet.has(item.recipeId);
     if (item.ingredientId != null) return ingredientSet.has(item.ingredientId);
+    // Eating-out items have no recipe/ingredient reference — always applicable.
+    if (item.externalLabel != null) return true;
     return false;
   });
   const skipped = template.items.length - applicable.length;
@@ -111,6 +113,7 @@ export const POST = withAuth(async (auth, request: Request, { params }: Ctx) => 
             ingredientId: item.ingredientId,
             quantity: item.quantity,
             unit: item.unit,
+            externalLabel: item.externalLabel,
             notes: item.notes,
           })),
         });
@@ -146,6 +149,15 @@ export const POST = withAuth(async (auth, request: Request, { params }: Ctx) => 
             e.mealType === item.mealType &&
             (e.unit ?? null) === (item.unit ?? null)
         );
+      } else if (item.externalLabel != null) {
+        // Eating-out: dedupe by (mealType + externalLabel) so the same
+        // placeholder doesn't pile up on append-apply.
+        match = existing.find(
+          (e) =>
+            e.recipeId == null && e.ingredientId == null &&
+            e.mealType === item.mealType &&
+            (e.externalLabel ?? "") === (item.externalLabel ?? "")
+        );
       }
 
       if (match) {
@@ -155,13 +167,17 @@ export const POST = withAuth(async (auth, request: Request, { params }: Ctx) => 
             where: { id: match.id },
             data: { servings: (match.servings ?? 1) + (item.servings ?? 1) },
           });
-        } else {
+          merged++;
+        } else if (item.ingredientId != null) {
           await tx.mealLog.update({
             where: { id: match.id },
             data: { quantity: (match.quantity ?? 1) + (item.quantity ?? 1) },
           });
+          merged++;
+        } else {
+          // Eating-out placeholders don't combine — they're already deduped.
+          merged++;
         }
-        merged++;
       } else {
         // Create new log at the end
         await tx.mealLog.create({
@@ -175,6 +191,7 @@ export const POST = withAuth(async (auth, request: Request, { params }: Ctx) => 
             ingredientId: item.ingredientId,
             quantity: item.quantity,
             unit: item.unit,
+            externalLabel: item.externalLabel,
             notes: item.notes,
           },
         });

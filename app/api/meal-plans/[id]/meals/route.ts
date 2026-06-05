@@ -15,7 +15,7 @@ export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx)
   const { id } = params instanceof Promise ? await params : params;
   const mealPlanId = parseInt(id);
   const body = await request.json();
-  const { recipeId, ingredientId, quantity, unit, date: rawDate, mealType, notes, servings } = body;
+  const { recipeId, ingredientId, externalLabel, quantity, unit, date: rawDate, mealType, notes, servings } = body;
 
   // Parse date as UTC — handles both "YYYY-MM-DD" and full ISO strings
   const date = typeof rawDate === 'string' && !rawDate.includes('T')
@@ -30,20 +30,22 @@ export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx)
     );
   }
 
-  // Must provide either recipeId OR (ingredientId + quantity + unit)
-  const isRecipeBased = recipeId;
-  const isIngredientBased = ingredientId && quantity != null && unit;
+  // Must provide exactly one of: recipeId, (ingredientId + quantity + unit), or externalLabel (eating-out).
+  // externalLabel can be the empty string or any value — non-undefined signals eating-out mode.
+  const isRecipeBased = !!recipeId;
+  const isIngredientBased = !!ingredientId && quantity != null && !!unit;
+  const isEatingOut = externalLabel !== undefined && externalLabel !== null && !isRecipeBased && !isIngredientBased;
 
-  if (!isRecipeBased && !isIngredientBased) {
+  const sourcesProvided = [isRecipeBased, isIngredientBased, isEatingOut].filter(Boolean).length;
+  if (sourcesProvided === 0) {
     return NextResponse.json(
-      { error: 'Either recipeId OR (ingredientId, quantity, unit) must be provided' },
+      { error: 'Provide one of: recipeId, (ingredientId, quantity, unit), or externalLabel.' },
       { status: 400 }
     );
   }
-
-  if (isRecipeBased && isIngredientBased) {
+  if (sourcesProvided > 1) {
     return NextResponse.json(
-      { error: 'Cannot provide both recipeId and ingredientId' },
+      { error: 'Provide exactly one of: recipeId, ingredientId, or externalLabel.' },
       { status: 400 }
     );
   }
@@ -135,6 +137,17 @@ export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx)
       ingredientId,
       quantity: normalizedQuantity,
       unit,
+      date: new Date(date),
+      mealType,
+      notes: notes || null,
+    };
+  }
+
+  if (isEatingOut) {
+    const label = typeof externalLabel === 'string' ? externalLabel.trim() : '';
+    mealLogData = {
+      mealPlanId,
+      externalLabel: label,
       date: new Date(date),
       mealType,
       notes: notes || null,

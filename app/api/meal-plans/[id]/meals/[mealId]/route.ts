@@ -28,6 +28,7 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
     quantity,
     unit,
     notes,
+    externalLabel,
   } = body as {
     date?: string;
     mealType?: string;
@@ -35,6 +36,7 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
     quantity?: number;
     unit?: string;
     notes?: string;
+    externalLabel?: string;
   };
 
   const mealPlan = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
@@ -55,6 +57,7 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
     quantity?: number;
     unit?: string;
     notes?: string;
+    externalLabel?: string;
   } = {};
 
   if (rawDate) {
@@ -73,6 +76,7 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
   if (quantity !== undefined) data.quantity = quantity;
   if (unit !== undefined) data.unit = unit;
   if (notes !== undefined) data.notes = notes;
+  if (externalLabel !== undefined) data.externalLabel = externalLabel;
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });

@@ -62,6 +62,7 @@ export const PUT = withAuth(async (auth, request: Request, { params }: Ctx) => {
         ingredientId: log.ingredientId,
         quantity: log.quantity,
         unit: log.unit,
+        externalLabel: log.externalLabel,
         notes: log.notes,
       })),
     });

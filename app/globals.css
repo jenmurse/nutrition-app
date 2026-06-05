@@ -1621,6 +1621,13 @@ input[type="number"]:focus {
   line-height: 1.25;
   color: var(--fg);
   margin-bottom: 6px;
+}
+/* Eating-out cells read as a soft placeholder, not a missing slot. */
+.mx-cell-name.is-eatout,
+.mx-mob-slot-name.is-eatout {
+  color: var(--muted);
+  font-style: italic;
+  font-weight: 400;
   overflow-wrap: break-word;
 }
 .mx-cell-meta {
@@ -2519,6 +2526,55 @@ input[type="number"]:focus {
 }
 .mx-picker-foot:hover { color: var(--fg); }
 .mx-picker-foot:disabled { cursor: not-allowed; opacity: 0.5; }
+
+/* Eating-out row inside the picker */
+.mx-picker-eatout {
+  padding: 10px 14px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border-left: 0; border-right: 0; border-bottom: 0;
+  width: 100%;
+}
+.mx-picker-eatout:hover { color: var(--fg); }
+.mx-picker-eatout.is-open {
+  cursor: default;
+}
+.mx-picker-eatout.is-open input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fg);
+  padding: 4px 0;
+  outline: none;
+}
+.mx-picker-eatout.is-open input:focus { border-bottom-color: var(--fg); }
+.mx-picker-eatout-add {
+  background: var(--fg);
+  color: var(--bg);
+  border: 0;
+  padding: 6px 10px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.mx-picker-eatout-add:hover { background: var(--fg-2); }
 
 /* ── Matrix browse-all sheet (right-side, full library) ──────── */
 .mx-browse-backdrop {

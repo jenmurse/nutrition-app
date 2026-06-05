@@ -45,6 +45,7 @@ type MealLog = {
   recipe?: { id: number; name: string; servingSize: number; servingUnit: string; isComplete?: boolean } | null;
   ingredientId?: number | null;
   ingredient?: { id: number; name: string; defaultUnit: string } | null;
+  externalLabel?: string | null;
 };
 
 type DailyNutrition = {
@@ -197,6 +198,9 @@ function PlannerPage() {
   const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
   const [manageOpen, setManageOpen] = useState(false);
   const [showNutrition, setShowNutrition] = useState<boolean>(true);
+  // Eating-out inline input within the picker (open + draft label).
+  const [eatingOutOpen, setEatingOutOpen] = useState(false);
+  const [eatingOutLabel, setEatingOutLabel] = useState("");
 
   // ── Nutrition visibility (persisted per device) ──────────────
   useEffect(() => {
@@ -975,6 +979,8 @@ function PlannerPage() {
 
   function closePicker() {
     setPicker(null);
+    setEatingOutOpen(false);
+    setEatingOutLabel("");
   }
 
   // Recipes filtered for the active picker
@@ -1081,6 +1087,51 @@ function PlannerPage() {
   async function pickRecipe(recipeId: number) {
     if (!picker) return;
     return addRecipeAt(recipeId, picker.slot, picker.date);
+  }
+
+  // Add an "Eating out" placeholder to a specific (slot, date). Optional
+  // free-text label. No nutrition / shopping contribution; just a marker
+  // so the day doesn't read as a gap.
+  async function addEatingOutAt(slot: SlotType, date: Date, label: string) {
+    if (!plan) return;
+    const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const cellKey = `${date.toDateString()}|${slot}`;
+    const optimisticLog: MealLog = {
+      id: -Date.now(),
+      date: dateISO,
+      mealType: slot,
+      externalLabel: label,
+      position: (cellMap.get(cellKey)?.length ?? 0),
+    };
+    setPlan((prev) => prev ? { ...prev, mealLogs: [...prev.mealLogs, optimisticLog] } : prev);
+    const body = { externalLabel: label, date: dateISO, mealType: slot };
+    try {
+      const r = await fetch(`/api/meal-plans/${plan.id}/meals`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error("Failed");
+      // Mirror to "also add to" plans if selected
+      if (alsoForPlans.size > 0) {
+        await Promise.all(
+          Array.from(alsoForPlans).map((otherPlanId) =>
+            fetch(`/api/meal-plans/${otherPlanId}/meals`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            }).then((rr) => { if (!rr.ok) throw new Error(); }).catch(() => {
+              toast.error("Couldn't mirror to another plan");
+            })
+          )
+        );
+      }
+      await refreshPlan();
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't add eating-out");
+      await refreshPlan();
+    }
   }
 
   // Toggle a recipe in/out of a specific cell — direct, no picker state dependency
@@ -1719,22 +1770,29 @@ function PlannerPage() {
                       )}
                     </div>
                     {logs.length > 0 ? (
-                      logs.map((log, idx) => (
+                      logs.map((log, idx) => {
+                        const isEatingOut = log.recipeId == null && log.ingredientId == null && log.externalLabel != null;
+                        return (
                         <div key={log.id} style={idx > 0 ? { marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--rule)" } : undefined}>
-                          <div className="mx-mob-slot-name">
-                            {log.recipe?.name ?? log.ingredient?.name ?? "Unnamed"}
+                          <div className={`mx-mob-slot-name${isEatingOut ? " is-eatout" : ""}`}>
+                            {isEatingOut
+                              ? (log.externalLabel ? `Eating out — ${log.externalLabel}` : "Eating out")
+                              : (log.recipe?.name ?? log.ingredient?.name ?? "Unnamed")}
                           </div>
-                          <div className="mx-mob-slot-meta">
-                            {log.servings && log.servings !== 1
-                              ? `${log.servings}× serving`
-                              : log.recipe
-                              ? "1 serving"
-                              : log.quantity
-                              ? `${log.quantity} ${log.unit ?? ""}`
-                              : ""}
-                          </div>
+                          {!isEatingOut && (
+                            <div className="mx-mob-slot-meta">
+                              {log.servings && log.servings !== 1
+                                ? `${log.servings}× serving`
+                                : log.recipe
+                                ? "1 serving"
+                                : log.quantity
+                                ? `${log.quantity} ${log.unit ?? ""}`
+                                : ""}
+                            </div>
+                          )}
                         </div>
-                      ))
+                        );
+                      })
                     ) : (
                       <div className="mx-mob-slot-name">+ add</div>
                     )}
@@ -1899,22 +1957,29 @@ function PlannerPage() {
                         aria-label={first ? `${SLOT_LABELS[slot]} ${d.toDateString()}: ${first.recipe?.name ?? first.ingredient?.name ?? "meal"}` : `Add ${SLOT_LABELS[slot]} for ${d.toDateString()}`}
                       >
                         {logs.length > 0 ? (
-                          logs.map((log) => (
+                          logs.map((log) => {
+                            const isEatingOut = log.recipeId == null && log.ingredientId == null && log.externalLabel != null;
+                            return (
                             <div className="mx-cell-item" key={log.id}>
-                              <div className="mx-cell-name">
-                                {log.recipe?.name ?? log.ingredient?.name ?? "Unnamed"}
+                              <div className={`mx-cell-name${isEatingOut ? " is-eatout" : ""}`}>
+                                {isEatingOut
+                                  ? (log.externalLabel ? `Eating out — ${log.externalLabel}` : "Eating out")
+                                  : (log.recipe?.name ?? log.ingredient?.name ?? "Unnamed")}
                               </div>
-                              <div className="mx-cell-meta">
-                                {log.servings && log.servings !== 1
-                                  ? `${log.servings}× serving`
-                                  : log.recipe
-                                  ? "1 serving"
-                                  : log.quantity
-                                  ? `${log.quantity} ${log.unit ?? ""}`
-                                  : ""}
-                              </div>
+                              {!isEatingOut && (
+                                <div className="mx-cell-meta">
+                                  {log.servings && log.servings !== 1
+                                    ? `${log.servings}× serving`
+                                    : log.recipe
+                                    ? "1 serving"
+                                    : log.quantity
+                                    ? `${log.quantity} ${log.unit ?? ""}`
+                                    : ""}
+                                </div>
+                              )}
                             </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <div className="mx-cell-add">+ add</div>
                         )}
@@ -2115,6 +2180,52 @@ function PlannerPage() {
                           });
                         }}
                       />
+                    )}
+
+                    {/* Eating-out row — collapsed by default, expands to a label input */}
+                    {!eatingOutOpen ? (
+                      <button
+                        type="button"
+                        className="mx-picker-eatout"
+                        onClick={() => { setEatingOutOpen(true); setEatingOutLabel(""); }}
+                      >
+                        <span>＋ Eating out</span>
+                        <span aria-hidden="true">→</span>
+                      </button>
+                    ) : (
+                      <div className="mx-picker-eatout is-open">
+                        <input
+                          autoFocus
+                          type="text"
+                          value={eatingOutLabel}
+                          maxLength={60}
+                          placeholder="Label (optional) — e.g. lunch w/ team"
+                          onChange={(e) => setEatingOutLabel(e.target.value)}
+                          onKeyDown={async (e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const label = eatingOutLabel.trim();
+                              setEatingOutOpen(false);
+                              setEatingOutLabel("");
+                              await addEatingOutAt(picker.slot, picker.date, label);
+                            } else if (e.key === "Escape") {
+                              setEatingOutOpen(false);
+                              setEatingOutLabel("");
+                            }
+                          }}
+                          aria-label="Eating-out label"
+                        />
+                        <button
+                          type="button"
+                          className="mx-picker-eatout-add"
+                          onClick={async () => {
+                            const label = eatingOutLabel.trim();
+                            setEatingOutOpen(false);
+                            setEatingOutLabel("");
+                            await addEatingOutAt(picker.slot, picker.date, label);
+                          }}
+                        >Add</button>
+                      </div>
                     )}
 
                     <button

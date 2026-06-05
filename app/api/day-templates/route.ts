@@ -111,6 +111,7 @@ export const POST = withAuth(async (auth, request: Request) => {
           ingredientId: log.ingredientId,
           quantity: log.quantity,
           unit: log.unit,
+          externalLabel: log.externalLabel,
           notes: log.notes,
         })),
       },
