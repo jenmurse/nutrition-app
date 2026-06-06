@@ -7751,6 +7751,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .auth-left {
   padding: 48px clamp(24px, 5vw, 56px);
   display: flex; flex-direction: column; justify-content: center;
+  background: var(--bg);
 }
 .auth-divider {
   background: var(--rule);
