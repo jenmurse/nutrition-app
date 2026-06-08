@@ -85,7 +85,7 @@ html[data-marketing] {
 }
 .ln-nav-link {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 400;
   letter-spacing: var(--track-mono);
   text-transform: uppercase;
@@ -106,7 +106,7 @@ html[data-marketing] {
   display: block;
   margin-bottom: 20px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: var(--track-mono);
   text-transform: uppercase;
   color: var(--muted);
@@ -127,7 +127,7 @@ html[data-marketing] {
   margin-top: clamp(32px, 4vh, 56px);
 }
 .ln-hero-sub {
-  font-size: 17px;
+  font-size: 16px;
   color: var(--fg-2);
   max-width: 48ch;
   line-height: 1.65;
@@ -215,7 +215,7 @@ html[data-marketing] {
   max-width: 16ch;
 }
 .ln-scn-head .ln-lede {
-  font-size: 17px;
+  font-size: 16px;
   color: var(--fg-2);
   max-width: 48ch;
   margin-top: 36px;
@@ -309,7 +309,7 @@ html[data-marketing] {
   max-width: 16ch;
 }
 .ln-beat p {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--fg-2);
   max-width: 42ch;
   margin-top: 22px;
@@ -320,7 +320,7 @@ html[data-marketing] {
   border-left: 2px solid var(--rule);
   padding: 16px 0 16px 22px;
   margin-top: 28px;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--fg);
   max-width: 42ch;
   line-height: 1.7;
@@ -360,7 +360,7 @@ html[data-marketing] {
 }
 .ln-ph-chat .ln-from {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: var(--track-mono);
   text-transform: uppercase;
   color: var(--muted);
@@ -427,7 +427,7 @@ html[data-marketing] {
   max-width: 18ch;
 }
 .ln-callout p {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--fg-2);
   max-width: 46ch;
   line-height: 1.7;
@@ -500,7 +500,7 @@ html[data-marketing] {
   max-width: 22ch;
 }
 .ln-why p {
-  font-size: 17px;
+  font-size: 16px;
   color: var(--fg-2);
   max-width: 52ch;
   margin-top: 48px;
