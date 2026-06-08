@@ -39,7 +39,7 @@ export default function AdminWaitlistPage() {
 
   if (!authed) {
     return (
-      <div className="standalone-page" data-register="editorial">
+      <div className="standalone-page" data-register="marketing">
         <header className="standalone-topbar">
           <Link href="/" className="standalone-wordmark">Good Measure</Link>
         </header>
@@ -70,7 +70,7 @@ export default function AdminWaitlistPage() {
   }
 
   return (
-    <div className="standalone-page" data-register="editorial">
+    <div className="standalone-page" data-register="marketing">
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
         <span className="standalone-back-link">{entries.length} {entries.length === 1 ? "person" : "people"}</span>
