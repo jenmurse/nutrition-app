@@ -142,3 +142,9 @@ When the app is ready for general signup:
 4. Optionally email the waitlist
 
 The `INVITE_CODE` env var can be left in place or removed — it won't affect anything once the gate is gone.
+
+---
+
+## Invite expiration policy
+
+Currently invites never expire (set to 10-year `expiresAt` as a placeholder). No decision needed until there's an abuse signal or a policy review for public launch. Revisit if stale invite links become a concern.
