@@ -150,27 +150,9 @@
 
   }
 
-  /* ── Editorial register — onboarding (paper) ───────────────────────── */
-  [data-register="editorial"] {
-    --bg:    #F5F4EF;
-    --bg-2:  #EEEAE3;
-    --bg-3:  #E6E2D8;
-    --fg:    #1A1916;
-    --fg-2:  #36342F;
-    --muted: #6B6860;
-    --rule:  #D0CCC2;
-  }
-
-  /* ── Marketing register — landing, auth, invite, waitlist, privacy (white) ── */
-  [data-register="marketing"] {
-    --bg:    #FFFFFF;
-    --bg-2:  #F7F6F2;
-    --bg-3:  #ECECEA;
-    --fg:    #1A1916;
-    --fg-2:  #36342F;
-    --muted: #6B6860;
-    --rule:  #E2DFD8;
-  }
+  /* ── Editorial register — not currently used; kept for future reference ── */
+  /* [data-register="editorial"] was the cream/paper palette. Removed June 2026
+     when all surfaces (including onboarding) moved to the :root white palette. */
 
   /* ── Person Themes (accent-only — unchanged across registers) ──────── */
   [data-theme="coral"]    { --accent: #E84828; --accent-btn: #E84828; --accent-l: rgba(232,72,40,0.09);  --accent-rgb: 232,72,40;  --accent-hover: #D03A1C; --accent-light: rgba(232,72,40,0.09);  --accent-text: #fff; --bg-selected: rgba(232,72,40,0.09);  }

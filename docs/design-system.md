@@ -156,17 +156,11 @@ All colors are CSS variables. Never hardcode hex values.
 
 ### 2a-ii. Surface registers
 
-Three named registers override `--bg` and related surface tokens for different surface contexts. Applied via `data-register` attribute on a wrapper element.
+One palette. Everything uses `:root`. No active named registers (June 2026).
 
-| Register | `--bg` | Used on |
-|---|---|---|
-| *(none — `:root` default)* | `#FFFFFF` white | Authenticated app (planner, recipes, pantry, dashboard, settings) |
-| `[data-register="marketing"]` | `#FFFFFF` white (with warm-tinted secondaries) | Landing, login, invite, waitlist, waitlist-success, privacy |
-| `[data-register="editorial"]` | `#F5F4EF` cream/paper | Onboarding only |
+`data-register` attributes are still present on pages as semantic markers and for the `EditorialBackground` component's iOS theme-color meta tag logic, but no CSS rules match them — all surfaces resolve to `:root` tokens.
 
-**Why marketing ≠ `:root`?** The marketing register uses slightly warmer `--bg-2`, `--rule`, and foreground values (`--fg: #1A1916`) tuned for the editorial landing feel, while `:root` uses neutral values optimised for the app working surfaces.
-
-**`EditorialBackground` component** — sets `data-register` on `<html>` client-side (for iOS safe-area bleed and meta theme-color sync). Takes a `register` prop, defaults to `"marketing"`. Onboarding passes `register="editorial"` explicitly.
+**`EditorialBackground` component** — sets `data-register` on `<html>` client-side for iOS safe-area bleed and meta theme-color sync. Takes a `register` prop, defaults to `"marketing"` (white `#FFFFFF` theme-color).
 
 ### 2b. Color rule (the locked decision)
 
@@ -896,7 +890,7 @@ Routes: `/login` → Sign in. `/login?signup=1` → Create account. `/login?invi
 
 ### 8b. Onboarding wizard
 
-Full-screen, editorial register (`data-register="editorial"`, cream/paper bg). No main app nav. This is the only surface that uses the paper register — all other non-app surfaces (login, invite, waitlist, landing) use `data-register="marketing"` (white).
+Full-screen, white background. No main app nav. Uses `data-register="marketing"` (resolves to `:root` — white).
 
 **Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 600, 13px, -0.03em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `§ ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
 
