@@ -3,7 +3,6 @@ import Topbar from "./_components/Topbar";
 import Hero from "./_components/Hero";
 import ImageBand from "./_components/ImageBand";
 import Interstitial from "./_components/Interstitial";
-import Callout from "./_components/Callout";
 import Scenario from "./_components/Scenario";
 import Architecture from "./_components/Architecture";
 import Close from "./_components/Close";
@@ -85,6 +84,15 @@ const PhAppliedWeek = ({ dayIndex }: { dayIndex: number }) => (
         )
       )}
     </div>
+  </div>
+);
+
+const PhShoppingList = () => (
+  <div className="ln-ph-recipe" style={{ inset: "10% 10% 10% 10%" }}>
+    {/* SCREENSHOT SLOT: Shopping list grouped by category */}
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className={`ln-rl${i % 3 === 0 ? "" : " short"}`} style={{ width: i % 3 === 0 ? "40%" : i % 3 === 1 ? "80%" : "65%" }} />
+    ))}
   </div>
 );
 
@@ -202,6 +210,12 @@ export default function MarketingLanding() {
             body: "The plan isn't final. You talk to it. The agent doesn't just suggest. It executes the swap, in place, in the app.",
             prompt: "\"Tuesday's protein is low. Swap the lunch for something with more.\"",
           },
+          {
+            step: "E",
+            tag: "The list",
+            heading: "Once the week is planned, the shopping list writes itself.",
+            body: "Every ingredient from every recipe, grouped by where you'll find it in the store. Quantities scaled to the servings you're actually making, down to the gram. Check things off as you shop. Share the list with whoever's going.",
+          },
         ]}
         states={[
           /* SCREENSHOT SLOT: Empty planner week — scn02 state A */
@@ -214,13 +228,9 @@ export default function MarketingLanding() {
           <PhFilledWeek key="02-c" />,
           /* SCREENSHOT SLOT: Planner with a swapped lunch — scn02 state D */
           <PhFilledWeek key="02-d" swapAt={{ day: 2, meal: "lun" }} />,
+          /* SCREENSHOT SLOT: Shopping list — scn02 state E */
+          <PhShoppingList key="02-e" />,
         ]}
-      />
-
-      <Callout
-        eyebrow="§ And the list writes itself"
-        headline="Once the week is planned, the shopping list writes itself."
-        body="Every ingredient from every recipe, grouped by where you'll find it in the store. Quantities scaled to the servings you're actually making, down to the gram. Check things off as you shop. Share the list with whoever's going."
       />
 
       <Interstitial
