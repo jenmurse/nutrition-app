@@ -116,7 +116,7 @@ html[data-marketing] {
   font-family: var(--font-sans);
   font-size: clamp(56px, 10vw, 148px);
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
   line-height: 0.94;
   color: var(--fg);
 }
@@ -210,7 +210,7 @@ html[data-marketing] {
   font-family: var(--font-sans);
   font-size: clamp(48px, 7.5vw, 120px);
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.0;
   text-wrap: balance;
 }
