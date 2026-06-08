@@ -316,7 +316,7 @@ html[data-marketing] {
   font-size: 16px;
   color: var(--fg-2);
   max-width: 42ch;
-  margin-top: 22px;
+  margin-top: 16px;
   line-height: 1.7;
   text-wrap: pretty;
 }
