@@ -515,7 +515,7 @@ html[data-marketing] {
 .ln-close p {
   font-size: 16px;
   color: var(--fg-2);
-  max-width: 48ch;
+  max-width: 56ch;
   line-height: 1.65;
   text-wrap: pretty;
 }
