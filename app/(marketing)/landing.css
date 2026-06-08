@@ -302,7 +302,7 @@ html[data-marketing] {
   font-family: var(--font-sans);
   font-size: clamp(28px, 3.4vw, 48px);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: 1.1;
   margin-top: 20px;
   text-wrap: balance;
