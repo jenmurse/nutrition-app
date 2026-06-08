@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           <h1 style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: "clamp(28px, 3vw, 40px)", letterSpacing: "-0.03em", lineHeight: 1.1, color: "var(--fg)", marginBottom: 24 }}>Your data, simply explained.</h1>
 
           <p style={{ fontFamily: "var(--font-sans)", fontWeight: 400, fontSize: 15, lineHeight: 1.7, color: "var(--fg-2)", maxWidth: 560, marginBottom: 0 }}>
-            Good Measure is a personal nutrition and meal planning tool. This policy explains what data we collect, how it&rsquo;s used, and how you can control it.
+            Good Measure is a personal nutrition and meal planning tool made by Mer So Studio, LLC. This policy explains what data we collect, how it&rsquo;s used, and how you can control it.
           </p>
 
           <Section heading="What we collect">
