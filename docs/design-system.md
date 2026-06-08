@@ -1,6 +1,6 @@
 # Good Measure — Design System
 
-Source of truth for current visual reality. The design system is **editorial, sharp, and quiet** — two typefaces, paper background, minimal chrome, hairline rules, opinion through typography rather than ornament. Voice rhymes with the landing page at withgoodmeasure.com.
+Source of truth for current visual reality. The design system is **editorial, sharp, and quiet** — two typefaces, white working surfaces (paper for onboarding), minimal chrome, hairline rules, opinion through typography rather than ornament. Voice rhymes with the landing page at withgoodmeasure.com.
 
 > **Maintenance:** This doc is the living source. When implementation diverges, update the doc — don't add a "this section is stale" banner. For strict enforcement rules and patterns to watch for in code review, see [feedback_design_system_enforcement.md](feedback_design_system_enforcement.md).
 >
@@ -48,7 +48,15 @@ Four weights, each with a specific semantic role. Do not mix roles.
 
 ### 1c. Tracking system
 
-**DM Sans:** `-0.03em` everywhere. No exceptions within the app. (Larger display sizes — auth headline, landing hero — may use tighter values like `-0.035em`.)
+**DM Sans:** `-0.03em` everywhere within the app. Landing display headlines use a tighter three-tier system (locked June 2026):
+
+| Tier | Size range | Tracking |
+|---|---|---|
+| Display (hero h1 only) | `clamp(56px, 10vw, 148px)` | `-0.04em` |
+| Section (scenario/architecture/close h2) | `clamp(48px, 7.5vw, 120px)` | `-0.03em` |
+| Sub (beat/callout h3) | `clamp(28px, 3.4vw, 48px)` | `-0.02em` |
+
+Auth headlines: `-0.035em` (clamp 40–60px).
 
 **DM Mono — two-tier system:**
 
@@ -117,16 +125,16 @@ All colors are CSS variables. Never hardcode hex values.
 
 ```css
 :root {
-  /* Surfaces */
-  --bg:    #F5F4EF;   /* paper — primary background */
-  --bg-2:  #EEEAE3;   /* secondary surface — code blocks, file uploads */
-  --bg-3:  #E6E2D8;   /* tertiary — toolbar icon button fill, hover, ghost tile placeholder */
+  /* Surfaces — white default (app working surfaces) */
+  --bg:    #FFFFFF;   /* primary background */
+  --bg-2:  #F5F5F4;   /* secondary surface — code blocks, file uploads */
+  --bg-3:  #ECECEA;   /* tertiary — toolbar icon button fill, hover, ghost tile placeholder */
 
   /* Foreground */
-  --fg:    #1A1916;   /* primary text */
-  --fg-2:  #36342F;   /* body, descriptions */
-  --muted: #6B6860;   /* labels, hints, disabled */
-  --rule:  #D0CCC2;   /* hairlines, borders, dividers, outlined buttons */
+  --fg:    #0A0A0A;   /* primary text */
+  --fg-2:  #2A2A2A;   /* body, descriptions */
+  --muted: #6E6E6E;   /* labels, hints, disabled */
+  --rule:  #D8D8D6;   /* hairlines, borders, dividers, outlined buttons */
 
   /* Accent — driven by active person's theme. The :root default is ink,
      not a colored theme. When a person is selected, PersonContext sets
@@ -137,14 +145,28 @@ All colors are CSS variables. Never hardcode hex values.
   --accent-l:  rgba(17,17,17,0.08);
 
   /* Status */
-  --ok:       #5A9B6A;
-  --ok-l:     rgba(90,155,106,0.12);
-  --err:      #B02020;              /* over-limit warnings */
-  --err-l:    rgba(176,32,32,0.10);
-  --warn:     #C07018;
-  --warn-l:   rgba(192,112,24,0.10);
+  --ok:       #2F8B33;
+  --ok-l:     #D8E8D5;
+  --err:      #CC3823;              /* over-limit warnings */
+  --err-l:    #F5D5CD;
+  --warn:     #C97A1A;
+  --warn-l:   #F8E5C8;
 }
 ```
+
+### 2a-ii. Surface registers
+
+Three named registers override `--bg` and related surface tokens for different surface contexts. Applied via `data-register` attribute on a wrapper element.
+
+| Register | `--bg` | Used on |
+|---|---|---|
+| *(none — `:root` default)* | `#FFFFFF` white | Authenticated app (planner, recipes, pantry, dashboard, settings) |
+| `[data-register="marketing"]` | `#FFFFFF` white (with warm-tinted secondaries) | Landing, login, invite, waitlist, waitlist-success, privacy |
+| `[data-register="editorial"]` | `#F5F4EF` cream/paper | Onboarding only |
+
+**Why marketing ≠ `:root`?** The marketing register uses slightly warmer `--bg-2`, `--rule`, and foreground values (`--fg: #1A1916`) tuned for the editorial landing feel, while `:root` uses neutral values optimised for the app working surfaces.
+
+**`EditorialBackground` component** — sets `data-register` on `<html>` client-side (for iOS safe-area bleed and meta theme-color sync). Takes a `register` prop, defaults to `"marketing"`. Onboarding passes `register="editorial"` explicitly.
 
 ### 2b. Color rule (the locked decision)
 
@@ -620,7 +642,7 @@ These are the patterns that distinguish Good Measure from a generic app and rhym
 
 ### 6a. Bare eyebrow labels
 
-Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ PREMISE`, `§ INVITATION` — are bare DM Mono labels. **No container, no border, no background, no padding.** Just the text.
+Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ WHY IT WORKS THIS WAY`, `§ THE INVITATION` — are bare DM Mono labels. **No container, no border, no background, no padding.** Just the text.
 
 ```css
 .eyebrow {
@@ -874,7 +896,7 @@ Routes: `/login` → Sign in. `/login?signup=1` → Create account. `/login?invi
 
 ### 8b. Onboarding wizard
 
-Full-screen, editorial register (`data-register="editorial"`, cream bg). No main app nav.
+Full-screen, editorial register (`data-register="editorial"`, cream/paper bg). No main app nav. This is the only surface that uses the paper register — all other non-app surfaces (login, invite, waitlist, landing) use `data-register="marketing"` (white).
 
 **Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 600, 13px, -0.03em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `§ ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
 
@@ -1100,6 +1122,7 @@ Every `border-radius` in `globals.css` must use `0`, a CSS variable token, or `5
 | `set-` | Settings |
 | `ob-` | Onboarding |
 | `auth-` | Auth screens |
+| `ln-` | Landing page (scoped to `app/(marketing)/landing.css`) |
 
 ---
 
