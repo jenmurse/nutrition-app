@@ -111,7 +111,8 @@ html[data-marketing] {
   text-transform: uppercase;
   color: var(--muted);
 }
-.ln-hero h1 {
+.ln-hero h1,
+.ln-close h2 {
   font-family: var(--font-sans);
   font-size: clamp(56px, 10vw, 148px);
   font-weight: 500;
@@ -500,11 +501,6 @@ html[data-marketing] {
 }
 .ln-close .ln-eyebrow { display: block; }
 .ln-close h2 {
-  font-family: var(--font-sans);
-  font-size: clamp(56px, 9vw, 140px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.0;
   margin-top: 28px;
   text-wrap: balance;
   max-width: 14ch;
