@@ -204,16 +204,17 @@ html[data-marketing] {
   letter-spacing: var(--track-mono);
   color: var(--fg);
 }
-.ln-scn-head h2 {
+.ln-scn-head h2,
+.ln-why h2 {
   font-family: var(--font-sans);
   font-size: clamp(48px, 7.5vw, 120px);
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.0;
-  margin-top: 24px;
   text-wrap: balance;
-  max-width: 16ch;
 }
+.ln-scn-head h2 { margin-top: 24px; max-width: 16ch; }
+.ln-why h2 { max-width: 22ch; }
 .ln-scn-head .ln-lede {
   font-size: 16px;
   color: var(--fg-2);
@@ -298,7 +299,8 @@ html[data-marketing] {
   align-items: baseline;
 }
 .ln-beat-tag .ln-step { color: var(--fg); font-weight: 600; }
-.ln-beat h3 {
+.ln-beat h3,
+.ln-callout h3 {
   font-family: var(--font-sans);
   font-size: clamp(28px, 3.4vw, 48px);
   font-weight: 500;
@@ -306,8 +308,9 @@ html[data-marketing] {
   line-height: 1.1;
   margin-top: 20px;
   text-wrap: balance;
-  max-width: 16ch;
 }
+.ln-beat h3 { max-width: 16ch; }
+.ln-callout h3 { max-width: 18ch; }
 .ln-beat p {
   font-size: 16px;
   color: var(--fg-2);
@@ -416,16 +419,6 @@ html[data-marketing] {
   gap: 80px;
   align-items: start;
 }
-.ln-callout h3 {
-  font-family: var(--font-sans);
-  font-size: clamp(28px, 3.4vw, 48px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-top: 18px;
-  text-wrap: balance;
-  max-width: 18ch;
-}
 .ln-callout p {
   font-size: 16px;
   color: var(--fg-2);
@@ -490,15 +483,6 @@ html[data-marketing] {
   scroll-snap-stop: normal;
 }
 .ln-why .ln-eyebrow { display: block; margin-bottom: 40px; }
-.ln-why h2 {
-  font-family: var(--font-sans);
-  font-size: clamp(48px, 7.5vw, 120px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.0;
-  text-wrap: balance;
-  max-width: 22ch;
-}
 .ln-why p {
   font-size: 16px;
   color: var(--fg-2);
