@@ -6,7 +6,7 @@ export const viewport: Viewport = {
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div data-register="marketing" style={{ height: '100%' }}>
+    <div style={{ height: '100%' }}>
       {children}
     </div>
   );

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function PrivacyPage() {
   return (
-    <div className="standalone-page" data-register="marketing" style={{ minHeight: 0, height: "100%" }}>
+    <div className="standalone-page" style={{ minHeight: 0, height: "100%" }}>
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
         <Link href="/" className="standalone-back-link">← Back</Link>
