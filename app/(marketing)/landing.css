@@ -111,8 +111,7 @@ html[data-marketing] {
   text-transform: uppercase;
   color: var(--muted);
 }
-.ln-hero h1,
-.ln-close h2 {
+.ln-hero h1 {
   font-family: var(--font-sans);
   font-size: clamp(56px, 10vw, 148px);
   font-weight: 500;
@@ -206,7 +205,8 @@ html[data-marketing] {
   color: var(--fg);
 }
 .ln-scn-head h2,
-.ln-why h2 {
+.ln-why h2,
+.ln-close h2 {
   font-family: var(--font-sans);
   font-size: clamp(48px, 7.5vw, 120px);
   font-weight: 500;
