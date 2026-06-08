@@ -301,7 +301,7 @@ html[data-marketing] {
 .ln-beat h3 {
   font-family: var(--font-sans);
   font-size: clamp(28px, 3.4vw, 48px);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.1;
   margin-top: 20px;
@@ -418,7 +418,7 @@ html[data-marketing] {
 }
 .ln-callout h3 {
   font-family: var(--font-sans);
-  font-size: clamp(24px, 2.6vw, 36px);
+  font-size: clamp(28px, 3.4vw, 48px);
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -492,7 +492,7 @@ html[data-marketing] {
 .ln-why .ln-eyebrow { display: block; margin-bottom: 40px; }
 .ln-why h2 {
   font-family: var(--font-sans);
-  font-size: clamp(48px, 8vw, 120px);
+  font-size: clamp(48px, 7.5vw, 120px);
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.0;
