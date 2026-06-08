@@ -275,7 +275,7 @@ export default function MarketingLanding() {
 
       <Architecture
         eyebrow="§ Why it works this way"
-        headline="Your AI. Connected to everything you cook."
+        headline="Everything you cook. Connected to your AI."
         body="The measuring lives in the app. The grams, the goals, the plan, the library. The thinking part lives in the AI you already use. Good Measure connects the two through a simple install of the Good Measure MCP. You add it to your AI once, and from then on your assistant can read and write your kitchen. And the agent doesn't just suggest. It executes. Plan a whole day, swap a meal, save a day that worked as a template, apply it to next week. You confirm the destructive moves; the agent handles the fussy edits."
       />
 
