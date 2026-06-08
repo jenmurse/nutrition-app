@@ -1,12 +1,12 @@
 import type { Viewport } from "next";
 
 export const viewport: Viewport = {
-  themeColor: "#F5F4EF",
+  themeColor: "#FFFFFF",
 };
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div data-register="editorial" style={{ height: '100%' }}>
+    <div data-register="marketing" style={{ height: '100%' }}>
       {children}
     </div>
   );
