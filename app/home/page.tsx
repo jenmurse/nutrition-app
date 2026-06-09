@@ -155,30 +155,41 @@ export default function Home() {
       if (!plan) { setPlanLoading(false); return; }
 
       setWeekPlanId(plan.id);
-      const detail: PlanDetail | null = await fetch(`/api/meal-plans/${plan.id}`).then((r) => r.ok ? r.json() : null);
-      if (!detail?.weeklySummary?.dailyNutritions) { setPlanLoading(false); return; }
-      clientCache.set(`/api/meal-plans/${plan.id}`, detail);
 
-      // Store week-level data
-      setWeekDays(detail.weeklySummary.dailyNutritions);
-      setAllMealLogs(detail.mealLogs ?? []);
-      setRecipeCaloriesMap(detail.recipeCaloriesMap ?? {});
-      setMealLogCaloriesMap(detail.mealLogCaloriesMap ?? {});
-      setRecipeNutrientsMap(detail.recipeNutrientsMap ?? {});
-      setMealLogNutrientsMap(detail.mealLogNutrientsMap ?? {});
-
-      const dayEntry = detail.weeklySummary.dailyNutritions.find(
-        (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
-      );
-      if (dayEntry) setTodayData(dayEntry);
-
-      if (detail.mealLogs) {
-        const todayLogs = detail.mealLogs.filter(
-          (m) => parseUTCDate(m.date).toDateString() === today.toDateString()
+      const applyDetail = (detail: PlanDetail) => {
+        if (!detail?.weeklySummary?.dailyNutritions) return;
+        setWeekDays(detail.weeklySummary.dailyNutritions);
+        setAllMealLogs(detail.mealLogs ?? []);
+        setRecipeCaloriesMap(detail.recipeCaloriesMap ?? {});
+        setMealLogCaloriesMap(detail.mealLogCaloriesMap ?? {});
+        setRecipeNutrientsMap(detail.recipeNutrientsMap ?? {});
+        setMealLogNutrientsMap(detail.mealLogNutrientsMap ?? {});
+        const dayEntry = detail.weeklySummary.dailyNutritions.find(
+          (d: DayData) => parseUTCDate(d.date).toDateString() === today.toDateString()
         );
-        setTodayMeals(todayLogs);
-      }
+        if (dayEntry) setTodayData(dayEntry);
+        if (detail.mealLogs) {
+          const todayLogs = detail.mealLogs.filter(
+            (m) => parseUTCDate(m.date).toDateString() === today.toDateString()
+          );
+          setTodayMeals(todayLogs);
+        }
+      };
 
+      // Cache-then-revalidate: paint instantly from cache, then refresh in the background.
+      const detailKey = `/api/meal-plans/${plan.id}`;
+      const cachedDetail = clientCache.get<PlanDetail>(detailKey);
+      if (cachedDetail) {
+        applyDetail(cachedDetail);
+        setPlanLoading(false);
+      }
+      try {
+        const fresh: PlanDetail | null = await fetch(detailKey).then((r) => r.ok ? r.json() : null);
+        if (fresh?.weeklySummary?.dailyNutritions) {
+          clientCache.set(detailKey, fresh);
+          applyDetail(fresh);
+        }
+      } catch { /* ignore — cached data is fine to keep showing */ }
       setPlanLoading(false);
     };
 

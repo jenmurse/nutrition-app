@@ -2,7 +2,12 @@
 
 ## Architecture Context
 
-The app runs on **Vercel (East US)** with a **Supabase PostgreSQL** database. Every Prisma query goes over the network to Supabase — this adds roughly **50–200ms per round-trip**, which compounds fast when queries are chained sequentially. This is the single biggest constraint on perceived speed, and almost every performance issue in this app traces back to it.
+The app runs on **Railway (US region)** with a **Railway PostgreSQL** database. Supabase handles auth only. Both the Next.js server and Postgres run on Railway, co-located in the same region — Prisma queries cost roughly **5–50ms per round-trip** rather than the 50–200ms of cross-cloud setups.
+
+The dominant cost is therefore **not** raw query latency. It's two things:
+
+1. **Cold starts.** Railway sleeps the app after a period of inactivity. First-request-after-idle pays for the Node server warming, Prisma connecting, and the JIT path. That's 1–3 seconds before any code runs.
+2. **The weekly nutrition recalculation.** `GET /api/meal-plans/[id]` aggregates every meal log across all 7 days and applies per-nutrient goal statuses. On a full week it's the heaviest endpoint in the app, and it runs every time the planner or dashboard opens (because both render today's nutrition from a full-week aggregate).
 
 ---
 
@@ -117,130 +122,100 @@ Replaced the inline `message` state system with a fixed-position toast (`lib/toa
 
 ---
 
+## Session — June 2026
+
+### 9. Home page never read from clientCache for plan details
+
+**The problem**
+`/home` wrote the week's plan detail to `clientCache` after fetching it, but never *read* from it on subsequent visits. Every dashboard load fired a fresh full-week nutrition aggregation — the heaviest endpoint in the app — even though the data was already in memory.
+
+**The fix**
+Restructured the home load path to use the same cache-then-revalidate pattern the planner uses. On mount: if cached, paint immediately and clear the loading state; then fetch fresh in the background and update when it arrives. The dashboard now feels instant on the second+ visit of any session.
+
+---
+
+### 10. Hover-prefetch on top nav
+
+**The problem**
+By the time a user clicked Planner, the round-trip to fetch the plan list + plan detail hadn't started yet. ~500ms of dead time before anything appeared.
+
+**The fix**
+Added an `onMouseEnter` handler on top nav links (Planner, Recipes, Pantry) and the brand wordmark (home). On hover, the destination page's primary data fetch fires immediately and stashes the result in `clientCache`. The user typically takes 100–300ms to move from hover to click — by the time they actually click, the data is often already cached. The page reads from cache and renders instantly.
+
+A `prefetched` Set guards against repeated fetches on the same hover, and resets on fetch failure so retries are possible.
+
+---
+
+### 11. `/api/warm` keep-alive endpoint
+
+**The problem**
+Railway sleeps the app after a period of inactivity. The first request after idle pays for Node warming + Prisma reconnecting + JIT — 1–3 seconds before any code runs. Existing `/api/health` proves the Node server is up, but doesn't warm the Prisma pool or the database connection.
+
+**The fix**
+New `/api/warm` route that runs `prisma.$queryRaw\`SELECT 1\`` and returns. Hitting this every few minutes keeps the Node server, Prisma client, and DB connection all warm. Endpoint is whitelisted in `proxy.ts` so it doesn't require auth.
+
+**To activate the warm-up loop**, point any external uptime service at `https://withgoodmeasure.com/api/warm` with a 5-minute interval. Free options:
+- [Cron-job.org](https://cron-job.org) — simplest, free, web UI
+- [UptimeRobot](https://uptimerobot.com) — free tier covers 50 monitors at 5-min intervals
+- [BetterStack](https://betterstack.com) — free tier with 10 monitors at 3-min intervals
+
+Cost: $0. Wall-clock impact: app never goes cold, so the first request always feels like a warm request.
+
+---
+
 ## What Still Limits Speed
 
-Even with all of the above in place, first-load times are still 400–800ms on most pages because:
+Even with all the above in place, the heaviest single endpoint is still **the weekly nutrition recalculation** (`GET /api/meal-plans/[id]`). It aggregates all meal logs across all 7 days, joins recipes + recipe ingredients + nutrient values, and applies per-nutrient goal statuses. This runs the first time the planner or dashboard opens — `clientCache` hides it on subsequent visits, but the first hit of any session pays for it.
 
-1. **Every Prisma query is a network call to Supabase**. A single page load might need 2–3 queries in series (auth → lookup → data), and each one costs 50–200ms.
-2. **Weekly nutrition recalculation** (`GET /api/meal-plans/[id]`) is the heaviest endpoint — it aggregates all meal logs across the week and applies per-nutrient goal statuses. No amount of client-side caching helps the first time it loads.
-3. **Cold starts** on Vercel serverless functions add 200–500ms when a function hasn't been invoked recently.
+The other limit is the **shell-first render** opportunity: both the planner and dashboard wait for data before showing anything. Rendering the structural shell immediately (empty matrix grid with day labels, empty stats strip, etc.) and streaming data in would make the page *feel* instant even when the data still takes the same time. Not done yet — flagged as a future option below.
 
 ---
 
-## Future Options
+## Future Options (Railway-specific)
 
-### Edge Functions (highest impact, most complex)
+### 1. Denormalize the weekly nutrition totals (highest impact)
 
-Vercel Edge Functions run at the CDN edge — physically closer to the user than a regional serverless function. They respond in ~10–50ms vs ~200–400ms for a standard serverless function.
+The nutrition aggregation is recomputed on every plan detail read, but the totals only change when meals are added, edited, or removed. Storing the computed totals on `MealPlan` (or in a sidecar table) and recomputing on meal write would eliminate the aggregation entirely on read.
 
-**What's a good fit:**
-- Auth-only endpoints (session validation, token refresh)
-- Simple lookups that don't need heavy Prisma queries
-- The middleware itself (already runs at edge — this is working)
+**Implementation sketch:**
+- Add a `weeklyTotalsJson` column to `MealPlan` (or a `MealPlanTotals` table keyed by `planId`)
+- Compute and store in the POST/PATCH/DELETE handlers for meal logs (the same `withAuth` wrappers that own writes)
+- Plan detail read returns the stored totals; no aggregation needed
+- Background recompute job for safety / data drift
 
-**The constraint**: Edge functions can't use Prisma with connection pooling in the standard setup — they require a connection pooler like [Prisma Accelerate](https://www.prisma.io/accelerate) or switching to an HTTP-based DB driver. Worth evaluating if Prisma Accelerate fits the stack — it also has a built-in query cache which could eliminate the DB round-trip entirely for frequently-read data.
+**Realistic gain:** the planner/dashboard first-load drops from 400–800ms to under 100ms for the network round-trip, since the read becomes a simple `findUnique`. This is the biggest remaining structural win.
 
-**Realistic gain**: Moving the auth + household lookup to an edge-compatible path could cut 100–200ms from every API request.
-
----
-
-### Prisma Accelerate (query-level caching)
-
-[Prisma Accelerate](https://www.prisma.io/accelerate) is a connection pooler and cache layer that sits between the app and the database. You can set a cache TTL per query:
-
-```ts
-const goals = await prisma.nutritionGoal.findMany({
-  where: { personId },
-  cacheStrategy: { ttl: 300 }, // cache for 5 minutes
-});
-```
-
-**What it helps with:**
-- Nutrition goals (rarely change — safe to cache for minutes)
-- Ingredient nutrient values (static data — safe to cache for hours)
-- Recipe details (change only on edit — could use `swr` strategy)
-
-**What it doesn't help with:**
-- Meal logs (change frequently, need fresh data)
-
-**Realistic gain**: Could eliminate the DB round-trip entirely for goal and ingredient lookups, saving 100–300ms on affected endpoints. Free tier available; paid plans for higher throughput.
+**Cost:** non-trivial. Need to be careful about all paths that mutate meal logs (write API + MCP write API + bulk day-template apply). A missing path means stale totals.
 
 ---
 
-### Database Connection Pooling (PgBouncer / Supabase pooler)
+### 2. Shell-first render on planner + dashboard
 
-Each serverless function invocation opens a new DB connection. With enough concurrent users, this creates connection pressure on Postgres. Supabase offers a built-in PgBouncer pooler with two modes:
+Both pages currently show a spinner / "Loading…" line until plan data arrives. Replace with a skeleton render of the actual layout — empty matrix grid with day numbers and slot rows on the planner; empty stats strip and "Today's meals" placeholders on the dashboard. The user sees structure in <100ms and the data fades in when it arrives.
 
-- **Session pooler** (port 5432 on `pooler.supabase.com`) — holds a connection for the full session. Supports prepared statements, so Prisma migrations work.
-- **Transaction pooler** (port 6543 on `pooler.supabase.com`) — returns connections after each transaction. More efficient for serverless, but does NOT support prepared statements — `prisma migrate` will fail through this port.
-
-**Current state**: The app uses the **session pooler** (port 5432 on `pooler.supabase.com`). We previously tried the transaction pooler (6543) but switched back because Prisma migrations require prepared statements.
-
-**How to use transaction pooler without breaking migrations**: Prisma supports a `directUrl` for migrations separate from the runtime connection:
-
-```prisma
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")       // transaction pooler (6543) — used at runtime
-  directUrl = env("DIRECT_URL")         // direct connection (5432) — used by prisma migrate
-}
-```
-
-```env
-# Runtime — transaction pooler
-DATABASE_URL="postgresql://...@aws-1-us-west-1.pooler.supabase.com:6543/postgres"
-
-# Migrations only — direct connection
-DIRECT_URL="postgresql://...@db.dxugcmykyidplpktbduo.supabase.co:5432/postgres"
-```
-
-**Note**: The direct connection (`db.xxx.supabase.co`) is not IPv4-compatible. Vercel is IPv4-only, so `DIRECT_URL` would only work from a local machine or an IPv6-capable CI environment. This is fine — migrations are typically run locally, not from Vercel.
-
-**Realistic gain at current scale**: Minimal. The session pooler already eliminates connection setup overhead. Transaction pooler recycles connections faster under concurrent load, but at low traffic the difference is negligible. Worth revisiting if user count grows.
+**Cost:** moderate. The planner matrix is data-derived (slot order comes from the plan); the skeleton needs default slot rows (Breakfast/Lunch/Dinner) and the week's days computed from `today` without needing the plan.
 
 ---
 
-### Incremental Static Regeneration (ISR) for read-heavy pages
+### 3. Background recompute for day templates
 
-If parts of the app are ever made public or semi-public (e.g., shared meal plans, public recipes), Vercel's ISR can cache rendered pages at the edge for a configurable TTL and serve them without hitting the database at all. Not applicable to authenticated per-user data, but worth noting if the app scope expands.
-
----
-
-### Server-Sent Events or WebSockets for live nutrition updates
-
-Currently, adding a meal optimistically updates the UI and then re-fetches the plan to get the recalculated nutrition totals. A future option is to move the recalculation to a background job and push the result back to the client via SSE or WebSocket — eliminating the re-fetch entirely. This is significant engineering complexity for the current scale but would make multi-user household meal editing feel real-time.
+Applying a day template inserts up to a dozen meal logs in sequence and then triggers a full nutrition refresh. This is the slowest mutation in the app. With #1 (denormalized totals) in place, this becomes "insert + recompute totals" rather than "insert + re-aggregate on every read forever."
 
 ---
 
-## Stack-Ranked Next Steps
+### 4. Server-side response caching for nutrient lookups
 
-The remaining options that would meaningfully improve speed, in priority order:
+`Nutrient` rows essentially never change (17 rows). Caching them in-process per server instance (a simple module-level cache invalidated on Nutrient table writes — which never happen in normal operation) would eliminate one DB query from every meal plan read.
 
-### 1. Prisma Accelerate — query-level caching (recommended first)
+**Realistic gain:** ~20–50ms per plan read.
 
-The most practical next move. Directly targets the biggest remaining bottleneck: Supabase query latency on first load. Implementation is low-complexity — add the dependency, wrap slow queries with a `cacheStrategy` option specifying a TTL. No architectural changes needed.
+---
 
-Strong candidates for caching:
-- Nutrition goals (rarely change — 5-minute TTL)
-- Ingredient nutrient values (essentially static — hour+ TTL)
-- Recipe details (change only on edit — `swr` strategy)
+### 5. Skip the home page's redundant data
 
-Meal logs and plan details would stay uncached (change frequently).
+`/home` reads the entire week's meal plan to extract one day's data. The plan detail endpoint could accept a `?day=YYYY-MM-DD` filter to return only today's nutrition. The dashboard would load faster *and* the plan detail would be cheaper to compute.
 
-### 2. Edge Functions (highest ceiling, requires Accelerate first)
-
-Moving API routes to the edge puts compute physically closer to the user (~10–50ms vs ~200–400ms for regional serverless). But edge functions can't use Prisma with standard connection pooling — they need Prisma Accelerate (or an HTTP-based DB driver) to talk to the database. So Accelerate is a prerequisite anyway, making this a natural second step.
-
-Start with auth + simple lookups at the edge. Leave heavy endpoints (weekly nutrition recalc) on regional serverless.
-
-### 3. SSE / WebSockets for live nutrition updates (most complex, narrowest benefit)
-
-Only helps the specific case where a meal is added/deleted and the nutrition totals need to update. Currently handled with optimistic UI + background refetch, which already feels fast. Real-time push would only matter if multiple household members are editing the same meal plan simultaneously — not a current use case. Significant engineering complexity (background job infrastructure, persistent connections, reconnection handling). Revisit only if multi-user concurrent editing becomes a real need.
-
-### Not prioritized
-
-- **Transaction pooler** (port 6543): Already on the session pooler. The gain at current traffic is negligible. Revisit if connection pressure becomes an issue at scale.
-- **ISR**: Doesn't apply — all pages are authenticated and per-user.
+**Cost:** small. Add a query param, branch the aggregation, keep backward compatibility.
 
 ---
 
@@ -256,8 +231,9 @@ Only helps the specific case where a meal is added/deleted and the nutrition tot
 | Goals panels had no loading state | ✅ Fixed | `goalsLoading` state + skeleton bars + goal caching |
 | Static skeleton loading UI | ✅ Fixed | `animate-loading` pulse animation |
 | Toast layout jog | ✅ Fixed | Fixed-position toast system |
-| DB latency on first load | ⚠️ Remaining | Inherent to Supabase over network |
-| Cold starts | ⚠️ Remaining | Inherent to serverless |
-| Edge-compatible auth | 🔭 Future | Prisma Accelerate + Edge Functions |
-| Query-level caching | 🔭 Future | Prisma Accelerate cache strategies |
-| Transaction pooler | 🔭 Future | Switch from session pooler (5432) to transaction pooler (6543) + `directUrl` for migrations |
+| Home page never read from clientCache | ✅ Fixed | Cache-then-revalidate pattern on `/home` |
+| Hover-prefetch on nav | ✅ Fixed | Nav links prefetch destination data on hover |
+| Cold start after Railway idle | ⚠️ Fixed (requires external cron) | `/api/warm` route + external uptime ping |
+| Weekly nutrition recalc on every read | 🔭 Future | Denormalize totals on `MealPlan` |
+| Shell-first render | 🔭 Future | Skeleton matrix + skeleton stats on initial load |
+| Day template apply slow | 🔭 Future | Depends on denormalized totals |

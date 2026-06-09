@@ -5,12 +5,29 @@ import { usePathname } from "next/navigation";
 import { usePersonContext } from "./PersonContext";
 import { createClient } from "@/lib/supabase/client";
 import { BrandName } from "./BrandName";
+import { clientCache } from "@/lib/clientCache";
 
 const navItems = [
   { href: "/planner", label: "Planner" },
   { href: "/recipes", label: "Recipes" },
   { href: "/pantry", label: "Pantry" },
 ];
+
+/**
+ * Hover-prefetch: fetch the data the destination page will need and stash
+ * it in clientCache. By the time the user actually clicks, the network is
+ * usually done — the page reads from cache and renders instantly.
+ * Guarded so we don't refetch the same key during the same hover session.
+ */
+const prefetched = new Set<string>();
+function prefetchData(key: string) {
+  if (prefetched.has(key)) return;
+  prefetched.add(key);
+  fetch(key)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => { if (data !== null) clientCache.set(key, data); })
+    .catch(() => { prefetched.delete(key); /* allow retry next hover */ });
+}
 
 export default function TopNav() {
   const pathname = usePathname();
@@ -37,6 +54,7 @@ export default function TopNav() {
       {/* Brand */}
       <Link
         href="/home"
+        onMouseEnter={() => selectedPerson && prefetchData(`/api/meal-plans?personId=${selectedPerson.id}`)}
         className="font-sans font-semibold text-[13px] text-[var(--fg)] no-underline tracking-[-0.03em] hover:opacity-70 transition-opacity duration-150"
         style={{ marginRight: 36 }}
       >
@@ -51,6 +69,12 @@ export default function TopNav() {
             <Link
               key={item.href}
               href={item.href}
+              onMouseEnter={() => {
+                if (!selectedPerson) return;
+                if (item.href === "/planner") prefetchData(`/api/meal-plans?personId=${selectedPerson.id}`);
+                if (item.href === "/recipes") prefetchData("/api/recipes?slim=true");
+                if (item.href === "/pantry") prefetchData("/api/ingredients?slim=true");
+              }}
               className={`nav-link font-mono text-[9px] uppercase tracking-[0.14em] py-[6px] no-underline relative transition-colors duration-150 whitespace-nowrap ${
                 isActive
                   ? "text-[var(--fg)]"

@@ -64,6 +64,7 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api/households/invite/info") ||
     request.nextUrl.pathname.startsWith("/api/auth/") ||
     request.nextUrl.pathname.startsWith("/api/health") ||
+    request.nextUrl.pathname.startsWith("/api/warm") ||
     request.nextUrl.pathname.startsWith("/api/mcp/");
 
   if (!user && !isPublicRoute) {
