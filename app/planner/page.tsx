@@ -201,6 +201,8 @@ function PlannerPage() {
   const [showNutrition, setShowNutrition] = useState<boolean>(true);
   const [showMonthStrip, setShowMonthStrip] = useState<boolean>(false);
   const [viewMenuOpen, setViewMenuOpen] = useState(false);
+  const viewAnchorRef = useRef<HTMLDivElement | null>(null);
+  const [viewMenuRect, setViewMenuRect] = useState<{ top: number; right: number } | null>(null);
   type StripDay = { dateKey: string; planId: number | null; count: number; slots: number };
   const [stripDays, setStripDays] = useState<StripDay[]>([]);
   // Eating-out inline input within the picker (open + draft label).
@@ -1805,11 +1807,18 @@ function PlannerPage() {
         <div className="flex-1" />
 
         {plan && (
-          <div className="pl-view-anchor">
+          <div className="pl-view-anchor" ref={viewAnchorRef}>
             <button
               type="button"
               className={`ed-btn-text${viewMenuOpen ? " is-active" : ""}`}
-              onClick={(e) => { e.stopPropagation(); setViewMenuOpen((v) => !v); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!viewMenuOpen && viewAnchorRef.current) {
+                  const r = viewAnchorRef.current.getBoundingClientRect();
+                  setViewMenuRect({ top: r.bottom + 6, right: window.innerWidth - r.right });
+                }
+                setViewMenuOpen((v) => !v);
+              }}
               aria-haspopup="menu"
               aria-expanded={viewMenuOpen}
               aria-label="View options"
@@ -1821,7 +1830,11 @@ function PlannerPage() {
                   onClick={() => setViewMenuOpen(false)}
                   aria-hidden="true"
                 />
-                <div className="pl-view-menu" role="menu">
+                <div
+                  className="pl-view-menu"
+                  role="menu"
+                  style={viewMenuRect ? { position: "fixed", top: viewMenuRect.top, right: viewMenuRect.right, left: "auto" } : undefined}
+                >
                   <div className="pl-view-menu-head">View options</div>
                   <button
                     type="button"

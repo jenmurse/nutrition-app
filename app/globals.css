@@ -1508,7 +1508,7 @@ input[type="number"]:focus {
   min-width: 220px; background: var(--bg);
   border: 1px solid var(--fg); padding: 0 0 4px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-  z-index: 26;
+  z-index: 300; /* above toolbar (40), strips, and any transform stacking contexts */
   overflow: hidden;
 }
 .pl-view-menu-head {
