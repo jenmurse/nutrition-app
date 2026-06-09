@@ -87,7 +87,7 @@ export default function AdminUsagePage() {
 
   if (!authed) {
     return (
-      <div className="standalone-page">
+      <div className="standalone-page" style={{ height: "100%", overflowY: "auto" }}>
         <header className="standalone-topbar">
           <Link href="/" className="standalone-wordmark">Good Measure</Link>
         </header>
@@ -165,7 +165,7 @@ export default function AdminUsagePage() {
   };
 
   return (
-    <div className="standalone-page">
+    <div className="standalone-page" style={{ height: "100%", overflowY: "auto" }}>
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
         <span className="standalone-back-link">
