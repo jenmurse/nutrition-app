@@ -47,6 +47,7 @@ model Person {
   recipeFavorites      RecipeFavorite[]
   ingredientFavorites  IngredientFavorite[]
   dayTemplates         DayTemplate[]
+  chatMessages         ChatMessage[]
 }
 
 // Household groups people together; all data is scoped to a household
@@ -425,4 +426,17 @@ model Waitlist {
   name      String
   email     String
   createdAt DateTime @default(now())
+}
+
+// In-app AI chat history (per-person, server-persisted)
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  personId  Int
+  role      String // "user" | "assistant"
+  content   String // plain text body
+  createdAt DateTime @default(now())
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, createdAt])
 }

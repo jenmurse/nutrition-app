@@ -6,6 +6,7 @@ import { usePersonContext } from "./PersonContext";
 import { createClient } from "@/lib/supabase/client";
 import { BrandName } from "./BrandName";
 import { clientCache } from "@/lib/clientCache";
+import ChatTrigger from "./chat/ChatTrigger";
 
 const navItems = [
   { href: "/planner", label: "Planner" },
@@ -88,8 +89,10 @@ export default function TopNav() {
         })}
       </div>
 
-      {/* Right side: person switcher + settings + sign out */}
+      {/* Right side: chat trigger + person switcher + settings + sign out */}
       <div className="ml-auto flex items-center gap-3">
+        {/* Ask AI trigger — ink ✦ glyph; opens right-docked panel */}
+        <ChatTrigger variant="desktop" />
         {/* Person dots */}
         {persons.length > 0 && (
           <div className="flex items-center gap-[8px]">

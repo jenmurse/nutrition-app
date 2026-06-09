@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { dialog } from "@/lib/dialog";
 import { BrandName } from "./BrandName";
 import PersonPulldown from "./PersonPulldown";
+import ChatTrigger from "./chat/ChatTrigger";
 
 const SECTIONS = [
   { href: "/home",        label: "Home"     },
@@ -94,6 +95,7 @@ export default function MobileTopBar() {
         </div>
         <div className="mob-topbar-right">
           {(pathname === "/home" || pathname === "/planner") && <PersonPulldown />}
+          <ChatTrigger variant="mobile" />
           <button
             className="mob-topbar-trigger"
             onClick={() => setMenuOpen(true)}

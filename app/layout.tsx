@@ -14,6 +14,8 @@ import OfflinePrefetcher from "./components/OfflinePrefetcher";
 import ConfirmModal from "./components/ConfirmModal";
 import CustomCursor from "./components/CustomCursor";
 import { PersonProvider } from "./components/PersonContext";
+import { ChatProvider } from "./components/chat/ChatProvider";
+import ChatPanel from "./components/chat/ChatPanel";
 
 const dmSans = DM_Sans({
   weight: ['300', '400', '500', '600', '700'],
@@ -106,27 +108,30 @@ export default function RootLayout({
         {/* FOUC prevention: apply stored theme synchronously before React hydration */}
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}` }} />
         <PersonProvider>
-          <NumberInputHandler />
-          <Toaster />
-          <ConfirmModal />
-          <OfflinePrefetcher />
-          <div className="app-shell flex flex-col h-screen" style={{ height: '100dvh' }}>
-            {/* Offline banner — renders nothing when online, slides everything
-                else down when offline. Lives inside .app-shell so it pushes
-                the nav down instead of overlaying it. */}
-            <ServiceWorkerRegister />
-            <Suspense>
-              <TopNav />
-            </Suspense>
-            <Suspense>
-              <MobileTopBar />
-            </Suspense>
+          <ChatProvider>
+            <NumberInputHandler />
+            <Toaster />
+            <ConfirmModal />
+            <OfflinePrefetcher />
+            <div className="app-shell flex flex-col h-screen" style={{ height: '100dvh' }}>
+              {/* Offline banner — renders nothing when online, slides everything
+                  else down when offline. Lives inside .app-shell so it pushes
+                  the nav down instead of overlaying it. */}
+              <ServiceWorkerRegister />
+              <Suspense>
+                <TopNav />
+              </Suspense>
+              <Suspense>
+                <MobileTopBar />
+              </Suspense>
 
-            {/* Main Content Area — overflow-hidden so each page manages its own scroll panes */}
-            <main className="app-main flex-1 overflow-hidden">
-              {children}
-            </main>
-          </div>
+              {/* Main Content Area — overflow-hidden so each page manages its own scroll panes */}
+              <main className="app-main flex-1 overflow-hidden">
+                {children}
+              </main>
+            </div>
+            <ChatPanel />
+          </ChatProvider>
         </PersonProvider>
         <CustomCursor />
       </body>
