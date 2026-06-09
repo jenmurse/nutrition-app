@@ -319,7 +319,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // Auto-continue: if the model said "I'll propose the next swap after this",
       // sending "Applied." gives it the cue to fire the follow-up proposal.
       // If there is no follow-up, the model just acknowledges and stops.
-      void send("Applied.");
+      void send("Applied. If there are more changes from my original request, propose the next one. Otherwise just confirm we're done.");
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) =>
@@ -373,7 +373,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // Auto-continue across all bulk types — apply_template most often chains,
       // but fill_week can too. If there's nothing to continue with, the model
       // just acknowledges and stops.
-      void send("Applied.");
+      void send("Applied. If there are more changes from my original request, propose the next one. Otherwise just confirm we're done.");
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: msg2 } : m));
