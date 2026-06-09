@@ -316,13 +316,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied" } : m)),
       );
+      // Auto-continue: if the model said "I'll propose the next swap after this",
+      // sending "Applied." gives it the cue to fire the follow-up proposal.
+      // If there is no follow-up, the model just acknowledges and stops.
+      void send("Applied.");
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, error: msg2 } : m)),
       );
     }
-  }, [messages, persistProposalStatus]);
+  }, [messages, persistProposalStatus, send]);
 
   const applyBulkProposal = useCallback(async (messageId: string, explicitDbId?: number) => {
     console.warn(`[CHAT-DEBUG] applyBulkProposal click: messageId=${messageId} explicitDbId=${explicitDbId}`);
@@ -366,12 +370,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       clientCache.invalidate("/api/meal-plans");
       await persistProposalStatus(messageId, "applied", dbId);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, proposalStatus: "applied" } : m));
-      // Auto-continue: for template applies the model said "I'll propose the next
-      // day after you apply" — sending "Applied." lets it follow through without
-      // requiring the user to prompt again.
-      if (bulk.type === "apply_template") {
-        void send("Applied.");
-      }
+      // Auto-continue across all bulk types — apply_template most often chains,
+      // but fill_week can too. If there's nothing to continue with, the model
+      // just acknowledges and stops.
+      void send("Applied.");
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: msg2 } : m));
