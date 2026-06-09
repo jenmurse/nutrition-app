@@ -1489,11 +1489,12 @@ input[type="number"]:focus {
   transition:background 0.5s;
 }
 
-/* Planner contextual-tip wrapper — keeps tips inside the matrix gutter on
-   desktop and full-bleed (with mobile pad) on small screens. */
-.pl-tip-wrap { padding: 16px 40px 0; }
+/* Planner contextual-tip — outer margin keeps the tip inside the matrix gutter.
+   Applied directly to the ContextualTip container so no empty div remains
+   when the tip is dismissed. */
+.pl-tip-wrap { margin: 16px 40px 0; }
 @media (max-width: 767px) {
-  .pl-tip-wrap { padding: 12px var(--pad) 0; }
+  .pl-tip-wrap { margin: 12px var(--pad) 0; }
 }
 
 /* ── VIEW menu (toolbar popover) ──────────────────────────────── */

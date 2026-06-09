@@ -7,13 +7,17 @@ interface ContextualTipProps {
   tipId: string;
   label: string;
   children: ReactNode;
+  /** Optional className applied to the outer container. Useful so
+   *  the caller doesn't need a wrapper div that persists when the tip
+   *  is dismissed (which would leave empty padding/margin behind). */
+  className?: string;
 }
 
 /**
  * One-time contextual tip card. Dismissed tips are stored server-side
  * per person, so each household member sees tips independently.
  */
-export default function ContextualTip({ tipId, label, children }: ContextualTipProps) {
+export default function ContextualTip({ tipId, label, children, className }: ContextualTipProps) {
   const { selectedPerson, dismissTip } = usePersonContext();
   const [exiting, setExiting] = useState(false);
   const [manuallyDismissed, setManuallyDismissed] = useState(false);
@@ -35,7 +39,7 @@ export default function ContextualTip({ tipId, label, children }: ContextualTipP
 
   return (
     <div
-      className="flex gap-3 px-4 py-[12px] bg-[var(--accent-l)] border-l-2 border-[var(--accent)] transition-[opacity] duration-[200ms]"
+      className={`flex gap-3 px-4 py-[12px] bg-[var(--accent-l)] border-l-2 border-[var(--accent)] transition-[opacity] duration-[200ms]${className ? ` ${className}` : ""}`}
       style={{
         opacity: exiting ? 0 : 1,
         transform: exiting ? "translateY(-4px)" : "translateY(0)",
