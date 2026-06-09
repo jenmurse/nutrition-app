@@ -12,10 +12,12 @@
  */
 
 import { NextRequest } from "next/server";
+import type Anthropic from "@anthropic-ai/sdk";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildContext } from "@/lib/chat/context";
-import { runChatTurn, type ChatTurn } from "@/lib/chat/anthropic";
+import { runChatTurn, CHAT_MODEL, type ChatTurn } from "@/lib/chat/anthropic";
+import { logChatUsage } from "@/lib/chat/usage";
 
 const HISTORY_LIMIT = 50;
 
@@ -73,6 +75,7 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       let assistantText = "";
+      const usages: Anthropic.Usage[] = [];
       try {
         for await (const ev of runChatTurn({
           history: turns,
@@ -82,6 +85,7 @@ export async function POST(req: NextRequest) {
           timezone,
         })) {
           if (ev.type === "text") assistantText += ev.delta;
+          if (ev.type === "done" && ev.usage) usages.push(ev.usage);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
         }
       } catch (err) {
@@ -98,6 +102,13 @@ export async function POST(req: NextRequest) {
             })
             .catch((e) => console.error("Failed to persist assistant message:", e));
         }
+        // Log usage (best-effort — failures swallowed inside logChatUsage).
+        await logChatUsage({
+          personId: auth.personId,
+          householdId: auth.householdId,
+          model: CHAT_MODEL,
+          usages,
+        });
         controller.close();
       }
     },

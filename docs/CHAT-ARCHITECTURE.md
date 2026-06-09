@@ -289,14 +289,21 @@ After Gate 4 ships:
 
 For friends-and-family scale, no work needed beyond the system prompt's "Scope" section (in `SYSTEM_PROMPT_V3`) which tells the model to politely refuse off-topic requests. That handles 95% of casual misuse for free.
 
+**Usage logging is LIVE (June 2026).** Every `/api/chat` call writes a row to `ApiUsageLog` with personId, householdId, token counts (input / cache read / cache create / output), and a precomputed cost in USD. Implementation: `lib/chat/usage.ts` + `feature: "chat"` rows. Use this data to:
+
+- See real per-user usage distribution before deciding cap size
+- Track caching effectiveness (`cacheReadTokens` should be high; `inputTokens` low after first turn)
+- Sum 30-day cost per person / household for any dashboard or rate-limit check
+
 **Before public launch, add hard rate limiting.** The system prompt is a soft fence — coaxed past with effort, doesn't bound runaway scripts. Required additions:
 
-| Layer | Implementation | Cap suggestion |
+| Layer | Implementation | Cap suggestion (verify against real usage first) |
 |---|---|---|
-| Per-user daily token cap | Query `ApiUsageLog` table (already exists) for last 24h; sum input + output; 429 if over | 50K input + 10K output per user per day ≈ $0.30/day worst case |
-| Per-household monthly backstop | Same idea, 30-day window, household-scoped | $X/month hard ceiling so a runaway script can't bankrupt anyone |
-| UX when capped | Panel shows "You've reached today's chat limit — resets at midnight." No scary chrome. | — |
-| Logging | Append to `ApiUsageLog` per chat call: personId, householdId, model, input/output/cache tokens | Needed for the cap check; also good for cost visibility |
+| Per-user daily cost cap | Sum `estimatedCostUsd` from `ApiUsageLog` for last 24h; 429 if over | ~$0.30–0.50/day per user (≈ 50–100 turns) |
+| Per-household monthly backstop | Same approach, 30-day window | $X/month hard ceiling so a runaway script can't bankrupt anyone |
+| UX when capped (desktop + mobile) | Panel shows "You've reached today's chat limit — resets at midnight." Optional: "Connect your own AI via MCP for unlimited" (desktop only — MCP doesn't run on iOS / Android) | — |
+
+**Mobile constraint worth flagging:** MCP servers don't run on iOS or Android. Once the native apps ship, mobile users have NO unlimited path via MCP. The "install MCP" upgrade nudge only works on desktop / web. Mobile heavy users need a paid tier to have any ceiling-removal option — see `docs/COSTS.md` § Pricing model — open thinking.
 
 **Not pursuing:** pre-classifying messages with a smaller model (adds latency, costs tokens to decide whether to spend tokens), keyword/regex blocking (whack-a-mole), complex jailbreak detection (Anthropic's base model already refuses genuinely harmful categories).
 

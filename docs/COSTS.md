@@ -108,6 +108,70 @@ This is speculative until/unless it happens, but worth knowing what the next thr
 
 ---
 
+## Pricing model — open thinking
+
+Good Measure is currently free for friends and family. When/if it goes public, there are several pricing axes worth considering. None of these are decided.
+
+### What costs us money to operate per active user
+
+| Cost source | Per-user impact |
+|---|---|
+| Railway compute | ~$0 marginal per user at small scale; trends with concurrent traffic |
+| Postgres storage | Negligible — recipes + plans + chat history rarely exceed ~10MB/user |
+| R2 image storage | Tiny — most users have a few dozen recipe photos |
+| **Anthropic API tokens (chat)** | **The big variable.** Heavy users could burn $5–10/month. Median users ~$0.50–2/month. |
+
+The chat is the only feature whose per-user cost scales meaningfully with usage. Everything else is a flat overhead.
+
+### Pricing model options
+
+**Option 1 — Free with usage cap, MCP as escape valve (simplest)**
+- App + chat: free forever
+- Chat capped at $X/day (e.g. $0.50 worth of tokens ≈ 50–100 turns)
+- Hit cap → nudge to install MCP for unlimited (uses their own Claude Pro/Max subscription, costs us $0)
+- Pros: no payments infrastructure, easiest to ship, MCP architectural bet pays off
+- **Critical gap: MCP doesn't work on iOS/Android.** Once the native apps ship, mobile users have NO unlimited path. They're stuck at the cap with no escape. This is a real product limitation, not just a UX wrinkle.
+
+**Option 2 — Free trial + one-time + monthly tiers (Jen's proposal)**
+- **Free trial:** ~20 messages to try the chat
+- **Lifetime pass ($30–50 one-time):** capped chat (e.g. 100/month)
+- **Pro ($5–10/month):** unlimited chat
+- Pros: revenue, accessible entry, recurring + one-time options match different mental models
+- Cons: payments infrastructure (Stripe, etc.), tier mechanics, billing edge cases, refunds — material work
+
+**Option 3 — Subscription only**
+- App + chat: $5–10/month, unlimited (or generously capped)
+- Pros: simplest revenue model, recurring is sustainable for an indie app
+- Cons: friction to try, no free tier, comparables (MyFitnessPal $20/mo, Cronometer $8/mo, Mealime $6/mo) — would sit mid-tier
+
+**Option 4 — Free app, paid AI feature**
+- Recipes + planner + pantry + nutrition tracking: free forever
+- Chat: free trial → $5/mo or $30 one-time for capped → $10/mo unlimited
+- Like MyFitnessPal where logging is free but Premium adds features
+- Pros: free path stays generous, AI is the optional paid layer
+- Cons: still needs payments infrastructure
+
+### The mobile-vs-MCP wrinkle
+
+The MCP escape valve only works on desktop. iOS sandboxing prevents running MCP servers on phones, and Android has no Claude mobile app that supports MCP either. **Once the Capacitor wrap ships, mobile users have no unlimited path.** That means:
+
+- If most users will end up on mobile (likely for a daily-use app), the MCP escape valve is *only* serving desktop power users
+- Mobile heavy users need a paid tier — there's no other ceiling-removal mechanism
+- This argues *for* implementing paid tiers (Option 2, 3, or 4) at public launch, not against
+
+The MCP integration remains valuable as a free unlimited option for desktop power users and developers (a meaningful audience for an editorial product like this), but it can't be the *only* answer.
+
+### Decisions to make before public launch
+
+These all depend on having Move 1 (usage logging) live for a few weeks first, so the cap and tier prices can be grounded in real data:
+
+1. Cap size for the free tier (gut: $0.50/day worth of tokens for the in-app chat, but verify with data)
+2. Whether to monetize at all
+3. If yes: one-time vs subscription vs both
+4. If no: how the project sustains as usage grows
+
+---
+
 ## Decisions pending
 
 1. **Stay on Hobby + cron, or move to Pro?** Friends-and-family scale doesn't justify Pro. Decide before opening to the public. Recommended: stay Hobby through the public-soft-launch waitlist drain; move to Pro when you hit ~50+ DAU.

@@ -25,7 +25,7 @@ import {
   type ChatContext,
 } from "./context";
 
-const MODEL = "claude-sonnet-4-6";
+export const CHAT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 4096;
 export const SYSTEM_PROMPT_V3 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
 
@@ -148,7 +148,7 @@ export async function* runChatTurn(args: {
 
     try {
       const stream = client.messages.stream({
-        model: MODEL,
+        model: CHAT_MODEL,
         max_tokens: MAX_TOKENS,
         system: systemBlocks,
         tools: CHAT_TOOLS,

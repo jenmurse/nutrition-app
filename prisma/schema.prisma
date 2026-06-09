@@ -48,6 +48,7 @@ model Person {
   ingredientFavorites  IngredientFavorite[]
   dayTemplates         DayTemplate[]
   chatMessages         ChatMessage[]
+  apiUsageLogs         ApiUsageLog[]
 }
 
 // Household groups people together; all data is scoped to a household
@@ -345,16 +346,28 @@ model SystemSetting {
 }
 
 // Token usage tracking per AI call (household-scoped)
+// Per-call AI usage log. Written once per /api/chat call after the stream
+// completes. Feeds (a) cost dashboards, (b) future per-user rate limit checks.
 model ApiUsageLog {
-  id           Int      @id @default(autoincrement())
-  householdId  Int?
-  createdAt    DateTime @default(now())
-  provider     String   @default("anthropic")
-  model        String   @default("")
-  inputTokens  Int      @default(0)
-  outputTokens Int      @default(0)
+  id                 Int      @id @default(autoincrement())
+  householdId        Int?
+  personId           Int? // who initiated the call (the auth identity, not the viewing person)
+  createdAt          DateTime @default(now())
+  provider           String   @default("anthropic")
+  model              String   @default("")
+  feature            String   @default("chat") // "chat", "mcp", "import", etc.
+  inputTokens        Int      @default(0) // uncached input tokens (billed at full rate)
+  cacheReadTokens    Int      @default(0) // input tokens served from cache (~0.1x rate)
+  cacheCreationTokens Int     @default(0) // input tokens written to cache (~1.25x rate)
+  outputTokens       Int      @default(0)
+  estimatedCostUsd   Float    @default(0) // precomputed at write time, in dollars
 
   household Household? @relation(fields: [householdId], references: [id])
+  person    Person?    @relation(fields: [personId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, createdAt])
+  @@index([personId, createdAt])
+  @@index([feature, createdAt])
 }
 
 // Globally shared parsed USDA ingredient data (no household scope)
