@@ -8,8 +8,12 @@
  * can see at a glance: what was asked, which tools fired, cache state, cost.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
+// sessionStorage key for the admin password — persists across refresh within
+// the same tab, cleared on tab close. Avoids re-typing on every reload.
+const PW_KEY = "gm-admin-pw";
 
 interface RecentTurn {
   id: number;
@@ -59,11 +63,28 @@ export default function AdminUsagePage() {
       const json = await res.json();
       setData(json);
       setAuthed(true);
+      // Cache the password for this tab so a hard refresh doesn't lock you out.
+      try { sessionStorage.setItem(PW_KEY, pw); } catch { /* private mode */ }
     } else {
       setError("Wrong password.");
+      try { sessionStorage.removeItem(PW_KEY); } catch { /* */ }
     }
     setLoading(false);
   };
+
+  // On mount, try the cached password silently. If it works, skip the form.
+  useEffect(() => {
+    let cancelled = false;
+    try {
+      const cached = sessionStorage.getItem(PW_KEY);
+      if (cached) {
+        setPassword(cached);
+        fetchData(cached, days).catch(() => { /* fall through to form */ });
+      }
+    } catch { /* */ }
+    return () => { cancelled = true; void cancelled; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
