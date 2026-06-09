@@ -224,6 +224,7 @@ See `ai_analysis.md` for full workflow details.
 - **Update Supabase transactional emails** with branding
 - **Custom domain finalization** — `withgoodmeasure.com` is live; see `rename_url_guide.md` for any remaining references that point to the old URL
 - **Open to the public** — remove invite gate, restore tabbed login, swap landing CTAs. Full checklist in `auth_and_access.md`.
+- **Infrastructure plan decision** — decide whether to stay on Railway Hobby + warm-up cron (~$3–5/mo, friends-and-family tier) or move to Railway Pro (~$20/mo flat, no sleep, higher resource limits, better for real public traffic). See `docs/COSTS.md` for the full breakdown.
 
 ---
 

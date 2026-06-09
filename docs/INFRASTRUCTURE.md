@@ -31,6 +31,8 @@ Moving app + DB to Railway puts them on the same internal network. Data between 
 
 ## 2. Monthly Cost Estimate
 
+> **Living cost sheet lives at [`docs/COSTS.md`](COSTS.md)** — kept current with actual Railway billing, projected costs at scale, and pending infra decisions. The section below is the quick architectural-context view; for budgeting, use COSTS.md.
+
 | Service | Plan | Estimated Cost | Notes |
 |---|---|---|---|
 | Railway | Hobby | $5/month base + usage | App + Postgres on same platform |
