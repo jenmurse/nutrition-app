@@ -11,9 +11,15 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/db";
 import type { MealProposal, BulkMealProposal, MacroDelta } from "./proposals";
 
-export const CHAT_TOOLS: Anthropic.Tool[] = [
+// `strict: true` + `additionalProperties: false` together enable grammar-constrained
+// sampling — Anthropic guarantees the model's tool inputs match these JSON schemas
+// exactly (right types, no extra keys, required fields always present). Eliminates
+// defensive validation and reduces "malformed proposal" classes of bugs.
+// Cast through Tool[] because the SDK type may not surface `strict` yet.
+export const CHAT_TOOLS: Anthropic.Tool[] = ([
   {
     name: "get_recipe",
+    strict: true,
     description:
       "Get full detail for a single recipe — ingredients with grams, instructions, per-serving nutrition for all tracked nutrients. " +
       "Use this when the user asks about a specific recipe's makeup or you need precise nutrition beyond the four macros in the context.",
@@ -26,10 +32,12 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         },
       },
       required: ["recipe_id"],
+      additionalProperties: false,
     },
   },
   {
     name: "get_meal_plan_week",
+    strict: true,
     description:
       "Get full nutrition aggregation for a meal plan week — per-day totals for every tracked nutrient, " +
       "with how each compares to the user's goals. " +
@@ -43,10 +51,12 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         },
       },
       required: ["plan_id"],
+      additionalProperties: false,
     },
   },
   {
     name: "search_ingredients",
+    strict: true,
     description:
       "Search the household pantry by name (case-insensitive substring match). Returns matching ingredients " +
       "with their per-100g nutrition. Use this when the user asks about a specific ingredient or you need pantry detail.",
@@ -59,12 +69,14 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         },
       },
       required: ["query"],
+      additionalProperties: false,
     },
   },
 
   // ── Gate 3: bulk write tools ─────────────────────────────────────────────
   {
     name: "propose_fill_week",
+    strict: true,
     description:
       "Propose adding multiple meals across a week in one confirm-card. " +
       "Use this when the user asks to fill their week, plan several days, or add meals across multiple days at once. " +
@@ -82,19 +94,22 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
             type: "object",
             properties: {
               date: { type: "string", description: "YYYY-MM-DD" },
-              meal_type: { type: "string", description: "breakfast | lunch | dinner | snack | side | dessert | beverage" },
+              meal_type: { type: "string", enum: ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"] },
               recipe_id: { type: "number", description: "Recipe from the library." },
               servings: { type: "number", description: "Serving count. Default 1." },
             },
             required: ["date", "meal_type", "recipe_id"],
+            additionalProperties: false,
           },
         },
       },
       required: ["plan_id", "person_id", "meals"],
+      additionalProperties: false,
     },
   },
   {
     name: "propose_apply_template",
+    strict: true,
     description:
       "Propose applying a saved day template to a specific day. " +
       "Template ids and names are in the context. " +
@@ -105,21 +120,21 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         template_id: { type: "number", description: "The day template id from context." },
         plan_id: { type: "number", description: "The meal plan id to apply to." },
         date: { type: "string", description: "YYYY-MM-DD — the target day." },
-        mode: { type: "string", description: "'replace' or 'append'." },
+        mode: { type: "string", enum: ["replace", "append"] },
       },
       required: ["template_id", "plan_id", "date", "mode"],
+      additionalProperties: false,
     },
   },
 
   // ── Plan existence check ─────────────────────────────────────────────────
   {
     name: "check_plan_exists",
+    strict: true,
     description:
       "Check whether a meal plan exists for a given person and week. " +
-      "Call this FIRST whenever the user asks to add/modify meals for a future week " +
-      "— before asking any clarifying questions about recipe, meal type, or day. " +
-      "If no plan exists, report it immediately and stop. " +
-      "If a plan exists, then ask for the details you need.",
+      "Call this first when the user asks to add/modify meals for a future week, before clarifying questions. " +
+      "If no plan exists, report it and stop. If a plan exists, then ask for the details you need.",
     input_schema: {
       type: "object",
       properties: {
@@ -127,6 +142,7 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         date: { type: "string", description: "Any date within the target week (YYYY-MM-DD)." },
       },
       required: ["person_id", "date"],
+      additionalProperties: false,
     },
   },
 
@@ -134,6 +150,7 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
   // Named propose_* so the model can ONLY propose. No execute_* exists.
   {
     name: "propose_add_meal",
+    strict: true,
     description:
       "Propose adding a meal to someone's plan. " +
       "plan_id is OPTIONAL — if omitted, the tool looks up the correct plan for the given date automatically. " +
@@ -146,7 +163,7 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         plan_id: { type: "number", description: "The meal plan id (optional — tool will look it up by date if not provided)." },
         person_id: { type: "number", description: "The person_id whose plan this is." },
         date: { type: "string", description: "YYYY-MM-DD — the specific day." },
-        meal_type: { type: "string", description: "breakfast | lunch | dinner | snack | side | dessert | beverage" },
+        meal_type: { type: "string", enum: ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"] },
         recipe_id: { type: "number", description: "Recipe to add (mutually exclusive with ingredient_id / external_label)." },
         ingredient_id: { type: "number", description: "Ingredient to add (mutually exclusive with recipe_id / external_label)." },
         external_label: { type: "string", description: "Eating-out label. Use empty string for unlabelled eating-out." },
@@ -154,10 +171,12 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         unit: { type: "string", description: "Unit for ingredient-based meals (e.g. 'g', 'other'). Required if ingredient_id provided." },
       },
       required: ["plan_id", "person_id", "date", "meal_type"],
+      additionalProperties: false,
     },
   },
   {
     name: "propose_swap_meal",
+    strict: true,
     description:
       "Propose replacing an existing meal with a different one. " +
       "Use get_meal_plan_week to find the meal_log_id of the meal to replace. " +
@@ -172,10 +191,12 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         servings: { type: "number", description: "Servings for the new meal. Default: same as current." },
       },
       required: ["meal_log_id"],
+      additionalProperties: false,
     },
   },
   {
     name: "propose_remove_meal",
+    strict: true,
     description:
       "Propose removing a meal from the plan. " +
       "Use get_meal_plan_week to find the meal_log_id.",
@@ -185,10 +206,12 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         meal_log_id: { type: "number", description: "The meal log to remove." },
       },
       required: ["meal_log_id"],
+      additionalProperties: false,
     },
   },
   {
     name: "propose_update_servings",
+    strict: true,
     description:
       "Propose changing the serving count for an existing meal. " +
       "Use get_meal_plan_week to find the meal_log_id.",
@@ -199,9 +222,10 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         servings: { type: "number", description: "New serving count." },
       },
       required: ["meal_log_id", "servings"],
+      additionalProperties: false,
     },
   },
-];
+] as unknown as Anthropic.Tool[]);
 
 /** Compute grams given quantity, unit, and an ingredient's unit definition. */
 function gramsForUnit(
