@@ -263,6 +263,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         console.warn("[chat] persistProposalStatus: no dbId for", messageId, "— status won't persist across refresh");
         return;
       }
+      console.warn(`[CHAT-DEBUG] persistProposalStatus called: dbId=${dbId} status=${status} messageId=${messageId}`);
       try {
         const r = await fetch("/api/chat/history", {
           method: "PATCH",
@@ -272,23 +273,28 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         if (!r.ok) {
           const body = await r.text().catch(() => "(no body)");
           console.error(
-            `[chat] persistProposalStatus FAILED: ${r.status} ${r.statusText} for dbId=${dbId} status=${status}. body:`,
+            `[CHAT-DEBUG] persistProposalStatus FAILED: ${r.status} ${r.statusText} for dbId=${dbId} status=${status}. body:`,
             body,
           );
         } else {
-          console.log(`[chat] persistProposalStatus OK: dbId=${dbId} -> ${status}`);
+          console.warn(`[CHAT-DEBUG] persistProposalStatus OK: dbId=${dbId} -> ${status}`);
         }
       } catch (e) {
-        console.error("[chat] persistProposalStatus threw:", e);
+        console.error("[CHAT-DEBUG] persistProposalStatus threw:", e);
       }
     },
     [messages],
   );
 
   const applyProposal = useCallback(async (messageId: string, explicitDbId?: number) => {
+    console.warn(`[CHAT-DEBUG] applyProposal click: messageId=${messageId} explicitDbId=${explicitDbId}`);
     const msg = messages.find((m) => m.id === messageId);
-    if (!msg?.proposal || msg.proposalStatus !== "pending") return;
+    if (!msg?.proposal || msg.proposalStatus !== "pending") {
+      console.warn(`[CHAT-DEBUG] applyProposal bailed early: msg?=${!!msg} proposal?=${!!msg?.proposal} status=${msg?.proposalStatus}`);
+      return;
+    }
     const dbId = explicitDbId ?? msg.dbId;
+    console.warn(`[CHAT-DEBUG] applyProposal dbId resolved: ${dbId} (msg.dbId=${msg.dbId})`);
     const { execute } = msg.proposal;
     try {
       const r = await fetch(execute.url, {
@@ -319,10 +325,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, [messages, persistProposalStatus]);
 
   const applyBulkProposal = useCallback(async (messageId: string, explicitDbId?: number) => {
+    console.warn(`[CHAT-DEBUG] applyBulkProposal click: messageId=${messageId} explicitDbId=${explicitDbId}`);
     const msg = messages.find((m) => m.id === messageId);
     const bulk = msg?.proposal as BulkMealProposal | undefined;
-    if (!bulk || !("executeAll" in bulk || "execute" in bulk) || msg?.proposalStatus !== "pending") return;
+    if (!bulk || !("executeAll" in bulk || "execute" in bulk) || msg?.proposalStatus !== "pending") {
+      console.warn(`[CHAT-DEBUG] applyBulkProposal bailed early: msg?=${!!msg} bulk?=${!!bulk} status=${msg?.proposalStatus}`);
+      return;
+    }
     const dbId = explicitDbId ?? msg.dbId;
+    console.warn(`[CHAT-DEBUG] applyBulkProposal dbId resolved: ${dbId} (msg.dbId=${msg.dbId})`);
 
     try {
       if ("execute" in bulk && bulk.execute) {
