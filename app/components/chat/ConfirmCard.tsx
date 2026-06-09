@@ -189,7 +189,10 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
           onClick={() => applyProposal(messageId)}
           disabled={isStreaming}
         >
-          Apply
+          {proposal.type === "add" ? "Add" :
+           proposal.type === "swap" ? "Swap" :
+           proposal.type === "remove" ? "Remove" :
+           "Update"}
         </button>
       </div>
     </div>
