@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
           usages,
           userMessage: message,
           toolsUsed,
-          promptVersion: "V10",
+          promptVersion: "V11",
         });
         controller.close();
       }

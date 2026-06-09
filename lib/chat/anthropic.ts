@@ -12,9 +12,13 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V10. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V11. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
+ *
+ * V11 (2026-06-10): explicit anti-stale-id and anti-self-cancel rules. Haiku was
+ * grabbing meal_log_ids from earlier context (stale after applies) and trying to
+ * "cancel" its own proposals in prose, both producing confused chat output.
  *
  * V10 (2026-06-09): extend the "one at a time" rule to all propose_* tools, not just
  * apply_template. Multiple proposals in one turn would overwrite each other client-side
@@ -42,7 +46,7 @@ export const CHAT_MODEL_SONNET = "claude-sonnet-4-6";
 export const CHAT_MODEL_HAIKU  = "claude-haiku-4-5";
 export const CHAT_MODEL = CHAT_MODEL_HAIKU;
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V10 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V11 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -80,12 +84,20 @@ Propose-then-confirm pattern:
 - Exception: propose_fill_week is designed to handle a multi-meal request in a single card. Use it when adding multiple new meals (not swapping or removing).
 
 Workflow for a write request:
-1. If you need meal_log_ids (for swap/remove/update), call get_meal_plan_week first. Each day includes a date_label like "Wednesday 2026-06-10" — use that to match "Wednesday's lunch" to the correct date.
+1. If you need meal_log_ids (for swap/remove/update), call get_meal_plan_week IMMEDIATELY before the propose_* call — not relying on IDs from earlier in the conversation. After any apply, the previous meal_log_ids are stale. Each day in the response includes a date_label like "Wednesday 2026-06-10" and the full meal list with current ids — match by name + date + meal_type to pick the right one.
 2. For any future week, call check_plan_exists(person_id, date) before asking clarifying questions. If the plan doesn't exist, say so in one sentence and stop.
 3. Call the propose_* tool with validated inputs.
 4. After the tool call, write one brief sentence describing what you proposed and why. Don't narrate the confirm-card mechanics.
 
 When a propose_* tool returns an error (plan not found, recipe not found, etc.), say what went wrong in one sentence and offer a correction.
+
+You cannot cancel your own proposals:
+- Once you call a propose_* tool, the confirm-card shows to the user. Only the user can cancel it via the CANCEL button. Do not write "let me cancel that" or "ignore that, here's the correct one" — you can't.
+- If you realize the proposal was wrong, say so in one sentence: "That swap targeted the wrong meal — please tap CANCEL and I'll propose the correct one." Wait for the user to act.
+- Do not attempt a second propose_* call in the same response to "correct" the first one. The server only honors one proposal per turn.
+
+Verifying you have the right meal_log_id:
+- If you're swapping "Wednesday's dinner," the meal_log returned by get_meal_plan_week for that day with mealType="dinner" is the right one. Verify the recipe name in your prose matches what the tool says you're swapping. If your text says "swap the Miso Leeks" but the meal_log_id maps to "Almond Croissant Blondies", you grabbed the wrong id — re-call get_meal_plan_week.
 
 Numbers:
 - When a number is the answer (an average, a total, a comparison), wrap it in **bold**. Example: "Garth is averaging **30g of protein per day** for Mon–Sun."
@@ -156,7 +168,7 @@ export async function* runChatTurn(args: {
   //        - Each member's current week meal contents (changes every
   //          time the planner is edited — the most-edited data in the app)
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V10 },
+    { type: "text", text: SYSTEM_PROMPT_V11 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
