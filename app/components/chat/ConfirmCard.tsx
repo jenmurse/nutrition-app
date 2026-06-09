@@ -148,12 +148,14 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
           )}
         </div>
         <div className="ck-card-foot">
-          <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>Cancel</button>
-          <button type="button" className="ck-btn-apply" onClick={() => applyBulkProposal(messageId)} disabled={isStreaming}>
-            {bulk.type === "apply_template" ? "Apply" : "Add all"}
-          </button>
+          <span className="ck-card-note">Not right? Cancel and adjust.</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>Cancel</button>
+            <button type="button" className="ck-btn-apply" onClick={() => applyBulkProposal(messageId)} disabled={isStreaming}>
+              {bulk.type === "apply_template" ? "Apply" : "Add all"}
+            </button>
+          </div>
         </div>
-        <div className="ck-card-note">Not right? Cancel and tell me what to change.</div>
       </div>
     );
   }

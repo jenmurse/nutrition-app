@@ -8770,8 +8770,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   gap: 16px;
 }
-/* Last row before the macros strip has no bottom border — macros provides its own top border. */
-.ck-row:last-of-type { border-bottom: none; }
+/* Only one separator between rows and the macros strip:
+   keep border-bottom on rows, remove border-top from macros. */
 .ck-row-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ck-row-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -8796,8 +8796,8 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-macros {
   display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-end;
   padding: 12px 0 4px;
-  border-top: 1px solid var(--rule);
-  margin-top: 4px;
+  /* No border-top — the last .ck-row's border-bottom is the separator. */
+  margin-top: 0;
 }
 .ck-macros-label {
   width: 100%;
@@ -8841,11 +8841,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-btn-apply:hover:not(:disabled) { opacity: 0.88; }
 .ck-btn-apply:disabled { opacity: 0.4; cursor: default; }
 .ck-card-note {
-  padding: 0 16px 12px;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--muted);
-  text-align: right;
+  flex: 1; /* fills left side of the footer row */
 }
 .ck-ack {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
