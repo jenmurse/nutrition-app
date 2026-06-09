@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
 import { withAuth } from "@/lib/apiUtils";
+import { computeCostUsd } from "@/lib/chat/usage";
 
 /**
  * POST /api/recipes/[id]/analyze
@@ -262,14 +263,25 @@ export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx)
       mealPrep = parseJsonResponse(mealPrepResult.text);
       model = ANTHROPIC_MODEL;
 
-      // Log token usage
+      // Log token usage with cost so /admin/usage matches Anthropic billing.
+      const inputTokens = optimizeResult.inputTokens + mealPrepResult.inputTokens;
+      const outputTokens = optimizeResult.outputTokens + mealPrepResult.outputTokens;
+      const cost = computeCostUsd(ANTHROPIC_MODEL, {
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        cache_read_input_tokens: 0,
+        cache_creation_input_tokens: 0,
+      } as Parameters<typeof computeCostUsd>[1]);
       await prisma.apiUsageLog.create({
         data: {
           householdId: auth.householdId,
+          personId: auth.personId,
           provider: "anthropic",
           model: ANTHROPIC_MODEL,
-          inputTokens: optimizeResult.inputTokens + mealPrepResult.inputTokens,
-          outputTokens: optimizeResult.outputTokens + mealPrepResult.outputTokens,
+          feature: "recipe_analyze",
+          inputTokens,
+          outputTokens,
+          estimatedCostUsd: cost,
         },
       });
     } else {

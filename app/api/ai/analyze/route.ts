@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { withAuth } from '@/lib/apiUtils';
 import { prisma } from '@/lib/db';
+import { computeCostUsd } from '@/lib/chat/usage';
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   'fill-gaps': `You are a nutrition advisor. Given a day's current nutrient totals, goals, and available recipes, suggest specific meals to add that fill nutritional gaps. Be specific about which recipes to add and why. Keep suggestions concise and actionable. Format your response in markdown with headers and bullet points.`,
@@ -105,6 +106,32 @@ export const POST = withAuth(async (auth, request: NextRequest) => {
 
       const data = await response.json();
       const text = data.content?.[0]?.text || 'No response generated.';
+      // Log usage so /admin/usage reflects all Anthropic spend.
+      try {
+        const inputTokens = data.usage?.input_tokens ?? 0;
+        const outputTokens = data.usage?.output_tokens ?? 0;
+        const model = 'claude-sonnet-4-20250514';
+        const cost = computeCostUsd(model, {
+          input_tokens: inputTokens,
+          output_tokens: outputTokens,
+          cache_read_input_tokens: 0,
+          cache_creation_input_tokens: 0,
+        } as Parameters<typeof computeCostUsd>[1]);
+        await prisma.apiUsageLog.create({
+          data: {
+            householdId: auth.householdId,
+            personId: auth.personId,
+            provider: 'anthropic',
+            model,
+            feature: 'ai_analyze',
+            inputTokens,
+            outputTokens,
+            estimatedCostUsd: cost,
+          },
+        });
+      } catch (e) {
+        console.error('Failed to log ai/analyze usage:', e);
+      }
       return NextResponse.json({ analysis: text });
     }
 

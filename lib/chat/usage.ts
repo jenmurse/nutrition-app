@@ -42,6 +42,13 @@ const PRICING: Record<string, ModelPricing> = {
     cacheCreatePerM: 1.25,
     outputPerM: 5.0,
   },
+  // Used by recipe analyze + ai/analyze (legacy model id, still works on the API)
+  "claude-sonnet-4-20250514": {
+    inputPerM: 3.0,
+    cacheReadPerM: 0.3,
+    cacheCreatePerM: 3.75,
+    outputPerM: 15.0,
+  },
 };
 
 /**

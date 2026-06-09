@@ -20,6 +20,7 @@ interface RecentTurn {
   createdAt: string;
   person: string;
   model: string;
+  feature: string;
   promptVersion: string | null;
   userMessage: string | null;
   tools: string[];
@@ -42,6 +43,7 @@ interface UsageResponse {
   };
   byDay: Array<{ date: string; cost: number; turns: number }>;
   byPerson: Array<{ name: string; cost: number; turns: number }>;
+  byFeature: Array<{ feature: string; cost: number; turns: number }>;
   recent: RecentTurn[];
 }
 
@@ -140,7 +142,7 @@ export default function AdminUsagePage() {
 
   if (!data) return null;
 
-  const { summary, byDay, byPerson, recent } = data;
+  const { summary, byDay, byPerson, byFeature, recent } = data;
 
   const tile = (label: string, value: string, sub?: string) => (
     <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
@@ -224,6 +226,29 @@ export default function AdminUsagePage() {
           {tile("Output", `${formatNum(summary.tokens.output)} tok`, "per period")}
         </div>
 
+        {/* By feature */}
+        {byFeature.length > 0 && (
+          <section style={{ marginBottom: "40px" }}>
+            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By feature</div>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead><tr>
+                <th style={thStyle}>Feature</th>
+                <th style={thStyle}>Calls</th>
+                <th style={thStyle}>Cost</th>
+              </tr></thead>
+              <tbody>
+                {byFeature.map((f) => (
+                  <tr key={f.feature} style={{ borderBottom: "1px solid var(--rule)" }}>
+                    <td style={{ ...tdStyle, fontFamily: "var(--font-mono)", fontSize: "11px" }}>{f.feature}</td>
+                    <td style={tdStyle}>{f.turns}</td>
+                    <td style={tdStyle}>{formatCost(f.cost)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+
         {/* By person */}
         {byPerson.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
@@ -288,7 +313,7 @@ export default function AdminUsagePage() {
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap", fontSize: "11px" }}>
                     {formatTime(t.createdAt)}
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--muted)" }}>
-                      {t.person} · {t.promptVersion ?? "—"}
+                      {t.person} · {t.feature}{t.promptVersion ? ` · ${t.promptVersion}` : ""}
                     </div>
                   </td>
                   <td style={tdStyle}>{cacheBadge(t.cacheState)}</td>
