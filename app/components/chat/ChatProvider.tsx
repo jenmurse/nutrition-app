@@ -206,16 +206,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               ),
             );
           } else if (ev.type === "message_id" && ev.id) {
-            // Store dbId on the message. Don't rely on the string id having
-            // srv- prefix — there's a race if the user taps APPLY before
-            // the re-render that would upgrade the id.
-            const serverId = `srv-${ev.id}`;
+            // ONLY set dbId — do NOT rename the local id. Renaming was
+            // breaking subsequent text deltas: by the time frame N+1
+            // arrived, asstId had been reassigned to "srv-X" but the
+            // queued setMessages from frame N hadn't applied yet, so
+            // prev.map looked for "srv-X" in state that still had "a-{ts}".
+            // Result: text deltas couldn't find their target message and
+            // the UI stayed blank even though the SSE response was perfect.
+            //
+            // Keeping asstId as "a-{ts}" forever works fine — ConfirmCard
+            // and apply handlers use dbId (now reliably set) to PATCH, and
+            // history-loaded messages naturally use "srv-{N}" format.
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === asstId ? { ...m, id: serverId, dbId: ev.id } : m,
+                m.id === asstId ? { ...m, dbId: ev.id } : m,
               ),
             );
-            asstId = serverId;
           } else if (ev.type === "done") {
             setMessages((prev) =>
               prev.map((m) => (m.id === asstId ? { ...m, streaming: false } : m)),
