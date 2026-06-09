@@ -937,7 +937,7 @@ Edge-to-edge full viewport.
 - Matrix grid: 7 columns, today's column tinted `--accent-l`.
 - Meal entries: ruled rows. Eyebrow (DINNER, LUNCH, etc.) → meal name (DM Sans) → kcal (mono). No card backgrounds, no rounded tiles.
 - Day kcal progress bar under each day number. Bar is always `--ok` green (or `--accent-btn` for today/selected); no semantic color state.
-- Sidebar (open via NUTRITION ›): hero kcal number + ruled nutrient rows (neutral `--muted` fill, `--err` red only for over-limit bars) + callout rows: `.err-chip` tinted for over-limit, `.warn-chip` plain ruled row for below-min. See §2e for the full nutrition panel color policy.
+- Daily totals strip below each column shows per-day nutrition inline (no slide-out sidebar). The classic-planner nutrition sidebar pattern was retired with `/meal-plans`. See §2e for the nutrition panel color policy (still applies — used by recipe detail bars and dashboard stats strip). The `.pl-right` CSS rules in globals.css are dead code from the classic planner — leave for a future sweep.
 
 #### Monthly strip (`.pl-strip`)
 
