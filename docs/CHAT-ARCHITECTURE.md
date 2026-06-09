@@ -10,15 +10,17 @@ For the visual spec see [`briefs/chat-v1.html`](../briefs/chat-v1.html). For the
 
 | | |
 |---|---|
-| **Status** | Gate 1 shipped (read-only). Gate 2 (single write), Gate 3 (bulk write), Gate 4 (mobile sheet) pending. |
-| **Model** | `claude-sonnet-4-6` — pinned in `lib/chat/anthropic.ts` as `MODEL`. |
+| **Status** | Gates 1–3 shipped (read + single write + bulk write + apply-template). Gate 4 (mobile sheet) shipped. Fully functional end-to-end. |
+| **Model** | `claude-sonnet-4-6` — pinned via `CHAT_MODEL = CHAT_MODEL_SONNET` in `lib/chat/anthropic.ts`. Haiku 4.5 also wired as `CHAT_MODEL_HAIKU` for easy A/B. See [Model comparison](#model-comparison-sonnet-46-vs-haiku-45). |
+| **System prompt** | `SYSTEM_PROMPT_V11` — versioned constant; bump on every prompt change so cache-hit telemetry stays interpretable. |
 | **Provider** | Anthropic API direct (`@anthropic-ai/sdk`). Not Vercel AI Gateway — we're on Railway. |
 | **Env var required** | `ANTHROPIC_API_KEY` on Railway + local `.env`. |
-| **History** | Server-persisted per person. Last 50 messages loaded into context. |
-| **Container** | Desktop right-docked overlay panel, 480px, portaled to `document.body`. Mobile sheet pending. |
+| **History** | Server-persisted per person. Last **20** messages loaded into context (was 50 — lowered to cut uncached input cost). |
+| **Container** | Desktop right-docked overlay (480px), portaled to `document.body`. Mobile bottom sheet. |
 | **Trigger** | `✦` glyph in ink, in TopNav (desktop) and MobileTopBar (mobile). |
-| **Streaming** | SSE. Real-time text deltas, tool-call markers, done/error events. |
-| **Friends-and-family cost** | $2–10/month total Anthropic spend. See [Cost & caching](#cost--caching). |
+| **Streaming** | SSE. `message_id` (frame 1) → text deltas / tool / proposal events → `done`. |
+| **Friends-and-family cost** | ~$0.02/turn Sonnet, ~$0.01/turn Haiku. See [Cost & caching](#cost--caching) and [Model comparison](#model-comparison-sonnet-46-vs-haiku-45). |
+| **Admin dashboard** | `/admin/usage` (password-gated). Shows cost per turn, cache state, tools fired, the verbatim prompt, and prompt version per row. |
 
 ---
 
@@ -409,7 +411,192 @@ Or via the app: open the chat panel, click clear (UI for this comes later — fo
 
 ### Changing the model
 
-In `lib/chat/anthropic.ts`, change `const MODEL`. Beware:
+In `lib/chat/anthropic.ts`, change `export const CHAT_MODEL`. Beware:
 - Switching to Opus 4.x triples input cost
 - Different models have different cache TTL behavior
 - The cache is model-scoped — first request after a model change writes fresh
+- The `model` column on `/admin/usage` shows which model each turn used, so you can compare A/B in the same window
+
+---
+
+## Model comparison: Sonnet 4.6 vs Haiku 4.5
+
+Tested side-by-side June 2026 with the same multi-step session: sodium analysis + 3 swaps + meal plan modifications.
+
+| Metric | Sonnet 4.6 | Haiku 4.5 |
+|---|---|---|
+| Turns to complete same task | 6 | 11 |
+| Total session cost | $0.14 | $0.10 |
+| Avg cost/turn | $0.023 | $0.009 |
+| Stale meal_log_id errors | 0 | 1 (self-recovered via V11 prompt) |
+| User-side cancellations needed | 0 | 2 |
+| Pricing (per MTok) | $3 in / $15 out | $1 in / $5 out |
+
+**Per-turn Haiku is ~3x cheaper, but Haiku takes ~2x the turns** for complex chains because:
+- More cautious — asks clarifying questions instead of proposing decisively
+- Less likely to suggest templates when user hints at them
+- Sometimes grabs stale IDs from earlier in conversation (V11 prompt teaches it to re-fetch)
+- Strategy tends toward removes; Sonnet finds optimal swaps faster
+
+**Net cost savings is closer to 30%, not 3x** when measured on real multi-step sessions.
+
+### When to use which
+
+- **Sonnet 4.6 (current default)** — friends-and-family testing, pre-launch, any quality-sensitive flow. The conversation friction with Haiku is annoying when you're trying to demo or test.
+- **Haiku 4.5** — switch when you have ≥50 DAUs and the cost compounds, AND you have an eval harness to verify proposal quality doesn't regress on real prompts.
+
+The flip is one line in `anthropic.ts`. Both models work with the same prompt, tools, and cache strategy.
+
+---
+
+## Operational lessons (bugs hit and fixed)
+
+This is the running record of every non-trivial bug we ran into while building the chat. Read this before adding new read/write tools or changing the SSE protocol — most of these are easy to re-introduce by accident.
+
+### 1. Stop renaming local message ids on `message_id` arrival ⚠️
+
+**Symptom:** Network tab shows a perfect SSE response (text deltas, proposal events). UI shows the "GOOD MEASURE" speaker label but no body text — completely blank message.
+
+**Root cause:** When the server emitted `message_id`, the client renamed `messages[i].id` from local `a-{timestamp}` → server `srv-{N}`. Subsequent text deltas tried `prev.map(m => m.id === asstId ? ...)` where `asstId` had been reassigned to `srv-{N}`. React's setState batching meant `prev` still had the old `a-{ts}` id — the match failed, the text delta was silently dropped, the message stayed blank.
+
+**Fix:** Never rename the local id. Only set the `dbId` field. Apply/cancel handlers use `dbId` to PATCH the DB row.
+
+**Lesson:** If you must mutate an identifier mid-stream, do it in a way that doesn't race with already-queued state updates. Two parallel fields (display id + DB id) is safer than renaming.
+
+### 2. Persistence-after-refresh: place `message_id` first, not last
+
+**Symptom:** Confirm cards still showed as "pending" with APPLY/CANCEL buttons after apply + refresh, instead of as "Applied" acks.
+
+**Root cause:** We waited until the SSE stream completed before persisting the assistant ChatMessage row and emitting `message_id` as the **last** frame. If anything cut the connection in the final milliseconds (proxy timeout, browser buffering, fast network close), the id was lost. Without `dbId`, the client couldn't PATCH the proposal status when the user tapped APPLY.
+
+**Fix:** Create a placeholder ChatMessage row at the **start** of the stream. Emit `message_id` as the **first** SSE frame. Update the row at the end with content + proposal. If no content gets produced (rare error path), delete the placeholder in finally so history isn't polluted.
+
+**Lesson:** Anything that the client needs in order to act on later events must arrive in the **first** frame, not the last. The "last frame" position is the most vulnerable to connection issues.
+
+### 3. Don't block the stream on the placeholder write
+
+**Symptom:** "Thinking..." indicator hangs for many seconds; no text appears. Cold Railway connection + cold Prisma made the placeholder write take 2–5s before the model stream even started.
+
+**Fix:** Fire the placeholder write as a Promise (not awaited). Start `runChatTurn` immediately. Emit `message_id` whenever the placeholder write resolves. Both run in parallel. The `finally` block awaits the promise before trying to update/delete the row.
+
+**Lesson:** Sequential awaits inside `ReadableStream.start()` will silently delay everything downstream. If two operations don't depend on each other, race them.
+
+### 4. Service worker was strangling /api/chat
+
+**Symptom:** Chat hangs indefinitely. Network tab shows `/api/chat` request but no response, or no request at all.
+
+**Root cause:** `public/sw.js` was wrapping all `/api/*` requests in `networkFirst`. For streaming SSE responses, `networkFirst` does `cache.put(request, fresh.clone())`. The `.clone()` forks the body stream; `cache.put` then fails silently for POSTs (Cache API rejects them) — but the body has already been forked and the original Response's body never completes streaming.
+
+**Fix:** In `sw.js`, pass through to native fetch for:
+- `/api/chat` (SSE streaming, body fork breaks it)
+- `/api/health` (offline indicator probe)
+- All non-GET API requests (POST/PATCH/DELETE — Cache API rejects them anyway)
+
+Also bumped `CACHE_VERSION` v1→v2 to force SW update on next page load.
+
+**Lesson:** Service workers and SSE streams interact in non-obvious ways. Always bypass the SW for any streaming endpoint. Cache API CANNOT cache POST requests — wrapping them is pure overhead with silent failure modes.
+
+### 5. Tool macro fabrication — give the model real numbers or it makes them up
+
+**Symptom:** Model said "this template drops sodium to 1435mg" but the actual planner showed 1968mg after apply. Different days off by 30–500mg.
+
+**Root cause:** `proposeApplyTemplate` returned the item list but **no nutrition data**. The model invented totals from rough recipe memory in the context block. Haiku is more prone to this than Sonnet.
+
+**Fix:** Compute real macros in `proposeApplyTemplate` — sum per-item macros from `getRecipeMacros` + (mode='append' ? existing day's macros : 0). Return as `summaryMacros`. V10+ prompt explicitly forbids inventing macros: "If a propose_* tool returns summaryMacros, quote them exactly. If the tool didn't return numbers, don't claim any."
+
+**Lesson:** If you don't want the model to fabricate a number, give it the real one in the tool result. Prompting alone doesn't stop hallucination — only providing the ground truth does.
+
+### 6. One proposal per turn (server-side guard, not just prompt)
+
+**Symptom:** User asked for "swap dinner AND dessert." Model called `propose_swap_meal` twice in one turn. Client stored one `proposalJson` per assistant message → second proposal overwrote the first. User saw only one card and thought the assistant ignored the dessert request.
+
+**Fix:** Two layers:
+- **Prompt (V10+):** "One proposal per turn. Call exactly one propose_* tool per response, then write one sentence and stop."
+- **Server guard (`anthropic.ts`):** Track `proposalEmitted` across the whole tool-use loop. If the model fires a second propose_* call, short-circuit the tool with a synthetic error telling it to defer and stop. Defense in depth — even if the prompt fails, the user always sees exactly one card per turn.
+
+Exception: `propose_fill_week` is designed for multi-meal adds in a single card.
+
+**Lesson:** Prompts alone don't enforce constraints. If something is critical (would corrupt user-visible state), guard it server-side too.
+
+### 7. Auto-continue across chains — wording matters
+
+**Symptom:** After applying a swap in a multi-step request, the user had to manually re-prompt for the next change. Chain didn't auto-advance.
+
+**Fix v1:** After every successful apply, client auto-sends `"Applied."` as a follow-up user message. Model sees the ack and proposes the next item.
+
+**Fix v2:** "Applied." alone read as a stop signal half the time — model would ack-and-stop instead of continuing. Changed to: `"Applied. If there are more changes from my original request, propose the next one. Otherwise just confirm we're done."` Now the directive is unambiguous.
+
+**Lesson:** Conversational auto-prompts must be directive, not ambiguous. Test against actual model behavior — what sounds clear to a human may not be clear to an LLM under load.
+
+### 8. Stale `meal_log_id` after apply
+
+**Symptom:** Model proposes a swap for Friday dinner referencing `meal_log_id 1556`. User applies. In the next turn, model uses the OLD `meal_log_id` for the same slot and the API returns "Meal log not found."
+
+**Fix:** V11 prompt — "Call `get_meal_plan_week` IMMEDIATELY before each propose_* tool. After any apply, previous meal_log_ids are stale. Never rely on IDs from earlier in the conversation."
+
+Combined with proposal guard, the model now self-corrects: if its propose fires with a stale id and the tool returns an error, it tells the user to tap CANCEL and re-proposes from a fresh fetch.
+
+**Lesson:** IDs that change as a side effect of writes are dangerous to cache in conversation memory. Force fresh fetches.
+
+### 9. Cache prefix design — what goes in stays cached, what changes goes out
+
+**Symptom:** Cache hit rate stuck at ~66%. Every planner edit invalidated the cached prefix and forced a $0.03+ rewrite on the next chat turn.
+
+**Root cause:** The "stable context" cached block included every household member's day-by-day meal plan. The planner is the most-edited data in the app, so the cache invalidated constantly.
+
+**Fix:** Split context into two formatters:
+- `formatStableContextForPrompt` (cached, 1h TTL): members + goals, plan_ids + weekStartDate, recipes, pantry, templates
+- `formatWeeklyPlansForPrompt` (uncached, per-turn): each member's day-by-day meal contents
+
+The cached prefix now stays valid through planner edits. Only recipe/pantry/template/goal changes invalidate it — which happens infrequently.
+
+**Lesson:** The cache key is the entire prefix. Anything you put before the cache marker should change rarely. Anything that changes mid-session must live after the marker, even if it's "logically system context."
+
+### 10. Multiple Anthropic features need usage logging, not just chat
+
+**Symptom:** Admin dashboard total cost didn't match Anthropic's dashboard. Off by 30%+.
+
+**Root cause:** Only `/api/chat` was logging to `ApiUsageLog`. Other Anthropic-billed endpoints (`/api/recipes/[id]/analyze`, `/api/ai/analyze`) were either not logging or logging without proper `feature` tags + cost computation.
+
+**Fix:** Every Anthropic call site now writes to `ApiUsageLog` with `feature` tag (`chat` / `recipe_analyze` / `ai_analyze`) and computed `estimatedCostUsd`. Admin endpoint defaults to all features summed.
+
+**Lesson:** If you add a new Anthropic call anywhere, log it the same way — same `ApiUsageLog` table, set `feature`, compute cost. Otherwise the admin dashboard drifts from billing reality.
+
+---
+
+## Auto-refresh: notifying other pages of writes
+
+When the chat applies a change, other pages showing meal-plan data (currently `/planner`) need to refetch. We use a window-scoped CustomEvent:
+
+```typescript
+// In ChatProvider.tsx, after a successful apply:
+window.dispatchEvent(new CustomEvent("gm:meal-plan-changed"));
+
+// In any page that should auto-refresh:
+useEffect(() => {
+  const handler = () => { void reloadData(); };
+  window.addEventListener("gm:meal-plan-changed", handler);
+  return () => window.removeEventListener("gm:meal-plan-changed", handler);
+}, [/* deps */]);
+```
+
+Currently wired: `/planner`. Not yet wired: `/home` (dashboard), `/shopping` — add the listener there if needed. Cross-tab updates would need `BroadcastChannel` instead.
+
+---
+
+## Adding a new tool — checklist
+
+When you add a new tool (read or write) to the chat, walk through this list:
+
+1. **Define the tool in `lib/chat/tools.ts`** with `strict: true` and `additionalProperties: false` on its schema. Use `enum` for any constrained string field.
+2. **Implement the handler** in `runChatTool`. Validate inputs even with `strict: true` — defense in depth.
+3. **If it's a write (`propose_*` naming):**
+   - Return a `MealProposal` or `BulkMealProposal` matching the existing shape
+   - Include real macros (`summaryMacros` or `macroDeltas`) — never let the model invent them
+   - Wire it into the proposal flow in `ChatProvider.tsx` if the apply needs special handling
+4. **Update the system prompt** with one sentence describing when to call this tool. Keep it short — Sonnet/Haiku 4.x dislike verbose tool descriptions in the system prompt.
+5. **Bump `SYSTEM_PROMPT_V{N+1}`** if the prompt changed, and update the `promptVersion` string passed to `logChatUsage`.
+6. **Test with both Sonnet AND Haiku.** What works on Sonnet may need clarification on Haiku.
+7. **Check the admin dashboard** after a few test turns — does the tool name appear in the `tools` column? Are costs reasonable?
+
+If any of these get skipped, refer back to the "Operational lessons" above — the bugs there are mostly cases of one of these steps being skipped.
