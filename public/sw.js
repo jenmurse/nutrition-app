@@ -16,7 +16,7 @@
  * Bump CACHE_VERSION on schema-breaking changes to evict old caches on next load.
  */
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const PAGE_CACHE     = `gm-pages-${CACHE_VERSION}`;
 const ASSET_CACHE    = `gm-assets-${CACHE_VERSION}`;
 const API_CACHE      = `gm-api-${CACHE_VERSION}`;
@@ -56,12 +56,20 @@ self.addEventListener("fetch", (event) => {
   const sameOrigin = url.origin === self.location.origin;
 
   // 1. API requests — network-first, cache fallback
-  //    EXCEPT /api/health which the offline indicator uses to probe
-  //    reachability — it must hit the real network or fail cleanly.
+  //    EXCEPT:
+  //    - /api/health: offline indicator probe, must hit real network
+  //    - /api/chat:  SSE streaming endpoint. networkFirst calls .clone()
+  //      on the response which forks the body stream and can hang the
+  //      live stream. Pass through to the browser's native fetch.
+  //    - Non-GET requests: Cache API rejects POST/PATCH/DELETE in put(),
+  //      and there's no value in caching writes anyway.
   if (sameOrigin && url.pathname.startsWith("/api/")) {
-    if (url.pathname === "/api/health") {
-      // Pass through to the browser's default fetch; no caching.
-      return;
+    if (
+      url.pathname === "/api/health" ||
+      url.pathname.startsWith("/api/chat") ||
+      request.method !== "GET"
+    ) {
+      return; // pass through to default fetch
     }
     event.respondWith(networkFirst(request, API_CACHE));
     return;
