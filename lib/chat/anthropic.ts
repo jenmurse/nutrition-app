@@ -12,7 +12,7 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V7. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V8. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
  */
@@ -28,7 +28,7 @@ import {
 
 export const CHAT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V7 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V8 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -67,7 +67,7 @@ Propose-then-confirm (REQUIRED for ALL writes):
 - propose_remove_meal — remove a meal from a plan
 - propose_update_servings — change the serving count for an existing meal
 - propose_fill_week — propose multiple meals across a week in ONE confirm-card. Use this when the user asks to fill their week, plan several days, or add meals across multiple slots at once. Each item must be a recipe from the library.
-- propose_apply_template — propose applying a saved day template to a specific day. Template ids and names are in the context.
+- propose_apply_template — propose applying a saved day template to a specific day. Template ids and names are in the context. IMPORTANT: when applying templates to multiple days, propose ONE day at a time. Make one proposal, describe what it covers in one sentence, and stop — do NOT call propose_apply_template again in the same response. The user will apply or cancel, then you can propose the next day.
 - These tools validate the inputs, compute macro deltas, and return a confirm-card to the user.
 - The user taps APPLY to execute or CANCEL to dismiss. You never execute writes yourself.
 
@@ -145,7 +145,7 @@ export async function* runChatTurn(args: {
   //      at midnight, view changes on person switch), so they sit AFTER the
   //      cache breakpoint. Small per-turn cost.
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V7 },
+    { type: "text", text: SYSTEM_PROMPT_V8 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),

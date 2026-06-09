@@ -252,9 +252,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   /** Persist proposal status to DB. Returns a Promise so callers can await before navigating. */
   const persistProposalStatus = useCallback(
     async (messageId: string, status: "applied" | "cancelled", explicitDbId?: number): Promise<void> => {
-      const dbId = explicitDbId ?? messages.find((m) => m.id === messageId)?.dbId;
+      // Three ways to get dbId, in order of preference:
+      // 1. Explicit param (avoids stale closure)
+      // 2. dbId field on the message
+      // 3. Parse from srv-{N} id format as last resort
+      const msg = messages.find((m) => m.id === messageId);
+      const parsedFromId = messageId.startsWith("srv-") ? Number(messageId.slice(4)) : NaN;
+      const dbId = explicitDbId ?? msg?.dbId ?? (Number.isFinite(parsedFromId) ? parsedFromId : undefined);
       if (!dbId) {
-        console.warn("[chat] persistProposalStatus: no dbId on message", messageId, "— status won't persist");
+        console.warn("[chat] persistProposalStatus: no dbId for", messageId, "— status won't persist across refresh");
         return;
       }
       await fetch("/api/chat/history", {
