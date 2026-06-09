@@ -68,13 +68,14 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
     name: "propose_add_meal",
     description:
       "Propose adding a meal to someone's plan. " +
-      "Call get_meal_plan_week first to confirm the day's plan_id. " +
+      "plan_id is OPTIONAL — if omitted, the tool looks up the correct plan for the given date automatically. " +
+      "If no plan exists for that week the tool returns an error immediately (no need to ask clarifying questions first). " +
       "For a recipe-based meal provide recipe_id; for an ingredient provide ingredient_id + servings; " +
       "for an eating-out placeholder provide external_label (can be empty string).",
     input_schema: {
       type: "object",
       properties: {
-        plan_id: { type: "number", description: "The meal plan id to add to." },
+        plan_id: { type: "number", description: "The meal plan id (optional — tool will look it up by date if not provided)." },
         person_id: { type: "number", description: "The person_id whose plan this is." },
         date: { type: "string", description: "YYYY-MM-DD — the specific day." },
         meal_type: { type: "string", description: "breakfast | lunch | dinner | snack | side | dessert | beverage" },
@@ -382,10 +383,19 @@ async function getMealPlanWeek(planId: number, householdId: number) {
     });
   }
 
-  const daysWithMeals = days.map((d) => ({
-    ...d,
-    meals: mealsByDate.get(d.date) ?? [],
-  }));
+  const WEEKDAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const daysWithMeals = days.map((d) => {
+    // Include the weekday name so the model can reliably match
+    // "Wednesday's lunch" to the correct date without mental date math.
+    const dt = new Date(d.date + "T00:00:00Z");
+    const weekday = WEEKDAYS[dt.getUTCDay()];
+    return {
+      ...d,
+      weekday,
+      date_label: `${weekday} ${d.date}`, // e.g. "Wednesday 2026-06-10"
+      meals: mealsByDate.get(d.date) ?? [],
+    };
+  });
 
   return {
     plan_id: plan.id,
@@ -473,7 +483,7 @@ async function proposeAddMeal(
   i: Record<string, unknown>,
   ctx: { personId: number; householdId: number },
 ): Promise<MealProposal | { error: string }> {
-  const planId = i.plan_id as number;
+  const inputPlanId = i.plan_id as number | undefined;
   const personId = i.person_id as number;
   const date = i.date as string;
   const mealType = i.meal_type as string;
@@ -483,12 +493,35 @@ async function proposeAddMeal(
   const servings = (i.servings as number) || 1;
   const unit = i.unit as string | undefined;
 
-  // Validate plan belongs to household
+  // If no plan_id provided, find the plan that covers this date for this person.
+  // Fail fast before asking clarifying questions.
+  let resolvedPlanId = inputPlanId;
+  if (!resolvedPlanId) {
+    const dateParsed = new Date(date + "T00:00:00Z");
+    if (isNaN(dateParsed.getTime())) return { error: `Invalid date: ${date}` };
+    // Find the week-start (Sunday) for this date
+    const dayOfWeek = dateParsed.getUTCDay(); // 0=Sun
+    const weekStart = new Date(dateParsed);
+    weekStart.setUTCDate(weekStart.getUTCDate() - dayOfWeek);
+    const existingPlan = await prisma.mealPlan.findFirst({
+      where: { personId, weekStartDate: weekStart },
+      select: { id: true },
+    });
+    if (!existingPlan) {
+      const weekLabel = weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+      return {
+        error: `No meal plan exists for the week of ${weekLabel}. The user needs to create a plan for that week in the app first (Planner → + NEW PLAN), then you can add meals to it.`,
+      };
+    }
+    resolvedPlanId = existingPlan.id;
+  }
+
   const plan = await prisma.mealPlan.findFirst({
-    where: { id: planId, householdId: ctx.householdId },
+    where: { id: resolvedPlanId, householdId: ctx.householdId },
     select: { id: true, personId: true },
   });
-  if (!plan) return { error: `Plan ${planId} not found in your household.` };
+  if (!plan) return { error: `Plan ${resolvedPlanId} not found in your household.` };
+  const planId = resolvedPlanId!;
 
   const person = await resolvePerson(personId || plan.personId, ctx.householdId);
   if (!person) return { error: `Person not found.` };
