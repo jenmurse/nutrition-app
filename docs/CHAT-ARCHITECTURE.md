@@ -283,6 +283,33 @@ After Gate 4 ships:
 - Rate-limit middleware if/when app goes public
 - Privacy policy update (one paragraph noting chat content + lightweight data goes to Anthropic API)
 
+### Queued chat UX improvements
+
+These came up during Gate 1 testing — small, can ship independently of Gates 2–4:
+
+- **Clear conversation button** in panel header. Endpoint already exists (`DELETE /api/chat/history`); just needs a UI affordance. Confirm dialog before wiping.
+- **Rolling cap on stored messages.** DB grows unbounded today. Cap per-person at, say, 500 rows; trim oldest on insert. Each row is ~1KB so not urgent until usage scales.
+- **Session dividers / timestamps in history.** "2 days ago" hairline rules between conversations so the panel reads as multiple distinct sessions, not one infinite scroll.
+- **Richer in-app context (instead of MCP-style context files).** The MCP integration lets users drop arbitrary `.md` files in front of Claude Desktop; the in-app chat can't, so any persistent context has to live in the app. Worth considering — see [Persistent context options](#persistent-context-options) below.
+
+### Persistent context options
+
+The MCP workflow lets a user drop a `.md` brief in front of Claude Desktop and have it influence every conversation. The in-app chat doesn't have that lever — anything not stored as structured data in the app is invisible to the model. Things worth considering for v2 of the context block:
+
+| Candidate | Why | Where it'd live |
+|---|---|---|
+| **Per-person "about me" note** | Free-text: dietary preferences ("I don't eat pork"), training context ("strength training 3×/week, on a cut"), constraints ("breastfeeding so calorie floor is higher"). One paragraph the user owns. | New `Person.aboutMe` text field. Surface in Settings → Profile. Injected into the system prompt. |
+| **Recent meal logs (last 14 days)** | Lets the model answer "what have I been eating lately?" without a giant query. | Already in DB; add to context block. ~30–50 entries, ~3KB. |
+| **Favorite recipes** | Heavy signal for "suggest something" type questions. Model should weight favorites higher. | Already in DB (`RecipeFavorite`). Mark in the recipe slice with a `★` or a `favorited: true` flag. |
+| **Day templates** | "Apply Workout Day to Friday" reads better when the model knows your templates exist. | Already in DB (`DayTemplate`). Add a slim list to context: name + meal count. |
+| **Recent optimization notes** | Recipe-detail-level notes the user has saved. Surfaces history like "I cut the miso paste in half last time." | Already in DB (`Recipe.optimizeAnalysis`). Could surface in `get_recipe` tool response. |
+| **Person-level conversation summary** | After N turns, summarize older history into a "what we've discussed" block. Lets the model remember earlier without the full transcript bloating context. | New `Person.chatSummary` text field, updated by a background job after every 20 turns or so. |
+| **Household preferences** | Shared facts: "we cook for 4 people on weeknights, 2 on weekends." | New `Household.preferences` text. |
+
+The pattern: every candidate is **structured app data**, not arbitrary user-uploaded files. The model gets the structure, not the file. This stays consistent with the editorial restraint of the app (no file upload chrome, no "manage your context files" UI surface) and keeps the context block deterministic for caching.
+
+**Open question:** how much context is too much? Right now the lightweight context is ~10–15K tokens. Adding "about me" + favorites markers + 14 days of meal logs would push it to ~20–25K. Still well within Sonnet's window, still well within caching minimums, but worth measuring per-turn cost before committing.
+
 ---
 
 ## Operational notes
