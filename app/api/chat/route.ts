@@ -98,9 +98,12 @@ export async function POST(req: NextRequest) {
         );
       } finally {
         // Persist the assistant message with proposal data if present.
+        // Emit the DB-assigned id back to the client so it can upgrade its
+        // local `a-{timestamp}` id to `srv-{N}` — required for status updates
+        // (APPLY/CANCEL) to persist correctly via the history PATCH endpoint.
         if (assistantText || proposal) {
-          await prisma.chatMessage
-            .create({
+          try {
+            const saved = await prisma.chatMessage.create({
               data: {
                 personId: auth.personId,
                 role: "assistant",
@@ -108,8 +111,15 @@ export async function POST(req: NextRequest) {
                 proposalJson: proposal ? JSON.stringify(proposal) : null,
                 proposalStatus: proposal ? "pending" : null,
               },
-            })
-            .catch((e) => console.error("Failed to persist assistant message:", e));
+            });
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "message_id", id: saved.id })}\n\n`,
+              ),
+            );
+          } catch (e) {
+            console.error("Failed to persist assistant message:", e);
+          }
         }
         await logChatUsage({
           personId: auth.personId,

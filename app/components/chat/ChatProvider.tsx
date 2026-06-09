@@ -112,7 +112,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       role: "user",
       content: trimmed,
     };
-    const asstId = `a-${Date.now()}`;
+    let asstId = `a-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
       userMsg,
@@ -169,7 +169,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           if (!line.startsWith("data:")) continue;
           const json = line.slice(5).trim();
           if (!json) continue;
-          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal };
+          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal; id?: number };
           try { ev = JSON.parse(json); } catch { continue; }
 
           if (ev.type === "text" && ev.delta) {
@@ -199,6 +199,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                   : m,
               ),
             );
+          } else if (ev.type === "message_id" && ev.id) {
+            // Upgrade the local id to the DB-assigned id so APPLY/CANCEL
+            // can persist the status via the history PATCH endpoint.
+            const serverId = `srv-${ev.id}`;
+            setMessages((prev) =>
+              prev.map((m) => (m.id === asstId ? { ...m, id: serverId } : m)),
+            );
+            // Also update asstId so subsequent events target the right message.
+            asstId = serverId;
           } else if (ev.type === "done") {
             setMessages((prev) =>
               prev.map((m) => (m.id === asstId ? { ...m, streaming: false } : m)),

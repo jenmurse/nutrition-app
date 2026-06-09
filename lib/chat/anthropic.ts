@@ -105,6 +105,7 @@ export type ChatStreamEvent =
   | { type: "tool_start"; name: string }
   | { type: "tool_done"; name: string }
   | { type: "proposal"; data: MealProposal }
+  | { type: "message_id"; id: number }  // DB id for the persisted assistant message
   | { type: "done"; usage?: Anthropic.Usage }
   | { type: "error"; message: string };
 
