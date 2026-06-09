@@ -29,6 +29,10 @@ export interface ChatMessage {
   // Gate 2: proposal attached to an assistant message
   proposal?: MealProposal;
   proposalStatus?: "pending" | "applied" | "cancelled";
+  /** DB-assigned id — set when message_id SSE event arrives or loaded from history.
+   *  Used for status persistence; separate from the React `id` so there's no
+   *  race between the id upgrade and the user tapping APPLY/CANCEL. */
+  dbId?: number;
 }
 
 interface ChatState {
@@ -83,9 +87,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           data.messages.map(
             (m: { id: number; role: string; content: string; proposalJson?: string | null; proposalStatus?: string | null }) => ({
               id: `srv-${m.id}`,
+              dbId: m.id,
               role: m.role as "user" | "assistant",
               content: m.content,
-              // Restore proposal and its persisted status (if any).
               proposal: m.proposalJson ? JSON.parse(m.proposalJson) as MealProposal : undefined,
               proposalStatus: (m.proposalStatus as ChatMessage["proposalStatus"]) ?? undefined,
             }),
@@ -200,13 +204,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               ),
             );
           } else if (ev.type === "message_id" && ev.id) {
-            // Upgrade the local id to the DB-assigned id so APPLY/CANCEL
-            // can persist the status via the history PATCH endpoint.
+            // Store dbId on the message. Don't rely on the string id having
+            // srv- prefix — there's a race if the user taps APPLY before
+            // the re-render that would upgrade the id.
             const serverId = `srv-${ev.id}`;
             setMessages((prev) =>
-              prev.map((m) => (m.id === asstId ? { ...m, id: serverId } : m)),
+              prev.map((m) =>
+                m.id === asstId ? { ...m, id: serverId, dbId: ev.id } : m,
+              ),
             );
-            // Also update asstId so subsequent events target the right message.
             asstId = serverId;
           } else if (ev.type === "done") {
             setMessages((prev) =>
@@ -241,20 +247,21 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
-  /** Persist proposal status to DB (fire-and-forget). */
+  /** Persist proposal status to DB using the message's dbId (fire-and-forget). */
   const persistProposalStatus = useCallback(
     (messageId: string, status: "applied" | "cancelled") => {
-      const numericId = messageId.startsWith("srv-")
-        ? Number(messageId.slice(4))
-        : NaN;
-      if (isNaN(numericId)) return;
+      // Use dbId from the message if available — avoids the race condition
+      // where the user taps before the id is upgraded to srv-N.
+      const msg = messages.find((m) => m.id === messageId);
+      const dbId = msg?.dbId;
+      if (!dbId) return;
       fetch("/api/chat/history", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: numericId, proposalStatus: status }),
+        body: JSON.stringify({ id: dbId, proposalStatus: status }),
       }).catch(() => { /* best-effort */ });
     },
-    [],
+    [messages],
   );
 
   const applyProposal = useCallback(async (messageId: string) => {

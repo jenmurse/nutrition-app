@@ -84,10 +84,15 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
   if (status === "applied") {
     return (
       <div className="ck-ack">
-        Applied — {personLabel}&rsquo;s {label.toLowerCase()} updated.{" "}
-        {proposal.type !== "remove" && (
-          <a href="/planner">View in planner →</a>
-        )}
+        Applied &mdash; {personLabel}&rsquo;s {label.toLowerCase()}{" "}
+        {proposal.type === "remove" ? "removed." :
+         proposal.type === "add" ? "updated." :
+         proposal.type === "swap" ? "swapped." : "updated."}{" "}
+        {/* Force a full reload so the planner shows the change immediately
+            (soft navigation won't refetch the already-mounted planner). */}
+        <a href="/planner" onClick={() => { window.location.href = "/planner"; return false; }}>
+          View in planner →
+        </a>
       </div>
     );
   }
