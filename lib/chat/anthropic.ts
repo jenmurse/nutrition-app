@@ -29,7 +29,7 @@ import {
 // Switch to CHAT_MODEL_HAIKU to run a cost test. Haiku is ~3x cheaper;
 // quality on tool-use + proposals is close but worth validating before committing.
 export const CHAT_MODEL_SONNET = "claude-sonnet-4-6";
-export const CHAT_MODEL_HAIKU  = "claude-3-5-haiku-20241022";
+export const CHAT_MODEL_HAIKU  = "claude-haiku-4-5";
 export const CHAT_MODEL = CHAT_MODEL_HAIKU;
 const MAX_TOKENS = 4096;
 export const SYSTEM_PROMPT_V8 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
