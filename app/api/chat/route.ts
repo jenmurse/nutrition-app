@@ -37,9 +37,23 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // The client passes the currently-selected person ID (from PersonContext).
+  // We validate it belongs to the same household — never trust client input
+  // for cross-household reads. Fall back to the logged-in person if missing
+  // or invalid.
+  let viewingPersonId = auth.personId;
+  const rawViewingId = Number(body?.viewingPersonId);
+  if (Number.isInteger(rawViewingId) && rawViewingId > 0 && rawViewingId !== auth.personId) {
+    const member = await prisma.householdMember.findFirst({
+      where: { householdId: auth.householdId, personId: rawViewingId, active: true },
+      select: { personId: true },
+    });
+    if (member) viewingPersonId = rawViewingId;
+  }
+
   const [history, context] = await Promise.all([
     loadHistory(auth.personId),
-    buildContext(auth.personId, auth.householdId),
+    buildContext(auth.personId, viewingPersonId, auth.householdId),
   ]);
 
   // Persist the user message before streaming so a network drop mid-response

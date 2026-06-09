@@ -57,9 +57,36 @@ export default function PrivacyPage() {
             </p>
           </Section>
 
-          <Section heading="AI integration (optional)">
+          <Section heading="Household sharing">
             <p style={bodyStyle}>
-              Good Measure includes an optional MCP integration for use with any MCP-compatible AI agent. If you use this feature, your recipe and nutrition data is accessed by your own AI agent using a token you control. Good Measure does not send your data to any AI service on your behalf. Data shared with your AI agent during a session is subject to that agent&rsquo;s own privacy policy.
+              Good Measure is built around households. When you create an account, you can invite other people to join your household. Each person you invite either signs in with their own account or is set up as a <strong style={{ color: "var(--fg)", fontWeight: 600 }}>tracked-only profile</strong> &mdash; useful for tracking children, for example, where one parent manages the data and the child has no login.
+            </p>
+            <p style={{ ...bodyStyle, marginTop: 12 }}>
+              Within a household, recipes and pantry ingredients are <strong style={{ color: "var(--fg)", fontWeight: 600 }}>shared by all members</strong>. Nutrition goals and meal plans are <strong style={{ color: "var(--fg)", fontWeight: 600 }}>per-person but visible to all household members</strong> &mdash; so any signed-in member can see and edit any other member&rsquo;s plan. This is the design model; it&rsquo;s not a privacy gap.
+            </p>
+            <p style={{ ...bodyStyle, marginTop: 12 }}>
+              If the household model isn&rsquo;t right for you (e.g. you want your data fully private from other adults), don&rsquo;t accept a household invitation &mdash; create a separate account instead.
+            </p>
+          </Section>
+
+          <Section heading="In-app AI chat">
+            <p style={bodyStyle}>
+              Good Measure includes an in-app AI chat assistant. When you use it, your messages and a structured summary of your kitchen data (recipe names, nutrition goals, current week&rsquo;s plan, pantry summary) are sent to{" "}
+              <a href="https://www.anthropic.com" target="_blank" rel="noopener noreferrer" style={linkStyle}>Anthropic</a>
+              {" "}via their API to generate the response. Anthropic does not train on API traffic and retains it briefly for abuse monitoring per their{" "}
+              <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank" rel="noopener noreferrer" style={linkStyle}>commercial terms</a>.
+            </p>
+            <p style={{ ...bodyStyle, marginTop: 12 }}>
+              Your conversation history is also stored in Good Measure&rsquo;s database so you can pick up where you left off across sessions. You can clear your conversation at any time, and deleting your account erases your chat history immediately.
+            </p>
+            <p style={{ ...bodyStyle, marginTop: 12 }}>
+              Within a household, the chat can read and write data for any household member, mirroring the household sharing model above. The chat does not expose any data the rest of the app doesn&rsquo;t already make visible to household members.
+            </p>
+          </Section>
+
+          <Section heading="AI integration via MCP (optional, advanced)">
+            <p style={bodyStyle}>
+              Beyond the in-app chat, Good Measure also exposes an optional MCP integration for use with any MCP-compatible AI agent (e.g. Claude Desktop). If you set this up, your recipe and nutrition data is accessed by your own AI agent using a token you control. Good Measure does not send your data to any AI service on your behalf in this mode. Data shared with your AI agent during a session is subject to that agent&rsquo;s own privacy policy.
             </p>
           </Section>
 

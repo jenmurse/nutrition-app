@@ -90,7 +90,9 @@ export async function runChatTool(
       case "get_recipe":
         return await getRecipe(i.recipe_id as number, ctx.householdId);
       case "get_meal_plan_week":
-        return await getMealPlanWeek(i.plan_id as number, ctx.personId);
+        // Any meal plan within the user's household is readable. Plans are
+        // not private — household members share read access by design.
+        return await getMealPlanWeek(i.plan_id as number, ctx.householdId);
       case "search_ingredients":
         return await searchIngredients(i.query as string, ctx.householdId);
       default:
@@ -161,10 +163,12 @@ async function getRecipe(recipeId: number, householdId: number) {
   };
 }
 
-async function getMealPlanWeek(planId: number, personId: number) {
+async function getMealPlanWeek(planId: number, householdId: number) {
+  // Verify plan belongs to a household member, then load.
   const plan = await prisma.mealPlan.findFirst({
-    where: { id: planId, personId },
+    where: { id: planId, householdId },
     include: {
+      person: { select: { id: true, name: true } },
       mealLogs: {
         include: {
           recipe: {
@@ -229,8 +233,10 @@ async function getMealPlanWeek(planId: number, personId: number) {
     }
   }
 
+  // Goals are per-person; pull from the plan's owner so we compare
+  // each day's totals against the right person's targets.
   const goals = await prisma.globalNutritionGoal.findMany({
-    where: { personId },
+    where: { personId: plan.personId ?? undefined },
     include: { nutrient: true },
   });
   const goalsByName: Record<string, { low: number | null; high: number | null; unit: string }> = {};
@@ -263,6 +269,7 @@ async function getMealPlanWeek(planId: number, personId: number) {
 
   return {
     plan_id: plan.id,
+    person: plan.person ? { id: plan.person.id, name: plan.person.name } : null,
     week_start: plan.weekStartDate.toISOString().slice(0, 10),
     days,
     goals: goalsByName,

@@ -16,6 +16,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePersonContext } from "../PersonContext";
 
 export interface ChatMessage {
   id: string; // local id for React keys (server id once persisted)
@@ -56,6 +57,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [toolInFlight, setToolInFlight] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { selectedPersonId } = usePersonContext();
+  // Keep the most recent selectedPersonId in a ref so the send() closure
+  // (which captures it at creation time) always sends the freshest value.
+  const viewingIdRef = useRef<number | null>(selectedPersonId);
+  useEffect(() => {
+    viewingIdRef.current = selectedPersonId;
+  }, [selectedPersonId]);
 
   // Load history once on mount. Quiet failure if user not authenticated.
   useEffect(() => {
@@ -109,7 +117,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({
+          message: trimmed,
+          viewingPersonId: viewingIdRef.current,
+        }),
         signal: ctrl.signal,
       });
 

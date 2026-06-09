@@ -103,7 +103,7 @@ Don't do any of these without understanding the impact:
 
 | Action | Cache impact |
 |---|---|
-| Change the system prompt text (`SYSTEM_PROMPT_V1` in `lib/chat/anthropic.ts`) | Full invalidation. Bump the version constant when you change it. |
+| Change the system prompt text (`SYSTEM_PROMPT_V2` in `lib/chat/anthropic.ts`) | Full invalidation. Bump the version constant when you change it. |
 | Add/remove/reorder tools in `lib/chat/tools.ts` | Full invalidation. Tools render at position 0 in the prompt. |
 | Interpolate `new Date()` or any timestamp into the system prompt body | Per-request invalidation — nothing ever caches. |
 | Change the recipe/pantry context shape mid-session | Per-session invalidation. The shape is byte-identical within a session because it's deterministic. |
@@ -141,7 +141,7 @@ app/api/chat/route.ts
   5. ReadableStream → runChatTurn() → SSE events out
     ↓
 lib/chat/anthropic.ts runChatTurn()
-  - Builds system blocks: [SYSTEM_PROMPT_V1, today's date + context (+ cache_control)]
+  - Builds system blocks: [SYSTEM_PROMPT_V2, today's date + context (+ cache_control)]
   - Builds messages: history + new user turn
   - Loop (max 8 iterations):
     - client.messages.stream({ model, system, tools, messages })
@@ -158,7 +158,7 @@ On stream close: persist assistant message (whatever was streamed, even partial)
 
 ## System prompt voice (locked)
 
-Lives in `lib/chat/anthropic.ts` as `SYSTEM_PROMPT_V1`. Voice rules that are intentional:
+Lives in `lib/chat/anthropic.ts` as `SYSTEM_PROMPT_V2`. Voice rules that are intentional:
 
 - **Direct + confident** — lead with the answer, then reasoning
 - **Numbers in `**bold**`** — model wraps key numbers; UI renders as `<strong>` in ink
