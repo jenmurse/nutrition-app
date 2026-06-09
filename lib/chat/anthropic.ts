@@ -226,6 +226,9 @@ export async function* runChatTurn(args: {
         });
       }
       messages.push({ role: "user", content: toolResults });
+      // Emit a newline separator so the next iteration's text doesn't
+      // run directly into the previous iteration's text with no whitespace.
+      yield { type: "text", delta: "\n\n" };
       continue;
     }
 
