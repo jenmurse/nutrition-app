@@ -74,18 +74,32 @@ export async function GET(req: NextRequest) {
     .map(([name, v]) => ({ name, cost: round4(v.cost), turns: v.turns }))
     .sort((a, b) => b.cost - a.cost);
 
-  // Recent turns (last 50)
-  const recent = rows.slice(0, 50).map((r) => ({
-    id: r.id,
-    createdAt: r.createdAt,
-    person: r.person?.name ?? `person_${r.personId}`,
-    model: r.model,
-    inputTokens: r.inputTokens,
-    cacheReadTokens: r.cacheReadTokens,
-    cacheCreationTokens: r.cacheCreationTokens,
-    outputTokens: r.outputTokens,
-    costUsd: round4(r.estimatedCostUsd),
-  }));
+  // Recent turns (last 50) — annotated so you can see what actually happened
+  // in each turn: prompt, tools fired, cache state, and cost.
+  const recent = rows.slice(0, 50).map((r) => {
+    // Cache state derived from the token mix:
+    //   COLD  — first turn in a cache window (wrote new cache, no reads)
+    //   WARM  — fully cached (reads only, no writes)
+    //   MIXED — cache existed but new content was added on top
+    let cacheState: "COLD" | "WARM" | "MIXED" = "COLD";
+    if (r.cacheReadTokens > 0 && r.cacheCreationTokens === 0) cacheState = "WARM";
+    else if (r.cacheReadTokens > 0 && r.cacheCreationTokens > 0) cacheState = "MIXED";
+    return {
+      id: r.id,
+      createdAt: r.createdAt,
+      person: r.person?.name ?? `person_${r.personId}`,
+      model: r.model,
+      promptVersion: r.promptVersion ?? null,
+      userMessage: r.userMessage ?? null,
+      tools: r.toolsUsed ? r.toolsUsed.split(",") : [],
+      cacheState,
+      inputTokens: r.inputTokens,
+      cacheReadTokens: r.cacheReadTokens,
+      cacheCreationTokens: r.cacheCreationTokens,
+      outputTokens: r.outputTokens,
+      costUsd: round4(r.estimatedCostUsd),
+    };
+  });
 
   return NextResponse.json({
     period: { days, since: since.toISOString() },

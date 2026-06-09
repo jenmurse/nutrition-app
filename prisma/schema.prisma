@@ -361,6 +361,10 @@ model ApiUsageLog {
   cacheCreationTokens Int     @default(0) // input tokens written to cache (~1.25x rate)
   outputTokens       Int      @default(0)
   estimatedCostUsd   Float    @default(0) // precomputed at write time, in dollars
+  // Debug fields — surface what actually happened in this turn for /api/admin/usage
+  userMessage        String?  // verbatim user prompt that started the turn
+  toolsUsed          String?  // CSV of tool names called this turn, in order
+  promptVersion      String?  // e.g. "V9" — bump when the system prompt changes
 
   household Household? @relation(fields: [householdId], references: [id])
   person    Person?    @relation(fields: [personId], references: [id], onDelete: SetNull)

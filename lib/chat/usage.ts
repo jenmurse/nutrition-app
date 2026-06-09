@@ -71,8 +71,14 @@ export async function logChatUsage(args: {
   householdId: number;
   model: string;
   usages: Anthropic.Usage[];
+  /** Verbatim user prompt that started the turn — surfaced in /api/admin/usage. */
+  userMessage?: string;
+  /** Tool names called this turn, in order. */
+  toolsUsed?: string[];
+  /** System prompt version, e.g. "V9". */
+  promptVersion?: string;
 }): Promise<void> {
-  const { personId, householdId, model, usages } = args;
+  const { personId, householdId, model, usages, userMessage, toolsUsed, promptVersion } = args;
   if (usages.length === 0) return;
 
   let inputTokens = 0;
@@ -101,6 +107,9 @@ export async function logChatUsage(args: {
         cacheCreationTokens,
         outputTokens,
         estimatedCostUsd: cost,
+        userMessage: userMessage?.slice(0, 500),  // truncate so admin payload stays small
+        toolsUsed: toolsUsed?.length ? toolsUsed.join(",") : null,
+        promptVersion,
       },
     });
   } catch (err) {

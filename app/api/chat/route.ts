@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
       let assistantText = "";
       let proposal: MealProposal | BulkMealProposal | null = null;
       const usages: Anthropic.Usage[] = [];
+      const toolsUsed: string[] = [];
       try {
         for await (const ev of runChatTurn({
           history: turns,
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest) {
         })) {
           if (ev.type === "text") assistantText += ev.delta;
           if (ev.type === "proposal") proposal = ev.data;
+          if (ev.type === "tool_start" && ev.name) toolsUsed.push(ev.name);
           if (ev.type === "done" && ev.usage) usages.push(ev.usage);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
         }
@@ -126,6 +128,9 @@ export async function POST(req: NextRequest) {
           householdId: auth.householdId,
           model: CHAT_MODEL,
           usages,
+          userMessage: message,
+          toolsUsed,
+          promptVersion: "V9",
         });
         controller.close();
       }
