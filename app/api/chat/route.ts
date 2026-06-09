@@ -75,36 +75,38 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      // PERSIST FIRST, EMIT ID FIRST. The previous version persisted at the
-      // END of the stream and emitted message_id as the last frame — if the
-      // SSE connection got cut anywhere before that (timeout, proxy buffer
-      // flush, browser caching), the client never learned the DB id and the
-      // APPLY button couldn't persist its "applied" status across refresh.
+      // Race the placeholder DB write against the model stream so neither
+      // blocks the other. Previously we awaited the placeholder before any
+      // streaming — if Prisma was slow (cold connection on Railway, etc.)
+      // the user saw a hung "Thinking..." with no text for seconds.
       //
-      // Now: create a placeholder row immediately, ship its id as the very
-      // first frame, and update the row at the end with the final content.
+      // Now: kick off the placeholder insert as a Promise, start streaming
+      // immediately. When the placeholder resolves, emit message_id (which
+      // arrives within the first second under normal conditions, before
+      // the user could possibly tap APPLY on a confirm-card).
       let assistantDbId: number | null = null;
-      try {
-        const placeholder = await prisma.chatMessage.create({
-          data: {
-            personId: auth.personId,
-            role: "assistant",
-            content: "",
-            proposalJson: null,
-            proposalStatus: null,
-          },
-        });
-        assistantDbId = placeholder.id;
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({ type: "message_id", id: assistantDbId })}\n\n`,
-          ),
-        );
-      } catch (e) {
+      const placeholderPromise = prisma.chatMessage.create({
+        data: {
+          personId: auth.personId,
+          role: "assistant",
+          content: "",
+          proposalJson: null,
+          proposalStatus: null,
+        },
+      }).then((row) => {
+        assistantDbId = row.id;
+        try {
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({ type: "message_id", id: row.id })}\n\n`,
+            ),
+          );
+        } catch { /* controller may already be closed */ }
+        return row;
+      }).catch((e) => {
         console.error("Failed to create assistant placeholder:", e);
-        // Continue without an id — at least the stream still works,
-        // user just can't persist proposal status this turn.
-      }
+        return null;
+      });
 
       let assistantText = "";
       let proposal: MealProposal | BulkMealProposal | null = null;
@@ -130,6 +132,9 @@ export async function POST(req: NextRequest) {
           encoder.encode(`data: ${JSON.stringify({ type: "error", message: msg })}\n\n`),
         );
       } finally {
+        // Make sure the placeholder promise has settled before we try to
+        // update or delete it. If it failed, assistantDbId stays null.
+        await placeholderPromise.catch(() => null);
         // Update the placeholder row with the final content + proposal.
         if (assistantDbId && (assistantText || proposal)) {
           try {
