@@ -928,7 +928,13 @@ async function proposeFillWeek(
       mealType: m.meal_type,
       name: recipe.name,
       servings,
-      macros,
+      // BulkItem.macros uses abbreviated keys; getRecipeMacros returns full names.
+      macros: {
+        cal: macros.calories,
+        protein: macros.protein,
+        fiber: macros.fiber,
+        sodium: macros.sodium,
+      },
     });
     executeAll.push({
       method: "POST",
@@ -938,9 +944,9 @@ async function proposeFillWeek(
   }
 
   // Average daily summary for the items proposed
-  const caloriesArr = items.map((it) => it.macros?.cal ?? 0);
-  const proteinArr = items.map((it) => it.macros?.protein ?? 0);
-  const sodiumArr = items.map((it) => it.macros?.sodium ?? 0);
+  const caloriesArr = items.map((it) => it.macros?.cal ?? 0).filter((v) => v > 0);
+  const proteinArr = items.map((it) => it.macros?.protein ?? 0).filter((v) => v > 0);
+  const sodiumArr = items.map((it) => it.macros?.sodium ?? 0).filter((v) => v > 0);
 
   return {
     type: "fill_week",
