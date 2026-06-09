@@ -154,10 +154,7 @@ Railway sleeps the app after a period of inactivity. The first request after idl
 **The fix**
 New `/api/warm` route that runs `prisma.$queryRaw\`SELECT 1\`` and returns. Hitting this every few minutes keeps the Node server, Prisma client, and DB connection all warm. Endpoint is whitelisted in `proxy.ts` so it doesn't require auth.
 
-**To activate the warm-up loop**, point any external uptime service at `https://withgoodmeasure.com/api/warm` with a 5-minute interval. Free options:
-- [Cron-job.org](https://cron-job.org) — simplest, free, web UI
-- [UptimeRobot](https://uptimerobot.com) — free tier covers 50 monitors at 5-min intervals
-- [BetterStack](https://betterstack.com) — free tier with 10 monitors at 3-min intervals
+**Live as of June 2026** — cron-job.org pings `https://withgoodmeasure.com/api/warm` every 5 minutes. Dashboard: [cron-job.org](https://cron-job.org) under Jen's account. Job is named "Good Measure". Failure notification turned on; auto-disable on too-many-failures turned on. If Railway ever has an outage and the job auto-disables, just re-enable it from the dashboard.
 
 Cost: $0. Wall-clock impact: app never goes cold, so the first request always feels like a warm request.
 
