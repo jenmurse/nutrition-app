@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Measure · Chat (v1 mock)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Mirror of the actual app tokens (globals.css :root) */
+    --bg:    #FFFFFF;
+    --bg-2:  #F5F5F4;
+    --bg-3:  #ECECEA;
+    --fg:    #0A0A0A;
+    --fg-2:  #2A2A2A;
+    --muted: #6E6E6E;
+    --rule:  #D8D8D6;
+
+    /* Demo: simulate "Jen with Coral theme selected" so accent + ✦ glyph
+       carry her identity color. In production the active person drives this. */
+    --accent:   #E84828;
+    --accent-l: rgba(232,72,40,0.09);
+
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-3); color: var(--fg); font-family: var(--font-sans); font-size: 13px; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+  /* ─────────── MOCK PAGE CHROME ─────────── */
+  .mock-page { max-width: 1280px; margin: 0 auto; padding: 48px 32px 96px; }
+  .mock-head { margin-bottom: 64px; }
+  .mock-head h1 { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; }
+  .mock-head .eyebrow { font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .mock-head p { font-size: 15px; color: var(--fg-2); max-width: 60ch; margin-top: 16px; line-height: 1.6; }
+
+  .mock-section { margin-bottom: 80px; }
+  .mock-section-head { margin-bottom: 24px; }
+  .mock-section-head .num { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--fg); }
+  .mock-section-head .label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--muted); margin-left: 12px; text-transform: uppercase; }
+  .mock-section h2 { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; margin-top: 4px; }
+  .mock-section .desc { font-size: 13px; color: var(--fg-2); margin-top: 8px; line-height: 1.6; max-width: 60ch; }
+
+  /* Demo stage — paper background to make white panels read */
+  .stage { background: var(--bg-2); padding: 32px; border: 1px solid var(--rule); margin-top: 24px; }
+  .stage-row { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+  .stage-caption { font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+
+  /* ─────────── TRIGGER: DESKTOP TOP NAV (excerpt) ─────────── */
+  .nav-demo {
+    width: 100%; max-width: 760px;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    height: 50px;
+    display: flex; align-items: center;
+    padding: 0 32px;
+  }
+  .nav-wm { font-weight: 600; font-size: 13px; letter-spacing: -0.03em; color: var(--fg); margin-right: 36px; }
+  .nav-links { display: flex; gap: 24px; flex: 1; }
+  .nav-link {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .nav-link.is-active { color: var(--fg); }
+  /* Trigger glyph — same shape on desktop + mobile. Ink (neutral) — it's a
+     global affordance, not identity. The accent moments live inside the panel. */
+  .nav-ask {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px;
+    color: var(--fg); font-size: 15px; line-height: 1;
+    margin-right: 14px;
+    transition: opacity 120ms var(--ease-out);
+  }
+  .nav-ask:hover { opacity: 0.7; }
+
+  /* Match the real nav person dots: active = colored RING, others = filled colored disc. */
+  .nav-dots { display: flex; gap: 8px; align-items: center; }
+  .nav-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 9px; color: #fff;
+    background: var(--accent);
+  }
+  /* Filled colored dot variants */
+  .nav-dot.coral    { background: #E84828; }
+  .nav-dot.terra    { background: #C45C3A; }
+  .nav-dot.sage     { background: #5A9B6A; }
+  .nav-dot.slate    { background: #5C7080; }
+  .nav-dot.plum     { background: #8B5A9E; }
+  .nav-dot.cerulean { background: #2B90C8; }
+  .nav-dot.forest   { background: #2D7D52; }
+  .nav-dot.steel    { background: #4A7AB5; }
+
+  /* Active = filled dot + halo (2px white gap, 1.5px color ring) — current real-app style */
+  .nav-dot.coral.is-active    { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #E84828; }
+  .nav-dot.terra.is-active    { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #C45C3A; }
+  .nav-dot.sage.is-active     { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #5A9B6A; }
+  .nav-dot.slate.is-active    { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #5C7080; }
+  .nav-dot.plum.is-active     { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #8B5A9E; }
+  .nav-dot.cerulean.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #2B90C8; }
+  .nav-dot.forest.is-active   { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #2D7D52; }
+  .nav-dot.steel.is-active    { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px #4A7AB5; }
+
+  /* Inactive ghost (for the earlier "cleaner" experiment — kept available) */
+  .nav-dot.is-inactive {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+  }
+
+  /* Hybrid picker — overflow chip + pulldown */
+  .nav-overflow {
+    height: 18px;
+    padding: 0 8px;
+    border: 1px solid var(--rule);
+    display: inline-flex; align-items: center;
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    color: var(--muted);
+    background: var(--bg);
+    cursor: pointer;
+    transition: border-color 120ms var(--ease-out), color 120ms var(--ease-out);
+  }
+  .nav-overflow:hover { border-color: var(--fg); color: var(--fg); }
+
+  .picker-wrap { position: relative; display: inline-flex; align-items: center; }
+  .picker-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    min-width: 220px;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    z-index: 5;
+    padding: 4px 0;
+  }
+  /* Match the existing mobile person pulldown + recipes sort pulldown styling:
+     DM Mono uppercase items, small colored dot, no checkmark, no labels.
+     The trigger chip carries the "this is selected" signal. */
+  .picker-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 20px;
+    cursor: pointer;
+    transition: background 120ms var(--ease-out);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--fg);
+  }
+  .picker-item:hover { background: var(--bg-2); }
+  .picker-item-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* Desktop person pulldown chip — inline DM Mono, no container. Sharp.
+     Mirrors the sort-field pattern (NAME ▾) more than the mobile pill chip. */
+  .nav-pulldown {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--fg);
+    cursor: pointer;
+    transition: opacity 120ms var(--ease-out);
+  }
+  .nav-pulldown:hover { opacity: 0.7; }
+  .nav-pulldown .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .nav-pulldown .caret { font-size: 7px; color: var(--muted); }
+
+  /* Settings cog + sign out — match real nav */
+  .nav-cog {
+    width: 18px; height: 18px; color: var(--muted);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: 14px;
+  }
+  .nav-signout {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-left: 14px;
+  }
+  .nav-signout:hover { color: var(--fg); }
+
+  /* ─────────── TRIGGER: MOBILE TOP BAR (excerpt) ─────────── */
+  .mob-bar {
+    width: 375px;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    height: 50px;
+    display: flex; align-items: center;
+    padding: 0 18px;
+    justify-content: space-between;
+  }
+  .mob-bar-left { font-weight: 600; font-size: 13px; letter-spacing: -0.03em; color: var(--fg); }
+  .mob-bar-right { display: flex; align-items: center; gap: 16px; }
+  .mob-ask {
+    font-size: 18px; line-height: 1; color: var(--fg);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+  }
+  /* Mobile person pulldown — sharp chip with dot + name + tiny caret.
+     Was pill (border-radius: 9999px). Normalizing to sharp aligns with
+     the rest of the app and the new desktop overflow chip. */
+  .mob-pulldown {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg);
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 10px;
+    border: 1px solid var(--rule);
+  }
+  .mob-pulldown .dot { width: 8px; height: 8px; border-radius: 50%; background: #E84828; }
+  .mob-pulldown .caret { font-size: 7px; color: var(--muted); margin-left: -2px; }
+  .mob-hamburger { display: flex; flex-direction: column; gap: 4px; width: 18px; }
+  .mob-hamburger span { height: 1px; background: var(--fg); }
+
+  /* ═══════════════════════════════════════════════════════════
+     CHAT PANEL — DESKTOP
+     This is the spec. Production class names will use `ck-` prefix.
+     ═══════════════════════════════════════════════════════════ */
+  .ck-panel {
+    width: 480px;
+    height: 720px;
+    background: var(--bg);
+    border-left: 1px solid var(--fg);
+    box-shadow: -12px 0 32px rgba(0,0,0,0.08);
+    display: flex; flex-direction: column;
+    font-family: var(--font-sans);
+  }
+  .ck-head {
+    height: 50px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ck-head-title {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ck-head-title .star { color: var(--fg); font-size: 11px; }
+  .ck-head-close {
+    width: 24px; height: 24px;
+    color: var(--muted); font-family: var(--font-mono); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ck-head-close:hover { color: var(--fg); }
+
+  .ck-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 24px 16px;
+    display: flex; flex-direction: column; gap: 24px;
+    overscroll-behavior: contain;
+  }
+
+  /* Empty state */
+  .ck-empty {
+    flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding: 24px;
+  }
+  .ck-empty-eyebrow {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+  }
+  .ck-empty-headline {
+    font-size: 20px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2;
+    margin-bottom: 16px; max-width: 22ch;
+  }
+  .ck-empty-lede {
+    font-size: 13px; color: var(--fg-2); line-height: 1.6; max-width: 36ch;
+  }
+  .ck-empty-prompts {
+    margin-top: 28px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .ck-empty-prompt {
+    font-size: 13px; color: var(--fg-2);
+    border-left: 2px solid var(--rule);
+    padding: 6px 0 6px 14px;
+    cursor: pointer;
+    transition: border-color 120ms var(--ease-out), color 120ms var(--ease-out);
+  }
+  .ck-empty-prompt:hover { border-color: var(--fg); color: var(--fg); }
+
+  /* Message — document style, no bubbles */
+  .ck-msg {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ck-msg-speaker {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* YOU = active person's theme color (identity).
+     GOOD MEASURE = ink (the system / constant). */
+  .ck-msg.you .ck-msg-speaker { color: var(--accent); }
+  .ck-msg.assistant .ck-msg-speaker { color: var(--fg); }
+  .ck-msg-body {
+    font-size: 13px; color: var(--fg-2); line-height: 1.65;
+    text-wrap: pretty;
+  }
+  .ck-msg-body strong { color: var(--fg); font-weight: 600; }
+
+  /* Thinking indicator */
+  .ck-thinking {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .ck-thinking::after {
+    content: '···';
+    letter-spacing: 0.05em;
+    animation: thinkingDots 1.4s infinite;
+  }
+  @keyframes thinkingDots {
+    0%, 60%, 100% { opacity: 0.3; }
+    30% { opacity: 1; }
+  }
+
+  /* ── Confirm-card (PROPOSAL → APPLY pattern) ──
+     Uses our editorial ruled-block vocabulary, not chat bubbles. */
+  .ck-card {
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    display: flex; flex-direction: column;
+  }
+  .ck-card-head {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ck-card-eyebrow {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 6px;
+  }
+  /* On scale: 9 / 11 / 13 / 16 / 20 / 28 / 36px */
+  .ck-card-title {
+    font-size: 16px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.3;
+  }
+  .ck-card-body {
+    padding: 4px 16px 12px;
+  }
+  /* Each proposed item is a ruled row — same vocabulary as planner ingredient rows */
+  .ck-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    gap: 16px;
+  }
+  .ck-row:last-child { border-bottom: none; }
+  .ck-row-left {
+    display: flex; flex-direction: column; gap: 3px; min-width: 0;
+  }
+  .ck-row-eyebrow {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .ck-row-name {
+    font-size: 13px; font-weight: 500; color: var(--fg); line-height: 1.35;
+  }
+  .ck-row-meta {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+    color: var(--muted); white-space: nowrap;
+  }
+  /* Swap visualization: From → To */
+  .ck-swap-line {
+    display: flex; gap: 10px; align-items: baseline; font-size: 13px; color: var(--fg);
+  }
+  .ck-swap-from {
+    color: var(--muted); text-decoration: line-through;
+  }
+  .ck-swap-arrow {
+    color: var(--muted); font-family: var(--font-mono); font-size: 11px;
+  }
+  .ck-swap-to {
+    font-weight: 500; color: var(--fg);
+  }
+  /* Macro delta strip */
+  .ck-macros {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    padding: 12px 0 4px;
+    border-top: 1px solid var(--rule);
+    margin-top: 8px;
+  }
+  .ck-macro {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .ck-macro-label {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  }
+  .ck-macro-val {
+    font-size: 13px; font-weight: 600; color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Macro deltas are semantic, not identity — green for positive, red for over-cap. */
+  .ck-macro-val.delta-up { color: #2F8B33; }   /* var(--ok) */
+  .ck-macro-val.delta-down { color: #CC3823; } /* var(--err) */
+
+  /* Footer actions — sharp buttons; APPLY is the primary commit */
+  .ck-card-foot {
+    border-top: 1px solid var(--rule);
+    padding: 10px 12px;
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+  .ck-btn-cancel {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 6px 10px;
+  }
+  .ck-btn-cancel:hover { color: var(--fg); }
+  .ck-btn-apply {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--bg); background: var(--fg);
+    padding: 8px 16px;
+  }
+  .ck-btn-apply:hover { opacity: 0.88; }
+
+  /* After-confirm inline acknowledgement */
+  .ck-ack {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    border-left: 2px solid var(--accent);
+    padding: 6px 0 6px 12px;
+  }
+  .ck-ack a { color: var(--fg); border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+  .ck-ack a:hover { border-bottom-color: var(--fg); }
+
+  /* Input bar — bottom border only, matches our .input pattern */
+  .ck-input-wrap {
+    flex-shrink: 0;
+    padding: 14px 20px 18px;
+    border-top: 1px solid var(--rule);
+    background: var(--bg);
+  }
+  .ck-input-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .ck-input {
+    flex: 1;
+    background: none; border: none; outline: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 8px 0;
+    font: 400 13px var(--font-sans);
+    color: var(--fg);
+  }
+  .ck-input:focus { border-bottom-color: var(--fg); }
+  .ck-input::placeholder { color: var(--muted); opacity: 0.8; }
+  .ck-input-send {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 6px 4px;
+  }
+  .ck-input-send:hover { color: var(--fg); }
+  .ck-input-meta {
+    margin-top: 6px;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CHAT SHEET — MOBILE
+     Same internals as desktop panel. Different container chrome.
+     ═══════════════════════════════════════════════════════════ */
+  .mob-frame {
+    width: 375px;
+    height: 720px;
+    background: var(--bg-3);
+    border: 1px solid var(--rule);
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .mob-frame-bar {
+    height: 50px; background: var(--bg); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mob-frame-content {
+    flex: 1; position: relative; overflow: hidden;
+    /* Faint page-behind look — gray hairline grid to imply content beneath */
+    background: var(--bg);
+    opacity: 0.6;
+  }
+  .mob-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+  }
+  .ck-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--rule);
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.16);
+    max-height: 82dvh;
+    height: 82%;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .ck-sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    margin: 8px auto 0;
+    flex-shrink: 0;
+  }
+  /* The internals re-use ck-* classes already defined */
+
+  /* Helper: simulated planner page behind mobile sheet */
+  .mob-frame-content::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 60px 80px;
+    opacity: 0.3;
+  }
+
+  /* ─────────── DESKTOP PAGE FRAME (for context) ─────────── */
+  .desk-frame {
+    background: var(--bg-3);
+    border: 1px solid var(--rule);
+    width: 100%;
+    height: 760px;
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .desk-frame-nav {
+    height: 50px; background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+    display: flex; align-items: center; padding: 0 40px;
+  }
+  .desk-frame-content {
+    flex: 1; position: relative;
+    background: var(--bg);
+  }
+  .desk-frame-content::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 80px 100px;
+    opacity: 0.18;
+  }
+  .desk-panel-mount {
+    position: absolute; top: 0; right: 0; bottom: 0;
+  }
+  /* When mounted inside the desk frame, height is auto / fills */
+  .desk-panel-mount .ck-panel {
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-page">
+
+  <!-- ─────────── HEAD ─────────── -->
+  <header class="mock-head">
+    <div class="eyebrow">§ Mock · v1</div>
+    <h1>Ask — in-app AI chat surface.</h1>
+    <p>
+      Document-style messages, no bubbles. Propose-then-confirm for all writes — confirm-cards
+      use the same ruled-block + ruled-row vocabulary as the rest of the app, so a proposed
+      meal swap looks like a real planner row, not a chatbot suggestion. Two presentation
+      pairs: a right-docked panel on desktop, a bottom sheet on mobile. Shared internals.
+    </p>
+  </header>
+
+  <!-- ─────────── 01 · TRIGGER AFFORDANCES ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">01</span><span class="label">Trigger affordances</span>
+      <h2>How you open it from the global nav.</h2>
+      <p class="desc">
+        Same glyph on both surfaces — ✦, sized to match the existing settings cog on desktop and
+        the hamburger on mobile. Placed before the person dots on desktop, between the person
+        pulldown and the hamburger on mobile. The glyph picks up the active person's accent
+        color, a small identity signal consistent with the existing person-as-accent convention.
+        The label "Ask AI" appears in the panel header once open — earning the description space
+        where it actually helps, not crowding the nav.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-caption">Desktop · top nav</div>
+      <div class="nav-demo">
+        <div class="nav-wm">Good Measure</div>
+        <div class="nav-links">
+          <span class="nav-link is-active">Planner</span>
+          <span class="nav-link">Recipes</span>
+          <span class="nav-link">Pantry</span>
+        </div>
+        <a class="nav-ask" href="#" title="Ask AI" aria-label="Ask AI">✦</a>
+        <div class="nav-dots">
+          <span class="nav-dot coral">J</span>
+          <span class="nav-dot is-inactive">G</span>
+          <span class="nav-dot is-inactive">J</span>
+        </div>
+        <span class="nav-cog">⚙</span>
+        <span class="nav-signout">Sign out</span>
+      </div>
+    </div>
+
+    <div class="stage" style="margin-top: 16px;">
+      <div class="stage-caption">Mobile · top bar</div>
+      <div class="mob-bar">
+        <div class="mob-bar-left">Good Measure</div>
+        <div class="mob-bar-right">
+          <span class="mob-pulldown"><span class="dot"></span>Jen<span class="caret">▾</span></span>
+          <span class="mob-ask" title="Ask AI">✦</span>
+          <span class="mob-hamburger"><span></span><span></span><span></span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 01b · PERSON DOTS — LOCKED PATTERN ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">01b</span><span class="label">Person dots — current pattern, locked</span>
+      <h2>The shipped dot pattern holds at any realistic household size.</h2>
+      <p class="desc">
+        Current real-app person dot pattern stays as-is: all dots filled with their color,
+        active gets a halo (2px white gap + 1.5px colored ring). Stress-tested at 2, 4, and 6
+        people — at-a-glance identity stays readable even on a narrower viewport. No overflow
+        chip needed, no pulldown needed for desktop. Mobile pulldown chip stays as pill for now.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-caption">2 people · the common case (Jen + Garth)</div>
+      <div class="nav-demo">
+        <div class="nav-wm">Good Measure</div>
+        <div class="nav-links">
+          <span class="nav-link is-active">Planner</span>
+          <span class="nav-link">Recipes</span>
+          <span class="nav-link">Pantry</span>
+        </div>
+        <a class="nav-ask" href="#" title="Ask">✦</a>
+        <div class="nav-dots">
+          <span class="nav-dot coral is-active">J</span>
+          <span class="nav-dot sage">G</span>
+        </div>
+        <span class="nav-cog">⚙</span>
+        <span class="nav-signout">Sign out</span>
+      </div>
+    </div>
+
+    <div class="stage" style="margin-top: 16px;">
+      <div class="stage-caption">4 people · couple + 2 kids</div>
+      <div class="nav-demo">
+        <div class="nav-wm">Good Measure</div>
+        <div class="nav-links">
+          <span class="nav-link is-active">Planner</span>
+          <span class="nav-link">Recipes</span>
+          <span class="nav-link">Pantry</span>
+        </div>
+        <a class="nav-ask" href="#" title="Ask">✦</a>
+        <div class="nav-dots">
+          <span class="nav-dot coral is-active">J</span>
+          <span class="nav-dot sage">G</span>
+          <span class="nav-dot plum">M</span>
+          <span class="nav-dot slate">S</span>
+        </div>
+        <span class="nav-cog">⚙</span>
+        <span class="nav-signout">Sign out</span>
+      </div>
+    </div>
+
+    <div class="stage" style="margin-top: 16px;">
+      <div class="stage-caption">6 people · multi-gen household</div>
+      <div class="nav-demo">
+        <div class="nav-wm">Good Measure</div>
+        <div class="nav-links">
+          <span class="nav-link is-active">Planner</span>
+          <span class="nav-link">Recipes</span>
+          <span class="nav-link">Pantry</span>
+        </div>
+        <a class="nav-ask" href="#" title="Ask">✦</a>
+        <div class="nav-dots">
+          <span class="nav-dot coral is-active">J</span>
+          <span class="nav-dot sage">G</span>
+          <span class="nav-dot plum">M</span>
+          <span class="nav-dot slate">S</span>
+          <span class="nav-dot cerulean">D</span>
+          <span class="nav-dot terra">A</span>
+        </div>
+        <span class="nav-cog">⚙</span>
+        <span class="nav-signout">Sign out</span>
+      </div>
+    </div>
+
+    <div class="stage" style="margin-top: 16px;">
+      <div class="stage-caption">6 people · narrower viewport (1280px-ish) — see if the row breaks</div>
+      <div class="nav-demo" style="max-width: 1100px;">
+        <div class="nav-wm">Good Measure</div>
+        <div class="nav-links">
+          <span class="nav-link is-active">Planner</span>
+          <span class="nav-link">Recipes</span>
+          <span class="nav-link">Pantry</span>
+        </div>
+        <a class="nav-ask" href="#" title="Ask">✦</a>
+        <div class="nav-dots">
+          <span class="nav-dot coral is-active">J</span>
+          <span class="nav-dot sage">G</span>
+          <span class="nav-dot plum">M</span>
+          <span class="nav-dot slate">S</span>
+          <span class="nav-dot cerulean">D</span>
+          <span class="nav-dot terra">A</span>
+        </div>
+        <span class="nav-cog">⚙</span>
+        <span class="nav-signout">Sign out</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 02 · EMPTY STATE ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">02</span><span class="label">Desktop · empty state</span>
+      <h2>What you see the first time.</h2>
+      <p class="desc">
+        Short editorial lede plus two example prompts as ruled-block lines. No "suggested prompts"
+        chips below the input — that's chat-app vocabulary we don't speak.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="ck-panel">
+        <div class="ck-head">
+          <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+          <button class="ck-head-close" aria-label="Close">✕</button>
+        </div>
+        <div class="ck-empty">
+          <div class="ck-empty-eyebrow">§ A new conversation</div>
+          <div class="ck-empty-headline">Ask about your kitchen.</div>
+          <p class="ck-empty-lede">
+            Plan a day, dial in a recipe, or check tomorrow's groceries. Ask in plain language —
+            you'll see the proposed change before anything is saved.
+          </p>
+          <div class="ck-empty-prompts">
+            <div class="ck-empty-prompt">"What's my fiber average this week?"</div>
+            <div class="ck-empty-prompt">"Fill next week with high-protein dinners."</div>
+            <div class="ck-empty-prompt">"Lower the sodium on Black Bean Chili."</div>
+          </div>
+        </div>
+        <div class="ck-input-wrap">
+          <div class="ck-input-row">
+            <input class="ck-input" placeholder="Ask anything about your kitchen…">
+            <button class="ck-input-send">Send ↵</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 03 · READ-ONLY EXCHANGE ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">03</span><span class="label">Desktop · read-only answer</span>
+      <h2>Answers read as paragraphs, not bubbles.</h2>
+      <p class="desc">
+        Mono speaker label above each message. <strong>YOU</strong> in the active person's
+        accent (identity — this is whose voice it is), <strong>GOOD MEASURE</strong> in ink
+        (the system, constant across users). Body in DM Sans 13px, var(--fg-2), with key
+        numbers in <strong>ink + 600 weight</strong> so they land as data, not prose.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="ck-panel">
+        <div class="ck-head">
+          <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+          <button class="ck-head-close" aria-label="Close">✕</button>
+        </div>
+        <div class="ck-scroll">
+
+          <div class="ck-msg you">
+            <div class="ck-msg-speaker">You</div>
+            <div class="ck-msg-body">What's my fiber average this week?</div>
+          </div>
+
+          <div class="ck-msg assistant">
+            <div class="ck-msg-speaker">Good Measure</div>
+            <div class="ck-msg-body">
+              You're averaging <strong>26g of fiber per day</strong> for Mon–Sun. Your daily target
+              is 30g, so you're tracking about 13% below. Thursday and Saturday both came in
+              under 20g — both days lean dinner-heavy on lower-fiber proteins. Lunchtime is
+              where the gap mostly shows up.
+            </div>
+          </div>
+
+          <div class="ck-msg you">
+            <div class="ck-msg-speaker">You</div>
+            <div class="ck-msg-body">Which recipes hit fiber hardest?</div>
+          </div>
+
+          <div class="ck-msg assistant">
+            <div class="ck-msg-speaker">Good Measure</div>
+            <div class="ck-msg-body">
+              Top three by fiber per serving from your library: <strong>Black Bean &amp; Lentil
+              Chili</strong> (14g), <strong>Sesame Miso Lentils</strong> (11g), and
+              <strong>Overnight Oats with Peanut Butter</strong> (9g). Want me to put any of these
+              into next week's plan?
+            </div>
+          </div>
+
+        </div>
+        <div class="ck-input-wrap">
+          <div class="ck-input-row">
+            <input class="ck-input" placeholder="Ask anything…">
+            <button class="ck-input-send">Send ↵</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 04 · SINGLE-MEAL WRITE WITH CONFIRM ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">04</span><span class="label">Desktop · single write</span>
+      <h2>Proposed change as a real artifact.</h2>
+      <p class="desc">
+        The confirm-card uses the planner's own ruled-row vocabulary — eyebrows, item names,
+        mono macros, sharp borders. From → arrow → To for swaps. Macro delta row shows
+        what actually changes; accent green for positive deltas, semantic red for negative
+        on capped nutrients. <strong>CANCEL</strong> ghost mono, <strong>APPLY</strong> filled
+        black — one primary commit per card.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="ck-panel">
+        <div class="ck-head">
+          <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+          <button class="ck-head-close" aria-label="Close">✕</button>
+        </div>
+        <div class="ck-scroll">
+
+          <div class="ck-msg you">
+            <div class="ck-msg-speaker">You</div>
+            <div class="ck-msg-body">Swap Tuesday's lunch for something with more protein.</div>
+          </div>
+
+          <div class="ck-msg assistant">
+            <div class="ck-msg-speaker">Good Measure</div>
+            <div class="ck-msg-body">
+              Caesar Wrap on Tuesday is 18g protein. From your library, Sesame Miso Lentils
+              hits 32g for a similar prep time and stays under your sodium cap. Here's the swap:
+            </div>
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Proposed change · Jen · Tue Jun 16</div>
+              <div class="ck-card-title">Swap Tuesday's lunch</div>
+            </div>
+            <div class="ck-card-body">
+              <div class="ck-row">
+                <div class="ck-row-left" style="flex: 1;">
+                  <div class="ck-row-eyebrow">Lunch</div>
+                  <div class="ck-swap-line">
+                    <span class="ck-swap-from">Caesar Wrap</span>
+                    <span class="ck-swap-arrow">→</span>
+                    <span class="ck-swap-to">Sesame Miso Lentils</span>
+                  </div>
+                </div>
+                <span class="ck-row-meta">1× serving</span>
+              </div>
+              <div class="ck-macros">
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Protein</span>
+                  <span class="ck-macro-val delta-up">+14g</span>
+                </div>
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Fiber</span>
+                  <span class="ck-macro-val delta-up">+7g</span>
+                </div>
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Sodium</span>
+                  <span class="ck-macro-val">−120mg</span>
+                </div>
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Calories</span>
+                  <span class="ck-macro-val">+40</span>
+                </div>
+              </div>
+            </div>
+            <div class="ck-card-foot">
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Apply to planner</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="ck-input-wrap">
+          <div class="ck-input-row">
+            <input class="ck-input" placeholder="Ask anything…">
+            <button class="ck-input-send">Send ↵</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 05 · AFTER CONFIRM ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">05</span><span class="label">Desktop · after confirm</span>
+      <h2>Acknowledgement, with optional jump to the changed page.</h2>
+      <p class="desc">
+        Card collapses to a one-line acknowledgement using the margin-note pattern (left rule,
+        no fill). If you're on Recipes, the "View in Planner →" link navigates. If you're
+        already on the planner, no link — the change is visible behind the panel.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="ck-panel">
+        <div class="ck-head">
+          <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+          <button class="ck-head-close" aria-label="Close">✕</button>
+        </div>
+        <div class="ck-scroll">
+
+          <div class="ck-msg you">
+            <div class="ck-msg-speaker">You</div>
+            <div class="ck-msg-body">Swap Tuesday's lunch for something with more protein.</div>
+          </div>
+
+          <div class="ck-msg assistant">
+            <div class="ck-msg-speaker">Good Measure</div>
+            <div class="ck-msg-body">
+              Caesar Wrap on Tuesday is 18g protein. From your library, Sesame Miso Lentils
+              hits 32g for a similar prep time and stays under your sodium cap.
+            </div>
+          </div>
+
+          <div class="ck-ack">
+            Applied · Tue lunch updated · <a href="#">View in planner →</a>
+          </div>
+
+        </div>
+        <div class="ck-input-wrap">
+          <div class="ck-input-row">
+            <input class="ck-input" placeholder="Ask anything…">
+            <button class="ck-input-send">Send ↵</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 06 · FILL-WEEK BULK WRITE ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">06</span><span class="label">Desktop · bulk write</span>
+      <h2>A whole week, as one card.</h2>
+      <p class="desc">
+        Same card shape; the body is just longer. Per-day ruled rows. Summary macros at the
+        bottom show the week-wide deltas vs. the user's targets. v1 ships all-or-nothing CANCEL /
+        APPLY. A future v2 could add per-row "Skip" affordances; the data model and API are
+        ready for it from day one.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="ck-panel" style="height: 820px;">
+        <div class="ck-head">
+          <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+          <button class="ck-head-close" aria-label="Close">✕</button>
+        </div>
+        <div class="ck-scroll">
+
+          <div class="ck-msg you">
+            <div class="ck-msg-speaker">You</div>
+            <div class="ck-msg-body">Fill next week with high-protein dinners.</div>
+          </div>
+
+          <div class="ck-msg assistant">
+            <div class="ck-msg-speaker">Good Measure</div>
+            <div class="ck-msg-body">
+              Drafted a week using your library. Averages 38g protein per dinner, stays under
+              your sodium cap every day. Existing breakfasts and lunches kept as-is.
+            </div>
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Proposed plan · Jen · Week of Jun 15</div>
+              <div class="ck-card-title">7 dinners. Protein-led.</div>
+            </div>
+            <div class="ck-card-body">
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Mon · Dinner</div>
+                  <div class="ck-row-name">Sheet-Pan Chicken &amp; Broccoli</div>
+                </div>
+                <span class="ck-row-meta">42g · 540 cal</span>
+              </div>
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Tue · Dinner</div>
+                  <div class="ck-row-name">Steak Salad with White Beans</div>
+                </div>
+                <span class="ck-row-meta">38g · 510 cal</span>
+              </div>
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Wed · Dinner</div>
+                  <div class="ck-row-name">Black Bean &amp; Lentil Chili</div>
+                </div>
+                <span class="ck-row-meta">36g · 480 cal</span>
+              </div>
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Thu · Dinner</div>
+                  <div class="ck-row-name">Salmon &amp; Quinoa Bowl</div>
+                </div>
+                <span class="ck-row-meta">40g · 560 cal</span>
+              </div>
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Fri · Dinner</div>
+                  <div class="ck-row-name">One-Pan Indian Fish &amp; Chickpeas</div>
+                </div>
+                <span class="ck-row-meta">39g · 520 cal</span>
+              </div>
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Sat · Dinner</div>
+                  <div class="ck-row-name">Turkey &amp; Veg Meatballs</div>
+                </div>
+                <span class="ck-row-meta">35g · 490 cal</span>
+              </div>
+              <div class="ck-row">
+                <div class="ck-row-left">
+                  <div class="ck-row-eyebrow">Sun · Dinner</div>
+                  <div class="ck-row-name">Roast Chicken Thighs &amp; Kale</div>
+                </div>
+                <span class="ck-row-meta">38g · 530 cal</span>
+              </div>
+              <div class="ck-macros">
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Avg protein</span>
+                  <span class="ck-macro-val delta-up">38g</span>
+                </div>
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Avg fiber</span>
+                  <span class="ck-macro-val">11g</span>
+                </div>
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Max sodium</span>
+                  <span class="ck-macro-val">1,840mg</span>
+                </div>
+                <div class="ck-macro">
+                  <span class="ck-macro-label">Avg calories</span>
+                  <span class="ck-macro-val">518</span>
+                </div>
+              </div>
+            </div>
+            <div class="ck-card-foot">
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Apply to planner</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="ck-input-wrap">
+          <div class="ck-input-row">
+            <input class="ck-input" placeholder="Ask anything…">
+            <button class="ck-input-send">Send ↵</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 07 · DESKTOP IN CONTEXT ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">07</span><span class="label">Desktop · panel in page context</span>
+      <h2>Right-docked, fixed full-height, paper page beneath.</h2>
+      <p class="desc">
+        Same overlay pattern as <code>.mx-manage-sheet</code> and <code>.mx-browse-sheet</code>.
+        The underlying page stays full-width and remains interactive — so you can watch the
+        change apply behind the panel after confirm. <code>border-left: 1px solid var(--fg)</code>
+        (heavier than <code>--rule</code>) marks the chrome boundary.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="desk-frame">
+        <div class="desk-frame-nav">
+          <div class="nav-wm">Good Measure</div>
+        </div>
+        <div class="desk-frame-content">
+          <div class="desk-panel-mount">
+            <div class="ck-panel" style="border-left: 1px solid var(--fg);">
+              <div class="ck-head">
+                <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+                <button class="ck-head-close" aria-label="Close">✕</button>
+              </div>
+              <div class="ck-scroll">
+                <div class="ck-msg you">
+                  <div class="ck-msg-speaker">You</div>
+                  <div class="ck-msg-body">Swap Tuesday's lunch for something with more protein.</div>
+                </div>
+                <div class="ck-msg assistant">
+                  <div class="ck-msg-speaker">Good Measure</div>
+                  <div class="ck-msg-body">
+                    Caesar Wrap on Tuesday is 18g protein. Here's a swap that brings it to 32g.
+                  </div>
+                </div>
+                <div class="ck-card">
+                  <div class="ck-card-head">
+                    <div class="ck-card-eyebrow">§ Proposed change · Tue Jun 16</div>
+                    <div class="ck-card-title">Swap Tuesday's lunch</div>
+                  </div>
+                  <div class="ck-card-body">
+                    <div class="ck-row">
+                      <div class="ck-row-left" style="flex: 1;">
+                        <div class="ck-row-eyebrow">Lunch</div>
+                        <div class="ck-swap-line">
+                          <span class="ck-swap-from">Caesar Wrap</span>
+                          <span class="ck-swap-arrow">→</span>
+                          <span class="ck-swap-to">Sesame Miso Lentils</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ck-macros">
+                      <div class="ck-macro"><span class="ck-macro-label">Protein</span><span class="ck-macro-val delta-up">+14g</span></div>
+                      <div class="ck-macro"><span class="ck-macro-label">Fiber</span><span class="ck-macro-val delta-up">+7g</span></div>
+                      <div class="ck-macro"><span class="ck-macro-label">Sodium</span><span class="ck-macro-val">−120mg</span></div>
+                    </div>
+                  </div>
+                  <div class="ck-card-foot">
+                    <button class="ck-btn-cancel">Cancel</button>
+                    <button class="ck-btn-apply">Apply to planner</button>
+                  </div>
+                </div>
+              </div>
+              <div class="ck-input-wrap">
+                <div class="ck-input-row">
+                  <input class="ck-input" placeholder="Ask anything…">
+                  <button class="ck-input-send">Send ↵</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 08 · MOBILE SHEET ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">08</span><span class="label">Mobile · bottom sheet</span>
+      <h2>Same conversation. Sheet pattern instead of side panel.</h2>
+      <p class="desc">
+        Uses the locked <code>.mob-sheet</code> vocabulary — 8px top corners, slide-up animation,
+        <code>overscroll-behavior: contain</code>, safe-area padding. Max 82dvh so the page peek
+        underneath reminds you what you're augmenting. Input bar pinned to the bottom of the
+        sheet, not the conversation — so it stays reachable as the conversation grows.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-row">
+        <div>
+          <div class="stage-caption">Sheet open — single swap confirm</div>
+          <div class="mob-frame">
+            <div class="mob-frame-bar">
+              <div class="mob-bar-left">Good Measure</div>
+              <div class="mob-bar-right">
+                <span class="mob-pulldown">Jen</span>
+                <span class="mob-ask">✦</span>
+                <span class="mob-hamburger"><span></span><span></span><span></span></span>
+              </div>
+            </div>
+            <div class="mob-frame-content">
+              <div class="mob-backdrop"></div>
+              <div class="ck-sheet">
+                <div class="ck-sheet-handle"></div>
+                <div class="ck-head">
+                  <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+                  <button class="ck-head-close" aria-label="Close">✕</button>
+                </div>
+                <div class="ck-scroll" style="padding: 16px 18px 12px;">
+
+                  <div class="ck-msg you">
+                    <div class="ck-msg-speaker">You</div>
+                    <div class="ck-msg-body">Swap Tuesday's lunch for something with more protein.</div>
+                  </div>
+
+                  <div class="ck-msg assistant">
+                    <div class="ck-msg-speaker">Good Measure</div>
+                    <div class="ck-msg-body">
+                      Sesame Miso Lentils hits 32g, stays under your sodium cap.
+                    </div>
+                  </div>
+
+                  <div class="ck-card">
+                    <div class="ck-card-head">
+                      <div class="ck-card-eyebrow">§ Tue Jun 16</div>
+                      <div class="ck-card-title">Swap Tuesday's lunch</div>
+                    </div>
+                    <div class="ck-card-body">
+                      <div class="ck-row">
+                        <div class="ck-row-left" style="flex: 1;">
+                          <div class="ck-row-eyebrow">Lunch</div>
+                          <div class="ck-swap-line" style="flex-wrap: wrap;">
+                            <span class="ck-swap-from">Caesar Wrap</span>
+                            <span class="ck-swap-arrow">→</span>
+                            <span class="ck-swap-to">Sesame Miso Lentils</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="ck-macros">
+                        <div class="ck-macro"><span class="ck-macro-label">Protein</span><span class="ck-macro-val delta-up">+14g</span></div>
+                        <div class="ck-macro"><span class="ck-macro-label">Sodium</span><span class="ck-macro-val">−120mg</span></div>
+                      </div>
+                    </div>
+                    <div class="ck-card-foot">
+                      <button class="ck-btn-cancel">Cancel</button>
+                      <button class="ck-btn-apply">Apply</button>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="ck-input-wrap" style="padding: 12px 18px 16px;">
+                  <div class="ck-input-row">
+                    <input class="ck-input" placeholder="Ask anything…">
+                    <button class="ck-input-send">↵</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="stage-caption">Sheet open — empty state</div>
+          <div class="mob-frame">
+            <div class="mob-frame-bar">
+              <div class="mob-bar-left">Good Measure</div>
+              <div class="mob-bar-right">
+                <span class="mob-pulldown">Jen</span>
+                <span class="mob-ask">✦</span>
+                <span class="mob-hamburger"><span></span><span></span><span></span></span>
+              </div>
+            </div>
+            <div class="mob-frame-content">
+              <div class="mob-backdrop"></div>
+              <div class="ck-sheet">
+                <div class="ck-sheet-handle"></div>
+                <div class="ck-head">
+                  <div class="ck-head-title"><span class="star">✦</span> Ask</div>
+                  <button class="ck-head-close" aria-label="Close">✕</button>
+                </div>
+                <div class="ck-empty" style="padding: 24px 20px;">
+                  <div class="ck-empty-eyebrow">§ A new conversation</div>
+                  <div class="ck-empty-headline" style="font-size: 20px;">Ask about your kitchen.</div>
+                  <p class="ck-empty-lede">Plan a day, dial in a recipe, or check tomorrow's groceries.</p>
+                  <div class="ck-empty-prompts">
+                    <div class="ck-empty-prompt">"What's my fiber this week?"</div>
+                    <div class="ck-empty-prompt">"Fill next week with high-protein dinners."</div>
+                  </div>
+                </div>
+                <div class="ck-input-wrap" style="padding: 12px 18px 16px;">
+                  <div class="ck-input-row">
+                    <input class="ck-input" placeholder="Ask anything…">
+                    <button class="ck-input-send">↵</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 09 · TYPE / TREATMENT KEY ─────────── -->
+  <section class="mock-section">
+    <div class="mock-section-head">
+      <span class="num">09</span><span class="label">Type &amp; treatment spec</span>
+      <h2>Locked, for the build.</h2>
+      <p class="desc">
+        Mirrors the existing design-system rules — no new tokens, no new fonts. Production
+        classes will use the <code>ck-</code> prefix (chat-kit), scoped under the panel /
+        sheet container so nothing leaks into the rest of the app.
+      </p>
+    </div>
+
+    <div class="stage" style="background: var(--bg); padding: 28px 32px;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: var(--fg-2);">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <th style="text-align: left; padding: 10px 12px 12px 0; font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">Element</th>
+            <th style="text-align: left; padding: 10px 12px 12px 0; font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">Spec</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Panel chrome (desktop)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">width 480px · fixed full-height · border-left: 1px var(--fg) · box-shadow -12px 0 32px rgba(0,0,0,0.08)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Sheet chrome (mobile)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">max-height 82dvh · border-radius 8px 8px 0 0 · overscroll-behavior contain · handle 36×4 var(--rule)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Header (§ Ask + close)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 0.14em / uppercase · ✦ in var(--accent)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Speaker label</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 600 / 0.14em / uppercase · YOU = var(--accent) (identity) · GOOD MEASURE = var(--fg) (system)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Message body</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Sans 13px / 400 / -0.03em · var(--fg-2) · line-height 1.65 · text-wrap pretty</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Body emphasis (numbers)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">strong → var(--fg) / 600</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Confirm-card</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">border 1px var(--rule) · ruled rows · eyebrow + title + body + foot · sharp</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Card title</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Sans 16px / 500 / -0.02em / line-height 1.3 (on scale)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Row name (proposed item)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Sans 13px / 500 · ruled-row pattern (1px var(--rule) below)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Row eyebrow</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 400 / 0.14em / uppercase / var(--muted)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Row meta (macros, servings)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 400 / 0.06em — data tier · var(--muted)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Swap line</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">From = var(--muted) line-through · → arrow DM Mono · To = var(--fg) / 500</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Macro delta (positive)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Sans 13px / 600 · var(--ok) #2F8B33 · tabular-nums · semantic, not theme</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Macro delta (negative on cap)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Sans 13px / 600 · var(--err) #CC3823 · tabular-nums · semantic, not theme</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Cancel button</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 0.14em · ghost · var(--muted) → var(--fg) hover · ed-btn-text register</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Apply button</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 500 / 0.14em · filled var(--fg) → var(--bg) text · ed-btn-primary register</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">After-confirm ack</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Mono 9px / 0.14em · margin-note style · left rule 2px var(--accent)</td></tr>
+          <tr style="border-bottom: 1px solid var(--rule);"><td style="padding: 10px 12px 10px 0;">Input</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">DM Sans 13px · bottom-border 1px var(--rule) → var(--fg) on focus · matches .input</td></tr>
+          <tr><td style="padding: 10px 12px 10px 0;">Z-index tokens (suggested)</td><td style="padding: 10px 0; font-family: var(--font-mono); font-size: 11px;">--z-chat-backdrop: 9200 · --z-chat-panel: 9201 · sits above existing tool sheets (9101)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
