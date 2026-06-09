@@ -75,6 +75,37 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
+      // PERSIST FIRST, EMIT ID FIRST. The previous version persisted at the
+      // END of the stream and emitted message_id as the last frame — if the
+      // SSE connection got cut anywhere before that (timeout, proxy buffer
+      // flush, browser caching), the client never learned the DB id and the
+      // APPLY button couldn't persist its "applied" status across refresh.
+      //
+      // Now: create a placeholder row immediately, ship its id as the very
+      // first frame, and update the row at the end with the final content.
+      let assistantDbId: number | null = null;
+      try {
+        const placeholder = await prisma.chatMessage.create({
+          data: {
+            personId: auth.personId,
+            role: "assistant",
+            content: "",
+            proposalJson: null,
+            proposalStatus: null,
+          },
+        });
+        assistantDbId = placeholder.id;
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "message_id", id: assistantDbId })}\n\n`,
+          ),
+        );
+      } catch (e) {
+        console.error("Failed to create assistant placeholder:", e);
+        // Continue without an id — at least the stream still works,
+        // user just can't persist proposal status this turn.
+      }
+
       let assistantText = "";
       let proposal: MealProposal | BulkMealProposal | null = null;
       const usages: Anthropic.Usage[] = [];
@@ -99,29 +130,26 @@ export async function POST(req: NextRequest) {
           encoder.encode(`data: ${JSON.stringify({ type: "error", message: msg })}\n\n`),
         );
       } finally {
-        // Persist the assistant message with proposal data if present.
-        // Emit the DB-assigned id back to the client so it can upgrade its
-        // local `a-{timestamp}` id to `srv-{N}` — required for status updates
-        // (APPLY/CANCEL) to persist correctly via the history PATCH endpoint.
-        if (assistantText || proposal) {
+        // Update the placeholder row with the final content + proposal.
+        if (assistantDbId && (assistantText || proposal)) {
           try {
-            const saved = await prisma.chatMessage.create({
+            await prisma.chatMessage.update({
+              where: { id: assistantDbId },
               data: {
-                personId: auth.personId,
-                role: "assistant",
                 content: assistantText,
                 proposalJson: proposal ? JSON.stringify(proposal) : null,
                 proposalStatus: proposal ? "pending" : null,
               },
             });
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({ type: "message_id", id: saved.id })}\n\n`,
-              ),
-            );
           } catch (e) {
-            console.error("Failed to persist assistant message:", e);
+            console.error("Failed to update assistant message:", e);
           }
+        } else if (assistantDbId && !assistantText && !proposal) {
+          // No content was produced — clean up the empty placeholder so
+          // history isn't polluted with blank rows.
+          try {
+            await prisma.chatMessage.delete({ where: { id: assistantDbId } });
+          } catch { /* best effort */ }
         }
         await logChatUsage({
           personId: auth.personId,
