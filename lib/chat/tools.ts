@@ -62,6 +62,25 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
     },
   },
 
+  // ── Plan existence check ─────────────────────────────────────────────────
+  {
+    name: "check_plan_exists",
+    description:
+      "Check whether a meal plan exists for a given person and week. " +
+      "Call this FIRST whenever the user asks to add/modify meals for a future week " +
+      "— before asking any clarifying questions about recipe, meal type, or day. " +
+      "If no plan exists, report it immediately and stop. " +
+      "If a plan exists, then ask for the details you need.",
+    input_schema: {
+      type: "object",
+      properties: {
+        person_id: { type: "number", description: "The person_id to check for." },
+        date: { type: "string", description: "Any date within the target week (YYYY-MM-DD)." },
+      },
+      required: ["person_id", "date"],
+    },
+  },
+
   // ── Gate 2: propose-only write tools ─────────────────────────────────────
   // Named propose_* so the model can ONLY propose. No execute_* exists.
   {
@@ -168,6 +187,8 @@ export async function runChatTool(
   const i = input as Record<string, unknown>;
   try {
     switch (name) {
+      case "check_plan_exists":
+        return await checkPlanExists(i.date as string, i.person_id as number, ctx.householdId);
       case "get_recipe":
         return await getRecipe(i.recipe_id as number, ctx.householdId);
       case "get_meal_plan_week":
@@ -403,6 +424,60 @@ async function getMealPlanWeek(planId: number, householdId: number) {
     week_start: plan.weekStartDate.toISOString().slice(0, 10),
     days: daysWithMeals,
     goals: goalsByName,
+  };
+}
+
+// ── Plan existence check ─────────────────────────────────────────────────────
+
+async function checkPlanExists(date: string, personId: number, householdId: number) {
+  const WEEKDAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const parsed = new Date(date + "T00:00:00Z");
+  if (isNaN(parsed.getTime())) return { error: `Invalid date: ${date}` };
+
+  // Validate person belongs to household
+  const member = await prisma.householdMember.findFirst({
+    where: { householdId, personId, active: true },
+    include: { person: { select: { name: true } } },
+  });
+  if (!member) return { error: `Person ${personId} not found in your household.` };
+
+  // Find week start (Sunday)
+  const dayOfWeek = parsed.getUTCDay();
+  const weekStart = new Date(parsed);
+  weekStart.setUTCDate(weekStart.getUTCDate() - dayOfWeek);
+
+  const plan = await prisma.mealPlan.findFirst({
+    where: { personId, weekStartDate: weekStart },
+    select: { id: true, weekStartDate: true },
+  });
+
+  const weekday = WEEKDAYS[parsed.getUTCDay()];
+  const weekLabel = weekStart.toLocaleDateString("en-US", {
+    month: "short", day: "numeric", timeZone: "UTC",
+  });
+  const weekEndLabel = new Date(weekStart.getTime() + 6 * 86400000).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", timeZone: "UTC",
+  });
+
+  if (!plan) {
+    return {
+      exists: false,
+      person_name: member.person.name,
+      week_of: `${weekLabel}–${weekEndLabel}`,
+      week_start: weekStart.toISOString().slice(0, 10),
+      message: `No meal plan exists for ${member.person.name} for the week of ${weekLabel}–${weekEndLabel}. They need to create one in the app first (Planner → + NEW PLAN), then you can add meals.`,
+    };
+  }
+
+  return {
+    exists: true,
+    plan_id: plan.id,
+    person_id: personId,
+    person_name: member.person.name,
+    week_of: `${weekLabel}–${weekEndLabel}`,
+    week_start: weekStart.toISOString().slice(0, 10),
+    target_date: date,
+    target_weekday: weekday,
   };
 }
 
