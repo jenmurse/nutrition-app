@@ -81,10 +81,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         if (cancelled || !data?.messages) return;
         setMessages(
           data.messages.map(
-            (m: { id: number; role: string; content: string }) => ({
+            (m: { id: number; role: string; content: string; proposalJson?: string | null; proposalStatus?: string | null }) => ({
               id: `srv-${m.id}`,
               role: m.role as "user" | "assistant",
               content: m.content,
+              // Restore proposal and its persisted status (if any).
+              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as MealProposal : undefined,
+              proposalStatus: (m.proposalStatus as ChatMessage["proposalStatus"]) ?? undefined,
             }),
           ),
         );
@@ -229,6 +232,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
+  /** Persist proposal status to DB (fire-and-forget). */
+  const persistProposalStatus = useCallback(
+    (messageId: string, status: "applied" | "cancelled") => {
+      const numericId = messageId.startsWith("srv-")
+        ? Number(messageId.slice(4))
+        : NaN;
+      if (isNaN(numericId)) return;
+      fetch("/api/chat/history", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: numericId, proposalStatus: status }),
+      }).catch(() => { /* best-effort */ });
+    },
+    [],
+  );
+
   const applyProposal = useCallback(async (messageId: string) => {
     const msg = messages.find((m) => m.id === messageId);
     if (!msg?.proposal || msg.proposalStatus !== "pending") return;
@@ -242,24 +261,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       if (!r.ok) {
         const errText = await r.text().catch(() => "Failed");
         setMessages((prev) =>
-          prev.map((m) =>
-            m.id === messageId ? { ...m, error: errText } : m,
-          ),
+          prev.map((m) => m.id === messageId ? { ...m, error: errText } : m),
         );
         return;
       }
-      // Bust plan cache so the planner reflects the change immediately.
       clientCache.invalidate("/api/meal-plans");
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied" } : m)),
       );
+      persistProposalStatus(messageId, "applied");
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, error: msg2 } : m)),
       );
     }
-  }, [messages]);
+  }, [messages, persistProposalStatus]);
 
   const cancelProposal = useCallback((messageId: string) => {
     setMessages((prev) =>
@@ -269,7 +286,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           : m,
       ),
     );
-  }, []);
+    persistProposalStatus(messageId, "cancelled");
+  }, [persistProposalStatus]);
 
   return (
     <ChatContext.Provider

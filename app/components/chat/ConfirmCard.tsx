@@ -45,6 +45,7 @@ function MacroDeltaRow({ deltas }: { deltas: MacroDelta }) {
   if (entries.length === 0) return null;
   return (
     <div className="ck-macros">
+      <div className="ck-macros-label">Change to your day</div>
       {entries.map((k) => {
         const v = deltas[k]!;
         const isPositive = v > 0;

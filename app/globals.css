@@ -8777,10 +8777,16 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-swap-arrow { color: var(--muted); font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size: 11px; }
 .ck-swap-to { font-weight: 500; color: var(--fg); }
 .ck-macros {
-  display: flex; gap: 18px; flex-wrap: wrap;
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-end;
   padding: 12px 0 4px;
   border-top: 1px solid var(--rule);
   margin-top: 4px;
+}
+.ck-macros-label {
+  width: 100%;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px;
 }
 .ck-macro { display: flex; flex-direction: column; gap: 2px; }
 .ck-macro-label {

@@ -13,6 +13,7 @@
 
 import { NextRequest } from "next/server";
 import type Anthropic from "@anthropic-ai/sdk";
+import type { MealProposal } from "@/lib/chat/proposals";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildContext } from "@/lib/chat/context";
@@ -75,6 +76,7 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       let assistantText = "";
+      let proposal: MealProposal | null = null;
       const usages: Anthropic.Usage[] = [];
       try {
         for await (const ev of runChatTurn({
@@ -85,6 +87,7 @@ export async function POST(req: NextRequest) {
           timezone,
         })) {
           if (ev.type === "text") assistantText += ev.delta;
+          if (ev.type === "proposal") proposal = ev.data;
           if (ev.type === "done" && ev.usage) usages.push(ev.usage);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
         }
@@ -94,15 +97,20 @@ export async function POST(req: NextRequest) {
           encoder.encode(`data: ${JSON.stringify({ type: "error", message: msg })}\n\n`),
         );
       } finally {
-        // Persist whatever we got — even partial responses if the client dropped.
-        if (assistantText) {
+        // Persist the assistant message with proposal data if present.
+        if (assistantText || proposal) {
           await prisma.chatMessage
             .create({
-              data: { personId: auth.personId, role: "assistant", content: assistantText },
+              data: {
+                personId: auth.personId,
+                role: "assistant",
+                content: assistantText,
+                proposalJson: proposal ? JSON.stringify(proposal) : null,
+                proposalStatus: proposal ? "pending" : null,
+              },
             })
             .catch((e) => console.error("Failed to persist assistant message:", e));
         }
-        // Log usage (best-effort — failures swallowed inside logChatUsage).
         await logChatUsage({
           personId: auth.personId,
           householdId: auth.householdId,

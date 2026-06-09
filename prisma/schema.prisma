@@ -443,11 +443,13 @@ model Waitlist {
 
 // In-app AI chat history (per-person, server-persisted)
 model ChatMessage {
-  id        Int      @id @default(autoincrement())
-  personId  Int
-  role      String // "user" | "assistant"
-  content   String // plain text body
-  createdAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  personId       Int
+  role           String   // "user" | "assistant"
+  content        String   // plain text body
+  proposalJson   String?  // JSON-serialized MealProposal (Gate 2)
+  proposalStatus String?  // "pending" | "applied" | "cancelled"
+  createdAt      DateTime @default(now())
 
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
