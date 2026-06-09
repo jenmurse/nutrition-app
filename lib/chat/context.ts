@@ -54,13 +54,18 @@ export interface ChatContext {
   } | null;
 }
 
-/** Monday-start of the current week (UTC). */
+/** Sunday-start of the current week, midnight UTC.
+ *  Matches the convention in app/home/page.tsx — meal plans store
+ *  weekStartDate as the Sunday before / on today. */
 function currentWeekStartUTC(): Date {
   const now = new Date();
+  // Use UTC date components so the server's timezone (Railway = UTC) doesn't
+  // shift the result. If a user is in PDT and it's 10pm Sunday local, that's
+  // already Monday UTC — but their plan is keyed off Sunday UTC. This matches
+  // how plans are created in the planner (createPlan stores weekStartDate as
+  // a UTC date with no time component).
   const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const day = d.getUTCDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  d.setUTCDate(d.getUTCDate() + diff);
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay());
   return d;
 }
 
