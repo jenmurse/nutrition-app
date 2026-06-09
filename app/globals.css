@@ -5168,7 +5168,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .mob-topbar-right {
     display: flex;
     align-items: center;
-    gap: 0;
+    gap: 14px;
   }
   .mob-topbar-trigger {
     width: auto;
