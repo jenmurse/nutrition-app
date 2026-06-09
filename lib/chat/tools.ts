@@ -1022,14 +1022,68 @@ async function proposeApplyTemplate(
   const dt = new Date(date + "T00:00:00Z");
   const weekday = WEEKDAYS_BULK[dt.getUTCDay()];
 
-  const items: BulkMealProposal["items"] = template.items.map((item) => ({
-    date,
-    weekday,
-    mealType: item.mealType,
-    name: item.recipe?.name ?? item.ingredient?.name ??
-      (item.externalLabel ? `Eating out — ${item.externalLabel}` : "Eating out"),
-    servings: item.servings ?? item.quantity ?? 1,
-  }));
+  // Compute per-item macros so the confirm-card shows real numbers AND so
+  // we can build summary totals. Without this the model hallucinates sodium
+  // and other totals in its prose because it has no ground truth.
+  const itemsWithMacros = await Promise.all(
+    template.items.map(async (item) => {
+      const servings = item.servings ?? item.quantity ?? 1;
+      const macros = item.recipeId
+        ? await getRecipeMacros(item.recipeId, servings, ctx.householdId)
+        : {};
+      return {
+        date,
+        weekday,
+        mealType: item.mealType,
+        name: item.recipe?.name ?? item.ingredient?.name ??
+          (item.externalLabel ? `Eating out — ${item.externalLabel}` : "Eating out"),
+        servings,
+        macros: {
+          cal: macros.calories,
+          protein: macros.protein,
+          fiber: macros.fiber,
+          sodium: macros.sodium,
+        },
+      };
+    })
+  );
+
+  // Compute the day's projected total. If mode='replace' this IS the total;
+  // if mode='append' we have to add the existing meals for this date.
+  const targetDateUTC = new Date(date + "T00:00:00Z");
+  let existingTotals = { calories: 0, protein: 0, fiber: 0, sodium: 0 };
+  if (mode === "append") {
+    const existing = await prisma.mealLog.findMany({
+      where: { mealPlanId: planId, date: targetDateUTC },
+      select: { recipeId: true, servings: true },
+    });
+    for (const log of existing) {
+      if (!log.recipeId) continue;
+      const m = await getRecipeMacros(log.recipeId, log.servings, ctx.householdId);
+      existingTotals.calories += m.calories ?? 0;
+      existingTotals.protein  += m.protein  ?? 0;
+      existingTotals.fiber    += m.fiber    ?? 0;
+      existingTotals.sodium   += m.sodium   ?? 0;
+    }
+  }
+
+  // For replace mode in actual production: the merge logic at /api/day-templates/[id]/apply
+  // dedupes by (mealType, recipeId), so identical entries don't double. But for the model's
+  // claim, the simplest accurate projection is: template totals + (append ? existing : 0).
+  // For the very common case "replace" the model's projection equals the template totals.
+  let projCal = 0, projPro = 0, projFib = 0, projNa = 0;
+  for (const it of itemsWithMacros) {
+    projCal += it.macros.cal ?? 0;
+    projPro += it.macros.protein ?? 0;
+    projFib += it.macros.fiber ?? 0;
+    projNa  += it.macros.sodium ?? 0;
+  }
+  const projectedDayTotals = {
+    calories: Math.round(projCal + existingTotals.calories),
+    protein:  Math.round(projPro + existingTotals.protein),
+    fiber:    Math.round(projFib + existingTotals.fiber),
+    sodium:   Math.round(projNa  + existingTotals.sodium),
+  };
 
   return {
     type: "apply_template",
@@ -1039,7 +1093,15 @@ async function proposeApplyTemplate(
     targetDate: date,
     targetWeekday: weekday,
     mode,
-    items,
+    items: itemsWithMacros,
+    // Surfaced in the tool_result for the model — these are the REAL numbers
+    // to quote in prose. Tells the model exactly what totals to expect after apply.
+    projectedDayTotals,
+    summaryMacros: {
+      avgCalPerDay: projectedDayTotals.calories || undefined,
+      avgProteinPerDay: projectedDayTotals.protein || undefined,
+      maxSodium: projectedDayTotals.sodium || undefined,
+    },
     execute: {
       method: "POST",
       url: `/api/day-templates/${templateId}/apply`,

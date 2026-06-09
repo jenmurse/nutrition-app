@@ -263,11 +263,24 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         console.warn("[chat] persistProposalStatus: no dbId for", messageId, "— status won't persist across refresh");
         return;
       }
-      await fetch("/api/chat/history", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: dbId, proposalStatus: status }),
-      }).catch((e) => console.error("[chat] Failed to persist proposalStatus:", e));
+      try {
+        const r = await fetch("/api/chat/history", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: dbId, proposalStatus: status }),
+        });
+        if (!r.ok) {
+          const body = await r.text().catch(() => "(no body)");
+          console.error(
+            `[chat] persistProposalStatus FAILED: ${r.status} ${r.statusText} for dbId=${dbId} status=${status}. body:`,
+            body,
+          );
+        } else {
+          console.log(`[chat] persistProposalStatus OK: dbId=${dbId} -> ${status}`);
+        }
+      } catch (e) {
+        console.error("[chat] persistProposalStatus threw:", e);
+      }
     },
     [messages],
   );
