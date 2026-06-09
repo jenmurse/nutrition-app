@@ -27,6 +27,7 @@ import { CHAT_TOOLS, runChatTool, isProposeTool, isBulkProposeTool } from "./too
 import type { MealProposal, BulkMealProposal } from "./proposals";
 import {
   formatStableContextForPrompt,
+  formatWeeklyPlansForPrompt,
   formatViewIndicator,
   type ChatContext,
 } from "./context";
@@ -138,13 +139,16 @@ export async function* runChatTurn(args: {
 }): AsyncGenerator<ChatStreamEvent> {
   const { history, context, personId, householdId, timezone } = args;
 
-  // Three system blocks:
+  // System blocks split around the cache breakpoint:
   //   1) System prompt (frozen)
-  //   2) Stable context: household members, recipes, pantry.
+  //   2) Stable context: members, plan ids, recipes, pantry, templates.
   //      Cache_control here — this is the cacheable prefix.
-  //   3) "Today" + "currently viewing" — both change frequently (date flips
-  //      at midnight, view changes on person switch), so they sit AFTER the
-  //      cache breakpoint. Small per-turn cost.
+  //   3) Volatile blocks AFTER the breakpoint — anything that changes
+  //      mid-session lives here so it doesn't invalidate the cache:
+  //        - "Today" (flips at midnight)
+  //        - "Currently viewing" (changes on person switch)
+  //        - Each member's current week meal contents (changes every
+  //          time the planner is edited — the most-edited data in the app)
   const systemBlocks: Anthropic.TextBlockParam[] = [
     { type: "text", text: SYSTEM_PROMPT_V9 },
     {
@@ -157,7 +161,7 @@ export async function* runChatTurn(args: {
     },
     {
       type: "text",
-      text: `${formatToday(timezone)}\n\n${formatViewIndicator(context)}`,
+      text: `${formatToday(timezone)}\n\n${formatViewIndicator(context)}\n\n${formatWeeklyPlansForPrompt(context)}`,
     },
   ];
 

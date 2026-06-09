@@ -274,40 +274,41 @@ async function loadPantrySummary(householdId: number) {
 }
 
 /**
- * Cached portion of the system prompt: household members, recipes, pantry.
- * Stable across turns within a session — that's what the cache breakpoint
- * pins. Does NOT include the "currently viewing" indicator (see below).
+ * Cached portion of the system prompt — only data that's stable across many
+ * turns sits here. The cache breakpoint is pinned right after this block, so
+ * **anything that changes mid-session invalidates the cache and forces a full
+ * rewrite (2x input cost at 1h TTL).**
+ *
+ * Included (rarely changes mid-session):
+ *  - Household members: id, name, goals
+ *  - For each person: plan_id + weekStartDate (so the model can call get_meal_plan_week)
+ *  - Recipe library
+ *  - Pantry summary
+ *  - Day templates
+ *
+ * Excluded — see `formatVolatileContextForPrompt` below:
+ *  - Each person's day-by-day meal contents (changes every time the planner is edited)
  */
 export function formatStableContextForPrompt(ctx: ChatContext): string {
   const lines: string[] = [];
 
   lines.push(`# Household members (${ctx.household.people.length})`);
-  lines.push(`Format: person_id · name · goals; then per-member weekly plan`);
+  lines.push(`Format: person_id · name · goals`);
   for (const p of ctx.household.people) {
     lines.push(`- ${p.id} · ${p.name} · ${p.goalsText}`);
   }
   lines.push("");
 
+  lines.push(`# Current-week plan ids`);
+  lines.push(`Format: person_name · plan_id · week_start. Call get_meal_plan_week(plan_id) for details.`);
   for (const p of ctx.household.people) {
     if (p.currentWeek) {
-      lines.push(`## ${p.name}'s current week (plan ${p.currentWeek.planId}, starts ${p.currentWeek.weekStartDate})`);
-      if (p.currentWeek.days.length === 0) {
-        lines.push(`(No meals planned)`);
-      } else {
-        for (const d of p.currentWeek.days) {
-          const meals = d.meals
-            .map((m) => `${m.mealType}: ${m.name}${m.servings !== 1 ? ` ×${m.servings}` : ""}`)
-            .join("; ");
-          lines.push(`- ${d.date}: ${meals}`);
-        }
-      }
-      lines.push("");
+      lines.push(`- ${p.name}: plan ${p.currentWeek.planId} (starts ${p.currentWeek.weekStartDate})`);
     } else {
-      lines.push(`## ${p.name}'s current week`);
-      lines.push(`No plan exists for this week yet.`);
-      lines.push("");
+      lines.push(`- ${p.name}: no plan for this week`);
     }
   }
+  lines.push("");
 
   lines.push(`# Recipe library (${ctx.recipes.length} recipes — shared across household)`);
   lines.push(`Format: id · name · tags · per-serving cal/protein/fiber/sodium`);
@@ -345,6 +346,36 @@ export function formatStableContextForPrompt(ctx: ChatContext): string {
     lines.push(`No templates saved yet.`);
   }
 
+  return lines.join("\n");
+}
+
+/**
+ * Volatile portion — every household member's current-week meal contents.
+ * Kept OUT of the cached prefix because the planner is the most-edited data
+ * in the app; baking it into the cache would invalidate after every meal
+ * add/swap/remove and force a 2x-cost rewrite on the next chat turn.
+ *
+ * The cost per turn is small (a few hundred tokens of meal names) but pays
+ * off in cache stability for the much larger recipe/pantry block.
+ */
+export function formatWeeklyPlansForPrompt(ctx: ChatContext): string {
+  const lines: string[] = [];
+  lines.push(`# Current week — planned meals`);
+  for (const p of ctx.household.people) {
+    if (!p.currentWeek) continue;
+    lines.push(`## ${p.name} (plan ${p.currentWeek.planId})`);
+    if (p.currentWeek.days.length === 0) {
+      lines.push(`(No meals planned)`);
+    } else {
+      for (const d of p.currentWeek.days) {
+        const meals = d.meals
+          .map((m) => `${m.mealType}: ${m.name}${m.servings !== 1 ? ` ×${m.servings}` : ""}`)
+          .join("; ");
+        lines.push(`- ${d.date}: ${meals}`);
+      }
+    }
+    lines.push("");
+  }
   return lines.join("\n");
 }
 
