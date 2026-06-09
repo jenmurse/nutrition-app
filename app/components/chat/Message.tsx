@@ -24,6 +24,7 @@ export default function Message({ message }: { message: ChatMessage }) {
       {message.proposal && (
         <ConfirmCard
           messageId={message.id}
+          dbId={message.dbId}
           proposal={message.proposal}
           status={message.proposalStatus ?? "pending"}
         />

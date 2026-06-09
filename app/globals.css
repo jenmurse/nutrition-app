@@ -8763,13 +8763,18 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 16px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.3;
   color: var(--fg);
 }
-.ck-card-body { padding: 0 16px 4px; }
+.ck-card-body { padding: 0 16px 0; }
 .ck-row {
   display: flex; justify-content: space-between; align-items: baseline;
   padding: 12px 0;
   border-bottom: 1px solid var(--rule);
   gap: 16px;
 }
+/* Remove bottom border on the last row — the footer's border-top is the
+   separator. Without this, two lines sit ~4px apart and look like the
+   card has hidden scrollable content. Only applies when there's no
+   macros strip after the rows (.ck-macros would be last-child instead). */
+.ck-card-body > .ck-row:last-child { border-bottom: none; }
 /* Only one separator between rows and the macros strip:
    keep border-bottom on rows, remove border-top from macros. */
 .ck-row-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }

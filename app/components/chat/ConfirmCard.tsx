@@ -67,11 +67,13 @@ function MacroDeltaRow({ deltas }: { deltas: MacroDelta }) {
 
 interface ConfirmCardProps {
   messageId: string;
+  /** DB-assigned id — passed explicitly so apply/cancel don't rely on stale closures. */
+  dbId?: number;
   proposal: MealProposal | BulkMealProposal;
   status: "pending" | "applied" | "cancelled";
 }
 
-export default function ConfirmCard({ messageId, proposal, status }: ConfirmCardProps) {
+export default function ConfirmCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
   const { applyProposal, applyBulkProposal, cancelProposal, isStreaming } = useChat();
   const isBulk = proposal.type === "fill_week" || proposal.type === "apply_template";
 
@@ -151,7 +153,7 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
           <span className="ck-card-note">Not right? Cancel and adjust.</span>
           <div style={{ display: "flex", gap: 8 }}>
             <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>Cancel</button>
-            <button type="button" className="ck-btn-apply" onClick={() => applyBulkProposal(messageId)} disabled={isStreaming}>
+            <button type="button" className="ck-btn-apply" onClick={() => applyBulkProposal(messageId, dbId)} disabled={isStreaming}>
               {bulk.type === "apply_template" ? "Apply" : "Add all"}
             </button>
           </div>
@@ -249,7 +251,7 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
         <button
           type="button"
           className="ck-btn-apply"
-          onClick={() => applyProposal(messageId)}
+          onClick={() => applyProposal(messageId, dbId)}
           disabled={isStreaming}
         >
           {singleProposal.type === "add" ? "Add" :

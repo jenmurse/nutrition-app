@@ -48,9 +48,9 @@ interface ChatState {
   /** Clear local + server history. */
   clear: () => Promise<void>;
   /** Apply a pending single proposal (fires the API call). */
-  applyProposal: (messageId: string) => Promise<void>;
+  applyProposal: (messageId: string, dbId?: number) => Promise<void>;
   /** Apply a pending bulk proposal (fires all API calls sequentially). */
-  applyBulkProposal: (messageId: string) => Promise<void>;
+  applyBulkProposal: (messageId: string, dbId?: number) => Promise<void>;
   /** Cancel a pending proposal (no API call). */
   cancelProposal: (messageId: string) => void;
 }
@@ -272,10 +272,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     [messages],
   );
 
-  const applyProposal = useCallback(async (messageId: string) => {
+  const applyProposal = useCallback(async (messageId: string, explicitDbId?: number) => {
     const msg = messages.find((m) => m.id === messageId);
     if (!msg?.proposal || msg.proposalStatus !== "pending") return;
-    const dbId = msg.dbId;
+    const dbId = explicitDbId ?? msg.dbId;
     const { execute } = msg.proposal;
     try {
       const r = await fetch(execute.url, {
@@ -305,11 +305,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [messages, persistProposalStatus]);
 
-  const applyBulkProposal = useCallback(async (messageId: string) => {
+  const applyBulkProposal = useCallback(async (messageId: string, explicitDbId?: number) => {
     const msg = messages.find((m) => m.id === messageId);
     const bulk = msg?.proposal as BulkMealProposal | undefined;
     if (!bulk || !("executeAll" in bulk || "execute" in bulk) || msg?.proposalStatus !== "pending") return;
-    const dbId = msg.dbId;
+    const dbId = explicitDbId ?? msg.dbId;
 
     try {
       if ("execute" in bulk && bulk.execute) {
@@ -342,11 +342,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       clientCache.invalidate("/api/meal-plans");
       await persistProposalStatus(messageId, "applied", dbId);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, proposalStatus: "applied" } : m));
+      // Auto-continue: for template applies the model said "I'll propose the next
+      // day after you apply" — sending "Applied." lets it follow through without
+      // requiring the user to prompt again.
+      if (bulk.type === "apply_template") {
+        void send("Applied.");
+      }
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: msg2 } : m));
     }
-  }, [messages, persistProposalStatus]);
+  }, [messages, persistProposalStatus, send]);
 
   const cancelProposal = useCallback(async (messageId: string) => {
     const msg = messages.find((m) => m.id === messageId);
