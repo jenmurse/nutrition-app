@@ -9,7 +9,7 @@
 
 import type Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/db";
-import type { MealProposal, MacroDelta } from "./proposals";
+import type { MealProposal, BulkMealProposal, MacroDelta } from "./proposals";
 
 export const CHAT_TOOLS: Anthropic.Tool[] = [
   {
@@ -59,6 +59,55 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         },
       },
       required: ["query"],
+    },
+  },
+
+  // ── Gate 3: bulk write tools ─────────────────────────────────────────────
+  {
+    name: "propose_fill_week",
+    description:
+      "Propose adding multiple meals across a week in one confirm-card. " +
+      "Use this when the user asks to fill their week, plan several days, or add meals across multiple days at once. " +
+      "Only include meals that match the user's explicit request — don't fill every slot unless asked. " +
+      "Each item must reference an existing recipe_id from the recipe library in context.",
+    input_schema: {
+      type: "object",
+      properties: {
+        plan_id: { type: "number", description: "The meal plan id to add to." },
+        person_id: { type: "number", description: "The person_id whose plan this is." },
+        meals: {
+          type: "array",
+          description: "The meals to propose. Each item is one meal on one day.",
+          items: {
+            type: "object",
+            properties: {
+              date: { type: "string", description: "YYYY-MM-DD" },
+              meal_type: { type: "string", description: "breakfast | lunch | dinner | snack | side | dessert | beverage" },
+              recipe_id: { type: "number", description: "Recipe from the library." },
+              servings: { type: "number", description: "Serving count. Default 1." },
+            },
+            required: ["date", "meal_type", "recipe_id"],
+          },
+        },
+      },
+      required: ["plan_id", "person_id", "meals"],
+    },
+  },
+  {
+    name: "propose_apply_template",
+    description:
+      "Propose applying a saved day template to a specific day. " +
+      "Template ids and names are in the context. " +
+      "mode 'replace' clears the day first; mode 'append' merges with existing meals.",
+    input_schema: {
+      type: "object",
+      properties: {
+        template_id: { type: "number", description: "The day template id from context." },
+        plan_id: { type: "number", description: "The meal plan id to apply to." },
+        date: { type: "string", description: "YYYY-MM-DD — the target day." },
+        mode: { type: "string", description: "'replace' or 'append'." },
+      },
+      required: ["template_id", "plan_id", "date", "mode"],
     },
   },
 
@@ -179,6 +228,10 @@ export function isProposeTool(name: string): boolean {
   return name.startsWith("propose_");
 }
 
+export function isBulkProposeTool(name: string): boolean {
+  return name === "propose_fill_week" || name === "propose_apply_template";
+}
+
 export async function runChatTool(
   name: string,
   input: unknown,
@@ -187,6 +240,10 @@ export async function runChatTool(
   const i = input as Record<string, unknown>;
   try {
     switch (name) {
+      case "propose_fill_week":
+        return await proposeFillWeek(i, ctx);
+      case "propose_apply_template":
+        return await proposeApplyTemplate(i, ctx);
       case "check_plan_exists":
         return await checkPlanExists(i.date as string, i.person_id as number, ctx.householdId);
       case "get_recipe":
@@ -821,4 +878,138 @@ async function searchIngredients(query: string, householdId: number) {
       per_100g_nutrition: per100g,
     };
   });
+}
+
+// ── Gate 3: Bulk proposal execution ──────────────────────────────────────────
+
+const WEEKDAYS_BULK = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+async function proposeFillWeek(
+  i: Record<string, unknown>,
+  ctx: { personId: number; householdId: number },
+): Promise<BulkMealProposal | { error: string }> {
+  const planId = i.plan_id as number;
+  const personId = i.person_id as number;
+  const meals = i.meals as Array<{ date: string; meal_type: string; recipe_id: number; servings?: number }>;
+
+  if (!meals?.length) return { error: "No meals provided." };
+
+  const plan = await prisma.mealPlan.findFirst({
+    where: { id: planId, householdId: ctx.householdId },
+    select: { id: true, personId: true },
+  });
+  if (!plan) return { error: `Plan ${planId} not found.` };
+
+  const person = await resolvePerson(personId || plan.personId, ctx.householdId);
+  if (!person) return { error: "Person not found." };
+
+  const recipeIds = [...new Set(meals.map((m) => m.recipe_id))];
+  const recipes = await prisma.recipe.findMany({
+    where: { id: { in: recipeIds }, householdId: ctx.householdId },
+    select: { id: true, name: true, servingSize: true,
+      ingredients: { select: { quantity: true, unit: true, conversionGrams: true,
+        ingredient: { select: { defaultUnit: true, customUnitGrams: true,
+          nutrientValues: { select: { value: true, nutrient: { select: { name: true } } } } } } } } },
+  });
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+
+  const items: BulkMealProposal["items"] = [];
+  const executeAll: BulkMealProposal["executeAll"] = [];
+
+  for (const m of meals) {
+    const recipe = recipeMap.get(m.recipe_id);
+    if (!recipe) return { error: `Recipe ${m.recipe_id} not found.` };
+    const servings = m.servings ?? 1;
+    const macros = await getRecipeMacros(m.recipe_id, servings, ctx.householdId);
+    const dt = new Date(m.date + "T00:00:00Z");
+    items.push({
+      date: m.date,
+      weekday: WEEKDAYS_BULK[dt.getUTCDay()],
+      mealType: m.meal_type,
+      name: recipe.name,
+      servings,
+      macros,
+    });
+    executeAll.push({
+      method: "POST",
+      url: `/api/meal-plans/${planId}/meals`,
+      body: { date: m.date, mealType: m.meal_type, recipeId: m.recipe_id, servings },
+    });
+  }
+
+  // Average daily summary for the items proposed
+  const caloriesArr = items.map((it) => it.macros?.cal ?? 0);
+  const proteinArr = items.map((it) => it.macros?.protein ?? 0);
+  const sodiumArr = items.map((it) => it.macros?.sodium ?? 0);
+
+  return {
+    type: "fill_week",
+    personId: person.id,
+    personName: person.name,
+    weekLabel: items.length > 0 ? `${items[0].weekday} – ${items[items.length - 1].weekday}` : undefined,
+    items,
+    summaryMacros: {
+      avgCalPerDay: caloriesArr.length ? Math.round(caloriesArr.reduce((a, b) => a + b, 0) / caloriesArr.length) : undefined,
+      avgProteinPerDay: proteinArr.length ? Math.round(proteinArr.reduce((a, b) => a + b, 0) / proteinArr.length) : undefined,
+      maxSodium: sodiumArr.length ? Math.max(...sodiumArr) : undefined,
+    },
+    executeAll,
+  };
+}
+
+async function proposeApplyTemplate(
+  i: Record<string, unknown>,
+  ctx: { personId: number; householdId: number },
+): Promise<BulkMealProposal | { error: string }> {
+  const templateId = i.template_id as number;
+  const planId = i.plan_id as number;
+  const date = i.date as string;
+  const mode = (i.mode as "replace" | "append") ?? "append";
+
+  const template = await prisma.dayTemplate.findFirst({
+    where: { id: templateId, householdId: ctx.householdId },
+    include: {
+      person: { select: { name: true } },
+      items: {
+        include: { recipe: { select: { name: true } }, ingredient: { select: { name: true } } },
+        orderBy: { position: "asc" },
+      },
+    },
+  });
+  if (!template) return { error: `Template ${templateId} not found.` };
+
+  const plan = await prisma.mealPlan.findFirst({
+    where: { id: planId, householdId: ctx.householdId },
+    select: { id: true, personId: true },
+  });
+  if (!plan) return { error: `Plan ${planId} not found.` };
+
+  const person = await resolvePerson(plan.personId, ctx.householdId);
+  const dt = new Date(date + "T00:00:00Z");
+  const weekday = WEEKDAYS_BULK[dt.getUTCDay()];
+
+  const items: BulkMealProposal["items"] = template.items.map((item) => ({
+    date,
+    weekday,
+    mealType: item.mealType,
+    name: item.recipe?.name ?? item.ingredient?.name ??
+      (item.externalLabel ? `Eating out — ${item.externalLabel}` : "Eating out"),
+    servings: item.servings ?? item.quantity ?? 1,
+  }));
+
+  return {
+    type: "apply_template",
+    personId: person?.id ?? ctx.personId,
+    personName: person?.name ?? "Unknown",
+    templateName: template.name,
+    targetDate: date,
+    targetWeekday: weekday,
+    mode,
+    items,
+    execute: {
+      method: "POST",
+      url: `/api/day-templates/${templateId}/apply`,
+      body: { planId, date, mode },
+    },
+  };
 }

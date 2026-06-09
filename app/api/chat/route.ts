@@ -13,7 +13,7 @@
 
 import { NextRequest } from "next/server";
 import type Anthropic from "@anthropic-ai/sdk";
-import type { MealProposal } from "@/lib/chat/proposals";
+import type { MealProposal, BulkMealProposal } from "@/lib/chat/proposals";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildContext } from "@/lib/chat/context";
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       let assistantText = "";
-      let proposal: MealProposal | null = null;
+      let proposal: MealProposal | BulkMealProposal | null = null;
       const usages: Anthropic.Usage[] = [];
       try {
         for await (const ev of runChatTurn({

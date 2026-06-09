@@ -117,7 +117,24 @@ export default function ChatPanel() {
           {messages.length === 0 ? (
             <EmptyState />
           ) : (
-            messages.map((m) => <Message key={m.id} message={m} />)
+            messages.map((m, i) => {
+              const prev = messages[i - 1];
+              const showDivider = prev?.createdAt && m.createdAt &&
+                new Date(m.createdAt).toDateString() !== new Date(prev.createdAt).toDateString();
+              const dividerLabel = m.createdAt
+                ? new Date(m.createdAt).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
+                : null;
+              return (
+                <div key={m.id}>
+                  {showDivider && dividerLabel && (
+                    <div className="ck-divider">
+                      <span>{dividerLabel}</span>
+                    </div>
+                  )}
+                  <Message message={m} />
+                </div>
+              );
+            })
           )}
           {toolInFlight && (
             <div className="ck-thinking">Looking up {prettyToolName(toolInFlight)}…</div>

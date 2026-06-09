@@ -56,6 +56,12 @@ export interface ChatContext {
     totalCount: number;
     byCategory: Record<string, number>;
   };
+  templates: Array<{
+    id: number;
+    name: string;
+    personName: string | null;
+    itemCount: number;
+  }>;
 }
 
 /** Sunday-start of the current week, midnight UTC. Matches app/home convention. */
@@ -87,10 +93,11 @@ export async function buildContext(
   viewingPersonId: number,
   householdId: number,
 ): Promise<ChatContext> {
-  const [members, recipes, pantryAgg] = await Promise.all([
+  const [members, recipes, pantryAgg, templates] = await Promise.all([
     loadHouseholdMembersWithData(householdId),
     loadRecipes(householdId),
     loadPantrySummary(householdId),
+    loadTemplates(householdId),
   ]);
   return {
     loggedInPersonId,
@@ -98,7 +105,25 @@ export async function buildContext(
     household: { people: members },
     recipes,
     pantry: pantryAgg,
+    templates,
   };
+}
+
+async function loadTemplates(householdId: number) {
+  const rows = await prisma.dayTemplate.findMany({
+    where: { householdId },
+    orderBy: [{ sortIndex: "asc" }, { createdAt: "desc" }],
+    include: {
+      person: { select: { name: true } },
+      _count: { select: { items: true } },
+    },
+  });
+  return rows.map((t) => ({
+    id: t.id,
+    name: t.name,
+    personName: t.person?.name ?? null,
+    itemCount: t._count.items,
+  }));
 }
 
 async function loadHouseholdMembersWithData(householdId: number): Promise<PersonContextSlice[]> {
@@ -307,6 +332,18 @@ export function formatStableContextForPrompt(ctx: ChatContext): string {
   lines.push(`Call search_ingredients to look up a specific pantry item by name.`);
   lines.push(`Call get_recipe for full ingredient list + complete per-serving nutrition.`);
   lines.push(`Call get_meal_plan_week to see per-day nutrition totals + goal comparisons for any household member's plan.`);
+  lines.push("");
+
+  if (ctx.templates.length > 0) {
+    lines.push(`# Day templates (${ctx.templates.length})`);
+    lines.push(`Format: id · name · attributed to · meal count`);
+    for (const t of ctx.templates) {
+      lines.push(`- ${t.id} · ${t.name} · ${t.personName ?? "household"} · ${t.itemCount} meals`);
+    }
+  } else {
+    lines.push(`# Day templates`);
+    lines.push(`No templates saved yet.`);
+  }
 
   return lines.join("\n");
 }

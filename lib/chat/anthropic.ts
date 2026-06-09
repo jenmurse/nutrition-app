@@ -12,14 +12,14 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V4. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V5. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import { CHAT_TOOLS, runChatTool, isProposeTool } from "./tools";
-import type { MealProposal } from "./proposals";
+import { CHAT_TOOLS, runChatTool, isProposeTool, isBulkProposeTool } from "./tools";
+import type { MealProposal, BulkMealProposal } from "./proposals";
 import {
   formatStableContextForPrompt,
   formatViewIndicator,
@@ -28,7 +28,7 @@ import {
 
 export const CHAT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V4 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V5 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -59,10 +59,12 @@ What you can do:
 Propose-then-confirm (REQUIRED for ALL writes):
 - NEVER describe a change in prose and ask for verbal confirmation. ALWAYS call a propose_* tool.
 - check_plan_exists — check whether a plan exists for a given person + week. Call this FIRST whenever the user asks to add/change meals for any week that is NOT the current week. If no plan, report it and stop — don't ask any other questions.
-- propose_add_meal — add a new meal to a plan
+- propose_add_meal — add a single meal to a plan
 - propose_swap_meal — replace an existing meal with a different one
 - propose_remove_meal — remove a meal from a plan
 - propose_update_servings — change the serving count for an existing meal
+- propose_fill_week — propose multiple meals across a week in ONE confirm-card. Use this when the user asks to fill their week, plan several days, or add meals across multiple slots at once. Each item must be a recipe from the library.
+- propose_apply_template — propose applying a saved day template to a specific day. Template ids and names are in the context.
 - These tools validate the inputs, compute macro deltas, and return a confirm-card to the user.
 - The user taps APPLY to execute or CANCEL to dismiss. You never execute writes yourself.
 
@@ -106,7 +108,7 @@ export type ChatStreamEvent =
   | { type: "text"; delta: string }
   | { type: "tool_start"; name: string }
   | { type: "tool_done"; name: string }
-  | { type: "proposal"; data: MealProposal }
+  | { type: "proposal"; data: MealProposal | BulkMealProposal }
   | { type: "message_id"; id: number }  // DB id for the persisted assistant message
   | { type: "done"; usage?: Anthropic.Usage }
   | { type: "error"; message: string };
@@ -140,7 +142,7 @@ export async function* runChatTurn(args: {
   //      at midnight, view changes on person switch), so they sit AFTER the
   //      cache breakpoint. Small per-turn cost.
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V4 },
+    { type: "text", text: SYSTEM_PROMPT_V5 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
@@ -219,7 +221,10 @@ export async function* runChatTurn(args: {
         // For propose_* tools, emit the proposal as a structured event so the
         // client can render a confirm-card instead of just prose.
         if (isProposeTool(tc.name) && result && typeof result === "object" && !("error" in result)) {
-          yield { type: "proposal", data: result as MealProposal };
+          yield {
+            type: "proposal",
+            data: result as (MealProposal | BulkMealProposal),
+          };
         }
         toolResults.push({
           type: "tool_result",

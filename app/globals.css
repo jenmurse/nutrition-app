@@ -8726,6 +8726,22 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-input-send:hover:not(:disabled) { color: var(--fg); }
 .ck-input-send:disabled { opacity: 0.4; cursor: default; }
 
+/* ── Session divider ── */
+.ck-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 8px 0;
+}
+.ck-divider::before,
+.ck-divider::after {
+  content: ""; flex: 1; height: 1px; background: var(--rule);
+}
+.ck-divider span {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  white-space: nowrap;
+}
+
 /* ── Confirm-card (Gate 2: propose-then-confirm) ── */
 .ck-card {
   border: 1px solid var(--rule);

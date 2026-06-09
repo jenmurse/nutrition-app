@@ -18,7 +18,7 @@ import {
 } from "react";
 import { usePersonContext } from "../PersonContext";
 import { clientCache } from "@/lib/clientCache";
-import type { MealProposal } from "@/lib/chat/proposals";
+import type { MealProposal, BulkMealProposal } from "@/lib/chat/proposals";
 
 export interface ChatMessage {
   id: string;
@@ -26,12 +26,11 @@ export interface ChatMessage {
   content: string;
   streaming?: boolean;
   error?: string;
-  // Gate 2: proposal attached to an assistant message
-  proposal?: MealProposal;
+  createdAt?: string; // ISO string — present for history-loaded messages
+  // Gate 2+: proposal attached to an assistant message
+  proposal?: MealProposal | BulkMealProposal;
   proposalStatus?: "pending" | "applied" | "cancelled";
-  /** DB-assigned id — set when message_id SSE event arrives or loaded from history.
-   *  Used for status persistence; separate from the React `id` so there's no
-   *  race between the id upgrade and the user tapping APPLY/CANCEL. */
+  /** DB-assigned id — set when message_id SSE event arrives or loaded from history. */
   dbId?: number;
 }
 
@@ -48,8 +47,10 @@ interface ChatState {
   abort: () => void;
   /** Clear local + server history. */
   clear: () => Promise<void>;
-  /** Apply a pending proposal (fires the API call). */
+  /** Apply a pending single proposal (fires the API call). */
   applyProposal: (messageId: string) => Promise<void>;
+  /** Apply a pending bulk proposal (fires all API calls sequentially). */
+  applyBulkProposal: (messageId: string) => Promise<void>;
   /** Cancel a pending proposal (no API call). */
   cancelProposal: (messageId: string) => void;
 }
@@ -85,12 +86,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         if (cancelled || !data?.messages) return;
         setMessages(
           data.messages.map(
-            (m: { id: number; role: string; content: string; proposalJson?: string | null; proposalStatus?: string | null }) => ({
+            (m: { id: number; role: string; content: string; proposalJson?: string | null; proposalStatus?: string | null; createdAt?: string }) => ({
               id: `srv-${m.id}`,
               dbId: m.id,
               role: m.role as "user" | "assistant",
               content: m.content,
-              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as MealProposal : undefined,
+              createdAt: m.createdAt,
+              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as (MealProposal | BulkMealProposal) : undefined,
               proposalStatus: (m.proposalStatus as ChatMessage["proposalStatus"]) ?? undefined,
             }),
           ),
@@ -295,6 +297,48 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [messages, persistProposalStatus]);
 
+  const applyBulkProposal = useCallback(async (messageId: string) => {
+    const msg = messages.find((m) => m.id === messageId);
+    const bulk = msg?.proposal as BulkMealProposal | undefined;
+    if (!bulk || !("executeAll" in bulk || "execute" in bulk) || msg?.proposalStatus !== "pending") return;
+
+    try {
+      if ("execute" in bulk && bulk.execute) {
+        // Single call (apply_template)
+        const r = await fetch(bulk.execute.url, {
+          method: bulk.execute.method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bulk.execute.body),
+        });
+        if (!r.ok) {
+          const errText = await r.text().catch(() => "Failed");
+          setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: errText } : m));
+          return;
+        }
+      } else if ("executeAll" in bulk && bulk.executeAll) {
+        // Sequential calls (fill_week)
+        for (const exec of bulk.executeAll) {
+          const r = await fetch(exec.url, {
+            method: exec.method,
+            headers: exec.body ? { "Content-Type": "application/json" } : {},
+            body: exec.body ? JSON.stringify(exec.body) : undefined,
+          });
+          if (!r.ok) {
+            const errText = await r.text().catch(() => "Failed");
+            setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: errText } : m));
+            return;
+          }
+        }
+      }
+      clientCache.invalidate("/api/meal-plans");
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, proposalStatus: "applied" } : m));
+      persistProposalStatus(messageId, "applied");
+    } catch (err) {
+      const msg2 = err instanceof Error ? err.message : String(err);
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: msg2 } : m));
+    }
+  }, [messages, persistProposalStatus]);
+
   const cancelProposal = useCallback((messageId: string) => {
     setMessages((prev) =>
       prev.map((m) =>
@@ -308,7 +352,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   return (
     <ChatContext.Provider
-      value={{ open, setOpen, messages, isStreaming, toolInFlight, send, abort, clear, applyProposal, cancelProposal }}
+      value={{ open, setOpen, messages, isStreaming, toolInFlight, send, abort, clear, applyProposal, applyBulkProposal, cancelProposal }}
     >
       {children}
     </ChatContext.Provider>

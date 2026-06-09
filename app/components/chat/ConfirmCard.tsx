@@ -1,6 +1,6 @@
 "use client";
 
-import type { MealProposal, MacroDelta } from "@/lib/chat/proposals";
+import type { MealProposal, BulkMealProposal, MacroDelta } from "@/lib/chat/proposals";
 import { useChat } from "./ChatProvider";
 import { clientCache } from "@/lib/clientCache";
 
@@ -67,29 +67,29 @@ function MacroDeltaRow({ deltas }: { deltas: MacroDelta }) {
 
 interface ConfirmCardProps {
   messageId: string;
-  proposal: MealProposal;
+  proposal: MealProposal | BulkMealProposal;
   status: "pending" | "applied" | "cancelled";
 }
 
 export default function ConfirmCard({ messageId, proposal, status }: ConfirmCardProps) {
-  const { applyProposal, cancelProposal, isStreaming } = useChat();
+  const { applyProposal, applyBulkProposal, cancelProposal, isStreaming } = useChat();
+  const isBulk = proposal.type === "fill_week" || proposal.type === "apply_template";
 
-  const label = MEAL_TYPE_LABELS[proposal.mealType] ?? proposal.mealType;
+  // Single-card fields — only meaningful for MealProposal (not bulk)
+  const single = !isBulk ? (proposal as MealProposal) : null;
+  const label = single ? (MEAL_TYPE_LABELS[single.mealType] ?? single.mealType) : "";
   const personLabel = proposal.personName;
-  const dateLabel = fmtDate(proposal.date);
-
-  // Eyebrow: § PROPOSED CHANGE · Jen · Mon Jun 9
+  const dateLabel = single ? fmtDate(single.date) : "";
   const eyebrow = `§ Proposed change · ${personLabel} · ${dateLabel}`;
+
+  const ackLabel = isBulk
+    ? (proposal.type === "fill_week" ? "Plan applied." : "Template applied.")
+    : (single?.type === "remove" ? "removed." : single?.type === "add" ? "added." : single?.type === "swap" ? "swapped." : "updated.");
 
   if (status === "applied") {
     return (
       <div className="ck-ack">
-        Applied &mdash; {personLabel}&rsquo;s {label.toLowerCase()}{" "}
-        {proposal.type === "remove" ? "removed." :
-         proposal.type === "add" ? "updated." :
-         proposal.type === "swap" ? "swapped." : "updated."}{" "}
-        {/* Force a full reload so the planner shows the change immediately
-            (soft navigation won't refetch the already-mounted planner). */}
+        Applied &mdash; {isBulk ? ackLabel : `${personLabel}'s ${label.toLowerCase()} ${ackLabel}`}{" "}
         <a href="/planner" onClick={() => { window.location.href = "/planner"; return false; }}>
           View in planner →
         </a>
@@ -105,6 +105,60 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
     );
   }
 
+  // ── Bulk confirm-card (fill_week / apply_template) ──
+  if (isBulk) {
+    const bulk = proposal as BulkMealProposal;
+    const bulkEyebrow = bulk.type === "apply_template"
+      ? `§ Apply template · ${bulk.personName} · ${bulk.targetWeekday ?? ""} ${bulk.targetDate ?? ""}`
+      : `§ Proposed plan · ${bulk.personName}`;
+    const bulkTitle = bulk.type === "apply_template"
+      ? `Apply "${bulk.templateName}" ${bulk.mode === "replace" ? "(replace)" : "(append)"}`
+      : `${bulk.items.length} meals${bulk.weekLabel ? ` · ${bulk.weekLabel}` : ""}`;
+    return (
+      <div className="ck-card">
+        <div className="ck-card-head">
+          <div className="ck-card-eyebrow">{bulkEyebrow}</div>
+          <div className="ck-card-title">{bulkTitle}</div>
+        </div>
+        <div className="ck-card-body">
+          {bulk.items.map((item, i) => (
+            <div key={i} className="ck-row">
+              <div className="ck-row-left">
+                <div className="ck-row-eyebrow">{item.weekday} · {MEAL_TYPE_LABELS[item.mealType] ?? item.mealType}</div>
+                <div className="ck-row-name">{item.name}</div>
+              </div>
+              <span className="ck-row-meta">
+                {item.macros?.cal ? `${item.macros.cal}cal` : ""}{item.macros?.protein ? ` · ${item.macros.protein}g pro` : ""}
+              </span>
+            </div>
+          ))}
+          {bulk.summaryMacros && (
+            <div className="ck-macros">
+              <div className="ck-macros-label">Avg per meal</div>
+              {bulk.summaryMacros.avgCalPerDay !== undefined && (
+                <div className="ck-macro"><span className="ck-macro-label">Cal</span><span className="ck-macro-val">{bulk.summaryMacros.avgCalPerDay}</span></div>
+              )}
+              {bulk.summaryMacros.avgProteinPerDay !== undefined && (
+                <div className="ck-macro"><span className="ck-macro-label">Protein</span><span className="ck-macro-val">{bulk.summaryMacros.avgProteinPerDay}g</span></div>
+              )}
+              {bulk.summaryMacros.maxSodium !== undefined && (
+                <div className="ck-macro"><span className="ck-macro-label">Max Na</span><span className="ck-macro-val">{bulk.summaryMacros.maxSodium}mg</span></div>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="ck-card-foot">
+          <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>Cancel</button>
+          <button type="button" className="ck-btn-apply" onClick={() => applyBulkProposal(messageId)} disabled={isStreaming}>
+            {bulk.type === "apply_template" ? "Apply" : "Add all"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Single confirm-card (Gate 2) ──
+  const singleProposal = proposal as MealProposal;
   const titleMap: Record<MealProposal["type"], string> = {
     add: `Add to ${personLabel}'s ${label.toLowerCase()}`,
     swap: `Swap ${personLabel}'s ${label.toLowerCase()}`,
@@ -116,68 +170,68 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
     <div className="ck-card">
       <div className="ck-card-head">
         <div className="ck-card-eyebrow">{eyebrow}</div>
-        <div className="ck-card-title">{titleMap[proposal.type]}</div>
+        <div className="ck-card-title">{titleMap[singleProposal.type]}</div>
       </div>
 
       <div className="ck-card-body">
         {/* Add */}
-        {proposal.type === "add" && proposal.to && (
+        {singleProposal.type === "add" && singleProposal.to && (
           <div className="ck-row">
             <div className="ck-row-left">
               <div className="ck-row-eyebrow">{label}</div>
-              <div className="ck-row-name">{proposal.to.name}</div>
+              <div className="ck-row-name">{singleProposal.to.name}</div>
             </div>
             <span className="ck-row-meta">
-              {proposal.to.servings !== 1 ? `${proposal.to.servings}× serving` : "1 serving"}
+              {singleProposal.to.servings !== 1 ? `${singleProposal.to.servings}× serving` : "1 serving"}
             </span>
           </div>
         )}
 
         {/* Swap */}
-        {proposal.type === "swap" && proposal.from && proposal.to && (
+        {singleProposal.type === "swap" && singleProposal.from && singleProposal.to && (
           <div className="ck-row">
             <div className="ck-row-left" style={{ flex: 1 }}>
               <div className="ck-row-eyebrow">{label}</div>
               <div className="ck-swap-line">
-                <span className="ck-swap-from">{proposal.from.name}</span>
+                <span className="ck-swap-from">{singleProposal.from.name}</span>
                 <span className="ck-swap-arrow">→</span>
-                <span className="ck-swap-to">{proposal.to.name}</span>
+                <span className="ck-swap-to">{singleProposal.to.name}</span>
               </div>
             </div>
             <span className="ck-row-meta">
-              {proposal.to.servings !== 1 ? `${proposal.to.servings}× serving` : "1 serving"}
+              {singleProposal.to.servings !== 1 ? `${singleProposal.to.servings}× serving` : "1 serving"}
             </span>
           </div>
         )}
 
         {/* Remove */}
-        {proposal.type === "remove" && proposal.from && (
+        {singleProposal.type === "remove" && singleProposal.from && (
           <div className="ck-row">
             <div className="ck-row-left">
               <div className="ck-row-eyebrow">{label}</div>
               <div className="ck-row-name" style={{ textDecoration: "line-through", color: "var(--muted)" }}>
-                {proposal.from.name}
+                {singleProposal.from.name}
               </div>
             </div>
           </div>
         )}
 
         {/* Update servings */}
-        {proposal.type === "update_servings" && proposal.from && proposal.to && (
+        {singleProposal.type === "update_servings" && singleProposal.from && singleProposal.to && (
           <div className="ck-row">
             <div className="ck-row-left">
               <div className="ck-row-eyebrow">{label}</div>
-              <div className="ck-row-name">{proposal.from.name}</div>
+              <div className="ck-row-name">{singleProposal.from.name}</div>
             </div>
             <div className="ck-swap-line">
-              <span className="ck-swap-from">{proposal.from.servings}×</span>
+              <span className="ck-swap-from">{singleProposal.from.servings}×</span>
               <span className="ck-swap-arrow">→</span>
-              <span className="ck-swap-to">{proposal.to.servings}×</span>
+              <span className="ck-swap-to">{singleProposal.to.servings}×</span>
             </div>
           </div>
         )}
 
-        {proposal.macroDeltas && <MacroDeltaRow deltas={proposal.macroDeltas} />}
+        {singleProposal.macroDeltas && <MacroDeltaRow deltas={singleProposal.macroDeltas} />}
       </div>
 
       <div className="ck-card-foot">
@@ -195,9 +249,9 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
           onClick={() => applyProposal(messageId)}
           disabled={isStreaming}
         >
-          {proposal.type === "add" ? "Add" :
-           proposal.type === "swap" ? "Swap" :
-           proposal.type === "remove" ? "Remove" :
+          {singleProposal.type === "add" ? "Add" :
+           singleProposal.type === "swap" ? "Swap" :
+           singleProposal.type === "remove" ? "Remove" :
            "Update"}
         </button>
       </div>
