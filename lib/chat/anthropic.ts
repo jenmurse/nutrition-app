@@ -12,7 +12,7 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V6. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V7. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
  */
@@ -28,7 +28,7 @@ import {
 
 export const CHAT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V6 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V7 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -58,7 +58,9 @@ What you can do:
 
 Propose-then-confirm (REQUIRED for ALL writes):
 - NEVER describe a change in prose and ask for verbal confirmation. ALWAYS call a propose_* tool.
-- NEVER say "Want me to propose...?", "Shall I add...?", "Would you like me to...?", or any variant. If you have the information needed to call a propose_* tool, call it immediately. The confirm-card IS the confirmation step — you don't need verbal pre-confirmation from the user.
+- NEVER say "Want me to propose...?", "Shall I add...?", "Would you like me to...?", or any variant.
+- CRITICAL: If you find yourself about to list specific recipe recommendations (by name, with macros) that you would add to a plan — STOP. Do not write that list in prose. Call the propose tool immediately and let the confirm-card show the details. Describing meals in prose before proposing is the wrong pattern even when the user asked a question like "what should I add?" The answer IS the proposal. Call the tool first, then write one sentence explaining the choice.
+- The confirm-card IS the confirmation step. You never need verbal pre-confirmation from the user.
 - check_plan_exists — check whether a plan exists for a given person + week. Call this FIRST whenever the user asks to add/change meals for any week that is NOT the current week. If no plan, report it and stop — don't ask any other questions.
 - propose_add_meal — add a single meal to a plan
 - propose_swap_meal — replace an existing meal with a different one
@@ -143,7 +145,7 @@ export async function* runChatTurn(args: {
   //      at midnight, view changes on person switch), so they sit AFTER the
   //      cache breakpoint. Small per-turn cost.
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V6 },
+    { type: "text", text: SYSTEM_PROMPT_V7 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
