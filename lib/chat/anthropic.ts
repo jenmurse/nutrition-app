@@ -101,24 +101,29 @@ export async function* runChatTurn(args: {
   context: ChatContext;
   personId: number;
   householdId: number;
+  /** User's IANA timezone (e.g. "America/Los_Angeles"). Falls back to UTC. */
+  timezone: string;
 }): AsyncGenerator<ChatStreamEvent> {
-  const { history, context, personId, householdId } = args;
+  const { history, context, personId, householdId, timezone } = args;
 
   // Three system blocks:
   //   1) System prompt (frozen)
-  //   2) Today's date + stable context: household members, recipes, pantry.
+  //   2) Stable context: household members, recipes, pantry.
   //      Cache_control here — this is the cacheable prefix.
-  //   3) "Currently viewing" indicator — changes when user switches person,
-  //      so it sits AFTER the cache breakpoint. Small (~200 bytes) so the
-  //      per-turn cost of skipping the cache for this block is trivial.
+  //   3) "Today" + "currently viewing" — both change frequently (date flips
+  //      at midnight, view changes on person switch), so they sit AFTER the
+  //      cache breakpoint. Small per-turn cost.
   const systemBlocks: Anthropic.TextBlockParam[] = [
     { type: "text", text: SYSTEM_PROMPT_V2 },
     {
       type: "text",
-      text: `Today is ${new Date().toISOString().slice(0, 10)}.\n\n${formatStableContextForPrompt(context)}`,
+      text: formatStableContextForPrompt(context),
       cache_control: { type: "ephemeral" },
     },
-    { type: "text", text: formatViewIndicator(context) },
+    {
+      type: "text",
+      text: `${formatToday(timezone)}\n\n${formatViewIndicator(context)}`,
+    },
   ];
 
   // Convert history to MessageParam[]. Tool-use rounds (if any) live in a
@@ -217,3 +222,36 @@ export async function* runChatTurn(args: {
     message: "Tool-use loop exceeded 8 iterations. Aborting.",
   };
 }
+
+/**
+ * Format today's date in the user's timezone. The model needs both the
+ * calendar date (YYYY-MM-DD, for comparing against meal-plan rows) and the
+ * day name (for "tomorrow is Wednesday" / "Friday's dinner" answers).
+ *
+ * Defaults to UTC if Intl rejects the timezone string.
+ */
+function formatToday(timezone: string): string {
+  let tz = timezone;
+  try {
+    // Validate by constructing a formatter — throws on invalid IANA name.
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+  } catch {
+    tz = "UTC";
+  }
+  const now = new Date();
+  const dateFmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const weekdayFmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    weekday: "long",
+  });
+  // en-CA reliably outputs YYYY-MM-DD.
+  const dateIso = dateFmt.format(now);
+  const weekday = weekdayFmt.format(now);
+  return `Today is ${weekday}, ${dateIso} (in the user's timezone: ${tz}).`;
+}
+

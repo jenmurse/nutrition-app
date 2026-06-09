@@ -114,12 +114,20 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     abortRef.current = ctrl;
 
     try {
+      // Pass the user's local timezone so the server can format "today's date"
+      // in the user's frame of reference, not Railway's UTC. Browsers know
+      // their timezone via Intl. Falls back to UTC if Intl is unavailable.
+      const tz =
+        typeof Intl !== "undefined"
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : "UTC";
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: trimmed,
           viewingPersonId: viewingIdRef.current,
+          timezone: tz,
         }),
         signal: ctrl.signal,
       });

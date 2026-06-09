@@ -51,6 +51,11 @@ export async function POST(req: NextRequest) {
     if (member) viewingPersonId = rawViewingId;
   }
 
+  // User's local timezone (browser-supplied) so we can format "today" in
+  // their frame of reference. Default to America/Los_Angeles for the
+  // friends-and-family launch; falls back to UTC if invalid.
+  const timezone = typeof body?.timezone === "string" ? body.timezone : "America/Los_Angeles";
+
   const [history, context] = await Promise.all([
     loadHistory(auth.personId),
     buildContext(auth.personId, viewingPersonId, auth.householdId),
@@ -74,6 +79,7 @@ export async function POST(req: NextRequest) {
           context,
           personId: auth.personId,
           householdId: auth.householdId,
+          timezone,
         })) {
           if (ev.type === "text") assistantText += ev.delta;
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
