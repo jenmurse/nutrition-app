@@ -342,9 +342,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [messages, persistProposalStatus]);
 
-  const cancelProposal = useCallback((messageId: string) => {
+  const cancelProposal = useCallback(async (messageId: string) => {
     const msg = messages.find((m) => m.id === messageId);
     const dbId = msg?.dbId;
+    await persistProposalStatus(messageId, "cancelled", dbId);
     setMessages((prev) =>
       prev.map((m) =>
         m.id === messageId && m.proposalStatus === "pending"
@@ -352,7 +353,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           : m,
       ),
     );
-    void persistProposalStatus(messageId, "cancelled", dbId);
   }, [messages, persistProposalStatus]);
 
   return (

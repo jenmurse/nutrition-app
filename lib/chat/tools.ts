@@ -952,7 +952,11 @@ async function proposeFillWeek(
     type: "fill_week",
     personId: person.id,
     personName: person.name,
-    weekLabel: items.length > 0 ? `${items[0].weekday} – ${items[items.length - 1].weekday}` : undefined,
+    weekLabel: items.length > 0
+      ? items[0].weekday === items[items.length - 1].weekday
+        ? items[0].weekday                                             // same day: "Thursday"
+        : `${items[0].weekday} – ${items[items.length - 1].weekday}`  // range: "Monday – Friday"
+      : undefined,
     items,
     summaryMacros: {
       avgCalPerDay: caloriesArr.length ? Math.round(caloriesArr.reduce((a, b) => a + b, 0) / caloriesArr.length) : undefined,
