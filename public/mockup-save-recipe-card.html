@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Save Recipe confirm card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #111111;
+    --fg-2: #333333;
+    --muted: #6b6b6b;
+    --rule: #e6e6e6;
+    --accent: #d65a32;   /* coral */
+    --ok: #2e7d32;
+    --err: #b3261e;
+    --sub: #f6f5f1;       /* very soft paper for diff blocks */
+    --add: #2e7d3215;
+    --rem: #b3261e15;
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-sans);
+    background: #f3f1eb;
+    color: var(--fg);
+    margin: 0;
+    padding: 48px 24px;
+  }
+  .page {
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  .page-head {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-weight: 500;
+    margin: 0 0 8px;
+  }
+  .lede {
+    color: var(--fg-2);
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 0 40px;
+  }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .stack { display: flex; flex-direction: column; gap: 64px; }
+
+  /* ── Chat container chrome (so cards have realistic context) ── */
+  .chat-frame {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    padding: 24px;
+  }
+  .speaker {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .speaker.gm { color: var(--fg); }
+  .msg-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--fg-2);
+    margin-bottom: 24px;
+  }
+  .msg-body strong { color: var(--fg); font-weight: 600; }
+
+  /* ── The confirm card itself ── */
+  .ck-card {
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    margin-top: 4px;
+  }
+  .ck-card-head {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ck-card-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .ck-card-title {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    color: var(--fg);
+  }
+  .ck-card-body { padding: 0 16px; }
+
+  /* ── A summary row (rendered for both A and B) ── */
+  .ck-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ck-summary-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ck-summary-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ck-summary-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Macros strip — before → after, color-coded ── */
+  .ck-macros-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 14px 0;
+  }
+  .ck-macro {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ck-macro-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ck-macro-flow {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ck-macro-before { color: var(--muted); text-decoration: line-through; }
+  .ck-macro-arrow { color: var(--muted); font-family: var(--font-mono); font-size: 10px; }
+  .ck-macro-after { color: var(--fg); font-weight: 600; }
+  .ck-macro-after.ok { color: var(--ok); }
+  .ck-macro-after.err { color: var(--err); }
+  .ck-macro-delta {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .ck-macro-delta.ok { color: var(--ok); }
+  .ck-macro-delta.err { color: var(--err); }
+
+  /* ── Diff lines for ingredients ── */
+  .ck-diff-section {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ck-diff-section:last-child { border-bottom: none; }
+  .ck-diff-section-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .ck-diff-line {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .ck-diff-line .glyph {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    width: 14px;
+    flex-shrink: 0;
+  }
+  .ck-diff-add .glyph { color: var(--ok); }
+  .ck-diff-rem .glyph { color: var(--err); }
+  .ck-diff-chg .glyph { color: var(--accent); }
+  .ck-diff-name { flex: 1; color: var(--fg); }
+  .ck-diff-qty {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .ck-diff-qty .from { text-decoration: line-through; }
+  .ck-diff-qty .to { color: var(--fg); font-weight: 500; }
+  .ck-diff-rem .ck-diff-name { color: var(--muted); text-decoration: line-through; }
+
+  /* ── Expandable summary line (Option B) ── */
+  .ck-expand-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    user-select: none;
+  }
+  .ck-expand-line:hover .ck-expand-action {
+    color: var(--fg);
+  }
+  .ck-expand-summary {
+    font-size: 13px;
+    color: var(--fg);
+  }
+  .ck-expand-summary .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-right: 8px;
+  }
+  .ck-expand-action {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 120ms;
+  }
+
+  /* ── Footer ── */
+  .ck-card-foot {
+    border-top: 1px solid var(--rule);
+    padding: 10px 12px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+  }
+  .ck-card-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex: 1;
+  }
+  .ck-btn-cancel,
+  .ck-btn-apply {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+  .ck-btn-cancel {
+    background: none;
+    color: var(--muted);
+  }
+  .ck-btn-cancel:hover { color: var(--fg); }
+  .ck-btn-apply {
+    color: var(--bg);
+    background: var(--fg);
+    font-weight: 500;
+    padding: 8px 16px;
+  }
+
+  /* ── Mode pill ── */
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    margin-left: 6px;
+    background: var(--sub);
+    color: var(--fg-2);
+    border: 1px solid var(--rule);
+  }
+  .pill.new   { background: #e8f4ec; color: var(--ok); border-color: #cfe5d6; }
+  .pill.replace { background: #fbe9e6; color: var(--accent); border-color: #f4d2c9; }
+
+  /* ── Section divider between A & B ── */
+  hr.divider {
+    border: none;
+    border-top: 1px dashed var(--rule);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <p class="page-head">§ MOCKUP</p>
+    <h1>Save Recipe — confirm card</h1>
+    <p class="lede">
+      Two layouts for the <code>propose_save_recipe</code> confirm card. Both shown in
+      a representative chat context (assistant message above the card). Layouts read
+      similarly for small tweaks; the difference shows up when changes get large.
+    </p>
+
+    <div class="stack">
+
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!--  OPTION A — full diff always visible                                 -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <section>
+        <div class="section-label">§ Option A — Full diff always shown</div>
+        <div class="chat-frame">
+          <div class="speaker gm">Good Measure</div>
+          <div class="msg-body">
+            Pan-seared Salmon (Lower Sodium) — cut soy sauce in half, added miso and
+            lemon to keep the umami and brightness. Sodium drops from <strong>1240mg</strong>
+            to <strong>580mg</strong>, protein and fiber roughly unchanged.
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Save recipe · Jen · 6 ingredient changes</div>
+              <div class="ck-card-title">
+                Save "Pan-seared Salmon (Lower Sodium)"
+                <span class="pill new">New</span>
+              </div>
+            </div>
+
+            <div class="ck-card-body">
+
+              <!-- Macros: before → after -->
+              <div class="ck-macros-grid" style="border-bottom: 1px solid var(--rule);">
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Cal</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">486</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after">472</span>
+                  </div>
+                  <div class="ck-macro-delta">−14</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Protein</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">42g</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after">42g</span>
+                  </div>
+                  <div class="ck-macro-delta">—</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Fiber</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">3g</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after ok">5g</span>
+                  </div>
+                  <div class="ck-macro-delta ok">+2g</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Sodium</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">1240mg</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after ok">580mg</span>
+                  </div>
+                  <div class="ck-macro-delta ok">−660mg</div>
+                </div>
+              </div>
+
+              <!-- Changes -->
+              <div class="ck-diff-section">
+                <div class="ck-diff-section-label">Changed (3)</div>
+
+                <div class="ck-diff-line ck-diff-chg">
+                  <span class="glyph">±</span>
+                  <span class="ck-diff-name">Soy sauce</span>
+                  <span class="ck-diff-qty"><span class="from">2 tbsp</span> → <span class="to">1 tbsp</span></span>
+                </div>
+                <div class="ck-diff-line ck-diff-chg">
+                  <span class="glyph">±</span>
+                  <span class="ck-diff-name">Salmon fillet</span>
+                  <span class="ck-diff-qty"><span class="from">170 g</span> → <span class="to">160 g</span></span>
+                </div>
+                <div class="ck-diff-line ck-diff-chg">
+                  <span class="glyph">±</span>
+                  <span class="ck-diff-name">Brown rice (cooked)</span>
+                  <span class="ck-diff-qty"><span class="from">100 g</span> → <span class="to">90 g</span></span>
+                </div>
+              </div>
+
+              <div class="ck-diff-section">
+                <div class="ck-diff-section-label">Added (3)</div>
+
+                <div class="ck-diff-line ck-diff-add">
+                  <span class="glyph">+</span>
+                  <span class="ck-diff-name">White miso paste</span>
+                  <span class="ck-diff-qty"><span class="to">1 tsp</span></span>
+                </div>
+                <div class="ck-diff-line ck-diff-add">
+                  <span class="glyph">+</span>
+                  <span class="ck-diff-name">Lemon juice</span>
+                  <span class="ck-diff-qty"><span class="to">1 tbsp</span></span>
+                </div>
+                <div class="ck-diff-line ck-diff-add">
+                  <span class="glyph">+</span>
+                  <span class="ck-diff-name">Smoked paprika</span>
+                  <span class="ck-diff-qty"><span class="to">½ tsp</span></span>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="ck-card-foot">
+              <span class="ck-card-note">Not right? Cancel and adjust.</span>
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); margin-top: 14px; line-height: 1.6;">
+          Pros: nothing hidden, fully reviewable at a glance.<br>
+          Cons: scrolls to phone-screen height once changes get bigger. Bad for
+          "build a brand-new pastry from scratch" — that's basically all "Added".
+        </p>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!--  OPTION B — compact summary + expand                                 -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <section>
+        <div class="section-label">§ Option B — Compact summary, expand for detail</div>
+        <div class="chat-frame">
+          <div class="speaker gm">Good Measure</div>
+          <div class="msg-body">
+            Lemon Brownie — a pastry-chef-style bake hitting your <strong>25g sugar cap</strong>
+            using almond flour, banana for sweetness, lemon zest and curd for the
+            profile. Cocoa-free since you wanted lemon-forward, not chocolate. Yields
+            12 brownies at <strong>168 cal · 4g protein · 18g sugar</strong>.
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Save recipe · Jen · 14 ingredients · new bake</div>
+              <div class="ck-card-title">
+                Save "Lemon Brownie (Pastry Chef)"
+                <span class="pill new">New</span>
+              </div>
+            </div>
+
+            <div class="ck-card-body">
+              <!-- Macros: per serving (no before/after for a brand-new recipe) -->
+              <div class="ck-macros-grid" style="border-bottom: 1px solid var(--rule);">
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Cal</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-after">168</span>
+                  </div>
+                  <div class="ck-macro-delta">per serving</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Protein</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-after">4g</span>
+                  </div>
+                  <div class="ck-macro-delta">per serving</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Sugar</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-after ok">18g</span>
+                  </div>
+                  <div class="ck-macro-delta ok">under 25g cap</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Sodium</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-after">62mg</span>
+                  </div>
+                  <div class="ck-macro-delta">per serving</div>
+                </div>
+              </div>
+
+              <!-- Expandable line — closed state -->
+              <div class="ck-expand-line">
+                <div class="ck-expand-summary">
+                  <span class="num">14</span> ingredients · 12 servings · 35 min bake
+                </div>
+                <div class="ck-expand-action">View ingredients ↓</div>
+              </div>
+
+              <!-- (Open state would render the diff sections from Option A here) -->
+            </div>
+
+            <div class="ck-card-foot">
+              <span class="ck-card-note">Not right? Cancel and adjust.</span>
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); margin-top: 14px; line-height: 1.6;">
+          Pros: same height no matter how many ingredients. Headline numbers stay
+          prominent. Reads cleanly for both small tweaks AND new bakes.<br>
+          Cons: user has to tap to verify the detail. Some risk they save without
+          looking.
+        </p>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!--  REPLACE variant — show what mode=replace looks like                 -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <section>
+        <div class="section-label">§ Replace mode (small tweak case)</div>
+        <div class="chat-frame">
+          <div class="speaker gm">Good Measure</div>
+          <div class="msg-body">
+            Overwriting "Pan-seared Salmon" with the lower-sodium version. The
+            original is gone after save — any meal logs already using it stay tied
+            to the new version.
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Save recipe · Jen · 6 ingredient changes</div>
+              <div class="ck-card-title">
+                Replace "Pan-seared Salmon"
+                <span class="pill replace">Replace</span>
+              </div>
+            </div>
+
+            <div class="ck-card-body">
+              <div class="ck-macros-grid" style="border-bottom: 1px solid var(--rule);">
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Cal</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">486</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after">472</span>
+                  </div>
+                  <div class="ck-macro-delta">−14</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Protein</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">42g</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after">42g</span>
+                  </div>
+                  <div class="ck-macro-delta">—</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Fiber</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">3g</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after ok">5g</span>
+                  </div>
+                  <div class="ck-macro-delta ok">+2g</div>
+                </div>
+                <div class="ck-macro">
+                  <div class="ck-macro-label">Sodium</div>
+                  <div class="ck-macro-flow">
+                    <span class="ck-macro-before">1240mg</span>
+                    <span class="ck-macro-arrow">→</span>
+                    <span class="ck-macro-after ok">580mg</span>
+                  </div>
+                  <div class="ck-macro-delta ok">−660mg</div>
+                </div>
+              </div>
+
+              <div class="ck-expand-line">
+                <div class="ck-expand-summary">
+                  <span class="num">6 changes</span> · 3 added · 3 modified
+                </div>
+                <div class="ck-expand-action">View changes ↓</div>
+              </div>
+
+            </div>
+
+            <div class="ck-card-foot">
+              <span class="ck-card-note">Original recipe will be overwritten.</span>
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Replace</button>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); margin-top: 14px; line-height: 1.6;">
+          Replace mode uses the same compact layout but:<br>
+          • Pill is coral (warning-ish) instead of green<br>
+          • Footer note flags the destructive action<br>
+          • Apply button reads "Replace" not "Save"<br>
+          • Macros always show before → after (we have a source recipe)
+        </p>
+      </section>
+
+    </div>
+  </div>
+</body>
+</html>
