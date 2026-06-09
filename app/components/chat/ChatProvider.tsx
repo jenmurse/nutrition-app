@@ -247,19 +247,20 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
-  /** Persist proposal status to DB using the message's dbId (fire-and-forget). */
+  /** Persist proposal status to DB using the message's dbId. */
   const persistProposalStatus = useCallback(
     (messageId: string, status: "applied" | "cancelled") => {
-      // Use dbId from the message if available — avoids the race condition
-      // where the user taps before the id is upgraded to srv-N.
       const msg = messages.find((m) => m.id === messageId);
       const dbId = msg?.dbId;
-      if (!dbId) return;
+      if (!dbId) {
+        console.warn("[chat] persistProposalStatus: no dbId on message", messageId, "— status won't persist");
+        return;
+      }
       fetch("/api/chat/history", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: dbId, proposalStatus: status }),
-      }).catch(() => { /* best-effort */ });
+      }).catch((e) => console.error("[chat] Failed to persist proposalStatus:", e));
     },
     [messages],
   );

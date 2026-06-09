@@ -24,6 +24,8 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
   const {
     date: rawDate,
     mealType,
+    recipeId,
+    ingredientId,
     servings,
     quantity,
     unit,
@@ -32,11 +34,13 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
   } = body as {
     date?: string;
     mealType?: string;
+    recipeId?: number | null;
+    ingredientId?: number | null;
     servings?: number;
     quantity?: number;
     unit?: string;
     notes?: string;
-    externalLabel?: string;
+    externalLabel?: string | null;
   };
 
   const mealPlan = await prisma.mealPlan.findUnique({ where: { id: mealPlanId } });
@@ -53,11 +57,13 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
     date?: Date;
     position?: number;
     mealType?: string;
+    recipeId?: number | null;
+    ingredientId?: number | null;
     servings?: number;
     quantity?: number;
     unit?: string;
     notes?: string;
-    externalLabel?: string;
+    externalLabel?: string | null;
   } = {};
 
   if (rawDate) {
@@ -72,6 +78,8 @@ export const PATCH = withAuth(async (auth, request: NextRequest, { params }: Ctx
     data.position = lastEntry ? lastEntry.position + 1 : 0;
   }
   if (mealType !== undefined) data.mealType = mealType;
+  if (recipeId !== undefined) data.recipeId = recipeId;
+  if (ingredientId !== undefined) data.ingredientId = ingredientId;
   if (servings !== undefined) data.servings = servings;
   if (quantity !== undefined) data.quantity = quantity;
   if (unit !== undefined) data.unit = unit;
