@@ -376,6 +376,20 @@ function PlannerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planIdParam, plans]);
 
+  // ── Listen for cross-page meal-plan updates (e.g. from the chat assistant) ──
+  // Chat's APPLY handler dispatches 'gm:meal-plan-changed' after every applied
+  // proposal. Re-fetch the currently visible plan so the planner reflects the
+  // change immediately, without requiring the user to click "View in planner"
+  // or navigate away and back.
+  useEffect(() => {
+    if (!plan?.id) return;
+    const planId = plan.id;
+    const handler = () => { void loadPlanDetails(planId); };
+    window.addEventListener("gm:meal-plan-changed", handler);
+    return () => window.removeEventListener("gm:meal-plan-changed", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan?.id]);
+
   // ── Day templates: load list ─────────────────────────────────
   useEffect(() => {
     const cached = clientCache.get<DayTemplate[]>("/api/day-templates");

@@ -310,6 +310,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         return;
       }
       clientCache.invalidate("/api/meal-plans");
+      // Broadcast so any currently-mounted planner page (or anyone else)
+      // can re-fetch and reflect the change without the user having to
+      // navigate. Listeners read `event.detail` for hints (currently none).
+      try { window.dispatchEvent(new CustomEvent("gm:meal-plan-changed")); } catch { /* */ }
       // Persist BEFORE updating UI — guarantees DB is updated before
       // the ack shows and user can click "View in planner".
       await persistProposalStatus(messageId, "applied", dbId);
@@ -368,6 +372,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         }
       }
       clientCache.invalidate("/api/meal-plans");
+      try { window.dispatchEvent(new CustomEvent("gm:meal-plan-changed")); } catch { /* */ }
       await persistProposalStatus(messageId, "applied", dbId);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, proposalStatus: "applied" } : m));
       // Auto-continue across all bulk types — apply_template most often chains,
