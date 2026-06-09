@@ -819,6 +819,27 @@ function PlannerPage() {
     setNewPlanOpen(true);
   }
 
+  async function deletePlan() {
+    if (!plan) return;
+    const confirmed = await dialog.confirm({
+      title: `Delete this plan?`,
+      body: `This removes all meals for the week of ${rangeLabel}. It can't be recovered.`,
+      confirmLabel: "DELETE",
+      danger: true,
+    });
+    if (!confirmed) return;
+    try {
+      const r = await fetch(`/api/meal-plans/${plan.id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Failed");
+      clientCache.invalidate("/api/meal-plans");
+      toast.success("Plan deleted");
+      // Navigate back; the planner will load the next available plan or show empty state.
+      router.push("/planner");
+    } catch {
+      toast.error("Failed to delete plan");
+    }
+  }
+
   async function submitNewPlan({ weekStartDate, copyFromId }: { weekStartDate: string; copyFromId: number | null }) {
     if (selectedPersonId == null) return;
     try {
@@ -1876,6 +1897,15 @@ function PlannerPage() {
           </Link>
         )}
 
+        {plan && (
+          <button
+            className="ed-btn-text"
+            onClick={deletePlan}
+            aria-label="Delete this plan"
+            title="Delete this plan"
+            style={{ color: "var(--err)" }}
+          >DELETE PLAN</button>
+        )}
         <button
           className="ed-btn-primary"
           onClick={openNewPlanDialog}
@@ -2055,23 +2085,33 @@ function PlannerPage() {
                       logs.map((log, idx) => {
                         const isEatingOut = log.recipeId == null && log.ingredientId == null && log.externalLabel != null;
                         return (
-                        <div key={log.id} style={idx > 0 ? { marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--rule)" } : undefined}>
-                          <div className={`mx-mob-slot-name${isEatingOut ? " is-eatout" : ""}`}>
-                            {isEatingOut
-                              ? (log.externalLabel ? `Eating out — ${log.externalLabel}` : "Eating out")
-                              : (log.recipe?.name ?? log.ingredient?.name ?? "Unnamed")}
-                          </div>
-                          {!isEatingOut && (
-                            <div className="mx-mob-slot-meta">
-                              {log.servings && log.servings !== 1
-                                ? `${log.servings}× serving`
-                                : log.recipe
-                                ? "1 serving"
-                                : log.quantity
-                                ? `${log.quantity} ${log.unit ?? ""}`
-                                : ""}
+                        <div key={log.id} className="mx-mob-log-row" style={idx > 0 ? { marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--rule)" } : undefined}>
+                          <div className="mx-mob-log-content">
+                            <div className={`mx-mob-slot-name${isEatingOut ? " is-eatout" : ""}`}>
+                              {isEatingOut
+                                ? (log.externalLabel ? `Eating out — ${log.externalLabel}` : "Eating out")
+                                : (log.recipe?.name ?? log.ingredient?.name ?? "Unnamed")}
                             </div>
-                          )}
+                            {!isEatingOut && (
+                              <div className="mx-mob-slot-meta">
+                                {log.servings && log.servings !== 1
+                                  ? `${log.servings}× serving`
+                                  : log.recipe
+                                  ? "1 serving"
+                                  : log.quantity
+                                  ? `${log.quantity} ${log.unit ?? ""}`
+                                  : ""}
+                              </div>
+                            )}
+                          </div>
+                          <span
+                            className="mx-mob-log-remove"
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => { e.stopPropagation(); removeLogById(log.id); }}
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); removeLogById(log.id); } }}
+                            aria-label={`Remove ${log.recipe?.name ?? log.ingredient?.name ?? "meal"}`}
+                          >✕</span>
                         </div>
                         );
                       })
@@ -2261,6 +2301,12 @@ function PlannerPage() {
                                     : ""}
                                 </div>
                               )}
+                              <button
+                                type="button"
+                                className="mx-cell-item-remove"
+                                onClick={(e) => { e.stopPropagation(); removeLogById(log.id); }}
+                                aria-label={`Remove ${log.recipe?.name ?? log.ingredient?.name ?? "meal"}`}
+                              >✕</button>
                             </div>
                             );
                           })
@@ -2959,7 +3005,15 @@ function NewPlanDialog({
             type="date"
             className="mx-newplan-input"
             value={weekStartDate}
-            onChange={(e) => setWeekStartDate(e.target.value)}
+            onChange={(e) => {
+              // Snap any picked date back to the Sunday that starts that week.
+              const raw = e.target.value;
+              if (!raw) return;
+              const d = new Date(raw + "T00:00:00Z");
+              const day = d.getUTCDay(); // 0 = Sunday
+              if (day !== 0) d.setUTCDate(d.getUTCDate() - day);
+              setWeekStartDate(toIso(d));
+            }}
             required
             autoFocus
           />
@@ -3171,7 +3225,7 @@ function DayOverflowMenu({
               disabled={!canSave}
               title={canSave ? "Save this day's meals as a reusable template" : "Add meals first"}
             >
-              <span>Save this day as template…</span>
+              <span>Save or update template…</span>
             </button>
           </div>
 

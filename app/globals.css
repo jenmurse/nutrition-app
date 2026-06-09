@@ -1818,6 +1818,22 @@ input[type="number"]:focus {
   padding-top: 8px;
   border-top: 1px solid var(--rule);
 }
+/* Per-meal remove button (desktop cells) — hidden until hover, accessible always */
+.mx-cell-item { position: relative; }
+.mx-cell-item-remove {
+  display: none;
+  position: absolute; top: 0; right: 0;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; color: var(--muted); padding: 2px 4px;
+  transition: color 120ms var(--ease-out);
+}
+.mx-cell-item-remove:hover { color: var(--err); }
+.mx-cell-item:hover .mx-cell-item-remove { display: block; }
+@media (hover: none) {
+  /* Always visible on touch devices — no hover */
+  .mx-cell-item-remove { display: block; }
+}
 /* Picker option styling: ✓ checkmark on selected items, click-to-toggle */
 .mx-picker-opt[aria-current="true"] .mx-picker-name::before {
   content: "✓ ";
@@ -3096,6 +3112,18 @@ input[type="number"]:focus {
   color: var(--muted);
   margin-top: 4px;
 }
+/* Per-meal row on mobile: content + always-visible remove button */
+.mx-mob-log-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+}
+.mx-mob-log-content { flex: 1; min-width: 0; }
+.mx-mob-log-remove {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 11px; color: var(--muted); flex-shrink: 0;
+  cursor: pointer; padding: 2px 0;
+  transition: color 120ms var(--ease-out);
+}
+.mx-mob-log-remove:hover { color: var(--err); }
 .mx-mob-slot-extra {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
