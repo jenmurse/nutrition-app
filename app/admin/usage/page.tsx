@@ -53,7 +53,7 @@ export default function AdminUsagePage() {
   const [data, setData] = useState<UsageResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState(7);
 
   const fetchData = async (pw: string, d: number) => {
     setError("");
