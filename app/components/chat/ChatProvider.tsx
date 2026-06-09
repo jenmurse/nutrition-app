@@ -249,17 +249,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
-  /** Persist proposal status to DB. Accepts an explicit dbId to avoid stale-closure issues. */
+  /** Persist proposal status to DB. Returns a Promise so callers can await before navigating. */
   const persistProposalStatus = useCallback(
-    (messageId: string, status: "applied" | "cancelled", explicitDbId?: number) => {
-      // Prefer the explicitly-passed dbId; fall back to looking it up in messages.
-      // The explicit path avoids the race where messages hasn't re-rendered yet.
+    async (messageId: string, status: "applied" | "cancelled", explicitDbId?: number): Promise<void> => {
       const dbId = explicitDbId ?? messages.find((m) => m.id === messageId)?.dbId;
       if (!dbId) {
         console.warn("[chat] persistProposalStatus: no dbId on message", messageId, "— status won't persist");
         return;
       }
-      fetch("/api/chat/history", {
+      await fetch("/api/chat/history", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: dbId, proposalStatus: status }),
@@ -287,10 +285,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         return;
       }
       clientCache.invalidate("/api/meal-plans");
+      // Persist BEFORE updating UI — guarantees DB is updated before
+      // the ack shows and user can click "View in planner".
+      await persistProposalStatus(messageId, "applied", dbId);
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied" } : m)),
       );
-      persistProposalStatus(messageId, "applied", dbId);
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) =>
@@ -334,8 +334,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         }
       }
       clientCache.invalidate("/api/meal-plans");
+      await persistProposalStatus(messageId, "applied", dbId);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, proposalStatus: "applied" } : m));
-      persistProposalStatus(messageId, "applied", dbId);
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: msg2 } : m));
@@ -352,7 +352,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           : m,
       ),
     );
-    persistProposalStatus(messageId, "cancelled", dbId);
+    void persistProposalStatus(messageId, "cancelled", dbId);
   }, [messages, persistProposalStatus]);
 
   return (

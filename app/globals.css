@@ -8819,7 +8819,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-card-foot {
   border-top: 1px solid var(--rule);
   padding: 10px 12px;
-  display: flex; justify-content: flex-end; gap: 8px;
+  display: flex; justify-content: flex-end; align-items: center; gap: 8px;
 }
 .ck-btn-cancel {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
