@@ -1094,9 +1094,9 @@ async function proposeApplyTemplate(
     targetWeekday: weekday,
     mode,
     items: itemsWithMacros,
-    // Surfaced in the tool_result for the model — these are the REAL numbers
-    // to quote in prose. Tells the model exactly what totals to expect after apply.
-    projectedDayTotals,
+    // Surfaced in the tool_result for the model — these are the REAL projected
+    // totals for the day. summaryMacros is shaped to fit the existing UI;
+    // the model reads the values and quotes them in prose.
     summaryMacros: {
       avgCalPerDay: projectedDayTotals.calories || undefined,
       avgProteinPerDay: projectedDayTotals.protein || undefined,
