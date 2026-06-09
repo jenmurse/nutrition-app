@@ -833,8 +833,10 @@ function PlannerPage() {
       if (!r.ok) throw new Error("Failed");
       clientCache.invalidate("/api/meal-plans");
       toast.success("Plan deleted");
-      // Navigate back; the planner will load the next available plan or show empty state.
-      router.push("/planner");
+      // Hard-navigate so the planner component fully reinitialises with the
+      // updated plan list. router.push to the same route doesn't re-run the
+      // load useEffect since selectedPersonId hasn't changed.
+      window.location.href = "/planner";
     } catch {
       toast.error("Failed to delete plan");
     }
