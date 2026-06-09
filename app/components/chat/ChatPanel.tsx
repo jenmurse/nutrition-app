@@ -14,12 +14,37 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useChat } from "./ChatProvider";
+import { dialog } from "@/lib/dialog";
 import Message from "./Message";
 import Input from "./Input";
 import EmptyState from "./EmptyState";
 
 export default function ChatPanel() {
-  const { open, setOpen, messages, toolInFlight } = useChat();
+  const { open, setOpen, messages, isStreaming, toolInFlight, clear } = useChat();
+  const panelRef = useRef<HTMLElement>(null);
+  // Track swipe gesture for dismiss-on-right-swipe (mobile only).
+  const swipeStartX = useRef<number | null>(null);
+
+  const handleClear = async () => {
+    const confirmed = await dialog.confirm({
+      title: "Clear conversation?",
+      body: "This deletes your full chat history. It can't be undone.",
+      confirmLabel: "CLEAR",
+      danger: true,
+    });
+    if (confirmed) await clear();
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (swipeStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - swipeStartX.current;
+    swipeStartX.current = null;
+    // Swipe right ≥ 80px = dismiss. Only when not streaming.
+    if (delta > 80 && !isStreaming) setOpen(false);
+  };
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Esc closes the panel (when not streaming — Input.tsx handles aborting).
@@ -54,23 +79,38 @@ export default function ChatPanel() {
         aria-hidden="true"
       />
       <aside
+        ref={panelRef}
         className="ck-panel"
         role="dialog"
         aria-modal="false"
         aria-label="Ask"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         <header className="ck-head">
           <div className="ck-head-title">
             <span className="ck-head-star" aria-hidden="true">✦</span> Ask
           </div>
-          <button
-            type="button"
-            className="ck-head-close"
-            onClick={() => setOpen(false)}
-            aria-label="Close"
-          >
-            ✕
-          </button>
+          <div className="ck-head-actions">
+            {messages.length > 0 && !isStreaming && (
+              <button
+                type="button"
+                className="ck-head-clear"
+                onClick={handleClear}
+                aria-label="Clear conversation"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="button"
+              className="ck-head-close"
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
         </header>
 
         <div className="ck-scroll" ref={scrollRef}>

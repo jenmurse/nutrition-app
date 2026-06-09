@@ -23,9 +23,14 @@ export async function GET() {
     where: { householdMembers: { some: { householdId: auth.householdId } } },
     orderBy: { id: "asc" },
   });
+  // Sort logged-in user first — expected UX for person switchers on both
+  // desktop (dot row) and mobile (pulldown). Others keep id-asc order.
   const currentPerson = persons.find((p) => p.id === auth.personId);
+  const sortedPersons = currentPerson
+    ? [currentPerson, ...persons.filter((p) => p.id !== auth.personId)]
+    : persons;
   return NextResponse.json({
-    persons,
+    persons: sortedPersons,
     currentPersonId: auth.personId,
     onboardingComplete: currentPerson?.onboardingComplete ?? true,
   });

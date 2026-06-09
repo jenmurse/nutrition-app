@@ -95,6 +95,7 @@ export const POST = withAuth(async (auth, request: NextRequest, { params }: Ctx)
       mealType: meal.mealType,
       recipeId: meal.recipeId,
       ingredientId: meal.ingredientId,
+      externalLabel: meal.externalLabel, // was missing — eating-out entries showed as "Unnamed"
       quantity: meal.quantity,
       unit: meal.unit,
       servings: meal.servings,

@@ -8530,6 +8530,17 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   display: flex; align-items: center; gap: 8px;
 }
 .ck-head-star { color: var(--fg); font-size: 11px; }
+.ck-head-actions {
+  display: flex; align-items: center; gap: 8px;
+}
+.ck-head-clear {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: none; cursor: pointer; padding: 4px;
+  transition: color 120ms var(--ease-out);
+}
+.ck-head-clear:hover { color: var(--fg); }
 .ck-head-close {
   width: 28px; height: 28px;
   color: var(--muted); font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -8687,9 +8698,17 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-input-send:hover:not(:disabled) { color: var(--fg); }
 .ck-input-send:disabled { opacity: 0.4; cursor: default; }
 
-/* Mobile-shrink: until Gate 4 ships the bottom sheet, hide the desktop
-   panel on narrow viewports so it doesn't dominate the screen. */
+/* Mobile: full-width fly-in panel. Uses dvh so the panel shrinks when
+   the iOS keyboard appears (dvh = dynamic viewport height, keyboard-aware).
+   Safe-area padding keeps the input above the home bar on iPhone. */
 @media (max-width: 768px) {
-  .ck-panel { width: 100vw; max-width: 100vw; }
+  .ck-panel {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+  }
+  .ck-input-wrap {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
