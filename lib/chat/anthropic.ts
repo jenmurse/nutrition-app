@@ -12,9 +12,13 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V9. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V10. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
+ *
+ * V10 (2026-06-09): extend the "one at a time" rule to all propose_* tools, not just
+ * apply_template. Multiple proposals in one turn would overwrite each other client-side
+ * (we store one proposalJson per assistant message). Server-side guard added too.
  *
  * V9 (2026-06-09): softened aggressive CRITICAL/NEVER/ALWAYS language per Anthropic's
  * 4.x prompting guidance — newer models overtrigger on caps-lock rules. Replaced with
@@ -38,7 +42,7 @@ export const CHAT_MODEL_SONNET = "claude-sonnet-4-6";
 export const CHAT_MODEL_HAIKU  = "claude-haiku-4-5";
 export const CHAT_MODEL = CHAT_MODEL_HAIKU;
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V9 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V10 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -72,7 +76,8 @@ Propose-then-confirm pattern:
 - For any write (add, swap, remove, update servings, apply template, fill week) call the matching propose_* tool. The confirm-card it produces is the user's confirmation step — you don't need to ask "want me to propose?" or describe the change in prose before calling the tool.
 - The user taps APPLY to execute or CANCEL to dismiss. You never execute writes yourself.
 - When the user asks "what should I add?" the answer is a proposal. Call the propose tool with your pick, then add one sentence explaining the choice. Don't list candidate meals in prose before proposing.
-- When applying templates to multiple days, propose one day at a time. Make one proposal, describe it in one sentence, and stop. After the user applies, you can propose the next day.
+- One proposal per turn. Call exactly one propose_* tool per response, then write one sentence and stop. This applies to ALL propose_* tools — swap, add, remove, update_servings, apply_template. If the user asks for two swaps, propose the first one and mention in your sentence that the second will follow after they apply. After they apply, you'll get a follow-up turn where you can propose the next one.
+- Exception: propose_fill_week is designed to handle a multi-meal request in a single card. Use it when adding multiple new meals (not swapping or removing).
 
 Workflow for a write request:
 1. If you need meal_log_ids (for swap/remove/update), call get_meal_plan_week first. Each day includes a date_label like "Wednesday 2026-06-10" — use that to match "Wednesday's lunch" to the correct date.
@@ -150,7 +155,7 @@ export async function* runChatTurn(args: {
   //        - Each member's current week meal contents (changes every
   //          time the planner is edited — the most-edited data in the app)
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V9 },
+    { type: "text", text: SYSTEM_PROMPT_V10 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
@@ -171,6 +176,14 @@ export async function* runChatTurn(args: {
     role: t.role,
     content: t.content,
   }));
+
+  // Hard guard: at most one proposal emitted per /api/chat call. The client
+  // stores a single proposalJson per assistant message, so if the model fires
+  // two propose_* calls in one turn (or across loop iterations), the second
+  // would overwrite the first and the user would only see one card. Drop any
+  // proposal after the first; route.ts will surface a note to the model so it
+  // proposes the next one in a follow-up turn.
+  let proposalEmitted = false;
 
   // Tool-use loop. Each iteration: call model → handle output → maybe execute tools → loop.
   // Capped at 8 iterations so a runaway tool-call loop can't burn unbounded tokens.
@@ -227,11 +240,25 @@ export async function* runChatTurn(args: {
       const toolResults: Anthropic.ToolResultBlockParam[] = [];
       for (const tc of toolUseBlocks) {
         yield { type: "tool_start", name: tc.name };
-        const result = await runChatTool(tc.name, tc.input, { personId, householdId });
+        const isPropose = isProposeTool(tc.name);
+        // Block duplicate proposals at the source: if one's already been
+        // emitted this turn, short-circuit the tool with a synthetic error so
+        // the model sees it can't fire another. Prevents the "second card
+        // overwrites the first" race entirely.
+        let result: unknown;
+        if (isPropose && proposalEmitted) {
+          result = {
+            error:
+              "Only one proposal per turn. You already proposed a change in this response — write a sentence telling the user the next change will follow after they apply, then stop. They will tap APPLY and you can propose the next one in the follow-up turn.",
+          };
+        } else {
+          result = await runChatTool(tc.name, tc.input, { personId, householdId });
+        }
         yield { type: "tool_done", name: tc.name };
         // For propose_* tools, emit the proposal as a structured event so the
         // client can render a confirm-card instead of just prose.
-        if (isProposeTool(tc.name) && result && typeof result === "object" && !("error" in result)) {
+        if (isPropose && result && typeof result === "object" && !("error" in result)) {
+          proposalEmitted = true;
           yield {
             type: "proposal",
             data: result as (MealProposal | BulkMealProposal),
