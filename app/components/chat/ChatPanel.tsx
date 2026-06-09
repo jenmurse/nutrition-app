@@ -136,6 +136,10 @@ export default function ChatPanel() {
               );
             })
           )}
+          {/* Show a thinking indicator when streaming but no text has arrived yet */}
+          {isStreaming && !toolInFlight && messages[messages.length - 1]?.streaming && !messages[messages.length - 1]?.content && (
+            <div className="ck-thinking">Thinking</div>
+          )}
           {toolInFlight && (
             <div className="ck-thinking">Looking up {prettyToolName(toolInFlight)}…</div>
           )}
