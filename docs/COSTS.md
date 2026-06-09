@@ -14,6 +14,7 @@ Last updated: June 2026.
 | **Cloudflare R2** (image storage) | Free tier | **$0/mo** | Recipe images. 10 GB storage / 1M writes / 10M reads free per month |
 | **Supabase** (auth only) | Free tier | **$0/mo** | Email + Google OAuth. 50K MAU on free tier — won't approach |
 | **cron-job.org** (warm-up pings) | Free tier | **$0/mo** | Pings `/api/warm` every 5 min to prevent Railway cold starts |
+| **Claude API tokens** | n/a — MCP architecture | **$0/mo** | See "AI costs" section below — user's own Claude covers it |
 | **Domain** (`withgoodmeasure.com`) | Annual | **~$1.25/mo** | ~$15/year prorated |
 | **npm** (`good-measure-mcp` package) | Free | **$0/mo** | Public package, free hosting |
 | **GitHub** (code hosting) | Free | **$0/mo** | Personal account, public repos free, private repos free at this scale |
@@ -43,6 +44,37 @@ Railway charges $5/month base for the Hobby plan, plus usage above that. Resourc
 That translates to roughly $3 vCPU + $1 RAM = **~$4/mo above the base $5**, putting total Railway billing at ~$8/mo. Slightly more during heavy use (planner recalcs, photo uploads, etc.).
 
 **Why running 24/7 costs more:** if the app were allowed to sleep when nobody's using it, those CPU/RAM meters would stop. The warm-up cron prevents sleep — buying snappier first-load UX in exchange for ~$2–3/mo extra usage. See `LOADING-PERFORMANCE.md` § "/api/warm keep-alive endpoint" for the trade-off.
+
+---
+
+## AI / Claude costs
+
+**Today: $0 to Good Measure.** This is a deliberate architectural decision, not an omission.
+
+Good Measure exposes an MCP server (`good-measure-mcp` on npm) instead of calling Claude directly. The user installs the MCP into their own Claude Desktop, Claude Code, or other MCP-compatible client and authenticates with a token they generate in Settings. From that point on, the user's AI talks to Good Measure's API on their behalf — but the LLM tokens are billed to the user's own Claude subscription, not to Good Measure.
+
+| Who pays for AI tokens today | What they pay |
+|---|---|
+| **Good Measure (the app)** | $0 — no API key in any env var, no `anthropic` SDK installed for runtime use |
+| **The user (Jen, Garth, friends)** | Whatever their existing Claude subscription is — typically **Claude Pro at $20/mo** or **Claude Max at $100–200/mo**. No marginal cost per Good Measure session, since their plan covers all their Claude usage |
+
+### What the user actually consumes
+
+Per AI session (asking Claude to dial in a recipe, plan a week, save a template), rough token usage:
+- **Input:** 5K–20K tokens (recipe data + meal plan context + user's question)
+- **Output:** 1K–5K tokens (suggested edits / new plan / confirmation)
+
+On Claude Pro / Max, this is free at the margin — the user already pays the flat monthly fee. On metered API pricing (Sonnet 4.5 ≈ $3 in / $15 out per million tokens), each session would cost roughly **$0.05–0.30**. With prompt caching (which MCP-using clients typically enable), that drops 80–90%.
+
+### What it would cost if Good Measure ever offered in-app AI directly
+
+A future product decision worth flagging: should there be a "no setup needed" AI option for users who don't want to install MCP? If so, Good Measure would pay for tokens itself.
+
+Rough projection at 1,000 MAU using AI features ~daily, with prompt caching enabled:
+- **Per active user:** ~$0.50–2/month in API costs
+- **Total:** **~$500–2,000/month** in Anthropic API bills
+
+This would need to be paid for by either a paid tier on Good Measure or by absorbing the cost. **Not recommended for the foreseeable future** — the MCP architecture is one of Good Measure's clearest differentiators (no AI fees, no data privacy concerns, user owns the LLM relationship). Worth re-evaluating only if user friction with MCP installation becomes a real growth blocker.
 
 ---
 
