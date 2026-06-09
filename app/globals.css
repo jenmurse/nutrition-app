@@ -8770,6 +8770,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   border-bottom: 1px solid var(--rule);
   gap: 16px;
 }
+/* Last row before the macros strip has no bottom border — macros provides its own top border. */
 .ck-row:last-of-type { border-bottom: none; }
 .ck-row-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ck-row-eyebrow {
@@ -8844,6 +8845,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--muted);
+  text-align: right;
 }
 .ck-ack {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
