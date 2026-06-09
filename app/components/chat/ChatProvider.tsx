@@ -17,15 +17,18 @@ import {
   type ReactNode,
 } from "react";
 import { usePersonContext } from "../PersonContext";
+import { clientCache } from "@/lib/clientCache";
+import type { MealProposal } from "@/lib/chat/proposals";
 
 export interface ChatMessage {
-  id: string; // local id for React keys (server id once persisted)
+  id: string;
   role: "user" | "assistant";
   content: string;
-  // True while the assistant message is still being streamed.
   streaming?: boolean;
-  // Set when streaming hit an error after partial content was written.
   error?: string;
+  // Gate 2: proposal attached to an assistant message
+  proposal?: MealProposal;
+  proposalStatus?: "pending" | "applied" | "cancelled";
 }
 
 interface ChatState {
@@ -41,6 +44,10 @@ interface ChatState {
   abort: () => void;
   /** Clear local + server history. */
   clear: () => Promise<void>;
+  /** Apply a pending proposal (fires the API call). */
+  applyProposal: (messageId: string) => Promise<void>;
+  /** Cancel a pending proposal (no API call). */
+  cancelProposal: (messageId: string) => void;
 }
 
 const ChatContext = createContext<ChatState | null>(null);
@@ -159,7 +166,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           if (!line.startsWith("data:")) continue;
           const json = line.slice(5).trim();
           if (!json) continue;
-          let ev: { type: string; delta?: string; name?: string; message?: string };
+          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal };
           try { ev = JSON.parse(json); } catch { continue; }
 
           if (ev.type === "text" && ev.delta) {
@@ -172,6 +179,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             setToolInFlight(ev.name ?? null);
           } else if (ev.type === "tool_done") {
             setToolInFlight(null);
+          } else if (ev.type === "proposal" && ev.data) {
+            // Attach the proposal to the current assistant message.
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === asstId
+                  ? { ...m, proposal: ev.data, proposalStatus: "pending" }
+                  : m,
+              ),
+            );
           } else if (ev.type === "error") {
             setMessages((prev) =>
               prev.map((m) =>
@@ -213,9 +229,51 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
+  const applyProposal = useCallback(async (messageId: string) => {
+    const msg = messages.find((m) => m.id === messageId);
+    if (!msg?.proposal || msg.proposalStatus !== "pending") return;
+    const { execute } = msg.proposal;
+    try {
+      const r = await fetch(execute.url, {
+        method: execute.method,
+        headers: execute.body ? { "Content-Type": "application/json" } : {},
+        body: execute.body ? JSON.stringify(execute.body) : undefined,
+      });
+      if (!r.ok) {
+        const errText = await r.text().catch(() => "Failed");
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === messageId ? { ...m, error: errText } : m,
+          ),
+        );
+        return;
+      }
+      // Bust plan cache so the planner reflects the change immediately.
+      clientCache.invalidate("/api/meal-plans");
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied" } : m)),
+      );
+    } catch (err) {
+      const msg2 = err instanceof Error ? err.message : String(err);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageId ? { ...m, error: msg2 } : m)),
+      );
+    }
+  }, [messages]);
+
+  const cancelProposal = useCallback((messageId: string) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId && m.proposalStatus === "pending"
+          ? { ...m, proposalStatus: "cancelled" }
+          : m,
+      ),
+    );
+  }, []);
+
   return (
     <ChatContext.Provider
-      value={{ open, setOpen, messages, isStreaming, toolInFlight, send, abort, clear }}
+      value={{ open, setOpen, messages, isStreaming, toolInFlight, send, abort, clear, applyProposal, cancelProposal }}
     >
       {children}
     </ChatContext.Provider>

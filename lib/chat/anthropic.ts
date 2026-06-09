@@ -12,13 +12,14 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V3. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V4. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import { CHAT_TOOLS, runChatTool } from "./tools";
+import { CHAT_TOOLS, runChatTool, isProposeTool } from "./tools";
+import type { MealProposal } from "./proposals";
 import {
   formatStableContextForPrompt,
   formatViewIndicator,
@@ -27,7 +28,7 @@ import {
 
 export const CHAT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V3 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V4 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition + cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -48,14 +49,29 @@ What you know:
 - The pantry summary by category — shared across the household
 - Today's date
 
-What you can do (Gate 1 — read-only):
-- Answer questions about any of the above ("what's my fiber average this week?", "which recipes hit protein hardest?", "how much sodium is in Garth's Tuesday lunch?")
-- Call get_recipe for full recipe detail (all 17 nutrients, ingredients, instructions)
-- Call get_meal_plan_week for full per-day nutrition aggregation with goal comparisons — for any household member's plan
+What you can do:
+- Answer questions about any household member's recipes, pantry, plan, nutrition, goals
+- Call get_recipe for full ingredient list + complete per-serving nutrition
+- Call get_meal_plan_week for full per-day nutrition aggregation — this also returns each day's meal logs with their meal_log_id, which you need to propose swaps/removes
 - Call search_ingredients to look up a specific pantry item
+- Propose changes to any household member's plan using the propose_* tools (see below)
 
-What you cannot do yet:
-- Make any changes — no adding meals, swapping recipes, applying templates. If the user asks for a change, acknowledge what they want, name whose plan you'd change ("for Garth's Friday"), explain you're in read-only mode for now, and offer the closest read-only equivalent ("I can suggest a swap candidate with the macro deltas — say the word and I'll detail it").
+Propose-then-confirm (REQUIRED for ALL writes):
+- NEVER describe a change in prose and ask for verbal confirmation. ALWAYS call a propose_* tool.
+- propose_add_meal — add a new meal to a plan
+- propose_swap_meal — replace an existing meal with a different one
+- propose_remove_meal — remove a meal from a plan
+- propose_update_servings — change the serving count for an existing meal
+- These tools validate the inputs, compute macro deltas, and return a confirm-card to the user.
+- The user taps APPLY to execute or CANCEL to dismiss. You never execute writes yourself.
+
+Workflow for a write request:
+1. If you don't already have the plan's meal_log_ids (needed for swap/remove/update), call get_meal_plan_week first.
+2. Call the appropriate propose_* tool with validated inputs.
+3. In your text response (after the tool call), give ONE brief sentence confirming what you proposed and why — e.g. "Proposed swapping Tuesday's lunch for Sesame Miso Lentils — it adds 14g protein and stays under the sodium cap."
+4. Don't explain the confirm-card mechanics. Don't say "I've created a proposal for you." Just describe the substance.
+
+When a propose_* tool returns an error (plan not found, recipe not found, etc.): say what went wrong in one plain sentence and offer a correction.
 
 Numbers and emphasis:
 - When a number is the answer (an average, a total, a comparison result), wrap it in **bold** so it stands out from prose. Example: "Garth is averaging **30g of protein per day** for Mon–Sun."
@@ -88,6 +104,7 @@ export type ChatStreamEvent =
   | { type: "text"; delta: string }
   | { type: "tool_start"; name: string }
   | { type: "tool_done"; name: string }
+  | { type: "proposal"; data: MealProposal }
   | { type: "done"; usage?: Anthropic.Usage }
   | { type: "error"; message: string };
 
@@ -120,7 +137,7 @@ export async function* runChatTurn(args: {
   //      at midnight, view changes on person switch), so they sit AFTER the
   //      cache breakpoint. Small per-turn cost.
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V3 },
+    { type: "text", text: SYSTEM_PROMPT_V4 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
@@ -196,6 +213,11 @@ export async function* runChatTurn(args: {
         yield { type: "tool_start", name: tc.name };
         const result = await runChatTool(tc.name, tc.input, { personId, householdId });
         yield { type: "tool_done", name: tc.name };
+        // For propose_* tools, emit the proposal as a structured event so the
+        // client can render a confirm-card instead of just prose.
+        if (isProposeTool(tc.name) && result && typeof result === "object" && !("error" in result)) {
+          yield { type: "proposal", data: result as MealProposal };
+        }
         toolResults.push({
           type: "tool_result",
           tool_use_id: tc.id,

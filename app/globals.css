@@ -8726,6 +8726,108 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-input-send:hover:not(:disabled) { color: var(--fg); }
 .ck-input-send:disabled { opacity: 0.4; cursor: default; }
 
+/* ── Confirm-card (Gate 2: propose-then-confirm) ── */
+.ck-card {
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  margin-top: 4px;
+}
+.ck-card-head {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.ck-card-eyebrow {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 6px;
+}
+.ck-card-title {
+  font-size: 16px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.3;
+  color: var(--fg);
+}
+.ck-card-body { padding: 0 16px 4px; }
+.ck-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  gap: 16px;
+}
+.ck-row:last-of-type { border-bottom: none; }
+.ck-row-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ck-row-eyebrow {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+}
+.ck-row-name {
+  font-size: 13px; font-weight: 500; color: var(--fg); line-height: 1.35;
+  letter-spacing: -0.03em;
+}
+.ck-row-meta {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap;
+}
+.ck-swap-line {
+  display: flex; gap: 10px; align-items: baseline;
+  font-size: 13px; letter-spacing: -0.03em; flex-wrap: wrap;
+}
+.ck-swap-from { color: var(--muted); text-decoration: line-through; }
+.ck-swap-arrow { color: var(--muted); font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace; font-size: 11px; }
+.ck-swap-to { font-weight: 500; color: var(--fg); }
+.ck-macros {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--rule);
+  margin-top: 4px;
+}
+.ck-macro { display: flex; flex-direction: column; gap: 2px; }
+.ck-macro-label {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+}
+.ck-macro-val {
+  font-size: 13px; font-weight: 600; color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.ck-macro-val.delta-up { color: var(--ok); }     /* semantic green */
+.ck-macro-val.delta-down { color: var(--err); }  /* semantic red */
+.ck-card-foot {
+  border-top: 1px solid var(--rule);
+  padding: 10px 12px;
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+.ck-btn-cancel {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: none; cursor: pointer; padding: 6px 10px;
+  transition: color 120ms var(--ease-out);
+}
+.ck-btn-cancel:hover:not(:disabled) { color: var(--fg); }
+.ck-btn-cancel:disabled { opacity: 0.4; cursor: default; }
+.ck-btn-apply {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bg); background: var(--fg);
+  border: none; cursor: pointer; padding: 8px 16px;
+  transition: opacity 120ms var(--ease-out);
+}
+.ck-btn-apply:hover:not(:disabled) { opacity: 0.88; }
+.ck-btn-apply:disabled { opacity: 0.4; cursor: default; }
+.ck-ack {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  border-left: 2px solid var(--accent);
+  padding: 6px 0 6px 12px;
+  margin-top: 4px;
+}
+.ck-ack a { color: var(--fg); border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+.ck-ack a:hover { border-bottom-color: var(--fg); }
+
 /* Mobile: full-width fly-in panel. Uses dvh so the panel shrinks when
    the iOS keyboard appears (dvh = dynamic viewport height, keyboard-aware).
    Safe-area padding keeps the input above the home bar on iPhone. */

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ChatMessage } from "./ChatProvider";
+import ConfirmCard from "./ConfirmCard";
 
 /**
  * One message bubble — except there are no bubbles. Mono speaker label above,
@@ -12,10 +13,21 @@ export default function Message({ message }: { message: ChatMessage }) {
   return (
     <div className={`ck-msg ${isUser ? "ck-msg-you" : "ck-msg-asst"}`}>
       <div className="ck-msg-speaker">{isUser ? "You" : "Good Measure"}</div>
-      <div className="ck-msg-body">
-        {renderBold(message.content)}
-        {message.streaming && <span className="ck-cursor" aria-hidden="true">▌</span>}
-      </div>
+      {message.content && (
+        <div className="ck-msg-body">
+          {renderBold(message.content)}
+          {message.streaming && !message.proposal && (
+            <span className="ck-cursor" aria-hidden="true">▌</span>
+          )}
+        </div>
+      )}
+      {message.proposal && (
+        <ConfirmCard
+          messageId={message.id}
+          proposal={message.proposal}
+          status={message.proposalStatus ?? "pending"}
+        />
+      )}
       {message.error && (
         <div className="ck-msg-error">{message.error}</div>
       )}
