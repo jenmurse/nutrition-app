@@ -76,6 +76,52 @@ Rough projection at 1,000 MAU using AI features ~daily, with prompt caching enab
 
 This would need to be paid for by either a paid tier on Good Measure or by absorbing the cost. **Not recommended for the foreseeable future** — the MCP architecture is one of Good Measure's clearest differentiators (no AI fees, no data privacy concerns, user owns the LLM relationship). Worth re-evaluating only if user friction with MCP installation becomes a real growth blocker.
 
+### In-app chat costs — measured (June 2026)
+
+The in-app chat ("Ask") shipped in June 2026 and IS Anthropic-billed to Good Measure. These are actual measured costs from `/admin/usage`, not projections.
+
+**Per-turn cost (Sonnet 4.6, the current default):**
+
+| Cache state | Cost/turn | Notes |
+|---|---|---|
+| COLD (first turn, writes cache) | ~$0.033 | Pays the 9k-token prefix write at $3.75/MTok |
+| WARM (cache reads only) | ~$0.011 | Cheapest — most subsequent turns within an hour |
+| MIXED (cache + new content) | ~$0.017–0.023 | When a tool call adds new context |
+| Bulk/proposal turns | ~$0.025–0.030 | Tool calls + larger output |
+
+**Typical session cost:** A 5–10 turn multi-step session (analysis + a few swaps + a template apply) runs **~$0.10–$0.20 total on Sonnet 4.6**.
+
+**Sonnet 4.6 vs Haiku 4.5 head-to-head (June 2026):**
+
+Same prompts run through both models for direct comparison:
+
+| Metric | Sonnet 4.6 | Haiku 4.5 |
+|---|---|---|
+| Turns to complete same task | 6 | 11 |
+| Total session cost | $0.14 | $0.10 |
+| Avg cost/turn | $0.023 | $0.009 |
+| Per-MTok pricing | $3 in / $15 out | $1 in / $5 out |
+| Quality at proposing swaps | Decisive, optimal | More cautious, asks more |
+| Stale ID errors | 0 | 1 (self-recovered) |
+| User-side cancellations needed | 0 | 2 |
+
+**The per-turn discount is 3x, but Haiku needs ~2x the turns on multi-step requests** because it's more cautious — asks clarifying questions, suggests less optimal swaps, etc. Net savings on a real session is closer to **30%, not 3x**.
+
+**Decision (June 2026):** Sonnet 4.6 stays the default. The 30% cost savings on Haiku isn't worth the conversation friction at friend-and-family scale. Revisit when DAUs cross ~50 and an eval harness exists to verify Haiku quality doesn't regress on real prompts.
+
+**Cost projection for in-app chat at various scales** (Sonnet 4.6, assuming caching works):
+
+| Scale | Estimate |
+|---|---|
+| 1 active user (3 sessions/day) | $0.30–0.60/day = **~$10–18/month** |
+| 10 active users (friends-and-family) | **~$90–180/month** total |
+| 100 active users (small public launch) | **~$900–1,800/month** total |
+| 1,000 MAU | **~$9,000–18,000/month** total |
+
+At friend-and-family scale (~10 active users), in-app chat costs are sustainable. Above that, the Haiku revisit + per-user rate limits become important. Public launch should include both.
+
+**See also:** [`docs/CHAT-ARCHITECTURE.md`](./CHAT-ARCHITECTURE.md) for the full chat architecture, prompt caching strategy, model comparison, and operational lessons (bugs hit and fixed during build).
+
 ---
 
 ## What changes if Good Measure goes public
@@ -119,7 +165,7 @@ Good Measure is currently free for friends and family. When/if it goes public, t
 | Railway compute | ~$0 marginal per user at small scale; trends with concurrent traffic |
 | Postgres storage | Negligible — recipes + plans + chat history rarely exceed ~10MB/user |
 | R2 image storage | Tiny — most users have a few dozen recipe photos |
-| **Anthropic API tokens (chat)** | **The big variable.** Heavy users could burn $5–10/month. Median users ~$0.50–2/month. |
+| **Anthropic API tokens (chat)** | **The big variable.** Measured on Sonnet 4.6 (June 2026): ~$0.02/turn average. Heavy users (~5 sessions × 8 turns/day = ~40 turns/day) could burn **$15–25/month**. Median users (~10 turns/day) ~**$3–6/month**. Light users ~$0.50–1/month. See AI / Claude costs § In-app chat costs — measured for the data. |
 
 The chat is the only feature whose per-user cost scales meaningfully with usage. Everything else is a flat overhead.
 
