@@ -249,11 +249,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
-  /** Persist proposal status to DB using the message's dbId. */
+  /** Persist proposal status to DB. Accepts an explicit dbId to avoid stale-closure issues. */
   const persistProposalStatus = useCallback(
-    (messageId: string, status: "applied" | "cancelled") => {
-      const msg = messages.find((m) => m.id === messageId);
-      const dbId = msg?.dbId;
+    (messageId: string, status: "applied" | "cancelled", explicitDbId?: number) => {
+      // Prefer the explicitly-passed dbId; fall back to looking it up in messages.
+      // The explicit path avoids the race where messages hasn't re-rendered yet.
+      const dbId = explicitDbId ?? messages.find((m) => m.id === messageId)?.dbId;
       if (!dbId) {
         console.warn("[chat] persistProposalStatus: no dbId on message", messageId, "— status won't persist");
         return;
@@ -270,6 +271,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const applyProposal = useCallback(async (messageId: string) => {
     const msg = messages.find((m) => m.id === messageId);
     if (!msg?.proposal || msg.proposalStatus !== "pending") return;
+    const dbId = msg.dbId;
     const { execute } = msg.proposal;
     try {
       const r = await fetch(execute.url, {
@@ -288,7 +290,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied" } : m)),
       );
-      persistProposalStatus(messageId, "applied");
+      persistProposalStatus(messageId, "applied", dbId);
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) =>
@@ -301,6 +303,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     const msg = messages.find((m) => m.id === messageId);
     const bulk = msg?.proposal as BulkMealProposal | undefined;
     if (!bulk || !("executeAll" in bulk || "execute" in bulk) || msg?.proposalStatus !== "pending") return;
+    const dbId = msg.dbId;
 
     try {
       if ("execute" in bulk && bulk.execute) {
@@ -332,7 +335,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       }
       clientCache.invalidate("/api/meal-plans");
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, proposalStatus: "applied" } : m));
-      persistProposalStatus(messageId, "applied");
+      persistProposalStatus(messageId, "applied", dbId);
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, error: msg2 } : m));
@@ -340,6 +343,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, [messages, persistProposalStatus]);
 
   const cancelProposal = useCallback((messageId: string) => {
+    const msg = messages.find((m) => m.id === messageId);
+    const dbId = msg?.dbId;
     setMessages((prev) =>
       prev.map((m) =>
         m.id === messageId && m.proposalStatus === "pending"
@@ -347,8 +352,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           : m,
       ),
     );
-    persistProposalStatus(messageId, "cancelled");
-  }, [persistProposalStatus]);
+    persistProposalStatus(messageId, "cancelled", dbId);
+  }, [messages, persistProposalStatus]);
 
   return (
     <ChatContext.Provider
