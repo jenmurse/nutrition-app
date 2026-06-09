@@ -20,7 +20,7 @@ import { buildContext } from "@/lib/chat/context";
 import { runChatTurn, CHAT_MODEL, type ChatTurn } from "@/lib/chat/anthropic";
 import { logChatUsage } from "@/lib/chat/usage";
 
-const HISTORY_LIMIT = 50;
+const HISTORY_LIMIT = 20;
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthenticatedHousehold();

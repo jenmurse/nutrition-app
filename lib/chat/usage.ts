@@ -42,6 +42,13 @@ const PRICING: Record<string, ModelPricing> = {
     cacheCreatePerM: 1.25,
     outputPerM: 5.0,
   },
+  // claude-3-5-haiku alias
+  "claude-haiku-3-5": {
+    inputPerM: 0.8,
+    cacheReadPerM: 0.08,
+    cacheCreatePerM: 1.0,
+    outputPerM: 4.0,
+  },
 };
 
 /**

@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/apiUtils";
 import { prisma } from "@/lib/db";
 
-const HISTORY_LIMIT = 50;
+const HISTORY_LIMIT = 20;
 
 export const GET = withAuth(async (auth) => {
   const rows = await prisma.chatMessage.findMany({
