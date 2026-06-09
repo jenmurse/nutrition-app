@@ -44,6 +44,7 @@ interface UsageResponse {
   byDay: Array<{ date: string; cost: number; turns: number }>;
   byPerson: Array<{ name: string; cost: number; turns: number }>;
   byFeature: Array<{ feature: string; cost: number; turns: number }>;
+  byModel: Array<{ model: string; cost: number; turns: number }>;
   recent: RecentTurn[];
 }
 
@@ -142,7 +143,7 @@ export default function AdminUsagePage() {
 
   if (!data) return null;
 
-  const { summary, byDay, byPerson, byFeature, recent } = data;
+  const { summary, byDay, byPerson, byFeature, byModel, recent } = data;
 
   const tile = (label: string, value: string, sub?: string) => (
     <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
@@ -185,6 +186,31 @@ export default function AdminUsagePage() {
   const tdStyle: React.CSSProperties = {
     padding: "12px 16px 12px 0", fontSize: "12px", color: "var(--fg)",
     verticalAlign: "top",
+  };
+
+  // Shared <colgroup> for the four summary tables so columns line up across
+  // sections (label | numeric | numeric). Using table-layout: fixed makes the
+  // browser honor the col widths verbatim instead of auto-sizing to content.
+  const summaryTableStyle: React.CSSProperties = {
+    width: "100%",
+    borderCollapse: "collapse",
+    tableLayout: "fixed",
+  };
+  const SummaryCols = () => (
+    <colgroup>
+      <col style={{ width: "60%" }} />
+      <col style={{ width: "20%" }} />
+      <col style={{ width: "20%" }} />
+    </colgroup>
+  );
+
+  // Friendly short labels for the long model ids in /admin/usage.
+  const shortModel = (m: string) => {
+    if (m.includes("haiku-4-5")) return "Haiku 4.5";
+    if (m.includes("sonnet-4-6")) return "Sonnet 4.6";
+    if (m.includes("opus-4")) return "Opus 4.x";
+    if (m.includes("sonnet-4-20250514")) return "Sonnet 4 (legacy)";
+    return m || "—";
   };
 
   return (
@@ -230,7 +256,8 @@ export default function AdminUsagePage() {
         {byFeature.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
             <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By feature</div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table style={summaryTableStyle}>
+              <SummaryCols />
               <thead><tr>
                 <th style={thStyle}>Feature</th>
                 <th style={thStyle}>Calls</th>
@@ -249,11 +276,36 @@ export default function AdminUsagePage() {
           </section>
         )}
 
+        {/* By model */}
+        {byModel.length > 0 && (
+          <section style={{ marginBottom: "40px" }}>
+            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By model</div>
+            <table style={summaryTableStyle}>
+              <SummaryCols />
+              <thead><tr>
+                <th style={thStyle}>Model</th>
+                <th style={thStyle}>Calls</th>
+                <th style={thStyle}>Cost</th>
+              </tr></thead>
+              <tbody>
+                {byModel.map((m) => (
+                  <tr key={m.model} style={{ borderBottom: "1px solid var(--rule)" }}>
+                    <td style={tdStyle}>{shortModel(m.model)}</td>
+                    <td style={tdStyle}>{m.turns}</td>
+                    <td style={tdStyle}>{formatCost(m.cost)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+
         {/* By person */}
         {byPerson.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
             <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By person</div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table style={summaryTableStyle}>
+              <SummaryCols />
               <thead><tr>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Turns</th>
@@ -276,7 +328,8 @@ export default function AdminUsagePage() {
         {byDay.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
             <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By day</div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table style={summaryTableStyle}>
+              <SummaryCols />
               <thead><tr>
                 <th style={thStyle}>Date</th>
                 <th style={thStyle}>Turns</th>
@@ -313,7 +366,7 @@ export default function AdminUsagePage() {
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap", fontSize: "11px" }}>
                     {formatTime(t.createdAt)}
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--muted)" }}>
-                      {t.person} · {t.feature}{t.promptVersion ? ` · ${t.promptVersion}` : ""}
+                      {t.person} · {shortModel(t.model)} · {t.feature}{t.promptVersion ? ` · ${t.promptVersion}` : ""}
                     </div>
                   </td>
                   <td style={tdStyle}>{cacheBadge(t.cacheState)}</td>

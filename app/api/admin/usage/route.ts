@@ -93,6 +93,19 @@ export async function GET(req: NextRequest) {
     .map(([feature, v]) => ({ feature, cost: round4(v.cost), turns: v.turns }))
     .sort((a, b) => b.cost - a.cost);
 
+  // By model
+  const modelMap = new Map<string, { cost: number; turns: number }>();
+  for (const r of rows) {
+    const key = r.model || "unknown";
+    const entry = modelMap.get(key) ?? { cost: 0, turns: 0 };
+    entry.cost += r.estimatedCostUsd;
+    entry.turns += 1;
+    modelMap.set(key, entry);
+  }
+  const byModel = Array.from(modelMap.entries())
+    .map(([model, v]) => ({ model, cost: round4(v.cost), turns: v.turns }))
+    .sort((a, b) => b.cost - a.cost);
+
   // Recent turns (last 50) — annotated so you can see what actually happened
   // in each turn: prompt, tools fired, cache state, and cost.
   const recent = rows.slice(0, 50).map((r) => {
@@ -138,6 +151,7 @@ export async function GET(req: NextRequest) {
     byDay,
     byPerson,
     byFeature,
+    byModel,
     recent,
   });
 }
