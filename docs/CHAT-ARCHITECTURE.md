@@ -344,6 +344,50 @@ The pattern: every candidate is **structured app data**, not arbitrary user-uplo
 - **Per-day:** Anthropic Console → Settings → Usage shows token spend by model.
 - **Per-month:** the Anthropic bill rolls up there too. Cross-reference with `docs/COSTS.md`.
 
+**How to pull usage from the DB** (run via Railway → Connect → psql, or any Postgres client):
+
+```sql
+-- Per-person usage last 30 days
+SELECT
+  p.name,
+  COUNT(*) AS calls,
+  SUM(a."inputTokens") AS input_tokens,
+  SUM(a."cacheReadTokens") AS cache_read,
+  SUM(a."outputTokens") AS output_tokens,
+  ROUND(SUM(a."estimatedCostUsd")::numeric, 4) AS cost_usd
+FROM "ApiUsageLog" a
+LEFT JOIN "Person" p ON p.id = a."personId"
+WHERE a.feature = 'chat'
+  AND a."createdAt" > NOW() - INTERVAL '30 days'
+GROUP BY p.name
+ORDER BY cost_usd DESC;
+
+-- Daily totals (to see usage trend over time)
+SELECT
+  DATE(a."createdAt") AS day,
+  COUNT(*) AS calls,
+  ROUND(SUM(a."estimatedCostUsd")::numeric, 4) AS cost_usd,
+  SUM(a."cacheReadTokens") AS cache_hits,
+  SUM(a."inputTokens") AS cache_misses
+FROM "ApiUsageLog" a
+WHERE a.feature = 'chat'
+  AND a."createdAt" > NOW() - INTERVAL '30 days'
+GROUP BY day
+ORDER BY day DESC;
+
+-- Cache effectiveness check (high cache_hit_pct = good)
+SELECT
+  ROUND(
+    100.0 * SUM("cacheReadTokens") /
+    NULLIF(SUM("inputTokens" + "cacheReadTokens" + "cacheCreationTokens"), 0),
+  1) AS cache_hit_pct,
+  ROUND(SUM("estimatedCostUsd")::numeric, 4) AS total_cost_usd,
+  COUNT(*) AS total_calls
+FROM "ApiUsageLog"
+WHERE feature = 'chat'
+  AND "createdAt" > NOW() - INTERVAL '7 days';
+```
+
 ### Debugging a slow/broken chat session
 
 1. **Browser console** — JavaScript errors in the streaming SSE parse
