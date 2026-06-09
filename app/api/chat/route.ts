@@ -72,6 +72,8 @@ export async function POST(req: NextRequest) {
 
   const turns: ChatTurn[] = [...history, { role: "user", content: message }];
 
+  const t0 = Date.now();
+  console.log(`[chat] start personId=${auth.personId} viewing=${viewingPersonId}`);
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -94,6 +96,7 @@ export async function POST(req: NextRequest) {
           proposalStatus: null,
         },
       }).then((row) => {
+        console.log(`[chat] placeholder created id=${row.id} +${Date.now() - t0}ms`);
         assistantDbId = row.id;
         try {
           controller.enqueue(
@@ -107,12 +110,15 @@ export async function POST(req: NextRequest) {
         console.error("Failed to create assistant placeholder:", e);
         return null;
       });
+      console.log(`[chat] placeholder fired +${Date.now() - t0}ms`);
 
       let assistantText = "";
       let proposal: MealProposal | BulkMealProposal | null = null;
       const usages: Anthropic.Usage[] = [];
       const toolsUsed: string[] = [];
       try {
+        console.log(`[chat] runChatTurn starting +${Date.now() - t0}ms`);
+        let firstEventLogged = false;
         for await (const ev of runChatTurn({
           history: turns,
           context,
@@ -120,12 +126,17 @@ export async function POST(req: NextRequest) {
           householdId: auth.householdId,
           timezone,
         })) {
+          if (!firstEventLogged) {
+            console.log(`[chat] first event=${ev.type} +${Date.now() - t0}ms`);
+            firstEventLogged = true;
+          }
           if (ev.type === "text") assistantText += ev.delta;
           if (ev.type === "proposal") proposal = ev.data;
           if (ev.type === "tool_start" && ev.name) toolsUsed.push(ev.name);
           if (ev.type === "done" && ev.usage) usages.push(ev.usage);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
         }
+        console.log(`[chat] runChatTurn done +${Date.now() - t0}ms`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         controller.enqueue(
