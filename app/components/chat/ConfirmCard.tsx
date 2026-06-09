@@ -89,11 +89,19 @@ export default function ConfirmCard({ messageId, dbId, proposal, status }: Confi
     : (single?.type === "remove" ? "removed." : single?.type === "add" ? "added." : single?.type === "swap" ? "swapped." : "updated.");
 
   if (status === "applied") {
+    // Include the affected day in the URL so the planner (mobile especially,
+    // which shows one day at a time) lands on the day where the change
+    // happened. Desktop ignores the param and renders the whole week.
+    // For fill_week we use the first item's date as the landing point.
+    const affectedDate = single?.date
+      ?? (isBulk && proposal.type === "apply_template" ? (proposal as BulkMealProposal).targetDate : undefined)
+      ?? (isBulk && proposal.type === "fill_week" ? (proposal as BulkMealProposal).items?.[0]?.date : undefined);
+    const plannerUrl = affectedDate ? `/planner?day=${affectedDate}` : "/planner";
     return (
       <div className="ck-ack">
         Applied &mdash; {isBulk ? ackLabel : `${personLabel}'s ${label.toLowerCase()} ${ackLabel}`}{" "}
-        <a href="/planner" onClick={() => { window.location.href = "/planner"; return false; }}>
-          View in planner →
+        <a href={plannerUrl} onClick={() => { window.location.href = plannerUrl; return false; }}>
+          View in planner &rarr;
         </a>
       </div>
     );

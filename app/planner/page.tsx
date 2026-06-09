@@ -170,6 +170,9 @@ function PlannerPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planIdParam = searchParams?.get("planId");
+  // ?day=YYYY-MM-DD — deep link from chat's "View in planner →" so mobile
+  // (which shows one day at a time) lands on the day where the change happened.
+  const dayParam = searchParams?.get("day");
   const { persons, selectedPersonId } = usePersonContext();
 
   const [plans, setPlans] = useState<MealPlanSummary[]>([]);
@@ -948,13 +951,29 @@ function PlannerPage() {
     return () => { cancelled = true; };
   }, [selectedPersonId, plan, showMonthStrip, stripWindow.start, stripWindow.end]);
 
-  // Default selected day: today if in the week, else the first day
+  // Default selected day: ?day=YYYY-MM-DD if provided and in week, else today,
+  // else the first day. The ?day= param comes from the chat's "View in planner"
+  // link so the user lands on the day where the change just happened.
   useEffect(() => {
     if (days.length === 0) return;
     if (selectedDayKey && days.some((d) => d.toDateString() === selectedDayKey)) return;
+    // 1. URL param wins if present and matches a day in this week
+    if (dayParam) {
+      const target = days.find((d) => {
+        // Compare ISO date (YYYY-MM-DD) in local tz
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}` === dayParam;
+      });
+      if (target) {
+        setSelectedDayKey(target.toDateString());
+        return;
+      }
+    }
     const todayInWeek = days.find((d) => d.toDateString() === today.toDateString());
     setSelectedDayKey((todayInWeek ?? days[0]).toDateString());
-  }, [days, today, selectedDayKey]);
+  }, [days, today, selectedDayKey, dayParam]);
 
   const selectedDay = useMemo(() => {
     if (!selectedDayKey) return days[0] ?? null;
