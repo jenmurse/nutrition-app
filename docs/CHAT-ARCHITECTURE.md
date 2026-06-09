@@ -60,11 +60,13 @@ The whole architecture is shaped around keeping Anthropic spend low for a person
 The Anthropic API caches by **prefix match** — any byte change in the prefix invalidates everything after it. The request is structured so the prefix is byte-stable across turns:
 
 ```
-[system prompt v1]                    ← frozen, never changes
-[tool definitions: 3 read tools]      ← frozen list
-[today's date + lightweight context]  ← stable within a session
+[system prompt v3]                          ← frozen, never changes
+[tool definitions: 3 read tools]            ← frozen list
+[stable context: household + recipes +      ← stable within a session
+ pantry]
 [← cache_control: ephemeral breakpoint here]
-[message history + new user turn]     ← varies per turn — NOT cached
+[today's date + currently-viewing person]   ← changes daily / per person switch
+[message history + new user turn]           ← varies per turn — NOT cached
 ```
 
 The `cache_control: { type: "ephemeral" }` marker sits on the context block (the last item in the stable prefix). Everything above it caches together. TTL is 5 minutes, refreshed on every read.
@@ -103,7 +105,7 @@ Don't do any of these without understanding the impact:
 
 | Action | Cache impact |
 |---|---|
-| Change the system prompt text (`SYSTEM_PROMPT_V2` in `lib/chat/anthropic.ts`) | Full invalidation. Bump the version constant when you change it. |
+| Change the system prompt text (`SYSTEM_PROMPT_V3` in `lib/chat/anthropic.ts`) | Full invalidation. Bump the version constant when you change it. |
 | Add/remove/reorder tools in `lib/chat/tools.ts` | Full invalidation. Tools render at position 0 in the prompt. |
 | Interpolate `new Date()` or any timestamp into the system prompt body | Per-request invalidation — nothing ever caches. |
 | Change the recipe/pantry context shape mid-session | Per-session invalidation. The shape is byte-identical within a session because it's deterministic. |
@@ -141,7 +143,7 @@ app/api/chat/route.ts
   5. ReadableStream → runChatTurn() → SSE events out
     ↓
 lib/chat/anthropic.ts runChatTurn()
-  - Builds system blocks: [SYSTEM_PROMPT_V2, today's date + context (+ cache_control)]
+  - Builds system blocks: [SYSTEM_PROMPT_V3, today's date + context (+ cache_control)]
   - Builds messages: history + new user turn
   - Loop (max 8 iterations):
     - client.messages.stream({ model, system, tools, messages })
@@ -158,7 +160,7 @@ On stream close: persist assistant message (whatever was streamed, even partial)
 
 ## System prompt voice (locked)
 
-Lives in `lib/chat/anthropic.ts` as `SYSTEM_PROMPT_V2`. Voice rules that are intentional:
+Lives in `lib/chat/anthropic.ts` as `SYSTEM_PROMPT_V3`. Voice rules that are intentional:
 
 - **Direct + confident** — lead with the answer, then reasoning
 - **Numbers in `**bold**`** — model wraps key numbers; UI renders as `<strong>` in ink
@@ -282,6 +284,21 @@ After Gate 4 ships:
 - Settings → 04 MCP Integration update (chat as primary, MCP as advanced)
 - Rate-limit middleware if/when app goes public
 - Privacy policy update (one paragraph noting chat content + lightweight data goes to Anthropic API)
+
+### Abuse / cost guardrails
+
+For friends-and-family scale, no work needed beyond the system prompt's "Scope" section (in `SYSTEM_PROMPT_V3`) which tells the model to politely refuse off-topic requests. That handles 95% of casual misuse for free.
+
+**Before public launch, add hard rate limiting.** The system prompt is a soft fence — coaxed past with effort, doesn't bound runaway scripts. Required additions:
+
+| Layer | Implementation | Cap suggestion |
+|---|---|---|
+| Per-user daily token cap | Query `ApiUsageLog` table (already exists) for last 24h; sum input + output; 429 if over | 50K input + 10K output per user per day ≈ $0.30/day worst case |
+| Per-household monthly backstop | Same idea, 30-day window, household-scoped | $X/month hard ceiling so a runaway script can't bankrupt anyone |
+| UX when capped | Panel shows "You've reached today's chat limit — resets at midnight." No scary chrome. | — |
+| Logging | Append to `ApiUsageLog` per chat call: personId, householdId, model, input/output/cache tokens | Needed for the cap check; also good for cost visibility |
+
+**Not pursuing:** pre-classifying messages with a smaller model (adds latency, costs tokens to decide whether to spend tokens), keyword/regex blocking (whack-a-mole), complex jailbreak detection (Anthropic's base model already refuses genuinely harmful categories).
 
 ### Queued chat UX improvements
 
