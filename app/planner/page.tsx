@@ -866,13 +866,13 @@ function PlannerPage() {
         const result: { id: number } = await r.json();
         newPlanId = result.id;
       }
-      // Bust cache, navigate
-      clientCache.set(`/api/meal-plans?personId=${selectedPersonId}`, null as unknown as MealPlanSummary[]);
-      const params = new URLSearchParams(searchParams?.toString());
-      params.set("planId", String(newPlanId));
-      router.push(`/planner?${params.toString()}`);
+      // Bust cache and hard-navigate so the planner re-initialises with the
+      // fresh plan list (router.push doesn't re-run the load useEffect since
+      // selectedPersonId hasn't changed — same issue as deletePlan).
+      clientCache.invalidate("/api/meal-plans");
       toast.success(copyFromId ? "Plan copied" : "New plan created");
       setNewPlanOpen(false);
+      window.location.href = `/planner?planId=${newPlanId}`;
     } catch (err) {
       console.error(err);
       toast.error("Failed to create plan");
