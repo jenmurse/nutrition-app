@@ -8839,6 +8839,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .ck-btn-apply:hover:not(:disabled) { opacity: 0.88; }
 .ck-btn-apply:disabled { opacity: 0.4; cursor: default; }
+.ck-card-note {
+  padding: 0 16px 12px;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+}
 .ck-ack {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;

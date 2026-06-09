@@ -153,6 +153,7 @@ export default function ConfirmCard({ messageId, proposal, status }: ConfirmCard
             {bulk.type === "apply_template" ? "Apply" : "Add all"}
           </button>
         </div>
+        <div className="ck-card-note">Not right? Cancel and tell me what to change.</div>
       </div>
     );
   }
