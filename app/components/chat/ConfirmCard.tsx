@@ -322,11 +322,12 @@ function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardPro
       <div className="ck-ack">
         Saved &mdash; &ldquo;{proposal.name}&rdquo;{" "}
         <a
-          href={`/recipes/${proposal.sourceRecipeId}`}
+          href="/recipes"
           onClick={(e) => {
-            // For "new" mode we don't know the new id until the response — easier
-            // to land on the recipes list. For "replace" we land on the source id.
-            const url = proposal.mode === "replace"
+            // For "replace" we land on the source recipe id. For "new" (either
+            // from edit or from-scratch) we don't know the new id until the
+            // response, so land on the list.
+            const url = proposal.mode === "replace" && proposal.sourceRecipeId
               ? `/recipes/${proposal.sourceRecipeId}`
               : "/recipes";
             e.preventDefault();
@@ -343,25 +344,36 @@ function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardPro
   }
 
   const isReplace = proposal.mode === "replace";
+  const fromScratch = proposal.sourceRecipeId == null;
   const addCount = proposal.diff.filter((d) => d.kind === "add").length;
   const removeCount = proposal.diff.filter((d) => d.kind === "remove").length;
   const changeCount = proposal.diff.filter((d) => d.kind === "change").length;
   const totalChanges = proposal.diff.length;
-  const changeSummary = [
-    removeCount > 0 ? `${removeCount} removed` : null,
-    addCount > 0 ? `${addCount} added` : null,
-    changeCount > 0 ? `${changeCount} modified` : null,
-  ].filter(Boolean).join(" · ");
+  // Summary line shape changes for from-scratch: "14 ingredients" reads
+  // better than "14 added" when there's no source to compare against.
+  const changeSummary = fromScratch
+    ? `${proposal.ingredients.length} ingredient${proposal.ingredients.length === 1 ? "" : "s"}`
+    : [
+        removeCount > 0 ? `${removeCount} removed` : null,
+        addCount > 0 ? `${addCount} added` : null,
+        changeCount > 0 ? `${changeCount} modified` : null,
+      ].filter(Boolean).join(" · ");
+
+  // Eyebrow varies by scenario
+  const eyebrowText = isReplace
+    ? `§ Save recipe · replace · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}`
+    : fromScratch
+      ? `§ Save recipe · new · from scratch · ${proposal.ingredients.length} ingredients`
+      : `§ Save recipe · new${totalChanges > 0 ? ` · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}` : ""}`;
 
   return (
     <div className="ck-card ck-recipe-card">
       <div className="ck-card-head">
-        <div className="ck-card-eyebrow">
-          § {isReplace ? "Save recipe · replace" : "Save recipe · new"}
-          {totalChanges > 0 ? ` · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}` : ""}
-        </div>
+        <div className="ck-card-eyebrow">{eyebrowText}</div>
         <div className="ck-card-title">
-          {isReplace ? `Replace "${proposal.sourceRecipeName}"` : `Save "${proposal.name}"`}
+          {isReplace
+            ? `Replace "${proposal.sourceRecipeName ?? "recipe"}"`
+            : `Save "${proposal.name}"`}
           <span className={`ck-recipe-pill ${isReplace ? "replace" : "new"}`}>
             {isReplace ? "Replace" : "New"}
           </span>
@@ -386,10 +398,16 @@ function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardPro
           aria-expanded={expanded}
         >
           <span className="ck-recipe-expand-summary">
-            <span className="ck-recipe-expand-num">
-              {totalChanges === 0 ? "No changes" : `${totalChanges} change${totalChanges === 1 ? "" : "s"}`}
-            </span>
-            {changeSummary && <span style={{ color: "var(--muted)", marginLeft: 8 }}>· {changeSummary}</span>}
+            {fromScratch ? (
+              <span className="ck-recipe-expand-num">{changeSummary}</span>
+            ) : (
+              <>
+                <span className="ck-recipe-expand-num">
+                  {totalChanges === 0 ? "No changes" : `${totalChanges} change${totalChanges === 1 ? "" : "s"}`}
+                </span>
+                {changeSummary && <span style={{ color: "var(--muted)", marginLeft: 8 }}>· {changeSummary}</span>}
+              </>
+            )}
           </span>
           <span className="ck-recipe-expand-action">
             {expanded ? "Hide ingredients ↑" : "View ingredients ↓"}

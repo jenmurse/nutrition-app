@@ -258,20 +258,22 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
     name: "propose_save_recipe",
     strict: true,
     description:
-      "Propose saving a modified recipe — either as a NEW recipe (preserves the original) or REPLACE the source recipe (overwrite). " +
-      "Only call this when the user explicitly signals save intent ('save it', 'save as new', 'save over', 'replace it', 'looks good keep it'). " +
-      "Do NOT call this during iteration — work in prose first. " +
-      "Provide the complete final ingredient list, not just the changes. The tool computes the diff vs the source recipe automatically. " +
-      "For 'new' mode, pick a descriptive name that reflects the modification (e.g. 'Salmon Bowl (Lower Sodium)'). For 'replace', keep the source name unless user explicitly renames.",
+      "Propose saving a recipe. Three scenarios:\n" +
+      "1) 'new' + source_recipe_id set — editing an existing recipe ('save as new'). Diff shown vs source.\n" +
+      "2) 'new' + source_recipe_id omitted — from-scratch creation ('design me a lemon brownie'). No diff.\n" +
+      "3) 'replace' + source_recipe_id required — overwrite the original (destructive).\n" +
+      "Only call this when the user explicitly signals save intent ('save it', 'save as new', 'save over', 'replace it', 'looks good keep it'). Do NOT call this during iteration — work in prose first. " +
+      "Provide the complete final ingredient list. The tool computes the diff automatically when there's a source. " +
+      "Pick a descriptive name that reflects the dish ('Lemon Brownie (Pastry Chef)', 'Salmon Bowl (Lower Sodium)'). For 'replace', keep the source name unless user explicitly renames.",
     input_schema: {
       type: "object",
       properties: {
-        mode: { type: "string", enum: ["new", "replace"], description: "'new' creates a copy. 'replace' overwrites the source." },
-        source_recipe_id: { type: "number", description: "The recipe id you've been editing. Required to compute the diff." },
-        name: { type: "string", description: "Final recipe name. For 'new', should be descriptive of the modification. For 'replace', keep source name unless user renamed." },
-        serving_size: { type: "number", description: "Number of servings the recipe yields. Default: copy from source." },
-        tags: { type: "string", description: "Comma-separated tags. Default: copy from source." },
-        instructions: { type: "string", description: "Updated instructions if the cooking process changed. Optional — defaults to source instructions." },
+        mode: { type: "string", enum: ["new", "replace"], description: "'new' creates a row. 'replace' overwrites source_recipe_id (requires source_recipe_id)." },
+        source_recipe_id: { type: "number", description: "OPTIONAL for 'new' (omit when designing from scratch). REQUIRED for 'replace'. The id of the recipe you've been editing." },
+        name: { type: "string", description: "Final recipe name. Descriptive of the dish or modification." },
+        serving_size: { type: "number", description: "Number of servings the recipe yields. Default 1 if no source." },
+        tags: { type: "string", description: "Comma-separated tags." },
+        instructions: { type: "string", description: "Recipe instructions / method." },
         ingredients: {
           type: "array",
           description: "Complete final ingredient list. Don't omit unchanged items.",
@@ -288,7 +290,7 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
           },
         },
       },
-      required: ["mode", "source_recipe_id", "name", "ingredients"],
+      required: ["mode", "name", "ingredients"],
       additionalProperties: false,
     },
   },
@@ -1285,7 +1287,7 @@ async function proposeSaveRecipe(
   ctx: { personId: number; householdId: number },
 ): Promise<RecipeSaveProposal | { error: string }> {
   const mode = i.mode as "new" | "replace";
-  const sourceRecipeId = i.source_recipe_id as number;
+  const sourceRecipeId = typeof i.source_recipe_id === "number" ? i.source_recipe_id : null;
   const proposedName = (i.name as string)?.trim();
   const proposedServingSize = typeof i.serving_size === "number" ? i.serving_size : undefined;
   const proposedTags = typeof i.tags === "string" ? i.tags : undefined;
@@ -1295,19 +1297,25 @@ async function proposeSaveRecipe(
   if (!proposedName) return { error: "Recipe name is required." };
   if (proposedIngredients.length === 0) return { error: "Recipe must have at least one ingredient." };
   if (mode !== "new" && mode !== "replace") return { error: "mode must be 'new' or 'replace'." };
+  if (mode === "replace" && sourceRecipeId == null) {
+    return { error: "Replace mode requires source_recipe_id — what's being replaced?" };
+  }
 
-  // Load the source recipe (used for diff + source macros for both modes)
-  const source = await prisma.recipe.findFirst({
-    where: { id: sourceRecipeId, householdId: ctx.householdId },
-    include: {
-      ingredients: {
+  // Load the source recipe if there is one. Required for "replace", optional for
+  // "new" (omit when designing from scratch).
+  const source = sourceRecipeId != null
+    ? await prisma.recipe.findFirst({
+        where: { id: sourceRecipeId, householdId: ctx.householdId },
         include: {
-          ingredient: { include: { nutrientValues: { include: { nutrient: true } } } },
+          ingredients: {
+            include: {
+              ingredient: { include: { nutrientValues: { include: { nutrient: true } } } },
+            },
+          },
         },
-      },
-    },
-  });
-  if (!source) return { error: `Source recipe ${sourceRecipeId} not found.` };
+      })
+    : null;
+  if (sourceRecipeId != null && !source) return { error: `Source recipe ${sourceRecipeId} not found.` };
 
   // Validate that every proposed ingredient exists in the household pantry
   const ingredientIds = proposedIngredients
@@ -1338,52 +1346,66 @@ async function proposeSaveRecipe(
     };
   });
 
-  // Build the diff vs source
-  const sourceById = new Map(source.ingredients.map((ri) => [ri.ingredientId, ri]));
-  const proposedById = new Map(cleanIngredients.map((p) => [p.ingredientId, p]));
+  // Build the diff vs source. From-scratch (no source) means everything is an "add".
   const diff: RecipeDiffLine[] = [];
-  // Removals (in source but not in proposed)
-  for (const sri of source.ingredients) {
-    if (!proposedById.has(sri.ingredientId)) {
-      diff.push({
-        kind: "remove",
-        ingredientId: sri.ingredientId,
-        name: sri.ingredient.name,
-        from: { quantity: sri.quantity, unit: sri.unit },
-      });
+  if (source) {
+    const sourceById = new Map(source.ingredients.map((ri) => [ri.ingredientId, ri]));
+    const proposedById = new Map(cleanIngredients.map((p) => [p.ingredientId, p]));
+    // Removals (in source but not in proposed)
+    for (const sri of source.ingredients) {
+      if (!proposedById.has(sri.ingredientId)) {
+        diff.push({
+          kind: "remove",
+          ingredientId: sri.ingredientId,
+          name: sri.ingredient.name,
+          from: { quantity: sri.quantity, unit: sri.unit },
+        });
+      }
     }
-  }
-  // Additions + changes
-  for (const p of cleanIngredients) {
-    const sri = sourceById.get(p.ingredientId);
-    if (!sri) {
+    // Additions + changes
+    for (const p of cleanIngredients) {
+      const sri = sourceById.get(p.ingredientId);
+      if (!sri) {
+        diff.push({
+          kind: "add",
+          ingredientId: p.ingredientId,
+          name: p.name,
+          to: { quantity: p.quantity, unit: p.unit },
+        });
+      } else if (sri.quantity !== p.quantity || sri.unit !== p.unit) {
+        diff.push({
+          kind: "change",
+          ingredientId: p.ingredientId,
+          name: p.name,
+          from: { quantity: sri.quantity, unit: sri.unit },
+          to: { quantity: p.quantity, unit: p.unit },
+        });
+      }
+    }
+  } else {
+    // From-scratch: every proposed ingredient is an addition.
+    for (const p of cleanIngredients) {
       diff.push({
         kind: "add",
         ingredientId: p.ingredientId,
         name: p.name,
         to: { quantity: p.quantity, unit: p.unit },
       });
-    } else if (sri.quantity !== p.quantity || sri.unit !== p.unit) {
-      diff.push({
-        kind: "change",
-        ingredientId: p.ingredientId,
-        name: p.name,
-        from: { quantity: sri.quantity, unit: sri.unit },
-        to: { quantity: p.quantity, unit: p.unit },
-      });
     }
   }
 
-  // Compute macros for source and proposed (per-serving)
-  const sourceServingSize = source.servingSize || 1;
-  const finalServingSize = proposedServingSize ?? sourceServingSize;
-  const sourceMacros = computeRecipeMacrosFromIngredients(
-    source.ingredients.map((ri) => ({
-      grams: ri.conversionGrams ?? gramsForUnit(ri.quantity, ri.unit, ri.ingredient.defaultUnit, ri.ingredient.customUnitGrams, ri.conversionGrams),
-      nutrientValues: ri.ingredient.nutrientValues.map((nv) => ({ name: nv.nutrient.name, value: nv.value })),
-    })),
-    sourceServingSize,
-  );
+  // Compute macros for source (if any) and proposed (per-serving)
+  const sourceServingSize = source?.servingSize || 1;
+  const finalServingSize = proposedServingSize ?? sourceServingSize ?? 1;
+  const sourceMacros: RecipeMacros = source
+    ? computeRecipeMacrosFromIngredients(
+        source.ingredients.map((ri) => ({
+          grams: ri.conversionGrams ?? gramsForUnit(ri.quantity, ri.unit, ri.ingredient.defaultUnit, ri.ingredient.customUnitGrams, ri.conversionGrams),
+          nutrientValues: ri.ingredient.nutrientValues.map((nv) => ({ name: nv.nutrient.name, value: nv.value })),
+        })),
+        sourceServingSize,
+      )
+    : {}; // from-scratch: no source macros
   const proposedMacros = computeRecipeMacrosFromIngredients(
     cleanIngredients.map((p) => {
       const ing = pantryMap.get(p.ingredientId)!;
@@ -1399,8 +1421,8 @@ async function proposeSaveRecipe(
   const sharedBody = {
     name: proposedName,
     servingSize: finalServingSize,
-    tags: proposedTags ?? source.tags ?? "",
-    instructions: proposedInstructions ?? source.instructions ?? "",
+    tags: proposedTags ?? source?.tags ?? "",
+    instructions: proposedInstructions ?? source?.instructions ?? "",
     ingredients: cleanIngredients.map((p) => ({
       ingredientId: p.ingredientId,
       quantity: p.quantity,
@@ -1423,8 +1445,8 @@ async function proposeSaveRecipe(
   return {
     type: "save_recipe",
     mode,
-    sourceRecipeId,
-    sourceRecipeName: source.name,
+    sourceRecipeId: sourceRecipeId,
+    sourceRecipeName: source?.name ?? null,
     name: proposedName,
     servingSize: finalServingSize,
     tags: proposedTags,

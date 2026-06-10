@@ -123,28 +123,35 @@ export interface RecipeMacros {
  * (Option B layout from briefs/mockup-save-recipe-card.html — compact summary
  * with expandable ingredient diff).
  *
- * mode="new":     save as a new recipe row. sourceRecipeId is the recipe
- *                 the user was editing (used to compute the diff); the save
- *                 endpoint creates a fresh row. Default for ambiguous "save".
- * mode="replace": overwrite sourceRecipeId. Destructive — UI flags it.
+ * Three save modes — sourceRecipeId determines which is in play:
+ *
+ * mode="new" + sourceRecipeId set:   editing an existing recipe ("save as
+ *                                    new"). Diff is computed vs source;
+ *                                    before/after macros shown side-by-side.
+ * mode="new" + sourceRecipeId null:  brand-new recipe from scratch
+ *                                    ("design me a lemon brownie"). No diff,
+ *                                    macros show "after" only.
+ * mode="replace":                    overwrite sourceRecipeId. Destructive —
+ *                                    UI flags it. sourceRecipeId required.
  */
 export interface RecipeSaveProposal {
   type: "save_recipe";
   mode: "new" | "replace";
-  /** The recipe being edited / cloned from. Required for both modes so we can compute the diff. */
-  sourceRecipeId: number;
-  sourceRecipeName: string;
-  /** Final recipe name. For "new", may differ from source (e.g. "Salmon Bowl (Lower Sodium)"). */
+  /** Source recipe id — null when creating from scratch (mode must be "new" in that case). */
+  sourceRecipeId: number | null;
+  sourceRecipeName: string | null;
+  /** Final recipe name. For "new" from a source, should reflect the modification
+   * (e.g. "Salmon Bowl (Lower Sodium)"). For from-scratch, describes the new dish. */
   name: string;
   servingSize: number;
   tags?: string;
-  /** Updated instructions, if the model is changing them. Undefined = keep source. */
+  /** Updated instructions, if the model is changing or providing them. */
   instructions?: string;
   /** Final ingredient list — what the recipe will have after save. */
   ingredients: RecipeProposalIngredient[];
-  /** Computed diff vs source — what the confirm-card shows when expanded. */
+  /** Computed diff vs source. Empty array when from-scratch (no source). */
   diff: RecipeDiffLine[];
-  /** Per-serving macros for source and proposed. */
+  /** Per-serving macros for source (when applicable) and proposed. */
   sourceMacros: RecipeMacros;
   proposedMacros: RecipeMacros;
   /** APPLY hits POST /api/recipes (new) or PUT /api/recipes/[id] (replace). */

@@ -127,8 +127,11 @@ Recipe ideation and substitution:
   - Sweetness → fruit (banana, date), warm spices (cinnamon, vanilla)
   - Fat for body → puréed beans, avocado, yogurt
 - Always use list_pantry_ingredients (or search_ingredients for specific names) to verify what the user actually has before suggesting substitutions. Don't invent ingredients the user doesn't own — they can't use what they don't have.
-- For from-scratch recipe creation ("design me a lemon brownie"), call list_pantry_ingredients with category and macro filters as you compose. Cite actual ingredient names from the pantry, not generic ones.
-- When the user accepts and says "save", propose_save_recipe will offer two modes: "new" (preserve the original, save a copy with a descriptive name like "Salmon Bowl (Lower Sodium)") and "replace" (overwrite the original). Default to "new" unless the user explicitly says "save over" / "overwrite" / "replace".`;
+- For from-scratch recipe creation ("design me a lemon brownie"), call list_pantry_ingredients with category and macro filters as you compose. Cite actual ingredient names from the pantry, not generic ones. Then call propose_save_recipe with mode="new" and OMIT source_recipe_id — that signals a brand-new recipe with no source to diff against.
+- When the user accepts and says "save", propose_save_recipe has three patterns:
+  - Editing an existing recipe → mode="new" + source_recipe_id (saves as a copy, e.g. "Salmon Bowl (Lower Sodium)"). Default for ambiguous "save".
+  - Brand-new from scratch → mode="new" without source_recipe_id.
+  - Overwrite the source → mode="replace" + source_recipe_id (destructive). Only when user explicitly says "save over" / "overwrite" / "replace".`;
 
 /**
  * Internal message shape — what the route sends in and what we persist.
