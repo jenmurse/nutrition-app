@@ -72,6 +72,27 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
       additionalProperties: false,
     },
   },
+  {
+    name: "list_pantry_ingredients",
+    strict: true,
+    description:
+      "Browse the pantry with optional filters. Use this during recipe ideation when you need to DISCOVER what's available — e.g. 'show me low-sodium acid sources to compensate for reduced soy sauce', 'list high-fiber starches', 'show me all the citrus I have'. " +
+      "Unlike search_ingredients (which needs you to know the name), this returns a filtered slice you can browse. Returns each ingredient with id, name, category, and per-100g macros (calories, protein, fiber, sodium, sugar).",
+    input_schema: {
+      type: "object",
+      properties: {
+        category: { type: "string", description: "Filter to one pantry category (e.g. 'Produce', 'Spices', 'Pantry', 'Dairy', 'Protein')." },
+        max_sodium: { type: "number", description: "Only return ingredients with sodium ≤ this value, per 100g (mg)." },
+        min_protein: { type: "number", description: "Only return ingredients with protein ≥ this value, per 100g (g)." },
+        min_fiber:   { type: "number", description: "Only return ingredients with fiber ≥ this value, per 100g (g)." },
+        max_sugar:   { type: "number", description: "Only return ingredients with sugar ≤ this value, per 100g (g)." },
+        sort: { type: "string", enum: ["name", "protein_desc", "sodium_asc", "fiber_desc", "sugar_asc"], description: "Sort order. Default is name ascending." },
+        limit: { type: "number", description: "Max items to return. Default 30, max 100." },
+      },
+      required: [],
+      additionalProperties: false,
+    },
+  },
 
   // ── Gate 3: bulk write tools ─────────────────────────────────────────────
   {
@@ -276,6 +297,8 @@ export async function runChatTool(
         return await getMealPlanWeek(i.plan_id as number, ctx.householdId);
       case "search_ingredients":
         return await searchIngredients(i.query as string, ctx.householdId);
+      case "list_pantry_ingredients":
+        return await listPantryIngredients(i, ctx.householdId);
       // Gate 2 propose_* tools
       case "propose_add_meal":
         return await proposeAddMeal(i, ctx);
@@ -902,6 +925,91 @@ async function searchIngredients(query: string, householdId: number) {
       per_100g_nutrition: per100g,
     };
   });
+}
+
+/**
+ * Browse the pantry with optional filters. Built for recipe ideation — the
+ * model can look for "low-sodium acid sources" or "high-fiber starches" rather
+ * than guessing ingredient names. Returns at most 100 items; default 30.
+ *
+ * Per-100g nutrient values come from the same NutrientValue table the rest of
+ * the app uses, so totals will line up with what shows in /pantry and recipes.
+ */
+async function listPantryIngredients(
+  i: Record<string, unknown>,
+  householdId: number,
+) {
+  const category = typeof i.category === "string" ? i.category : undefined;
+  const maxSodium = typeof i.max_sodium === "number" ? i.max_sodium : undefined;
+  const minProtein = typeof i.min_protein === "number" ? i.min_protein : undefined;
+  const minFiber = typeof i.min_fiber === "number" ? i.min_fiber : undefined;
+  const maxSugar = typeof i.max_sugar === "number" ? i.max_sugar : undefined;
+  const sort = typeof i.sort === "string" ? i.sort : "name";
+  const rawLimit = typeof i.limit === "number" ? i.limit : 30;
+  const limit = Math.max(1, Math.min(100, Math.floor(rawLimit)));
+
+  // Fetch wider than needed when post-filtering on macros — we sort/clip in-app
+  // because Prisma can't natively filter on related rows like NutrientValue
+  // by name without an awkward query. 500 is well under the ~110 starter
+  // pantry; even at 1k items per household the join stays fast.
+  const ings = await prisma.ingredient.findMany({
+    where: {
+      householdId,
+      ...(category ? { category: { equals: category, mode: "insensitive" } } : {}),
+    },
+    include: {
+      nutrientValues: {
+        select: { value: true, nutrient: { select: { name: true } } },
+      },
+    },
+    take: 500,
+    orderBy: { name: "asc" },
+  });
+
+  // Project to a slim shape + apply nutrient-based filters.
+  const KEYS = ["calories", "protein", "fiber", "sodium", "sugar"] as const;
+  type MacroKey = (typeof KEYS)[number];
+  const projected = ings.map((ing) => {
+    const m: Partial<Record<MacroKey, number>> = {};
+    for (const nv of ing.nutrientValues) {
+      const key = nv.nutrient.name as MacroKey;
+      if (KEYS.includes(key)) m[key] = nv.value;
+    }
+    return {
+      id: ing.id,
+      name: ing.name,
+      category: ing.category ?? "Uncategorized",
+      cal: m.calories,
+      protein: m.protein,
+      fiber: m.fiber,
+      sodium: m.sodium,
+      sugar: m.sugar,
+    };
+  });
+
+  const filtered = projected.filter((ing) => {
+    if (maxSodium !== undefined && (ing.sodium === undefined || ing.sodium > maxSodium)) return false;
+    if (minProtein !== undefined && (ing.protein === undefined || ing.protein < minProtein)) return false;
+    if (minFiber !== undefined && (ing.fiber === undefined || ing.fiber < minFiber)) return false;
+    if (maxSugar !== undefined && (ing.sugar === undefined || ing.sugar > maxSugar)) return false;
+    return true;
+  });
+
+  // Sort
+  const sortFn: Record<string, (a: typeof filtered[number], b: typeof filtered[number]) => number> = {
+    name: (a, b) => a.name.localeCompare(b.name),
+    protein_desc: (a, b) => (b.protein ?? -1) - (a.protein ?? -1),
+    sodium_asc: (a, b) => (a.sodium ?? Infinity) - (b.sodium ?? Infinity),
+    fiber_desc: (a, b) => (b.fiber ?? -1) - (a.fiber ?? -1),
+    sugar_asc: (a, b) => (a.sugar ?? Infinity) - (b.sugar ?? Infinity),
+  };
+  filtered.sort(sortFn[sort] ?? sortFn.name);
+
+  return {
+    items: filtered.slice(0, limit),
+    total_matched: filtered.length,
+    limit_applied: limit,
+  };
 }
 
 // ── Gate 3: Bulk proposal execution ──────────────────────────────────────────

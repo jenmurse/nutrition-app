@@ -318,6 +318,28 @@ These came up during Gate 1 testing — small, can ship independently of Gates 2
 - **Session dividers / timestamps in history.** "2 days ago" hairline rules between conversations so the panel reads as multiple distinct sessions, not one infinite scroll.
 - **Richer in-app context (instead of MCP-style context files).** The MCP integration lets users drop arbitrary `.md` files in front of Claude Desktop; the in-app chat can't, so any persistent context has to live in the app. Worth considering — see [Persistent context options](#persistent-context-options) below.
 
+### Future write features (under design)
+
+These extend chat from read + meal-plan writes to recipe + template authoring:
+
+- **`propose_save_recipe`** (in progress) — let the user iterate on a recipe in prose ("lower the sodium, keep the umami") and only fire a confirm-card when they say "save". Two modes: `new` (preserve original, save copy with descriptive name) or `replace` (overwrite). Confirm-card uses Option B layout from `briefs/mockup-save-recipe-card.html` — headline macros front-and-center, ingredient diff one tap away. Requires a new read tool, `list_pantry_ingredients`, so the model can browse the pantry (not just search by name) when looking for flavor-compensating substitutions.
+- **`propose_save_day_template`** — save a new day template from a description ("3 dinner-rotation templates that hit 35g+ protein, max 800mg sodium"). Confirm-card mirrors the existing apply-template card.
+- **`propose_save_optimization_notes` / `propose_save_meal_prep_notes`** — write notes to a recipe (markdown text). Cheap to build, lowest user value of the three.
+
+Build order: `list_pantry_ingredients` first (read-only, no UI), then `propose_save_recipe` (the big one with the new card shape), then V12 prompt updates (new tools + culinary persona allowance + flavor compensation guidance), then templates and notes.
+
+### Voice input (future, free)
+
+Users want to dictate prompts so they don't have to type, especially on mobile while cooking. The plan:
+
+- **Voice input only.** No TTS — users read responses, they don't get read back. Avoids both robotic-voice UX and the per-minute cost of premium TTS APIs.
+- **Web Speech API** (browser-built-in `webkitSpeechRecognition` / `SpeechRecognition`). $0 cost — no server call, no API key. Works on Chrome desktop, iOS Safari, Android Chrome. Quality varies by device but acceptable for command-style prompts.
+- **UI:** mic button next to the Send button in `Input.tsx`. Tap to start dictating, tap again to stop, transcribed text appears in the textarea (user can edit before sending).
+- **Cost impact:** zero on the chat itself. Adds maybe 20 lines of code to `Input.tsx`.
+- **Why not Whisper:** higher quality but $0.006/minute and adds a server roundtrip + ~1s latency. Not worth it for short conversational prompts. Revisit if Web Speech API quality complaints become real.
+
+Skip until after the save-recipe write features land — the bigger UX win is the new capabilities, not the input modality.
+
 ### Persistent context options
 
 The MCP workflow lets a user drop a `.md` brief in front of Claude Desktop and have it influence every conversation. The in-app chat doesn't have that lever — anything not stored as structured data in the app is invisible to the model. Things worth considering for v2 of the context block:
