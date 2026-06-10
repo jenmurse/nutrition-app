@@ -8862,6 +8862,124 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 .ck-ack a { color: var(--fg); border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
 .ck-ack a:hover { border-bottom-color: var(--fg); }
 
+/* ── Save Recipe confirm-card (Option B layout) ──────────────────────────
+   Distinct shape from meal cards: headline 5-macro strip, expandable
+   ingredient diff. Mode pill (New | Replace) on the title row. */
+.ck-recipe-card .ck-card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ck-recipe-pill {
+  display: inline-block;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  background: var(--bg-2, #f6f5f1);
+  color: var(--muted);
+}
+.ck-recipe-pill.new {
+  background: #e8f4ec;
+  color: var(--ok);
+  border-color: #cfe5d6;
+}
+.ck-recipe-pill.replace {
+  background: #fbe9e6;
+  color: var(--accent);
+  border-color: #f4d2c9;
+}
+.ck-recipe-macros {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.ck-recipe-macros .ck-macro { gap: 4px; }
+
+.ck-recipe-expand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 16px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.ck-recipe-expand:hover .ck-recipe-expand-action { color: var(--fg); }
+.ck-recipe-expand-summary {
+  font-size: 13px;
+  color: var(--fg);
+}
+.ck-recipe-expand-num {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+.ck-recipe-expand-action {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 120ms var(--ease-out);
+}
+
+/* Ingredient diff (inside .ck-recipe-diff when expanded) */
+.ck-diff-section {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.ck-diff-section:last-child { border-bottom: none; }
+.ck-diff-section-label {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.ck-diff-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.ck-diff-line .glyph {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--muted);
+  width: 14px;
+  flex-shrink: 0;
+}
+.ck-diff-line.ck-diff-add .glyph { color: var(--ok); }
+.ck-diff-line.ck-diff-rem .glyph { color: var(--err); }
+.ck-diff-line.ck-diff-chg .glyph { color: var(--accent); }
+.ck-diff-line .ck-diff-name { flex: 1; color: var(--fg); }
+.ck-diff-line.ck-diff-rem .ck-diff-name {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.ck-diff-line .ck-diff-qty {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ck-diff-line .ck-diff-qty .from { text-decoration: line-through; }
+.ck-diff-line .ck-diff-qty .to { color: var(--fg); font-weight: 500; }
+
 /* Mobile: full-width fly-in panel. Uses dvh so the panel shrinks when
    the iOS keyboard appears (dvh = dynamic viewport height, keyboard-aware).
    Safe-area padding keeps the input above the home bar on iPhone. */

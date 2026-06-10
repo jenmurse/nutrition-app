@@ -9,7 +9,15 @@
 
 import type Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/db";
-import type { MealProposal, BulkMealProposal, MacroDelta } from "./proposals";
+import type {
+  MealProposal,
+  BulkMealProposal,
+  MacroDelta,
+  RecipeSaveProposal,
+  RecipeDiffLine,
+  RecipeProposalIngredient,
+  RecipeMacros,
+} from "./proposals";
 
 // `strict: true` + `additionalProperties: false` together enable grammar-constrained
 // sampling — Anthropic guarantees the model's tool inputs match these JSON schemas
@@ -246,6 +254,44 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
       additionalProperties: false,
     },
   },
+  {
+    name: "propose_save_recipe",
+    strict: true,
+    description:
+      "Propose saving a modified recipe — either as a NEW recipe (preserves the original) or REPLACE the source recipe (overwrite). " +
+      "Only call this when the user explicitly signals save intent ('save it', 'save as new', 'save over', 'replace it', 'looks good keep it'). " +
+      "Do NOT call this during iteration — work in prose first. " +
+      "Provide the complete final ingredient list, not just the changes. The tool computes the diff vs the source recipe automatically. " +
+      "For 'new' mode, pick a descriptive name that reflects the modification (e.g. 'Salmon Bowl (Lower Sodium)'). For 'replace', keep the source name unless user explicitly renames.",
+    input_schema: {
+      type: "object",
+      properties: {
+        mode: { type: "string", enum: ["new", "replace"], description: "'new' creates a copy. 'replace' overwrites the source." },
+        source_recipe_id: { type: "number", description: "The recipe id you've been editing. Required to compute the diff." },
+        name: { type: "string", description: "Final recipe name. For 'new', should be descriptive of the modification. For 'replace', keep source name unless user renamed." },
+        serving_size: { type: "number", description: "Number of servings the recipe yields. Default: copy from source." },
+        tags: { type: "string", description: "Comma-separated tags. Default: copy from source." },
+        instructions: { type: "string", description: "Updated instructions if the cooking process changed. Optional — defaults to source instructions." },
+        ingredients: {
+          type: "array",
+          description: "Complete final ingredient list. Don't omit unchanged items.",
+          items: {
+            type: "object",
+            properties: {
+              ingredient_id: { type: "number", description: "Pantry ingredient id. Use list_pantry_ingredients or search_ingredients to find ids." },
+              quantity: { type: "number", description: "Amount of this ingredient." },
+              unit: { type: "string", description: "Unit — usually 'g' for weight, or the ingredient's default unit." },
+              notes: { type: "string", description: "Optional notes (e.g. 'finely chopped')." },
+            },
+            required: ["ingredient_id", "quantity", "unit"],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ["mode", "source_recipe_id", "name", "ingredients"],
+      additionalProperties: false,
+    },
+  },
 ] as unknown as Anthropic.Tool[]);
 
 /** Compute grams given quantity, unit, and an ingredient's unit definition. */
@@ -308,6 +354,8 @@ export async function runChatTool(
         return await proposeRemoveMeal(i, ctx);
       case "propose_update_servings":
         return await proposeUpdateServings(i, ctx);
+      case "propose_save_recipe":
+        return await proposeSaveRecipe(i, ctx);
       default:
         return { error: `Unknown tool: ${name}` };
     }
@@ -1215,5 +1263,205 @@ async function proposeApplyTemplate(
       url: `/api/day-templates/${templateId}/apply`,
       body: { planId, date, mode },
     },
+  };
+}
+
+/**
+ * Build a propose_save_recipe proposal.
+ *
+ * Inputs from the model:
+ *   - mode: "new" | "replace"
+ *   - source_recipe_id: required (used to compute the ingredient diff and the
+ *     source macros even in "new" mode, since the user is conceptually editing
+ *     an existing recipe)
+ *   - name, serving_size?, tags?, instructions? — defaults inherited from source
+ *   - ingredients[]: the COMPLETE final ingredient list with quantity + unit
+ *
+ * Returns a RecipeSaveProposal the client renders as a Save Recipe confirm-card.
+ * APPLY hits POST /api/recipes (new) or PUT /api/recipes/[id] (replace).
+ */
+async function proposeSaveRecipe(
+  i: Record<string, unknown>,
+  ctx: { personId: number; householdId: number },
+): Promise<RecipeSaveProposal | { error: string }> {
+  const mode = i.mode as "new" | "replace";
+  const sourceRecipeId = i.source_recipe_id as number;
+  const proposedName = (i.name as string)?.trim();
+  const proposedServingSize = typeof i.serving_size === "number" ? i.serving_size : undefined;
+  const proposedTags = typeof i.tags === "string" ? i.tags : undefined;
+  const proposedInstructions = typeof i.instructions === "string" ? i.instructions : undefined;
+  const proposedIngredients = (i.ingredients as Array<Record<string, unknown>>) ?? [];
+
+  if (!proposedName) return { error: "Recipe name is required." };
+  if (proposedIngredients.length === 0) return { error: "Recipe must have at least one ingredient." };
+  if (mode !== "new" && mode !== "replace") return { error: "mode must be 'new' or 'replace'." };
+
+  // Load the source recipe (used for diff + source macros for both modes)
+  const source = await prisma.recipe.findFirst({
+    where: { id: sourceRecipeId, householdId: ctx.householdId },
+    include: {
+      ingredients: {
+        include: {
+          ingredient: { include: { nutrientValues: { include: { nutrient: true } } } },
+        },
+      },
+    },
+  });
+  if (!source) return { error: `Source recipe ${sourceRecipeId} not found.` };
+
+  // Validate that every proposed ingredient exists in the household pantry
+  const ingredientIds = proposedIngredients
+    .map((p) => Number(p.ingredient_id))
+    .filter((id) => Number.isFinite(id));
+  const pantryIngredients = await prisma.ingredient.findMany({
+    where: { id: { in: ingredientIds }, householdId: ctx.householdId },
+    include: { nutrientValues: { include: { nutrient: true } } },
+  });
+  const pantryMap = new Map(pantryIngredients.map((p) => [p.id, p]));
+  const missing = proposedIngredients
+    .map((p) => Number(p.ingredient_id))
+    .filter((id) => !pantryMap.has(id));
+  if (missing.length > 0) {
+    return { error: `Some proposed ingredients aren't in the pantry: ${missing.join(", ")}. Call list_pantry_ingredients or search_ingredients to find the right ids.` };
+  }
+
+  // Build a clean proposed ingredient list (with names from the pantry)
+  const cleanIngredients: RecipeProposalIngredient[] = proposedIngredients.map((p) => {
+    const id = Number(p.ingredient_id);
+    const ing = pantryMap.get(id)!;
+    return {
+      ingredientId: id,
+      name: ing.name,
+      quantity: Number(p.quantity) || 0,
+      unit: typeof p.unit === "string" ? p.unit : "g",
+      notes: typeof p.notes === "string" ? p.notes : undefined,
+    };
+  });
+
+  // Build the diff vs source
+  const sourceById = new Map(source.ingredients.map((ri) => [ri.ingredientId, ri]));
+  const proposedById = new Map(cleanIngredients.map((p) => [p.ingredientId, p]));
+  const diff: RecipeDiffLine[] = [];
+  // Removals (in source but not in proposed)
+  for (const sri of source.ingredients) {
+    if (!proposedById.has(sri.ingredientId)) {
+      diff.push({
+        kind: "remove",
+        ingredientId: sri.ingredientId,
+        name: sri.ingredient.name,
+        from: { quantity: sri.quantity, unit: sri.unit },
+      });
+    }
+  }
+  // Additions + changes
+  for (const p of cleanIngredients) {
+    const sri = sourceById.get(p.ingredientId);
+    if (!sri) {
+      diff.push({
+        kind: "add",
+        ingredientId: p.ingredientId,
+        name: p.name,
+        to: { quantity: p.quantity, unit: p.unit },
+      });
+    } else if (sri.quantity !== p.quantity || sri.unit !== p.unit) {
+      diff.push({
+        kind: "change",
+        ingredientId: p.ingredientId,
+        name: p.name,
+        from: { quantity: sri.quantity, unit: sri.unit },
+        to: { quantity: p.quantity, unit: p.unit },
+      });
+    }
+  }
+
+  // Compute macros for source and proposed (per-serving)
+  const sourceServingSize = source.servingSize || 1;
+  const finalServingSize = proposedServingSize ?? sourceServingSize;
+  const sourceMacros = computeRecipeMacrosFromIngredients(
+    source.ingredients.map((ri) => ({
+      grams: ri.conversionGrams ?? gramsForUnit(ri.quantity, ri.unit, ri.ingredient.defaultUnit, ri.ingredient.customUnitGrams, ri.conversionGrams),
+      nutrientValues: ri.ingredient.nutrientValues.map((nv) => ({ name: nv.nutrient.name, value: nv.value })),
+    })),
+    sourceServingSize,
+  );
+  const proposedMacros = computeRecipeMacrosFromIngredients(
+    cleanIngredients.map((p) => {
+      const ing = pantryMap.get(p.ingredientId)!;
+      return {
+        grams: gramsForUnit(p.quantity, p.unit, ing.defaultUnit, ing.customUnitGrams, null),
+        nutrientValues: ing.nutrientValues.map((nv) => ({ name: nv.nutrient.name, value: nv.value })),
+      };
+    }),
+    finalServingSize,
+  );
+
+  // Build the execute params for APPLY
+  const sharedBody = {
+    name: proposedName,
+    servingSize: finalServingSize,
+    tags: proposedTags ?? source.tags ?? "",
+    instructions: proposedInstructions ?? source.instructions ?? "",
+    ingredients: cleanIngredients.map((p) => ({
+      ingredientId: p.ingredientId,
+      quantity: p.quantity,
+      unit: p.unit,
+      notes: p.notes ?? null,
+    })),
+  };
+  const execute = mode === "new"
+    ? {
+        method: "POST" as const,
+        url: "/api/recipes",
+        body: sharedBody,
+      }
+    : {
+        method: "PUT" as const,
+        url: `/api/recipes/${sourceRecipeId}`,
+        body: sharedBody,
+      };
+
+  return {
+    type: "save_recipe",
+    mode,
+    sourceRecipeId,
+    sourceRecipeName: source.name,
+    name: proposedName,
+    servingSize: finalServingSize,
+    tags: proposedTags,
+    instructions: proposedInstructions,
+    ingredients: cleanIngredients,
+    diff,
+    sourceMacros,
+    proposedMacros,
+    execute,
+  };
+}
+
+/** Compute per-serving macros from a list of ingredients-with-grams. */
+function computeRecipeMacrosFromIngredients(
+  items: Array<{
+    grams: number | null;
+    nutrientValues: Array<{ name: string; value: number }>;
+  }>,
+  servingSize: number,
+): RecipeMacros {
+  const KEYS = ["calories", "protein", "fiber", "sodium", "sugar"] as const;
+  type K = (typeof KEYS)[number];
+  const totals: Partial<Record<K, number>> = {};
+  for (const item of items) {
+    if (!item.grams || item.grams <= 0) continue;
+    for (const nv of item.nutrientValues) {
+      const key = nv.name as K;
+      if (!KEYS.includes(key)) continue;
+      totals[key] = (totals[key] ?? 0) + (nv.value * item.grams) / 100;
+    }
+  }
+  const div = servingSize || 1;
+  return {
+    cal: totals.calories ? Math.round(totals.calories / div) : undefined,
+    protein: totals.protein ? Math.round(totals.protein / div) : undefined,
+    fiber: totals.fiber ? Math.round(totals.fiber / div) : undefined,
+    sodium: totals.sodium ? Math.round(totals.sodium / div) : undefined,
+    sugar: totals.sugar ? Math.round(totals.sugar / div) : undefined,
   };
 }

@@ -30,9 +30,9 @@ export interface MacroDelta {
   sodium?: number;
 }
 
-/** What the client POSTs / PATCHes / DELETEs on APPLY. */
+/** What the client POSTs / PATCHes / PUTs / DELETEs on APPLY. */
 export interface ProposalExecute {
-  method: "POST" | "PATCH" | "DELETE";
+  method: "POST" | "PUT" | "PATCH" | "DELETE";
   url: string;   // e.g. "/api/meal-plans/123/meals/456"
   body?: Record<string, unknown>;
 }
@@ -83,5 +83,70 @@ export interface MealProposal {
   from?: MealProposalSide;   // existing meal (swap / remove / update_servings)
   to?: MealProposalSide;     // replacement or addition (add / swap / update_servings)
   macroDeltas?: MacroDelta;
+  execute: ProposalExecute;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Recipe save proposals (propose_save_recipe)
+// ────────────────────────────────────────────────────────────────────────────
+
+/** One ingredient row inside a recipe save proposal — the "what should be in the recipe" list. */
+export interface RecipeProposalIngredient {
+  ingredientId: number;
+  name: string;     // for display
+  quantity: number;
+  unit: string;
+  notes?: string;
+}
+
+/** A single line in the ingredient diff between the source recipe and the proposed save. */
+export interface RecipeDiffLine {
+  kind: "add" | "remove" | "change";
+  ingredientId: number;
+  name: string;
+  // For "add": only "to" is set. For "remove": only "from". For "change": both.
+  from?: { quantity: number; unit: string };
+  to?:   { quantity: number; unit: string };
+}
+
+/** Per-serving macros — both source (if editing) and proposed. */
+export interface RecipeMacros {
+  cal?: number;
+  protein?: number;
+  fiber?: number;
+  sodium?: number;
+  sugar?: number;
+}
+
+/**
+ * Returned by propose_save_recipe. Renders as the Save Recipe confirm-card
+ * (Option B layout from briefs/mockup-save-recipe-card.html — compact summary
+ * with expandable ingredient diff).
+ *
+ * mode="new":     save as a new recipe row. sourceRecipeId is the recipe
+ *                 the user was editing (used to compute the diff); the save
+ *                 endpoint creates a fresh row. Default for ambiguous "save".
+ * mode="replace": overwrite sourceRecipeId. Destructive — UI flags it.
+ */
+export interface RecipeSaveProposal {
+  type: "save_recipe";
+  mode: "new" | "replace";
+  /** The recipe being edited / cloned from. Required for both modes so we can compute the diff. */
+  sourceRecipeId: number;
+  sourceRecipeName: string;
+  /** Final recipe name. For "new", may differ from source (e.g. "Salmon Bowl (Lower Sodium)"). */
+  name: string;
+  servingSize: number;
+  tags?: string;
+  /** Updated instructions, if the model is changing them. Undefined = keep source. */
+  instructions?: string;
+  /** Final ingredient list — what the recipe will have after save. */
+  ingredients: RecipeProposalIngredient[];
+  /** Computed diff vs source — what the confirm-card shows when expanded. */
+  diff: RecipeDiffLine[];
+  /** Per-serving macros for source and proposed. */
+  sourceMacros: RecipeMacros;
+  proposedMacros: RecipeMacros;
+  /** APPLY hits POST /api/recipes (new) or PUT /api/recipes/[id] (replace). */
   execute: ProposalExecute;
 }

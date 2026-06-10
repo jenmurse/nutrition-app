@@ -18,7 +18,7 @@ import {
 } from "react";
 import { usePersonContext } from "../PersonContext";
 import { clientCache } from "@/lib/clientCache";
-import type { MealProposal, BulkMealProposal } from "@/lib/chat/proposals";
+import type { MealProposal, BulkMealProposal, RecipeSaveProposal } from "@/lib/chat/proposals";
 
 export interface ChatMessage {
   id: string;
@@ -28,7 +28,7 @@ export interface ChatMessage {
   error?: string;
   createdAt?: string; // ISO string — present for history-loaded messages
   // Gate 2+: proposal attached to an assistant message
-  proposal?: MealProposal | BulkMealProposal;
+  proposal?: MealProposal | BulkMealProposal | RecipeSaveProposal;
   proposalStatus?: "pending" | "applied" | "cancelled";
   /** DB-assigned id — set when message_id SSE event arrives or loaded from history. */
   dbId?: number;
@@ -92,7 +92,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               role: m.role as "user" | "assistant",
               content: m.content,
               createdAt: m.createdAt,
-              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as (MealProposal | BulkMealProposal) : undefined,
+              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as (MealProposal | BulkMealProposal | RecipeSaveProposal) : undefined,
               proposalStatus: (m.proposalStatus as ChatMessage["proposalStatus"]) ?? undefined,
             }),
           ),
@@ -175,7 +175,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           if (!line.startsWith("data:")) continue;
           const json = line.slice(5).trim();
           if (!json) continue;
-          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal; id?: number };
+          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal | BulkMealProposal | RecipeSaveProposal; id?: number };
           try { ev = JSON.parse(json); } catch { continue; }
 
           if (ev.type === "text" && ev.delta) {
@@ -315,11 +315,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         );
         return;
       }
+      // Recipe writes invalidate /api/recipes; meal writes invalidate /api/meal-plans.
+      // The cheapest correct move is to invalidate both — neither cache is huge.
       clientCache.invalidate("/api/meal-plans");
-      // Broadcast so any currently-mounted planner page (or anyone else)
-      // can re-fetch and reflect the change without the user having to
-      // navigate. Listeners read `event.detail` for hints (currently none).
+      clientCache.invalidate("/api/recipes");
+      // Broadcast so any currently-mounted planner / recipes page can re-fetch.
+      // Listeners read `event.detail` for hints (currently none).
       try { window.dispatchEvent(new CustomEvent("gm:meal-plan-changed")); } catch { /* */ }
+      try { window.dispatchEvent(new CustomEvent("gm:recipes-changed")); } catch { /* */ }
       // Persist BEFORE updating UI — guarantees DB is updated before
       // the ack shows and user can click "View in planner".
       await persistProposalStatus(messageId, "applied", dbId);

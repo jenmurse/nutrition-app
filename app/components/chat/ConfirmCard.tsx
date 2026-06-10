@@ -1,6 +1,13 @@
 "use client";
 
-import type { MealProposal, BulkMealProposal, MacroDelta } from "@/lib/chat/proposals";
+import { useState } from "react";
+import type {
+  MealProposal,
+  BulkMealProposal,
+  MacroDelta,
+  RecipeSaveProposal,
+  RecipeMacros,
+} from "@/lib/chat/proposals";
 import { useChat } from "./ChatProvider";
 import { clientCache } from "@/lib/clientCache";
 
@@ -69,12 +76,30 @@ interface ConfirmCardProps {
   messageId: string;
   /** DB-assigned id — passed explicitly so apply/cancel don't rely on stale closures. */
   dbId?: number;
-  proposal: MealProposal | BulkMealProposal;
+  proposal: MealProposal | BulkMealProposal | RecipeSaveProposal;
   status: "pending" | "applied" | "cancelled";
 }
 
 export default function ConfirmCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
+  // Recipe-save cards are a distinct shape from meal-plan cards; render via
+  // their own component so the iteration UX and macro layout stay isolated.
+  if (proposal.type === "save_recipe") {
+    return (
+      <SaveRecipeCard
+        messageId={messageId}
+        dbId={dbId}
+        proposal={proposal}
+        status={status}
+      />
+    );
+  }
+  return <MealCard messageId={messageId} dbId={dbId} proposal={proposal} status={status} />;
+}
+
+function MealCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
   const { applyProposal, applyBulkProposal, cancelProposal, isStreaming } = useChat();
+  // Narrow type for the meal-card path
+  if (proposal.type === "save_recipe") return null; // type guard — handled above
   const isBulk = proposal.type === "fill_week" || proposal.type === "apply_template";
 
   // Single-card fields — only meaningful for MealProposal (not bulk)
@@ -267,6 +292,215 @@ export default function ConfirmCard({ messageId, dbId, proposal, status }: Confi
            singleProposal.type === "remove" ? "Remove" :
            "Update"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  SaveRecipeCard — confirm-card for propose_save_recipe
+// ────────────────────────────────────────────────────────────────────────────
+// Option B layout per briefs/mockup-save-recipe-card.html:
+//   - headline 4-macro strip (before → after, color-coded by impact)
+//   - expandable ingredient diff (closed by default; persists per-card)
+//   - footer note differs by mode (Replace warns about overwrite)
+// ────────────────────────────────────────────────────────────────────────────
+
+interface SaveRecipeCardProps {
+  messageId: string;
+  dbId?: number;
+  proposal: RecipeSaveProposal;
+  status: "pending" | "applied" | "cancelled";
+}
+
+function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardProps) {
+  const { applyProposal, cancelProposal, isStreaming } = useChat();
+  const [expanded, setExpanded] = useState(false);
+
+  if (status === "applied") {
+    return (
+      <div className="ck-ack">
+        Saved &mdash; &ldquo;{proposal.name}&rdquo;{" "}
+        <a
+          href={`/recipes/${proposal.sourceRecipeId}`}
+          onClick={(e) => {
+            // For "new" mode we don't know the new id until the response — easier
+            // to land on the recipes list. For "replace" we land on the source id.
+            const url = proposal.mode === "replace"
+              ? `/recipes/${proposal.sourceRecipeId}`
+              : "/recipes";
+            e.preventDefault();
+            window.location.href = url;
+          }}
+        >
+          {proposal.mode === "replace" ? "View recipe →" : "View in recipes →"}
+        </a>
+      </div>
+    );
+  }
+  if (status === "cancelled") {
+    return <div className="ck-ack">Got it — no change made.</div>;
+  }
+
+  const isReplace = proposal.mode === "replace";
+  const addCount = proposal.diff.filter((d) => d.kind === "add").length;
+  const removeCount = proposal.diff.filter((d) => d.kind === "remove").length;
+  const changeCount = proposal.diff.filter((d) => d.kind === "change").length;
+  const totalChanges = proposal.diff.length;
+  const changeSummary = [
+    removeCount > 0 ? `${removeCount} removed` : null,
+    addCount > 0 ? `${addCount} added` : null,
+    changeCount > 0 ? `${changeCount} modified` : null,
+  ].filter(Boolean).join(" · ");
+
+  return (
+    <div className="ck-card ck-recipe-card">
+      <div className="ck-card-head">
+        <div className="ck-card-eyebrow">
+          § {isReplace ? "Save recipe · replace" : "Save recipe · new"}
+          {totalChanges > 0 ? ` · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}` : ""}
+        </div>
+        <div className="ck-card-title">
+          {isReplace ? `Replace "${proposal.sourceRecipeName}"` : `Save "${proposal.name}"`}
+          <span className={`ck-recipe-pill ${isReplace ? "replace" : "new"}`}>
+            {isReplace ? "Replace" : "New"}
+          </span>
+        </div>
+      </div>
+
+      <div className="ck-card-body">
+        {/* Macros: before → after (5 columns including sugar) */}
+        <div className="ck-recipe-macros">
+          <RecipeMacroCell label="Cal"     before={proposal.sourceMacros.cal}     after={proposal.proposedMacros.cal} />
+          <RecipeMacroCell label="Protein" before={proposal.sourceMacros.protein} after={proposal.proposedMacros.protein} unit="g" higherIsBetter />
+          <RecipeMacroCell label="Fiber"   before={proposal.sourceMacros.fiber}   after={proposal.proposedMacros.fiber} unit="g" higherIsBetter />
+          <RecipeMacroCell label="Sodium"  before={proposal.sourceMacros.sodium}  after={proposal.proposedMacros.sodium} unit="mg" lowerIsBetter />
+          <RecipeMacroCell label="Sugar"   before={proposal.sourceMacros.sugar}   after={proposal.proposedMacros.sugar} unit="g" lowerIsBetter />
+        </div>
+
+        {/* Expand line */}
+        <button
+          type="button"
+          className="ck-recipe-expand"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
+          <span className="ck-recipe-expand-summary">
+            <span className="ck-recipe-expand-num">
+              {totalChanges === 0 ? "No changes" : `${totalChanges} change${totalChanges === 1 ? "" : "s"}`}
+            </span>
+            {changeSummary && <span style={{ color: "var(--muted)", marginLeft: 8 }}>· {changeSummary}</span>}
+          </span>
+          <span className="ck-recipe-expand-action">
+            {expanded ? "Hide ingredients ↑" : "View ingredients ↓"}
+          </span>
+        </button>
+
+        {/* Diff sections (open state) */}
+        {expanded && (
+          <div className="ck-recipe-diff">
+            {removeCount > 0 && (
+              <div className="ck-diff-section">
+                <div className="ck-diff-section-label">Removed ({removeCount})</div>
+                {proposal.diff.filter((d) => d.kind === "remove").map((d) => (
+                  <div key={`r-${d.ingredientId}`} className="ck-diff-line ck-diff-rem">
+                    <span className="glyph">−</span>
+                    <span className="ck-diff-name">{d.name}</span>
+                    <span className="ck-diff-qty">{d.from?.quantity} {d.from?.unit}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {changeCount > 0 && (
+              <div className="ck-diff-section">
+                <div className="ck-diff-section-label">Changed ({changeCount})</div>
+                {proposal.diff.filter((d) => d.kind === "change").map((d) => (
+                  <div key={`c-${d.ingredientId}`} className="ck-diff-line ck-diff-chg">
+                    <span className="glyph">±</span>
+                    <span className="ck-diff-name">{d.name}</span>
+                    <span className="ck-diff-qty">
+                      <span className="from">{d.from?.quantity} {d.from?.unit}</span>
+                      {" → "}
+                      <span className="to">{d.to?.quantity} {d.to?.unit}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {addCount > 0 && (
+              <div className="ck-diff-section">
+                <div className="ck-diff-section-label">Added ({addCount})</div>
+                {proposal.diff.filter((d) => d.kind === "add").map((d) => (
+                  <div key={`a-${d.ingredientId}`} className="ck-diff-line ck-diff-add">
+                    <span className="glyph">+</span>
+                    <span className="ck-diff-name">{d.name}</span>
+                    <span className="ck-diff-qty">{d.to?.quantity} {d.to?.unit}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="ck-card-foot">
+        <span className="ck-card-note">
+          {isReplace ? "Original recipe will be overwritten." : "Not right? Cancel and adjust."}
+        </span>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>
+            Cancel
+          </button>
+          <button type="button" className="ck-btn-apply" onClick={() => applyProposal(messageId, dbId)} disabled={isStreaming}>
+            {isReplace ? "Replace" : "Save"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** One macro cell with before → after, color-coded by directional impact. */
+function RecipeMacroCell({
+  label, before, after, unit = "",
+  higherIsBetter = false,
+  lowerIsBetter = false,
+}: {
+  label: string;
+  before?: number;
+  after?: number;
+  unit?: string;
+  higherIsBetter?: boolean;
+  lowerIsBetter?: boolean;
+}) {
+  if (after === undefined && before === undefined) {
+    return (
+      <div className="ck-macro">
+        <div className="ck-macro-label">{label}</div>
+        <div className="ck-macro-val" style={{ color: "var(--muted)" }}>—</div>
+      </div>
+    );
+  }
+  const hasBoth = before !== undefined && after !== undefined;
+  const delta = hasBoth ? (after! - before!) : 0;
+  let semClass = "";
+  if (hasBoth && delta !== 0) {
+    if (higherIsBetter) semClass = delta > 0 ? "delta-up" : "delta-down";
+    else if (lowerIsBetter) semClass = delta < 0 ? "delta-up" : "delta-down";
+  }
+  return (
+    <div className="ck-macro">
+      <div className="ck-macro-label">{label}</div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 4, fontVariantNumeric: "tabular-nums" }}>
+        {before !== undefined && (
+          <span style={{ color: "var(--muted)", fontSize: 11, textDecoration: hasBoth ? "line-through" : "none" }}>
+            {before}{unit}
+          </span>
+        )}
+        {hasBoth && <span style={{ color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 10 }}>→</span>}
+        {after !== undefined && (
+          <span className={`ck-macro-val ${semClass}`}>{after}{unit}</span>
+        )}
       </div>
     </div>
   );

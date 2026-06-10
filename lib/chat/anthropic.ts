@@ -37,7 +37,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { CHAT_TOOLS, runChatTool, isProposeTool, isBulkProposeTool } from "./tools";
-import type { MealProposal, BulkMealProposal } from "./proposals";
+import type { MealProposal, BulkMealProposal, RecipeSaveProposal } from "./proposals";
 import {
   formatStableContextForPrompt,
   formatWeeklyPlansForPrompt,
@@ -148,7 +148,7 @@ export type ChatStreamEvent =
   | { type: "text"; delta: string }
   | { type: "tool_start"; name: string }
   | { type: "tool_done"; name: string }
-  | { type: "proposal"; data: MealProposal | BulkMealProposal }
+  | { type: "proposal"; data: MealProposal | BulkMealProposal | RecipeSaveProposal }
   | { type: "message_id"; id: number }  // DB id for the persisted assistant message
   | { type: "done"; usage?: Anthropic.Usage }
   | { type: "error"; message: string };
@@ -291,7 +291,7 @@ export async function* runChatTurn(args: {
           proposalEmitted = true;
           yield {
             type: "proposal",
-            data: result as (MealProposal | BulkMealProposal),
+            data: result as (MealProposal | BulkMealProposal | RecipeSaveProposal),
           };
         }
         toolResults.push({
