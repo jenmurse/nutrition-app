@@ -284,6 +284,7 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
       properties: {
         mode: { type: "string", enum: ["new", "replace"], description: "'new' creates a row. 'replace' overwrites source_recipe_id (requires source_recipe_id)." },
         source_recipe_id: { type: "number", description: "OPTIONAL for 'new' (omit when designing from scratch). REQUIRED for 'replace'. The id of the recipe you've been editing." },
+        target_nutrient: { type: "string", enum: ["calories", "fat", "satFat", "sodium", "carbs", "sugar", "addedSugar", "protein", "fiber"], description: "OPTIONAL. The nutrient the user was optimizing for (e.g. 'satFat' when they asked to reduce saturated fat). The card highlights this nutrient. Omit if no specific target." },
         name: { type: "string", description: "Final recipe name. Descriptive of the dish or modification." },
         serving_size: { type: "number", description: "Number of servings the recipe yields. Default 1 if no source." },
         tags: { type: "string", description: "Comma-separated tags." },
@@ -1302,6 +1303,7 @@ async function proposeSaveRecipe(
 ): Promise<RecipeSaveProposal | { error: string }> {
   const mode = i.mode as "new" | "replace";
   const sourceRecipeId = typeof i.source_recipe_id === "number" ? i.source_recipe_id : null;
+  const targetNutrient = typeof i.target_nutrient === "string" ? i.target_nutrient : undefined;
   const proposedName = (i.name as string)?.trim();
   const proposedServingSize = typeof i.serving_size === "number" ? i.serving_size : undefined;
   const proposedTags = typeof i.tags === "string" ? i.tags : undefined;
@@ -1481,11 +1483,12 @@ async function proposeSaveRecipe(
     diff,
     sourceMacros,
     proposedMacros,
+    targetNutrient,
     execute,
   };
 }
 
-/** Compute per-serving macros from a list of ingredients-with-grams. */
+/** Compute per-serving nutrition (all 9 tracked nutrients) from ingredients-with-grams. */
 function computeRecipeMacrosFromIngredients(
   items: Array<{
     grams: number | null;
@@ -1493,7 +1496,8 @@ function computeRecipeMacrosFromIngredients(
   }>,
   servingSize: number,
 ): RecipeMacros {
-  const KEYS = ["calories", "protein", "fiber", "sodium", "sugar"] as const;
+  // DB Nutrient.name values. Keep in sync with prisma/seed.ts nutrient list.
+  const KEYS = ["calories", "fat", "satFat", "sodium", "carbs", "sugar", "addedSugar", "protein", "fiber"] as const;
   type K = (typeof KEYS)[number];
   const totals: Partial<Record<K, number>> = {};
   for (const item of items) {
@@ -1505,11 +1509,16 @@ function computeRecipeMacrosFromIngredients(
     }
   }
   const div = servingSize || 1;
+  const round = (v: number | undefined) => (v !== undefined ? Math.round(v / div) : undefined);
   return {
-    cal: totals.calories ? Math.round(totals.calories / div) : undefined,
-    protein: totals.protein ? Math.round(totals.protein / div) : undefined,
-    fiber: totals.fiber ? Math.round(totals.fiber / div) : undefined,
-    sodium: totals.sodium ? Math.round(totals.sodium / div) : undefined,
-    sugar: totals.sugar ? Math.round(totals.sugar / div) : undefined,
+    cal: round(totals.calories),
+    fat: round(totals.fat),
+    satFat: round(totals.satFat),
+    sodium: round(totals.sodium),
+    carbs: round(totals.carbs),
+    sugar: round(totals.sugar),
+    addedSugar: round(totals.addedSugar),
+    protein: round(totals.protein),
+    fiber: round(totals.fiber),
   };
 }

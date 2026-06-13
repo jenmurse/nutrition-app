@@ -381,13 +381,20 @@ function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardPro
       </div>
 
       <div className="ck-card-body">
-        {/* Macros: before → after (5 columns including sugar) */}
-        <div className="ck-recipe-macros">
-          <RecipeMacroCell label="Cal"     before={proposal.sourceMacros.cal}     after={proposal.proposedMacros.cal} />
-          <RecipeMacroCell label="Protein" before={proposal.sourceMacros.protein} after={proposal.proposedMacros.protein} unit="g" higherIsBetter />
-          <RecipeMacroCell label="Fiber"   before={proposal.sourceMacros.fiber}   after={proposal.proposedMacros.fiber} unit="g" higherIsBetter />
-          <RecipeMacroCell label="Sodium"  before={proposal.sourceMacros.sodium}  after={proposal.proposedMacros.sodium} unit="mg" lowerIsBetter />
-          <RecipeMacroCell label="Sugar"   before={proposal.sourceMacros.sugar}   after={proposal.proposedMacros.sugar} unit="g" lowerIsBetter />
+        {/* Full nutrient panel — all 9, before → after, color-coded.
+            Unchanged rows dim; the optimized nutrient gets a coral rule. */}
+        <div className="ck-recipe-nut-panel">
+          {RECIPE_NUTRIENTS.map((n) => (
+            <RecipeNutrientRow
+              key={n.key}
+              label={n.label}
+              unit={n.unit}
+              before={proposal.sourceMacros[n.key]}
+              after={proposal.proposedMacros[n.key]}
+              direction={n.direction}
+              isTarget={proposal.targetNutrient === n.key}
+            />
+          ))}
         </div>
 
         {/* Expand line */}
@@ -478,48 +485,70 @@ function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardPro
   );
 }
 
-/** One macro cell with before → after, color-coded by directional impact. */
-function RecipeMacroCell({
-  label, before, after, unit = "",
-  higherIsBetter = false,
-  lowerIsBetter = false,
+// The 9 tracked nutrients in display order, with units and directionality.
+// direction: "ceiling" = lower is better (sat fat, sodium...), "floor" = higher
+// is better (protein, fiber), "neutral" = no semantic color (calories, carbs).
+const RECIPE_NUTRIENTS: Array<{
+  key: keyof RecipeMacros;
+  label: string;
+  unit: string;
+  direction: "ceiling" | "floor" | "neutral";
+}> = [
+  { key: "cal",        label: "Calories",     unit: "",   direction: "neutral" },
+  { key: "fat",        label: "Fat",          unit: "g",  direction: "ceiling" },
+  { key: "satFat",     label: "Saturated Fat",unit: "g",  direction: "ceiling" },
+  { key: "sodium",     label: "Sodium",       unit: "mg", direction: "ceiling" },
+  { key: "carbs",      label: "Carbs",        unit: "g",  direction: "neutral" },
+  { key: "sugar",      label: "Sugar",        unit: "g",  direction: "ceiling" },
+  { key: "addedSugar", label: "Added Sugar",  unit: "g",  direction: "ceiling" },
+  { key: "protein",    label: "Protein",      unit: "g",  direction: "floor" },
+  { key: "fiber",      label: "Fiber",        unit: "g",  direction: "floor" },
+];
+
+/** One nutrient row in the full panel — before → after, color-coded, dims when unchanged. */
+function RecipeNutrientRow({
+  label, unit, before, after, direction, isTarget,
 }: {
   label: string;
+  unit: string;
   before?: number;
   after?: number;
-  unit?: string;
-  higherIsBetter?: boolean;
-  lowerIsBetter?: boolean;
+  direction: "ceiling" | "floor" | "neutral";
+  isTarget: boolean;
 }) {
-  if (after === undefined && before === undefined) {
-    return (
-      <div className="ck-macro">
-        <div className="ck-macro-label">{label}</div>
-        <div className="ck-macro-val" style={{ color: "var(--muted)" }}>—</div>
-      </div>
-    );
-  }
+  // No data at all → skip rendering entirely (keeps the panel honest).
+  if (before === undefined && after === undefined) return null;
+
   const hasBoth = before !== undefined && after !== undefined;
-  const delta = hasBoth ? (after! - before!) : 0;
+  const changed = hasBoth && before !== after;
+  const delta = hasBoth ? after! - before! : 0;
+
   let semClass = "";
-  if (hasBoth && delta !== 0) {
-    if (higherIsBetter) semClass = delta > 0 ? "delta-up" : "delta-down";
-    else if (lowerIsBetter) semClass = delta < 0 ? "delta-up" : "delta-down";
+  if (changed && direction !== "neutral") {
+    const improved = direction === "ceiling" ? delta < 0 : delta > 0;
+    semClass = improved ? "ok" : "err";
   }
+
+  const rowClass = [
+    "ck-nut-row",
+    !changed ? "unchanged" : "",
+    isTarget ? "target" : "",
+  ].filter(Boolean).join(" ");
+
   return (
-    <div className="ck-macro">
-      <div className="ck-macro-label">{label}</div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 4, fontVariantNumeric: "tabular-nums" }}>
-        {before !== undefined && (
-          <span style={{ color: "var(--muted)", fontSize: 11, textDecoration: hasBoth ? "line-through" : "none" }}>
-            {before}{unit}
-          </span>
+    <div className={rowClass}>
+      <span className="ck-nut-label">{label}</span>
+      <span className="ck-nut-flow">
+        {changed && before !== undefined && (
+          <>
+            <span className="ck-nut-before">{before}{unit}</span>
+            <span className="ck-nut-arrow">→</span>
+          </>
         )}
-        {hasBoth && <span style={{ color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 10 }}>→</span>}
-        {after !== undefined && (
-          <span className={`ck-macro-val ${semClass}`}>{after}{unit}</span>
-        )}
-      </div>
+        <span className={`ck-nut-after ${semClass}`}>
+          {(after ?? before)}{unit}
+        </span>
+      </span>
     </div>
   );
 }

@@ -131,7 +131,8 @@ Recipe ideation and substitution:
 - When the user accepts and says "save", propose_save_recipe has three patterns:
   - Editing an existing recipe → mode="new" + source_recipe_id (saves as a copy, e.g. "Salmon Bowl (Lower Sodium)"). Default for ambiguous "save".
   - Brand-new from scratch → mode="new" without source_recipe_id.
-  - Overwrite the source → mode="replace" + source_recipe_id (destructive). Only when user explicitly says "save over" / "overwrite" / "replace".`;
+  - Overwrite the source → mode="replace" + source_recipe_id (destructive). Only when user explicitly says "save over" / "overwrite" / "replace".
+- When the user was optimizing a specific nutrient, pass target_nutrient (one of: calories, fat, satFat, sodium, carbs, sugar, addedSugar, protein, fiber). The save card shows the full nutrition panel and highlights this nutrient. E.g. "reduce saturated fat" → target_nutrient="satFat". Omit if there was no single nutrient target.`;
 
 /**
  * Internal message shape — what the route sends in and what we persist.

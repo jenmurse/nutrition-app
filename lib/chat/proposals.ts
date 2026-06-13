@@ -109,13 +109,23 @@ export interface RecipeDiffLine {
   to?:   { quantity: number; unit: string };
 }
 
-/** Per-serving macros — both source (if editing) and proposed. */
+/**
+ * Per-serving nutrition — all 9 tracked nutrients. The save-recipe card shows
+ * the full panel (before → after) so the user can confirm an optimization
+ * didn't wreck a nutrient they weren't targeting. Keys match the Nutrient.name
+ * values in the DB (calories, fat, satFat, sodium, carbs, sugar, addedSugar,
+ * protein, fiber). Any key may be undefined if the ingredient data lacks it.
+ */
 export interface RecipeMacros {
-  cal?: number;
+  cal?: number;        // calories
+  fat?: number;
+  satFat?: number;
+  sodium?: number;
+  carbs?: number;
+  sugar?: number;
+  addedSugar?: number;
   protein?: number;
   fiber?: number;
-  sodium?: number;
-  sugar?: number;
 }
 
 /**
@@ -154,6 +164,9 @@ export interface RecipeSaveProposal {
   /** Per-serving macros for source (when applicable) and proposed. */
   sourceMacros: RecipeMacros;
   proposedMacros: RecipeMacros;
+  /** The nutrient the user was optimizing (e.g. "satFat"), if any — the card
+   * gives it a highlight rule so the eye lands on what was asked for. */
+  targetNutrient?: string;
   /** APPLY hits POST /api/recipes (new) or PUT /api/recipes/[id] (replace). */
   execute: ProposalExecute;
 }

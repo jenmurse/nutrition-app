@@ -8892,14 +8892,63 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   color: var(--accent);
   border-color: #f4d2c9;
 }
-.ck-recipe-macros {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  padding: 14px 0;
+/* Full nutrient panel — vertical before → after list (all 9 nutrients).
+   Mirrors the planner's daily-totals language. */
+.ck-recipe-nut-panel {
+  padding: 6px 0;
   border-bottom: 1px solid var(--rule);
 }
-.ck-recipe-macros .ck-macro { gap: 4px; }
+.ck-nut-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: 6px 0;
+}
+.ck-nut-label {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ck-nut-flow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.ck-nut-before {
+  color: var(--muted);
+  opacity: 0.7;
+  text-decoration: line-through;
+  font-size: 12px;
+}
+.ck-nut-arrow {
+  color: var(--muted);
+  opacity: 0.7;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+}
+.ck-nut-after { color: var(--fg); font-weight: 500; }
+.ck-nut-after.ok  { color: var(--ok); }
+.ck-nut-after.err { color: var(--err); }
+/* Unchanged rows recede so the changed ones pop */
+.ck-nut-row.unchanged .ck-nut-label,
+.ck-nut-row.unchanged .ck-nut-after {
+  color: var(--muted);
+  opacity: 0.55;
+  font-weight: 400;
+}
+/* The optimized nutrient gets a coral left-rule */
+.ck-nut-row.target {
+  margin: 0 -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-left: 2px solid var(--accent);
+}
 
 .ck-recipe-expand {
   display: flex;
