@@ -24,6 +24,13 @@ import type {
 // exactly (right types, no extra keys, required fields always present). Eliminates
 // defensive validation and reduces "malformed proposal" classes of bugs.
 // Cast through Tool[] because the SDK type may not surface `strict` yet.
+//
+// IMPORTANT — grammar size limit: Anthropic compiles ALL strict tools into one
+// grammar with a hard size cap. Tools with nested array-of-objects schemas
+// (propose_fill_week, propose_save_recipe) are deliberately NOT strict — they
+// were what tipped us over the limit ("compiled grammar too large"). Their
+// handlers validate inputs defensively instead. Keep heavy nested schemas
+// non-strict; only flat-schema tools should be strict.
 export const CHAT_TOOLS: Anthropic.Tool[] = ([
   {
     name: "get_recipe",
@@ -105,7 +112,10 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
   // ── Gate 3: bulk write tools ─────────────────────────────────────────────
   {
     name: "propose_fill_week",
-    strict: true,
+    // NOT strict: nested array-of-objects schema bloats the compiled grammar.
+    // Anthropic caps total grammar size across all strict tools; this one +
+    // propose_save_recipe were pushing us over ("compiled grammar too large").
+    // The handler validates inputs defensively, so strict isn't load-bearing here.
     description:
       "Propose adding multiple meals across a week in one confirm-card. " +
       "Use this when the user asks to fill their week, plan several days, or add meals across multiple days at once. " +
@@ -256,7 +266,10 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
   },
   {
     name: "propose_save_recipe",
-    strict: true,
+    // NOT strict: the nested ingredients array (array of objects with 4 fields
+    // each) is the single biggest grammar contributor. The handler validates
+    // every field + checks ingredient ids against the pantry, so dropping
+    // strict here costs nothing in safety.
     description:
       "Propose saving a recipe. Three scenarios:\n" +
       "1) 'new' + source_recipe_id set — editing an existing recipe ('save as new'). Diff shown vs source.\n" +
