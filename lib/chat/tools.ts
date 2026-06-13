@@ -400,7 +400,18 @@ async function getRecipe(recipeId: number, householdId: number) {
   if (!r) return { error: `Recipe ${recipeId} not found` };
 
   const nutrientTotals: Record<string, { value: number; unit: string }> = {};
-  const ingredientLines: string[] = [];
+  // Structured ingredients WITH ingredient_id. Critical for propose_save_recipe:
+  // when editing a recipe the model already has every existing ingredient's id
+  // here, so it only needs to search_ingredients for genuinely NEW ones — not
+  // re-look-up all 11. Before this, get_recipe returned name-only strings and
+  // the model fired ~10 search_ingredients per save (slow + expensive).
+  const ingredients: Array<{
+    ingredient_id: number;
+    name: string;
+    quantity: number;
+    unit: string;
+    notes?: string;
+  }> = [];
   for (const ri of r.ingredients) {
     const ing = ri.ingredient;
     const grams = gramsForUnit(
@@ -412,9 +423,13 @@ async function getRecipe(recipeId: number, householdId: number) {
     );
     const unitDisplay =
       ri.unit === "other" && ing.customUnitName ? ing.customUnitName : ri.unit;
-    ingredientLines.push(
-      `${ri.quantity} ${unitDisplay} ${ing.name}${ri.notes ? ` (${ri.notes})` : ""}`,
-    );
+    ingredients.push({
+      ingredient_id: ing.id,
+      name: ing.name,
+      quantity: ri.quantity,
+      unit: unitDisplay,
+      notes: ri.notes || undefined,
+    });
     if (grams !== null) {
       for (const nv of ing.nutrientValues) {
         const key = nv.nutrient.name;
@@ -435,7 +450,7 @@ async function getRecipe(recipeId: number, householdId: number) {
     tags: r.tags,
     serving_size: r.servingSize,
     serving_unit: r.servingUnit,
-    ingredients: ingredientLines,
+    ingredients,
     per_serving_nutrition: perServing,
     instructions: r.instructions || undefined,
   };
