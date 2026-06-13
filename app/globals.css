@@ -8903,7 +8903,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   grid-template-columns: 1fr auto;
   align-items: baseline;
   gap: 16px;
-  padding: 6px 0;
+  padding: 4px 0;
 }
 .ck-nut-label {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;

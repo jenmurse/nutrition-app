@@ -32,6 +32,10 @@ export interface ChatMessage {
   proposalStatus?: "pending" | "applied" | "cancelled";
   /** DB-assigned id — set when message_id SSE event arrives or loaded from history. */
   dbId?: number;
+  /** Id returned by a successful apply (e.g. the new recipe id from a save_recipe
+   * "new" — lets the ack link land on the actual recipe, not the list). In-session
+   * only; not persisted across refresh. */
+  appliedResultId?: number;
 }
 
 interface ChatState {
@@ -315,6 +319,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         );
         return;
       }
+      // For a save_recipe "new", the POST response is the created recipe with
+      // its id — capture it so the ack link can land on the actual recipe
+      // rather than the full list.
+      let appliedResultId: number | undefined;
+      if (msg.proposal.type === "save_recipe" && msg.proposal.mode === "new") {
+        try {
+          const created = await r.json();
+          if (created && typeof created.id === "number") appliedResultId = created.id;
+        } catch { /* response not JSON — fall back to list */ }
+      }
       // Recipe writes invalidate /api/recipes; meal writes invalidate /api/meal-plans.
       // The cheapest correct move is to invalidate both — neither cache is huge.
       clientCache.invalidate("/api/meal-plans");
@@ -327,7 +341,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // the ack shows and user can click "View in planner".
       await persistProposalStatus(messageId, "applied", dbId);
       setMessages((prev) =>
-        prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied" } : m)),
+        prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied", appliedResultId } : m)),
       );
       // Auto-continue: if the model said "I'll propose the next swap after this",
       // sending "Applied." gives it the cue to fire the follow-up proposal.

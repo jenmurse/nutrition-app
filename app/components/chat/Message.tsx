@@ -27,6 +27,7 @@ export default function Message({ message }: { message: ChatMessage }) {
           dbId={message.dbId}
           proposal={message.proposal}
           status={message.proposalStatus ?? "pending"}
+          appliedResultId={message.appliedResultId}
         />
       )}
       {message.error && (

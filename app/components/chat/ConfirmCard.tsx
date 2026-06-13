@@ -78,9 +78,11 @@ interface ConfirmCardProps {
   dbId?: number;
   proposal: MealProposal | BulkMealProposal | RecipeSaveProposal;
   status: "pending" | "applied" | "cancelled";
+  /** Id from a successful apply (e.g. new recipe id) — for the ack deep-link. */
+  appliedResultId?: number;
 }
 
-export default function ConfirmCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
+export default function ConfirmCard({ messageId, dbId, proposal, status, appliedResultId }: ConfirmCardProps) {
   // Recipe-save cards are a distinct shape from meal-plan cards; render via
   // their own component so the iteration UX and macro layout stay isolated.
   if (proposal.type === "save_recipe") {
@@ -90,6 +92,7 @@ export default function ConfirmCard({ messageId, dbId, proposal, status }: Confi
         dbId={dbId}
         proposal={proposal}
         status={status}
+        appliedResultId={appliedResultId}
       />
     );
   }
@@ -311,30 +314,31 @@ interface SaveRecipeCardProps {
   dbId?: number;
   proposal: RecipeSaveProposal;
   status: "pending" | "applied" | "cancelled";
+  appliedResultId?: number;
 }
 
-function SaveRecipeCard({ messageId, dbId, proposal, status }: SaveRecipeCardProps) {
+function SaveRecipeCard({ messageId, dbId, proposal, status, appliedResultId }: SaveRecipeCardProps) {
   const { applyProposal, cancelProposal, isStreaming } = useChat();
   const [expanded, setExpanded] = useState(false);
 
   if (status === "applied") {
+    // Land on the specific recipe when we know its id:
+    //   - replace → the source id (it was overwritten in place)
+    //   - new → the id captured from the POST response (appliedResultId)
+    // Fall back to the recipes list when neither is available (e.g. after a
+    // refresh, where appliedResultId isn't persisted).
+    const recipeId = proposal.mode === "replace"
+      ? proposal.sourceRecipeId
+      : appliedResultId;
+    const url = recipeId ? `/recipes/${recipeId}` : "/recipes";
     return (
       <div className="ck-ack">
         Saved &mdash; &ldquo;{proposal.name}&rdquo;{" "}
         <a
-          href="/recipes"
-          onClick={(e) => {
-            // For "replace" we land on the source recipe id. For "new" (either
-            // from edit or from-scratch) we don't know the new id until the
-            // response, so land on the list.
-            const url = proposal.mode === "replace" && proposal.sourceRecipeId
-              ? `/recipes/${proposal.sourceRecipeId}`
-              : "/recipes";
-            e.preventDefault();
-            window.location.href = url;
-          }}
+          href={url}
+          onClick={(e) => { e.preventDefault(); window.location.href = url; }}
         >
-          {proposal.mode === "replace" ? "View recipe →" : "View in recipes →"}
+          {recipeId ? "View recipe →" : "View in recipes →"}
         </a>
       </div>
     );
