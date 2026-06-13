@@ -584,6 +584,16 @@ The cached prefix now stays valid through planner edits. Only recipe/pantry/temp
 
 **Lesson:** If you add a new Anthropic call anywhere, log it the same way — same `ApiUsageLog` table, set `feature`, compute cost. Otherwise the admin dashboard drifts from billing reality.
 
+### 11. Strict-tool grammar size cap
+
+**Symptom:** `invalid_request_error: The compiled grammar is too large, which would cause performance issues. Simplify your tool schemas or reduce the number of strict tools.` Hit when adding `propose_save_recipe` (the 12th strict tool).
+
+**Root cause:** `strict: true` compiles a tool's JSON schema into a sampling grammar. Anthropic sums ALL strict tools into one grammar with a hard size cap. Each `strict` tool adds to it; tools with nested array-of-objects schemas (`propose_fill_week`, `propose_save_recipe`) contribute disproportionately because the grammar has to encode the repeating nested structure.
+
+**Fix:** Drop `strict: true` from the heaviest nested-schema tools. They keep `additionalProperties: false` (still a valid schema, just not grammar-enforced) and their handlers validate defensively — `propose_save_recipe` even checks every ingredient id against the pantry. Flat-schema tools keep strict.
+
+**Lesson:** Strict isn't free — it has a shared budget. Reserve it for flat-schema tools where type coercion bugs are likely (number vs string ids). For tools with nested arrays, validate in the handler instead. Rule of thumb documented at the `CHAT_TOOLS` declaration: heavy nested schemas stay non-strict.
+
 ---
 
 ## Auto-refresh: notifying other pages of writes
