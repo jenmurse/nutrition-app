@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Save Recipe full nutrient panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #111111;
+    --fg-2: #333333;
+    --muted: #6b6b6b;
+    --faint: #aaaaaa;
+    --rule: #e6e6e6;
+    --accent: #d65a32;
+    --ok: #2e7d32;
+    --err: #b3261e;
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-sans);
+    background: #f3f1eb;
+    color: var(--fg);
+    margin: 0;
+    padding: 48px 24px;
+  }
+  .page { max-width: 540px; margin: 0 auto; }
+  .page-head {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  h1 { font-size: 28px; letter-spacing: -0.02em; line-height: 1.2; font-weight: 500; margin: 0 0 8px; }
+  .lede { color: var(--fg-2); font-size: 14px; line-height: 1.55; margin: 0 0 40px; }
+  .section-label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 12px;
+  }
+  .stack { display: flex; flex-direction: column; gap: 64px; }
+  .note {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em;
+    color: var(--muted); margin-top: 14px; line-height: 1.6;
+  }
+  hr.divider { border: none; border-top: 1px dashed var(--rule); margin: 0; }
+
+  .chat-frame { background: var(--bg); border: 1px solid var(--rule); padding: 24px; }
+  .speaker {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--fg); margin-bottom: 4px;
+  }
+  .msg-body { font-size: 14px; line-height: 1.55; color: var(--fg-2); margin-bottom: 24px; }
+  .msg-body strong { color: var(--fg); font-weight: 600; }
+
+  .ck-card { border: 1px solid var(--rule); background: var(--bg); }
+  .ck-card-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--rule); }
+  .ck-card-eyebrow {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+  }
+  .ck-card-title {
+    font-size: 16px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.3;
+    color: var(--fg); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-block; font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; padding: 2px 8px;
+    border: 1px solid #cfe5d6; background: #e8f4ec; color: var(--ok);
+  }
+  .ck-card-body { padding: 0 16px; }
+
+  /* ── Vertical nutrient panel (the planner-totals language) ── */
+  .nut-panel { padding: 6px 0; }
+  .nut-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    padding: 7px 0;
+    gap: 16px;
+  }
+  .nut-label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .nut-flow {
+    display: flex; align-items: baseline; gap: 6px;
+    font-variant-numeric: tabular-nums; font-size: 13px;
+    white-space: nowrap;
+  }
+  .nut-before { color: var(--faint); text-decoration: line-through; font-size: 12px; }
+  .nut-arrow  { color: var(--faint); font-family: var(--font-mono); font-size: 10px; }
+  .nut-after  { color: var(--fg); font-weight: 500; }
+  .nut-after.ok  { color: var(--ok); }
+  .nut-after.err { color: var(--err); }
+  .nut-row.unchanged .nut-label,
+  .nut-row.unchanged .nut-after { color: var(--faint); }
+  .nut-row.unchanged .nut-before { display: none; }
+  .nut-row.unchanged .nut-arrow { display: none; }
+
+  /* target highlight — a left rule on the nutrient the user optimized */
+  .nut-row.target {
+    margin: 0 -16px; padding-left: 16px; padding-right: 16px;
+    border-left: 2px solid var(--accent);
+  }
+
+  /* ── Horizontal grid variant ── */
+  .nut-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px 12px;
+    padding: 16px 0;
+  }
+  .nut-cell { display: flex; flex-direction: column; gap: 3px; }
+  .nut-cell-label {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .nut-cell-flow { display: flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; font-size: 13px; }
+
+  .ck-card-foot {
+    border-top: 1px solid var(--rule); padding: 10px 12px;
+    display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+  }
+  .ck-card-note {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); flex: 1;
+  }
+  .ck-btn-cancel, .ck-btn-apply {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; border: none; cursor: pointer; padding: 6px 10px;
+  }
+  .ck-btn-cancel { background: none; color: var(--muted); }
+  .ck-btn-apply { color: var(--bg); background: var(--fg); font-weight: 500; padding: 8px 16px; }
+
+  .ck-expand {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; padding: 14px 0; background: none; border: none;
+    cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .ck-expand-summary { font-size: 13px; color: var(--fg); }
+  .ck-expand-num { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .ck-expand-action {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--fg);
+    border-bottom: 1px solid var(--rule); padding-bottom: 2px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <p class="page-head">§ MOCKUP</p>
+    <h1>Save Recipe — full nutrient panel</h1>
+    <p class="lede">
+      The card currently shows only 5 macros (cal, protein, fiber, sodium, sugar). But
+      you can optimize for any of the 9 tracked nutrients — sat fat, added sugar, carbs,
+      total fat. And when you optimize one, you want to confirm you didn't wreck another.
+      Three ways to show the full picture.
+    </p>
+
+    <div class="stack">
+
+      <!-- ════════════════════════════════════════════════════════════════ -->
+      <!--  OPTION 1 — full vertical list, all 9, color-coded                -->
+      <!-- ════════════════════════════════════════════════════════════════ -->
+      <section>
+        <div class="section-label">§ Option 1 — Full vertical panel (all 9 nutrients)</div>
+        <div class="chat-frame">
+          <div class="speaker">Good Measure</div>
+          <div class="msg-body">
+            Brown Butter Banana Bread GF Cookies (Lower Sat Fat) — butter out, almond butter
+            + grapeseed oil in, chocolate trimmed. Sat fat drops from <strong>8g</strong> to
+            <strong>2g</strong> per cookie. Everything else holds steady.
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Save recipe · new · per serving</div>
+              <div class="ck-card-title">
+                Save "...GF Cookies (Lower Sat Fat)"
+                <span class="pill">New</span>
+              </div>
+            </div>
+            <div class="ck-card-body">
+              <div class="nut-panel" style="border-bottom: 1px solid var(--rule);">
+                <div class="nut-row">
+                  <span class="nut-label">Calories</span>
+                  <span class="nut-flow"><span class="nut-before">142</span><span class="nut-arrow">→</span><span class="nut-after">138</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Fat</span>
+                  <span class="nut-flow"><span class="nut-before">9g</span><span class="nut-arrow">→</span><span class="nut-after">8g</span></span>
+                </div>
+                <div class="nut-row target">
+                  <span class="nut-label">Saturated Fat</span>
+                  <span class="nut-flow"><span class="nut-before">8g</span><span class="nut-arrow">→</span><span class="nut-after ok">2g</span></span>
+                </div>
+                <div class="nut-row unchanged">
+                  <span class="nut-label">Sodium</span>
+                  <span class="nut-flow"><span class="nut-after">62mg</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Carbs</span>
+                  <span class="nut-flow"><span class="nut-before">18g</span><span class="nut-arrow">→</span><span class="nut-after">17g</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Sugar</span>
+                  <span class="nut-flow"><span class="nut-before">11g</span><span class="nut-arrow">→</span><span class="nut-after ok">9g</span></span>
+                </div>
+                <div class="nut-row unchanged">
+                  <span class="nut-label">Added Sugar</span>
+                  <span class="nut-flow"><span class="nut-after">4g</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Protein</span>
+                  <span class="nut-flow"><span class="nut-before">3g</span><span class="nut-arrow">→</span><span class="nut-after ok">4g</span></span>
+                </div>
+                <div class="nut-row unchanged">
+                  <span class="nut-label">Fiber</span>
+                  <span class="nut-flow"><span class="nut-after">2g</span></span>
+                </div>
+              </div>
+
+              <button class="ck-expand">
+                <span class="ck-expand-summary"><span class="ck-expand-num">5 changes</span> <span style="color:var(--muted)">· 1 removed · 2 added · 2 modified</span></span>
+                <span class="ck-expand-action">View ingredients ↓</span>
+              </button>
+            </div>
+            <div class="ck-card-foot">
+              <span class="ck-card-note">Not right? Cancel and adjust.</span>
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Save</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          All 9 nutrients, vertical, matching the planner's daily-totals language.<br>
+          • Changed rows show before → after, color-coded (sat fat ↓ green, protein ↑ green)<br>
+          • Unchanged rows dim to grey with just the single value — they recede so the<br>
+          &nbsp;&nbsp;changes pop<br>
+          • The optimized nutrient (Saturated Fat) gets a coral left-rule so the eye lands<br>
+          &nbsp;&nbsp;on what you asked for<br>
+          Tradeoff: tallest option (~9 rows). But this is a deliberate save — reviewing<br>
+          full nutrition impact is the whole point.
+        </p>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ════════════════════════════════════════════════════════════════ -->
+      <!--  OPTION 2 — changed nutrients only + "rest unchanged" line        -->
+      <!-- ════════════════════════════════════════════════════════════════ -->
+      <section>
+        <div class="section-label">§ Option 2 — Changed nutrients only, rest summarized</div>
+        <div class="chat-frame">
+          <div class="speaker">Good Measure</div>
+          <div class="msg-body">
+            Same recipe. Only the nutrients that actually moved are shown; the rest are
+            collapsed into one line so the card stays short.
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Save recipe · new · per serving</div>
+              <div class="ck-card-title">
+                Save "...GF Cookies (Lower Sat Fat)"
+                <span class="pill">New</span>
+              </div>
+            </div>
+            <div class="ck-card-body">
+              <div class="nut-panel" style="border-bottom: 1px solid var(--rule);">
+                <div class="nut-row target">
+                  <span class="nut-label">Saturated Fat</span>
+                  <span class="nut-flow"><span class="nut-before">8g</span><span class="nut-arrow">→</span><span class="nut-after ok">2g</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Sugar</span>
+                  <span class="nut-flow"><span class="nut-before">11g</span><span class="nut-arrow">→</span><span class="nut-after ok">9g</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Protein</span>
+                  <span class="nut-flow"><span class="nut-before">3g</span><span class="nut-arrow">→</span><span class="nut-after ok">4g</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Calories</span>
+                  <span class="nut-flow"><span class="nut-before">142</span><span class="nut-arrow">→</span><span class="nut-after">138</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Fat</span>
+                  <span class="nut-flow"><span class="nut-before">9g</span><span class="nut-arrow">→</span><span class="nut-after">8g</span></span>
+                </div>
+                <div class="nut-row">
+                  <span class="nut-label">Carbs</span>
+                  <span class="nut-flow"><span class="nut-before">18g</span><span class="nut-arrow">→</span><span class="nut-after">17g</span></span>
+                </div>
+                <div class="nut-row" style="border-top: 1px solid var(--rule); margin-top: 4px; padding-top: 11px;">
+                  <span class="nut-label" style="color: var(--faint);">Unchanged</span>
+                  <span class="nut-flow" style="font-size: 11px; color: var(--faint);">Sodium 62mg · Added sugar 4g · Fiber 2g</span>
+                </div>
+              </div>
+
+              <button class="ck-expand">
+                <span class="ck-expand-summary"><span class="ck-expand-num">5 changes</span> <span style="color:var(--muted)">· 1 removed · 2 added · 2 modified</span></span>
+                <span class="ck-expand-action">View ingredients ↓</span>
+              </button>
+            </div>
+            <div class="ck-card-foot">
+              <span class="ck-card-note">Not right? Cancel and adjust.</span>
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Save</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          Only the nutrients that changed get a full row (sorted: targeted nutrient first,<br>
+          then by magnitude of change). Unchanged nutrients fold into one muted line.<br>
+          Shorter card, changes front-and-center. Tradeoff: you can't see the absolute<br>
+          value of an unchanged nutrient as easily (it's crammed in the summary line).
+        </p>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ════════════════════════════════════════════════════════════════ -->
+      <!--  OPTION 3 — horizontal 3-col grid                                 -->
+      <!-- ════════════════════════════════════════════════════════════════ -->
+      <section>
+        <div class="section-label">§ Option 3 — Compact 3-column grid (all 9)</div>
+        <div class="chat-frame">
+          <div class="speaker">Good Measure</div>
+          <div class="msg-body">
+            Same data, laid out as a grid instead of a list. 3 columns × 3 rows fits all 9
+            nutrients in a more compact block.
+          </div>
+
+          <div class="ck-card">
+            <div class="ck-card-head">
+              <div class="ck-card-eyebrow">§ Save recipe · new · per serving</div>
+              <div class="ck-card-title">
+                Save "...GF Cookies (Lower Sat Fat)"
+                <span class="pill">New</span>
+              </div>
+            </div>
+            <div class="ck-card-body">
+              <div class="nut-grid" style="border-bottom: 1px solid var(--rule);">
+                <div class="nut-cell"><span class="nut-cell-label">Cal</span><span class="nut-cell-flow"><span class="nut-before">142</span><span class="nut-arrow">→</span><span class="nut-after">138</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Fat</span><span class="nut-cell-flow"><span class="nut-before">9g</span><span class="nut-arrow">→</span><span class="nut-after">8g</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label" style="color: var(--accent);">Sat Fat</span><span class="nut-cell-flow"><span class="nut-before">8g</span><span class="nut-arrow">→</span><span class="nut-after ok">2g</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Sodium</span><span class="nut-cell-flow"><span class="nut-after" style="color: var(--faint);">62mg</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Carbs</span><span class="nut-cell-flow"><span class="nut-before">18g</span><span class="nut-arrow">→</span><span class="nut-after">17g</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Sugar</span><span class="nut-cell-flow"><span class="nut-before">11g</span><span class="nut-arrow">→</span><span class="nut-after ok">9g</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Add. Sug</span><span class="nut-cell-flow"><span class="nut-after" style="color: var(--faint);">4g</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Protein</span><span class="nut-cell-flow"><span class="nut-before">3g</span><span class="nut-arrow">→</span><span class="nut-after ok">4g</span></span></div>
+                <div class="nut-cell"><span class="nut-cell-label">Fiber</span><span class="nut-cell-flow"><span class="nut-after" style="color: var(--faint);">2g</span></span></div>
+              </div>
+
+              <button class="ck-expand">
+                <span class="ck-expand-summary"><span class="ck-expand-num">5 changes</span> <span style="color:var(--muted)">· 1 removed · 2 added · 2 modified</span></span>
+                <span class="ck-expand-action">View ingredients ↓</span>
+              </button>
+            </div>
+            <div class="ck-card-foot">
+              <span class="ck-card-note">Not right? Cancel and adjust.</span>
+              <button class="ck-btn-cancel">Cancel</button>
+              <button class="ck-btn-apply">Save</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          Most compact — all 9 in a 3×3 grid. Targeted nutrient label goes coral.<br>
+          Tradeoff: before → after in a narrow cell gets tight on mobile (480px → ~150px<br>
+          per cell). The "142 → 138" can wrap awkwardly. Abbreviated labels ("Add. Sug")<br>
+          are a little cryptic. Reads fine on desktop, cramped on phone.
+        </p>
+      </section>
+
+    </div>
+  </div>
+</body>
+</html>
