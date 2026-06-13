@@ -8,6 +8,7 @@
  */
 
 import type Anthropic from "@anthropic-ai/sdk";
+import { convertToGrams, getIngredientDensity } from "@/lib/unitConversion";
 import { prisma } from "@/lib/db";
 import type {
   MealProposal,
@@ -1407,13 +1408,20 @@ async function proposeSaveRecipe(
     }
   }
 
-  // Compute macros for source (if any) and proposed (per-serving)
+  // Compute macros for source (if any) and proposed (per-serving).
+  //
+  // IMPORTANT: use convertToGrams (the SAME converter the real save endpoint
+  // uses), not gramsForUnit. gramsForUnit only knows "g" and "other" units —
+  // it returns null for culinary units like tbsp/cup/tsp, which silently zeros
+  // out that ingredient's macros. The model passes culinary units freely, so
+  // the preview would show wildly wrong numbers (e.g. 274cal → 87cal) while the
+  // actually-saved recipe computed correctly. Now the preview matches the save.
   const sourceServingSize = source?.servingSize || 1;
   const finalServingSize = proposedServingSize ?? sourceServingSize ?? 1;
   const sourceMacros: RecipeMacros = source
     ? computeRecipeMacrosFromIngredients(
         source.ingredients.map((ri) => ({
-          grams: ri.conversionGrams ?? gramsForUnit(ri.quantity, ri.unit, ri.ingredient.defaultUnit, ri.ingredient.customUnitGrams, ri.conversionGrams),
+          grams: ri.conversionGrams ?? convertToGrams(ri.quantity, ri.unit, getIngredientDensity(ri.ingredient.name), ri.ingredient),
           nutrientValues: ri.ingredient.nutrientValues.map((nv) => ({ name: nv.nutrient.name, value: nv.value })),
         })),
         sourceServingSize,
@@ -1423,15 +1431,19 @@ async function proposeSaveRecipe(
     cleanIngredients.map((p) => {
       const ing = pantryMap.get(p.ingredientId)!;
       return {
-        grams: gramsForUnit(p.quantity, p.unit, ing.defaultUnit, ing.customUnitGrams, null),
+        grams: convertToGrams(p.quantity, p.unit, getIngredientDensity(ing.name), ing),
         nutrientValues: ing.nutrientValues.map((nv) => ({ name: nv.nutrient.name, value: nv.value })),
       };
     }),
     finalServingSize,
   );
 
-  // Build the execute params for APPLY
-  const sharedBody = {
+  // Build the execute params for APPLY.
+  // Inherit the source recipe's photo so a "save as new" copy keeps the image
+  // (the POST endpoint defaults image to null otherwise). From-scratch has no
+  // source so no image — that's correct. Only include the key when there's an
+  // actual image so we don't clobber anything with null.
+  const sharedBody: Record<string, unknown> = {
     name: proposedName,
     servingSize: finalServingSize,
     tags: proposedTags ?? source?.tags ?? "",
@@ -1443,6 +1455,7 @@ async function proposeSaveRecipe(
       notes: p.notes ?? null,
     })),
   };
+  if (source?.image) sharedBody.image = source.image;
   const execute = mode === "new"
     ? {
         method: "POST" as const,

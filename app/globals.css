@@ -8906,7 +8906,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 16px 0;
+  padding: 14px 0;
   background: none;
   border: none;
   border-bottom: 1px solid var(--rule);
@@ -8914,7 +8914,15 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   text-align: left;
   font-family: inherit;
 }
-.ck-recipe-expand:hover .ck-recipe-expand-action { color: var(--fg); }
+/* Collapsed state: the expand button is the last child of the card body, so its
+   border-bottom would sit right above the footer's border-top — a doubled
+   hairline. Drop it when collapsed; when expanded the diff renders after it and
+   the border correctly separates button from diff. */
+.ck-card-body > .ck-recipe-expand:last-child { border-bottom: none; }
+.ck-recipe-expand:hover .ck-recipe-expand-action {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
 .ck-recipe-expand-summary {
   font-size: 13px;
   color: var(--fg);
@@ -8924,13 +8932,18 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 11px;
   color: var(--muted);
 }
+/* The action reads as the interactive element — ink color (not muted), and an
+   underline so it's obviously a toggle, not a label. */
 .ck-recipe-expand-action {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
-  transition: color 120ms var(--ease-out);
+  color: var(--fg);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+  white-space: nowrap;
+  transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
 }
 
 /* Ingredient diff (inside .ck-recipe-diff when expanded) */
