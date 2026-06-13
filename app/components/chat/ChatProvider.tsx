@@ -343,10 +343,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setMessages((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, proposalStatus: "applied", appliedResultId } : m)),
       );
-      // Auto-continue: if the model said "I'll propose the next swap after this",
-      // sending "Applied." gives it the cue to fire the follow-up proposal.
-      // If there is no follow-up, the model just acknowledges and stops.
-      void send("Applied. If there are more changes from my original request, propose the next one. Otherwise just confirm we're done.");
+      // Auto-continue ONLY for meal-plan proposals, which chain (fix Monday,
+      // then Tuesday...). A recipe save is TERMINAL — there's no "next one".
+      // Auto-sending after a save made the model try to save AGAIN (re-fetching
+      // and re-proposing a slightly different card). Skip it for save_recipe.
+      if (msg.proposal.type !== "save_recipe") {
+        void send("Applied. If there are more changes from my original request, propose the next one. Otherwise just confirm we're done.");
+      }
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);
       setMessages((prev) =>
