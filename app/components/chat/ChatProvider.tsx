@@ -18,7 +18,7 @@ import {
 } from "react";
 import { usePersonContext } from "../PersonContext";
 import { clientCache } from "@/lib/clientCache";
-import type { MealProposal, BulkMealProposal, RecipeSaveProposal, DayTemplateSaveProposal } from "@/lib/chat/proposals";
+import type { MealProposal, BulkMealProposal, RecipeSaveProposal, DayTemplateSaveProposal, RecipeNotesSaveProposal } from "@/lib/chat/proposals";
 
 export interface ChatMessage {
   id: string;
@@ -28,7 +28,7 @@ export interface ChatMessage {
   error?: string;
   createdAt?: string; // ISO string — present for history-loaded messages
   // Gate 2+: proposal attached to an assistant message
-  proposal?: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal;
+  proposal?: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | RecipeNotesSaveProposal;
   proposalStatus?: "pending" | "applied" | "cancelled";
   /** DB-assigned id — set when message_id SSE event arrives or loaded from history. */
   dbId?: number;
@@ -96,7 +96,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               role: m.role as "user" | "assistant",
               content: m.content,
               createdAt: m.createdAt,
-              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as (MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal) : undefined,
+              proposal: m.proposalJson ? JSON.parse(m.proposalJson) as (MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | RecipeNotesSaveProposal) : undefined,
               proposalStatus: (m.proposalStatus as ChatMessage["proposalStatus"]) ?? undefined,
             }),
           ),
@@ -179,7 +179,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           if (!line.startsWith("data:")) continue;
           const json = line.slice(5).trim();
           if (!json) continue;
-          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal; id?: number };
+          let ev: { type: string; delta?: string; name?: string; message?: string; data?: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | RecipeNotesSaveProposal; id?: number };
           try { ev = JSON.parse(json); } catch { continue; }
 
           if (ev.type === "text" && ev.delta) {

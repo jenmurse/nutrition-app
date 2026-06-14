@@ -8,6 +8,7 @@ import type {
   RecipeSaveProposal,
   RecipeMacros,
   DayTemplateSaveProposal,
+  RecipeNotesSaveProposal,
 } from "@/lib/chat/proposals";
 import { useChat } from "./ChatProvider";
 import { clientCache } from "@/lib/clientCache";
@@ -77,7 +78,7 @@ interface ConfirmCardProps {
   messageId: string;
   /** DB-assigned id — passed explicitly so apply/cancel don't rely on stale closures. */
   dbId?: number;
-  proposal: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal;
+  proposal: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | RecipeNotesSaveProposal;
   status: "pending" | "applied" | "cancelled";
   /** Id from a successful apply (e.g. new recipe id) — for the ack deep-link. */
   appliedResultId?: number;
@@ -107,13 +108,23 @@ export default function ConfirmCard({ messageId, dbId, proposal, status, applied
       />
     );
   }
+  if (proposal.type === "save_recipe_notes") {
+    return (
+      <SaveRecipeNotesCard
+        messageId={messageId}
+        dbId={dbId}
+        proposal={proposal}
+        status={status}
+      />
+    );
+  }
   return <MealCard messageId={messageId} dbId={dbId} proposal={proposal} status={status} />;
 }
 
 function MealCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
   const { applyProposal, applyBulkProposal, cancelProposal, isStreaming } = useChat();
   // Narrow type for the meal-card path
-  if (proposal.type === "save_recipe" || proposal.type === "save_day_template") return null; // handled above
+  if (proposal.type === "save_recipe" || proposal.type === "save_day_template" || proposal.type === "save_recipe_notes") return null; // handled above
   const isBulk = proposal.type === "fill_week" || proposal.type === "apply_template";
 
   // Single-card fields — only meaningful for MealProposal (not bulk)
@@ -648,4 +659,89 @@ function SaveDayTemplateCard({ messageId, dbId, proposal, status }: SaveDayTempl
       </div>
     </div>
   );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  SaveRecipeNotesCard — confirm-card for propose_save_recipe_notes
+// ────────────────────────────────────────────────────────────────────────────
+// Small card: recipe name + a preview of each note type being set. The notes
+// themselves are markdown; we show a plain-text preview (truncated) so the user
+// can confirm the gist before saving.
+// ────────────────────────────────────────────────────────────────────────────
+
+interface SaveRecipeNotesCardProps {
+  messageId: string;
+  dbId?: number;
+  proposal: RecipeNotesSaveProposal;
+  status: "pending" | "applied" | "cancelled";
+}
+
+function SaveRecipeNotesCard({ messageId, dbId, proposal, status }: SaveRecipeNotesCardProps) {
+  const { applyProposal, cancelProposal, isStreaming } = useChat();
+
+  if (status === "applied") {
+    return (
+      <div className="ck-ack">
+        Saved &mdash; notes on &ldquo;{proposal.recipeName}&rdquo;{" "}
+        <a
+          href={`/recipes/${proposal.recipeId}`}
+          onClick={(e) => { e.preventDefault(); window.location.href = `/recipes/${proposal.recipeId}`; }}
+        >
+          View recipe &rarr;
+        </a>
+      </div>
+    );
+  }
+  if (status === "cancelled") {
+    return <div className="ck-ack">Got it — no notes saved.</div>;
+  }
+
+  const types = [
+    proposal.optimizationNotes ? "Optimization" : null,
+    proposal.mealPrepNotes ? "Meal prep" : null,
+  ].filter(Boolean).join(" + ");
+
+  return (
+    <div className="ck-card">
+      <div className="ck-card-head">
+        <div className="ck-card-eyebrow">§ Save notes · {types}</div>
+        <div className="ck-card-title">Notes for &ldquo;{proposal.recipeName}&rdquo;</div>
+      </div>
+      <div className="ck-card-body">
+        {proposal.optimizationNotes && (
+          <div className="ck-row" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
+            <div className="ck-row-eyebrow">Optimization</div>
+            <div style={{ fontSize: 12, lineHeight: 1.5, color: "var(--fg-2)", whiteSpace: "pre-wrap" }}>
+              {previewMarkdown(proposal.optimizationNotes)}
+            </div>
+          </div>
+        )}
+        {proposal.mealPrepNotes && (
+          <div className="ck-row" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
+            <div className="ck-row-eyebrow">Meal prep</div>
+            <div style={{ fontSize: 12, lineHeight: 1.5, color: "var(--fg-2)", whiteSpace: "pre-wrap" }}>
+              {previewMarkdown(proposal.mealPrepNotes)}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="ck-card-foot">
+        <span className="ck-card-note">Not right? Cancel and adjust.</span>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>Cancel</button>
+          <button type="button" className="ck-btn-apply" onClick={() => applyProposal(messageId, dbId)} disabled={isStreaming}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Strip markdown syntax to a plain preview, capped so the card stays compact. */
+function previewMarkdown(md: string): string {
+  const plain = md
+    .replace(/^#+\s*/gm, "")        // headers
+    .replace(/[*_`>]/g, "")          // emphasis / code / quote marks
+    .replace(/^\s*[-•]\s*/gm, "• ")  // normalize bullets
+    .trim();
+  return plain.length > 320 ? plain.slice(0, 320).trimEnd() + "…" : plain;
 }

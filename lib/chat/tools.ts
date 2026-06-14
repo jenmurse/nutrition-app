@@ -20,6 +20,7 @@ import type {
   RecipeMacros,
   DayTemplateSaveProposal,
   DayTemplateProposalItem,
+  RecipeNotesSaveProposal,
 } from "./proposals";
 
 // `strict: true` + `additionalProperties: false` together enable grammar-constrained
@@ -312,6 +313,26 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
     },
   },
   {
+    name: "propose_save_recipe_notes",
+    // NOT strict: we already hit the combined-grammar size cap once; keep new
+    // tools non-strict unless there's a type-coercion risk. Handler validates.
+    description:
+      "Save optimization notes and/or meal-prep notes (markdown) to an existing recipe. " +
+      "Use when the user wants notes attached to a recipe — e.g. after you design a new recipe ('add meal prep notes'), or for an existing one ('add optimization tips to my Salmon Bowl'). " +
+      "Provide at least one of optimization_notes or meal_prep_notes. Write clear, useful markdown (short headers + bullet points work well). " +
+      "These attach to a recipe that already exists — if the user just created a recipe, it must be saved first (it'll be in your context next turn).",
+    input_schema: {
+      type: "object",
+      properties: {
+        recipe_id: { type: "number", description: "The recipe to attach notes to (from your context)." },
+        optimization_notes: { type: "string", description: "Markdown optimization notes (how to make the recipe healthier / hit goals better). Omit if not setting." },
+        meal_prep_notes: { type: "string", description: "Markdown meal-prep notes (batch cooking, storage, freezing, prep-ahead steps). Omit if not setting." },
+      },
+      required: ["recipe_id"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "propose_save_day_template",
     // NOT strict: nested items array. Handler validates recipe ids against the
     // household.
@@ -411,6 +432,8 @@ export async function runChatTool(
         return await proposeSaveRecipe(i, ctx);
       case "propose_save_day_template":
         return await proposeSaveDayTemplate(i, ctx);
+      case "propose_save_recipe_notes":
+        return await proposeSaveRecipeNotes(i, ctx);
       default:
         return { error: `Unknown tool: ${name}` };
     }
@@ -1647,6 +1670,51 @@ async function proposeSaveDayTemplate(
         ...(person?.id != null ? { personId: person.id } : {}),
         items: items.map((it) => ({ mealType: it.mealType, recipeId: it.recipeId, servings: it.servings })),
       },
+    },
+  };
+}
+
+/**
+ * Build a propose_save_recipe_notes proposal. Writes optimization and/or
+ * meal-prep notes (markdown) to an existing recipe. The recipe detail page
+ * renders these as markdown (falling back from its JSON-structured format),
+ * so plain markdown is the right shape. APPLY PUTs the notes to the recipe.
+ */
+async function proposeSaveRecipeNotes(
+  i: Record<string, unknown>,
+  ctx: { personId: number; householdId: number },
+): Promise<RecipeNotesSaveProposal | { error: string }> {
+  const recipeId = i.recipe_id as number;
+  const optimizationNotes = typeof i.optimization_notes === "string" ? i.optimization_notes.trim() : undefined;
+  const mealPrepNotes = typeof i.meal_prep_notes === "string" ? i.meal_prep_notes.trim() : undefined;
+
+  if (!optimizationNotes && !mealPrepNotes) {
+    return { error: "Provide at least one of optimization_notes or meal_prep_notes." };
+  }
+
+  const recipe = await prisma.recipe.findFirst({
+    where: { id: recipeId, householdId: ctx.householdId },
+    select: { id: true, name: true },
+  });
+  if (!recipe) return { error: `Recipe ${recipeId} not found in your library.` };
+
+  // Build the PUT body — only the note fields being set. The PUT endpoint
+  // treats undefined fields as "leave unchanged", so this won't touch the
+  // recipe's name/ingredients/etc.
+  const body: Record<string, unknown> = {};
+  if (optimizationNotes) body.optimizeAnalysis = optimizationNotes;
+  if (mealPrepNotes) body.mealPrepAnalysis = mealPrepNotes;
+
+  return {
+    type: "save_recipe_notes",
+    recipeId: recipe.id,
+    recipeName: recipe.name,
+    optimizationNotes,
+    mealPrepNotes,
+    execute: {
+      method: "PUT",
+      url: `/api/recipes/${recipe.id}`,
+      body,
     },
   };
 }

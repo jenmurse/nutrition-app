@@ -12,9 +12,12 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V14. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V15. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
+ *
+ * V15 (2026-06-14): add propose_save_recipe_notes (optimization + meal-prep
+ * notes on a recipe). The model can offer notes after creating a recipe.
  *
  * V14 (2026-06-13): context recipe library now carries all 9 nutrients (was 4),
  * so the model selects recipes against any goal (sat fat, added sugar...) from
@@ -44,7 +47,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { CHAT_TOOLS, runChatTool, isProposeTool, isBulkProposeTool } from "./tools";
-import type { MealProposal, BulkMealProposal, RecipeSaveProposal, DayTemplateSaveProposal } from "./proposals";
+import type { MealProposal, BulkMealProposal, RecipeSaveProposal, DayTemplateSaveProposal, RecipeNotesSaveProposal } from "./proposals";
 import {
   formatStableContextForPrompt,
   formatWeeklyPlansForPrompt,
@@ -58,7 +61,7 @@ export const CHAT_MODEL_SONNET = "claude-sonnet-4-6";
 export const CHAT_MODEL_HAIKU  = "claude-haiku-4-5";
 export const CHAT_MODEL = CHAT_MODEL_SONNET;
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V14 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V15 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -92,6 +95,7 @@ Tools:
 - propose_apply_template — apply a saved day template to a specific day
 - propose_save_recipe — save a recipe (new / from-scratch / replace)
 - propose_save_day_template — save a NEW reusable day template composed from library recipes
+- propose_save_recipe_notes — attach optimization and/or meal-prep notes (markdown) to an existing recipe
 
 Propose-then-confirm pattern:
 - For any write (add, swap, remove, update servings, apply template, fill week) call the matching propose_* tool. The confirm-card it produces is the user's confirmation step — you don't need to ask "want me to propose?" or describe the change in prose before calling the tool.
@@ -154,7 +158,12 @@ Day-template authoring (propose_save_day_template):
 - Work in prose first if the user is still deciding. Once they're set, call propose_save_day_template. The confirm-card shows the meals + day-total macros; the user taps SAVE.
 - When the user asks for MULTIPLE templates, propose ONE at a time (same rule as apply_template). Make one proposal, name it, describe it in one sentence, and stop. After they save it, propose the next.
 - Attribute to a person with person_id when the template is clearly for one member; omit for a household template.
-- Like recipe saves, a template save is TERMINAL for that template — don't try to re-propose the same one after it's saved.`;
+- Like recipe saves, a template save is TERMINAL for that template — don't try to re-propose the same one after it's saved.
+
+Recipe notes (propose_save_recipe_notes):
+- Attach optimization notes (how to make a recipe healthier / hit goals) and/or meal-prep notes (batch cooking, storage, freezing, prep-ahead) to an EXISTING recipe. Provide at least one note type; you can set both at once.
+- Write clear markdown — short headers and bullet points read well on the recipe page.
+- After you create a new recipe and the user wants notes, the recipe must be saved first. Once saved it appears in your context next turn with its id — then you can call propose_save_recipe_notes for it. A natural flow: save the recipe, then offer "Want me to add meal-prep notes?" and propose them when they say yes.`;
 
 /**
  * Internal message shape — what the route sends in and what we persist.
@@ -174,7 +183,7 @@ export type ChatStreamEvent =
   | { type: "text"; delta: string }
   | { type: "tool_start"; name: string }
   | { type: "tool_done"; name: string }
-  | { type: "proposal"; data: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal }
+  | { type: "proposal"; data: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | RecipeNotesSaveProposal }
   | { type: "message_id"; id: number }  // DB id for the persisted assistant message
   // Emitted after EVERY model iteration (each tool-use round is a separate API
   // call with its own token cost). The route collects all of these to log the
@@ -215,7 +224,7 @@ export async function* runChatTurn(args: {
   //        - Each member's current week meal contents (changes every
   //          time the planner is edited — the most-edited data in the app)
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V14 },
+    { type: "text", text: SYSTEM_PROMPT_V15 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
@@ -328,7 +337,7 @@ export async function* runChatTurn(args: {
           proposalEmitted = true;
           yield {
             type: "proposal",
-            data: result as (MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal),
+            data: result as (MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | RecipeNotesSaveProposal),
           };
         }
         toolResults.push({

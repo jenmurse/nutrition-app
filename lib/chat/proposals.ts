@@ -199,3 +199,23 @@ export interface DayTemplateSaveProposal {
   summaryMacros?: BulkSummaryMacros;
   execute: ProposalExecute;
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// Recipe notes save proposals (propose_save_recipe_notes)
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Returned by propose_save_recipe_notes. Writes optimization and/or meal-prep
+ * notes (markdown) to an existing recipe. Renders as a small confirm-card with
+ * the recipe name + a preview of each note being set. APPLY PUTs the notes to
+ * /api/recipes/[id].
+ */
+export interface RecipeNotesSaveProposal {
+  type: "save_recipe_notes";
+  recipeId: number;
+  recipeName: string;
+  /** Markdown — present only for the note type(s) being written. */
+  optimizationNotes?: string;
+  mealPrepNotes?: string;
+  execute: ProposalExecute;
+}
