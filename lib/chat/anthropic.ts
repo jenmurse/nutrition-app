@@ -12,9 +12,13 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V13. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V14. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
+ *
+ * V14 (2026-06-13): context recipe library now carries all 9 nutrients (was 4),
+ * so the model selects recipes against any goal (sat fat, added sugar...) from
+ * context instead of calling get_recipe per candidate. Prompt tells it so.
  *
  * V13 (2026-06-13): add propose_save_day_template (compose a reusable template
  * from library recipes). One-at-a-time rule extended to it.
@@ -54,7 +58,7 @@ export const CHAT_MODEL_SONNET = "claude-sonnet-4-6";
 export const CHAT_MODEL_HAIKU  = "claude-haiku-4-5";
 export const CHAT_MODEL = CHAT_MODEL_SONNET;
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V13 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V14 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -71,9 +75,11 @@ Household model:
 
 What you know:
 - All household members: names, person_ids, daily nutrition goals, current week's planned meals
-- The recipe library — names + per-serving macros (calories, protein, fiber, sodium) — shared across the household
+- The recipe library — names + per-serving values for ALL 9 tracked nutrients (calories, protein, fiber, sodium, fat, satFat, carbs, sugar, addedSugar) — shared across the household
 - The pantry summary by category — shared across the household
 - Today's date
+
+The recipe library in context already has every recipe's full per-serving nutrition. To SELECT recipes against a goal (e.g. "dinners with 35g+ protein, under 5g sat fat"), read the context directly — do NOT call get_recipe for each candidate. Only call get_recipe when you need the ingredient LIST or notes for a specific recipe (e.g. when editing it), not to look up a nutrient.
 
 Tools:
 - get_recipe — full ingredient list and complete per-serving nutrition for a recipe
@@ -205,7 +211,7 @@ export async function* runChatTurn(args: {
   //        - Each member's current week meal contents (changes every
   //          time the planner is edited — the most-edited data in the app)
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V13 },
+    { type: "text", text: SYSTEM_PROMPT_V14 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),

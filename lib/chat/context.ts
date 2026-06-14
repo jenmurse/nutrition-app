@@ -19,10 +19,19 @@ interface RecipeSlim {
   name: string;
   tags: string;
   servingSize: number;
+  // All 9 tracked nutrients per serving, so the model can select recipes
+  // against ANY goal (sat fat, added sugar, carbs...) without calling
+  // get_recipe for each candidate. Previously only 4 were here, which forced
+  // a get_recipe per recipe whenever the user's goal involved a missing one.
   cal?: number;
+  fat?: number;
+  satFat?: number;
+  sodium?: number;
+  carbs?: number;
+  sugar?: number;
+  addedSugar?: number;
   protein?: number;
   fiber?: number;
-  sodium?: number;
 }
 
 interface DaySlim {
@@ -228,7 +237,7 @@ async function loadRecipes(householdId: number): Promise<RecipeSlim[]> {
     orderBy: { name: "asc" },
   });
 
-  const KEYS = ["calories", "protein", "fiber", "sodium"] as const;
+  const KEYS = ["calories", "fat", "satFat", "sodium", "carbs", "sugar", "addedSugar", "protein", "fiber"] as const;
   return recipes.map((r) => {
     const totals: Partial<Record<(typeof KEYS)[number], number>> = {};
     for (const ri of r.ingredients) {
@@ -248,15 +257,21 @@ async function loadRecipes(householdId: number): Promise<RecipeSlim[]> {
       }
     }
     const div = r.servingSize || 1;
+    const per = (v: number | undefined) => (v ? Math.round(v / div) : undefined);
     return {
       id: r.id,
       name: r.name,
       tags: r.tags,
       servingSize: r.servingSize,
-      cal: totals.calories ? Math.round(totals.calories / div) : undefined,
-      protein: totals.protein ? Math.round(totals.protein / div) : undefined,
-      fiber: totals.fiber ? Math.round(totals.fiber / div) : undefined,
-      sodium: totals.sodium ? Math.round(totals.sodium / div) : undefined,
+      cal: per(totals.calories),
+      fat: per(totals.fat),
+      satFat: per(totals.satFat),
+      sodium: per(totals.sodium),
+      carbs: per(totals.carbs),
+      sugar: per(totals.sugar),
+      addedSugar: per(totals.addedSugar),
+      protein: per(totals.protein),
+      fiber: per(totals.fiber),
     };
   });
 }
@@ -311,13 +326,19 @@ export function formatStableContextForPrompt(ctx: ChatContext): string {
   lines.push("");
 
   lines.push(`# Recipe library (${ctx.recipes.length} recipes — shared across household)`);
-  lines.push(`Format: id · name · tags · per-serving cal/protein/fiber/sodium`);
+  lines.push(`Format: id · name · tags · per-serving cal/protein/fiber/sodium/fat/satFat/carbs/sugar/addedSugar`);
+  lines.push(`All 9 nutrients are here — select recipes against any goal without calling get_recipe.`);
   for (const r of ctx.recipes) {
     const macros = [
       r.cal !== undefined ? `${r.cal}cal` : null,
       r.protein !== undefined ? `${r.protein}g pro` : null,
       r.fiber !== undefined ? `${r.fiber}g fib` : null,
       r.sodium !== undefined ? `${r.sodium}mg Na` : null,
+      r.fat !== undefined ? `${r.fat}g fat` : null,
+      r.satFat !== undefined ? `${r.satFat}g satfat` : null,
+      r.carbs !== undefined ? `${r.carbs}g carb` : null,
+      r.sugar !== undefined ? `${r.sugar}g sug` : null,
+      r.addedSugar !== undefined ? `${r.addedSugar}g addsug` : null,
     ]
       .filter(Boolean)
       .join(", ");
