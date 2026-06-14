@@ -13,7 +13,7 @@
 
 import { NextRequest } from "next/server";
 import type Anthropic from "@anthropic-ai/sdk";
-import type { MealProposal, BulkMealProposal, RecipeSaveProposal } from "@/lib/chat/proposals";
+import type { MealProposal, BulkMealProposal, RecipeSaveProposal, DayTemplateSaveProposal } from "@/lib/chat/proposals";
 import { getAuthenticatedHousehold } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildContext } from "@/lib/chat/context";
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
       console.log(`[chat] placeholder fired +${Date.now() - t0}ms`);
 
       let assistantText = "";
-      let proposal: MealProposal | BulkMealProposal | RecipeSaveProposal | null = null;
+      let proposal: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal | null = null;
       const usages: Anthropic.Usage[] = [];
       const toolsUsed: string[] = [];
       try {
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
           usages,
           userMessage: message,
           toolsUsed,
-          promptVersion: "V12",
+          promptVersion: "V13",
         });
         controller.close();
       }

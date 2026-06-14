@@ -7,6 +7,7 @@ import type {
   MacroDelta,
   RecipeSaveProposal,
   RecipeMacros,
+  DayTemplateSaveProposal,
 } from "@/lib/chat/proposals";
 import { useChat } from "./ChatProvider";
 import { clientCache } from "@/lib/clientCache";
@@ -76,7 +77,7 @@ interface ConfirmCardProps {
   messageId: string;
   /** DB-assigned id — passed explicitly so apply/cancel don't rely on stale closures. */
   dbId?: number;
-  proposal: MealProposal | BulkMealProposal | RecipeSaveProposal;
+  proposal: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal;
   status: "pending" | "applied" | "cancelled";
   /** Id from a successful apply (e.g. new recipe id) — for the ack deep-link. */
   appliedResultId?: number;
@@ -96,13 +97,23 @@ export default function ConfirmCard({ messageId, dbId, proposal, status, applied
       />
     );
   }
+  if (proposal.type === "save_day_template") {
+    return (
+      <SaveDayTemplateCard
+        messageId={messageId}
+        dbId={dbId}
+        proposal={proposal}
+        status={status}
+      />
+    );
+  }
   return <MealCard messageId={messageId} dbId={dbId} proposal={proposal} status={status} />;
 }
 
 function MealCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
   const { applyProposal, applyBulkProposal, cancelProposal, isStreaming } = useChat();
   // Narrow type for the meal-card path
-  if (proposal.type === "save_recipe") return null; // type guard — handled above
+  if (proposal.type === "save_recipe" || proposal.type === "save_day_template") return null; // handled above
   const isBulk = proposal.type === "fill_week" || proposal.type === "apply_template";
 
   // Single-card fields — only meaningful for MealProposal (not bulk)
@@ -553,6 +564,88 @@ function RecipeNutrientRow({
           {(after ?? before)}{unit}
         </span>
       </span>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  SaveDayTemplateCard — confirm-card for propose_save_day_template
+// ────────────────────────────────────────────────────────────────────────────
+// Mirrors the apply-template card: meal rows + day-total macros. The difference
+// is it SAVES a new template rather than applying one to a day.
+// ────────────────────────────────────────────────────────────────────────────
+
+interface SaveDayTemplateCardProps {
+  messageId: string;
+  dbId?: number;
+  proposal: DayTemplateSaveProposal;
+  status: "pending" | "applied" | "cancelled";
+}
+
+function SaveDayTemplateCard({ messageId, dbId, proposal, status }: SaveDayTemplateCardProps) {
+  const { applyProposal, cancelProposal, isStreaming } = useChat();
+
+  if (status === "applied") {
+    return (
+      <div className="ck-ack">
+        Saved &mdash; template &ldquo;{proposal.name}&rdquo;{" "}
+        <a
+          href="/planner"
+          onClick={(e) => { e.preventDefault(); window.location.href = "/planner"; }}
+        >
+          View in planner &rarr;
+        </a>
+      </div>
+    );
+  }
+  if (status === "cancelled") {
+    return <div className="ck-ack">Got it — no template saved.</div>;
+  }
+
+  const attribution = proposal.personName ?? "household";
+
+  return (
+    <div className="ck-card">
+      <div className="ck-card-head">
+        <div className="ck-card-eyebrow">
+          § Save template · {attribution} · {proposal.items.length} meal{proposal.items.length === 1 ? "" : "s"}
+        </div>
+        <div className="ck-card-title">Save &ldquo;{proposal.name}&rdquo;</div>
+      </div>
+      <div className="ck-card-body">
+        {proposal.items.map((item, i) => (
+          <div key={i} className="ck-row">
+            <div className="ck-row-left">
+              <div className="ck-row-eyebrow">{MEAL_TYPE_LABELS[item.mealType] ?? item.mealType}</div>
+              <div className="ck-row-name">{item.name}</div>
+            </div>
+            <span className="ck-row-meta">
+              {item.macros?.cal ? `${item.macros.cal}cal` : ""}{item.macros?.protein ? ` · ${item.macros.protein}g pro` : ""}
+            </span>
+          </div>
+        ))}
+        {proposal.summaryMacros && (
+          <div className="ck-macros">
+            <div className="ck-macros-label">Day total</div>
+            {proposal.summaryMacros.avgCalPerDay !== undefined && (
+              <div className="ck-macro"><span className="ck-macro-label">Cal</span><span className="ck-macro-val">{proposal.summaryMacros.avgCalPerDay}</span></div>
+            )}
+            {proposal.summaryMacros.avgProteinPerDay !== undefined && (
+              <div className="ck-macro"><span className="ck-macro-label">Protein</span><span className="ck-macro-val">{proposal.summaryMacros.avgProteinPerDay}g</span></div>
+            )}
+            {proposal.summaryMacros.maxSodium !== undefined && (
+              <div className="ck-macro"><span className="ck-macro-label">Sodium</span><span className="ck-macro-val">{proposal.summaryMacros.maxSodium}mg</span></div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="ck-card-foot">
+        <span className="ck-card-note">Not right? Cancel and adjust.</span>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" className="ck-btn-cancel" onClick={() => cancelProposal(messageId)} disabled={isStreaming}>Cancel</button>
+          <button type="button" className="ck-btn-apply" onClick={() => applyProposal(messageId, dbId)} disabled={isStreaming}>Save</button>
+        </div>
+      </div>
     </div>
   );
 }

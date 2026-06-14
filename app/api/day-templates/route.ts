@@ -43,16 +43,73 @@ export const GET = withAuth(async (auth) => {
  */
 export const POST = withAuth(async (auth, request: Request) => {
   const body = await request.json();
-  const { planId, date, name, personId } = body as {
-    planId: number;
-    date: string;
+  const { planId, date, name, personId, items: rawItems } = body as {
+    planId?: number;
+    date?: string;
     name: string;
     personId?: number;
+    // Alternative to planId+date: a directly-composed item list (used by the
+    // in-app chat, which builds templates from scratch rather than snapshotting
+    // an existing day). Each item is recipe-based.
+    items?: Array<{ mealType: string; recipeId: number; servings?: number }>;
   };
 
-  if (!planId || !date || !name?.trim()) {
+  if (!name?.trim()) {
+    return NextResponse.json({ error: "name is required" }, { status: 400 });
+  }
+
+  // Check name uniqueness within household (shared by both paths)
+  const existing = await prisma.dayTemplate.findFirst({
+    where: { householdId: auth.householdId, name: name.trim() },
+  });
+  if (existing) {
     return NextResponse.json(
-      { error: "planId, date, and name are required" },
+      { error: "A template with that name already exists", existingId: existing.id },
+      { status: 409 }
+    );
+  }
+
+  const resolvedPersonId = personId ?? auth.personId ?? null;
+
+  // ── Path A: directly-composed items (chat) ──────────────────────────────
+  if (Array.isArray(rawItems) && rawItems.length > 0) {
+    // Validate every recipe belongs to this household.
+    const recipeIds = rawItems.map((it) => Number(it.recipeId)).filter(Number.isFinite);
+    const recipes = await prisma.recipe.findMany({
+      where: { id: { in: recipeIds }, householdId: auth.householdId },
+      select: { id: true },
+    });
+    const valid = new Set(recipes.map((r) => r.id));
+    const missing = recipeIds.filter((id) => !valid.has(id));
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { error: `Recipes not found in this household: ${missing.join(", ")}` },
+        { status: 400 }
+      );
+    }
+    const created = await prisma.dayTemplate.create({
+      data: {
+        householdId: auth.householdId,
+        personId: resolvedPersonId,
+        name: name.trim(),
+        items: {
+          create: rawItems.map((it, idx) => ({
+            mealType: it.mealType,
+            position: idx,
+            recipeId: Number(it.recipeId),
+            servings: it.servings ?? 1,
+          })),
+        },
+      },
+      include: { items: true, person: { select: { id: true, name: true, color: true } } },
+    });
+    return NextResponse.json(created, { status: 201 });
+  }
+
+  // ── Path B: snapshot an existing day (original behavior) ────────────────
+  if (!planId || !date) {
+    return NextResponse.json(
+      { error: "Provide either items[] or planId+date" },
       { status: 400 }
     );
   }
@@ -82,20 +139,6 @@ export const POST = withAuth(async (auth, request: Request) => {
       { status: 400 }
     );
   }
-
-  // Check name uniqueness within household
-  const existing = await prisma.dayTemplate.findFirst({
-    where: { householdId: auth.householdId, name: name.trim() },
-  });
-  if (existing) {
-    return NextResponse.json(
-      { error: "A template with that name already exists", existingId: existing.id },
-      { status: 409 }
-    );
-  }
-
-  // personId: prefer body value, fall back to auth person
-  const resolvedPersonId = personId ?? auth.personId ?? null;
 
   const created = await prisma.dayTemplate.create({
     data: {

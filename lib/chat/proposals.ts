@@ -170,3 +170,32 @@ export interface RecipeSaveProposal {
   /** APPLY hits POST /api/recipes (new) or PUT /api/recipes/[id] (replace). */
   execute: ProposalExecute;
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// Day-template save proposals (propose_save_day_template)
+// ────────────────────────────────────────────────────────────────────────────
+
+/** One meal in a day-template save proposal. */
+export interface DayTemplateProposalItem {
+  mealType: string;
+  recipeId: number;
+  name: string;       // for display
+  servings: number;
+  macros?: { cal?: number; protein?: number; fiber?: number; sodium?: number };
+}
+
+/**
+ * Returned by propose_save_day_template. Renders as a Save Template confirm-card
+ * (mirrors the apply-template card — list of meals + day-total macros). APPLY
+ * POSTs to /api/day-templates with the composed items[].
+ */
+export interface DayTemplateSaveProposal {
+  type: "save_day_template";
+  name: string;
+  personId: number | null;
+  personName: string | null;   // attribution chip; null = household
+  items: DayTemplateProposalItem[];
+  /** Day-total macros (sum across items). */
+  summaryMacros?: BulkSummaryMacros;
+  execute: ProposalExecute;
+}

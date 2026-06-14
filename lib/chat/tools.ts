@@ -18,6 +18,8 @@ import type {
   RecipeDiffLine,
   RecipeProposalIngredient,
   RecipeMacros,
+  DayTemplateSaveProposal,
+  DayTemplateProposalItem,
 } from "./proposals";
 
 // `strict: true` + `additionalProperties: false` together enable grammar-constrained
@@ -309,6 +311,40 @@ export const CHAT_TOOLS: Anthropic.Tool[] = ([
       additionalProperties: false,
     },
   },
+  {
+    name: "propose_save_day_template",
+    // NOT strict: nested items array. Handler validates recipe ids against the
+    // household.
+    description:
+      "Propose saving a new day template — a reusable set of meals the user can later apply to any day. " +
+      "Use when the user asks to create/save a template ('save this as a template', 'make me a dinner-rotation template that hits 35g+ protein'). " +
+      "Compose the meals from recipes in the library. Each item is one meal slot. " +
+      "When the user asks for multiple templates, propose ONE at a time (same as apply_template) — make one proposal, then stop; the user saves it before you propose the next. " +
+      "Pick a clear descriptive name. Attribute to a person via person_id when the template is for a specific household member, or omit for a household template.",
+    input_schema: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "Template name, e.g. 'High-Protein Dinner A'." },
+        person_id: { type: "number", description: "OPTIONAL. Attribute the template to a household member. Omit for a household-wide template." },
+        items: {
+          type: "array",
+          description: "The meals in this template. Each is a recipe-based meal slot.",
+          items: {
+            type: "object",
+            properties: {
+              meal_type: { type: "string", enum: ["breakfast", "lunch", "dinner", "snack", "side", "dessert", "beverage"] },
+              recipe_id: { type: "number", description: "Recipe from the library." },
+              servings: { type: "number", description: "Serving count. Default 1." },
+            },
+            required: ["meal_type", "recipe_id"],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ["name", "items"],
+      additionalProperties: false,
+    },
+  },
 ] as unknown as Anthropic.Tool[]);
 
 /** Compute grams given quantity, unit, and an ingredient's unit definition. */
@@ -373,6 +409,8 @@ export async function runChatTool(
         return await proposeUpdateServings(i, ctx);
       case "propose_save_recipe":
         return await proposeSaveRecipe(i, ctx);
+      case "propose_save_day_template":
+        return await proposeSaveDayTemplate(i, ctx);
       default:
         return { error: `Unknown tool: ${name}` };
     }
@@ -1535,5 +1573,80 @@ function computeRecipeMacrosFromIngredients(
     addedSugar: round(totals.addedSugar),
     protein: round(totals.protein),
     fiber: round(totals.fiber),
+  };
+}
+
+/**
+ * Build a propose_save_day_template proposal. Composes a reusable day template
+ * from recipe-based meal slots the model selected. Validates every recipe
+ * belongs to the household, computes per-item + day-total macros, and returns
+ * a proposal whose APPLY POSTs to /api/day-templates with the items[].
+ */
+async function proposeSaveDayTemplate(
+  i: Record<string, unknown>,
+  ctx: { personId: number; householdId: number },
+): Promise<DayTemplateSaveProposal | { error: string }> {
+  const name = (i.name as string)?.trim();
+  const personId = typeof i.person_id === "number" ? i.person_id : null;
+  const rawItems = (i.items as Array<Record<string, unknown>>) ?? [];
+
+  if (!name) return { error: "Template name is required." };
+  if (rawItems.length === 0) return { error: "Template must have at least one meal." };
+
+  // Validate every recipe belongs to the household.
+  const recipeIds = rawItems.map((it) => Number(it.recipe_id)).filter(Number.isFinite);
+  const recipes = await prisma.recipe.findMany({
+    where: { id: { in: recipeIds }, householdId: ctx.householdId },
+    select: { id: true, name: true },
+  });
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+  const missing = recipeIds.filter((id) => !recipeMap.has(id));
+  if (missing.length > 0) {
+    return { error: `Recipes not found in your library: ${missing.join(", ")}. Use the recipe ids from your context.` };
+  }
+
+  // Resolve the attribution person, if any.
+  const person = personId != null ? await resolvePerson(personId, ctx.householdId) : null;
+
+  // Build items with per-item macros + accumulate day totals.
+  let totCal = 0, totPro = 0, totFib = 0, totNa = 0;
+  const items: DayTemplateProposalItem[] = [];
+  for (const it of rawItems) {
+    const recipeId = Number(it.recipe_id);
+    const servings = typeof it.servings === "number" ? it.servings : 1;
+    const macros = await getRecipeMacros(recipeId, servings, ctx.householdId);
+    totCal += macros.calories ?? 0;
+    totPro += macros.protein ?? 0;
+    totFib += macros.fiber ?? 0;
+    totNa  += macros.sodium ?? 0;
+    items.push({
+      mealType: String(it.meal_type),
+      recipeId,
+      name: recipeMap.get(recipeId)!.name,
+      servings,
+      macros: { cal: macros.calories, protein: macros.protein, fiber: macros.fiber, sodium: macros.sodium },
+    });
+  }
+
+  return {
+    type: "save_day_template",
+    name,
+    personId: person?.id ?? null,
+    personName: person?.name ?? null,
+    items,
+    summaryMacros: {
+      avgCalPerDay: Math.round(totCal) || undefined,
+      avgProteinPerDay: Math.round(totPro) || undefined,
+      maxSodium: Math.round(totNa) || undefined,
+    },
+    execute: {
+      method: "POST",
+      url: "/api/day-templates",
+      body: {
+        name,
+        ...(person?.id != null ? { personId: person.id } : {}),
+        items: items.map((it) => ({ mealType: it.mealType, recipeId: it.recipeId, servings: it.servings })),
+      },
+    },
   };
 }

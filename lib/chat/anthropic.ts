@@ -12,9 +12,12 @@
  * for chat. Switching to Opus would 3x input cost and slow first-token without proportional
  * gain on a nutrition Q&A use case. Locked here; revisit only if quality is materially off.
  *
- * System prompt version: SYSTEM_PROMPT_V12. If you change the system prompt or the
+ * System prompt version: SYSTEM_PROMPT_V13. If you change the system prompt or the
  * shape of the context block, bump the version constant so cache-hit telemetry stays
  * interpretable across changes.
+ *
+ * V13 (2026-06-13): add propose_save_day_template (compose a reusable template
+ * from library recipes). One-at-a-time rule extended to it.
  *
  * V12 (2026-06-10): add list_pantry_ingredients tool description, culinary
  * persona allowance for recipe design, and flavor-compensation guidance for
@@ -37,7 +40,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { CHAT_TOOLS, runChatTool, isProposeTool, isBulkProposeTool } from "./tools";
-import type { MealProposal, BulkMealProposal, RecipeSaveProposal } from "./proposals";
+import type { MealProposal, BulkMealProposal, RecipeSaveProposal, DayTemplateSaveProposal } from "./proposals";
 import {
   formatStableContextForPrompt,
   formatWeeklyPlansForPrompt,
@@ -51,7 +54,7 @@ export const CHAT_MODEL_SONNET = "claude-sonnet-4-6";
 export const CHAT_MODEL_HAIKU  = "claude-haiku-4-5";
 export const CHAT_MODEL = CHAT_MODEL_SONNET;
 const MAX_TOKENS = 4096;
-export const SYSTEM_PROMPT_V12 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
+export const SYSTEM_PROMPT_V13 = `You are Good Measure's in-app assistant — a calm, knowledgeable nutrition and cooking expert who answers questions about the household's kitchen.
 
 Voice:
 - Direct and confident. Lead with the answer, then the reasoning.
@@ -81,6 +84,8 @@ Tools:
 - propose_add_meal, propose_swap_meal, propose_remove_meal, propose_update_servings — single-meal proposals
 - propose_fill_week — multiple meals across a week in one confirm-card
 - propose_apply_template — apply a saved day template to a specific day
+- propose_save_recipe — save a recipe (new / from-scratch / replace)
+- propose_save_day_template — save a NEW reusable day template composed from library recipes
 
 Propose-then-confirm pattern:
 - For any write (add, swap, remove, update servings, apply template, fill week) call the matching propose_* tool. The confirm-card it produces is the user's confirmation step — you don't need to ask "want me to propose?" or describe the change in prose before calling the tool.
@@ -135,7 +140,15 @@ Recipe ideation and substitution:
   - Editing an existing recipe → mode="new" + source_recipe_id (saves as a copy, e.g. "Salmon Bowl (Lower Sodium)"). Default for ambiguous "save".
   - Brand-new from scratch → mode="new" without source_recipe_id.
   - Overwrite the source → mode="replace" + source_recipe_id (destructive). Only when user explicitly says "save over" / "overwrite" / "replace".
-- When the user was optimizing a specific nutrient, pass target_nutrient (one of: calories, fat, satFat, sodium, carbs, sugar, addedSugar, protein, fiber). The save card shows the full nutrition panel and highlights this nutrient. E.g. "reduce saturated fat" → target_nutrient="satFat". Omit if there was no single nutrient target.`;
+- When the user was optimizing a specific nutrient, pass target_nutrient (one of: calories, fat, satFat, sodium, carbs, sugar, addedSugar, protein, fiber). The save card shows the full nutrition panel and highlights this nutrient. E.g. "reduce saturated fat" → target_nutrient="satFat". Omit if there was no single nutrient target.
+
+Day-template authoring (propose_save_day_template):
+- Use when the user wants to create a reusable day template ("save this as a template", "make me a high-protein dinner template", "build 3 dinner-rotation templates that each hit 35g+ protein and stay under 800mg sodium").
+- Compose the template from recipes in the library (use their recipe ids from your context). Each item is a meal slot (meal_type + recipe_id + servings).
+- Work in prose first if the user is still deciding. Once they're set, call propose_save_day_template. The confirm-card shows the meals + day-total macros; the user taps SAVE.
+- When the user asks for MULTIPLE templates, propose ONE at a time (same rule as apply_template). Make one proposal, name it, describe it in one sentence, and stop. After they save it, propose the next.
+- Attribute to a person with person_id when the template is clearly for one member; omit for a household template.
+- Like recipe saves, a template save is TERMINAL for that template — don't try to re-propose the same one after it's saved.`;
 
 /**
  * Internal message shape — what the route sends in and what we persist.
@@ -155,7 +168,7 @@ export type ChatStreamEvent =
   | { type: "text"; delta: string }
   | { type: "tool_start"; name: string }
   | { type: "tool_done"; name: string }
-  | { type: "proposal"; data: MealProposal | BulkMealProposal | RecipeSaveProposal }
+  | { type: "proposal"; data: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal }
   | { type: "message_id"; id: number }  // DB id for the persisted assistant message
   | { type: "done"; usage?: Anthropic.Usage }
   | { type: "error"; message: string };
@@ -192,7 +205,7 @@ export async function* runChatTurn(args: {
   //        - Each member's current week meal contents (changes every
   //          time the planner is edited — the most-edited data in the app)
   const systemBlocks: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_PROMPT_V12 },
+    { type: "text", text: SYSTEM_PROMPT_V13 },
     {
       type: "text",
       text: formatStableContextForPrompt(context),
@@ -298,7 +311,7 @@ export async function* runChatTurn(args: {
           proposalEmitted = true;
           yield {
             type: "proposal",
-            data: result as (MealProposal | BulkMealProposal | RecipeSaveProposal),
+            data: result as (MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal),
           };
         }
         toolResults.push({

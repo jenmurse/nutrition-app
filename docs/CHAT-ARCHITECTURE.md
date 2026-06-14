@@ -10,7 +10,7 @@ For the visual spec see [`briefs/chat-v1.html`](../briefs/chat-v1.html). For the
 
 | | |
 |---|---|
-| **Status** | Gates 1–3 shipped (read + single write + bulk write + apply-template). Gate 4 (mobile sheet) shipped. Fully functional end-to-end. |
+| **Status** | Gates 1–4 shipped (read + single write + bulk write + apply-template + mobile sheet). **Recipe authoring shipped** (propose_save_recipe — edit / from-scratch / replace, full 9-nutrient panel). Fully functional end-to-end. |
 | **Model** | `claude-sonnet-4-6` — pinned via `CHAT_MODEL = CHAT_MODEL_SONNET` in `lib/chat/anthropic.ts`. Haiku 4.5 also wired as `CHAT_MODEL_HAIKU` for easy A/B. See [Model comparison](#model-comparison-sonnet-46-vs-haiku-45). |
 | **System prompt** | `SYSTEM_PROMPT_V11` — versioned constant; bump on every prompt change so cache-hit telemetry stays interpretable. |
 | **Provider** | Anthropic API direct (`@anthropic-ai/sdk`). Not Vercel AI Gateway — we're on Railway. |
@@ -318,15 +318,25 @@ These came up during Gate 1 testing — small, can ship independently of Gates 2
 - **Session dividers / timestamps in history.** "2 days ago" hairline rules between conversations so the panel reads as multiple distinct sessions, not one infinite scroll.
 - **Richer in-app context (instead of MCP-style context files).** The MCP integration lets users drop arbitrary `.md` files in front of Claude Desktop; the in-app chat can't, so any persistent context has to live in the app. Worth considering — see [Persistent context options](#persistent-context-options) below.
 
+### Recipe authoring — SHIPPED (June 2026)
+
+`propose_save_recipe` lets the user iterate on a recipe in prose ("lower the sodium, keep the umami") and only fires a confirm-card when they say "save". Three modes:
+- **`new` + source_recipe_id** — editing an existing recipe (saves a copy; diff vs source shown). Default for ambiguous "save".
+- **`new` without source_recipe_id** — brand-new from scratch ("design me a lemon brownie"). No diff.
+- **`replace`** — overwrite the source (destructive; coral pill + footer warning).
+
+Supporting pieces:
+- **`list_pantry_ingredients`** — read tool to browse the pantry with filters (category, max_sodium, min_protein, etc.). Used during ideation to find flavor-compensating substitutions. Returns ingredient_id so the model reuses ids instead of re-searching.
+- **`get_recipe` returns ingredient_ids** — when editing, the model reuses existing ids and only searches for genuinely new ingredients (cut a save turn from ~12 tool calls to ~2-3).
+- **Confirm-card** — `SaveRecipeCard` in `ConfirmCard.tsx`. Full 9-nutrient before→after panel (Option 1 from `briefs/mockup-save-recipe-nutrients.html`): every tracked nutrient shown, changed rows color-coded by directional improvement, unchanged rows dim, the optimized nutrient (`targetNutrient`) gets a coral left-rule. Ingredient diff one tap away. Photo inherited from source on "save as new".
+- **Culinary persona allowance** (V12) — "pretend you're a pastry chef" is in scope for recipe design.
+
+Key lessons that came out of building it (see Operational lessons below): macro preview must use the real `convertToGrams` not a simplified converter; save is TERMINAL so it must NOT trigger the meal-chain auto-continue; saving a recipe invalidates the cached recipe library so the next turn is always cold.
+
 ### Future write features (under design)
 
-These extend chat from read + meal-plan writes to recipe + template authoring:
-
-- **`propose_save_recipe`** (in progress) — let the user iterate on a recipe in prose ("lower the sodium, keep the umami") and only fire a confirm-card when they say "save". Two modes: `new` (preserve original, save copy with descriptive name) or `replace` (overwrite). Confirm-card uses Option B layout from `briefs/mockup-save-recipe-card.html` — headline macros front-and-center, ingredient diff one tap away. Requires a new read tool, `list_pantry_ingredients`, so the model can browse the pantry (not just search by name) when looking for flavor-compensating substitutions.
-- **`propose_save_day_template`** — save a new day template from a description ("3 dinner-rotation templates that hit 35g+ protein, max 800mg sodium"). Confirm-card mirrors the existing apply-template card.
+- **`propose_save_day_template`** (next) — save a new day template from a description ("3 dinner-rotation templates that hit 35g+ protein, max 800mg sodium"). Confirm-card mirrors the existing apply-template card.
 - **`propose_save_optimization_notes` / `propose_save_meal_prep_notes`** — write notes to a recipe (markdown text). Cheap to build, lowest user value of the three.
-
-Build order: `list_pantry_ingredients` first (read-only, no UI), then `propose_save_recipe` (the big one with the new card shape), then V12 prompt updates (new tools + culinary persona allowance + flavor compensation guidance), then templates and notes.
 
 ### Voice input (future, free)
 
