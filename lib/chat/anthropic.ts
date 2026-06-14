@@ -176,6 +176,10 @@ export type ChatStreamEvent =
   | { type: "tool_done"; name: string }
   | { type: "proposal"; data: MealProposal | BulkMealProposal | RecipeSaveProposal | DayTemplateSaveProposal }
   | { type: "message_id"; id: number }  // DB id for the persisted assistant message
+  // Emitted after EVERY model iteration (each tool-use round is a separate API
+  // call with its own token cost). The route collects all of these to log the
+  // true per-turn token total — not just the final iteration's.
+  | { type: "usage"; usage: Anthropic.Usage }
   | { type: "done"; usage?: Anthropic.Usage }
   | { type: "error"; message: string };
 
@@ -274,6 +278,11 @@ export async function* runChatTurn(args: {
       assistantBlocks.push(...finalMessage.content);
       stopReason = finalMessage.stop_reason;
       usage = finalMessage.usage;
+      // Emit this iteration's usage immediately. Every loop iteration is a
+      // separate API call (the tool-use rounds + the final end_turn), and each
+      // bills its own input/output/cache tokens. Logging only the final
+      // iteration (the old behavior) undercounted tool-heavy turns by ~half.
+      if (usage) yield { type: "usage", usage };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       yield { type: "error", message: msg };
@@ -284,7 +293,9 @@ export async function* runChatTurn(args: {
     messages.push({ role: "assistant", content: assistantBlocks });
 
     if (stopReason === "end_turn" || stopReason === "stop_sequence") {
-      yield { type: "done", usage };
+      // Usage for this final iteration was already emitted above via the
+      // "usage" event. "done" no longer carries usage to avoid double-counting.
+      yield { type: "done" };
       return;
     }
 

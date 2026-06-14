@@ -133,7 +133,10 @@ export async function POST(req: NextRequest) {
           if (ev.type === "text") assistantText += ev.delta;
           if (ev.type === "proposal") proposal = ev.data;
           if (ev.type === "tool_start" && ev.name) toolsUsed.push(ev.name);
-          if (ev.type === "done" && ev.usage) usages.push(ev.usage);
+          // Collect usage from EVERY iteration (one "usage" event per model
+          // API call), not just the final "done". Tool-heavy turns make
+          // several calls; logging only the last undercounted cost by ~half.
+          if (ev.type === "usage" && ev.usage) usages.push(ev.usage);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
         }
         console.log(`[chat] runChatTurn done +${Date.now() - t0}ms`);
