@@ -585,6 +585,27 @@ Text-label pattern (established by Briefs 2A and 2B). Sharp, `var(--fg-muted)` i
 
 **Multi-toggle menus** (e.g. the planner's `VIEW ▾`) follow the popover-with-checkboxes pattern. Each menu item is a row with the checkbox indicator on the right; the checkbox uses the locked §5f spec (sharp 14×14, black-filled when checked, white tick). Never pill-switch toggles. See `.pl-view-item` + `.pl-view-toggle` for the canonical implementation.
 
+### 5g-ii. Single-select toolbar dropdown (locked)
+
+For picking ONE value from a list in a toolbar — recipe **sort** (`.sort-field` / `.sort-dropdown`) and pantry **category** (`.ed-cat-trigger` / `.ed-cat-panel`). Both must look identical:
+
+- **Trigger:** borderless (no box), DM Mono 9px/500, uppercase, `0.14em` tracking, `--muted` → `--fg` on hover. A CSS-triangle caret (not a `▾` glyph) sits absolutely at the right, `border-top: 5px solid currentColor`. The trigger shows the current selection (or the field name when nothing's chosen).
+- **Panel:** `1px solid --rule`, `padding: 3px 0`, `box-shadow: 0 4px 12px rgba(0,0,0,0.08)`. Items are DM Mono 9px uppercase, `--muted` by default → `--fg` + `--bg-2` on hover; the selected item is `--fg`. **Selection is shown by color, not a checkmark.**
+- **Caret means "opens a panel,"** not "single-select" specifically — both this and the multi-toggle VIEW menu carry a caret. The panel's content (single-select list vs checkbox menu) is what distinguishes them.
+- **Escaping toolbar clip:** `.list-tags` has `overflow-x: auto`, which clips an `absolute` panel. Anchor the panel with `position: fixed` from the trigger's measured rect (see `.ed-cat-panel`). Don't use a `position: fixed` backdrop to close — the sticky toolbar's stacking context renders it above the panel; use a `mousedown` outside-click listener + ref.
+
+Distinct from: the **multi-toggle menu** (§5g, checkboxes, black-outline popover) and **filter chips** (§5b, multi-select inline pills).
+
+### 5g-iii. Dashed add-placeholder (locked)
+
+The empty "add something here" slot: recipe image upload (`+ Photo`), compare "add recipe" box, settings import dropzone. All share one look:
+
+- `1px dashed --rule` border, `--bg-2` fill, sharp corners.
+- Centered column: a large `+` glyph in `--rule` color (the faint placeholder color), then a DM Mono 9px uppercase `--muted` label *inside* the box (e.g. `PHOTO`, `ADD`).
+- **Hover:** border → `--fg` (ink), fill → `--bg-3`. Never coral — hover is ink everywhere (§2b).
+
+Canonical impl: the `+ Photo` upload in `RecipeBuilder.tsx`; `.cmp-add-box` in the compare grid.
+
 ### 5h. Modal / dialog
 
 ```css
