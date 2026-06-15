@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Pantry toolbar with category filter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --fg: #111111; --fg-2: #333; --muted: #6b6b6b;
+    --rule: #e6e6e6; --accent: #d65a32; --sub: #f6f5f1;
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: var(--font-sans); background: #f3f1eb; color: var(--fg); margin: 0; padding: 40px 24px; }
+  .page { max-width: 920px; margin: 0 auto; }
+  .page-head { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  h1 { font-size: 26px; letter-spacing: -0.02em; font-weight: 500; margin: 0 0 6px; }
+  .lede { color: var(--fg-2); font-size: 14px; line-height: 1.55; margin: 0 0 36px; max-width: 640px; }
+  .section-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+  .stack { display: flex; flex-direction: column; gap: 48px; }
+  .note { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; color: var(--muted); margin-top: 12px; line-height: 1.7; }
+
+  /* Toolbar */
+  .tb-frame { background: var(--bg); border: 1px solid var(--rule); }
+  .ed-toolbar {
+    height: 46px; display: flex; align-items: center;
+    padding: 0 24px; border-bottom: 1px solid var(--rule); gap: 0;
+  }
+  .tb-left { display: flex; align-items: center; gap: 0; }
+  .tb-right { display: flex; align-items: center; gap: 0; margin-left: auto; }
+  .ed-chip {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); background: none; border: none;
+    padding: 6px 0; cursor: pointer; white-space: nowrap;
+  }
+  .ed-chip.active { color: var(--fg); border-bottom: 1px solid var(--fg); }
+  .ed-sep { width: 1px; height: 16px; background: var(--rule); margin: 0 16px; }
+  .ed-count { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap; }
+  .ed-count b { color: var(--fg); font-weight: 500; }
+  /* Category dropdown */
+  .ed-dropdown {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--fg); background: none;
+    border: 1px solid var(--rule); padding: 6px 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .ed-dropdown .caret { color: var(--muted); }
+  .ed-toggle { display: flex; border: 1px solid var(--rule); }
+  .ed-toggle button {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; padding: 6px 10px; background: none; border: none;
+    color: var(--muted); cursor: pointer;
+  }
+  .ed-toggle button.active { background: var(--fg); color: var(--bg); }
+  .ed-search {
+    font-family: var(--font-mono); font-size: 10px; color: var(--fg);
+    border: none; border-bottom: 1px solid var(--rule); background: none;
+    width: 130px; padding: 5px 0; outline: none;
+  }
+  .ed-search::placeholder { color: var(--muted); letter-spacing: 0.06em; }
+  .ed-btn-primary {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--bg); background: var(--fg);
+    border: none; padding: 8px 14px; cursor: pointer;
+  }
+  .ed-btn-text {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); background: none; border: none;
+    padding: 6px 0; cursor: pointer;
+  }
+  .gap { width: 16px; }
+
+  /* Dropdown open panel */
+  .dd-panel {
+    margin-top: 8px; border: 1px solid var(--rule); background: var(--bg);
+    width: 240px; padding: 6px 0;
+  }
+  .dd-item {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em;
+    color: var(--fg-2); padding: 7px 16px; display: flex; justify-content: space-between;
+    cursor: pointer;
+  }
+  .dd-item:hover { background: var(--sub); }
+  .dd-item.active { color: var(--fg); }
+  .dd-item.active::after { content: "✓"; color: var(--accent); }
+  .dd-item .ct { color: var(--muted); }
+
+  /* grid preview */
+  .grid-preview { padding: 20px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .gp-card { border: 1px solid var(--rule); aspect-ratio: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; }
+  .gp-cat { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .gp-name { font-size: 12px; font-weight: 500; letter-spacing: -0.02em; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <p class="page-head">§ MOCKUP</p>
+    <h1>Pantry toolbar — category filter + aligned toggle</h1>
+    <p class="lede">
+      Two changes: (1) add a <strong>Category ▾</strong> dropdown so the 12 fixed pantry
+      categories can filter the grid — a dropdown rather than chips because 12 won't fit
+      inline (recipes already uses this dropdown pattern at narrow widths). (2) Move the
+      Grid/List toggle to the <strong>right</strong> side, matching where it sits on the
+      recipes toolbar.
+    </p>
+
+    <div class="stack">
+
+      <!-- CURRENT -->
+      <section>
+        <div class="section-label">§ Current — toggle on the left, no category filter</div>
+        <div class="tb-frame">
+          <div class="ed-toolbar">
+            <div class="tb-left">
+              <button class="ed-chip">★ Favorites</button>
+              <span class="ed-sep"></span>
+              <span class="ed-count"><b>110</b> items</span>
+              <span class="ed-sep"></span>
+              <div class="ed-toggle"><button class="active">Grid</button><button>List</button></div>
+              <span class="gap"></span>
+              <button class="ed-btn-text">Edit</button>
+            </div>
+            <div class="tb-right">
+              <input class="ed-search" placeholder="Search…">
+              <span class="gap"></span>
+              <button class="ed-btn-primary">+ Add</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">Toggle sits left (after the count); no way to filter by category.</p>
+      </section>
+
+      <!-- PROPOSED -->
+      <section>
+        <div class="section-label">§ Proposed — Category ▾ on the left, toggle on the right</div>
+        <div class="tb-frame">
+          <div class="ed-toolbar">
+            <div class="tb-left">
+              <button class="ed-chip">★ Favorites</button>
+              <span class="ed-sep"></span>
+              <button class="ed-dropdown">Category <span class="caret">▾</span></button>
+              <span class="ed-sep"></span>
+              <span class="ed-count"><b>110</b> items</span>
+              <span class="gap"></span>
+              <button class="ed-btn-text">Edit</button>
+            </div>
+            <div class="tb-right">
+              <div class="ed-toggle"><button class="active">Grid</button><button>List</button></div>
+              <span class="gap"></span>
+              <input class="ed-search" placeholder="Search…">
+              <span class="gap"></span>
+              <button class="ed-btn-primary">+ Add</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">Toggle now on the right (before search), matching recipes. Category filter added on the left where recipe categories live.</p>
+      </section>
+
+      <!-- DROPDOWN OPEN -->
+      <section>
+        <div class="section-label">§ Category dropdown — open state</div>
+        <div class="tb-frame">
+          <div class="ed-toolbar">
+            <div class="tb-left">
+              <button class="ed-chip">★ Favorites</button>
+              <span class="ed-sep"></span>
+              <button class="ed-dropdown" style="border-color: var(--fg);">Produce <span class="caret">▾</span></button>
+              <span class="ed-sep"></span>
+              <span class="ed-count"><b>18</b> items</span>
+              <span class="gap"></span>
+              <button class="ed-btn-text">Edit</button>
+            </div>
+            <div class="tb-right">
+              <div class="ed-toggle"><button class="active">Grid</button><button>List</button></div>
+              <span class="gap"></span>
+              <input class="ed-search" placeholder="Search…">
+              <span class="gap"></span>
+              <button class="ed-btn-primary">+ Add</button>
+            </div>
+          </div>
+          <div style="padding: 0 24px 16px;">
+            <div class="dd-panel">
+              <div class="dd-item active">All categories <span class="ct"></span></div>
+              <div class="dd-item">Meat &amp; Seafood <span class="ct">9</span></div>
+              <div class="dd-item">Dairy &amp; Eggs <span class="ct">7</span></div>
+              <div class="dd-item">Grains &amp; Pasta <span class="ct">6</span></div>
+              <div class="dd-item">Baking <span class="ct">8</span></div>
+              <div class="dd-item">Produce <span class="ct">18</span></div>
+              <div class="dd-item">Legumes <span class="ct">5</span></div>
+              <div class="dd-item">Pantry &amp; Canned <span class="ct">14</span></div>
+              <div class="dd-item">Spices &amp; Seasonings <span class="ct">16</span></div>
+              <div class="dd-item" style="color: var(--muted);">…and 4 more</div>
+            </div>
+          </div>
+        </div>
+        <p class="note">Each row shows the item count. Selecting one filters the grid + updates the count. "All categories" clears it.</p>
+      </section>
+
+    </div>
+  </div>
+</body>
+</html>
