@@ -312,21 +312,22 @@ function PlannerPage() {
     const run = async () => {
       const key = `/api/meal-plans?personId=${selectedPersonId}`;
       const cached = clientCache.get<MealPlanSummary[]>(key);
+      // Show the cached list instantly (no spinner), but ALWAYS revalidate from
+      // the network — otherwise a plan created elsewhere (e.g. a new week that
+      // rolled over, or a plan made on another device) won't appear until a
+      // manual hard refresh. Stale-while-revalidate.
       if (cached) {
         setPlans(cached);
       } else {
         setLoading(true);
       }
       try {
-        let list: MealPlanSummary[] = cached ?? [];
-        if (!cached) {
-          const r = await fetch(key);
-          if (!r.ok) throw new Error("Failed to load plans");
-          list = await r.json();
-          clientCache.set(key, list);
-          if (cancelled) return;
-          setPlans(list);
-        }
+        const r = await fetch(key);
+        if (!r.ok) throw new Error("Failed to load plans");
+        const list: MealPlanSummary[] = await r.json();
+        clientCache.set(key, list);
+        if (cancelled) return;
+        setPlans(list);
 
         const urlPlanId = planIdParam ? Number(planIdParam) : null;
         let targetId = urlPlanId && list.some((p) => p.id === urlPlanId) ? urlPlanId : null;
