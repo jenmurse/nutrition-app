@@ -10,7 +10,7 @@
  */
 
 import { prisma } from "@/lib/db";
-import { STARTER_PANTRY } from "@/lib/starter-pantry";
+import { STARTER_PANTRY, STARTER_MEAL_ITEM_NAMES } from "@/lib/starter-pantry";
 
 export type SeedResult = {
   seeded: number;
@@ -53,7 +53,10 @@ export async function seedPantryForHousehold(householdId: number): Promise<SeedR
           customUnitAmount: gi.customUnitAmount,
           customUnitGrams: gi.customUnitGrams,
           category: categoryByName.get(gi.name) ?? "",
-          isMealItem: true,
+          // Only genuine standalone meal items (snacks, eat-as-is foods) show
+          // in the planner's add-meal picker. Was hardcoded `true` for ALL
+          // seeded items, which flooded the picker with flour, oils, spices.
+          isMealItem: STARTER_MEAL_ITEM_NAMES.has(gi.name),
           nutrientValues: {
             create: gi.nutrients.map((n) => ({
               nutrientId: n.nutrientId,
