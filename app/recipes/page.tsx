@@ -948,9 +948,9 @@ function RecipesPage() {
                           className="cmp-add-box"
                           style={{ width: 80, aspectRatio: '4/3' }}
                         >
-                          <span aria-hidden="true">+</span>
+                          <span className="cmp-add-plus" aria-hidden="true">+</span>
+                          <span className="cmp-add-text">Add</span>
                         </button>
-                        <div className="cmp-add-caption">Add recipe</div>
                       </div>
                     );
                   }

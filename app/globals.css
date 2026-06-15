@@ -4196,18 +4196,19 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
 }
 .cmp-close:hover { color: var(--fg); border-color: var(--fg); }
-/* Add-more box — styled like an empty recipe-image placeholder with a + */
+/* Add-more box — matches the recipe "+ Photo" upload placeholder: dashed
+   border, bg-2 fill, big + in rule color, label inside, coral hover. */
 .cmp-add-box {
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg-3); border: none; cursor: pointer;
-  color: var(--muted); font-size: 22px; font-weight: 300; line-height: 1;
-  transition: color 120ms var(--ease-out), background 120ms var(--ease-out);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  background: var(--bg-2); border: 1px dashed var(--rule); cursor: pointer;
+  transition: border-color 120ms var(--ease-out), background 120ms var(--ease-out);
 }
-.cmp-add-box:hover { color: var(--fg); background: var(--bg-2); }
-.cmp-add-caption {
+.cmp-add-box:hover { border-color: var(--accent); background: var(--bg-3); }
+.cmp-add-plus { font-size: 22px; font-weight: 300; line-height: 1; color: var(--rule); }
+.cmp-add-text {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--muted); margin-top: 8px;
+  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
 }
 .cmp-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
