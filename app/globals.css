@@ -2553,6 +2553,7 @@ input[type="number"]:focus {
   outline: none;
 }
 .mx-picker-search::placeholder { color: var(--muted); letter-spacing: 0.04em; }
+.mx-picker-fav { color: var(--accent); font-size: 10px; margin-right: 6px; }
 .mx-picker-list {
   flex: 1;
   overflow-y: auto;

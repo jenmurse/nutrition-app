@@ -2511,7 +2511,10 @@ function PlannerPage() {
                                   }
                                 }}
                               >
-                                <span className="mx-picker-name">{r.name}</span>
+                                <span className="mx-picker-name">
+                                  {r.isFavorited && <span className="mx-picker-fav" aria-label="Favorite" title="Favorite">★</span>}
+                                  {r.name}
+                                </span>
                                 {isCurrent && log && (
                                   <PickerStepper
                                     value={servings}

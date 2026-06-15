@@ -112,6 +112,13 @@ function IngredientsPage() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  useEffect(() => {
+    if (!filterSheetOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFilterSheetOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [filterSheetOpen]);
 
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -349,6 +356,20 @@ function IngredientsPage() {
               aria-label="Search ingredients"
             />
           </div>
+          {/* Filter (favorites + category) */}
+          <button
+            type="button"
+            onClick={() => setFilterSheetOpen(true)}
+            className={`mob-filter-text${(showFavorites || selectedCategory) ? " active" : ""}`}
+            aria-label="Filter ingredients"
+          >
+            Filter
+            {(showFavorites || selectedCategory) && (
+              <span className="mob-filter-badge" aria-hidden="true">
+                {(showFavorites ? 1 : 0) + (selectedCategory ? 1 : 0)}
+              </span>
+            )}
+          </button>
           {/* + ADD */}
           <button
             onClick={() => router.push("/pantry/create")}
@@ -509,6 +530,60 @@ function IngredientsPage() {
         </div>
       </div>
 
+      {/* ── Mobile filter sheet (favorites + category) ── */}
+      {filterSheetOpen && (
+        <>
+          <div className="mob-sheet-backdrop" onClick={() => setFilterSheetOpen(false)} aria-hidden="true" />
+          <div className="mob-sheet" role="dialog" aria-modal="true" aria-label="Filter ingredients">
+            <div className="mob-sheet-handle" aria-hidden="true" />
+            <div className="mob-sheet-header">
+              <span className="mob-sheet-title">Filter</span>
+              {(showFavorites || selectedCategory) && (
+                <button
+                  className="mob-sheet-clear"
+                  onClick={() => { setShowFavorites(false); setSelectedCategory(null); }}
+                  aria-label="Clear all filters"
+                >CLEAR ALL</button>
+              )}
+            </div>
+
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">Category</div>
+              <div className="mob-sheet-chips">
+                <button
+                  className={`mob-sheet-chip${!selectedCategory ? " on" : ""}`}
+                  onClick={() => setSelectedCategory(null)}
+                  aria-pressed={!selectedCategory}
+                >All</button>
+                {categoryCounts.map((c) => (
+                  <button
+                    key={c.name}
+                    className={`mob-sheet-chip${selectedCategory === c.name ? " on" : ""}`}
+                    onClick={() => setSelectedCategory((prev) => prev === c.name ? null : c.name)}
+                    aria-pressed={selectedCategory === c.name}
+                  >{c.name} <span style={{ opacity: 0.5 }}>{c.count}</span></button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mob-sheet-section">
+              <div className="mob-sheet-section-label">Show</div>
+              <div className="mob-sheet-chips">
+                <button
+                  className={`mob-sheet-chip flex items-center gap-1${showFavorites ? " on" : ""}`}
+                  onClick={() => setShowFavorites(prev => !prev)}
+                  aria-pressed={showFavorites}
+                >
+                  <span aria-hidden="true">★</span>
+                  Favorites
+                </button>
+              </div>
+            </div>
+
+            <button className="mob-sheet-done" onClick={() => setFilterSheetOpen(false)}>DONE</button>
+          </div>
+        </>
+      )}
 
       {/* ── Content ── */}
       <div className="list-scroll flex-1 overflow-y-auto relative">
