@@ -22,6 +22,13 @@ const ADD_SLOTS = ["snack", "side", "dessert", "beverage"] as const;
 const ALL_SLOTS = [...BASE_SLOTS, ...ADD_SLOTS] as const;
 type SlotType = (typeof ALL_SLOTS)[number];
 
+// Browse-all overlay retired June 2026 — the redesigned picker shows all
+// meal-type recipes (favorites pinned) + inline search across everything, so
+// the separate Browse sheet was redundant. All Browse code is kept intact
+// (component, state, helpers) and unreachable; flip this to true to bring the
+// "Browse all recipes →" button and overlay back.
+const SHOW_BROWSE_ALL = false;
+
 const SLOT_LABELS: Record<SlotType, string> = {
   breakfast: "Breakfast",
   lunch: "Lunch",
@@ -2640,13 +2647,15 @@ function PlannerPage() {
                       </div>
                     )}
 
-                    <button
-                      type="button"
-                      className="mx-picker-browse-foot"
-                      onClick={openBrowse}
-                    >
-                      Browse all {SLOT_LABELS[picker.slot].toLowerCase()} recipes →
-                    </button>
+                    {SHOW_BROWSE_ALL && (
+                      <button
+                        type="button"
+                        className="mx-picker-browse-foot"
+                        onClick={openBrowse}
+                      >
+                        Browse all {SLOT_LABELS[picker.slot].toLowerCase()} recipes →
+                      </button>
+                    )}
                     {currentLogs.length > 0 && (
                       <button
                         type="button"
