@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Optimizer — Picker (desktop)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FFFFFF; --bg-2:#F5F5F4; --bg-3:#ECECEA;
+    --fg:#0A0A0A; --fg-2:#2A2A2A; --muted:#6E6E6E; --rule:#D8D8D6;
+    --accent:#E84828; --accent-l:rgba(232,72,40,0.10);
+    --ok:#2F8B33; --err:#CC3823; --steel:#5C7080; --sage:#5A9B6A;
+    --font-sans:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { background:var(--bg); }
+  body { font-family:var(--font-sans); font-size:13px; color:var(--fg); -webkit-font-smoothing:antialiased; letter-spacing:-0.03em; }
+
+  /* Real app nav */
+  .nav { display:flex; align-items:center; justify-content:space-between; height:50px; padding:0 28px; border-bottom:1px solid var(--rule); }
+  .nav-l { display:flex; align-items:baseline; gap:32px; }
+  .wm { font:600 13px/1 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .nav-links { display:flex; gap:26px; }
+  .nav-links a { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); text-decoration:none; padding-bottom:2px; border-bottom:1.5px solid transparent; }
+  .nav-links a.active { color:var(--fg); border-bottom-color:var(--fg); }
+  .nav-r { display:flex; align-items:center; gap:16px; }
+  .star { font-size:15px; color:var(--fg); line-height:0; }
+  .avatars { display:flex; align-items:center; gap:7px; }
+  .av { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font:500 9px/1 var(--font-mono); }
+  .av.me { background:var(--bg); border:1.5px solid var(--accent); color:var(--accent); }
+  .av.g { background:var(--sage); color:#fff; }
+  .av.j { background:var(--steel); color:#fff; }
+  .gear { font-size:15px; color:var(--muted); line-height:0; }
+  .signout { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  /* Content */
+  .wrap { padding:0 40px; max-width:1180px; margin:0 auto; }
+  .head { position:relative; padding-top:36px; }
+  .close { position:absolute; top:28px; right:0; width:40px; height:40px; border:1px solid var(--rule); background:none; color:var(--muted); cursor:pointer; font-size:16px; line-height:0; display:flex; align-items:center; justify-content:center; }
+  .close:hover { color:var(--fg); border-color:var(--fg); }
+  .eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  h1 { font:500 clamp(28px,3.4vw,48px)/1 var(--font-sans); letter-spacing:-0.03em; margin:14px 0 0; }
+  .context { display:flex; align-items:center; gap:8px; margin-top:14px; }
+  .context .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .context .meta { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  .form { max-width:720px; }
+
+  /* Numbered section header */
+  .section { margin-top:48px; }
+  .section-head { display:flex; align-items:baseline; gap:12px; margin-bottom:8px; }
+  .section-num { font:600 13px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--rule); }
+  .section-title { font:400 20px/1 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .section-rule { flex:1; height:1px; background:var(--rule); }
+  .helper { font:400 13px/1.6 var(--font-sans); letter-spacing:-0.03em; color:var(--fg-2); margin-bottom:22px; }
+
+  /* Nutrient chips */
+  .chips { display:flex; flex-wrap:wrap; gap:10px 22px; margin-bottom:24px; }
+  .chip { font:400 9px/1.2 var(--font-mono); letter-spacing:0.12em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:6px 0; position:relative; cursor:pointer; border-bottom:1.5px solid transparent; transition:color 120ms var(--ease-out); }
+  .chip:hover { color:var(--fg); }
+  .chip.active { color:var(--fg); border-bottom-color:var(--fg); }
+  .chip:disabled { opacity:0.35; cursor:not-allowed; }
+
+  .directions { border-left:2px solid var(--rule); padding:4px 0 4px 18px; display:flex; flex-direction:column; gap:10px; }
+  .dir-row { display:flex; align-items:baseline; gap:10px; }
+  .dir-name { font:500 11px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--fg); min-width:96px; }
+  .dir-arrow { font:500 13px/1 var(--font-mono); color:var(--fg); }
+  .dir-target { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+
+  /* Meal rows */
+  .meal-row { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--rule); }
+  .meal-left { display:flex; flex-direction:column; gap:5px; }
+  .meal-type { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .meal-name { font:500 13px/1.3 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+
+  .lock { background:none; border:none; cursor:pointer; padding:4px 0; line-height:0; opacity:0.4; transition:opacity 120ms var(--ease-out); }
+  .lock:hover { opacity:0.75; }
+  .lock svg .lk-body { fill:none; stroke:var(--muted); stroke-width:1.3; }
+  .lock svg .lk-shackle { fill:none; stroke:var(--muted); stroke-width:1.3; }
+  .lock.kept { opacity:1; }
+  .lock.kept svg .lk-body { fill:var(--fg); stroke:var(--fg); }
+  .lock.kept svg .lk-shackle { stroke:var(--fg); }
+
+  /* Scope toggles */
+  .scope { margin-top:26px; }
+  .sub-eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .toggle-row { display:flex; align-items:flex-start; gap:11px; padding:10px 0; cursor:pointer; user-select:none; }
+  .toggle-row .kbox { appearance:none; -webkit-appearance:none; width:14px; height:14px; min-width:14px; margin-top:1px; border:1.5px solid var(--rule); border-radius:2px; background:var(--bg); cursor:pointer; position:relative; flex:none; }
+  .toggle-row .kbox:checked { background:var(--fg); border-color:var(--fg); }
+  .toggle-row .kbox:checked::after { content:''; position:absolute; left:3.5px; top:0.5px; width:4px; height:8px; border:1.5px solid var(--bg); border-top:none; border-left:none; transform:rotate(45deg); }
+  .toggle-text { display:block; }
+  .toggle-text .t-label { display:block; font:400 13px/1.2 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .toggle-text .t-help { display:block; font:400 11px/1.5 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); margin-top:3px; }
+
+  /* Source toggle */
+  .ed-toggle { display:flex; gap:24px; }
+  .ed-toggle button { font:400 9px/1.2 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:4px 0; cursor:pointer; border-bottom:1.5px solid transparent; }
+  .ed-toggle button:hover { color:var(--fg); }
+  .ed-toggle button.active { color:var(--fg); border-bottom-color:var(--fg); }
+
+  /* Footer */
+  .actions { display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:48px; padding:24px 0 40px; border-top:1px solid var(--rule); max-width:720px; }
+  .btn-ghost { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:8px 4px; cursor:pointer; }
+  .btn-ghost:hover { color:var(--fg); }
+  .btn-primary { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:var(--fg); color:var(--bg); border:1px solid var(--fg); padding:11px 18px; cursor:pointer; transition:opacity 150ms var(--ease-out); }
+  .btn-primary:hover { opacity:0.9; }
+  .btn-primary:active { transform:scale(0.98); }
+  .btn-primary:disabled { opacity:0.3; cursor:not-allowed; }
+</style>
+</head>
+<body>
+
+  <div class="nav">
+    <div class="nav-l">
+      <span class="wm">Good Measure</span>
+      <nav class="nav-links">
+        <a href="#" class="active">Planner</a>
+        <a href="#">Recipes</a>
+        <a href="#">Pantry</a>
+      </nav>
+    </div>
+    <div class="nav-r">
+      <span class="star" aria-hidden="true">✦</span>
+      <div class="avatars"><span class="av me">J</span><span class="av g">G</span><span class="av j">J</span></div>
+      <span class="gear" aria-hidden="true">⚙</span>
+      <span class="signout">Sign out</span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="head">
+      <button class="close" aria-label="Close">✕</button>
+      <div class="eyebrow">§ Optimize</div>
+      <h1>Optimize this day.</h1>
+      <div class="context"><span class="dot"></span><span class="meta">Jen · Thu, Jun 18</span></div>
+    </div>
+
+    <div class="form">
+      <!-- 01 Goals -->
+      <div class="section">
+        <div class="section-head"><span class="section-num">01</span><span class="section-title">Goals</span><span class="section-rule"></span></div>
+        <p class="helper" id="counter">Pick up to 3 nutrients to optimize for.</p>
+        <div class="chips">
+          <button class="chip" data-key="calories">Calories</button>
+          <button class="chip" data-key="fat">Fat</button>
+          <button class="chip" data-key="satfat">Sat Fat</button>
+          <button class="chip" data-key="sodium">Sodium</button>
+          <button class="chip" data-key="carbs">Carbs</button>
+          <button class="chip" data-key="sugar">Sugar</button>
+          <button class="chip" data-key="addedsugar">Added Sugar</button>
+          <button class="chip" data-key="protein">Protein</button>
+          <button class="chip" data-key="fiber">Fiber</button>
+        </div>
+        <div class="directions" id="directions"></div>
+      </div>
+
+      <!-- 02 Meals -->
+      <div class="section">
+        <div class="section-head"><span class="section-num">02</span><span class="section-title">Meals</span><span class="section-rule"></span></div>
+        <p class="helper">Lock anything you want kept. Everything else can be swapped or removed.</p>
+        <div class="meals">
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Breakfast</span><span class="meal-name">Protein shake</span></div><button class="lock kept" aria-label="Keep Protein shake" aria-pressed="true"><svg viewBox="0 0 14 16" width="13" height="15" aria-hidden="true"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Lunch</span><span class="meal-name">Chicken Caesar wrap</span></div><button class="lock" aria-label="Keep Chicken Caesar wrap" aria-pressed="false"><svg viewBox="0 0 14 16" width="13" height="15" aria-hidden="true"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Dinner</span><span class="meal-name">Pan-seared tilapia</span></div><button class="lock" aria-label="Keep Pan-seared tilapia" aria-pressed="false"><svg viewBox="0 0 14 16" width="13" height="15" aria-hidden="true"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Side</span><span class="meal-name">Miso lentils</span></div><button class="lock" aria-label="Keep Miso lentils" aria-pressed="false"><svg viewBox="0 0 14 16" width="13" height="15" aria-hidden="true"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Snack</span><span class="meal-name">Greek yogurt</span></div><button class="lock" aria-label="Keep Greek yogurt" aria-pressed="false"><svg viewBox="0 0 14 16" width="13" height="15" aria-hidden="true"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Snack</span><span class="meal-name">Trail mix</span></div><button class="lock" aria-label="Keep Trail mix" aria-pressed="false"><svg viewBox="0 0 14 16" width="13" height="15" aria-hidden="true"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+        </div>
+        <div class="scope">
+          <div class="sub-eyebrow">What can change</div>
+          <label class="toggle-row"><input type="checkbox" class="kbox" checked /><span class="toggle-text"><span class="t-label">Allow removing meals</span><span class="t-help">The optimizer can drop a meal if the day is better without it.</span></span></label>
+          <label class="toggle-row"><input type="checkbox" class="kbox" /><span class="toggle-text"><span class="t-label">Allow adding a side or snack</span><span class="t-help">The optimizer can introduce one extra side or snack to hit your goals.</span></span></label>
+        </div>
+      </div>
+
+      <!-- 03 Source -->
+      <div class="section">
+        <div class="section-head"><span class="section-num">03</span><span class="section-title">Source</span><span class="section-rule"></span></div>
+        <p class="helper">Where the optimizer looks for replacements.</p>
+        <div class="ed-toggle"><button class="active">Favorites first</button><button>Whole library</button></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-ghost">Cancel</button>
+      <button class="btn-primary" id="optimize">Optimize →</button>
+    </div>
+  </div>
+
+  <script>
+    const NUT = {
+      calories:{label:'Calories',dir:'band',target:'Land near 2,000 kcal'},
+      fat:{label:'Fat',dir:'down',target:'Stay under 70 g'},
+      satfat:{label:'Sat Fat',dir:'down',target:'Stay under 20 g'},
+      sodium:{label:'Sodium',dir:'down',target:'Stay under 2,300 mg'},
+      carbs:{label:'Carbs',dir:'down',target:'Stay under 230 g'},
+      sugar:{label:'Sugar',dir:'down',target:'Stay under 50 g'},
+      addedsugar:{label:'Added Sugar',dir:'down',target:'Stay under 25 g'},
+      protein:{label:'Protein',dir:'up',target:'Reach 105 g minimum'},
+      fiber:{label:'Fiber',dir:'up',target:'Reach 28 g minimum'},
+    };
+    const ARROW = {down:'↓',up:'↑',band:'↕'};
+    let selected = ['sodium','protein'];
+    const counter = document.getElementById('counter');
+    const directions = document.getElementById('directions');
+    const optimize = document.getElementById('optimize');
+    const chips = [...document.querySelectorAll('.chip')];
+    function render() {
+      const atCap = selected.length >= 3;
+      chips.forEach(b => { const k=b.dataset.key, s=selected.includes(k); b.classList.toggle('active',s); b.disabled = !s && atCap; });
+      counter.textContent = selected.length ? selected.length + ' of 3 selected' : 'Pick up to 3 nutrients to optimize for.';
+      directions.style.display = selected.length ? 'flex' : 'none';
+      directions.innerHTML = selected.map(k => { const n=NUT[k]; return '<div class="dir-row"><span class="dir-name">'+n.label+'</span><span class="dir-arrow">'+ARROW[n.dir]+'</span><span class="dir-target">'+n.target+'</span></div>'; }).join('');
+      optimize.disabled = selected.length === 0;
+    }
+    chips.forEach(b => b.addEventListener('click', () => { const k=b.dataset.key, i=selected.indexOf(k); if(i>=0) selected.splice(i,1); else if(selected.length<3) selected.push(k); render(); }));
+    document.querySelectorAll('.lock').forEach(l => l.addEventListener('click', () => { const kept=l.classList.toggle('kept'); l.setAttribute('aria-pressed', String(kept)); }));
+    document.querySelectorAll('.ed-toggle button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.ed-toggle button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }));
+    render();
+  </script>
+</body>
+</html>

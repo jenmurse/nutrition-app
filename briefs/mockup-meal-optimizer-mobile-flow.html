@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Optimizer — Mobile flow (launcher hub)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FFFFFF; --bg-2:#F5F5F4;
+    --fg:#0A0A0A; --fg-2:#2A2A2A; --muted:#6E6E6E; --rule:#D8D8D6;
+    --accent:#E84828; --ok:#2F8B33; --err:#CC3823; --sage:#5A9B6A; --steel:#5C7080;
+    --font-sans:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#D0D0CE; font-family:var(--font-sans); font-size:13px; color:var(--fg); -webkit-font-smoothing:antialiased; letter-spacing:-0.03em; display:flex; justify-content:center; align-items:flex-start; gap:28px; flex-wrap:wrap; padding:40px 20px 80px; min-height:100vh; }
+  .caption { width:375px; font:400 11px/1.5 var(--font-sans); letter-spacing:-0.03em; color:#555; margin-bottom:-18px; }
+
+  /* ─── Phone frame ─────────────────────────────────────────────── */
+  .phone { width:375px; height:812px; overflow:hidden; position:relative; border-radius:44px; box-shadow:0 0 0 1px rgba(0,0,0,0.12), 0 24px 80px rgba(0,0,0,0.28); flex-shrink:0; background:var(--bg); }
+
+  /* ─── Planner background ──────────────────────────────────────── */
+  .mob-nav { height:50px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; border-bottom:1px solid var(--rule); background:var(--bg); position:relative; z-index:1; }
+  .mob-wm { font:600 13px/1 var(--font-sans); letter-spacing:-0.03em; }
+  .mob-nav-r { display:flex; align-items:center; gap:10px; }
+  .mob-person { display:flex; align-items:center; gap:5px; background:var(--bg-2); border:1px solid var(--rule); border-radius:20px; padding:4px 10px 4px 6px; }
+  .mob-person-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .mob-person-name { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; }
+  .mob-star { font-size:13px; color:var(--fg); line-height:0; }
+  .mob-menu { display:flex; align-items:center; }
+
+  .planner-bg { position:absolute; top:50px; left:0; right:0; bottom:0; background:var(--bg); }
+  .p-week-row { display:flex; align-items:center; padding:0 18px; border-bottom:1px solid var(--rule); background:var(--bg); }
+  .p-date-range { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; color:var(--muted); padding:8px 0; margin-right:auto; }
+  .p-toolbar-btns { display:flex; gap:4px; }
+  .p-tbtn { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; border:1px solid var(--rule); background:none; padding:5px 10px; cursor:pointer; color:var(--fg); }
+  .p-tbtn-primary { background:var(--fg); color:var(--bg); }
+  .p-tbtn-active { border-color:var(--fg); }
+  .p-days-row { display:flex; border-bottom:1px solid var(--rule); }
+  .p-day { flex:1; display:flex; flex-direction:column; align-items:center; padding:6px 2px; }
+  .p-day-name { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+  .p-day-num { font:700 20px/1 var(--font-sans); letter-spacing:-0.02em; color:var(--fg); }
+  .p-day-num.today { color:var(--accent); }
+  .p-day-dot { width:4px; height:4px; border-radius:50%; background:var(--rule); margin-top:3px; }
+  .p-day.active-col { background:var(--bg-2); }
+
+  .p-meals { padding:0; }
+  .p-meal-group { padding:12px 18px 0; }
+  .p-meal-type-label { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .p-meal-row { display:flex; align-items:flex-start; justify-content:space-between; padding:10px 18px; border-bottom:1px solid var(--rule); }
+  .p-meal-name { font:400 16px/1.25 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); flex:1; }
+  .p-meal-meta { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+  .p-meal-x { font-size:13px; color:var(--muted); margin-left:12px; flex-shrink:0; margin-top:2px; }
+  .p-bottom-rail { position:absolute; bottom:0; left:0; right:0; height:50px; border-top:1px solid var(--fg); display:flex; align-items:center; justify-content:space-between; padding:0 18px; background:var(--bg); }
+  .p-rail-l { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--fg); display:flex; align-items:center; gap:6px; }
+  .p-rail-r { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  /* ─── Scrim ───────────────────────────────────────────────────── */
+  .scrim { position:absolute; top:50px; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:10; }
+
+  /* ─── Sheet ───────────────────────────────────────────────────── */
+  .sheet { position:absolute; bottom:0; left:0; right:0; background:var(--bg); border-top:1px solid var(--rule); border-radius:8px 8px 0 0; box-shadow:0 -8px 40px rgba(0,0,0,0.16); height:82%; display:flex; flex-direction:column; z-index:20; animation:sheetUp 360ms var(--ease-out) both; overflow:hidden; }
+  .sheet.hub-height { height:auto; max-height:82%; }
+  @keyframes sheetUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+
+  .sheet-handle { width:36px; height:4px; background:var(--rule); border-radius:2px; margin:12px auto 8px; flex-shrink:0; }
+
+  /* Nav bar (states 1+) — back affordance only; sheets dismiss by tapping the scrim */
+  .sheet-nav { display:none; align-items:center; padding:12px 18px 10px; flex-shrink:0; border-bottom:1px solid var(--rule); }
+  .back-btn { font:400 13px/1 var(--font-sans); letter-spacing:-0.03em; background:none; border:none; color:var(--fg); cursor:pointer; display:flex; align-items:center; gap:4px; padding:4px 0; }
+  .back-btn::before { content:'‹'; font-size:19px; line-height:1; margin-right:1px; }
+
+  /* Screen container */
+  .screens { flex:1; position:relative; overflow:hidden; }
+  .screen { position:absolute; inset:0; display:flex; flex-direction:column; background:var(--bg); transition:transform 300ms var(--ease-out); will-change:transform; }
+  .screen.current { transform:translateX(0); }
+  .screen.ahead { transform:translateX(100%); }
+  .screen.behind { transform:translateX(-25%); }
+
+  /* ─── Screen 0: ⋯ launcher hub ───────────────────────────────── */
+  .hub { flex:1; overflow-y:auto; overscroll-behavior:contain; padding-bottom:8px; }
+  .hub-eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); padding:6px 18px 6px; }
+  .hub-row { display:flex; align-items:center; justify-content:space-between; width:100%; background:none; border:none; border-top:1px solid var(--rule); padding:18px; cursor:pointer; text-align:left; }
+  .hub-row:active { background:var(--bg-2); }
+  .hub-row-label { font:500 16px/1.2 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .hub-row-arrow { font:400 16px/1 var(--font-mono); color:var(--muted); }
+
+  /* ─── Shared content (screens 1–4) ───────────────────────────── */
+  .screen-body { flex:1; overflow-y:auto; padding:0 18px; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  .screen-footer { flex-shrink:0; padding:14px 18px 20px; border-top:1px solid var(--rule); }
+  .scroll-end { height:16px; }
+
+  .sh-eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); padding-top:18px; }
+  .sh-h1 { font:500 28px/1 var(--font-sans); letter-spacing:-0.03em; margin:8px 0 0; }
+  .sh-context { display:flex; align-items:center; gap:7px; margin:10px 0 22px; }
+  .sh-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .sh-meta { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  .section { margin-top:22px; }
+  .section-head { display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .section-num { font:600 13px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--rule); }
+  .section-title { font:400 20px/1 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .section-rule { flex:1; height:1px; background:var(--rule); align-self:center; }
+  .helper { font:400 13px/1.6 var(--font-sans); letter-spacing:-0.03em; color:var(--fg-2); margin-bottom:14px; }
+
+  /* Chips */
+  .chips { display:flex; flex-wrap:wrap; gap:8px 16px; margin-bottom:14px; }
+  .chip { font:400 9px/1.2 var(--font-mono); letter-spacing:0.12em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:6px 0; cursor:pointer; border-bottom:1.5px solid transparent; }
+  .chip.active { color:var(--fg); border-bottom-color:var(--fg); }
+  .chip:disabled { opacity:0.35; cursor:not-allowed; }
+
+  /* Directions */
+  .directions { border-left:2px solid var(--rule); padding:4px 0 4px 14px; display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+  .dir-row { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .dir-name { font:500 11px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--fg); min-width:72px; }
+  .dir-arrow { font:500 13px/1 var(--font-mono); color:var(--fg); }
+  .dir-target { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+
+  /* Meal rows (picker) */
+  .meal-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--rule); }
+  .meal-left { display:flex; flex-direction:column; gap:4px; }
+  .meal-type { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .meal-name { font:500 13px/1.3 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .lock { background:none; border:none; cursor:pointer; padding:6px; line-height:0; opacity:0.35; }
+  .lock.kept { opacity:1; }
+  .lock svg .lk-body { fill:none; stroke:var(--muted); stroke-width:1.3; }
+  .lock svg .lk-shackle { fill:none; stroke:var(--muted); stroke-width:1.3; }
+  .lock.kept svg .lk-body { fill:var(--fg); stroke:var(--fg); }
+  .lock.kept svg .lk-shackle { stroke:var(--fg); }
+
+  /* Scope toggles */
+  .scope { margin-top:20px; }
+  .sub-eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .toggle-row { display:flex; align-items:flex-start; gap:10px; padding:10px 0; cursor:pointer; user-select:none; }
+  .kbox { appearance:none; -webkit-appearance:none; width:14px; height:14px; min-width:14px; margin-top:2px; border:1.5px solid var(--rule); border-radius:2px; background:var(--bg); cursor:pointer; position:relative; flex:none; }
+  .kbox:checked { background:var(--fg); border-color:var(--fg); }
+  .kbox:checked::after { content:''; position:absolute; left:3.5px; top:0.5px; width:4px; height:8px; border:1.5px solid var(--bg); border-top:none; border-left:none; transform:rotate(45deg); }
+  .toggle-text { display:block; }
+  .t-label { display:block; font:400 13px/1.2 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .t-help { display:block; font:400 11px/1.5 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); margin-top:3px; }
+
+  /* Source toggle */
+  .ed-toggle { display:flex; gap:20px; }
+  .ed-toggle button { font:400 9px/1.2 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:4px 0; cursor:pointer; border-bottom:1.5px solid transparent; }
+  .ed-toggle button.active { color:var(--fg); border-bottom-color:var(--fg); }
+
+  /* Buttons */
+  .btn-primary { display:block; width:100%; font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:var(--fg); color:var(--bg); border:1px solid var(--fg); padding:13px 18px; cursor:pointer; text-align:center; }
+  .btn-primary:disabled { opacity:0.3; cursor:not-allowed; }
+
+  /* Apply-template screen */
+  .tmpl-search-wrap { margin-bottom:6px; }
+  .tmpl-search { width:100%; border:none; border-bottom:1px solid var(--rule); background:none; padding:8px 0; font:400 16px/1.2 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); }
+  .tmpl-search:focus { outline:none; border-bottom-color:var(--fg); }
+  .tmpl-group { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:20px 0 4px; }
+  .tmpl-row { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--rule); cursor:pointer; }
+  .tmpl-row:active { background:var(--bg-2); }
+  .tmpl-name { font:500 16px/1.2 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .tmpl-count { font:400 11px/1 var(--font-mono); color:var(--muted); }
+
+  /* Stub screen (Save / Manage hand off to existing dialogs) */
+  .stub { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding-bottom:60px; }
+  .stub-note { font:400 13px/1.6 var(--font-sans); letter-spacing:-0.03em; color:var(--fg-2); margin-top:14px; max-width:280px; }
+  .stub-tag { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); border:1px solid var(--rule); padding:6px 10px; margin-top:20px; }
+
+  /* Results (screen 2) */
+  .res-h1 { font:500 28px/1 var(--font-sans); letter-spacing:-0.03em; padding-top:18px; margin-bottom:10px; }
+  .opt-line { display:flex; align-items:center; flex-wrap:wrap; gap:6px 10px; margin-bottom:10px; }
+  .opt-label { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .opt-chip { font:500 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--fg); }
+  .who { display:flex; align-items:center; gap:6px; }
+  .who-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .who-meta { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .baseline { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--rule); }
+  .b-label { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .b-metric { display:flex; align-items:baseline; gap:5px; }
+  .b-name { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .b-val { font:700 13px/1 var(--font-mono); letter-spacing:0.04em; font-variant-numeric:tabular-nums; }
+  .red { color:var(--err); } .green { color:var(--ok); }
+
+  /* Variation cards */
+  .card { border:1px solid var(--rule); padding:14px; position:relative; cursor:pointer; margin-bottom:10px; transition:border-color 120ms var(--ease-out); }
+  .card.selected { border-color:var(--fg); }
+  .card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .card-name { font:600 16px/1.15 var(--font-sans); letter-spacing:-0.02em; }
+  .card-sum { font:400 9px/1 var(--font-mono); letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:4px 0 12px; }
+  .check { width:20px; height:20px; border-radius:50%; border:1.5px solid var(--rule); background:var(--bg); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+  .card.selected .check { background:var(--fg); border-color:var(--fg); }
+  .check svg { display:none; }
+  .card.selected .check svg { display:block; }
+  .card-targets { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  .tgt-label { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .tgt-top { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; }
+  .tgt-delta { font:400 9px/1 var(--font-mono); letter-spacing:0.04em; color:var(--muted); }
+  .tgt-val { font:700 16px/1 var(--font-sans); letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin-bottom:5px; }
+  .tgt-val small { font:400 9px var(--font-mono); letter-spacing:0.04em; color:var(--muted); margin-left:2px; }
+  .bar { height:2px; background:var(--rule); position:relative; }
+  .bar .fill { position:absolute; left:0; top:0; bottom:0; }
+  .fill.green { background:var(--ok); } .fill.red { background:var(--err); }
+  .card-meals { border-top:1px solid var(--rule); }
+  .m-row { display:flex; align-items:flex-start; gap:8px; padding:8px 0; border-bottom:1px solid var(--rule); }
+  .m-type { font:400 9px/1.5 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); width:50px; flex:none; padding-top:2px; }
+  .m-body { flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .m-name { font:500 13px/1.3 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .m-was { font:400 11px/1.4 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); }
+  .m-state { font:400 9px/1.6 var(--font-mono); letter-spacing:0.12em; text-transform:uppercase; flex:none; padding-top:2px; }
+  .m-state.swapped { color:var(--fg); }
+  .m-state.removed { color:var(--muted); }
+  .m-row.removed .m-name { text-decoration:line-through; color:var(--muted); font-weight:400; }
+  .m-state.kept svg .b { fill:var(--fg); stroke:var(--fg); stroke-width:1.3; }
+  .m-state.kept svg .s { fill:none; stroke:var(--fg); stroke-width:1.3; }
+  .foot-note { font:400 11px/1.4 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); margin-top:6px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="caption">Tap <strong>⋯</strong> on the planner toolbar → the day-actions hub. Each row pushes its own screen. Optimize → picker → results. Apply a template gets its own screen. Sheets dismiss by tapping the dimmed area — no ✕.</div>
+
+<div class="phone">
+
+  <!-- Mobile nav -->
+  <div class="mob-nav">
+    <span class="mob-wm">Good Measure</span>
+    <div class="mob-nav-r">
+      <div class="mob-person"><span class="mob-person-dot"></span><span class="mob-person-name">Jen ▾</span></div>
+      <span class="mob-star">✦</span>
+      <div class="mob-menu">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true"><line x1="0" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.5"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Planner background -->
+  <div class="planner-bg">
+    <div class="p-week-row">
+      <span class="p-date-range">6/14 – 6/20</span>
+      <div class="p-toolbar-btns">
+        <button class="p-tbtn">‹</button>
+        <button class="p-tbtn">›</button>
+        <button class="p-tbtn">View</button>
+        <button class="p-tbtn p-tbtn-active">⋯</button>
+        <button class="p-tbtn p-tbtn-primary">+ New</button>
+      </div>
+    </div>
+    <div class="p-days-row">
+      <div class="p-day"><div class="p-day-name">Sun</div><div class="p-day-num">14</div><div class="p-day-dot"></div></div>
+      <div class="p-day active-col"><div class="p-day-name">Mon</div><div class="p-day-num today">15</div><div class="p-day-dot"></div></div>
+      <div class="p-day"><div class="p-day-name">Tue</div><div class="p-day-num">16</div><div class="p-day-dot"></div></div>
+      <div class="p-day"><div class="p-day-name">Wed</div><div class="p-day-num">17</div><div class="p-day-dot"></div></div>
+      <div class="p-day"><div class="p-day-name">Thu</div><div class="p-day-num">18</div><div class="p-day-dot"></div></div>
+      <div class="p-day"><div class="p-day-name">Fri</div><div class="p-day-num">19</div><div class="p-day-dot"></div></div>
+      <div class="p-day"><div class="p-day-name">Sat</div><div class="p-day-num">20</div><div class="p-day-dot"></div></div>
+    </div>
+    <div class="p-meals">
+      <div class="p-meal-group"><div class="p-meal-type-label">Breakfast</div></div>
+      <div class="p-meal-row"><div><div class="p-meal-name">Overnight Oats PB – Jen</div><div class="p-meal-meta">1 Serving</div></div><span class="p-meal-x">×</span></div>
+      <div class="p-meal-group"><div class="p-meal-type-label">Lunch</div></div>
+      <div class="p-meal-row"><div><div class="p-meal-name">Lunch Salad w/Salmon</div><div class="p-meal-meta">1 Serving</div></div><span class="p-meal-x">×</span></div>
+      <div class="p-meal-group"><div class="p-meal-type-label">Dinner</div></div>
+      <div class="p-meal-row"><div><div class="p-meal-name">Roasted Tahini Cauliflower</div><div class="p-meal-meta">1 Serving</div></div><span class="p-meal-x">×</span></div>
+    </div>
+    <div class="p-bottom-rail">
+      <div class="p-rail-l">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><line x1="0" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.5"/></svg>
+        Menu
+      </div>
+      <span class="p-rail-r">Mon, Jun 15 · Jen</span>
+    </div>
+  </div>
+
+  <!-- Scrim -->
+  <div class="scrim"></div>
+
+  <!-- Sheet -->
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle" id="s-handle"></div>
+    <div class="sheet-nav" id="s-nav">
+      <button class="back-btn" id="back-btn"><span id="back-label">Back</span></button>
+    </div>
+
+    <div class="screens">
+
+      <!-- ── Screen 0: ⋯ launcher hub ── -->
+      <div class="screen current" id="s0">
+        <div class="hub">
+          <div class="hub-eyebrow">Mon, Jun 15 · Jen</div>
+          <button class="hub-row" id="goto-picker"><span class="hub-row-label">Optimize this day</span><span class="hub-row-arrow">→</span></button>
+          <button class="hub-row" id="goto-apply"><span class="hub-row-label">Apply a template</span><span class="hub-row-arrow">→</span></button>
+          <button class="hub-row" id="goto-save"><span class="hub-row-label">Save as template</span><span class="hub-row-arrow">→</span></button>
+          <button class="hub-row" id="goto-manage"><span class="hub-row-label">Manage templates</span><span class="hub-row-arrow">→</span></button>
+        </div>
+      </div>
+
+      <!-- ── Screen 1: Picker ── -->
+      <div class="screen ahead" id="s1">
+        <div class="screen-body">
+          <div class="sh-eyebrow">§ Optimize</div>
+          <h1 class="sh-h1">Optimize this day.</h1>
+          <div class="sh-context"><span class="sh-dot"></span><span class="sh-meta">Jen · Mon, Jun 15</span></div>
+
+          <div class="section">
+            <div class="section-head"><span class="section-num">01</span><span class="section-title">Goals</span><span class="section-rule"></span></div>
+            <p class="helper" id="counter">Pick up to 3 nutrients to optimize for.</p>
+            <div class="chips">
+              <button class="chip" data-key="calories">Calories</button>
+              <button class="chip" data-key="fat">Fat</button>
+              <button class="chip" data-key="satfat">Sat Fat</button>
+              <button class="chip active" data-key="sodium">Sodium</button>
+              <button class="chip" data-key="carbs">Carbs</button>
+              <button class="chip" data-key="sugar">Sugar</button>
+              <button class="chip" data-key="addedsugar">Added Sugar</button>
+              <button class="chip active" data-key="protein">Protein</button>
+              <button class="chip" data-key="fiber">Fiber</button>
+            </div>
+            <div class="directions" id="directions"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-head"><span class="section-num">02</span><span class="section-title">Meals</span><span class="section-rule"></span></div>
+            <p class="helper">Lock anything you want kept. Everything else can be swapped.</p>
+            <div class="meals">
+              <div class="meal-row"><div class="meal-left"><span class="meal-type">Breakfast</span><span class="meal-name">Overnight Oats PB</span></div><button class="lock kept" aria-label="Keep" aria-pressed="true"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+              <div class="meal-row"><div class="meal-left"><span class="meal-type">Lunch</span><span class="meal-name">Lunch Salad w/Salmon</span></div><button class="lock" aria-label="Keep" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+              <div class="meal-row"><div class="meal-left"><span class="meal-type">Dinner</span><span class="meal-name">Roasted Tahini Cauliflower</span></div><button class="lock" aria-label="Keep" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+            </div>
+            <div class="scope">
+              <div class="sub-eyebrow">What can change</div>
+              <label class="toggle-row"><input type="checkbox" class="kbox" checked /><span class="toggle-text"><span class="t-label">Allow removing meals</span><span class="t-help">The optimizer can drop a meal if the day is better without it.</span></span></label>
+              <label class="toggle-row"><input type="checkbox" class="kbox" /><span class="toggle-text"><span class="t-label">Allow adding a side or snack</span><span class="t-help">The optimizer can introduce one extra side or snack.</span></span></label>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head"><span class="section-num">03</span><span class="section-title">Source</span><span class="section-rule"></span></div>
+            <p class="helper">Where the optimizer looks for replacements.</p>
+            <div class="ed-toggle">
+              <button class="active">Favorites first</button>
+              <button>Whole library</button>
+            </div>
+          </div>
+
+          <div class="scroll-end"></div>
+        </div>
+        <div class="screen-footer">
+          <button class="btn-primary" id="goto-results">Optimize →</button>
+        </div>
+      </div>
+
+      <!-- ── Screen 2: Results ── -->
+      <div class="screen ahead" id="s2">
+        <div class="screen-body">
+          <h1 class="res-h1">Three ways to optimize.</h1>
+          <div class="opt-line">
+            <span class="opt-label">Optimizing for</span>
+            <span class="opt-chip">Sodium ↓</span>
+            <span class="opt-chip">Protein ↑</span>
+            <span class="who"><span class="who-dot"></span><span class="who-meta">Jen · Jun 15</span></span>
+          </div>
+          <div class="baseline">
+            <span class="b-label">Today</span>
+            <span class="b-metric"><span class="b-name">Sodium</span><span class="b-val red">2,640 mg</span></span>
+            <span class="b-metric"><span class="b-name">Protein</span><span class="b-val red">88 g</span></span>
+          </div>
+
+          <div class="card selected" data-col>
+            <div class="card-head">
+              <div><div class="card-name">Best balance</div><div class="card-sum">2 swaps</div></div>
+              <div class="check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.8 7L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="card-targets">
+              <div><div class="tgt-top"><span class="tgt-label">Sodium</span><span class="tgt-delta red">↓ 460</span></div><div class="tgt-val green">2,180 <small>mg</small></div><div class="bar"><span class="fill green" style="width:95%"></span></div></div>
+              <div><div class="tgt-top"><span class="tgt-label">Protein</span><span class="tgt-delta green">↑ 28</span></div><div class="tgt-val green">116 <small>g</small></div><div class="bar"><span class="fill green" style="width:100%"></span></div></div>
+            </div>
+            <div class="card-meals">
+              <div class="m-row"><div class="m-type">Bkfast</div><div class="m-body"><span class="m-name">Overnight Oats PB</span></div><span class="m-state kept" style="line-height:0;padding-top:3px"><svg viewBox="0 0 14 16" width="12" height="14"><path class="s" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="b" x="2" y="7" width="10" height="7.5"/></svg></span></div>
+              <div class="m-row"><div class="m-type">Lunch</div><div class="m-body"><span class="m-name">Turkey &amp; quinoa bowl</span><span class="m-was">was Lunch Salad w/Salmon</span></div><span class="m-state swapped">Swap</span></div>
+              <div class="m-row"><div class="m-type">Dinner</div><div class="m-body"><span class="m-name">Baked cod with herbs</span><span class="m-was">was Tahini Cauliflower</span></div><span class="m-state swapped">Swap</span></div>
+            </div>
+          </div>
+
+          <div class="card" data-col>
+            <div class="card-head">
+              <div><div class="card-name">Best for sodium</div><div class="card-sum">1 swap · 1 removed</div></div>
+              <div class="check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.8 7L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="card-targets">
+              <div><div class="tgt-top"><span class="tgt-label">Sodium</span><span class="tgt-delta red">↓ 750</span></div><div class="tgt-val green">1,890 <small>mg</small></div><div class="bar"><span class="fill green" style="width:82%"></span></div></div>
+              <div><div class="tgt-top"><span class="tgt-label">Protein</span><span class="tgt-delta green">↑ 18</span></div><div class="tgt-val green">106 <small>g</small></div><div class="bar"><span class="fill green" style="width:100%"></span></div></div>
+            </div>
+            <div class="card-meals">
+              <div class="m-row"><div class="m-type">Bkfast</div><div class="m-body"><span class="m-name">Overnight Oats PB</span></div><span class="m-state kept" style="line-height:0;padding-top:3px"><svg viewBox="0 0 14 16" width="12" height="14"><path class="s" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="b" x="2" y="7" width="10" height="7.5"/></svg></span></div>
+              <div class="m-row"><div class="m-type">Lunch</div><div class="m-body"><span class="m-name">Lemon herb chicken salad</span><span class="m-was">was Lunch Salad w/Salmon</span></div><span class="m-state swapped">Swap</span></div>
+              <div class="m-row removed"><div class="m-type">Dinner</div><div class="m-body"><span class="m-name">Roasted Tahini Cauliflower</span></div><span class="m-state removed">Remove</span></div>
+            </div>
+          </div>
+
+          <div class="card" data-col>
+            <div class="card-head">
+              <div><div class="card-name">Closest to today</div><div class="card-sum">1 swap</div></div>
+              <div class="check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.8 7L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="card-targets">
+              <div><div class="tgt-top"><span class="tgt-label">Sodium</span><span class="tgt-delta red">↓ 280</span></div><div class="tgt-val red">2,360 <small>mg</small></div><div class="bar"><span class="fill red" style="width:100%"></span></div></div>
+              <div><div class="tgt-top"><span class="tgt-label">Protein</span><span class="tgt-delta green">↑ 11</span></div><div class="tgt-val red">99 <small>g</small></div><div class="bar"><span class="fill red" style="width:94%"></span></div></div>
+            </div>
+            <div class="card-meals">
+              <div class="m-row"><div class="m-type">Bkfast</div><div class="m-body"><span class="m-name">Overnight Oats PB</span></div><span class="m-state kept" style="line-height:0;padding-top:3px"><svg viewBox="0 0 14 16" width="12" height="14"><path class="s" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="b" x="2" y="7" width="10" height="7.5"/></svg></span></div>
+              <div class="m-row"><div class="m-type">Lunch</div><div class="m-body"><span class="m-name">Lunch Salad w/Salmon</span></div><span class="m-state"></span></div>
+              <div class="m-row"><div class="m-type">Dinner</div><div class="m-body"><span class="m-name">Lemon herb chicken salad</span><span class="m-was">was Tahini Cauliflower</span></div><span class="m-state swapped">Swap</span></div>
+            </div>
+          </div>
+
+          <div class="scroll-end"></div>
+        </div>
+        <div class="screen-footer">
+          <button class="btn-primary" id="apply-btn">Apply best balance →</button>
+          <div class="foot-note">Replaces this day's meals · save as template after</div>
+        </div>
+      </div>
+
+      <!-- ── Screen 3: Apply a template ── -->
+      <div class="screen ahead" id="s3">
+        <div class="screen-body">
+          <div class="sh-eyebrow">§ Templates</div>
+          <h1 class="sh-h1">Apply a template.</h1>
+          <div class="sh-context"><span class="sh-dot"></span><span class="sh-meta">Adds to Mon, Jun 15 · Jen</span></div>
+          <div class="tmpl-search-wrap"><input class="tmpl-search" type="text" placeholder="Search templates…" /></div>
+          <div class="tmpl-group">Mondays</div>
+          <div class="tmpl-row"><span class="tmpl-name">Mon – Green Fish Soup</span><span class="tmpl-count">6</span></div>
+          <div class="tmpl-row"><span class="tmpl-name">Mon – Tahini Cauliflower + Lentils</span><span class="tmpl-count">6</span></div>
+          <div class="tmpl-row"><span class="tmpl-name">Mon – Thai Curry</span><span class="tmpl-count">6</span></div>
+          <div class="tmpl-group">Tuesdays</div>
+          <div class="tmpl-row"><span class="tmpl-name">Tue – Tilapia + Miso Lentils</span><span class="tmpl-count">6</span></div>
+          <div class="tmpl-row"><span class="tmpl-name">Tue – Bean Tomato Stew w/Cod</span><span class="tmpl-count">5</span></div>
+          <div class="tmpl-group">Other</div>
+          <div class="tmpl-row"><span class="tmpl-name">Test Template 3</span><span class="tmpl-count">6</span></div>
+          <div class="tmpl-row"><span class="tmpl-name">Test Template 2</span><span class="tmpl-count">5</span></div>
+          <div class="tmpl-row"><span class="tmpl-name">Test Template 1</span><span class="tmpl-count">5</span></div>
+          <div class="scroll-end"></div>
+        </div>
+      </div>
+
+      <!-- ── Screen 4: Stub (Save / Manage hand off to existing dialogs) ── -->
+      <div class="screen ahead" id="s4">
+        <div class="screen-body stub">
+          <div class="sh-eyebrow">§ <span id="stub-eyebrow">Templates</span></div>
+          <h1 class="sh-h1" id="stub-title">Save as template.</h1>
+          <p class="stub-note" id="stub-note">Opens the existing save flow — name this day, or overwrite an existing template.</p>
+          <span class="stub-tag">Reuses shipped dialog</span>
+        </div>
+      </div>
+
+    </div><!-- /screens -->
+  </div><!-- /sheet -->
+
+</div><!-- /phone -->
+
+<script>
+  const NUT = {
+    calories:{label:'Calories',dir:'band',target:'Land near 2,000 kcal'},
+    fat:{label:'Fat',dir:'down',target:'Stay under 70 g'},
+    satfat:{label:'Sat Fat',dir:'down',target:'Stay under 20 g'},
+    sodium:{label:'Sodium',dir:'down',target:'Stay under 2,300 mg'},
+    carbs:{label:'Carbs',dir:'down',target:'Stay under 230 g'},
+    sugar:{label:'Sugar',dir:'down',target:'Stay under 50 g'},
+    addedsugar:{label:'Added Sugar',dir:'down',target:'Stay under 25 g'},
+    protein:{label:'Protein',dir:'up',target:'Reach 105 g minimum'},
+    fiber:{label:'Fiber',dir:'up',target:'Reach 28 g minimum'},
+  };
+  const ARROW = {down:'↓',up:'↑',band:'↕'};
+  let selected = ['sodium','protein'];
+
+  const counter = document.getElementById('counter');
+  const directions = document.getElementById('directions');
+  const chips = [...document.querySelectorAll('.chip')];
+  function renderChips() {
+    const atCap = selected.length >= 3;
+    chips.forEach(b => { const k=b.dataset.key, s=selected.includes(k); b.classList.toggle('active',s); b.disabled = !s && atCap; });
+    counter.textContent = selected.length ? selected.length+' of 3 selected' : 'Pick up to 3 nutrients to optimize for.';
+    directions.style.display = selected.length ? 'flex' : 'none';
+    directions.innerHTML = selected.map(k => { const n=NUT[k]; return '<div class="dir-row"><span class="dir-name">'+n.label+'</span><span class="dir-arrow">'+ARROW[n.dir]+'</span><span class="dir-target">'+n.target+'</span></div>'; }).join('');
+  }
+  chips.forEach(b => b.addEventListener('click', () => { const k=b.dataset.key, i=selected.indexOf(k); if(i>=0) selected.splice(i,1); else if(selected.length<3) selected.push(k); renderChips(); }));
+  document.querySelectorAll('.lock').forEach(l => l.addEventListener('click', () => { const k=l.classList.toggle('kept'); l.setAttribute('aria-pressed',String(k)); }));
+  document.querySelectorAll('.ed-toggle button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.ed-toggle button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }));
+
+  // ── Stack-based navigation ─────────────────────────────────────
+  const S = id => document.getElementById(id);
+  const sHandle = S('s-handle'), sNav = S('s-nav'), backLabel = S('back-label'), applyBtn = S('apply-btn');
+  let stack = [S('s0')];
+
+  function paintTopbar(el) {
+    const isRoot = el.id === 's0';
+    sHandle.style.display = isRoot ? 'block' : 'none';
+    sNav.style.display = isRoot ? 'none' : 'flex';
+    backLabel.textContent = el.id === 's2' ? 'Adjust options' : 'Back';
+    const body = el.querySelector('.screen-body, .hub'); if (body) body.scrollTop = 0;
+  }
+  function push(el) {
+    const from = stack[stack.length - 1];
+    from.classList.remove('current'); from.classList.add('behind');
+    el.classList.remove('ahead','behind'); el.classList.add('current');
+    stack.push(el); paintTopbar(el);
+  }
+  function pop() {
+    if (stack.length < 2) return;
+    const from = stack.pop();
+    const to = stack[stack.length - 1];
+    from.classList.remove('current'); from.classList.add('ahead');
+    to.classList.remove('ahead','behind'); to.classList.add('current');
+    paintTopbar(to);
+  }
+
+  S('goto-picker').addEventListener('click', () => push(S('s1')));
+  S('goto-results').addEventListener('click', () => push(S('s2')));
+  S('goto-apply').addEventListener('click', () => push(S('s3')));
+  S('goto-save').addEventListener('click', () => { S('stub-eyebrow').textContent='Templates'; S('stub-title').textContent='Save as template.'; S('stub-note').textContent='Opens the existing save flow — name this day, or overwrite an existing template.'; push(S('s4')); });
+  S('goto-manage').addEventListener('click', () => { S('stub-eyebrow').textContent='Templates'; S('stub-title').textContent='Manage templates.'; S('stub-note').textContent='Opens template management — rename, reorder, or delete saved days.'; push(S('s4')); });
+  S('back-btn').addEventListener('click', pop);
+
+  // Card selection
+  const cards = [...document.querySelectorAll('[data-col]')];
+  cards.forEach(c => c.addEventListener('click', () => {
+    cards.forEach(x => x.classList.remove('selected'));
+    c.classList.add('selected');
+    applyBtn.textContent = 'Apply ' + c.querySelector('.card-name').textContent.toLowerCase() + ' →';
+  }));
+
+  renderChips();
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Optimizer — Mobile results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FFFFFF; --bg-2:#F5F5F4;
+    --fg:#0A0A0A; --fg-2:#2A2A2A; --muted:#6E6E6E; --rule:#D8D8D6;
+    --accent:#E84828; --ok:#2F8B33; --err:#CC3823; --sage:#5A9B6A; --steel:#5C7080;
+    --font-sans:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#D0D0CE; font-family:var(--font-sans); font-size:13px; color:var(--fg); -webkit-font-smoothing:antialiased; letter-spacing:-0.03em; display:flex; justify-content:center; align-items:flex-start; padding:40px 20px 80px; min-height:100vh; }
+
+  /* Phone frame */
+  .phone { width:375px; height:812px; overflow:hidden; position:relative; border-radius:44px; box-shadow:0 0 0 1px rgba(0,0,0,0.12), 0 24px 80px rgba(0,0,0,0.28); flex-shrink:0; background:var(--bg); }
+
+  /* Results surface fills the phone */
+  .results { position:absolute; inset:0; display:flex; flex-direction:column; background:var(--bg); }
+
+  /* Header */
+  .surf-head { flex:none; padding:20px 18px 0; border-bottom:1px solid var(--rule); padding-bottom:14px; }
+  .surf-head-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .close { width:34px; height:34px; border:1px solid var(--rule); background:none; color:var(--muted); cursor:pointer; font-size:14px; line-height:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .close:active { color:var(--fg); border-color:var(--fg); }
+  h1 { font:500 28px/1 var(--font-sans); letter-spacing:-0.03em; margin-bottom:10px; }
+  .opt-line { display:flex; align-items:center; flex-wrap:wrap; gap:6px 10px; margin-bottom:10px; }
+  .opt-label { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .opt-chip { font:500 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--fg); }
+  .who { display:flex; align-items:center; gap:6px; }
+  .who-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .who-meta { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  /* Today baseline */
+  .baseline { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .b-label { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .b-metric { display:flex; align-items:baseline; gap:5px; }
+  .b-name { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .b-val { font:700 13px/1 var(--font-mono); letter-spacing:0.04em; font-variant-numeric:tabular-nums; }
+  .b-flag { font:400 9px/1 var(--font-mono); letter-spacing:0.08em; text-transform:uppercase; }
+  .red { color:var(--err); } .green { color:var(--ok); }
+
+  /* Scrollable card area */
+  .surf-body { flex:1; overflow-y:auto; padding:14px 18px; display:flex; flex-direction:column; gap:12px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+
+  /* Variation card */
+  .card { border:1px solid var(--rule); padding:16px; position:relative; cursor:pointer; transition:box-shadow 120ms var(--ease-out); }
+  .card:active { background:var(--bg-2); }
+  .card.selected { box-shadow:inset 0 0 0 2px var(--fg); }
+
+  /* Card header row */
+  .card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:4px; }
+  .card-name { font:600 16px/1.15 var(--font-sans); letter-spacing:-0.02em; }
+  .check { width:20px; height:20px; border-radius:50%; border:1.5px solid var(--rule); background:var(--bg); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+  .card.selected .check { background:var(--fg); border-color:var(--fg); }
+  .check-tick { display:none; }
+  .card.selected .check-tick { display:block; }
+  /* white ✓ tick via SVG */
+  .check svg { display:none; }
+  .card.selected .check svg { display:block; }
+
+  .card-sum { font:400 9px/1 var(--font-mono); letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+
+  /* Targets — 2-col grid */
+  .card-targets { display:grid; grid-template-columns:1fr 1fr; gap:14px 12px; margin-bottom:14px; }
+  .tgt-label { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .tgt-top { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; }
+  .tgt-delta { font:400 9px/1 var(--font-mono); letter-spacing:0.04em; color:var(--muted); }
+  .tgt-val { font:700 16px/1 var(--font-sans); letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin-bottom:6px; }
+  .tgt-val small { font:400 9px var(--font-mono); letter-spacing:0.04em; color:var(--muted); margin-left:2px; }
+  .bar { height:2px; background:var(--rule); position:relative; }
+  .bar .fill { position:absolute; left:0; top:0; bottom:0; }
+  .fill.green { background:var(--ok); } .fill.red { background:var(--err); }
+
+  /* Meal rows */
+  .card-meals { border-top:1px solid var(--rule); }
+  .m-row { display:flex; align-items:flex-start; gap:8px; padding:9px 0; border-bottom:1px solid var(--rule); }
+  .m-type { font:400 9px/1.5 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); width:52px; flex:none; padding-top:2px; }
+  .m-body { flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .m-name { font:500 13px/1.3 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .m-was { font:400 11px/1.4 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); }
+  .m-state { font:400 9px/1.6 var(--font-mono); letter-spacing:0.12em; text-transform:uppercase; flex:none; padding-top:2px; }
+  .m-state.swapped { color:var(--fg); }
+  .m-state.removed { color:var(--muted); }
+  .m-row.removed .m-name { text-decoration:line-through; color:var(--muted); font-weight:400; }
+  .m-state.kept { line-height:0; padding-top:3px; }
+  .m-state.kept svg .b { fill:var(--fg); stroke:var(--fg); stroke-width:1.3; }
+  .m-state.kept svg .s { fill:none; stroke:var(--fg); stroke-width:1.3; }
+
+  /* Sticky footer */
+  .surf-footer { flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px 20px; border-top:1px solid var(--rule); }
+  .btn-ghost { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:10px 4px; cursor:pointer; white-space:nowrap; }
+  .btn-ghost:active { color:var(--fg); }
+  .btn-primary { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:var(--fg); color:var(--bg); border:1px solid var(--fg); padding:11px 14px; cursor:pointer; white-space:nowrap; }
+  .btn-primary:active { opacity:0.8; }
+  .foot-note { font:400 11px/1.4 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); text-align:right; margin-top:6px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="results">
+
+    <!-- Header -->
+    <div class="surf-head">
+      <div class="surf-head-top">
+        <div class="eyebrow">§ Optimize</div>
+        <button class="close" aria-label="Close">✕</button>
+      </div>
+      <h1>Three ways to optimize.</h1>
+      <div class="opt-line">
+        <span class="opt-label">Optimizing for</span>
+        <span class="opt-chip">Sodium ↓</span>
+        <span class="opt-chip">Protein ↑</span>
+        <span class="who"><span class="who-dot"></span><span class="who-meta">Jen · Jun 18</span></span>
+      </div>
+      <div class="baseline">
+        <span class="b-label">Today</span>
+        <span class="b-metric"><span class="b-name">Sodium</span><span class="b-val red">2,640 <small style="font:400 9px var(--font-mono);color:var(--muted)">mg</small></span></span>
+        <span class="b-metric"><span class="b-name">Protein</span><span class="b-val red">88 <small style="font:400 9px var(--font-mono);color:var(--muted)">g</small></span></span>
+      </div>
+    </div>
+
+    <!-- Scrollable cards -->
+    <div class="surf-body">
+
+      <!-- Card 1: Best balance (default selected) -->
+      <div class="card selected" data-col>
+        <div class="card-head">
+          <div>
+            <div class="card-name">Best balance</div>
+            <div class="card-sum">2 swaps</div>
+          </div>
+          <div class="check" aria-hidden="true">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.8 7L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-targets">
+          <div class="tgt">
+            <div class="tgt-top"><span class="tgt-label">Sodium</span><span class="tgt-delta red">↓ 460</span></div>
+            <div class="tgt-val green">2,180 <small>mg</small></div>
+            <div class="bar"><span class="fill green" style="width:95%"></span></div>
+          </div>
+          <div class="tgt">
+            <div class="tgt-top"><span class="tgt-label">Protein</span><span class="tgt-delta green">↑ 28</span></div>
+            <div class="tgt-val green">116 <small>g</small></div>
+            <div class="bar"><span class="fill green" style="width:100%"></span></div>
+          </div>
+        </div>
+        <div class="card-meals">
+          <div class="m-row"><div class="m-type">Bkfast</div><div class="m-body"><span class="m-name">Protein shake</span></div><span class="m-state kept"><svg viewBox="0 0 14 16" width="12" height="14" aria-label="Kept"><path class="s" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="b" x="2" y="7" width="10" height="7.5"/></svg></span></div>
+          <div class="m-row"><div class="m-type">Lunch</div><div class="m-body"><span class="m-name">Turkey &amp; quinoa bowl</span><span class="m-was">was Chicken Caesar wrap</span></div><span class="m-state swapped">Swap</span></div>
+          <div class="m-row"><div class="m-type">Dinner</div><div class="m-body"><span class="m-name">Pan-seared tilapia</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Side</div><div class="m-body"><span class="m-name">Miso lentils</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Snack</div><div class="m-body"><span class="m-name">Greek yogurt</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Snack</div><div class="m-body"><span class="m-name">Cottage cheese &amp; berries</span><span class="m-was">was Trail mix</span></div><span class="m-state swapped">Swap</span></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Best for sodium -->
+      <div class="card" data-col>
+        <div class="card-head">
+          <div>
+            <div class="card-name">Best for sodium</div>
+            <div class="card-sum">2 swaps · 1 removed</div>
+          </div>
+          <div class="check" aria-hidden="true">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.8 7L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-targets">
+          <div class="tgt">
+            <div class="tgt-top"><span class="tgt-label">Sodium</span><span class="tgt-delta red">↓ 750</span></div>
+            <div class="tgt-val green">1,890 <small>mg</small></div>
+            <div class="bar"><span class="fill green" style="width:82%"></span></div>
+          </div>
+          <div class="tgt">
+            <div class="tgt-top"><span class="tgt-label">Protein</span><span class="tgt-delta green">↑ 18</span></div>
+            <div class="tgt-val green">106 <small>g</small></div>
+            <div class="bar"><span class="fill green" style="width:100%"></span></div>
+          </div>
+        </div>
+        <div class="card-meals">
+          <div class="m-row"><div class="m-type">Bkfast</div><div class="m-body"><span class="m-name">Protein shake</span></div><span class="m-state kept"><svg viewBox="0 0 14 16" width="12" height="14" aria-label="Kept"><path class="s" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="b" x="2" y="7" width="10" height="7.5"/></svg></span></div>
+          <div class="m-row"><div class="m-type">Lunch</div><div class="m-body"><span class="m-name">Lemon herb chicken salad</span><span class="m-was">was Chicken Caesar wrap</span></div><span class="m-state swapped">Swap</span></div>
+          <div class="m-row"><div class="m-type">Dinner</div><div class="m-body"><span class="m-name">Baked cod with herbs</span><span class="m-was">was Pan-seared tilapia</span></div><span class="m-state swapped">Swap</span></div>
+          <div class="m-row"><div class="m-type">Side</div><div class="m-body"><span class="m-name">Miso lentils</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Snack</div><div class="m-body"><span class="m-name">Greek yogurt</span></div><span class="m-state"></span></div>
+          <div class="m-row removed"><div class="m-type">Snack</div><div class="m-body"><span class="m-name">Trail mix</span></div><span class="m-state removed">Remove</span></div>
+        </div>
+      </div>
+
+      <!-- Card 3: Closest to today -->
+      <div class="card" data-col>
+        <div class="card-head">
+          <div>
+            <div class="card-name">Closest to today</div>
+            <div class="card-sum">1 swap</div>
+          </div>
+          <div class="check" aria-hidden="true">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.8 7L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-targets">
+          <div class="tgt">
+            <div class="tgt-top"><span class="tgt-label">Sodium</span><span class="tgt-delta red">↓ 280</span></div>
+            <div class="tgt-val red">2,360 <small>mg</small></div>
+            <div class="bar"><span class="fill red" style="width:100%"></span></div>
+          </div>
+          <div class="tgt">
+            <div class="tgt-top"><span class="tgt-label">Protein</span><span class="tgt-delta green">↑ 11</span></div>
+            <div class="tgt-val red">99 <small>g</small></div>
+            <div class="bar"><span class="fill red" style="width:94%"></span></div>
+          </div>
+        </div>
+        <div class="card-meals">
+          <div class="m-row"><div class="m-type">Bkfast</div><div class="m-body"><span class="m-name">Protein shake</span></div><span class="m-state kept"><svg viewBox="0 0 14 16" width="12" height="14" aria-label="Kept"><path class="s" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="b" x="2" y="7" width="10" height="7.5"/></svg></span></div>
+          <div class="m-row"><div class="m-type">Lunch</div><div class="m-body"><span class="m-name">Chicken Caesar wrap</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Dinner</div><div class="m-body"><span class="m-name">Pan-seared tilapia</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Side</div><div class="m-body"><span class="m-name">Miso lentils</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Snack</div><div class="m-body"><span class="m-name">Greek yogurt</span></div><span class="m-state"></span></div>
+          <div class="m-row"><div class="m-type">Snack</div><div class="m-body"><span class="m-name">Edamame</span><span class="m-was">was Trail mix</span></div><span class="m-state swapped">Swap</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sticky footer -->
+    <div class="surf-footer">
+      <button class="btn-ghost">← Adjust</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <button class="btn-primary" id="apply">Apply best balance →</button>
+        <span class="foot-note">Replaces this day · save as template after</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const cards = [...document.querySelectorAll('[data-col]')];
+  const apply = document.getElementById('apply');
+  cards.forEach(c => c.addEventListener('click', () => {
+    cards.forEach(x => x.classList.remove('selected'));
+    c.classList.add('selected');
+    apply.textContent = 'Apply ' + c.querySelector('.card-name').textContent.toLowerCase() + ' →';
+  }));
+</script>
+</body>
+</html>

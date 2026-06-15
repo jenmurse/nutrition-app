@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Optimizer — Mobile picker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FFFFFF; --bg-2:#F5F5F4;
+    --fg:#0A0A0A; --fg-2:#2A2A2A; --muted:#6E6E6E; --rule:#D8D8D6;
+    --accent:#E84828; --ok:#2F8B33; --err:#CC3823; --sage:#5A9B6A; --steel:#5C7080;
+    --font-sans:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#D0D0CE; font-family:var(--font-sans); font-size:13px; color:var(--fg); -webkit-font-smoothing:antialiased; letter-spacing:-0.03em; display:flex; justify-content:center; align-items:flex-start; padding:40px 20px 80px; min-height:100vh; }
+
+  /* Phone frame */
+  .phone { width:375px; height:812px; overflow:hidden; position:relative; border-radius:44px; box-shadow:0 0 0 1px rgba(0,0,0,0.12), 0 24px 80px rgba(0,0,0,0.28); flex-shrink:0; background:var(--bg); }
+
+  /* Mobile top nav */
+  .mob-nav { height:50px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; border-bottom:1px solid var(--rule); background:var(--bg); position:relative; z-index:1; }
+  .mob-wm { font:600 13px/1 var(--font-sans); letter-spacing:-0.03em; }
+  .mob-nav-r { display:flex; align-items:center; gap:10px; }
+  .mob-av { width:22px; height:22px; border-radius:50%; background:var(--bg); border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:center; font:400 9px/1 var(--font-mono); letter-spacing:0; color:var(--accent); }
+  .mob-gear { font-size:14px; color:var(--muted); }
+
+  /* Planner background */
+  .planner-bg { position:absolute; top:50px; left:0; right:0; bottom:0; background:var(--bg); }
+  .planner-cols { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--rule); }
+  .p-col { border-right:1px solid var(--rule); padding:8px 7px; }
+  .p-col:last-child { border-right:none; }
+  .p-dayhead { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .p-meal { padding:7px 0; border-bottom:1px solid var(--rule); }
+  .p-meal-type { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+  .p-meal-name { font:500 13px/1.3 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  /* Bottom rail (planner footer) */
+  .planner-rail { position:absolute; bottom:0; left:0; right:0; height:50px; border-top:1px solid var(--fg); display:flex; align-items:center; justify-content:space-between; padding:0 18px; background:var(--bg); }
+  .rail-menu { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--fg); display:flex; align-items:center; gap:6px; }
+  .rail-right { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  /* Scrim */
+  .scrim { position:absolute; top:50px; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:10; }
+
+  /* Bottom sheet */
+  .sheet { position:absolute; bottom:0; left:0; right:0; background:var(--bg); border-top:1px solid var(--rule); border-radius:8px 8px 0 0; box-shadow:0 -8px 40px rgba(0,0,0,0.16); max-height:82%; display:flex; flex-direction:column; z-index:20; animation:sheetUp 360ms var(--ease-out) both; }
+  @keyframes sheetUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+  .sheet-handle { width:36px; height:4px; background:var(--rule); border-radius:2px; margin:12px auto 8px; }
+
+  /* Sheet body (scrollable) */
+  .sheet-body { flex:1; overflow-y:auto; padding:0 18px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+
+  /* Sheet header */
+  .sh-eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .sh-h1 { font:500 28px/1 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); margin:8px 0 0; }
+  .sh-context { display:flex; align-items:center; gap:7px; margin:10px 0 24px; }
+  .sh-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .sh-meta { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+
+  /* Section headers */
+  .section { margin-top:24px; }
+  .section-head { display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .section-num { font:600 13px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--rule); }
+  .section-title { font:400 20px/1 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .section-rule { flex:1; height:1px; background:var(--rule); align-self:center; }
+  .helper { font:400 13px/1.6 var(--font-sans); letter-spacing:-0.03em; color:var(--fg-2); margin-bottom:14px; }
+
+  /* Chips */
+  .chips { display:flex; flex-wrap:wrap; gap:8px 16px; margin-bottom:14px; }
+  .chip { font:400 9px/1.2 var(--font-mono); letter-spacing:0.12em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:6px 0; cursor:pointer; border-bottom:1.5px solid transparent; }
+  .chip.active { color:var(--fg); border-bottom-color:var(--fg); }
+  .chip:disabled { opacity:0.35; cursor:not-allowed; }
+
+  /* Directions */
+  .directions { border-left:2px solid var(--rule); padding:4px 0 4px 14px; display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+  .dir-row { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .dir-name { font:500 11px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--fg); min-width:72px; }
+  .dir-arrow { font:500 13px/1 var(--font-mono); color:var(--fg); }
+  .dir-target { font:400 9px/1 var(--font-mono); letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+
+  /* Meal rows */
+  .meal-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--rule); }
+  .meal-left { display:flex; flex-direction:column; gap:4px; }
+  .meal-type { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .meal-name { font:500 13px/1.3 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .lock { background:none; border:none; cursor:pointer; padding:6px; line-height:0; opacity:0.35; transition:opacity 120ms; }
+  .lock:active { opacity:0.7; }
+  .lock.kept { opacity:1; }
+  .lock svg .lk-body { fill:none; stroke:var(--muted); stroke-width:1.3; }
+  .lock svg .lk-shackle { fill:none; stroke:var(--muted); stroke-width:1.3; }
+  .lock.kept svg .lk-body { fill:var(--fg); stroke:var(--fg); }
+  .lock.kept svg .lk-shackle { stroke:var(--fg); }
+
+  /* Scope toggles */
+  .scope { margin-top:20px; }
+  .sub-eyebrow { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .toggle-row { display:flex; align-items:flex-start; gap:10px; padding:10px 0; cursor:pointer; user-select:none; }
+  .kbox { appearance:none; -webkit-appearance:none; width:14px; height:14px; min-width:14px; margin-top:2px; border:1.5px solid var(--rule); border-radius:2px; background:var(--bg); cursor:pointer; position:relative; flex:none; }
+  .kbox:checked { background:var(--fg); border-color:var(--fg); }
+  .kbox:checked::after { content:''; position:absolute; left:3.5px; top:0.5px; width:4px; height:8px; border:1.5px solid var(--bg); border-top:none; border-left:none; transform:rotate(45deg); }
+  .toggle-text { display:block; }
+  .t-label { display:block; font:400 13px/1.2 var(--font-sans); letter-spacing:-0.03em; color:var(--fg); }
+  .t-help { display:block; font:400 11px/1.5 var(--font-sans); letter-spacing:-0.03em; color:var(--muted); margin-top:3px; }
+
+  /* Source toggle */
+  .ed-toggle { display:flex; gap:20px; }
+  .ed-toggle button { font:400 9px/1.2 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:4px 0; cursor:pointer; border-bottom:1.5px solid transparent; }
+  .ed-toggle button.active { color:var(--fg); border-bottom-color:var(--fg); }
+
+  /* Sheet footer */
+  .sheet-footer { padding:14px 18px 20px; border-top:1px solid var(--rule); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-shrink:0; }
+  .btn-ghost { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:none; border:none; color:var(--muted); padding:10px 4px; cursor:pointer; }
+  .btn-primary { font:400 9px/1 var(--font-mono); letter-spacing:0.14em; text-transform:uppercase; background:var(--fg); color:var(--bg); border:1px solid var(--fg); padding:11px 16px; cursor:pointer; }
+  .btn-primary:disabled { opacity:0.3; cursor:not-allowed; }
+
+  .scroll-end { height:20px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Mobile top nav -->
+  <div class="mob-nav">
+    <span class="mob-wm">Good Measure</span>
+    <div class="mob-nav-r">
+      <span class="mob-av">J</span>
+      <span class="mob-gear">⚙</span>
+    </div>
+  </div>
+
+  <!-- Planner background (context behind sheet) -->
+  <div class="planner-bg">
+    <div class="planner-cols">
+      <div class="p-col">
+        <div class="p-dayhead">Thu 18</div>
+        <div class="p-meal"><div class="p-meal-type">Breakfast</div><div class="p-meal-name">Protein shake</div></div>
+        <div class="p-meal"><div class="p-meal-type">Lunch</div><div class="p-meal-name">Chicken Caesar wrap</div></div>
+        <div class="p-meal"><div class="p-meal-type">Dinner</div><div class="p-meal-name">Pan-seared tilapia</div></div>
+        <div class="p-meal"><div class="p-meal-type">Snack</div><div class="p-meal-name">Greek yogurt</div></div>
+      </div>
+      <div class="p-col">
+        <div class="p-dayhead">Fri 19</div>
+        <div class="p-meal"><div class="p-meal-type">Breakfast</div><div class="p-meal-name">Oatmeal with berries</div></div>
+        <div class="p-meal"><div class="p-meal-type">Lunch</div><div class="p-meal-name">Turkey quinoa bowl</div></div>
+        <div class="p-meal"><div class="p-meal-type">Dinner</div><div class="p-meal-name">Lemon herb chicken</div></div>
+      </div>
+      <div class="p-col">
+        <div class="p-dayhead">Sat 20</div>
+        <div class="p-meal"><div class="p-meal-type">Breakfast</div><div class="p-meal-name">Veggie egg scramble</div></div>
+        <div class="p-meal"><div class="p-meal-type">Lunch</div><div class="p-meal-name">Black bean soup</div></div>
+      </div>
+    </div>
+    <div class="planner-rail">
+      <div class="rail-menu">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true"><line x1="0" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.5"/></svg>
+        Menu
+      </div>
+      <span class="rail-right">Planner</span>
+    </div>
+  </div>
+
+  <!-- Scrim -->
+  <div class="scrim"></div>
+
+  <!-- Bottom sheet -->
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-body">
+
+      <div class="sh-eyebrow">§ Optimize</div>
+      <h1 class="sh-h1">Optimize this day.</h1>
+      <div class="sh-context"><span class="sh-dot"></span><span class="sh-meta">Jen · Thu, Jun 18</span></div>
+
+      <!-- 01 Goals -->
+      <div class="section">
+        <div class="section-head"><span class="section-num">01</span><span class="section-title">Goals</span><span class="section-rule"></span></div>
+        <p class="helper" id="counter">Pick up to 3 nutrients to optimize for.</p>
+        <div class="chips">
+          <button class="chip" data-key="calories">Calories</button>
+          <button class="chip" data-key="fat">Fat</button>
+          <button class="chip" data-key="satfat">Sat Fat</button>
+          <button class="chip active" data-key="sodium">Sodium</button>
+          <button class="chip" data-key="carbs">Carbs</button>
+          <button class="chip" data-key="sugar">Sugar</button>
+          <button class="chip" data-key="addedsugar">Added Sugar</button>
+          <button class="chip active" data-key="protein">Protein</button>
+          <button class="chip" data-key="fiber">Fiber</button>
+        </div>
+        <div class="directions" id="directions"></div>
+      </div>
+
+      <!-- 02 Meals -->
+      <div class="section">
+        <div class="section-head"><span class="section-num">02</span><span class="section-title">Meals</span><span class="section-rule"></span></div>
+        <p class="helper">Lock anything you want kept. Everything else can be swapped.</p>
+        <div class="meals">
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Breakfast</span><span class="meal-name">Protein shake</span></div><button class="lock kept" aria-label="Keep Protein shake" aria-pressed="true"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Lunch</span><span class="meal-name">Chicken Caesar wrap</span></div><button class="lock" aria-label="Keep Chicken Caesar wrap" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Dinner</span><span class="meal-name">Pan-seared tilapia</span></div><button class="lock" aria-label="Keep Pan-seared tilapia" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Side</span><span class="meal-name">Miso lentils</span></div><button class="lock" aria-label="Keep Miso lentils" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Snack</span><span class="meal-name">Greek yogurt</span></div><button class="lock" aria-label="Keep Greek yogurt" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+          <div class="meal-row"><div class="meal-left"><span class="meal-type">Snack</span><span class="meal-name">Trail mix</span></div><button class="lock" aria-label="Keep Trail mix" aria-pressed="false"><svg viewBox="0 0 14 16" width="14" height="16"><path class="lk-shackle" d="M4 7 V5 a3 3 0 0 1 6 0 V7"/><rect class="lk-body" x="2" y="7" width="10" height="7.5"/></svg></button></div>
+        </div>
+        <div class="scope">
+          <div class="sub-eyebrow">What can change</div>
+          <label class="toggle-row"><input type="checkbox" class="kbox" checked /><span class="toggle-text"><span class="t-label">Allow removing meals</span><span class="t-help">The optimizer can drop a meal if the day is better without it.</span></span></label>
+          <label class="toggle-row"><input type="checkbox" class="kbox" /><span class="toggle-text"><span class="t-label">Allow adding a side or snack</span><span class="t-help">The optimizer can introduce one extra side or snack.</span></span></label>
+        </div>
+      </div>
+
+      <!-- 03 Source -->
+      <div class="section">
+        <div class="section-head"><span class="section-num">03</span><span class="section-title">Source</span><span class="section-rule"></span></div>
+        <p class="helper">Where the optimizer looks for replacements.</p>
+        <div class="ed-toggle">
+          <button class="active">Favorites first</button>
+          <button>Whole library</button>
+        </div>
+      </div>
+
+      <div class="scroll-end"></div>
+    </div>
+
+    <!-- Sticky footer -->
+    <div class="sheet-footer">
+      <button class="btn-ghost">Cancel</button>
+      <button class="btn-primary" id="optimize">Optimize →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const NUT = {
+    calories:{label:'Calories',dir:'band',target:'Land near 2,000 kcal'},
+    fat:{label:'Fat',dir:'down',target:'Stay under 70 g'},
+    satfat:{label:'Sat Fat',dir:'down',target:'Stay under 20 g'},
+    sodium:{label:'Sodium',dir:'down',target:'Stay under 2,300 mg'},
+    carbs:{label:'Carbs',dir:'down',target:'Stay under 230 g'},
+    sugar:{label:'Sugar',dir:'down',target:'Stay under 50 g'},
+    addedsugar:{label:'Added Sugar',dir:'down',target:'Stay under 25 g'},
+    protein:{label:'Protein',dir:'up',target:'Reach 105 g minimum'},
+    fiber:{label:'Fiber',dir:'up',target:'Reach 28 g minimum'},
+  };
+  const ARROW = {down:'↓',up:'↑',band:'↕'};
+  let selected = ['sodium','protein'];
+  const counter = document.getElementById('counter');
+  const directions = document.getElementById('directions');
+  const optimize = document.getElementById('optimize');
+  const chips = [...document.querySelectorAll('.chip')];
+  function render() {
+    const atCap = selected.length >= 3;
+    chips.forEach(b => { const k=b.dataset.key, s=selected.includes(k); b.classList.toggle('active',s); b.disabled = !s && atCap; });
+    counter.textContent = selected.length ? selected.length + ' of 3 selected' : 'Pick up to 3 nutrients to optimize for.';
+    directions.style.display = selected.length ? 'flex' : 'none';
+    directions.innerHTML = selected.map(k => { const n=NUT[k]; return '<div class="dir-row"><span class="dir-name">'+n.label+'</span><span class="dir-arrow">'+ARROW[n.dir]+'</span><span class="dir-target">'+n.target+'</span></div>'; }).join('');
+    optimize.disabled = selected.length === 0;
+  }
+  chips.forEach(b => b.addEventListener('click', () => { const k=b.dataset.key, i=selected.indexOf(k); if(i>=0) selected.splice(i,1); else if(selected.length<3) selected.push(k); render(); }));
+  document.querySelectorAll('.lock').forEach(l => l.addEventListener('click', () => { const kept=l.classList.toggle('kept'); l.setAttribute('aria-pressed',String(kept)); }));
+  document.querySelectorAll('.ed-toggle button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.ed-toggle button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }));
+  render();
+</script>
+</body>
+</html>

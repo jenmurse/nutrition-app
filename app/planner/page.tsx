@@ -10,6 +10,7 @@ import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import EmptyState from "@/app/components/EmptyState";
 import ContextualTip from "@/app/components/ContextualTip";
+import DayOptimizer, { type DayMealInput } from "@/app/planner/DayOptimizer";
 
 /** Parse an ISO date string to a local Date preserving the calendar day. */
 function parseUTCDate(dateStr: string | Date): Date {
@@ -181,6 +182,7 @@ function PlannerPage() {
   // (which shows one day at a time) lands on the day where the change happened.
   const dayParam = searchParams?.get("day");
   const { persons, selectedPersonId } = usePersonContext();
+  const selectedPersonName = persons.find((p) => p.id === selectedPersonId)?.name ?? "";
 
   const [plans, setPlans] = useState<MealPlanSummary[]>([]);
   const [plan, setPlan] = useState<MealPlanDetails | null>(null);
@@ -209,6 +211,7 @@ function PlannerPage() {
   const [saveTplOpen, setSaveTplOpen] = useState<SaveTemplateState | null>(null);
   const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
   const [manageOpen, setManageOpen] = useState(false);
+  const [optimizeState, setOptimizeState] = useState<{ date: Date } | null>(null);
   const [showNutrition, setShowNutrition] = useState<boolean>(true);
   const [showMonthStrip, setShowMonthStrip] = useState<boolean>(false);
   const [viewMenuOpen, setViewMenuOpen] = useState(false);
@@ -1991,6 +1994,11 @@ function PlannerPage() {
               Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as Eating out placeholders. Tap any meal slot, then look under § Other. They show in the day without affecting nutrition or the shopping list.
             </ContextualTip>
           )}
+          {plan && (
+            <ContextualTip tipId="planner-optimize" label="Dial in a day" className="pl-tip-wrap">
+              Open a day&apos;s ⋯ menu and choose <strong>Optimize this day</strong>. Pick 1–3 nutrition goals, lock anything you want to keep, and the optimizer searches your recipes for swaps that hit those goals — no AI, instant, three ways to compare. Apply the one you like, then save it as a template if it&apos;s a keeper.
+            </ContextualTip>
+          )}
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
               <EmptyState
@@ -2726,7 +2734,9 @@ function PlannerPage() {
             menu={dayMenu}
             templates={templates}
             mealLogsOnDay={plan ? plan.mealLogs.filter((l) => parseUTCDate(l.date).toDateString() === dayMenu.date.toDateString()) : []}
+            contextLabel={`${dayMenu.date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}${selectedPersonName ? ` · ${selectedPersonName}` : ""}`}
             onClose={closeDayMenu}
+            onOptimize={() => { closeDayMenu(); setOptimizeState({ date: dayMenu.date }); }}
             onSave={() => openSaveTemplate(dayMenu.date)}
             onApply={(t) => startApplyTemplate(t, dayMenu.date)}
             onOpenManage={() => { closeDayMenu(); setManageOpen(true); }}
@@ -2767,6 +2777,30 @@ function PlannerPage() {
             onRename={renameTemplate}
             onDelete={deleteTemplate}
             onReorder={reorderTemplates}
+          />,
+          document.body
+        )}
+
+      {/* ── Day optimizer surface ─────────────────────────────── */}
+      {optimizeState && plan && selectedPersonId != null && typeof window !== "undefined" &&
+        createPortal(
+          <DayOptimizer
+            mealPlanId={plan.id}
+            date={optimizeState.date}
+            personId={selectedPersonId}
+            personName={selectedPersonName}
+            dayMeals={plan.mealLogs
+              .filter((l) => parseUTCDate(l.date).toDateString() === optimizeState.date.toDateString())
+              .map<DayMealInput>((l) => ({
+                mealLogId: l.id,
+                mealType: l.mealType,
+                recipeId: l.recipeId ?? l.recipe?.id ?? null,
+                name: l.recipe?.name ?? l.ingredient?.name ?? l.externalLabel ?? "Eating out",
+                kind: (l.recipeId ?? l.recipe?.id) != null ? "recipe" : (l.ingredientId ?? l.ingredient?.id) != null ? "ingredient" : "external",
+              }))}
+            onClose={() => setOptimizeState(null)}
+            onApplied={() => { setOptimizeState(null); refreshPlan(); }}
+            onBackToHub={() => { const d = optimizeState.date; setOptimizeState(null); setDayMenu({ date: d, rect: { top: 0, left: 0, bottom: 0, right: 0 } }); }}
           />,
           document.body
         )}
@@ -3254,7 +3288,9 @@ function DayOverflowMenu({
   menu,
   templates,
   mealLogsOnDay,
+  contextLabel,
   onClose,
+  onOptimize,
   onSave,
   onApply,
   onOpenManage,
@@ -3262,12 +3298,15 @@ function DayOverflowMenu({
   menu: DayMenuState;
   templates: DayTemplate[];
   mealLogsOnDay: MealLog[];
+  contextLabel: string;
   onClose: () => void;
+  onOptimize: () => void;
   onSave: () => void;
   onApply: (t: DayTemplate) => void;
   onOpenManage: () => void;
 }) {
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<"hub" | "apply">("hub");
   const SHOW_SEARCH = templates.length > 6;
   const itemCount = mealLogsOnDay.length;
   const canSave = itemCount > 0;
@@ -3307,59 +3346,91 @@ function DayOverflowMenu({
         role="menu"
         aria-label="Day options"
       >
-        <div className="mx-day-menu-scroll">
-          <div className="mx-day-menu-section">
-            <div className="mx-day-menu-head">Save</div>
-            <button
-              type="button"
-              className="mx-day-menu-item"
-              onClick={onSave}
-              disabled={!canSave}
-              title={canSave ? "Save this day's meals as a reusable template" : "Add meals first"}
-            >
-              <span>Save or update template…</span>
-            </button>
-          </div>
-
-          <div className="mx-day-menu-section">
-            <div className="mx-day-menu-head">Apply template</div>
-            {SHOW_SEARCH && (
-              <div className="mx-day-menu-search">
-                <input
-                  type="search"
-                  placeholder="Search templates…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-            )}
-            {templates.length === 0 ? (
-              <div className="mx-day-menu-empty">No templates yet. Save one to start.</div>
-            ) : filtered.length === 0 ? (
-              <div className="mx-day-menu-empty">No matches.</div>
-            ) : (
-              filtered.map((t) => (
+        {view === "hub" ? (
+          <>
+            <div className="mx-day-menu-eyebrow">{contextLabel}</div>
+            <div className="mx-day-menu-scroll">
+              <div className="mx-day-menu-section">
                 <button
-                  key={t.id}
                   type="button"
-                  className="mx-day-menu-item is-template"
-                  onClick={() => onApply(t)}
+                  className="mx-day-menu-item is-template is-launch"
+                  onClick={onOptimize}
+                  disabled={!canSave}
+                  title={canSave ? "Optimize this day's nutrition" : "Add meals first"}
                 >
-                  <span>{t.name}</span>
-                  <span className="mx-day-menu-item-meta">{t.items.length}</span>
+                  <span>Optimize this day</span>
+                  <span className="mx-day-menu-item-meta">→</span>
                 </button>
-              ))
-            )}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="mx-day-menu-foot"
-          onClick={onOpenManage}
-        >
-          Manage templates →
-        </button>
+                <button
+                  type="button"
+                  className="mx-day-menu-item is-template is-launch"
+                  onClick={() => setView("apply")}
+                  disabled={templates.length === 0}
+                  title={templates.length ? "Apply a saved template to this day" : "No templates yet"}
+                >
+                  <span>Apply a template</span>
+                  <span className="mx-day-menu-item-meta">→</span>
+                </button>
+                <button
+                  type="button"
+                  className="mx-day-menu-item is-template is-launch"
+                  onClick={onSave}
+                  disabled={!canSave}
+                  title={canSave ? "Save this day's meals as a reusable template" : "Add meals first"}
+                >
+                  <span>Save as template</span>
+                  <span className="mx-day-menu-item-meta">→</span>
+                </button>
+                <button
+                  type="button"
+                  className="mx-day-menu-item is-template is-launch"
+                  onClick={onOpenManage}
+                >
+                  <span>Manage templates</span>
+                  <span className="mx-day-menu-item-meta">→</span>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <button type="button" className="mx-day-menu-back" onClick={() => setView("hub")}>
+              Back
+            </button>
+            <div className="mx-day-menu-scroll">
+              <div className="mx-day-menu-section">
+                <div className="mx-day-menu-head">Apply a template</div>
+                {SHOW_SEARCH && (
+                  <div className="mx-day-menu-search">
+                    <input
+                      type="search"
+                      placeholder="Search templates…"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </div>
+                )}
+                {templates.length === 0 ? (
+                  <div className="mx-day-menu-empty">No templates yet. Save one to start.</div>
+                ) : filtered.length === 0 ? (
+                  <div className="mx-day-menu-empty">No matches.</div>
+                ) : (
+                  filtered.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      className="mx-day-menu-item is-template"
+                      onClick={() => onApply(t)}
+                    >
+                      <span>{t.name}</span>
+                      <span className="mx-day-menu-item-meta">{t.items.length}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
