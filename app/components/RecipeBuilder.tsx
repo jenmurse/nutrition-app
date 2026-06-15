@@ -829,7 +829,7 @@ const RecipeBuilder = forwardRef<RecipeBuilderHandle, {
                 type="button"
                 onClick={() => imageFileRef.current?.click()}
                 disabled={imageUploading}
-                className="flex flex-col items-center justify-center gap-1 shrink-0 bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex flex-col items-center justify-center gap-1 shrink-0 bg-[var(--bg-2)] border border-dashed border-[var(--rule)] cursor-pointer transition-colors hover:border-[var(--fg)] hover:bg-[var(--bg-3)] disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ width: 120, aspectRatio: "4/3" }}
                 aria-label="Upload recipe image"
               >

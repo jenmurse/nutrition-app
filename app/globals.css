@@ -4204,7 +4204,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   background: var(--bg-2); border: 1px dashed var(--rule); cursor: pointer;
   transition: border-color 120ms var(--ease-out), background 120ms var(--ease-out);
 }
-.cmp-add-box:hover { border-color: var(--accent); background: var(--bg-3); }
+.cmp-add-box:hover { border-color: var(--fg); background: var(--bg-3); }
 .cmp-add-plus { font-size: 22px; font-weight: 300; line-height: 1; color: var(--rule); }
 .cmp-add-text {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;

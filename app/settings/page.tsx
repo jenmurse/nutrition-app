@@ -1339,7 +1339,7 @@ const SettingsPage = () => {
                 {/* Drag-drop zone */}
                 <label
                   htmlFor="import-file"
-                  className="flex flex-col items-center justify-center bg-[var(--bg-2)] rounded-none border border-dashed border-[var(--rule)] cursor-pointer hover:border-[var(--accent)] transition-colors"
+                  className="flex flex-col items-center justify-center bg-[var(--bg-2)] rounded-none border border-dashed border-[var(--rule)] cursor-pointer hover:border-[var(--fg)] transition-colors"
                   style={{ padding: 24, maxWidth: 400 }}
                   aria-label="Drop JSON file or click to browse"
                 >
