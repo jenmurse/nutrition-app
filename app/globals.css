@@ -570,33 +570,42 @@ input[type="number"]:focus {
 .ed-toggle button.is-active { color: var(--fg); border-bottom-color: var(--fg); }
 
 /* Pantry category filter dropdown */
+/* Category dropdown — matched to the recipe sort dropdown (.sort-field /
+   .sort-dropdown): no box on the trigger, mono 9px uppercase muted items,
+   selected item turns fg (no checkmark, no border). */
 .ed-cat-trigger {
+  position: relative;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--muted); background: none; border: 1px solid var(--rule);
-  padding: 6px 10px; cursor: pointer; display: inline-flex; align-items: center;
-  gap: 8px; white-space: nowrap; transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
+  font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  line-height: 1; color: var(--muted); background: none; border: 0;
+  padding: 0 15px 0 0; cursor: pointer; white-space: nowrap;
+  transition: color 0.15s ease;
 }
 .ed-cat-trigger:hover { color: var(--fg); }
-.ed-cat-trigger.is-active { color: var(--fg); border-color: var(--fg); }
-.ed-cat-caret { color: var(--muted); }
+.ed-cat-trigger.is-active { color: var(--fg); }
+.ed-cat-caret {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0; font-size: 0;
+  border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid currentColor; pointer-events: none;
+}
 .ed-cat-panel {
   /* position: fixed is set inline from the trigger's rect so the panel escapes
      the .list-tags overflow-x:auto clip. */
-  z-index: 60;
+  z-index: 200;
   min-width: 240px; background: var(--bg); border: 1px solid var(--rule);
-  padding: 6px 0; max-height: 360px; overflow-y: auto;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 3px 0; max-height: 360px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .ed-cat-item {
   display: flex; justify-content: space-between; align-items: center; gap: 16px;
-  width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 10px; letter-spacing: 0.06em; color: var(--fg-2); padding: 8px 16px;
+  font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); padding: 6px 12px; transition: color 0.15s ease, background 0.15s ease;
 }
-.ed-cat-item:hover { background: var(--bg-2); }
+.ed-cat-item:hover { color: var(--fg); background: var(--bg-2); }
 .ed-cat-item.is-active { color: var(--fg); }
-.ed-cat-item.is-active::before { content: "✓"; color: var(--accent); position: absolute; margin-left: -12px; }
 .ed-cat-ct { color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .ed-search { display: flex; align-items: center; }
