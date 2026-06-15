@@ -112,6 +112,8 @@ function IngredientsPage() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const categoryRef = useRef<HTMLDivElement>(null);
+  // Panel position (fixed) so it escapes the .list-tags overflow-x:auto clip.
+  const [catPanelPos, setCatPanelPos] = useState<{ top: number; left: number } | null>(null);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   useEffect(() => {
     if (!filterSheetOpen) return;
@@ -457,14 +459,19 @@ function IngredientsPage() {
               <button
                 type="button"
                 className={`ed-cat-trigger${selectedCategory ? " is-active" : ""}`}
-                onClick={() => setCategoryOpen((v) => !v)}
+                onClick={(e) => {
+                  if (categoryOpen) { setCategoryOpen(false); return; }
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setCatPanelPos({ top: r.bottom + 6, left: r.left });
+                  setCategoryOpen(true);
+                }}
                 aria-haspopup="listbox"
                 aria-expanded={categoryOpen}
               >
                 {selectedCategory ?? "Category"} <span className="ed-cat-caret" aria-hidden="true">▾</span>
               </button>
-              {categoryOpen && (
-                  <div className="ed-cat-panel" role="listbox">
+              {categoryOpen && catPanelPos && (
+                  <div className="ed-cat-panel" role="listbox" style={{ position: "fixed", top: catPanelPos.top, left: catPanelPos.left }}>
                     <button
                       type="button"
                       className={`ed-cat-item${!selectedCategory ? " is-active" : ""}`}

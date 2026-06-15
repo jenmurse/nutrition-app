@@ -581,7 +581,9 @@ input[type="number"]:focus {
 .ed-cat-trigger.is-active { color: var(--fg); border-color: var(--fg); }
 .ed-cat-caret { color: var(--muted); }
 .ed-cat-panel {
-  position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
+  /* position: fixed is set inline from the trigger's rect so the panel escapes
+     the .list-tags overflow-x:auto clip. */
+  z-index: 60;
   min-width: 240px; background: var(--bg); border: 1px solid var(--rule);
   padding: 6px 0; max-height: 360px; overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
