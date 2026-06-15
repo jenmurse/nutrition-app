@@ -110,6 +110,8 @@ function IngredientsPage() {
   // Filters
   const searchQuery = searchParams?.get("search") || "";
   const [showFavorites, setShowFavorites] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categoryOpen, setCategoryOpen] = useState(false);
 
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -222,9 +224,24 @@ function IngredientsPage() {
     };
   };
 
+  // Categories present in the pantry, with item counts, sorted by count desc.
+  // Pantry has up to 12 fixed seeded categories — too many for an inline chip
+  // row (recipes uses 7), so they live in a dropdown.
+  const categoryCounts = (() => {
+    const m = new Map<string, number>();
+    for (const ing of ingredients) {
+      const cat = ing.category?.trim() || "Uncategorized";
+      m.set(cat, (m.get(cat) ?? 0) + 1);
+    }
+    return Array.from(m.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  })();
+
   const filteredIngredients = ingredients.filter((ing) => {
     if (searchQuery && !ing.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (showFavorites && !ing.isFavorited) return false;
+    if (selectedCategory && (ing.category?.trim() || "Uncategorized") !== selectedCategory) return false;
     return true;
   });
 
@@ -398,14 +415,61 @@ function IngredientsPage() {
 
             <div className="ed-toolbar-sep" aria-hidden="true" />
 
+            {/* Category filter dropdown (12 fixed categories don't fit as chips) */}
+            <div className="pantry-cat" style={{ position: "relative" }}>
+              <button
+                type="button"
+                className={`ed-cat-trigger${selectedCategory ? " is-active" : ""}`}
+                onClick={() => setCategoryOpen((v) => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={categoryOpen}
+              >
+                {selectedCategory ?? "Category"} <span className="ed-cat-caret" aria-hidden="true">▾</span>
+              </button>
+              {categoryOpen && (
+                <>
+                  <div className="ed-cat-backdrop" onClick={() => setCategoryOpen(false)} aria-hidden="true" />
+                  <div className="ed-cat-panel" role="listbox">
+                    <button
+                      type="button"
+                      className={`ed-cat-item${!selectedCategory ? " is-active" : ""}`}
+                      onClick={() => { setSelectedCategory(null); setCategoryOpen(false); }}
+                    >All categories</button>
+                    {categoryCounts.map((c) => (
+                      <button
+                        key={c.name}
+                        type="button"
+                        className={`ed-cat-item${selectedCategory === c.name ? " is-active" : ""}`}
+                        onClick={() => { setSelectedCategory(c.name); setCategoryOpen(false); }}
+                      >
+                        <span>{c.name}</span>
+                        <span className="ed-cat-ct">{c.count}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="ed-toolbar-sep" aria-hidden="true" />
+
             {/* Count */}
             <span className="ed-count">
               <strong>{filteredIngredients.length}</strong> item{filteredIngredients.length !== 1 ? "s" : ""}
             </span>
 
-            <div className="ed-toolbar-sep" aria-hidden="true" />
+            {/* Edit mode toggle (bulk-action on multiple items) */}
+            <button
+              type="button"
+              onClick={() => setSelectMode(true)}
+              className="ed-btn-text"
+              aria-label="Enter edit mode"
+            >EDIT</button>
+          </div>
 
-            {/* Grid/List toggle */}
+          {/* ── Right cluster — toggle + Search + primary action (matches recipes) ── */}
+          <div className="list-controls flex gap-[18px] items-center ml-auto">
+            {/* Grid/List toggle — on the right to match the recipes toolbar */}
             <div className="ed-toggle" role="group" aria-label="View mode">
               <button
                 onClick={() => setViewMode("grid")}
@@ -421,17 +485,6 @@ function IngredientsPage() {
               >List</button>
             </div>
 
-            {/* Edit mode toggle (bulk-action on multiple items) */}
-            <button
-              type="button"
-              onClick={() => setSelectMode(true)}
-              className="ed-btn-text"
-              aria-label="Enter edit mode"
-            >EDIT</button>
-          </div>
-
-          {/* ── Right cluster — Search + primary action ── */}
-          <div className="list-controls flex gap-[18px] items-center ml-auto">
             {/* Search */}
             <div className="ed-search">
               <input
@@ -481,7 +534,7 @@ function IngredientsPage() {
                 headline="Nothing matches that."
                 lede={<>Try a different search, or clear the filters<br />to see everything.</>}
                 ctaLabel="CLEAR FILTERS →"
-                onCta={() => { updateSearchParam('search', ''); setShowFavorites(false); }}
+                onCta={() => { updateSearchParam('search', ''); setShowFavorites(false); setSelectedCategory(null); }}
               />
             )}
           </div>
