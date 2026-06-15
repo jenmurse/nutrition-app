@@ -950,6 +950,7 @@ function RecipesPage() {
                         >
                           <span aria-hidden="true">+</span>
                         </button>
+                        <div className="cmp-add-caption">Add recipe</div>
                       </div>
                     );
                   }

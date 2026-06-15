@@ -110,8 +110,8 @@ function IngredientsPage() {
   // Filters
   const searchQuery = searchParams?.get("search") || "";
   const [showFavorites, setShowFavorites] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   useEffect(() => {
     if (!filterSheetOpen) return;
@@ -119,6 +119,17 @@ function IngredientsPage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [filterSheetOpen]);
+  // Close the category dropdown on outside click (mousedown) — same pattern as
+  // the recipes sort dropdown. A fixed-position backdrop doesn't work here
+  // because the sticky toolbar creates its own stacking context.
+  useEffect(() => {
+    if (!categoryOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) setCategoryOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [categoryOpen]);
 
   // View mode
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -153,6 +164,11 @@ function IngredientsPage() {
     else params.delete(key);
     startTransition(() => { router.replace(`/pantry?${params.toString()}`); });
   };
+
+  // Category filter is URL-persisted (?category=…) like search, so it survives
+  // refresh and is shareable. Derived from the URL; setter writes the param.
+  const selectedCategory = searchParams?.get("category") || null;
+  const setSelectedCategory = (cat: string | null) => updateSearchParam("category", cat ?? "");
 
   const loadIngredients = async () => {
     const cached = clientCache.get<Ingredient[]>('/api/ingredients');
@@ -437,7 +453,7 @@ function IngredientsPage() {
             <div className="ed-toolbar-sep" aria-hidden="true" />
 
             {/* Category filter dropdown (12 fixed categories don't fit as chips) */}
-            <div className="pantry-cat" style={{ position: "relative" }}>
+            <div className="pantry-cat" ref={categoryRef} style={{ position: "relative" }}>
               <button
                 type="button"
                 className={`ed-cat-trigger${selectedCategory ? " is-active" : ""}`}
@@ -448,8 +464,6 @@ function IngredientsPage() {
                 {selectedCategory ?? "Category"} <span className="ed-cat-caret" aria-hidden="true">▾</span>
               </button>
               {categoryOpen && (
-                <>
-                  <div className="ed-cat-backdrop" onClick={() => setCategoryOpen(false)} aria-hidden="true" />
                   <div className="ed-cat-panel" role="listbox">
                     <button
                       type="button"
@@ -468,7 +482,6 @@ function IngredientsPage() {
                       </button>
                     ))}
                   </div>
-                </>
               )}
             </div>
 
@@ -559,7 +572,7 @@ function IngredientsPage() {
                   <button
                     key={c.name}
                     className={`mob-sheet-chip${selectedCategory === c.name ? " on" : ""}`}
-                    onClick={() => setSelectedCategory((prev) => prev === c.name ? null : c.name)}
+                    onClick={() => setSelectedCategory(selectedCategory === c.name ? null : c.name)}
                     aria-pressed={selectedCategory === c.name}
                   >{c.name} <span style={{ opacity: 0.5 }}>{c.count}</span></button>
                 ))}
