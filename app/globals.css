@@ -1777,6 +1777,10 @@ input[type="number"]:focus {
   line-height: 1.25;
   color: var(--fg);
   margin-bottom: 6px;
+  /* Leave room for the absolutely-positioned remove X (top-right) so a long
+     meal name doesn't run underneath it. */
+  padding-right: 18px;
+  overflow-wrap: break-word;
 }
 /* Eating-out cells read as a soft placeholder, not a missing slot. */
 .mx-cell-name.is-eatout,
@@ -2506,6 +2510,20 @@ input[type="number"]:focus {
   width: 100%;
 }
 .mx-picker-remove:hover { background: var(--bg-2); }
+.mx-picker-search {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  padding: 9px 14px;
+  outline: none;
+}
+.mx-picker-search::placeholder { color: var(--muted); letter-spacing: 0.04em; }
 .mx-picker-list {
   flex: 1;
   overflow-y: auto;

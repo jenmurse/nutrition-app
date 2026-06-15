@@ -181,6 +181,7 @@ function PlannerPage() {
   const [recipes, setRecipes] = useState<RecipeSlim[]>([]);
   const [ingredients, setIngredients] = useState<IngredientSlim[]>([]);
   const [picker, setPicker] = useState<PickerState | null>(null);
+  const [pickerQuery, setPickerQuery] = useState("");
   const [slotOrder, setSlotOrder] = useState<SlotType[]>([]);
   const [draggingSlot, setDraggingSlot] = useState<SlotType | null>(null);
   const [dropBeforeSlot, setDropBeforeSlot] = useState<SlotType | null>(null);
@@ -1088,6 +1089,7 @@ function PlannerPage() {
   // ── Cell click → open picker ─────────────────────────────────
   function openPicker(slot: SlotType, date: Date, e: React.MouseEvent<HTMLDivElement>) {
     const r = e.currentTarget.getBoundingClientRect();
+    setPickerQuery(""); // fresh search each open
     setPicker({
       slot,
       date,
@@ -1097,48 +1099,61 @@ function PlannerPage() {
 
   function closePicker() {
     setPicker(null);
+    setPickerQuery("");
     setEatingOutOpen(false);
     setEatingOutLabel("");
   }
 
-  // Recipes filtered for the active picker
+  // Recipes filtered for the active picker.
+  // Default (no search): ALL recipes tagged for this slot's meal type — not
+  //   just favorited ones — with favorites pinned to the top, then alphabetical.
+  // Search active: match ANY recipe by name (the meal-type filter relaxes, so
+  //   you can drop a lunch recipe into breakfast if you want).
+  // Recipes currently in the cell are always included so they can be toggled off.
   const pickerOptions = useMemo(() => {
     if (!picker) return [];
     const slot = picker.slot;
-    // Recipes currently in this cell — always show so user can toggle them off
-    // even if they're not favorited (e.g., applied via a day template).
+    const q = pickerQuery.trim().toLowerCase();
     const cellKey = `${picker.date.toDateString()}|${slot}`;
     const inCellRecipeIds = new Set(
       (cellMap.get(cellKey) ?? [])
         .map((l) => l.recipeId)
         .filter((id): id is number => id != null)
     );
-    return recipes.filter((r) => {
+    const matched = recipes.filter((r) => {
       if (inCellRecipeIds.has(r.id)) return true;
-      if (!r.isFavorited) return false;
+      if (q) return r.name.toLowerCase().includes(q);
       const tags = (r.tags ?? "").toLowerCase().split(",").map((t) => t.trim());
       return tags.includes(slot);
     });
-  }, [picker, recipes, cellMap]);
+    return matched.sort((a, b) => {
+      if (!!a.isFavorited !== !!b.isFavorited) return a.isFavorited ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [picker, recipes, cellMap, pickerQuery]);
 
-  // Pantry items filtered for the picker — favorited meal-items, plus any
-  // currently in the cell (so the user can always toggle them off).
+  // Pantry items for the picker.
+  // Default: meal-ready items only (isMealItem) — after the seeding fix this is
+  //   ~20 standalone foods (fruit, yogurt, nuts...), not the whole pantry.
+  // Search active: match ANY pantry item by name.
+  // Items already in the cell are always included so they can be toggled off.
   const pantryOptions = useMemo(() => {
     if (!picker) return [];
+    const q = pickerQuery.trim().toLowerCase();
     const cellKey = `${picker.date.toDateString()}|${picker.slot}`;
     const inCellIngredientIds = new Set(
       (cellMap.get(cellKey) ?? [])
         .map((l) => l.ingredientId)
         .filter((id): id is number => id != null)
     );
-    // Show ALL pantry items flagged as meal-items (not just favorited ones)
-    // so users discover what they can drop into a slot without first having
-    // to star it. Items already in this cell are also included so they can
-    // be toggled off. Favorited items still surface first per the sort below.
-    return ingredients.filter(
-      (i) => inCellIngredientIds.has(i.id) || i.isMealItem
-    );
-  }, [picker, ingredients, cellMap]);
+    return ingredients
+      .filter((i) => {
+        if (inCellIngredientIds.has(i.id)) return true;
+        if (q) return i.name.toLowerCase().includes(q);
+        return i.isMealItem;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [picker, ingredients, cellMap, pickerQuery]);
 
   function getRecipeKcal(r: RecipeSlim): number | null {
     if (!r.totals) return null;
@@ -2105,7 +2120,10 @@ function PlannerPage() {
                   >
                     <div className="mx-mob-slot-label">
                       <span>{SLOT_LABELS[slot]}</span>
-                      {isRemovable && (
+                      {/* Slot-level X only when the optional slot is EMPTY — to
+                          dismiss a slot you added but didn't fill. When it has
+                          meals you remove them individually (avoids two X's). */}
+                      {isRemovable && logs.length === 0 && (
                         <span
                           className="mx-mob-slot-remove"
                           role="button"
@@ -2243,6 +2261,10 @@ function PlannerPage() {
 
               {slotRows.map((slot) => {
                 const isRemovable = !BASE_SLOTS.includes(slot as (typeof BASE_SLOTS)[number]);
+                // The desktop slot-X removes the whole row (all days). Only offer
+                // it when the row is EMPTY across the week — otherwise you remove
+                // meals individually (avoids the confusing two-X stack).
+                const slotRowEmpty = days.every((d) => (cellMap.get(`${d.toDateString()}|${slot}`) ?? []).length === 0);
                 const isDragging = draggingSlot === slot;
                 const isDropTarget = dropBeforeSlot === slot;
                 return (
@@ -2260,7 +2282,7 @@ function PlannerPage() {
                       <span className="mx-slot-grip">⋮⋮</span>
                       <span>{SLOT_LABELS[slot]}</span>
                     </span>
-                    {isRemovable && (
+                    {isRemovable && slotRowEmpty && (
                       <button
                         type="button"
                         className="mx-slot-remove"
@@ -2448,16 +2470,28 @@ function PlannerPage() {
                       </span>
                     </div>
 
+                    <input
+                      className="mx-picker-search"
+                      placeholder="Search all recipes & items…"
+                      value={pickerQuery}
+                      onChange={(e) => setPickerQuery(e.target.value)}
+                      aria-label="Search recipes and pantry items"
+                    />
+
                     <div className="mx-picker-list">
                       {!hasAny && (
                         <div className="mx-picker-empty">
-                          No favorited {SLOT_LABELS[picker.slot].toLowerCase()} recipes or pantry items yet.
+                          {pickerQuery.trim()
+                            ? `No matches for "${pickerQuery.trim()}".`
+                            : `No ${SLOT_LABELS[picker.slot].toLowerCase()} recipes yet. Search to add any recipe or pantry item, or tag recipes for this meal.`}
                         </div>
                       )}
 
                       {pickerOptions.length > 0 && (
                         <>
-                          <div className="mx-picker-section-head">★ Recipes</div>
+                          <div className="mx-picker-section-head">
+                            {pickerQuery.trim() ? "Recipes" : `${SLOT_LABELS[picker.slot]} recipes`}
+                          </div>
                           {pickerOptions.map((r) => {
                             const log = recipeLogsById.get(r.id);
                             const isCurrent = !!log;
@@ -2493,7 +2527,7 @@ function PlannerPage() {
 
                       {pantryOptions.length > 0 && (
                         <>
-                          <div className="mx-picker-section-head">★ Pantry</div>
+                          <div className="mx-picker-section-head">{pickerQuery.trim() ? "Pantry items" : "Pantry — meal-ready"}</div>
                           {pantryOptions.map((i) => {
                             const log = ingredientLogsById.get(i.id);
                             const isCurrent = !!log;
