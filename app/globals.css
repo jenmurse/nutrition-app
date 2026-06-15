@@ -4170,7 +4170,27 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 /* Comparison — editorial header */
 .cmp-header {
   padding: 48px 64px;
+  position: relative;
 }
+/* Close button — top-right of the comparison overlay */
+.cmp-close {
+  position: absolute;
+  top: 28px; right: 40px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--muted);
+  background: none; border: 1px solid var(--rule); cursor: pointer;
+  transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
+}
+.cmp-close:hover { color: var(--fg); border-color: var(--fg); }
+/* Add-more box — styled like an empty recipe-image placeholder with a + */
+.cmp-add-box {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-3); border: none; cursor: pointer;
+  color: var(--muted); font-size: 22px; font-weight: 300; line-height: 1;
+  transition: color 120ms var(--ease-out), background 120ms var(--ease-out);
+}
+.cmp-add-box:hover { color: var(--fg); background: var(--bg-2); }
 .cmp-eyebrow {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;

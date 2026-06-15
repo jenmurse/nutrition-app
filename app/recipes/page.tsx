@@ -896,6 +896,12 @@ function RecipesPage() {
         <div className="flex-1 overflow-y-auto">
         {/* Editorial header */}
         <div className="cmp-header">
+          <button
+            type="button"
+            className="cmp-close"
+            onClick={() => setCompareOpen(false)}
+            aria-label="Close comparison"
+          >✕</button>
           <div className="cmp-eyebrow">§ NUTRITION COMPARISON</div>
           <h1 className="cmp-title">Side by side.</h1>
         </div>
@@ -934,13 +940,15 @@ function RecipesPage() {
                   }
                   if (i === compareRecipes.length) {
                     return (
-                      <div key={`add-${i}`} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
+                      <div key={`add-${i}`} style={{ borderBottom: '1px solid var(--rule)', paddingBottom: 20, paddingRight: 16 }}>
                         <button
                           onClick={() => setCompareOpen(false)}
                           aria-label="Add more recipes to compare"
-                          style={{ width: 80, aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--rule)', background: 'transparent', cursor: 'pointer' }}
+                          title="Add more recipes"
+                          className="cmp-add-box"
+                          style={{ width: 80, aspectRatio: '4/3' }}
                         >
-                          <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--muted)]">+ Add More</span>
+                          <span aria-hidden="true">+</span>
                         </button>
                       </div>
                     );
