@@ -10,9 +10,9 @@ For the visual spec see [`briefs/chat-v1.html`](../briefs/chat-v1.html). For the
 
 | | |
 |---|---|
-| **Status** | Gates 1–4 shipped (read + single write + bulk write + apply-template + mobile sheet). **Recipe authoring shipped** (propose_save_recipe — edit / from-scratch / replace, full 9-nutrient panel). Fully functional end-to-end. |
+| **Status** | Gates 1–4 shipped (read + single/bulk write + apply-template + mobile sheet). **Authoring shipped** — recipes (save_recipe: edit / from-scratch / replace, full 9-nutrient panel), day templates (save_day_template), and recipe notes (save_recipe_notes). Fully functional end-to-end. |
 | **Model** | `claude-sonnet-4-6` — pinned via `CHAT_MODEL = CHAT_MODEL_SONNET` in `lib/chat/anthropic.ts`. Haiku 4.5 also wired as `CHAT_MODEL_HAIKU` for easy A/B. See [Model comparison](#model-comparison-sonnet-46-vs-haiku-45). |
-| **System prompt** | `SYSTEM_PROMPT_V11` — versioned constant; bump on every prompt change so cache-hit telemetry stays interpretable. |
+| **System prompt** | `SYSTEM_PROMPT_V15` — versioned constant; bump on every prompt change so cache-hit telemetry stays interpretable. |
 | **Provider** | Anthropic API direct (`@anthropic-ai/sdk`). Not Vercel AI Gateway — we're on Railway. |
 | **Env var required** | `ANTHROPIC_API_KEY` on Railway + local `.env`. |
 | **History** | Server-persisted per person. Last **20** messages loaded into context (was 50 — lowered to cut uncached input cost). |
@@ -62,8 +62,8 @@ The whole architecture is shaped around keeping Anthropic spend low for a person
 The Anthropic API caches by **prefix match** — any byte change in the prefix invalidates everything after it. The request is structured so the prefix is byte-stable across turns:
 
 ```
-[system prompt v3]                          ← frozen, never changes
-[tool definitions: 3 read tools]            ← frozen list
+[system prompt v15]                          ← frozen, never changes
+[tool definitions: read + write tools] ← frozen list
 [stable context: household + recipes +      ← stable within a session
  pantry]
 [← cache_control: ephemeral breakpoint here]
@@ -71,7 +71,7 @@ The Anthropic API caches by **prefix match** — any byte change in the prefix i
 [message history + new user turn]           ← varies per turn — NOT cached
 ```
 
-The `cache_control: { type: "ephemeral" }` marker sits on the context block (the last item in the stable prefix). Everything above it caches together. TTL is 5 minutes, refreshed on every read.
+The `cache_control: { type: "ephemeral" }` marker sits on the context block (the last item in the stable prefix). Everything above it caches together. TTL is 1 hour (ttl: "1h") — survives a user stepping away and returning within the hour.
 
 ### Cost per turn
 
@@ -85,7 +85,7 @@ The `cache_control: { type: "ephemeral" }` marker sits on the context block (the
 **Sonnet 4.6 pricing as of build:** $3/M input, $15/M output.
 
 Per-turn napkin math:
-- **Stable prefix:** ~10–15K tokens (system + 3 tool schemas + context block)
+- **Stable prefix:** ~10–15K tokens (system + tool schemas + context block)
 - **First turn:** pay 1.25× on stable prefix + 1× on new user message. Roughly $0.04–0.05.
 - **Turn 2+:** stable prefix at 0.1× + 1× on new tokens. Roughly **$0.005–0.01 per turn**.
 - **Output:** 200–1500 tokens × $15/M = $0.003–0.02 per response.
@@ -99,7 +99,7 @@ Per-turn napkin math:
 
 The model could route on the full library if we sent it all on every turn (70 recipes × ~3KB each = ~210KB per turn = ~50K input tokens). With caching that's affordable. **But** the lightweight context (name + 4 macros per recipe = ~80 bytes) is small enough that even uncached cost is trivial, AND it leaves room in the context window for long conversations without compaction concerns, AND it stays under the 2048-token minimum-prefix cap on Sonnet so caching reliably kicks in.
 
-When the model needs deeper detail (full ingredient list, all 17 nutrients, instructions), it calls `get_recipe` on demand. Tool responses don't go into the cached prefix — they're per-turn payload.
+When the model needs deeper detail (full ingredient list + ingredient ids, instructions), it calls `get_recipe` on demand. Tool responses don't go into the cached prefix — they're per-turn payload.
 
 ### What would break caching
 
@@ -107,7 +107,7 @@ Don't do any of these without understanding the impact:
 
 | Action | Cache impact |
 |---|---|
-| Change the system prompt text (`SYSTEM_PROMPT_V3` in `lib/chat/anthropic.ts`) | Full invalidation. Bump the version constant when you change it. |
+| Change the system prompt text (`SYSTEM_PROMPT_V15` in `lib/chat/anthropic.ts`) | Full invalidation. Bump the version constant when you change it. |
 | Add/remove/reorder tools in `lib/chat/tools.ts` | Full invalidation. Tools render at position 0 in the prompt. |
 | Interpolate `new Date()` or any timestamp into the system prompt body | Per-request invalidation — nothing ever caches. |
 | Change the recipe/pantry context shape mid-session | Per-session invalidation. The shape is byte-identical within a session because it's deterministic. |
@@ -139,13 +139,13 @@ fetch POST /api/chat (body: { message })
     ↓
 app/api/chat/route.ts
   1. getAuthenticatedHousehold() → personId + householdId
-  2. loadHistory(personId)     → last 50 ChatMessage rows (chronological)
+  2. loadHistory(personId)     → last 20 ChatMessage rows (chronological)
   3. buildContext(personId, householdId) → lightweight payload
   4. prisma.chatMessage.create({ role: "user", ... })  ← persisted BEFORE streaming
   5. ReadableStream → runChatTurn() → SSE events out
     ↓
 lib/chat/anthropic.ts runChatTurn()
-  - Builds system blocks: [SYSTEM_PROMPT_V3, today's date + context (+ cache_control)]
+  - Builds system blocks: [SYSTEM_PROMPT_V15, today's date + context (+ cache_control)]
   - Builds messages: history + new user turn
   - Loop (max 8 iterations):
     - client.messages.stream({ model, system, tools, messages })
@@ -162,7 +162,7 @@ On stream close: persist assistant message (whatever was streamed, even partial)
 
 ## System prompt voice (locked)
 
-Lives in `lib/chat/anthropic.ts` as `SYSTEM_PROMPT_V3`. Voice rules that are intentional:
+Lives in `lib/chat/anthropic.ts` as `SYSTEM_PROMPT_V15`. Voice rules that are intentional:
 
 - **Direct + confident** — lead with the answer, then reasoning
 - **Numbers in `**bold**`** — model wraps key numbers; UI renders as `<strong>` in ink
@@ -182,17 +182,32 @@ The prompt also tells the model:
 
 ## Tools
 
-Defined in `lib/chat/tools.ts`. Three tools, all read-only:
+Defined in `lib/chat/tools.ts`. Read tools and propose-only write tools.
+
+**Read tools:**
 
 | Tool | Use | Latency |
 |---|---|---|
-| `get_recipe` | Full ingredients + per-serving nutrition for all 17 tracked nutrients + instructions | ~50–100ms (1 Prisma query, well-indexed) |
-| `get_meal_plan_week` | Per-day totals for every tracked nutrient + comparison to goals | ~200–400ms (the heaviest query — joins recipes + meal logs + ingredient nutrients) |
-| `search_ingredients` | Pantry items matching a substring, with per-100g nutrition | ~50ms |
+| `get_recipe` | Full ingredients (with ingredient_ids) + per-serving nutrition for all 9 tracked nutrients + instructions | ~50–100ms |
+| `get_meal_plan_week` | Per-day totals for every tracked nutrient + comparison to goals; returns meal_log_ids needed for swap/remove/update | ~200–400ms (heaviest query) |
+| `search_ingredients` | Pantry items matching a name substring, with per-100g nutrition | ~50ms |
+| `list_pantry_ingredients` | Browse the pantry with filters (category, max_sodium, min_protein, …) — for recipe ideation / finding substitutions | ~50ms |
+| `check_plan_exists` | Whether a plan exists for a person + week (call before clarifying questions for a future week) | ~50ms |
+
+**Write tools (propose-only — named `propose_*`, never `execute_*`):** the model can only *propose*; the real write fires on the user's APPLY tap via existing app endpoints.
+
+| Tool | Writes via | Card |
+|---|---|---|
+| `propose_add_meal` / `propose_swap_meal` / `propose_remove_meal` / `propose_update_servings` | `/api/meal-plans/*` | single meal card |
+| `propose_fill_week` | N× POST | bulk card |
+| `propose_apply_template` | `/api/day-templates/[id]/apply` | bulk card |
+| `propose_save_recipe` | POST `/api/recipes` (new) / PUT (replace) | SaveRecipeCard — full 9-nutrient panel |
+| `propose_save_day_template` | POST `/api/day-templates` (items[]) | SaveDayTemplateCard |
+| `propose_save_recipe_notes` | PUT `/api/recipes/[id]` (optimizeAnalysis / mealPrepAnalysis) | SaveRecipeNotesCard |
 
 Tools run in-process via Prisma — no HTTP hop. Tool errors return `{ error: "..." }` so the model can surface them cleanly.
 
-**Write tools land in Gate 2:** `propose_add_meal`, `propose_swap_meal`, etc. They will be named `propose_*` (not `execute_*`) so the model can only *propose* changes — actual writes fire on user APPLY tap via existing app endpoints.
+**Grammar-size cap:** `strict: true` tools compile into one grammar with a hard size limit. Tools with nested array schemas (`propose_fill_week`, `propose_save_recipe`, `propose_save_day_template`, `propose_save_recipe_notes`) are intentionally NOT strict — their handlers validate instead. See Operational lessons §11.
 
 ---
 
@@ -250,7 +265,7 @@ Headers set on the response:
 
 Above tool sheets (`.mx-manage-sheet` etc. at 9101). Below `dialog.confirm` modals (10000). The panel auto-closes on Esc when not streaming; Esc aborts the stream when one is in flight.
 
-Mobile breakpoint (`@media (max-width: 768px)`) currently widens the desktop panel to full viewport. Gate 4 replaces this with a proper bottom-sheet variant.
+Mobile breakpoint (`@media (max-width: 768px)`) uses a full-width bottom-sheet variant (Gate 4, shipped).
 
 ---
 
@@ -289,7 +304,7 @@ After Gate 4 ships:
 
 ### Abuse / cost guardrails
 
-For friends-and-family scale, no work needed beyond the system prompt's "Scope" section (in `SYSTEM_PROMPT_V3`) which tells the model to politely refuse off-topic requests. That handles 95% of casual misuse for free.
+For friends-and-family scale, no work needed beyond the system prompt's "Scope" section (in `SYSTEM_PROMPT_V15`) which tells the model to politely refuse off-topic requests. That handles 95% of casual misuse for free.
 
 **Usage logging is LIVE (June 2026).** Every `/api/chat` call writes a row to `ApiUsageLog` with personId, householdId, token counts (input / cache read / cache create / output), and a precomputed cost in USD. Implementation: `lib/chat/usage.ts` + `feature: "chat"` rows. Use this data to:
 
@@ -333,22 +348,12 @@ Supporting pieces:
 
 Key lessons that came out of building it (see Operational lessons below): macro preview must use the real `convertToGrams` not a simplified converter; save is TERMINAL so it must NOT trigger the meal-chain auto-continue; saving a recipe invalidates the cached recipe library so the next turn is always cold.
 
-### Future write features (under design)
+### Authoring — also shipped (June 2026)
 
-- **`propose_save_day_template`** (next) — save a new day template from a description ("3 dinner-rotation templates that hit 35g+ protein, max 800mg sodium"). Confirm-card mirrors the existing apply-template card.
-- **`propose_save_optimization_notes` / `propose_save_meal_prep_notes`** — write notes to a recipe (markdown text). Cheap to build, lowest user value of the three.
+- **`propose_save_day_template`** — compose a new day template from library recipes ("3 dinner-rotation templates that hit 35g+ protein, max 800mg sodium"). One-at-a-time for multi-template requests. POSTs to `/api/day-templates` with a raw `items[]` (the endpoint was extended to accept composed items, not just a day snapshot). Card mirrors the apply-template card.
+- **`propose_save_recipe_notes`** — attach optimization and/or meal-prep notes (markdown) to an existing recipe. Writes `optimizeAnalysis` / `mealPrepAnalysis` via PUT `/api/recipes/[id]` (partial update; Prisma treats undefined fields as unchanged). For a brand-new recipe, save it first — it's in context next turn, then notes can attach.
 
-### Voice input (future, free)
-
-Users want to dictate prompts so they don't have to type, especially on mobile while cooking. The plan:
-
-- **Voice input only.** No TTS — users read responses, they don't get read back. Avoids both robotic-voice UX and the per-minute cost of premium TTS APIs.
-- **Web Speech API** (browser-built-in `webkitSpeechRecognition` / `SpeechRecognition`). $0 cost — no server call, no API key. Works on Chrome desktop, iOS Safari, Android Chrome. Quality varies by device but acceptable for command-style prompts.
-- **UI:** mic button next to the Send button in `Input.tsx`. Tap to start dictating, tap again to stop, transcribed text appears in the textarea (user can edit before sending).
-- **Cost impact:** zero on the chat itself. Adds maybe 20 lines of code to `Input.tsx`.
-- **Why not Whisper:** higher quality but $0.006/minute and adds a server roundtrip + ~1s latency. Not worth it for short conversational prompts. Revisit if Web Speech API quality complaints become real.
-
-Skip until after the save-recipe write features land — the bigger UX win is the new capabilities, not the input modality.
+Voice input was considered and **dropped** (June 2026) — not pursuing dictation; the value is in the write capabilities, not the input modality.
 
 ### Persistent context options
 
