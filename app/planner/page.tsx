@@ -1638,27 +1638,32 @@ function PlannerPage() {
   }
 
   // ── Picker positioning ───────────────────────────────────────
+  // Fixed width so the placement math is exact (matches .mx-picker width).
+  // Vertically: anchor below the cell when there's room; otherwise flip and
+  // anchor the picker's BOTTOM just above the cell (using `bottom`, not a
+  // guessed height) so short and tall pickers both sit consistently. The
+  // available space becomes the max-height so it never runs off-screen.
+  const PICKER_WIDTH = 300;
   const pickerPosition = useMemo(() => {
     if (!picker) return null;
     if (typeof window === "undefined") return null;
-    const PICKER_WIDTH = 260;
-    const PICKER_MAX_H = window.innerHeight * 0.6;
     const margin = 8;
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
 
-    // Default: anchor below the cell, left-aligned to the cell
-    let top = picker.rect.bottom + 1;
+    // Horizontal: left-align to the cell, clamp so the full width stays on-screen.
     let left = picker.rect.left;
+    if (left + PICKER_WIDTH > vw - margin) left = vw - PICKER_WIDTH - margin;
+    left = Math.max(margin, left);
 
-    // Flip up if it would clip the bottom
-    if (top + PICKER_MAX_H > window.innerHeight - margin) {
-      top = Math.max(margin, picker.rect.top - PICKER_MAX_H - 1);
+    // Vertical: prefer below; flip up only when below is cramped and above is roomier.
+    const spaceBelow = vh - picker.rect.bottom - margin;
+    const spaceAbove = picker.rect.top - margin;
+    const cap = Math.round(vh * 0.6);
+    if (spaceBelow >= 280 || spaceBelow >= spaceAbove) {
+      return { left, top: picker.rect.top >= 0 ? picker.rect.bottom + 1 : margin, maxHeight: Math.min(cap, spaceBelow) };
     }
-    // Constrain right edge
-    if (left + PICKER_WIDTH > window.innerWidth - margin) {
-      left = Math.max(margin, window.innerWidth - PICKER_WIDTH - margin);
-    }
-
-    return { top, left };
+    return { left, bottom: vh - picker.rect.top + 1, maxHeight: Math.min(cap, spaceAbove) };
   }, [picker]);
 
   // ── Picker — close on Escape ─────────────────────────────────
@@ -2453,7 +2458,12 @@ function PlannerPage() {
             <div className="mx-picker-backdrop" onClick={closePicker} aria-hidden="true" />
             <div
               className="mx-picker"
-              style={{ top: pickerPosition.top, left: pickerPosition.left }}
+              style={{
+                left: pickerPosition.left,
+                width: PICKER_WIDTH,
+                maxHeight: pickerPosition.maxHeight,
+                ...("top" in pickerPosition ? { top: pickerPosition.top } : { bottom: pickerPosition.bottom }),
+              }}
               role="dialog"
               aria-label={`Pick a ${SLOT_LABELS[picker.slot]} for ${picker.date.toDateString()}`}
             >

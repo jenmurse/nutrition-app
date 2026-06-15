@@ -196,7 +196,10 @@ export default function ShoppingPage() {
 
   return (
     <div className="flex h-full flex-col animate-page-enter">
-      <div className="pl-shop-body">
+      <div className="pl-shop-body" style={{ position: "relative" }}>
+        {/* Close → back to the planner for this week (shopping is reached from
+            the planner cart; this is the explicit exit, like compare's X). */}
+        <Link href={plannerHref} className="pl-shop-close" aria-label="Close shopping list">✕</Link>
         {shopLoading ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="font-mono text-[13px] text-[var(--muted)] animate-loading">Loading shopping list…</div>
