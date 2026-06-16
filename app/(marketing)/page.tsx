@@ -49,10 +49,10 @@ export default function MarketingLanding() {
 
       <ImageBand
         tiles={[
-          { label: "Breakfast", hint: "[ Photo ]<br/>Weekend eggs<br/>&amp; avocado" },
-          { label: "Lunch", hint: "[ Photo ]<br/>Poke bowl" },
-          { label: "Dinner", hint: "[ Photo ]<br/>Roasted tahini<br/>cauliflower &amp; lentils" },
-          { label: "Dessert", hint: "[ Photo ]<br/>Lemon bars" },
+          { label: "Breakfast", hint: "[ Photo ]<br/>Weekend eggs<br/>&amp; avocado", src: "/landing/food-breakfast-eggs.jpg", alt: "Weekend eggs and avocado" },
+          { label: "Lunch", hint: "[ Photo ]<br/>Poke bowl", src: "/landing/food-lunch-poke.jpg", alt: "Poke bowl" },
+          { label: "Dinner", hint: "[ Photo ]<br/>Rigatoni with<br/>tomato sauce", src: "/landing/food-dinner-rigatoni.jpg", alt: "Rigatoni with tomato sauce" },
+          { label: "Dessert", hint: "[ Photo ]<br/>Lemon bars", src: "/landing/food-dessert-lemon-bars.jpg", alt: "Lemon bars" },
         ]}
       />
 
@@ -120,8 +120,8 @@ export default function MarketingLanding() {
 
       <Interstitial
         tiles={[
-          { label: "Snack", hint: "[ Photo ]<br/>Apple &amp; almond butter" },
-          { label: "Dessert", hint: "[ Photo ]<br/>Tahini chocolate<br/>chip cookies" },
+          { label: "Snack", hint: "[ Photo ]<br/>Apple &amp; almond butter", src: "/landing/food-snack-apple.jpg", alt: "Apple and almond butter" },
+          { label: "Dessert", hint: "[ Photo ]<br/>Tahini chocolate<br/>chip cookies", src: "/landing/food-dessert-cookies.jpg", alt: "Tahini chocolate chip cookies" },
         ]}
       />
 
@@ -208,8 +208,8 @@ export default function MarketingLanding() {
 
       <Interstitial
         tiles={[
-          { label: "Breakfast", hint: "[ Photo ]<br/>Overnight oats,<br/>peanut butter" },
-          { label: "Dinner", hint: "[ Photo ]<br/>Noodle bowl<br/>w/ shrimp" },
+          { label: "Breakfast", hint: "[ Photo ]<br/>Overnight oats,<br/>peanut butter", src: "/landing/food-breakfast-oats.jpg", alt: "Overnight oats with peanut butter" },
+          { label: "Dinner", hint: "[ Photo ]<br/>Noodle bowl<br/>w/ shrimp", src: "/landing/food-dinner-noodle-shrimp.jpg", alt: "Noodle bowl with shrimp" },
         ]}
       />
 

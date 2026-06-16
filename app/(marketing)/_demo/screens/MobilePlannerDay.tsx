@@ -23,7 +23,7 @@ const MEALS_OFF = [
 const MEALS_APPLIED = [
   { type: "Breakfast", name: "Morning Shake – Chocolate Almond Butter" },
   { type: "Lunch",     name: "Lunch Salad w/Salmon" },
-  { type: "Dinner",    name: "Roasted Tahini Cauliflower & Lentils" },
+  { type: "Dinner",    name: "Rigatoni with Tomato Sauce" },
   { type: "Snack",     name: "Chickpea Chocolate Chip Blondies" },
   { type: "Dessert",   name: "Tahini Chocolate Chip Cookies" },
 ];

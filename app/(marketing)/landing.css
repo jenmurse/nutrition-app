@@ -165,10 +165,20 @@ html[data-marketing] {
   align-items: center;
   justify-content: center;
 }
+.ln-tile-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
 .ln-imgband-tile .ln-lbl {
   position: absolute;
   top: 18px;
   left: 18px;
+  z-index: 1;
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: var(--track-mono);
@@ -458,6 +468,7 @@ html[data-marketing] {
   position: absolute;
   top: 18px;
   left: 18px;
+  z-index: 1;
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: var(--track-mono);
