@@ -1,25 +1,27 @@
-// Scenario 02 states A & D — the REAL planner week grid: meal-type rows × day
-// columns with a per-day daily-totals list, the target day highlighted. Between
-// "off" and "applied" the target day's meals swap and its totals go red → green.
+// Planner week grid: meal-type rows × day columns with per-day totals.
+// Used by scn02 (via PlannerZoom, mode prop) and scn03 (days prop directly).
 
 import { Fragment } from "react";
-import { MEAL_TYPES, week } from "../week";
+import { MEAL_TYPES, week, type PlannerDay } from "../week";
 
 export default function Planner({
   mode,
+  days: daysProp,
   focus = false,
+  dateRange = "Mar 16–22",
 }: {
-  mode: "off" | "applied";
+  mode?: "off" | "applied";
+  days?: PlannerDay[];
   focus?: boolean;
+  dateRange?: string;
 }) {
-  // Focus mode zooms to the optimized day: a 3-day slice (Mon · Tue · Wed) with
-  // the neighbors dimmed, so the single day is the subject but still in context.
-  const days = focus ? week(mode).slice(1, 4) : week(mode);
+  const rawDays = daysProp ?? week(mode ?? "off");
+  const days = focus ? rawDays.slice(1, 4) : rawDays;
 
   return (
     <div className={`pl${focus ? " pl--focus" : ""}`}>
       <div className="pl-toolbar">
-        <span className="pl-range">Mar 16–22</span>
+        <span className="pl-range">{dateRange}</span>
         <span className="pl-nav">‹ Prev</span>
         <span className="pl-nav">Next ›</span>
         <span className="pl-spacer" />
@@ -41,7 +43,9 @@ export default function Planner({
             <div className="pl-rowlabel">{mt}</div>
             {days.map((d) => (
               <div key={d.dow + mt} className={`pl-cell${d.target ? " is-target" : ""}`}>
-                {d.meals[ri] ? (
+                {d.meals[ri] === "Eating out" ? (
+                  <span className="pl-meal pl-meal--out">Eating out</span>
+                ) : d.meals[ri] ? (
                   <span className="pl-meal">
                     {d.meals[ri]}
                     <small>1 serving</small>

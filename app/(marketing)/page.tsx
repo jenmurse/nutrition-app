@@ -3,16 +3,29 @@ import Topbar from "./_components/Topbar";
 import Hero from "./_components/Hero";
 import ImageBand from "./_components/ImageBand";
 import Interstitial from "./_components/Interstitial";
-import Scenario from "./_components/Scenario";
 import StickyScene from "./_components/StickyScene";
 import Architecture from "./_components/Architecture";
 import Close from "./_components/Close";
 import Footer from "./_components/Footer";
 import AppWindow from "./_demo/AppWindow";
 import FloatWindow from "./_demo/FloatWindow";
+import PhoneFrame from "./_demo/PhoneFrame";
+import Planner from "./_demo/screens/Planner";
 import PlannerZoom from "./_demo/screens/PlannerZoom";
+import RecipeView from "./_demo/screens/RecipeView";
+import AgentView from "./_demo/screens/AgentView";
 import OptimizerPicker from "./_demo/screens/OptimizerPicker";
 import OptimizerResults from "./_demo/screens/OptimizerResults";
+import TemplateSave from "./_demo/screens/TemplateSave";
+import ShoppingList from "./_demo/screens/ShoppingList";
+import MobileRecipeView from "./_demo/screens/MobileRecipeView";
+import MobileAgentView from "./_demo/screens/MobileAgentView";
+import MobilePlannerDay from "./_demo/screens/MobilePlannerDay";
+import MobileOptimizerPicker from "./_demo/screens/MobileOptimizerPicker";
+import MobileOptimizerResults from "./_demo/screens/MobileOptimizerResults";
+import MobileTemplateSave from "./_demo/screens/MobileTemplateSave";
+import MobileShoppingList from "./_demo/screens/MobileShoppingList";
+import { week03 } from "./_demo/week";
 import "./landing.css";
 
 const SHARE_DESCRIPTION =
@@ -27,76 +40,6 @@ export const metadata: Metadata = {
   },
 };
 
-// ── Placeholder UI primitives reused across scenarios.
-//    SCREENSHOT SLOTS: replace each function call site below with a
-//    real screenshot when Jen provides them.
-
-const PhRecipe = ({ green = false }: { green?: boolean }) => (
-  <div className="ln-ph-recipe">
-    <div className="ln-rh" />
-    <div className={`ln-rl${green ? " green" : ""}`} />
-    <div className="ln-rl short" />
-    <div className={`ln-rl${green ? " green" : ""}`} />
-    <div className="ln-rl short" />
-  </div>
-);
-
-const PhEmptyWeek = () => (
-  <div className="ln-ph">
-    <div className="ln-ph-bar" />
-    <div className="ln-ph-grid">
-      {Array.from({ length: 7 }).map((_, i) => <div key={i} />)}
-    </div>
-  </div>
-);
-
-const PhAppliedWeek = ({ dayIndex }: { dayIndex: number }) => (
-  <div className="ln-ph">
-    <div className="ln-ph-bar" />
-    <div className="ln-ph-grid">
-      {Array.from({ length: 7 }).map((_, day) =>
-        day === dayIndex ? (
-          <div key={day}>
-            <div className="ln-ph-cell brk swap" />
-            <div className="ln-ph-cell lun swap" />
-            <div className="ln-ph-cell din swap" />
-          </div>
-        ) : (
-          <div key={day} />
-        )
-      )}
-    </div>
-  </div>
-);
-
-const PhShoppingList = () => (
-  <div className="ln-ph-recipe" style={{ inset: "10% 10% 10% 10%" }}>
-    {/* SCREENSHOT SLOT: Shopping list grouped by category */}
-    {Array.from({ length: 6 }).map((_, i) => (
-      <div key={i} className={`ln-rl${i % 3 === 0 ? "" : " short"}`} style={{ width: i % 3 === 0 ? "40%" : i % 3 === 1 ? "80%" : "65%" }} />
-    ))}
-  </div>
-);
-
-const PhDay = ({ clean = false }: { clean?: boolean }) => (
-  <div className="ln-ph-day">
-    <div className="ln-dh" />
-    <div className="ln-ds">
-      <div className="ln-ph-cell" />
-      <div className="ln-ph-cell" />
-      <div className="ln-ph-cell" />
-    </div>
-    <div className="ln-totals" style={clean ? { opacity: 1 } : undefined} />
-  </div>
-);
-
-const PhDialog = () => (
-  <div className="ln-ph-dialog">
-    <div className="ln-dt" />
-    <div className="ln-di" />
-    <div className="ln-di" />
-  </div>
-);
 
 export default function MarketingLanding() {
   return (
@@ -106,51 +49,79 @@ export default function MarketingLanding() {
 
       <ImageBand
         tiles={[
-          { label: "Breakfast", hint: "[ Photo ]<br/>Turmeric waffles" },
-          { label: "Lunch", hint: "[ Photo ]<br/>Lunch salad<br/>with tuna" },
-          { label: "Dinner", hint: "[ Photo ]<br/>Black bean<br/>&amp; lentil chili" },
-          { label: "Dessert", hint: "[ Photo ]<br/>Almond croissant<br/>blondies" },
+          { label: "Breakfast", hint: "[ Photo ]<br/>Weekend eggs<br/>&amp; avocado" },
+          { label: "Lunch", hint: "[ Photo ]<br/>Poke bowl" },
+          { label: "Dinner", hint: "[ Photo ]<br/>Roasted tahini<br/>cauliflower &amp; lentils" },
+          { label: "Dessert", hint: "[ Photo ]<br/>Lemon bars" },
         ]}
       />
 
-      <Scenario
+      <StickyScene
         id="scn01"
         num="01"
         headline="You found a recipe. Make it yours."
         lede="Save a recipe from anywhere. Change any ingredient or amount and the nutrition recalculates as you go. Actual ingredients, actual numbers. Save a new version that's yours. The original stays untouched."
         beats={[
           {
-            tag: "Original",
+            eyebrow: "Original",
             heading: "It enters exactly as published.",
             body: "Paste a URL. Good Measure pulls the recipe apart to the gram and matches every ingredient against your pantry. Over a hundred USDA-sourced staples are there from day one, so most recipes match against something real on first import.",
+            visual: (
+              <FloatWindow w={1040} h={760}>
+                <AppWindow active="Recipes">
+                  <RecipeView state="original" />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobileRecipeView state="original" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Your edits",
+            eyebrow: "Your edits",
             heading: "Change it like it's yours.",
-            body: "Swap an ingredient, cut an amount, and the math follows instantly. Recipes draw from your pantry, so the numbers track the food. Prefer to talk it through? Connect an AI assistant via MCP and it reads the real recipe, handing back specific swaps: which ingredient, what amount, what it does to the totals.",
-            prompt:
-              "\"Cut the miso paste from 4 tsp to 2 tsp. Swap to no-salt cannellini beans. Drops the dish from 1,858mg sodium to about 950mg.\"",
+            body: "Edit any ingredient or amount and the math follows instantly. Or talk it through: connect an AI assistant via MCP and it reads the real recipe, hands back specific swaps, and writes the change right back — which ingredient, what amount, what it does to the totals.",
+            visual: (
+              <FloatWindow w={1040} h={760}>
+                <AgentView />
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <MobileAgentView />
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Saved",
+            eyebrow: "Saved",
             heading: "Keep the version that's yours.",
             body: "You save the change and the new version lands in your library. The original stays where it was. Two tablespoons of olive oil down to one, and every total updates with it.",
+            visual: (
+              <FloatWindow w={1040} h={760}>
+                <AppWindow active="Recipes">
+                  <RecipeView state="saved" saved />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobileRecipeView state="saved" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
-        ]}
-        states={[
-          /* SCREENSHOT SLOT: Recipe import (original) — scn01 state A */
-          <PhRecipe key="01-a" />,
-          /* SCREENSHOT SLOT: Recipe editor with live nutrition — scn01 state B */
-          <PhRecipe key="01-b" />,
-          /* SCREENSHOT SLOT: Saved version — scn01 state C */
-          <PhRecipe key="01-c" green />,
         ]}
       />
 
       <Interstitial
         tiles={[
-          { label: "Snack", hint: "[ Photo ]<br/>Apple slices<br/>with almond butter" },
-          { label: "Side", hint: "[ Photo ]<br/>Sesame miso lentils" },
+          { label: "Snack", hint: "[ Photo ]<br/>Apple &amp; almond butter" },
+          { label: "Dessert", hint: "[ Photo ]<br/>Tahini chocolate<br/>chip cookies" },
         ]}
       />
 
@@ -169,6 +140,13 @@ export default function MarketingLanding() {
                 <PlannerZoom mode="off" />
               </FloatWindow>
             ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobilePlannerDay mode="off" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
             eyebrow: "Your targets",
@@ -179,6 +157,13 @@ export default function MarketingLanding() {
                 <AppWindow>
                   <OptimizerPicker />
                 </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobileOptimizerPicker />
+                </PhoneFrame>
               </FloatWindow>
             ),
           },
@@ -193,6 +178,13 @@ export default function MarketingLanding() {
                 </AppWindow>
               </FloatWindow>
             ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobileOptimizerResults />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
             eyebrow: "Applied",
@@ -203,60 +195,125 @@ export default function MarketingLanding() {
                 <PlannerZoom mode="applied" />
               </FloatWindow>
             ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobilePlannerDay mode="applied" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
         ]}
       />
 
       <Interstitial
         tiles={[
-          { label: "Breakfast", hint: "[ Photo ]<br/>Overnight oats<br/>with peanut butter" },
-          { label: "Dinner", hint: "[ Photo ]<br/>One-pan Indian style<br/>fish &amp; chickpeas" },
+          { label: "Breakfast", hint: "[ Photo ]<br/>Overnight oats,<br/>peanut butter" },
+          { label: "Dinner", hint: "[ Photo ]<br/>Noodle bowl<br/>w/ shrimp" },
         ]}
       />
 
-      <Scenario
+      <StickyScene
         id="scn03"
         num="03"
         headline="A day that worked is a day you can reuse."
         lede="When a day pulls clean, calories right, protein on, fiber where it should be, save it as a template. Apply it to any future day in one tap, or build a rotation from the handful of days that consistently work. The next week starts with something to build from."
         beats={[
           {
-            tag: "A clean day",
+            eyebrow: "A clean day",
             heading: "Some days just hit.",
             body: "Calories landed, protein was on, fiber was where it should be. Instead of rebuilding that day from scratch next week, save it.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <AppWindow active="Planner">
+                  <Planner days={week03("clean")} dateRange="Mar 16–22" />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobilePlannerDay mode="clean" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Save it",
+            eyebrow: "Save it",
             heading: "Name it for what it is.",
             body: "Workout day. Light Friday. Mediterranean. The formula is captured once, every meal, every amount, ready to drop in whenever you need it.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <AppWindow active="Planner">
+                  <TemplateSave />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobileTemplateSave />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Empty week",
+            eyebrow: "Empty week",
             heading: "Later, a new week.",
-            body: "You're filling next Tuesday. A blank day waiting.",
+            body: "You're filling next Wednesday. A blank day waiting.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <AppWindow active="Planner">
+                  <Planner days={week03("empty")} dateRange="Mar 23–29" />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobilePlannerDay mode="empty" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Applied",
+            eyebrow: "Applied",
             heading: "Apply the template. The day fills.",
             body: "A good formula, reused without effort. The planner stops being weekly busywork and becomes a set of patterns you trust.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <AppWindow active="Planner">
+                  <Planner days={week03("applied")} dateRange="Mar 23–29" />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobilePlannerDay mode="template-applied" />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "The list",
+            eyebrow: "The list",
             heading: "Once the week is built, the list writes itself.",
             body: "Every ingredient from every recipe, grouped by where you'll find it in the store, scaled to the servings you're actually making, down to the gram. Check things off as you shop, and share the list with whoever's going.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <AppWindow active="Shopping">
+                  <ShoppingList />
+                </AppWindow>
+              </FloatWindow>
+            ),
+            mobileVisual: (
+              <FloatWindow w={390} autoHeight>
+                <PhoneFrame>
+                  <MobileShoppingList />
+                </PhoneFrame>
+              </FloatWindow>
+            ),
           },
-        ]}
-        states={[
-          /* SCREENSHOT SLOT: A clean day with totals — scn03 state A */
-          <PhDay key="03-a" clean />,
-          /* SCREENSHOT SLOT: Save-as-template dialog — scn03 state B */
-          <PhDialog key="03-b" />,
-          /* SCREENSHOT SLOT: Empty planner week — scn03 state C */
-          <PhEmptyWeek key="03-c" />,
-          /* SCREENSHOT SLOT: Template applied to one day — scn03 state D */
-          <PhAppliedWeek key="03-d" dayIndex={1} />,
-          /* SCREENSHOT SLOT: Shopping list grouped by category — scn03 state E */
-          <PhShoppingList key="03-e" />,
         ]}
       />
 

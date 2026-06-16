@@ -4,7 +4,7 @@
 
 import type { ReactNode } from "react";
 
-const TABS = ["Planner", "Recipes", "Pantry"];
+const TABS = ["Planner", "Recipes", "Pantry", "Shopping"];
 
 export default function AppWindow({
   active = "Planner",
