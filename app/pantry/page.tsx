@@ -202,6 +202,11 @@ function IngredientsPage() {
 
   useEffect(() => { loadIngredients(); }, []);
 
+  // Mark the "Review your starter pantry" onboarding task complete on first visit.
+  useEffect(() => {
+    try { localStorage.setItem('pantry-reviewed', 'true'); } catch {}
+  }, []);
+
   // Extract macros for list view — all nutrients
   const getCardMacros = (ingredient: Ingredient) => {
     if (!ingredient.nutrientValues || ingredient.nutrientValues.length === 0) return null;

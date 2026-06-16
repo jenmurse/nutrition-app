@@ -9,7 +9,7 @@ import { usePersonContext } from "@/app/components/PersonContext";
 import { toast } from "@/lib/toast";
 import { dialog } from "@/lib/dialog";
 import EmptyState from "@/app/components/EmptyState";
-import ContextualTip from "@/app/components/ContextualTip";
+import PlannerTips from "@/app/components/PlannerTips";
 import DayOptimizer, { type DayMealInput } from "@/app/planner/DayOptimizer";
 
 /** Parse an ISO date string to a local Date preserving the calendar day. */
@@ -1993,16 +1993,7 @@ function PlannerPage() {
         )}
 
         <div className="animate-page-enter" style={{ minHeight: "100%" }}>
-          {plan && (
-            <ContextualTip tipId="planner-eating-out" label="Going out?" className="pl-tip-wrap">
-              Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as Eating out placeholders. Tap any meal slot, then look under Other. They show in the day without affecting nutrition or the shopping list.
-            </ContextualTip>
-          )}
-          {plan && (
-            <ContextualTip tipId="planner-optimize" label="Dial in a day" className="pl-tip-wrap">
-              Open a day&apos;s ⋯ menu and choose <strong>Optimize this day</strong>. Pick 1–3 nutrition goals, lock anything you want to keep, and the optimizer searches your recipes for swaps that hit those goals and offers up three options to choose from. Choose the one you like best and it will apply to your day. Then save it as a template if it&apos;s a keeper.
-            </ContextualTip>
-          )}
+          {plan && <PlannerTips className="pl-tip-wrap" />}
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
               <EmptyState

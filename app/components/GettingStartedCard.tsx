@@ -18,6 +18,7 @@ interface OnboardingStatus {
   hasGoals: boolean;
   hasRecipe: boolean;
   hasIngredient: boolean;
+  hasReviewedPantry: boolean;
   hasMealPlan: boolean;
   hasDashboardStats: boolean;
   hasMcp: boolean;
@@ -32,7 +33,7 @@ interface PendingInvite {
 const TASKS: Task[] = [
   { id: "goals", text: "Set nutrition goals", note: "", href: "/settings#goals", checkKey: "hasGoals" },
   { id: "recipe", text: "Import your first recipe", note: "", href: "/recipes", checkKey: "hasRecipe" },
-  { id: "pantry", text: "Review your starter pantry", note: "We've added common ingredients to get you cooking — edit or remove what doesn't fit.", href: "/pantry", checkKey: "hasIngredient" },
+  { id: "pantry", text: "Review your starter pantry", note: "We've added common ingredients to get you cooking — edit or remove what doesn't fit.", href: "/pantry", checkKey: "hasReviewedPantry" },
   { id: "plan", text: "Plan your first week", note: "", href: "/planner", checkKey: "hasMealPlan" },
   { id: "dashboard", text: "Customize your dashboard stats", note: "", href: "/settings#dashboard", checkKey: "hasDashboardStats" },
 ];
@@ -92,6 +93,11 @@ export default function GettingStartedCard() {
             data.hasDashboardStats = false;
           }
         } catch { data.hasDashboardStats = false; }
+        // "Review your starter pantry" completes when the user actually visits
+        // the pantry — not just because seeded ingredients exist (they always do).
+        try {
+          data.hasReviewedPantry = localStorage.getItem('pantry-reviewed') === 'true';
+        } catch { data.hasReviewedPantry = false; }
         setStatus(data);
       })
       .catch(() => {});

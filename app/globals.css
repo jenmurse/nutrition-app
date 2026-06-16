@@ -433,7 +433,7 @@ input[type="number"]:focus {
   color: var(--bg);
   border: 0;
   border-radius: 0;
-  padding: 6px 14px;
+  padding: 8px 14px;
   font-family: var(--sans);
   font-size: 9px;
   font-weight: 500;
@@ -444,6 +444,9 @@ input[type="number"]:focus {
   white-space: nowrap;
   flex-shrink: 0;
 }
+/* Toolbar keeps its intentional compact density — preserve 6px so the toolbar
+   primary stays aligned with the 5px .ed-toolbar .ed-btn siblings. */
+.ed-toolbar .ed-btn-primary { padding: 6px 14px; }
 .ed-btn-primary:hover { opacity: 0.85; }
 .ed-btn-primary:active { opacity: 0.7; }
 
@@ -8600,7 +8603,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 6px 14px;
+  padding: 8px 14px;
   transition: opacity 0.14s;
   white-space: nowrap;
 }
@@ -9365,7 +9368,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .opt-section { margin-top: 28px; }
   .opt-footer { margin-top: 28px; }
   .opt-footer:not(.opt-footer-results) { justify-content: stretch; }
-  .opt-footer:not(.opt-footer-results) .ed-btn-primary { width: 100%; }
+  .opt-footer:not(.opt-footer-results) .ed-btn-primary { width: 100%; padding: 13px 16px; }
   .opt-baseline { gap: 16px; }
   .opt-cols { grid-template-columns: 1fr; gap: 12px; }
   .opt-col { margin-left: 0; }

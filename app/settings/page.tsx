@@ -1054,7 +1054,7 @@ const SettingsPage = () => {
 
             <div>
               <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]" style={{ maxWidth: 480 }}>
-                Select three nutrition stats to display on your dashboard and meal cards.
+                These three are the defaults. Swap in the stats that matter most to you — they show on your dashboard and meal cards. Pick any three.
               </p>
               <div className={`font-mono text-[9px] uppercase tracking-[0.06em] mb-[16px] ${dashboardStats.enabledStats.length === 3 ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
                 {dashboardStats.enabledStats.length} of 3 selected
