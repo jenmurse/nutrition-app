@@ -1,14 +1,19 @@
 # Day / Template Optimizer — Spec (v1)
 
-> **Build status (June 2026): IN PROGRESS.** Engine, endpoint, launcher hub, and
-> optimizer surface are written and typecheck clean; the pure engine is
-> unit-verified. Not yet exercised against a live authenticated session.
+> **Build status: SHIPPED (June 15, 2026).** Fully live at `/planner` → day ⋯
+> menu → "Optimize this day". Verified on desktop and mobile (authenticated).
 > Files: `lib/mealOptimizer.ts`, `app/api/meal-plans/[id]/optimize/route.ts`,
 > `app/planner/DayOptimizer.tsx`, `DayOverflowMenu` in `app/planner/page.tsx`,
-> `.opt-*` CSS in `app/globals.css`.
-> Known deviations: (1) mobile optimizer is its own responsive sheet/full-screen
-> overlay launched from the hub, not rendered inside the launcher sheet DOM;
-> (2) Add is capped at one extra side/snack/beverage per day in v1.
+> `.opt-*` + `.mx-day-menu-*` CSS in `app/globals.css`.
+> Shipped deviations: (1) mobile optimizer is a bottom-sheet overlay, not
+> rendered inside the launcher sheet DOM; (2) Add is capped at one extra
+> side/snack/beverage per day in v1. The ⋯ menu is now a full launcher hub —
+> Apply/Save/Manage open as right-side flyouts on desktop, pushed sheet
+> sub-views on mobile.
+>
+> **Chat sequencing resolved:** optimizer shipped and verified. In-app chat UI
+> is now hidden via `SHOW_CHAT = false` in `lib/featureFlags.ts` (all code,
+> API routes, and MCP tools fully intact — flip flag to restore).
 
 Status: **Spec.** Math-based replacement for the
 highest-value AI use case (day/plan nutrition optimization). $0 marginal cost,

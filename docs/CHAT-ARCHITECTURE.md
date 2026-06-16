@@ -10,7 +10,7 @@ For the visual spec see [`briefs/chat-v1.html`](../briefs/chat-v1.html). For the
 
 | | |
 |---|---|
-| **Status** | Gates 1–4 shipped (read + single/bulk write + apply-template + mobile sheet). **Authoring shipped** — recipes (save_recipe: edit / from-scratch / replace, full 9-nutrient panel), day templates (save_day_template), and recipe notes (save_recipe_notes). Fully functional end-to-end. |
+| **Status** | Gates 1–4 shipped (read + single/bulk write + apply-template + mobile sheet). **Authoring shipped** — recipes (save_recipe: edit / from-scratch / replace, full 9-nutrient panel), day templates (save_day_template), and recipe notes (save_recipe_notes). Fully functional end-to-end. **UI currently hidden** via `SHOW_CHAT = false` in `lib/featureFlags.ts` (June 2026 — meal optimizer shipped and covers chat's highest-value job natively). All code, API routes, and MCP tools are intact. Flip flag to restore. |
 | **Model** | `claude-sonnet-4-6` — pinned via `CHAT_MODEL = CHAT_MODEL_SONNET` in `lib/chat/anthropic.ts`. Haiku 4.5 also wired as `CHAT_MODEL_HAIKU` for easy A/B. See [Model comparison](#model-comparison-sonnet-46-vs-haiku-45). |
 | **System prompt** | `SYSTEM_PROMPT_V15` — versioned constant; bump on every prompt change so cache-hit telemetry stays interpretable. |
 | **Provider** | Anthropic API direct (`@anthropic-ai/sdk`). Not Vercel AI Gateway — we're on Railway. |

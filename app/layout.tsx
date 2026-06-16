@@ -16,6 +16,7 @@ import CustomCursor from "./components/CustomCursor";
 import { PersonProvider } from "./components/PersonContext";
 import { ChatProvider } from "./components/chat/ChatProvider";
 import ChatPanel from "./components/chat/ChatPanel";
+import { SHOW_CHAT } from "@/lib/featureFlags";
 
 const dmSans = DM_Sans({
   weight: ['300', '400', '500', '600', '700'],
@@ -130,7 +131,7 @@ export default function RootLayout({
                 {children}
               </main>
             </div>
-            <ChatPanel />
+            {SHOW_CHAT && <ChatPanel />}
           </ChatProvider>
         </PersonProvider>
         <CustomCursor />
