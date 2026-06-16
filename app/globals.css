@@ -9372,7 +9372,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   .opt-targets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
   .opt-footer-results { flex-direction: column; align-items: stretch; gap: 14px; }
   .opt-footer-right { align-items: stretch; }
-  .opt-footer-right .ed-btn-primary { width: 100%; }
+  .opt-footer-right .ed-btn-primary { width: 100%; padding: 13px 16px; }
   .opt-foot-note { text-align: center; }
 }
 
