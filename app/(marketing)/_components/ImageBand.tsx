@@ -5,7 +5,6 @@ export default function ImageBand({ tiles }: { tiles: Tile[] }) {
     <section className="ln-imgband">
       <div className="ln-imgband-grid">
         {tiles.map((t, i) => (
-          /* SCREENSHOT SLOT: food photo for tile "${t.label}" */
           <div key={i} className="ln-imgband-tile">
             {t.src ? (
               <img className="ln-tile-img" src={t.src} alt={t.alt ?? t.label} />

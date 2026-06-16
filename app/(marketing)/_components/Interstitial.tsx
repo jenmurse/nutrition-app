@@ -5,7 +5,6 @@ export default function Interstitial({ tiles }: { tiles: Tile[] }) {
     <section className="ln-interstitial">
       <div className="ln-interstitial-grid">
         {tiles.map((t, i) => (
-          /* SCREENSHOT SLOT: food photo for interstitial tile "${t.label}" */
           <div key={i} className="ln-interstitial-tile">
             {t.src ? (
               <img className="ln-tile-img" src={t.src} alt={t.alt ?? t.label} />
