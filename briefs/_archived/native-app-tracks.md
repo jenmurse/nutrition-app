@@ -2,10 +2,12 @@
 name: Native app tracks
 description: Scoping the path from web-only PWA to native apps across iOS/Android (and optionally desktop). Three architectural tracks with effort, maintenance, and trade-off detail.
 type: planning
-status: Track 1 selected as first step (June 2026). Tracks 2 and 3 documented for future reference.
+status: SUPERSEDED (June 16, 2026) by going-native-b2-plan.md. Kept for Track 2/3 background detail.
 author: Jen (with Claude)
 date: June 2026
 ---
+
+> **⚠️ SUPERSEDED — June 16, 2026.** The implementation decision has moved on. See **[`going-native-b2-plan.md`](going-native-b2-plan.md)** for the current plan: Capacitor (iOS-first) + a **Supabase Pro backend** (Railway retired), with MCP as a hosted remote connector. The "Track 1, Railway-authoritative" framing below is out of date. **Local-first (Track 2/3) was rejected** for Good Measure — it fights the household-sharing model and isn't needed since MCP talks to the Supabase cloud, not the device. The Track 2/3 detail here is retained only as background on the local-first option.
 
 # Native app tracks
 

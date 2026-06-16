@@ -1,8 +1,10 @@
 # Good Measure — Playbook
 
+> **⏸ On hold (June 16, 2026) pending the native/B2 work.** Going iOS/Android changes the AI surface these stories assume (MCP moves from a Claude Desktop install to a hosted remote connector; mobile flows differ). Authoring copy now would mean rewriting it after the migration — hold until the native shape is settled. The structure below still stands.
+
 ## Starter story library
 
-**Status:** Draft — title + summary + structure only, no copy yet
+**Status:** Draft — structure only, no copy yet. **Paused pending native (see banner).**
 **Author:** Jen (with Claude)
 **Date:** May 2026
 

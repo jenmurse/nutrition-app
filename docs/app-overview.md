@@ -27,10 +27,12 @@ Optimization and meal prep tools live inside Recipe Detail as the §04 and §05 
 
 ## Tech stack
 
+> **Migration ahead (June 16, 2026):** the going-native **B2 plan** (`briefs/going-native-b2-plan.md`) consolidates hosting + DB + storage onto **Supabase Pro** and retires Railway, ships native iOS/Android (Capacitor), and moves MCP to a hosted remote connector. The table below is the *current* stack; it'll change when the migration lands.
+
 | Layer | Choice |
 |---|---|
 | Framework | Next.js 15 (App Router) |
-| Hosting | Railway — push to `main` auto-deploys |
+| Hosting | Railway — push to `main` auto-deploys (→ Supabase Pro + Vercel for landing, per B2 plan) |
 | Database | Railway Postgres via Prisma (~20 models, fully normalized — Household, Person, Ingredient, Recipe, RecipeIngredient, MealPlan, MealLog, Nutrient, IngredientNutrient, GlobalNutritionGoal, NutritionGoal, HouseholdMember, HouseholdInvite, GlobalIngredient, GlobalIngredientNutrient, UsdaFoodCache, RecipeFavorite, IngredientFavorite, DayTemplate, DayTemplateItem, Waitlist, SystemSetting) |
 | Auth | Supabase Auth — email/password + Google OAuth. Middleware validates session and injects `x-supabase-user-id` header. Apple Sign-In will be added before App Store submission. |
 | AI | MCP-based — Claude Desktop + `good-measure-mcp` npm package (v1.4.x). **Read tools** (list_recipes, get_recipe, list_meal_plans, get_meal_plan_week, list_ingredients, list_people, get_person_goals, list_day_templates) **and write tools** (save_recipe, add_meal, update_meal, remove_meal, swap_meal, save_day_template, apply_day_template, save_optimization_notes, save_meal_prep_notes). No in-app AI API calls. |
@@ -224,7 +226,7 @@ See `ai_analysis.md` for full workflow details.
 - **Update Supabase transactional emails** with branding
 - **Custom domain finalization** — `withgoodmeasure.com` is live; see `rename_url_guide.md` for any remaining references that point to the old URL
 - **Open to the public** — remove invite gate, restore tabbed login, swap landing CTAs. Full checklist in `auth_and_access.md`.
-- **Infrastructure plan decision** — decide whether to stay on Railway Hobby + warm-up cron (~$3–5/mo, friends-and-family tier) or move to Railway Pro (~$20/mo flat, no sleep, higher resource limits, better for real public traffic). See `docs/COSTS.md` for the full breakdown.
+- **Infrastructure direction decided (June 16, 2026)** — the old "Railway Hobby vs Pro" question is superseded by the B2 plan: consolidate onto **Supabase Pro (~$25/mo flat)** and retire Railway as part of going native. See `briefs/going-native-b2-plan.md` (§8 cost analysis) and `docs/COSTS.md`.
 - **Chat rate limits** — add per-user daily token cap + per-household monthly backstop on `/api/chat` before opening to public. System prompt scope rules handle off-topic abuse for friends-and-family; hard limits needed when strangers can sign up. See `docs/CHAT-ARCHITECTURE.md` § Abuse / cost guardrails.
 
 ---

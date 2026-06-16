@@ -2,7 +2,9 @@
 
 Running ledger of what Good Measure costs to operate, what's covered by free tiers, and what changes when usage grows or the app opens to the public.
 
-Last updated: June 2026.
+Last updated: June 16, 2026.
+
+> **Planned change (June 16, 2026):** the going-native **B2 plan** (`briefs/going-native-b2-plan.md`) consolidates the backend onto **Supabase Pro (~$25/mo flat)** and **retires Railway** (and the warm-up cron with it). Landing/privacy move to Vercel (free tier), recipe images move R2 → Supabase Storage. The "Today" table below still reflects the *current* Railway-based setup; it will be rewritten when the migration ships. See the brief's §8 for the full forward-looking cost analysis.
 
 ---
 
@@ -220,12 +222,12 @@ These all depend on having Move 1 (usage logging) live for a few weeks first, so
 
 ## Decisions pending
 
-1. **Stay on Hobby + cron, or move to Pro?** Friends-and-family scale doesn't justify Pro. Decide before opening to the public. Recommended: stay Hobby through the public-soft-launch waitlist drain; move to Pro when you hit ~50+ DAU.
+1. **Railway → Supabase Pro consolidation** (B2 plan). Supersedes the old "stay on Hobby vs Railway Pro" question — the plan retires Railway entirely and moves the backend to Supabase Pro (~$25/mo flat, spend caps on). Happens as part of going native. See `briefs/going-native-b2-plan.md`.
 
-2. **When to delete the warm-up cron?** The moment you move to Railway Pro, the cron stops earning its keep — Pro doesn't sleep apps. Delete the cron-job.org job at that point.
+2. **Warm-up cron retires with Railway.** Once the backend is on Supabase Pro (which never pauses), the cron-job.org warm-up ping is obsolete — delete it then.
 
 3. **Native app billing**:
-   - Apple Developer Program: **$99/year** (required for App Store submission; pending Jen's DUNS resolution)
+   - Apple Developer Program: **$99/year** ✅ account approved June 16, 2026 (DUNS resolved)
    - Google Play developer: **$25 one-time**
    - Cloud build for iOS (Codemagic free tier or EAS Build): TBD based on Capacitor build pipeline choice
 

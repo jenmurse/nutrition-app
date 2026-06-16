@@ -8,6 +8,8 @@ author: Jen (with Claude)
 
 # Launch viability plan
 
+> **Note (June 16, 2026):** the native/architecture sections below reference the older "Track 1, Railway-authoritative" plan. That has been superseded by the **B2 plan** (`briefs/going-native-b2-plan.md`): Capacitor + a **Supabase Pro backend** (Railway retired), MCP as a hosted remote connector, local-first rejected. The competitive/front-door analysis in this doc still stands; treat the Track-1/Railway specifics as out of date.
+
 The question this doc answers: what has to change about Good Measure before it is
 worth putting in front of more friends, then in front of the public. It is a
 decision doc. Briefs come after, one concern at a time, as usual.
@@ -543,7 +545,7 @@ front-door work. None are launch-critical for friends-and-family testing.
   required for App Store + Play Store submission and for public launch. Build alongside
   the existing `/privacy` page. Add the link to the OAuth consent screen at that point.
 - **Privacy policy expansion** — current `/privacy` exists; expand to meet App
-  Store/Play Store requirements before native submission (per native-app-tracks.md).
+  Store/Play Store requirements before native submission. *(Done June 16, 2026 — see `briefs/going-native-b2-plan.md`.)*
 
 ### Brand
 - **Favicon / `gm` icon finalization** — explored and liked, not locked. Finalizing it
@@ -570,8 +572,10 @@ front-door work. None are launch-critical for friends-and-family testing.
     Garth's iCloud framing runs into.
   - **Conclusion:** Railway-as-truth is the simpler AND more correct answer for
     household sync. Do not reopen the data-architecture question pre-launch. Decision
-    already locked in native-app-tracks.md (Track 1, Railway authoritative). Revisit at
-    the Track 2 trigger, not before.
+    already documented in `briefs/_archived/native-app-tracks.md` — **but note that the
+    "Railway authoritative" framing is now superseded by `briefs/going-native-b2-plan.md`
+    (Supabase-backed, cloud source of truth).** The conclusion still holds: a cloud source
+    of truth (not local-first) is the right answer for household sync.
 - **Mobile MCP reality (informs the in-app chat priority):** the MCP cannot run on a
   phone — it is an npm package needing a desktop + Claude Desktop. So on iOS/Android the
   in-app chat is the ONLY way the AI experience can exist. This is why the in-app chat

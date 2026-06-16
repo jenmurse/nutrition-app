@@ -2,6 +2,8 @@
 
 Internal reference for architecture, costs, and optimizations.
 
+> **Heads-up (June 16, 2026):** the **B2 going-native plan** (`briefs/going-native-b2-plan.md`) will reshape this stack — backend consolidates onto **Supabase Pro** (Postgres + auth + storage + edge functions), **Railway is retired**, landing/privacy move to Vercel, recipe images move R2 → Supabase Storage, and MCP becomes a hosted remote connector. The diagram below is the *current* (pre-migration) stack and will be updated when the migration ships.
+
 ---
 
 ## 1. Current Stack (as of April 2026)

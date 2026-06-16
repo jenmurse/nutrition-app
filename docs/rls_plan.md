@@ -4,7 +4,7 @@ description: Options and implementation details for adding Supabase RLS — defe
 type: project
 ---
 
-**Status: Deferred** — app currently uses application-level auth (middleware + API route checks). RLS would be a second layer of defense. Decision: revisit before public launch.
+**Status: Deferred today, but the B2 going-native plan promotes it to required** (`briefs/going-native-b2-plan.md`, June 16, 2026). The app currently uses application-level auth (middleware + API route checks), and RLS is a second layer of defense. Under B2 Variant B (apps + MCP talk to Supabase directly, no API layer in between), RLS becomes the *primary* access-control mechanism — it's the main backend task of that variant. Variant A (keep the API layer on Vercel serverless) keeps app-level checks as the enforcer and RLS stays optional. Revisit accordingly.
 
 **Why:** Supabase RLS requires the DB connection to have the user's JWT identity set. Prisma connects directly to Postgres (bypassing PostgREST), so RLS sees no user identity by default.
 

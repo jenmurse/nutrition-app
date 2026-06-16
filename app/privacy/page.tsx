@@ -14,13 +14,18 @@ export default function PrivacyPage() {
           <h1 style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: "clamp(28px, 3vw, 40px)", letterSpacing: "-0.03em", lineHeight: 1.1, color: "var(--fg)", marginBottom: 24 }}>Your data, simply explained.</h1>
 
           <p style={{ fontFamily: "var(--font-sans)", fontWeight: 400, fontSize: 15, lineHeight: 1.7, color: "var(--fg-2)", maxWidth: 560, marginBottom: 0 }}>
-            Good Measure is a personal nutrition and meal planning tool made by Mer So Studio, LLC. This policy explains what data we collect, how it&rsquo;s used, and how you can control it.
+            Good Measure is a personal nutrition and meal planning tool made by Mer So Studio, LLC, available on the web, the App Store, and Google Play. This policy explains what data we collect, how it&rsquo;s used, and how you can control it. It applies to all three.
+          </p>
+
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", marginTop: 16 }}>
+            Effective June 16, 2026
           </p>
 
           <Section heading="What we collect">
             <List items={[
               "Your name and email address when you create an account",
-              "Nutrition goals, recipes, ingredients, and meal plans you create",
+              "Your name and email when you sign in with Apple or Google — only your name and email are shared with us by those services, nothing else",
+              "Nutrition goals, recipes, ingredients, meal plans, and day templates you create",
               "Your name and email address if you join the waitlist",
             ]} />
           </Section>
@@ -29,7 +34,8 @@ export default function PrivacyPage() {
             <List items={[
               "Payment information",
               "Location data",
-              "Advertising or tracking data of any kind",
+              "Contacts, photos library, or microphone access",
+              "Advertising or tracking identifiers of any kind — we never track you across other apps or websites",
             ]} />
           </Section>
 
@@ -45,15 +51,42 @@ export default function PrivacyPage() {
             </p>
           </Section>
 
+          <Section heading="Signing in">
+            <p style={bodyStyle}>
+              You can sign in with an email magic link, with{" "}
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Sign in with Apple</strong>, or with{" "}
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Google</strong>. When you use Apple or Google, they confirm your identity and share only your name and email with us. We don&rsquo;t receive your password, and we don&rsquo;t post anything or read anything else from those accounts. On the App Store and Google Play, your sign-in token is stored securely on your device (in the system keychain) so you stay signed in.
+            </p>
+          </Section>
+
+          <Section heading="On your phone and tablet">
+            <p style={bodyStyle}>
+              The mobile apps store a local copy of your recipes, pantry, and current plan on your device so the app works offline and loads quickly. This cache lives only on your device and is cleared when you delete the app. If we add reminders (for example, a nudge to start a recipe&rsquo;s prep), we&rsquo;ll ask your permission for notifications first &mdash; they&rsquo;re always optional. The apps request no other device permissions and contain no third-party advertising or analytics SDKs.
+            </p>
+          </Section>
+
           <Section heading="How long we keep it">
             <p style={bodyStyle}>
               Your data is kept for as long as your account exists. You can delete your account at any time from Settings. This permanently deletes all your data immediately.
             </p>
           </Section>
 
-          <Section heading="Cookies">
+          <Section heading="Cookies and sign-in tokens">
             <p style={bodyStyle}>
-              We use session cookies only to keep you signed in. We do not use advertising or tracking cookies.
+              On the web, we use session cookies only to keep you signed in. In the mobile apps, the equivalent sign-in token is stored securely on your device instead of in a cookie. We do not use advertising or tracking cookies anywhere.
+            </p>
+          </Section>
+
+          <Section heading="Your rights">
+            <p style={bodyStyle}>
+              Your data is yours. You can view and edit everything you&rsquo;ve created directly in the app at any time, and you can permanently delete your account &mdash; and all of its data &mdash; from Settings. If you&rsquo;d like a copy of your data exported, or you can&rsquo;t access your account, email us and we&rsquo;ll help. Depending on where you live, you may have additional rights under the GDPR (EU/UK) or CCPA (California), including the right to access, correct, port, or delete your data; this policy describes how we honor those rights for everyone.
+            </p>
+          </Section>
+
+          <Section heading="Children's privacy">
+            <p style={bodyStyle}>
+              Good Measure is not directed to children under 13, and we don&rsquo;t knowingly collect personal information from them. A parent can set up a{" "}
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>tracked-only profile</strong> for a child within their household &mdash; this holds only what the parent enters (such as a first name and nutrition goals) and has no login or account of its own.
             </p>
           </Section>
 
@@ -69,24 +102,15 @@ export default function PrivacyPage() {
             </p>
           </Section>
 
-          <Section heading="In-app AI chat">
+          <Section heading="AI integration via MCP (optional, advanced)">
             <p style={bodyStyle}>
-              Good Measure includes an in-app AI chat assistant. When you use it, your messages and a structured summary of your kitchen data (recipe names, nutrition goals, current week&rsquo;s plan, pantry summary) are sent to{" "}
-              <a href="https://www.anthropic.com" target="_blank" rel="noopener noreferrer" style={linkStyle}>Anthropic</a>
-              {" "}via their API to generate the response. Anthropic does not train on API traffic and retains it briefly for abuse monitoring per their{" "}
-              <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank" rel="noopener noreferrer" style={linkStyle}>commercial terms</a>.
-            </p>
-            <p style={{ ...bodyStyle, marginTop: 12 }}>
-              Your conversation history is also stored in Good Measure&rsquo;s database so you can pick up where you left off across sessions. You can clear your conversation at any time, and deleting your account erases your chat history immediately.
-            </p>
-            <p style={{ ...bodyStyle, marginTop: 12 }}>
-              Within a household, the chat can read and write data for any household member, mirroring the household sharing model above. The chat does not expose any data the rest of the app doesn&rsquo;t already make visible to household members.
+              Good Measure does not call any AI service on your behalf. Instead, it offers an optional MCP integration for use with any MCP-compatible AI agent (such as Claude). If you set this up, your recipe and nutrition data is accessed by your own AI agent using a token you control. Any data shared with your AI agent during a session is subject to that agent&rsquo;s own privacy policy &mdash; not ours.
             </p>
           </Section>
 
-          <Section heading="AI integration via MCP (optional, advanced)">
+          <Section heading="Changes to this policy">
             <p style={bodyStyle}>
-              Beyond the in-app chat, Good Measure also exposes an optional MCP integration for use with any MCP-compatible AI agent (e.g. Claude Desktop). If you set this up, your recipe and nutrition data is accessed by your own AI agent using a token you control. Good Measure does not send your data to any AI service on your behalf in this mode. Data shared with your AI agent during a session is subject to that agent&rsquo;s own privacy policy.
+              If we change what we collect or how we use it, we&rsquo;ll update this page and revise the effective date above. For significant changes, we&rsquo;ll let you know in the app.
             </p>
           </Section>
 

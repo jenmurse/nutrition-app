@@ -2,7 +2,7 @@
 
 In-app AI chat ("Ask"). This doc is the operational reference: what it is, where each piece lives, how it costs, and what to touch when you need to change something.
 
-For the visual spec see [`briefs/chat-v1.html`](../briefs/chat-v1.html). For the gated build plan see [`briefs/chat-v1-build-plan.md`](../briefs/chat-v1-build-plan.md).
+For the visual spec see [`briefs/_archived/chat-v1.html`](../briefs/_archived/chat-v1.html). For the gated build plan see [`briefs/_archived/chat-v1-build-plan.md`](../briefs/_archived/chat-v1-build-plan.md).
 
 ---
 

@@ -7,7 +7,7 @@
  * variations. The endpoint (`/api/meal-plans/[id]/optimize`) resolves all the
  * data and calls `optimizeDay`; everything here is deterministic and unit-testable.
  *
- * See briefs/meal-optimizer.md for the full spec (§6 objective, §7 search,
+ * See briefs/_archived/meal-optimizer.md for the full spec (§6 objective, §7 search,
  * §8 variation selection).
  */
 

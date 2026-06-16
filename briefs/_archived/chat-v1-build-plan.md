@@ -1,8 +1,10 @@
 # Chat v1 — Build Plan
 
-**Spec:** `briefs/chat-v1.html` (the visual mock)
-**Status:** Gate 0 approved, ready to start Gate 1
-**Scope:** in-app AI chat ("Ask") as the primary front door for Good Measure's AI features. MCP stays, demoted to advanced "connect your own AI" option.
+> **⚠️ Outcome update (June 15, 2026): built, then UI hidden.** Chat v1 shipped, but the in-app chat UI is now gated off (`SHOW_CHAT = false` in `lib/featureFlags.ts`) — the meal optimizer covers chat's highest-value job, and the product reverted to **MCP as the AI story** (not in-app chat). All chat code/API/MCP is intact; flip the flag to restore. See `docs/CHAT-ARCHITECTURE.md`. Also note: under the going-native **B2 plan**, the "we're on Railway not Vercel" and model-name assumptions below are out of date. Retained as the build record for the chat that shipped.
+
+**Spec:** `chat-v1.html` (the visual mock)
+**Status:** SHIPPED then HIDDEN (June 15, 2026) — see banner above.
+**Scope:** in-app AI chat ("Ask") was built as a front door for AI features. MCP stays as the advanced "connect your own AI" option — and is the primary AI story again now that chat is hidden.
 
 ---
 
@@ -44,7 +46,7 @@ Each gate has: **what's in scope**, **files touched**, **acceptance** (what "don
 
 ### Gate 0 — Mock approval ✓ DONE
 
-Visual spec locked in this conversation. See `briefs/chat-v1.html`.
+Visual spec locked in this conversation. See `chat-v1.html`.
 
 ### Gate 1 — Read-only chat (desktop)
 
