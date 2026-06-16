@@ -19,7 +19,7 @@ export default function AgentView() {
           <div className="agn-msg agn-user">
             <span className="agn-role">You</span>
             <p className="agn-text">
-              Lower the sodium in Sesame Miso Cannellini Beans — keep it tasting good.
+              Lower the sodium in Miso-Glazed Tofu — keep it tasting good.
             </p>
           </div>
 
@@ -34,8 +34,8 @@ export default function AgentView() {
                 <span className="agn-swap-d">4 tsp → 2 tsp</span>
               </div>
               <div className="agn-swap">
-                <span className="agn-swap-n">Cannellini beans</span>
-                <span className="agn-swap-d">→ no-salt</span>
+                <span className="agn-swap-n">Soy sauce</span>
+                <span className="agn-swap-d">→ low-sodium</span>
               </div>
             </div>
             <div className="agn-result">

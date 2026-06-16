@@ -48,8 +48,7 @@ export default function RecipeView({
             </div>
           </div>
           <div className="rcp-photo" aria-hidden="true">
-            {/* SCREENSHOT SLOT: dish photo */}
-            <span>Photo</span>
+            <img className="rcp-photo-img" src="/landing/food-dinner-tofu.jpg" alt="" />
           </div>
         </div>
 

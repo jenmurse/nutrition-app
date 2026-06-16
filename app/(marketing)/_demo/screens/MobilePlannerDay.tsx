@@ -38,7 +38,7 @@ const EMPTY_SLOTS = [
 const MEALS_TEMPLATE = [
   { type: "Breakfast", name: "Weekend Eggs & Avocado" },
   { type: "Lunch",     name: "Lunch Salad w/Salmon" },
-  { type: "Dinner",    name: "Sesame Miso Cannellini Beans" },
+  { type: "Dinner",    name: "Miso-Glazed Tofu" },
   { type: "Snack",     name: "Apple & Almond Butter" },
   { type: "Dessert",   name: "Lemon Bars" },
 ];

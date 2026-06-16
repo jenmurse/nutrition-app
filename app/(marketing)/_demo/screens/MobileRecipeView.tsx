@@ -25,7 +25,7 @@ export default function MobileRecipeView({ state = "original" }: { state?: "orig
       </div>
 
       <div className="mrcp-photo">
-        <span>Photo</span>
+        <img className="mrcp-photo-img" src="/landing/food-dinner-tofu.jpg" alt="" />
       </div>
 
       <div className="mrcp-section">

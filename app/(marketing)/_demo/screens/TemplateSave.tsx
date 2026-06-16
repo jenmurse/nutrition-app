@@ -7,7 +7,7 @@ import { week03 } from "../week";
 const MEALS = [
   { mt: "Breakfast", name: "Weekend eggs & avocado" },
   { mt: "Lunch",     name: "Lunch salad w/ salmon" },
-  { mt: "Dinner",    name: "Sesame Miso Cannellini Beans" },
+  { mt: "Dinner",    name: "Miso-Glazed Tofu" },
   { mt: "Snack",     name: "Apple & almond butter" },
   { mt: "Dessert",   name: "Lemon bars" },
 ];

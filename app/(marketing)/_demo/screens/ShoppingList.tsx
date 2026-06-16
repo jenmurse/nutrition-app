@@ -33,7 +33,7 @@ const GROUPS = [
   {
     name: "Canned & Legumes",
     items: [
-      { qty: "3",    unit: "can",    name: "Cannellini beans, no-salt", done: false },
+      { qty: "14",   unit: "oz",     name: "Firm tofu",            done: false },
       { qty: "1",    unit: "can",    name: "Chickpeas, no-salt",   done: false },
       { qty: "2",    unit: "cups",   name: "Rolled oats",          done: true  },
     ],

@@ -46,7 +46,7 @@ function mealsByType(meals: { mealType: string; name: string }[]): (string | nul
 const TEMPLATE_MEALS: (string | null)[] = [
   "Weekend eggs & avocado",
   "Lunch salad w/ salmon",
-  "Sesame Miso Cannellini Beans",
+  "Miso-Glazed Tofu",
   "Apple & almond butter",
   "Lemon bars",
 ];
@@ -91,7 +91,7 @@ export function week(mode: "off" | "applied"): PlannerDay[] {
   return [
     {
       dow: "Sun", date: 16,
-      meals: ["Weekend eggs & avocado", "Lunch salad w/ salmon", "Sesame Miso Cannellini Beans", "Apple & almond butter", "Lemon bars"],
+      meals: ["Weekend eggs & avocado", "Lunch salad w/ salmon", "Miso-Glazed Tofu", "Apple & almond butter", "Lemon bars"],
       totals: totals([1490, 68, 14, 1620, 118, 24, 5, 96, 26]),
     },
     {

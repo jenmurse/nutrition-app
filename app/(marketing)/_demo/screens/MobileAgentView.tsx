@@ -16,7 +16,7 @@ export default function MobileAgentView() {
         <div className="magn-msg magn-user">
           <span className="magn-role">You</span>
           <p className="magn-text">
-            Lower the sodium in Sesame Miso Cannellini Beans — keep it tasting good.
+            Lower the sodium in Miso-Glazed Tofu — keep it tasting good.
           </p>
         </div>
 
@@ -31,8 +31,8 @@ export default function MobileAgentView() {
               <span className="magn-swap-d">4 tsp → 2 tsp</span>
             </div>
             <div className="magn-swap">
-              <span className="magn-swap-n">Cannellini beans</span>
-              <span className="magn-swap-d">→ no-salt</span>
+              <span className="magn-swap-n">Soy sauce</span>
+              <span className="magn-swap-d">→ low-sodium</span>
             </div>
           </div>
           <div className="magn-result">
