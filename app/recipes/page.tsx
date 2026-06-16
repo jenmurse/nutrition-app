@@ -739,7 +739,7 @@ function RecipesPage() {
           <div className="flex items-center justify-center h-full">
             {recipes.length === 0 ? (
               <EmptyState
-                eyebrow="§ NO RECIPES YET"
+                eyebrow="NO RECIPES YET"
                 headline="An empty library."
                 lede={<>Build it from scratch, or import recipes<br />you already love.</>}
                 ctaLabel="+ NEW RECIPE →"
@@ -747,7 +747,7 @@ function RecipesPage() {
               />
             ) : (
               <EmptyState
-                eyebrow="§ NO MATCHES"
+                eyebrow="NO MATCHES"
                 headline="Nothing matches that."
                 lede={<>Try a different search, or clear the filters<br />to see everything.</>}
                 ctaLabel="CLEAR FILTERS →"
@@ -902,7 +902,7 @@ function RecipesPage() {
             onClick={() => setCompareOpen(false)}
             aria-label="Close comparison"
           >✕</button>
-          <div className="cmp-eyebrow">§ NUTRITION COMPARISON</div>
+          <div className="cmp-eyebrow">NUTRITION COMPARISON</div>
           <h1 className="cmp-title">Side by side.</h1>
         </div>
 

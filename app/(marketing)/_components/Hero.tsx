@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Hero() {
   return (
     <section className="ln-hero">
-      <span className="ln-hero-eyebrow">§ A nutrition &amp; meal-planning tool</span>
+      <span className="ln-hero-eyebrow">A nutrition &amp; meal-planning tool</span>
       <h1>
         Measure
         <br />

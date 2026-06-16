@@ -8,7 +8,7 @@ export default function WaitlistSuccessPage() {
         <Link href="/" className="standalone-back-link">← Back</Link>
       </header>
       <div className="standalone-body">
-        <div className="standalone-eyebrow">§ Thank you</div>
+        <div className="standalone-eyebrow">Thank you</div>
         <h1 className="standalone-headline">You&rsquo;re on the list.</h1>
         <p className="standalone-lede">
           We&rsquo;ll reach out when Good Measure is ready for the general public.

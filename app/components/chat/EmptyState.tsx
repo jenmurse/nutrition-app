@@ -12,7 +12,7 @@ export default function EmptyState() {
   const { send, isStreaming } = useChat();
   return (
     <div className="ck-empty">
-      <div className="ck-empty-eyebrow">§ A new conversation</div>
+      <div className="ck-empty-eyebrow">A new conversation</div>
       <div className="ck-empty-headline">Ask about your kitchen.</div>
       <p className="ck-empty-lede">
         Plan a day, dial in a recipe, or check tomorrow&rsquo;s groceries. Ask in plain

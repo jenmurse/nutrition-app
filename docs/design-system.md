@@ -657,7 +657,7 @@ These are the patterns that distinguish Good Measure from a generic app and rhym
 
 ### 6a. Bare eyebrow labels
 
-Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ WHY IT WORKS THIS WAY`, `§ THE INVITATION` — are bare DM Mono labels. **No container, no border, no background, no padding.** Just the text.
+Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `WHY IT WORKS THIS WAY`, `THE INVITATION` — are bare DM Mono labels. **No container, no border, no background, no padding.** Just the text.
 
 ```css
 .eyebrow {
@@ -670,15 +670,12 @@ Category labels like DESSERT, BREAKFAST, MAIN — and the landing's `§ WHY IT W
 
 **Single token — no exceptions.** An audit on April 30, 2026 found two competing sizes (9px and 11px) across the app. Decision: collapse to one token everywhere — `9px / 400 / 0.14em / var(--muted)`. Classes changed: `.cmp-eyebrow`, `.pl-shop-eyebrow`, `.pl-add-eyebrow` (were 11px/0.16em), `.auth-eyebrow` (was 0.18em). Recipe detail tag and meta line also corrected. See `briefs/_archived/eyebrow-audit.md` for the full inventory.
 
-The `§` prefix is a landing convention available to internal pages too (auth uses `§ Sign in`, `§ Create account`).
-
-### 6g. Typographic glyphs (≡, §, →, ↗)
+### 6g. Typographic glyphs (≡, →, ↗)
 
 These glyphs are treated as typographic marks, not icons. They represent ideas, not objects. Allowed uses:
 
 | Glyph | Use | Notes |
 |---|---|---|
-| `§` | Editorial section marker | Landing `§ PREMISE`, `§ INVITATION`; auth `§ SIGN IN` |
 | `→` | Direction / forward action | CTAs, step transitions |
 | `↗` | External / outbound link indicator | Links that open new contexts |
 | `≡` | Bottom rail MENU control | 10×8px inline SVG, 1px strokes, `currentColor`. **Only here** — not as a general menu affordance elsewhere |
@@ -690,13 +687,13 @@ The `≡` hamburger is rendered as inline SVG (three horizontal strokes, `viewBo
 Full-page empty states use a four-element pattern:
 
 ```
-§ EYEBROW
+EYEBROW
 Headline sentence.
 Lede — one short line of context.
 CTA LABEL →
 ```
 
-- **Eyebrow:** DM Mono 9px, `--muted`, `§ KEYWORD` convention.
+- **Eyebrow:** DM Mono 9px, `--muted`, all-caps keyword.
 - **Headline:** lowercase, ends with period. Imperative or observational. Working-surface scale (`clamp(22px, 2.4vw, 32px)`) when inside a working surface; Display scale for full-editorial moments (404, auth).
 - **Lede:** DM Sans 13px, `--fg-2`. One sentence of context.
 - **CTA:** Single action, `LABEL →`. Outlined button or bare mono link.
@@ -704,7 +701,7 @@ CTA LABEL →
 **Exception — dashboard stats strip:** Uses a three-element pattern (no headline). The stats strip is a quiet inline section between the greeting and the rest of the dashboard; it doesn't earn an editorial headline moment.
 
 ```
-§ DASHBOARD STATS
+DASHBOARD STATS
 Pick three nutrition values to track here.
 CHOOSE STATS →
 ```
@@ -894,7 +891,7 @@ Use Framer Motion (package `motion`) for entrance/exit on full-screen pages; CSS
 
 **Grid:** `grid-template-columns: 1fr 1px 1fr`. The centre column is an explicit `<div class="auth-divider" />` element — full-height `background: var(--rule)`. This is a structural element in the grid, not a `border-right` on the editorial panel. The two content columns are equal (`1fr` each).
 
-**Editorial left** (`justify-content: center`): `§ SIGN IN` / `§ CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) → DM Sans 14px lede. Left column: `padding: 48px clamp(24px, 5vw, 56px)` (matches landing nav). Right column: `padding: 48px 64px`.
+**Editorial left** (`justify-content: center`): `SIGN IN` / `CREATE ACCOUNT` eyebrow → DM Sans 700 headline (clamp 40–60px, -0.035em) → DM Sans 14px lede. Left column: `padding: 48px clamp(24px, 5vw, 56px)` (matches landing nav). Right column: `padding: 48px 64px`.
 
 **Form right** (`justify-content: center`): SIGN IN / CREATE ACCOUNT tab toggle (active 1.5px underline) → bottom-border-only fields → sharp black CTA → OR divider → outlined Google SSO button.
 
@@ -913,7 +910,7 @@ Routes: `/login` → Sign in. `/login?signup=1` → Create account. `/login?invi
 
 Full-screen, white background. No main app nav. Uses `data-register="marketing"` (resolves to `:root` — white).
 
-**Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 600, 13px, -0.03em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `§ ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
+**Topbar (`.ob-topbar`):** `Good Measure` wordmark (`.ob-topbar-wm` — DM Sans 600, 13px, -0.03em) left; step counter (`.ob-topbar-right` — DM Mono 9px, 0.14em, muted) right. Hairline below. No `ONBOARDING` label — it is redundant with both the step counter and the body eyebrow.
 
 **Step counter values:**
 
@@ -929,11 +926,11 @@ Full-screen, white background. No main app nav. Uses `data-register="marketing"`
 
 | Step | Eyebrow | Title | Content |
 |---|---|---|---|
-| Welcome | `§ WELCOME` | Measure what matters. | Subtitle + Get Started → |
-| Profile | `§ YOUR PROFILE` | Your profile. | Name input + 8 theme swatches (round) |
-| Household | `§ YOUR HOUSEHOLD` | Your household. | Name input + member list + invite links |
-| Goals | `§ DAILY GOALS` | Your goals. | 4 goal preset cards |
-| Complete | `§ READY` | You're all set. | Go to Dashboard → |
+| Welcome | `WELCOME` | Measure what matters. | Subtitle + Get Started → |
+| Profile | `YOUR PROFILE` | Your profile. | Name input + 8 theme swatches (round) |
+| Household | `YOUR HOUSEHOLD` | Your household. | Name input + member list + invite links |
+| Goals | `DAILY GOALS` | Your goals. | 4 goal preset cards |
+| Complete | `READY` | You're all set. | Go to Dashboard → |
 
 **Bookend pages (Welcome, Complete)** are content-only — no wordmark or icon in the body. The topbar wordmark is the only brand moment. The center wordmark and check icon were removed (April 30, 2026) as visual clutter.
 
@@ -979,7 +976,7 @@ Third meal source alongside Recipe and Ingredient. A meal log with `externalLabe
 
 - Renders as `Eating out — <label>` (or just `Eating out` if no label) in `var(--muted)` upright (no italic).
 - Excluded from nutrition aggregation and shopping list automatically (both branches gate on recipe/ingredient).
-- Picked from the meal picker's `§ OTHER` section. Tap expands an inline label input; Enter commits.
+- Picked from the meal picker's `OTHER` section. Tap expands an inline label input; Enter commits.
 - Dashboard surfaces (`Today's key meals`, `This week`) use the `.is-eatout` modifier on `.meal-card-name` and `.hm-day-meal-name` — never inline-styled.
 
 ### 8e. Recipes (list and grid)
@@ -1044,15 +1041,15 @@ Mobile-only persistent chrome at the bottom of every page (hidden on `/onboardin
 
 Form pages (New Recipe, Edit Recipe, New Pantry Item, Edit Pantry Item) follow a locked pattern:
 
-- **Eyebrow:** Single-word `§ NEW` or `§ EDIT` (DM Mono 9px, muted, uppercase). Replaces path-style breadcrumbs (`RECIPE / NEW`).
+- **Eyebrow:** Single-word `NEW` or `EDIT` (DM Mono 9px, muted, uppercase). Replaces path-style breadcrumbs (`RECIPE / NEW`).
 - **Headline:** DM Sans, working-surface scale (`clamp(22px, 2.4vw, 32px)`, weight 700, -0.02em). Lowercase, sentence case, ends with period.
 
 | Page | Eyebrow | Headline |
 |---|---|---|
-| New Recipe | `§ NEW` | `A new recipe.` |
-| Edit Recipe | `§ EDIT` | `Edit this recipe.` |
-| New Pantry Item | `§ NEW` | `A new pantry item.` |
-| Edit Pantry Item | `§ EDIT` | `Edit this pantry item.` |
+| New Recipe | `NEW` | `A new recipe.` |
+| Edit Recipe | `EDIT` | `Edit this recipe.` |
+| New Pantry Item | `NEW` | `A new pantry item.` |
+| Edit Pantry Item | `EDIT` | `Edit this pantry item.` |
 
 **Add Meal** uses the same working-surface scale for its headline (`.pl-add-title`). **Shopping** uses the same scale for its title (`.pl-shop-title`). Neither uses a Display-scale headline — they are working surfaces, not editorial bookend moments.
 

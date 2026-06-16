@@ -335,7 +335,7 @@ export default function CreateIngredientPage() {
         <div className="detail-content max-w-[1100px] mx-auto animate-page-enter" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
-            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ NEW</div>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">NEW</div>
             <h1 className="form-title">A new pantry item.</h1>
           </div>
 
@@ -393,7 +393,7 @@ export default function CreateIngredientPage() {
             {usdaSelected && (
               <div style={{ borderLeft: "2px solid var(--rule)", paddingLeft: 16, marginBottom: 32 }}>
                 <div className="font-mono" style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>
-                  § Imported from USDA
+                  Imported from USDA
                 </div>
                 <div className="font-sans" style={{ fontSize: 13, color: "var(--fg)" }}>
                   {usdaSelected.description}

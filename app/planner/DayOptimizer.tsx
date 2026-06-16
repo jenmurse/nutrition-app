@@ -273,7 +273,7 @@ export default function DayOptimizer({
         {step === "picker" ? (
           <div className="opt-scroll">
             <div className="opt-head">
-              <div className="opt-eyebrow">§ Optimize</div>
+              <div className="opt-eyebrow">Optimize</div>
               <h1 className="opt-title">Optimize this day.</h1>
               <div className="opt-context"><span className="opt-dot" />{dayLabel}{personName ? ` · ${personName}` : ""}</div>
             </div>
@@ -472,7 +472,7 @@ function ResultsView({
     return (
       <div className="opt-scroll">
         <div className="opt-head">
-          <div className="opt-eyebrow">§ Optimize</div>
+          <div className="opt-eyebrow">Optimize</div>
           <h1 className="opt-title">Nothing to optimize.</h1>
           <div className="opt-context">Unlock a meal, or add recipe meals to this day, then try again.</div>
         </div>
@@ -488,7 +488,7 @@ function ResultsView({
   return (
     <div className="opt-scroll">
       <div className="opt-head">
-        <div className="opt-eyebrow">§ Optimize</div>
+        <div className="opt-eyebrow">Optimize</div>
         <h1 className="opt-title">
           {variations.length === 1 ? "One way to optimize." : variations.length === 2 ? "Two ways to optimize." : "Three ways to optimize."}
         </h1>

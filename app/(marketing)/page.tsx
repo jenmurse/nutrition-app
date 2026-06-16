@@ -284,13 +284,13 @@ export default function MarketingLanding() {
       />
 
       <Architecture
-        eyebrow="§ Why it works this way"
+        eyebrow="Why it works this way"
         headline="Everything you cook. Connected to your AI."
         body="One install connects your AI to everything in Good Measure. Your recipes, your goals, your weekly plan. All of it readable and writable by your assistant. And the agent doesn't just suggest. It executes. Plan a whole day, swap a meal, save a day that worked as a template, apply it to next week. You confirm the destructive moves; the agent handles the fussy edits."
       />
 
       <Close
-        eyebrow="§ The invitation"
+        eyebrow="The invitation"
         headline="Cook by the gram. Plan by the week."
         body="I built Good Measure for myself and I use it every day. If you have been looking for something that can give you more control over what you eat, it's here for you to try. Right now it's invite-only, for friends and family."
       />

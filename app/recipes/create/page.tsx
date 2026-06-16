@@ -163,7 +163,7 @@ export default function CreateRecipePage() {
         <div className="detail-content max-w-[1100px] mx-auto animate-page-enter" style={{ padding: "48px 64px 60px 196px" }}>
           {/* Header */}
           <div style={{ marginBottom: 64 }}>
-            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ NEW</div>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">NEW</div>
             <h1 className="form-title">A new recipe.</h1>
           </div>
 

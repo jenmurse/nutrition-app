@@ -1995,7 +1995,7 @@ function PlannerPage() {
         <div className="animate-page-enter" style={{ minHeight: "100%" }}>
           {plan && (
             <ContextualTip tipId="planner-eating-out" label="Going out?" className="pl-tip-wrap">
-              Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as Eating out placeholders. Tap any meal slot, then look under § Other. They show in the day without affecting nutrition or the shopping list.
+              Meals you don&apos;t cook at home — a lunch with a coworker, dinner out — can be added as Eating out placeholders. Tap any meal slot, then look under Other. They show in the day without affecting nutrition or the shopping list.
             </ContextualTip>
           )}
           {plan && (
@@ -2006,7 +2006,7 @@ function PlannerPage() {
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
               <EmptyState
-                eyebrow="§ NO PLANS YET"
+                eyebrow="NO PLANS YET"
                 headline="A blank planner."
                 lede={<>Create your first meal plan to start using<br />the matrix view.</>}
                 ctaLabel="+ NEW PLAN →"
@@ -2492,7 +2492,7 @@ function PlannerPage() {
                 return (
                   <>
                     <div className="mx-picker-head">
-                      <span>§ {SLOT_LABELS[picker.slot].toUpperCase()}</span>
+                      <span>{SLOT_LABELS[picker.slot].toUpperCase()}</span>
                       <span>
                         {currentLogs.length > 0
                           ? `${currentLogs.length} picked`
@@ -2614,8 +2614,8 @@ function PlannerPage() {
                       />
                     )}
 
-                    {/* Eating-out section — same "§ HEAD + row" pattern as Recipes/Pantry */}
-                    <div className="mx-picker-section-head">§ Other</div>
+                    {/* Eating-out section — same "HEAD + row" pattern as Recipes/Pantry */}
+                    <div className="mx-picker-section-head">Other</div>
                     {!eatingOutOpen ? (
                       <div
                         role="button"
@@ -2946,7 +2946,7 @@ function BrowseSheet({
       >
         <div className="mx-browse-head">
           <div className="mx-browse-eyebrow">
-            <span>§ ALL {slotLabel.toUpperCase()} RECIPES</span>
+            <span>ALL {slotLabel.toUpperCase()} RECIPES</span>
             <button className="mx-browse-x" onClick={onClose} aria-label="Close">
               ✕ CLOSE
             </button>
@@ -3142,7 +3142,7 @@ function NewPlanDialog({
       <div className="mx-newplan-backdrop" onClick={!submitting ? onClose : undefined} aria-hidden="true" />
       <div className="mx-newplan-dialog" role="dialog" aria-modal="true" aria-label="New plan">
         <form onSubmit={handleSubmit}>
-          <div className="mx-newplan-eyebrow">§ NEW PLAN</div>
+          <div className="mx-newplan-eyebrow">NEW PLAN</div>
           <h2 className="mx-newplan-title">A new week.</h2>
 
           <label className="mx-newplan-label" htmlFor="np-date">Week starts (Sunday)</label>
@@ -3714,7 +3714,7 @@ function SaveTemplateSheet({
       <div className="mx-manage-sheet" role="dialog" aria-modal="true" aria-label="Save template">
         <div className="mx-manage-head">
           <div className="mx-manage-eyebrow">
-            <span>§ SAVE TEMPLATE</span>
+            <span>SAVE TEMPLATE</span>
             <button className="mx-manage-x" onClick={onClose} aria-label="Close" disabled={submitting}>✕ CLOSE</button>
           </div>
           <div className="mx-manage-title">
@@ -3810,7 +3810,7 @@ function ApplyTemplateSheet({
       <div className="mx-manage-sheet" role="dialog" aria-modal="true" aria-label="Apply a template">
         <div className="mx-manage-head">
           <div className="mx-manage-eyebrow">
-            <span>§ DAY TEMPLATES</span>
+            <span>DAY TEMPLATES</span>
             <button className="mx-manage-x" onClick={onClose} aria-label="Close">✕ CLOSE</button>
           </div>
           <div className="mx-manage-title">Apply a template.</div>
@@ -3879,7 +3879,7 @@ function ApplyTemplateConfirm({
     <>
       <div className="mx-newplan-backdrop" onClick={onClose} aria-hidden="true" />
       <div className="mx-newplan-dialog" style={{ width: 440 }} role="dialog" aria-modal="true" aria-label="Apply template">
-        <div className="mx-newplan-eyebrow">§ APPLY TEMPLATE</div>
+        <div className="mx-newplan-eyebrow">APPLY TEMPLATE</div>
         <h2 className="mx-newplan-title">Replace {dayName}'s meals?</h2>
         <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 20, fontSize: 13 }}>
           {dayName} already has <strong style={{ color: "var(--fg)" }}>{state.existingCount} meal{state.existingCount === 1 ? "" : "s"}</strong>.
@@ -3983,7 +3983,7 @@ function ManageTemplatesSheet({
       <div className="mx-manage-sheet" role="dialog" aria-modal="true" aria-label="Manage day templates">
         <div className="mx-manage-head">
           <div className="mx-manage-eyebrow">
-            <span>§ DAY TEMPLATES</span>
+            <span>DAY TEMPLATES</span>
             <button className="mx-manage-x" onClick={onClose} aria-label="Close">✕ CLOSE</button>
           </div>
           <div className="mx-manage-title">Saved days.</div>

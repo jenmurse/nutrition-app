@@ -46,7 +46,7 @@ export default function WaitlistPage() {
         <Link href="/" className="standalone-back-link">← Back</Link>
       </header>
       <div className="standalone-body">
-        <div className="standalone-eyebrow">§ Sign up</div>
+        <div className="standalone-eyebrow">Sign up</div>
         <h1 className="standalone-headline">Join our waitlist.</h1>
         <p className="standalone-lede">
           Good Measure is currently invite-only. Leave your name and email

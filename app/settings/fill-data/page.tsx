@@ -235,7 +235,7 @@ export default function FillDataPage() {
   return (
     <div style={{ height: "100%", overflowY: "auto" }}>
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 40px 96px" }}>
-      <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ FILL DATA</div>
+      <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">FILL DATA</div>
       <h1 className="form-title">Fill missing nutrient data.</h1>
       <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 32, marginTop: 16 }}>
         Bulk-edit nutrient values across your pantry. A blank input means unknown — the recipe panel will show <span style={{ color: "var(--fg)" }}>—</span> instead of <span style={{ color: "var(--fg)" }}>0g</span>. Type a number (including <code>0</code>) for an explicit value.

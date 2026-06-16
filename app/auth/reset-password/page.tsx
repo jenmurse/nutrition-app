@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
 
       <main className="auth-split">
         <section className="auth-left">
-          <div className="auth-eyebrow">§ Set new password</div>
+          <div className="auth-eyebrow">Set new password</div>
           <h1 className="auth-headline">Pick something you&rsquo;ll <em>remember.</em></h1>
           <p className="auth-lede">Use at least 8 characters.</p>
         </section>

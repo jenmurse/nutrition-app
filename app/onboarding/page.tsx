@@ -262,7 +262,7 @@ export default function OnboardingPage() {
             {/* ── Welcome (step 0) ──────────────────────────────────── */}
             {step === 0 && (
               <>
-                <div className="ob-eyebrow">§ WELCOME</div>
+                <div className="ob-eyebrow">WELCOME</div>
                 <h1 className="ob-headline ob-headline--welcome">
                   Measure what matters.
                 </h1>
@@ -284,7 +284,7 @@ export default function OnboardingPage() {
             {/* ── Profile (step 1) ──────────────────────────────────── */}
             {step === 1 && (
               <>
-                <div className="ob-eyebrow">§ YOUR PROFILE</div>
+                <div className="ob-eyebrow">YOUR PROFILE</div>
                 <h1 className="ob-headline">Pick your color.</h1>
                 <p className="ob-lede">
                   Your color marks what&rsquo;s yours across the app.<br />
@@ -329,7 +329,7 @@ export default function OnboardingPage() {
             {/* ── Household (step 2) ────────────────────────────────── */}
             {step === 2 && (
               <>
-                <div className="ob-eyebrow">§ YOUR HOUSEHOLD</div>
+                <div className="ob-eyebrow">YOUR HOUSEHOLD</div>
                 <h1 className="ob-headline">Who else is eating?</h1>
                 <p className="ob-lede">
                   Add the people you&rsquo;re planning meals for.<br />
@@ -439,7 +439,7 @@ export default function OnboardingPage() {
             {/* ── Goals (step 3) ────────────────────────────────────── */}
             {step === 3 && (
               <>
-                <div className="ob-eyebrow">§ DAILY GOALS</div>
+                <div className="ob-eyebrow">DAILY GOALS</div>
                 <h1 className="ob-headline">A starting point.</h1>
                 <p className="ob-lede">
                   Pick a preset close to what you&rsquo;re after.<br />
@@ -471,7 +471,7 @@ export default function OnboardingPage() {
             {/* ── Complete (step 4) ─────────────────────────────────── */}
             {step === 4 && (
               <>
-                <div className="ob-eyebrow">§ READY</div>
+                <div className="ob-eyebrow">READY</div>
                 <h1 className="ob-headline ob-headline--complete">
                   You&rsquo;re all set.
                 </h1>

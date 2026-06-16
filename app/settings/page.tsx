@@ -695,7 +695,7 @@ const SettingsPage = () => {
 
           {/* Page header */}
           <div style={{ paddingTop: 48, marginBottom: 40 }}>
-            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ SETTINGS</div>
+            <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">SETTINGS</div>
             <h1 className="form-title">Your preferences.</h1>
           </div>
 

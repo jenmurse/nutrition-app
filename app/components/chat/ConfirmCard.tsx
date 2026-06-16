@@ -132,7 +132,7 @@ function MealCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
   const label = single ? (MEAL_TYPE_LABELS[single.mealType] ?? single.mealType) : "";
   const personLabel = proposal.personName;
   const dateLabel = single ? fmtDate(single.date) : "";
-  const eyebrow = `§ Proposed change · ${personLabel} · ${dateLabel}`;
+  const eyebrow = `Proposed change · ${personLabel} · ${dateLabel}`;
 
   const ackLabel = isBulk
     ? (proposal.type === "fill_week" ? "Plan applied." : "Template applied.")
@@ -169,8 +169,8 @@ function MealCard({ messageId, dbId, proposal, status }: ConfirmCardProps) {
   if (isBulk) {
     const bulk = proposal as BulkMealProposal;
     const bulkEyebrow = bulk.type === "apply_template"
-      ? `§ Apply template · ${bulk.personName} · ${bulk.targetWeekday ?? ""} ${bulk.targetDate ?? ""}`
-      : `§ Proposed plan · ${bulk.personName}`;
+      ? `Apply template · ${bulk.personName} · ${bulk.targetWeekday ?? ""} ${bulk.targetDate ?? ""}`
+      : `Proposed plan · ${bulk.personName}`;
     const bulkTitle = bulk.type === "apply_template"
       ? `Apply "${bulk.templateName}" ${bulk.mode === "replace" ? "(replace)" : "(append)"}`
       : `${bulk.items.length} meals${bulk.weekLabel ? ` · ${bulk.weekLabel}` : ""}`;
@@ -387,10 +387,10 @@ function SaveRecipeCard({ messageId, dbId, proposal, status, appliedResultId }: 
 
   // Eyebrow varies by scenario
   const eyebrowText = isReplace
-    ? `§ Save recipe · replace · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}`
+    ? `Save recipe · replace · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}`
     : fromScratch
-      ? `§ Save recipe · new · from scratch · ${proposal.ingredients.length} ingredients`
-      : `§ Save recipe · new${totalChanges > 0 ? ` · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}` : ""}`;
+      ? `Save recipe · new · from scratch · ${proposal.ingredients.length} ingredients`
+      : `Save recipe · new${totalChanges > 0 ? ` · ${totalChanges} ingredient change${totalChanges === 1 ? "" : "s"}` : ""}`;
 
   return (
     <div className="ck-card ck-recipe-card">
@@ -619,7 +619,7 @@ function SaveDayTemplateCard({ messageId, dbId, proposal, status }: SaveDayTempl
     <div className="ck-card">
       <div className="ck-card-head">
         <div className="ck-card-eyebrow">
-          § Save template · {attribution} · {proposal.items.length} meal{proposal.items.length === 1 ? "" : "s"}
+          Save template · {attribution} · {proposal.items.length} meal{proposal.items.length === 1 ? "" : "s"}
         </div>
         <div className="ck-card-title">Save &ldquo;{proposal.name}&rdquo;</div>
       </div>
@@ -704,7 +704,7 @@ function SaveRecipeNotesCard({ messageId, dbId, proposal, status }: SaveRecipeNo
   return (
     <div className="ck-card">
       <div className="ck-card-head">
-        <div className="ck-card-eyebrow">§ Save notes · {types}</div>
+        <div className="ck-card-eyebrow">Save notes · {types}</div>
         <div className="ck-card-title">Notes for &ldquo;{proposal.recipeName}&rdquo;</div>
       </div>
       <div className="ck-card-body">

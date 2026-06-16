@@ -27,7 +27,7 @@ export default function OfflinePage() {
           color: "var(--muted)",
         }}
       >
-        § OFFLINE
+        OFFLINE
       </div>
       <h1
         style={{

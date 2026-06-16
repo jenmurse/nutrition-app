@@ -109,7 +109,7 @@ export default function InvitePage() {
 
       <main className="auth-split">
         <section className="auth-left">
-          <div className="auth-eyebrow">§ Create account</div>
+          <div className="auth-eyebrow">Create account</div>
           <h1 className="auth-headline">You&rsquo;re invited to set up your kitchen.</h1>
           <p className="auth-lede">
             Build your pantry once. Create or import recipes. Plan your week.

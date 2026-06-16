@@ -139,21 +139,21 @@ function LoginPage() {
 
   const copy = {
     signin: {
-      eyebrow: "§ Sign in",
+      eyebrow: "Sign in",
       headline: "Pick up where you left off.",
       lede: "Your pantry. Your recipes. The week you were planning. All calculated to the gram.",
       submit: "Sign in",
       submitLoading: "Signing in…",
     },
     signup: {
-      eyebrow: "§ Create account",
+      eyebrow: "Create account",
       headline: "Set up your kitchen.",
       lede: "Build your pantry once. Create or import recipes. Plan your week. Let Good Measure take care of the rest.",
       submit: "Create account",
       submitLoading: "Creating account…",
     },
     forgot: {
-      eyebrow: "§ Reset password",
+      eyebrow: "Reset password",
       headline: "Forgot? It happens.",
       lede: "Enter the email tied to your account and we’ll send a reset link.",
       submit: "Send reset link",

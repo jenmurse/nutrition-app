@@ -358,7 +358,7 @@ export default function RecipeDetailPage() {
     return (
       <div className="flex items-center justify-center h-full">
         <EmptyState
-          eyebrow="§ RECIPE NOT FOUND"
+          eyebrow="RECIPE NOT FOUND"
           headline="Nothing here."
           lede="This recipe may have been deleted or the link is broken."
           ctaLabel="← BACK TO RECIPES"
@@ -402,7 +402,7 @@ export default function RecipeDetailPage() {
           <div className="detail-content max-w-[1100px] mx-auto animate-page-enter" style={{ padding: "48px 64px 60px 196px" }}>
             {/* Header */}
             <div style={{ marginBottom: 64 }}>
-              <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">§ EDIT</div>
+              <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--muted)] mb-[6px]">EDIT</div>
               <h1 className="form-title">Edit this recipe.</h1>
             </div>
 

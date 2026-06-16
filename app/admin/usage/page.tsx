@@ -116,7 +116,7 @@ export default function AdminUsagePage() {
           <Link href="/" className="standalone-wordmark">Good Measure</Link>
         </header>
         <div className="standalone-body">
-          <div className="standalone-eyebrow">§ Admin</div>
+          <div className="standalone-eyebrow">Admin</div>
           <h1 className="standalone-headline">Usage.</h1>
           <form onSubmit={handleSubmit}>
             <label className="standalone-field">
@@ -222,7 +222,7 @@ export default function AdminUsagePage() {
         </span>
       </header>
       <div className="standalone-body" style={{ paddingTop: "48px", maxWidth: "1100px" }}>
-        <div className="standalone-eyebrow">§ Admin</div>
+        <div className="standalone-eyebrow">Admin</div>
         <h1 className="standalone-headline" style={{ marginBottom: "8px" }}>Usage.</h1>
 
         {/* Period selector + refresh */}
@@ -255,7 +255,7 @@ export default function AdminUsagePage() {
         {/* By feature */}
         {byFeature.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
-            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By feature</div>
+            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>By feature</div>
             <table style={summaryTableStyle}>
               <SummaryCols />
               <thead><tr>
@@ -279,7 +279,7 @@ export default function AdminUsagePage() {
         {/* By model */}
         {byModel.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
-            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By model</div>
+            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>By model</div>
             <table style={summaryTableStyle}>
               <SummaryCols />
               <thead><tr>
@@ -303,7 +303,7 @@ export default function AdminUsagePage() {
         {/* By person */}
         {byPerson.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
-            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By person</div>
+            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>By person</div>
             <table style={summaryTableStyle}>
               <SummaryCols />
               <thead><tr>
@@ -327,7 +327,7 @@ export default function AdminUsagePage() {
         {/* By day */}
         {byDay.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
-            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ By day</div>
+            <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>By day</div>
             <table style={summaryTableStyle}>
               <SummaryCols />
               <thead><tr>
@@ -350,7 +350,7 @@ export default function AdminUsagePage() {
 
         {/* Recent turns */}
         <section style={{ marginBottom: "60px" }}>
-          <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>§ Recent turns (last 50)</div>
+          <div className="standalone-eyebrow" style={{ marginBottom: "12px" }}>Recent turns (last 50)</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead><tr>
               <th style={thStyle}>When</th>

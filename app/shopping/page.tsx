@@ -187,7 +187,7 @@ export default function ShoppingPage() {
     return ai - bi;
   });
 
-  const rangeDisplay = weekRange ? `§ ${weekRange.toUpperCase()}` : '§';
+  const rangeDisplay = weekRange ? `${weekRange.toUpperCase()}` : '';
 
   // Build planner link with week context for empty state CTAs
   const plannerHref = weekParam ? `/planner?week=${weekParam}` : '/planner';
@@ -207,7 +207,7 @@ export default function ShoppingPage() {
         ) : isEmpty ? (
           noPlanForWeek ? (
             <EmptyState
-              eyebrow="§ NO PLAN THIS WEEK"
+              eyebrow="NO PLAN THIS WEEK"
               headline="A blank shopping list."
               lede="Create a plan for this week, add some recipes, and the ingredients will be waiting here."
               ctaLabel="+ CREATE PLAN →"
@@ -215,7 +215,7 @@ export default function ShoppingPage() {
             />
           ) : (
             <EmptyState
-              eyebrow="§ NO INGREDIENTS YET"
+              eyebrow="NO INGREDIENTS YET"
               headline="A week without a list."
               lede="Add recipes to your plan and the ingredients show up here, sorted and ready to shop."
               ctaLabel="OPEN PLANNER →"

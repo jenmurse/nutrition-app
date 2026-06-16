@@ -381,7 +381,7 @@ export default function Home() {
           <div className={`hm-stats-border border-t border-[var(--rule)]${statEntries.length === 0 ? ' border-b' : ''}`}>
             {statEntries.length === 0 ? (
               <div style={{ padding: `20px var(--pad)`, borderLeft: '2px solid var(--rule)', marginLeft: 'var(--pad)' }}>
-                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">§ DASHBOARD STATS</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--muted)] mb-[8px]">DASHBOARD STATS</div>
                 <div className="font-sans text-[13px] text-[var(--fg-2)] mb-[12px]">Pick three nutrition values to track here.</div>
                 <Link
                   href="/settings#dashboard"
@@ -436,7 +436,7 @@ export default function Home() {
           <div style={{ padding: `56px var(--pad) 72px` }}>
             <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-6">This week</div>
             <EmptyState
-              eyebrow="§ NO PLAN THIS WEEK"
+              eyebrow="NO PLAN THIS WEEK"
               headline="A blank week."
               lede={<>Drop in recipes for the days ahead<br />and the nutritional math handles itself.</>}
               ctaLabel="+ CREATE PLAN →"
@@ -449,7 +449,7 @@ export default function Home() {
             <div style={{ padding: `56px var(--pad) 72px` }}>
               <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] mb-6">Today</div>
               <EmptyState
-                eyebrow="§ NOTHING TODAY"
+                eyebrow="NOTHING TODAY"
                 headline="No meals logged."
                 lede={<>Open the planner to add meals<br />for today.</>}
                 ctaLabel="OPEN PLANNER →"
@@ -558,7 +558,7 @@ export default function Home() {
                 </div>
               ) : (
                 <EmptyState
-                  eyebrow="§ NOTHING TODAY"
+                  eyebrow="NOTHING TODAY"
                   headline="No meals logged."
                   lede={<>Open the planner to add meals<br />for today.</>}
                   ctaLabel="OPEN PLANNER →"

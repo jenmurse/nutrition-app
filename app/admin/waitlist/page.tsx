@@ -44,7 +44,7 @@ export default function AdminWaitlistPage() {
           <Link href="/" className="standalone-wordmark">Good Measure</Link>
         </header>
         <div className="standalone-body">
-          <div className="standalone-eyebrow">§ Admin</div>
+          <div className="standalone-eyebrow">Admin</div>
           <h1 className="standalone-headline">Waitlist.</h1>
           <form onSubmit={handleSubmit}>
             <label className="standalone-field">
@@ -76,7 +76,7 @@ export default function AdminWaitlistPage() {
         <span className="standalone-back-link">{entries.length} {entries.length === 1 ? "person" : "people"}</span>
       </header>
       <div className="standalone-body" style={{ paddingTop: "48px" }}>
-        <div className="standalone-eyebrow">§ Admin</div>
+        <div className="standalone-eyebrow">Admin</div>
         <h1 className="standalone-headline" style={{ marginBottom: "32px" }}>Waitlist.</h1>
         {entries.length === 0 ? (
           <p style={{ fontSize: "14px", color: "var(--muted)" }}>No entries yet.</p>

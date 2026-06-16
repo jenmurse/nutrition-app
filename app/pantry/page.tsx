@@ -617,7 +617,7 @@ function IngredientsPage() {
           <div className="flex items-center justify-center h-full">
             {ingredients.length === 0 ? (
               <EmptyState
-                eyebrow="§ NO INGREDIENTS YET"
+                eyebrow="NO INGREDIENTS YET"
                 headline="An empty pantry."
                 lede={<>Add what you cook with often,<br />or look it up as you go.</>}
                 ctaLabel="+ ADD INGREDIENT →"
@@ -625,7 +625,7 @@ function IngredientsPage() {
               />
             ) : (
               <EmptyState
-                eyebrow="§ NO MATCHES"
+                eyebrow="NO MATCHES"
                 headline="Nothing matches that."
                 lede={<>Try a different search, or clear the filters<br />to see everything.</>}
                 ctaLabel="CLEAR FILTERS →"
