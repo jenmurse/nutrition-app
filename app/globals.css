@@ -1535,9 +1535,9 @@ input[type="number"]:focus {
 /* Planner contextual-tip — outer margin keeps the tip inside the matrix gutter.
    Applied directly to the ContextualTip container so no empty div remains
    when the tip is dismissed. */
-.pl-tip-wrap { margin: 16px 40px 0; }
+.pl-tip-wrap { margin: 0; }
 @media (max-width: 767px) {
-  .pl-tip-wrap { margin: 12px var(--pad) 0; }
+  .pl-tip-wrap { margin: 0; }
 }
 
 /* ── VIEW menu (toolbar popover) ──────────────────────────────── */
@@ -9192,12 +9192,12 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
    Ported from briefs/mockup-meal-optimizer*.html; uses design-system tokens.
    ═══════════════════════════════════════════════════════════════════════════ */
 .opt-backdrop {
-  position: fixed; inset: 0; z-index: 9500;
+  position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 9500;
   background: rgba(0, 0, 0, 0.4);
   animation: backdropIn 200ms ease both;
 }
 .opt-surface {
-  position: fixed; inset: 0; z-index: 9501;
+  position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 9501;
   background: var(--bg);
   overflow-y: auto;
   animation: optIn 280ms var(--ease-out) both;
@@ -9205,10 +9205,10 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 @keyframes optIn { from { transform: translateX(3%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 .opt-close {
-  position: fixed; top: 20px; right: 28px; z-index: 9502;
-  width: 40px; height: 40px;
+  position: fixed; top: 28px; right: 40px; z-index: 9502;
+  width: 24px; height: 24px;
   border: 1px solid var(--rule); background: var(--bg);
-  color: var(--muted); cursor: pointer; font-size: 16px; line-height: 0;
+  color: var(--muted); cursor: pointer; font-size: 12px; line-height: 0;
   display: flex; align-items: center; justify-content: center;
 }
 .opt-close:hover { color: var(--fg); border-color: var(--fg); }
@@ -9335,6 +9335,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 
 /* Mobile: surface becomes a bottom sheet; columns stack into cards */
 @media (max-width: 767px) {
+  .opt-backdrop { top: 0; }
   .opt-surface {
     inset: auto 0 0 0;
     top: 8%;

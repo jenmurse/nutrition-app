@@ -211,6 +211,7 @@ function PlannerPage() {
   const [saveTplOpen, setSaveTplOpen] = useState<SaveTemplateState | null>(null);
   const [applyTpl, setApplyTpl] = useState<ApplyConfirmState | null>(null);
   const [manageOpen, setManageOpen] = useState(false);
+  const [applySheetState, setApplySheetState] = useState<{ date: Date } | null>(null);
   const [optimizeState, setOptimizeState] = useState<{ date: Date } | null>(null);
   const [showNutrition, setShowNutrition] = useState<boolean>(true);
   const [showMonthStrip, setShowMonthStrip] = useState<boolean>(false);
@@ -510,15 +511,10 @@ function PlannerPage() {
     }, 100);
   }
 
-  async function submitSaveTemplate(payload: { name: string } | { overwriteId: number; overwriteName: string }) {
-    if (!saveTplOpen || !plan) return;
-    const dateISO = `${saveTplOpen.date.getFullYear()}-${String(saveTplOpen.date.getMonth() + 1).padStart(2, "0")}-${String(saveTplOpen.date.getDate()).padStart(2, "0")}`;
+  async function doSaveTemplate(date: Date, payload: { name: string } | { overwriteId: number; overwriteName: string }) {
+    if (!plan) return;
+    const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const planId = plan.id;
-    // flushSync forces React to commit + render synchronously, so the dialog's
-    // backdrop element is removed from the DOM before any async work.
-    flushSync(() => { setSaveTplOpen(null); });
-    // Defensive scrub — iOS Safari sometimes holds the dimmed-chrome state.
-    scrubOverlays();
     try {
       if ("overwriteId" in payload) {
         const r = await fetch(`/api/day-templates/${payload.overwriteId}/snapshot`, {
@@ -552,6 +548,14 @@ function PlannerPage() {
       console.error(e);
       toast.error("Failed to save template");
     }
+  }
+
+  async function submitSaveTemplate(payload: { name: string } | { overwriteId: number; overwriteName: string }) {
+    if (!saveTplOpen) return;
+    const date = saveTplOpen.date;
+    flushSync(() => { setSaveTplOpen(null); });
+    scrubOverlays();
+    await doSaveTemplate(date, payload);
   }
 
   // ── Apply template flow ─────────────────────────────────────
@@ -1996,7 +2000,7 @@ function PlannerPage() {
           )}
           {plan && (
             <ContextualTip tipId="planner-optimize" label="Dial in a day" className="pl-tip-wrap">
-              Open a day&apos;s ⋯ menu and choose <strong>Optimize this day</strong>. Pick 1–3 nutrition goals, lock anything you want to keep, and the optimizer searches your recipes for swaps that hit those goals — no AI, instant, three ways to compare. Apply the one you like, then save it as a template if it&apos;s a keeper.
+              Open a day&apos;s ⋯ menu and choose <strong>Optimize this day</strong>. Pick 1–3 nutrition goals, lock anything you want to keep, and the optimizer searches your recipes for swaps that hit those goals and offers up three options to choose from. Choose the one you like best and it will apply to your day. Then save it as a template if it&apos;s a keeper.
             </ContextualTip>
           )}
           {!loading && !plan && plans.length === 0 && (
@@ -2740,19 +2744,35 @@ function PlannerPage() {
             onSave={() => openSaveTemplate(dayMenu.date)}
             onApply={(t) => startApplyTemplate(t, dayMenu.date)}
             onOpenManage={() => { closeDayMenu(); setManageOpen(true); }}
+            onOpenApply={() => { const d = dayMenu.date; closeDayMenu(); setApplySheetState({ date: d }); }}
+            onSaveTpl={async (payload) => { const d = dayMenu.date; closeDayMenu(); scrubOverlays(); await doSaveTemplate(d, payload); }}
+            onRename={renameTemplate}
+            onDelete={deleteTemplate}
+            onReorder={reorderTemplates}
           />,
           document.body
         )}
 
-      {/* ── Save template dialog ──────────────────────────────── */}
+      {/* ── Save template sheet (desktop right flyout) ───────── */}
       {saveTplOpen && typeof window !== "undefined" &&
         createPortal(
-          <SaveTemplateDialog
+          <SaveTemplateSheet
             state={saveTplOpen}
             mealLogsOnDay={plan ? plan.mealLogs.filter((l) => parseUTCDate(l.date).toDateString() === saveTplOpen.date.toDateString()) : []}
             existingTemplates={templates}
             onClose={() => setSaveTplOpen(null)}
             onSubmit={submitSaveTemplate}
+          />,
+          document.body
+        )}
+
+      {/* ── Apply template sheet (desktop right flyout) ──────── */}
+      {applySheetState && typeof window !== "undefined" &&
+        createPortal(
+          <ApplyTemplateSheet
+            templates={templates}
+            onClose={() => setApplySheetState(null)}
+            onApply={(t) => { const d = applySheetState.date; setApplySheetState(null); startApplyTemplate(t, d); }}
           />,
           document.body
         )}
@@ -3294,6 +3314,11 @@ function DayOverflowMenu({
   onSave,
   onApply,
   onOpenManage,
+  onOpenApply,
+  onSaveTpl,
+  onRename,
+  onDelete,
+  onReorder,
 }: {
   menu: DayMenuState;
   templates: DayTemplate[];
@@ -3304,18 +3329,81 @@ function DayOverflowMenu({
   onSave: () => void;
   onApply: (t: DayTemplate) => void;
   onOpenManage: () => void;
+  onOpenApply: () => void;
+  onSaveTpl: (payload: { name: string } | { overwriteId: number; overwriteName: string }) => Promise<void>;
+  onRename: (id: number, name: string) => Promise<boolean>;
+  onDelete: (template: DayTemplate) => Promise<void>;
+  onReorder: (ids: number[]) => Promise<void>;
 }) {
   const [search, setSearch] = useState("");
-  const [view, setView] = useState<"hub" | "apply">("hub");
+  const [view, setView] = useState<"hub" | "apply" | "save" | "manage">("hub");
   const SHOW_SEARCH = templates.length > 6;
   const itemCount = mealLogsOnDay.length;
   const canSave = itemCount > 0;
+
+  // Mobile save form state
+  const [saveName, setSaveName] = useState("");
+  const [saveOverwriteId, setSaveOverwriteId] = useState<number | "">("");
+  const [saveSubmitting, setSaveSubmitting] = useState(false);
+  const isOverwriting = saveOverwriteId !== "";
+  const overwriteTpl = isOverwriting ? templates.find((t) => t.id === saveOverwriteId) : null;
+  const canSaveSubmit = isOverwriting ? !!overwriteTpl : !!saveName.trim();
+
+  // Mobile manage state
+  const [manageSearch, setManageSearch] = useState("");
+  const [renaming, setRenaming] = useState<{ id: number; value: string } | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return templates;
     const q = search.toLowerCase();
     return templates.filter((t) => t.name.toLowerCase().includes(q));
   }, [templates, search]);
+
+  const manageFiltered = useMemo(() => {
+    if (!manageSearch.trim()) return templates;
+    const q = manageSearch.toLowerCase();
+    return templates.filter((t) => t.name.toLowerCase().includes(q));
+  }, [templates, manageSearch]);
+
+  function isMobileSheet() {
+    return typeof window !== "undefined" && window.innerWidth < 768;
+  }
+
+  function handleApplyClick() {
+    if (isMobileSheet()) { setView("apply"); }
+    else { onClose(); onOpenApply(); }
+  }
+  function handleSaveClick() {
+    if (isMobileSheet()) { setSaveName(""); setSaveOverwriteId(""); setView("save"); }
+    else { onSave(); }
+  }
+  function handleManageClick() {
+    if (isMobileSheet()) { setManageSearch(""); setRenaming(null); setView("manage"); }
+    else { onClose(); onOpenManage(); }
+  }
+
+  async function handleSaveSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSaveSubmit) return;
+    setSaveSubmitting(true);
+    try {
+      if (isOverwriting && overwriteTpl) {
+        await onSaveTpl({ overwriteId: overwriteTpl.id, overwriteName: overwriteTpl.name });
+      } else {
+        await onSaveTpl({ name: saveName.trim() });
+      }
+    } finally {
+      setSaveSubmitting(false);
+    }
+  }
+
+  async function commitRename() {
+    if (!renaming) return;
+    const value = renaming.value.trim();
+    if (!value) { setRenaming(null); return; }
+    const ok = await onRename(renaming.id, value);
+    if (ok) setRenaming(null);
+  }
 
   // Position: anchored to ⋯ button bottom; flip up if it would clip
   const position = useMemo(() => {
@@ -3364,7 +3452,7 @@ function DayOverflowMenu({
                 <button
                   type="button"
                   className="mx-day-menu-item is-template is-launch"
-                  onClick={() => setView("apply")}
+                  onClick={handleApplyClick}
                   disabled={templates.length === 0}
                   title={templates.length ? "Apply a saved template to this day" : "No templates yet"}
                 >
@@ -3374,7 +3462,7 @@ function DayOverflowMenu({
                 <button
                   type="button"
                   className="mx-day-menu-item is-template is-launch"
-                  onClick={onSave}
+                  onClick={handleSaveClick}
                   disabled={!canSave}
                   title={canSave ? "Save this day's meals as a reusable template" : "Add meals first"}
                 >
@@ -3384,7 +3472,7 @@ function DayOverflowMenu({
                 <button
                   type="button"
                   className="mx-day-menu-item is-template is-launch"
-                  onClick={onOpenManage}
+                  onClick={handleManageClick}
                 >
                   <span>Manage templates</span>
                   <span className="mx-day-menu-item-meta">→</span>
@@ -3392,10 +3480,10 @@ function DayOverflowMenu({
               </div>
             </div>
           </>
-        ) : (
+        ) : view === "apply" ? (
           <>
             <button type="button" className="mx-day-menu-back" onClick={() => setView("hub")}>
-              Back
+              Day actions
             </button>
             <div className="mx-day-menu-scroll">
               <div className="mx-day-menu-section">
@@ -3430,6 +3518,126 @@ function DayOverflowMenu({
               </div>
             </div>
           </>
+        ) : view === "save" ? (
+          <>
+            <button type="button" className="mx-day-menu-back" onClick={() => setView("hub")}>
+              Day actions
+            </button>
+            <div className="mx-day-menu-scroll">
+              <div className="mx-day-menu-section">
+                <div className="mx-day-menu-head">Save as template</div>
+                <form onSubmit={handleSaveSubmit} style={{ padding: "14px 14px 4px" }}>
+                  {!isOverwriting && (
+                    <>
+                      <label className="mx-newplan-label" htmlFor="mob-tpl-name">Template name</label>
+                      <input
+                        id="mob-tpl-name"
+                        type="text"
+                        className="mx-newplan-input"
+                        value={saveName}
+                        onChange={(e) => setSaveName(e.target.value)}
+                        placeholder="e.g. Workout day, Travel day…"
+                        autoFocus
+                        maxLength={80}
+                        disabled={saveSubmitting}
+                      />
+                    </>
+                  )}
+                  {templates.length > 0 && (
+                    <div style={{ marginTop: isOverwriting ? 0 : 12 }}>
+                      <label className="mx-newplan-label" htmlFor="mob-tpl-overwrite">
+                        {isOverwriting ? "Updating template" : "…or update an existing template"}
+                      </label>
+                      <select
+                        id="mob-tpl-overwrite"
+                        className="mx-newplan-input"
+                        value={saveOverwriteId}
+                        onChange={(e) => setSaveOverwriteId(e.target.value === "" ? "" : Number(e.target.value))}
+                        disabled={saveSubmitting}
+                        style={{ appearance: "none", WebkitAppearance: "none" }}
+                      >
+                        <option value="">— New template —</option>
+                        {templates.map((t) => (
+                          <option key={t.id} value={t.id}>{t.name}{t.person ? ` · ${t.person.name}` : ""}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="mx-day-menu-foot"
+                    disabled={saveSubmitting || !canSaveSubmit}
+                    style={{ marginTop: 16, borderRadius: 0 }}
+                  >
+                    {saveSubmitting ? "Saving…" : isOverwriting ? "Update template" : "Save template"}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* view === "manage" */
+          <>
+            <button type="button" className="mx-day-menu-back" onClick={() => setView("hub")}>
+              Day actions
+            </button>
+            <div className="mx-day-menu-scroll">
+              <div className="mx-day-menu-section">
+                <div className="mx-day-menu-head">Manage templates</div>
+                {templates.length > 4 && (
+                  <div className="mx-day-menu-search">
+                    <input
+                      type="search"
+                      placeholder="Search templates…"
+                      value={manageSearch}
+                      onChange={(e) => setManageSearch(e.target.value)}
+                    />
+                  </div>
+                )}
+                {templates.length === 0 ? (
+                  <div className="mx-day-menu-empty">No templates yet.<br />Save a day from the planner ⋯ menu.</div>
+                ) : manageFiltered.length === 0 ? (
+                  <div className="mx-day-menu-empty">No matches.</div>
+                ) : (
+                  manageFiltered.map((t) => (
+                    <div key={t.id} style={{ display: "flex", alignItems: "center", borderBottom: "1px solid var(--rule)", padding: "2px 0" }}>
+                      {renaming?.id === t.id ? (
+                        <input
+                          style={{ flex: 1, border: "none", background: "transparent", padding: "10px 14px", font: "400 13px/1 var(--font-sans)", letterSpacing: "-0.03em", color: "var(--fg)", outline: "none" }}
+                          value={renaming.value}
+                          onChange={(e) => setRenaming({ id: t.id, value: e.target.value })}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") { e.preventDefault(); commitRename(); }
+                            else if (e.key === "Escape") setRenaming(null);
+                          }}
+                          onBlur={commitRename}
+                          autoFocus
+                          maxLength={80}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          className="mx-day-menu-item is-template"
+                          style={{ flex: 1, textAlign: "left", border: "none", borderBottom: "none" }}
+                          onClick={() => setRenaming({ id: t.id, value: t.name })}
+                        >
+                          {t.name}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => onDelete(t)}
+                        style={{ background: "none", border: "none", padding: "0 14px", cursor: "pointer", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" }}
+                        aria-label={`Delete ${t.name}`}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
         )}
       </div>
     </>
@@ -3437,9 +3645,9 @@ function DayOverflowMenu({
 }
 
 // ──────────────────────────────────────────────────────────────
-// SaveTemplateDialog
+// SaveTemplateSheet — right-side flyout (desktop)
 // ──────────────────────────────────────────────────────────────
-function SaveTemplateDialog({
+function SaveTemplateSheet({
   state,
   mealLogsOnDay,
   existingTemplates,
@@ -3502,21 +3710,23 @@ function SaveTemplateDialog({
 
   return (
     <>
-      <div className="mx-newplan-backdrop" onClick={!submitting ? onClose : undefined} aria-hidden="true" />
-      <div className="mx-newplan-dialog" role="dialog" aria-modal="true" aria-label="Save template">
-        <form onSubmit={handleSubmit}>
-          <div className="mx-newplan-eyebrow">§ SAVE TEMPLATE</div>
-          <h2 className="mx-newplan-title">
-            {isOverwriting
-              ? `Replace "${overwriteTemplate?.name ?? ""}".`
-              : `Save ${dayName} as a template.`}
-          </h2>
-          <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 20, fontSize: 13 }}>
+      <div className="mx-browse-backdrop" onClick={!submitting ? onClose : undefined} aria-hidden="true" />
+      <div className="mx-manage-sheet" role="dialog" aria-modal="true" aria-label="Save template">
+        <div className="mx-manage-head">
+          <div className="mx-manage-eyebrow">
+            <span>§ SAVE TEMPLATE</span>
+            <button className="mx-manage-x" onClick={onClose} aria-label="Close" disabled={submitting}>✕ CLOSE</button>
+          </div>
+          <div className="mx-manage-title">
+            {isOverwriting ? `Replace "${overwriteTemplate?.name ?? ""}".` : `Save ${dayName} as a template.`}
+          </div>
+          <p style={{ color: "var(--muted)", lineHeight: 1.6, fontSize: 13, marginBottom: 0 }}>
             {isOverwriting
               ? `The existing items in this template will be replaced with ${dayName}'s meals.`
               : "Reusable on any future day. The current recipes, ingredients, servings, and quantities are captured."}
           </p>
-
+        </div>
+        <form onSubmit={handleSubmit} style={{ padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column", gap: 0, overflowY: "auto" }}>
           {!isOverwriting && (
             <>
               <label className="mx-newplan-label" htmlFor="tpl-name">Template name</label>
@@ -3532,7 +3742,6 @@ function SaveTemplateDialog({
               />
             </>
           )}
-
           {existingTemplates.length > 0 && (
             <div style={{ marginTop: isOverwriting ? 0 : 16 }}>
               <label className="mx-newplan-label" htmlFor="tpl-overwrite">
@@ -3540,7 +3749,7 @@ function SaveTemplateDialog({
               </label>
               <select
                 id="tpl-overwrite"
-                className="mx-newplan-input"
+                className="mx-newplan-select"
                 value={overwriteId}
                 onChange={(e) => setOverwriteId(e.target.value === "" ? "" : Number(e.target.value))}
                 disabled={submitting}
@@ -3554,18 +3763,93 @@ function SaveTemplateDialog({
               </select>
             </div>
           )}
-
           <div style={{ borderLeft: "2px solid var(--rule)", padding: "6px 0 6px 14px", marginTop: 16, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
             Capturing <strong style={{ color: "var(--fg)" }}>{state.itemCount} item{state.itemCount === 1 ? "" : "s"}</strong>{breakdown && `: ${breakdown}`}.
           </div>
-
-          <div className="mx-newplan-actions">
+          <div className="mx-newplan-actions" style={{ marginTop: "auto", paddingTop: 24 }}>
             <button type="button" className="ed-btn-text" onClick={onClose} disabled={submitting}>Cancel</button>
             <button type="submit" className="ed-btn-primary" disabled={submitting || !canSubmit}>
               {submitting ? "Saving…" : isOverwriting ? "Replace contents" : "Save template"}
             </button>
           </div>
         </form>
+      </div>
+    </>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// ApplyTemplateSheet — right-side flyout (desktop)
+// ──────────────────────────────────────────────────────────────
+function ApplyTemplateSheet({
+  templates,
+  onClose,
+  onApply,
+}: {
+  templates: DayTemplate[];
+  onClose: () => void;
+  onApply: (t: DayTemplate) => void;
+}) {
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return templates;
+    const q = search.toLowerCase();
+    return templates.filter((t) => t.name.toLowerCase().includes(q));
+  }, [templates, search]);
+
+  return (
+    <>
+      <div className="mx-browse-backdrop" onClick={onClose} aria-hidden="true" />
+      <div className="mx-manage-sheet" role="dialog" aria-modal="true" aria-label="Apply a template">
+        <div className="mx-manage-head">
+          <div className="mx-manage-eyebrow">
+            <span>§ DAY TEMPLATES</span>
+            <button className="mx-manage-x" onClick={onClose} aria-label="Close">✕ CLOSE</button>
+          </div>
+          <div className="mx-manage-title">Apply a template.</div>
+          <input
+            className="mx-manage-search"
+            type="search"
+            placeholder="Search templates…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="mx-manage-list">
+          {templates.length === 0 ? (
+            <div className="mx-manage-empty">No templates yet.<br />Save a day from the planner ⋯ menu.</div>
+          ) : filtered.length === 0 ? (
+            <div className="mx-manage-empty">No matches.</div>
+          ) : (
+            filtered.map((t) => (
+              <div key={t.id} className="mx-manage-item" style={{ cursor: "pointer" }} onClick={() => onApply(t)}>
+                <div>
+                  <div className="mx-manage-name">{t.name}</div>
+                  <div className="mx-manage-meta">
+                    {t.person && (
+                      <>
+                        <span className="mx-manage-meta-attrib">
+                          <span className="mx-manage-meta-attrib-dot" style={{ background: t.person.color || "var(--accent)" }} />
+                          From {t.person.name}
+                        </span>
+                        <span>·</span>
+                      </>
+                    )}
+                    <span>{t.items.length} item{t.items.length === 1 ? "" : "s"}</span>
+                  </div>
+                </div>
+                <span style={{ color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>→</span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </>
   );
