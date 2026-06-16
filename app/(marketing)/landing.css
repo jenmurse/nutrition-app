@@ -558,6 +558,292 @@ html[data-marketing] {
 .ln .ed-btn-primary { color: var(--bg); }
 .ln .ed-btn-outline { color: var(--fg); }
 
+/* ── DEMO SCREENS — live, app-faithful scenario visuals ───────────────────
+   Replace the Ph* placeholders. A fixed 880×660 design canvas (DemoStage)
+   scales to whatever frame holds it (sticky stage on desktop, beat-shot on
+   mobile), so all states share one visual scale. The optimizer screens reuse
+   the real .opt-* classes from globals.css for 1:1 fidelity. */
+/* The white screen sits inset within the grey (--bg-2) stage, leaving a frame
+   of grey and a band up top for the eyebrow tag — like a floating screenshot. */
+.dm-stage-fit {
+  position: absolute;
+  inset: 9%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dm-canvas {
+  /* width/height set inline per screen by DemoStage — styled as the app window */
+  flex: none;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  transform-origin: center center;
+}
+.dm-screen { width: 100%; height: 100%; }
+
+/* — App window chrome — the recurring "this is Good Measure" frame. — */
+.aw { width: 100%; height: 100%; display: flex; flex-direction: column; }
+.aw-bar {
+  height: 60px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 0 30px;
+  border-bottom: 1px solid var(--rule);
+}
+.aw-brand { font: 600 19px/1 var(--font-sans); letter-spacing: -0.03em; color: var(--fg); }
+.aw-nav { display: flex; align-items: center; gap: 26px; }
+.aw-tab {
+  font: 400 11px/1 var(--font-mono);
+  letter-spacing: var(--track-mono);
+  text-transform: uppercase;
+  color: var(--muted);
+  /* transparent underline on every tab so the active one doesn't change height */
+  border-bottom: 1.5px solid transparent;
+  padding-bottom: 2px;
+}
+.aw-tab.is-on { color: var(--fg); border-bottom-color: var(--fg); }
+.aw-right { margin-left: auto; display: flex; gap: 8px; }
+.aw-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); display: inline-block; }
+.aw-avatar-2 { background: var(--bg-3); }
+.aw-body { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+
+/* — Day view (A off-target, D applied). Totals colored by goal status, so the
+     two red numbers turn green between the two beats. — */
+.dp { flex: 1; display: flex; flex-direction: column; padding: 34px 40px; }
+.dp-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 18px; border-bottom: 2px solid var(--fg); }
+.dp-title { font: 600 25px/1 var(--font-sans); letter-spacing: -0.03em; color: var(--fg); }
+.dp-person { font: 400 11px/1 var(--font-mono); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--muted); }
+.dp-cols { flex: 1; display: grid; grid-template-columns: 1.25fr 1fr; gap: 44px; padding-top: 22px; align-items: start; }
+.dp-meals { display: flex; flex-direction: column; }
+.dp-meal { display: flex; flex-direction: column; gap: 5px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.dp-meal:first-child { padding-top: 0; }
+.dp-mtype { font: 400 10px/1 var(--font-mono); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--muted); }
+.dp-mname { font: 500 19px/1.25 var(--font-sans); letter-spacing: -0.02em; color: var(--fg); }
+.dp-mserv { font: 400 10px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.dp-tlabel { display: block; font: 400 10px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.dp-tlist { display: flex; flex-direction: column; }
+.dp-trow { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.dp-trow:last-child { border-bottom: none; }
+.dp-tname { font: 400 10px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.dp-tval { font: 600 17px/1 var(--font-sans); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--fg); }
+.dp-tval.is-ok { color: var(--ok); }
+.dp-tval.is-off { color: var(--err); }
+.dp-tval small { font: 400 10px var(--font-mono); color: var(--muted); margin-left: 2px; }
+
+/* — Real planner week grid (A off-target, D applied). The target day's column
+     is highlighted; its totals go red → green between the two beats. — */
+.pl { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.pl-toolbar { display: flex; align-items: center; gap: 18px; padding: 13px 24px; border-bottom: 1px solid var(--rule); }
+.pl-range { font: 600 13px/1 var(--font-sans); letter-spacing: -0.02em; color: var(--fg); }
+.pl-nav { font: 400 10px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pl-spacer { flex: 1; }
+.pl-tool { font: 400 10px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pl-cta { font: 400 10px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--bg); background: var(--fg); padding: 8px 12px; }
+.pl-grid { flex: 1; display: grid; grid-template-columns: 92px repeat(7, 1fr); grid-template-rows: auto repeat(5, 1fr) auto; padding: 0 24px; }
+.pl-corner { border-bottom: 1px solid var(--rule); }
+.pl-dayhead { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-left: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.pl-dayhead.is-target { background: var(--bg-2); }
+.pl-dow { font: 400 9px/1 var(--font-mono); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--muted); }
+.pl-date { font: 600 18px/1 var(--font-sans); letter-spacing: -0.02em; color: var(--fg); }
+.pl-rowlabel { font: 400 9px/1.3 var(--font-mono); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--muted); padding: 13px 8px 13px 0; display: flex; align-items: flex-start; border-bottom: 1px solid var(--rule); }
+.pl-cell { padding: 11px 12px; border-left: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.pl-cell.is-target { background: var(--bg-2); }
+.pl-meal { display: flex; flex-direction: column; gap: 4px; font: 500 13px/1.25 var(--font-sans); letter-spacing: -0.01em; color: var(--fg); }
+.pl-meal small { font: 400 9px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.pl-add { font: 400 10px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); opacity: 0.5; }
+.pl-totlabel { padding-top: 13px; }
+.pl-totcell { padding: 13px 12px; border-left: 1px solid var(--rule); display: flex; flex-direction: column; gap: 5px; }
+.pl-totcell.is-target { background: var(--bg-2); }
+.pl-totrow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.pl-totname { font: 400 8px/1 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.pl-totval { font: 600 12px/1 var(--font-sans); font-variant-numeric: tabular-nums; color: var(--fg); }
+.pl-totval.is-ok { color: var(--ok); }
+.pl-totval.is-off { color: var(--err); }
+.pl-totval small { font: 400 8px var(--font-mono); color: var(--muted); margin-left: 1px; }
+/* Focus mode: 3-day slice (Mon · Tue · Wed) with neighbors dimmed to the day. */
+.pl--focus .pl-grid { grid-template-columns: 110px repeat(3, 1fr); }
+.pl--focus .pl-dayhead:not(.is-target),
+.pl--focus .pl-cell:not(.is-target),
+.pl--focus .pl-totcell:not(.is-target) { opacity: 0.4; }
+
+/* Scroll-linked camera push: the full week scales toward the Tuesday column as
+   --cam goes 0→1 (set by StickyScene from scroll). Origin sits on Tue. */
+.plz {
+  width: 100%;
+  height: 100%;
+  /* Origin on the Tuesday column, up near the meals (≈42% across, 18% down).
+     Phase 1 zooms in there; phase 2 pans up so the scan ends on the totals. */
+  transform-origin: 42% 18%;
+  /* Pan caps at -45% so the planner's bottom (the totals) lands exactly at the
+     window's bottom — panning further would reveal empty space below it. */
+  transform:
+    translateY(calc(var(--pan, 0) * -45%))
+    scale(calc(1 + var(--zoom, 0) * 0.55));
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plz { transform: none; }
+}
+
+/* — Optimizer screens (B picker, C results) reuse the live .opt-* classes;
+     retune to fit the app-window body. — */
+.dm-optfit { max-width: none; margin: 0; padding: 32px 44px; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+.dm-optfit .opt-head { padding-top: 0; }
+.dm-optfit .opt-title { font-size: 30px; margin: 14px 0 0; }
+.dm-optfit .opt-context { margin-top: 12px; }
+.dm-optfit .opt-section { margin-top: 28px; max-width: none; }
+.dm-optfit .opt-meal-row { padding: 12px 0; }
+.dm-optfit .opt-results-subline { margin-top: 12px; }
+.dm-optfit .opt-baseline { margin-top: 24px; padding: 13px 0; }
+.dm-optfit .opt-cols { margin-top: 28px; }
+.dm-optfit .opt-col { padding: 20px 18px 22px; }
+.dm-optfit .opt-targets { margin-top: 20px; gap: 16px; }
+.dm-optfit .opt-meal-list { margin-top: 20px; }
+.dm-optfit .opt-m-row { padding: 10px 0; }
+/* Footers pin to the bottom of the window, like the app's sticky footers.
+   max-width:none lets the picker buttons right-align to the window edge (the
+   base rule caps it at 720px). Results footer drops its top rule (the column
+   boxes already read as a group) and centers the adjust link with the button. */
+.dm-optfit .opt-footer { margin-top: auto; max-width: none; }
+/* Results footer: adjust + apply share row 1 (vertically aligned); note below
+   the apply button on row 2. */
+.dm-optfit .opt-footer-results {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 6px;
+  border-top: none;
+}
+.dm-optfit .opt-footer-results .opt-adjust { grid-area: 1 / 1; }
+.dm-optfit .opt-footer-results .opt-apply { grid-area: 1 / 2; justify-self: end; }
+.dm-optfit .opt-footer-results .opt-foot-note { grid-area: 2 / 2; justify-self: end; }
+.dm-optfit .opt-m-row:last-child { border-bottom: none; }
+.dm-optfit .opt-lock { background: none; border: none; padding: 0; color: var(--muted); }
+.dm-optfit .opt-lock .lk-body,
+.dm-optfit .opt-lock .lk-shackle { fill: none; stroke: var(--muted); stroke-width: 1.3; }
+
+/* — Stacked beat sections (Scenario 02): one idea each, big floating product
+     window beside the copy, alternating sides, one full-width moment. — */
+.ln-beatsec {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+  padding: clamp(56px, 9vh, 118px) 0;
+}
+.ln-beatsec.flip { grid-template-columns: 1.15fr 1fr; }
+.ln-beatsec.flip .ln-beatsec-copy { order: 2; }
+.ln-beatsec.flip .ln-beatsec-visual { order: 1; }
+.ln-beatsec-copy { max-width: 46ch; }
+.ln-beatsec-copy .ln-eyebrow { display: block; }
+.ln-beatsec-copy h3 {
+  font-family: var(--font-sans);
+  font-size: clamp(28px, 3.2vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: 18px;
+  text-wrap: balance;
+}
+.ln-beatsec-copy p {
+  font-size: 16px;
+  color: var(--fg-2);
+  margin-top: 18px;
+  line-height: 1.7;
+  text-wrap: pretty;
+  max-width: 42ch;
+}
+/* Full-width variant: copy above, big centered visual (breaks the rhythm). */
+.ln-beatsec.wide { grid-template-columns: 1fr; gap: clamp(32px, 4vw, 56px); justify-items: start; }
+.ln-beatsec.wide .ln-beatsec-copy { max-width: 60ch; }
+.ln-beatsec.wide .ln-beatsec-visual { width: 100%; }
+
+/* — Sticky scene (Scenario 02): beats scroll while one big app window stays
+     pinned and cross-fades through the beats' visuals. Compact + focused. — */
+.ss-track {
+  padding: 0 0 clamp(80px, 12vh, 180px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+/* Tail must be ≥ the scan distance (vh·0.32 = 32vh) so the last beat's scan
+   finishes while the stage is still pinned; +6vh holds the final state briefly. */
+.ss-beats { min-width: 0; padding-bottom: 38vh; }
+.ss-beat {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ss-beat .ln-eyebrow { display: block; }
+.ss-beat h3 {
+  font-family: var(--font-sans);
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: 16px;
+  text-wrap: balance;
+  max-width: 18ch;
+}
+.ss-beat p {
+  font-size: 16px;
+  color: var(--fg-2);
+  margin-top: 16px;
+  line-height: 1.7;
+  text-wrap: pretty;
+  max-width: 40ch;
+}
+.ss-stagecol {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.ss-stage { width: 100%; display: grid; align-items: center; }
+.ss-state {
+  grid-area: 1 / 1;
+  align-self: center;
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 480ms var(--ease-out), transform 600ms var(--ease-out);
+  pointer-events: none;
+}
+.ss-state.is-active { opacity: 1; transform: scale(1); }
+
+/* Floating app window — the product is the hero, no surrounding box. */
+.fw { position: relative; width: 100%; }
+.fw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+@media (max-width: 880px) {
+  .ln-beatsec { grid-template-columns: 1fr; gap: 28px; padding: 44px 0; }
+  .ln-beatsec.flip .ln-beatsec-copy,
+  .ln-beatsec.flip .ln-beatsec-visual { order: 0; }
+  /* Sticky scene: pin the window at the top, beats scroll beneath it. */
+  .ss-track { grid-template-columns: 1fr; gap: 0; }
+  .ss-stagecol { order: -1; position: sticky; top: 8px; height: auto; padding: 10px 0 18px; }
+  .ss-beat { min-height: auto; padding: 28px 0 48px; }
+  .ss-beat:first-child { min-height: auto; padding-top: 8px; }
+}
+
 /* ── MOBILE ── */
 @media (max-width: 880px) {
   html[data-marketing] { scroll-snap-type: none; }
@@ -615,6 +901,11 @@ html[data-marketing] {
 }
 @media (min-width: 881px) {
   .ln-beat-shot { display: none; }
+}
+
+/* Demo screens are 4/3 — let their mobile beat-shot frame match. */
+@media (max-width: 880px) {
+  .ln-beat-shot:has(.dm-screen) { aspect-ratio: 4 / 3; }
 }
 
 @media (prefers-reduced-motion: reduce) {

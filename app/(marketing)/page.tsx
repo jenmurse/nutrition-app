@@ -4,9 +4,15 @@ import Hero from "./_components/Hero";
 import ImageBand from "./_components/ImageBand";
 import Interstitial from "./_components/Interstitial";
 import Scenario from "./_components/Scenario";
+import StickyScene from "./_components/StickyScene";
 import Architecture from "./_components/Architecture";
 import Close from "./_components/Close";
 import Footer from "./_components/Footer";
+import AppWindow from "./_demo/AppWindow";
+import FloatWindow from "./_demo/FloatWindow";
+import PlannerZoom from "./_demo/screens/PlannerZoom";
+import OptimizerPicker from "./_demo/screens/OptimizerPicker";
+import OptimizerResults from "./_demo/screens/OptimizerResults";
 import "./landing.css";
 
 const SHARE_DESCRIPTION =
@@ -92,21 +98,6 @@ const PhDialog = () => (
   </div>
 );
 
-// Optimizer "three variations" — three result cards side by side.
-const PhOptResults = () => (
-  <div className="ln-ph" style={{ flexDirection: "row", gap: 8, padding: 12 }}>
-    {/* SCREENSHOT SLOT: Optimizer — three variations side by side */}
-    {Array.from({ length: 3 }).map((_, i) => (
-      <div key={i} style={{ flex: 1, border: "1px solid var(--rule)", display: "flex", flexDirection: "column", gap: 8, padding: 10 }}>
-        <div style={{ height: 10, background: "var(--fg)", width: "70%" }} />
-        <div style={{ height: 6, background: "var(--accent)", width: "85%" }} />
-        <div style={{ height: 6, background: "var(--rule)", width: "60%" }} />
-        <div style={{ height: 6, background: "var(--rule)", width: "75%" }} />
-      </div>
-    ))}
-  </div>
-);
-
 export default function MarketingLanding() {
   return (
     <div className="ln">
@@ -163,42 +154,56 @@ export default function MarketingLanding() {
         ]}
       />
 
-      <Scenario
+      <StickyScene
         id="scn02"
         num="02"
         headline="The day isn't landing. Fix it by the numbers."
         lede="Good Measure was built for people who want real control over what they cook, for one person or a whole household. My husband and I cook from the same kitchen with different goals, so every person has their own plan and their own targets, running against the shared recipe and pantry library. When a day comes up short, you don't rebuild it by hand. You optimize it."
         beats={[
           {
-            tag: "Off target",
+            eyebrow: "Off target",
             heading: "The meals are in. The numbers aren't there yet.",
             body: "The meals are fine. The balance isn't. Protein's short, sodium's over. Open the day, tap Optimize, and tell it what matters.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <PlannerZoom mode="off" />
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Your targets",
+            eyebrow: "Your targets",
             heading: "Pick up to three things to hit.",
             body: "Protein up. Sodium down. Fiber where you want it. You set the goals. The optimizer searches your whole library for the meals that get you there.",
+            visual: (
+              <FloatWindow w={1100} h={1060}>
+                <AppWindow>
+                  <OptimizerPicker />
+                </AppWindow>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Three ways",
-            heading: "It gives you three ways to get there.",
+            eyebrow: "Three options",
+            heading: "It gives you three options to get there.",
             body: "Each option swaps real meals from your library, favorites first, matched to the right slot, and shows exactly what changes and what it does to every number. Nothing moves until you choose.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <AppWindow>
+                  <OptimizerResults />
+                </AppWindow>
+              </FloatWindow>
+            ),
           },
           {
-            tag: "Applied",
+            eyebrow: "Applied",
             heading: "Apply the one you like. The day settles.",
             body: "The swaps land in the planner and the daily totals settle where you wanted them. Same day, same targets, same options every time.",
+            visual: (
+              <FloatWindow w={1100} h={900}>
+                <PlannerZoom mode="applied" />
+              </FloatWindow>
+            ),
           },
-        ]}
-        states={[
-          /* SCREENSHOT SLOT: Day with totals off target — scn02 state A */
-          <PhDay key="02-a" />,
-          /* SCREENSHOT SLOT: Optimizer target picker (up to 3 nutrients) — scn02 state B */
-          <PhDialog key="02-b" />,
-          /* SCREENSHOT SLOT: Optimizer three variations — scn02 state C */
-          <PhOptResults key="02-c" />,
-          /* SCREENSHOT SLOT: Day after applying, totals clean — scn02 state D */
-          <PhDay key="02-d" clean />,
         ]}
       />
 
