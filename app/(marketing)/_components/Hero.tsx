@@ -11,7 +11,7 @@ export default function Hero() {
       </h1>
       <div className="ln-hero-bottom">
         <p className="ln-hero-sub">
-          Most nutrition apps log what you eat. Most recipe apps store what you cook. Good Measure puts the two together. A single tool for your pantry, your recipes, and your week of meals. One ingredient library, nutrition calculated to the gram, and plans optimized with AI.
+          Most nutrition apps log what you eat. Most recipe apps store what you cook. Good Measure puts the two together. Everything you cook lives in one library, the nutrition calculates to the gram, and when a day needs work, one tap fixes it.
         </p>
         <div className="ln-hero-ctas">
           <a className="ed-btn-outline" href="#scn01">See how it works ↓</a>

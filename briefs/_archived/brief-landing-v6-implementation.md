@@ -1,5 +1,12 @@
 # Brief: Landing page redesign
 
+> **Superseded copy note (June 15, 2026):** Shipped June 8, 2026, then the copy
+> was rebalanced native-first after the in-app AI chat was hidden. Scenario 02 is
+> now the **meal optimizer** (not "blank week → AI fills it"), AI is framed as the
+> optional Claude Desktop layer, and the shopping list moved to Scenario 03. This
+> brief is historical; the live copy is in `app/(marketing)/page.tsx`. See
+> `docs/APP-INVENTORY.md` for the change log.
+
 **Status:** Ready to implement
 **Reference mock:** `landing-v6.html` (attached separately to this brief)
 **Affects:** `app/page.tsx` (landing route), `app/globals.css` (new tokens + landing classes), plus new components under `app/components/landing/`

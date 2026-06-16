@@ -3,7 +3,6 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 
 type Beat = {
-  step: string;
   tag: string;
   heading: string;
   body: string;
@@ -89,9 +88,7 @@ export default function Scenario({
                 key={i}
                 className={`ln-state${i === active ? " is-active" : ""}`}
               >
-                <span className="ln-state-tag">
-                  <span className="ln-step">{beats[i]?.step}</span> {beats[i]?.tag}
-                </span>
+                <span className="ln-state-tag">{beats[i]?.tag}</span>
                 {node}
               </div>
             ))}
@@ -106,9 +103,7 @@ export default function Scenario({
               className="ln-beat"
               data-beat={i}
             >
-              <span className="ln-beat-tag">
-                <span className="ln-step">{b.step}</span> {b.tag}
-              </span>
+              <span className="ln-beat-tag">{b.tag}</span>
               <h3>{b.heading}</h3>
               <p>{b.body}</p>
               {b.prompt && <div className="ln-prompt">{b.prompt}</div>}
@@ -116,9 +111,7 @@ export default function Scenario({
                 ref={(el) => { shotRefs.current[i] = el; }}
                 className="ln-beat-shot"
               >
-                <span className="ln-state-tag">
-                  <span className="ln-step">{b.step}</span> {b.tag}
-                </span>
+                <span className="ln-state-tag">{b.tag}</span>
                 {states[i]}
               </div>
             </div>
