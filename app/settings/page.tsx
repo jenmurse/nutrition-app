@@ -196,6 +196,7 @@ const SettingsPage = () => {
   const [mcpUrlCopied, setMcpUrlCopied] = useState(false);
   const [configBlockCopied, setConfigBlockCopied] = useState(false);
   const [configBlockMode, setConfigBlockMode] = useState<'firstTime' | 'addToExisting'>('firstTime');
+  const [showAllConfigPaths, setShowAllConfigPaths] = useState(false);
 
   // Data export / import
   const [exportLoading, setExportLoading] = useState(false);
@@ -1054,7 +1055,7 @@ const SettingsPage = () => {
             <SectionHeader number="03" title="Dashboard" />
 
             <div>
-              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]" style={{ maxWidth: 480 }}>
+              <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[8px]">
                 These three are the defaults. Swap in the stats that matter most to you — they show on your dashboard and meal cards. Pick any three.
               </p>
               <div className={`font-mono text-[9px] uppercase tracking-[0.06em] mb-[16px] ${dashboardStats.enabledStats.length === 3 ? 'text-[var(--ok)]' : 'text-[var(--muted)]'}`}>
@@ -1105,7 +1106,7 @@ const SettingsPage = () => {
                   <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">01</span>
                   <span className="ed-label">Generate a token</span>
                 </div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
                   Each person in your household needs their own token. Generate one below and keep it private.
                 </p>
                 <div className="flex items-center gap-[8px] mb-[16px]">
@@ -1153,129 +1154,138 @@ const SettingsPage = () => {
                 )}
               </div>
 
-              {/* ── Step 2 — Easiest: add by URL (hosted remote connector) ── */}
-              <div>
-                <div className="flex items-baseline gap-[10px] mb-[16px]">
-                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">02</span>
-                  <span className="ed-label">Easiest — add by URL</span>
-                </div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
-                  No install. In Claude, ChatGPT, or any assistant that supports custom connectors, choose &ldquo;add a connector&rdquo; and paste this URL. Works on the web and on mobile too.
-                </p>
-                {newMcpToken ? (() => {
-                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                  const url = `${origin}/api/mcp/connect/${newMcpToken}`;
-                  return (
-                    <>
-                      <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--cta)] mb-[8px]">
-                        Copy this URL now — it won&apos;t be shown again
-                      </div>
-                      <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--cta)] px-[16px] py-[12px]">
-                        <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{url}</code>
-                        <button
-                          onClick={() => { navigator.clipboard.writeText(url); setMcpUrlCopied(true); setTimeout(() => setMcpUrlCopied(false), 2000); }}
-                          className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
-                          aria-label="Copy connector URL"
-                        >
-                          {mcpUrlCopied ? 'Copied!' : 'Copy'}
-                        </button>
-                      </div>
-                      <p className="text-[11px] text-[var(--muted)] leading-[1.6] mt-[8px]" style={{ maxWidth: 480 }}>
-                        The URL contains your token — keep it private; anyone with it has your household access. Save it in your password manager if you&rsquo;ll add it to more than one assistant. Revoke in step 1 to disable it.
+              {/* ── Divider — pick a connection method ── */}
+              <div className="flex items-center gap-[12px]">
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] shrink-0">Then connect — pick one</span>
+                <span className="flex-1 h-px bg-[var(--rule)]" />
+              </div>
+
+              {/* ── Two methods, side by side ── */}
+              <div className="grid grid-cols-1 md:grid-cols-2 border border-[var(--rule)]">
+
+                {/* Left — Add by URL (hosted remote connector) */}
+                <div className="p-[24px] border-b md:border-b-0 md:border-r border-[var(--rule)]">
+                  <span className="inline-block font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--fg-2)] bg-[var(--bg-2)] px-[9px] py-[3px] mb-[14px]">Easiest · no install</span>
+                  <div className="ed-label mb-[10px]">Add by URL</div>
+                  <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
+                    In Claude, ChatGPT, or any assistant that supports custom connectors, choose &ldquo;add a connector&rdquo; and paste this URL. Works on the web and on mobile too.
+                  </p>
+                  {newMcpToken ? (() => {
+                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                    const url = `${origin}/api/mcp/connect/${newMcpToken}`;
+                    return (
+                      <>
+                        <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--cta)] mb-[8px]">
+                          Copy this URL now — it won&apos;t be shown again
+                        </div>
+                        <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--cta)] px-[14px] py-[12px]">
+                          <code className="font-mono text-[9px] text-[var(--fg)] break-all flex-1 leading-[1.6]">{url}</code>
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(url); setMcpUrlCopied(true); setTimeout(() => setMcpUrlCopied(false), 2000); }}
+                            className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
+                            aria-label="Copy connector URL"
+                          >
+                            {mcpUrlCopied ? 'Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-[var(--muted)] leading-[1.6] mt-[10px]">
+                          The URL contains your token — keep it private; anyone with it has your household access. Save it in your password manager if you&rsquo;ll add it to more than one assistant. Revoke in step 1 to disable it.
+                        </p>
+                      </>
+                    );
+                  })() : (
+                    <div className="bg-[var(--bg-2)] border border-[var(--rule)] border-dashed px-[14px] py-[14px]">
+                      <p className="text-[13px] text-[var(--fg-2)] leading-[1.6]">
+                        Generate a token in{' '}<strong className="text-[var(--fg)]">step 1</strong>{' '}above and your connector URL, along with a button to copy it, appears here. It&rsquo;s shown only once, so copy it and save it somewhere secure.
                       </p>
-                    </>
-                  );
-                })() : (
-                  <div className="bg-[var(--bg-2)] border border-[var(--rule)] border-dashed px-[16px] py-[14px]">
-                    <p className="text-[13px] text-[var(--fg-2)] leading-[1.6]">
-                      Generate a token in <strong className="text-[var(--fg)]">step 1</strong> above and your connector URL, along with a button to copy it, appears here. It&rsquo;s shown only once, so copy it and save it somewhere secure.
-                    </p>
-                    <p className="text-[12px] text-[var(--muted)] italic leading-[1.6] mt-[10px]">
-                      Example:{' '}
-                      <span className="font-mono not-italic break-all">
-                        {(typeof window !== 'undefined' ? window.location.origin : 'https://withgoodmeasure.com')}/api/mcp/connect/[your-token-here]
-                      </span>
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* ── Step 3 — Or: connect a desktop assistant via local install ── */}
-              <div>
-                <div className="flex items-baseline gap-[10px] mb-[16px]">
-                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">03</span>
-                  <span className="ed-label">Or — desktop assistant (local install)</span>
-                </div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[20px]">
-                  Prefer a local stdio server (some Cursor / VS Code setups)? {APP_NAME} works with any MCP-compatible assistant — open your assistant&apos;s config file at the path below.
-                </p>
-                <div className="border border-[var(--rule)]">
-                  <div className="hidden sm:grid grid-cols-[160px_1fr] border-b border-[var(--rule)]">
-                    <div className="ed-label px-[14px] py-[8px]">Assistant</div>
-                    <div className="ed-label px-[14px] py-[8px]">Config file path</div>
-                  </div>
-                  {[
-                    { name: 'Claude Desktop', path: '~/Library/Application Support/Claude/claude_desktop_config.json' },
-                    { name: 'Cursor',          path: '~/.cursor/mcp.json' },
-                    { name: 'Windsurf',        path: '~/.codeium/windsurf/mcp_config.json' },
-                    { name: 'Roo Code',        path: '~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json' },
-                    { name: 'VS Code + Copilot', path: '.vscode/mcp.json  (or run "MCP: Open User Configuration" in command palette)' },
-                    { name: 'Zed',             path: '~/.config/zed/settings.json  (under "context_servers" key)' },
-                  ].map((row, i, arr) => (
-                    <div key={row.name} className={`sm:grid sm:grid-cols-[160px_1fr] ${i < arr.length - 1 ? 'border-b border-[var(--rule)]' : ''}`}>
-                      <div className="text-[13px] font-medium text-[var(--fg)] px-[14px] pt-[10px] pb-[2px] sm:py-[10px]">{row.name}</div>
-                      <div className="font-mono text-[9px] text-[var(--muted)] px-[14px] pb-[10px] sm:py-[10px] break-all leading-[1.6]">{row.path}</div>
+                      <p className="text-[11px] text-[var(--muted)] italic leading-[1.6] mt-[10px]">
+                        Example:{' '}
+                        <span className="font-mono not-italic break-all">
+                          {(typeof window !== 'undefined' ? window.location.origin : 'https://withgoodmeasure.com')}/api/mcp/connect/[your-token-here]
+                        </span>
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ── Step 3 — Add to config file ── */}
-              <div>
-                <div className="flex items-baseline gap-[10px] mb-[16px]">
-                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">04</span>
-                  <span className="ed-label">Paste this into your config file</span>
-                </div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[14px]">
-                  {newMcpToken
-                    ? <><strong className="text-[var(--fg)]">Your token is pre-filled below.</strong> Pick the option that matches your situation, then copy and paste into the file.</>
-                    : 'Generate a token in step 1 to pre-fill your token in the block below.'}
-                </p>
-
-                {/* Mode toggle */}
-                <div className="flex gap-0 mb-[12px] border border-[var(--rule)] w-fit">
-                  <button
-                    type="button"
-                    onClick={() => setConfigBlockMode('firstTime')}
-                    className="font-mono text-[9px] uppercase tracking-[0.14em] px-[14px] py-[8px] border-0 cursor-pointer transition-colors"
-                    style={{
-                      background: configBlockMode === 'firstTime' ? 'var(--fg)' : 'transparent',
-                      color: configBlockMode === 'firstTime' ? 'var(--bg)' : 'var(--muted)',
-                    }}
-                    aria-pressed={configBlockMode === 'firstTime'}
-                  >First time setting up MCP</button>
-                  <button
-                    type="button"
-                    onClick={() => setConfigBlockMode('addToExisting')}
-                    className="font-mono text-[9px] uppercase tracking-[0.14em] px-[14px] py-[8px] border-0 border-l border-l-[var(--rule)] cursor-pointer transition-colors"
-                    style={{
-                      background: configBlockMode === 'addToExisting' ? 'var(--fg)' : 'transparent',
-                      color: configBlockMode === 'addToExisting' ? 'var(--bg)' : 'var(--muted)',
-                    }}
-                    aria-pressed={configBlockMode === 'addToExisting'}
-                  >Adding to existing MCP servers</button>
+                  )}
                 </div>
 
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[10px]">
-                  {configBlockMode === 'firstTime'
-                    ? <>Paste the whole block into your config file. If the file is empty or doesn&apos;t exist yet, create it with these contents.</>
-                    : <>Paste the inner <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">&quot;good-measure&quot;</code> entry inside your existing <code className="font-mono text-[11px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">mcpServers</code> object. <strong className="text-[var(--fg)]">Add a comma after the previous server</strong> so the JSON stays valid.</>}
-                </p>
+                {/* Right — Add via config file (local stdio install) */}
+                <div className="p-[24px]">
+                  <span className="inline-block font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] border border-[var(--rule)] px-[8px] py-[2px] mb-[14px]">Local install</span>
+                  <div className="ed-label mb-[10px]">Add via config file</div>
+                  <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[14px]">
+                    For setups that need a local stdio server (some Cursor / VS Code configs). Open your assistant&apos;s config file, then paste the snippet below — {newMcpToken ? <><strong className="text-[var(--fg)]">your token is pre-filled.</strong></> : 'generate a token in step 1 to pre-fill it.'}
+                  </p>
 
-                {(() => {
-                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                  const token = newMcpToken ?? 'YOUR_TOKEN_HERE';
-                  const inner = `"good-measure": {
+                  {/* Config file locations */}
+                  <div className="border border-[var(--rule)] mb-[16px]">
+                    {(() => {
+                      const allRows = [
+                        { name: 'Claude Desktop', path: '~/Library/Application Support/Claude/claude_desktop_config.json' },
+                        { name: 'Cursor',          path: '~/.cursor/mcp.json' },
+                        { name: 'Windsurf',        path: '~/.codeium/windsurf/mcp_config.json' },
+                        { name: 'Roo Code',        path: '~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json' },
+                        { name: 'VS Code + Copilot', path: '.vscode/mcp.json  (or run "MCP: Open User Configuration" in command palette)' },
+                        { name: 'Zed',             path: '~/.config/zed/settings.json  (under "context_servers" key)' },
+                      ];
+                      const rows = showAllConfigPaths ? allRows : allRows.slice(0, 2);
+                      return (
+                        <>
+                          {rows.map((row, i) => (
+                            <div key={row.name} className="border-b border-[var(--rule)]">
+                              <div className="text-[13px] font-medium text-[var(--fg)] px-[14px] pt-[10px] pb-[2px]">{row.name}</div>
+                              <div className="font-mono text-[9px] text-[var(--muted)] px-[14px] pb-[10px] break-all leading-[1.6]">{row.path}</div>
+                            </div>
+                          ))}
+                          {!showAllConfigPaths && (
+                            <button
+                              type="button"
+                              onClick={() => setShowAllConfigPaths(true)}
+                              className="w-full text-left font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer transition-colors px-[14px] py-[10px]"
+                              aria-label="Show all config file locations"
+                            >
+                              + 4 more — Windsurf, Roo Code, VS Code, Zed
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Mode toggle */}
+                  <div className="flex gap-0 mb-[12px] border border-[var(--rule)] w-fit max-w-full overflow-x-auto">
+                    <button
+                      type="button"
+                      onClick={() => setConfigBlockMode('firstTime')}
+                      className="font-mono text-[9px] uppercase tracking-[0.14em] px-[12px] py-[8px] border-0 cursor-pointer transition-colors whitespace-nowrap"
+                      style={{
+                        background: configBlockMode === 'firstTime' ? 'var(--fg)' : 'transparent',
+                        color: configBlockMode === 'firstTime' ? 'var(--bg)' : 'var(--muted)',
+                      }}
+                      aria-pressed={configBlockMode === 'firstTime'}
+                    >First time</button>
+                    <button
+                      type="button"
+                      onClick={() => setConfigBlockMode('addToExisting')}
+                      className="font-mono text-[9px] uppercase tracking-[0.14em] px-[12px] py-[8px] border-0 border-l border-l-[var(--rule)] cursor-pointer transition-colors whitespace-nowrap"
+                      style={{
+                        background: configBlockMode === 'addToExisting' ? 'var(--fg)' : 'transparent',
+                        color: configBlockMode === 'addToExisting' ? 'var(--bg)' : 'var(--muted)',
+                      }}
+                      aria-pressed={configBlockMode === 'addToExisting'}
+                    >Add to existing</button>
+                  </div>
+
+                  <p className="text-[11px] text-[var(--muted)] leading-[1.6] mb-[10px]">
+                    {configBlockMode === 'firstTime'
+                      ? <>Paste the whole block into your config file. If the file is empty or doesn&apos;t exist yet, create it with these contents.</>
+                      : <>Paste the inner <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">&quot;good-measure&quot;</code> entry inside your existing <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1 normal-case tracking-normal">mcpServers</code> object. <strong className="text-[var(--fg-2)]">Add a comma after the previous server</strong> so the JSON stays valid.</>}
+                  </p>
+
+                  {(() => {
+                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                    const token = newMcpToken ?? 'YOUR_TOKEN_HERE';
+                    const inner = `"good-measure": {
   "command": "npx",
   "args": ["-y", "good-measure-mcp"],
   "env": {
@@ -1283,66 +1293,72 @@ const SettingsPage = () => {
     "GOOD_MEASURE_API_TOKEN": "${token}"
   }
 }`;
-                  const fullFile = `{
+                    const fullFile = `{
   "mcpServers": {
     ${inner.split('\n').join('\n    ')}
   }
 }`;
-                  const toCopy = configBlockMode === 'firstTime' ? fullFile : inner;
-                  const display = toCopy;
-                  return (
-                    <div className="bg-[var(--bg-2)] rounded-none px-[20px] py-[16px] relative overflow-x-auto">
-                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(toCopy);
-                          setConfigBlockCopied(true);
-                          setTimeout(() => setConfigBlockCopied(false), 2000);
-                        }}
-                        className="text-[var(--fg)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
-                        aria-label="Copy configuration block"
-                      >
-                        {configBlockCopied ? (
-                          <span className="font-mono text-[9px] uppercase tracking-[0.14em]">Copied ✓</span>
-                        ) : (
-                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
-                        )}
-                      </button>
-                      <pre className="font-mono text-[11px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{display}</pre>
-                    </div>
-                  );
-                })()}
+                    const toCopy = configBlockMode === 'firstTime' ? fullFile : inner;
+                    return (
+                      <div className="bg-[var(--bg-2)] rounded-none px-[16px] py-[16px] relative overflow-x-auto">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--muted)] absolute top-[8px] left-[12px]">JSON</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(toCopy);
+                            setConfigBlockCopied(true);
+                            setTimeout(() => setConfigBlockCopied(false), 2000);
+                          }}
+                          className="text-[var(--fg)] bg-transparent border-0 cursor-pointer absolute top-[8px] right-[12px] hover:opacity-70 transition-opacity"
+                          aria-label="Copy configuration block"
+                        >
+                          {configBlockCopied ? (
+                            <span className="font-mono text-[9px] uppercase tracking-[0.14em]">Copied ✓</span>
+                          ) : (
+                            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg>
+                          )}
+                        </button>
+                        <pre className="font-mono text-[9px] text-[var(--fg-2)] leading-[1.7] pt-[12px] whitespace-pre" style={{ tabSize: 2 }}>{toCopy}</pre>
+                      </div>
+                    );
+                  })()}
 
-                {/* AI-assisted merge tip */}
-                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--muted)] leading-[1.6]">
-                  <strong className="text-[var(--fg-2)]">Not sure how to edit JSON?</strong> Open your AI assistant in a regular chat (no MCP needed yet), paste the snippet above plus the current contents of your config file, and ask it to merge them. That&apos;s the most foolproof path if JSON isn&apos;t familiar.
-                </div>
+                  {/* AI-assisted merge tip */}
+                  <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--muted)] leading-[1.6]">
+                    <strong className="text-[var(--fg-2)]">Not sure how to edit JSON?</strong> Open your assistant in a regular chat (no MCP needed yet), paste the snippet above plus the current contents of your config file, and ask it to merge them.
+                  </div>
 
-                {/* Troubleshooting — npx PATH issues */}
-                <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[8px] text-[11px] text-[var(--muted)] leading-[1.6]">
-                  <strong className="text-[var(--fg-2)]">If the server fails to start:</strong> Your AI assistant might not have <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> in its PATH. Replace <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> in the snippet with the full path. To find it, open Terminal and run <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">which npx</code> — paste that result in place of <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code>. Common locations: <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code> (Apple Silicon Mac with Homebrew), <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/usr/local/bin/npx</code> (Intel Mac or system Node).
+                  {/* Troubleshooting — npx PATH issues */}
+                  <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[8px] text-[11px] text-[var(--muted)] leading-[1.6]">
+                    <strong className="text-[var(--fg-2)]">If the server fails to start:</strong> your assistant might not have <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> in its PATH. In Terminal, run <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">which npx</code> and paste that full path in place of <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">npx</code> — commonly <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/opt/homebrew/bin/npx</code> or <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">/usr/local/bin/npx</code>.
+                  </div>
+
+                  {/* Relaunch note — config-file path only */}
+                  <div className="border-l-2 border-[var(--fg)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--fg-2)] leading-[1.6]">
+                    After saving the config file, fully quit and relaunch your assistant before the tools appear.
+                  </div>
                 </div>
               </div>
 
-              {/* ── Step 4 — After connecting ── */}
+              {/* ── Step 2 — Put it to work ── */}
               <div>
                 <div className="flex items-baseline gap-[10px] mb-[16px]">
-                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">05</span>
-                  <span className="ed-label">After connecting</span>
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">02</span>
+                  <span className="ed-label">Put it to work</span>
                 </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
-                  Fully quit and relaunch your assistant after saving the config file. Then try one of these prompts:
+                  Once connected, your assistant can read and write your recipes, pantry, goals, and weekly plan. Try something it can actually reason over:
                 </p>
                 {[
-                  `List my recipes from ${APP_NAME} and tell me which ones are highest in protein.`,
-                  `You are a chef with a background in nutrition. Get my recipe for [recipe name]. Optimize it to reduce saturated fat while preserving flavor. Show a before/after comparison, then save the updated version back to ${APP_NAME}.`,
+                  `Compare this week's plan in ${APP_NAME} against my daily goals. Find the two days that miss my protein target and rebalance them by swapping meals — keep saturated fat under my limit. Show me the before/after before saving anything.`,
+                  `You're a chef with a nutrition background. Pull my recipe for [recipe name] from ${APP_NAME}, cut the saturated fat by a third while keeping it satisfying, then save it back as a new version with a note on what you changed.`,
+                  `I'm meal-prepping Sunday for three days. Find recipes in my ${APP_NAME} library that share ingredients so I can batch-cook, draft a plan that lands within 50 calories of my targets, and save it as a day template.`,
                 ].map((prompt, i) => (
                   <div key={i} className="border-l-2 border-[var(--fg)] px-[14px] py-[10px] text-[13px] text-[var(--fg-2)] leading-[1.6] italic mb-[8px]">
                     &ldquo;{prompt}&rdquo;
                   </div>
                 ))}
                 <div className="border-l-2 border-[var(--rule)] rounded-none px-[14px] py-[10px] mt-[12px] text-[11px] text-[var(--muted)] leading-[1.6]">
-                  <strong className="text-[var(--fg-2)]">Not seeing results?</strong> Check the assistant&apos;s tool/MCP indicator. Claude Desktop shows a small slider icon near the message box that lists connected MCPs — <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">good-measure</code> should appear there. If it doesn&apos;t, recheck the file path, your token, and the JSON syntax.
+                  <strong className="text-[var(--fg-2)]">Not seeing results?</strong> Make sure <code className="font-mono text-[9px] bg-[var(--bg-3)] px-1">good-measure</code> shows up in your assistant&apos;s connected-tools list — most assistants surface this near the message box or in settings. If it&apos;s missing, re-check your token, and for the config-file path, the file location and JSON syntax.
                 </div>
               </div>
 
