@@ -1565,32 +1565,24 @@ function PlannerPage() {
     });
 
     try {
-      // DELETE existing + POST replacements (preserves servings/quantity but not custom notes)
-      const deletions: Promise<Response>[] = [
-        fetch(`/api/meal-plans/${plan.id}/meals/${sourceLog.id}`, { method: "DELETE" }),
+      // PATCH date+mealType in place — keeps same IDs, no delete/recreate race
+      const patches: Promise<Response>[] = [
+        fetch(`/api/meal-plans/${plan.id}/meals/${sourceLog.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date: isoLocalDate(target.date), mealType: target.slot }),
+        }),
       ];
       if (targetLog) {
-        deletions.push(
-          fetch(`/api/meal-plans/${plan.id}/meals/${targetLog.id}`, { method: "DELETE" })
+        patches.push(
+          fetch(`/api/meal-plans/${plan.id}/meals/${targetLog.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date: isoLocalDate(src.date), mealType: src.slot }),
+          })
         );
       }
-      await Promise.all(deletions);
-
-      // POST source's content at target location
-      await fetch(`/api/meal-plans/${plan.id}/meals`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(logToPostBody(sourceLog, target.date, target.slot)),
-      });
-      // If swap, POST target's content at source location
-      if (targetLog) {
-        await fetch(`/api/meal-plans/${plan.id}/meals`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(logToPostBody(targetLog, src.date, src.slot)),
-        });
-      }
-      await refreshPlan();
+      await Promise.all(patches);
     } catch (err) {
       console.error(err);
       toast.error("Couldn't move meal");
