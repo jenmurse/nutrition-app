@@ -1162,35 +1162,36 @@ const SettingsPage = () => {
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
                   No install. In Claude, ChatGPT, or any assistant that supports custom connectors, choose &ldquo;add a connector&rdquo; and paste this URL. Works on the web and on mobile too.
                 </p>
-                {(() => {
+                {newMcpToken ? (() => {
                   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                  const url = `${origin}/api/mcp/connect/${newMcpToken ?? 'YOUR_TOKEN_HERE'}`;
+                  const url = `${origin}/api/mcp/connect/${newMcpToken}`;
                   return (
                     <>
-                      {newMcpToken && (
-                        <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--cta)] mb-[8px]">
-                          Copy this URL now — it won&apos;t be shown again
-                        </div>
-                      )}
+                      <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--cta)] mb-[8px]">
+                        Copy this URL now — it won&apos;t be shown again
+                      </div>
                       <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--cta)] px-[16px] py-[12px]">
                         <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{url}</code>
                         <button
                           onClick={() => { navigator.clipboard.writeText(url); setMcpUrlCopied(true); setTimeout(() => setMcpUrlCopied(false), 2000); }}
-                          disabled={!newMcpToken}
-                          className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0 disabled:opacity-40"
+                          className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0"
                           aria-label="Copy connector URL"
                         >
                           {mcpUrlCopied ? 'Copied!' : 'Copy'}
                         </button>
                       </div>
                       <p className="text-[11px] text-[var(--muted)] leading-[1.6] mt-[8px]" style={{ maxWidth: 480 }}>
-                        {newMcpToken
-                          ? 'The URL contains your token — keep it private; anyone with it has your household access. Save it in your password manager if you’ll add it to more than one assistant. Revoke in step 1 to disable it.'
-                          : 'Generate (or regenerate) a token in step 1 to fill in your URL — the token is only shown once.'}
+                        The URL contains your token — keep it private; anyone with it has your household access. Save it in your password manager if you&rsquo;ll add it to more than one assistant. Revoke in step 1 to disable it.
                       </p>
                     </>
                   );
-                })()}
+                })() : (
+                  <div className="bg-[var(--bg-2)] border border-[var(--rule)] border-dashed px-[16px] py-[14px]" style={{ maxWidth: 480 }}>
+                    <p className="text-[13px] text-[var(--fg-2)] leading-[1.6]">
+                      Generate a token in <strong className="text-[var(--fg)]">step 1</strong> above — your connector URL, with a Copy button, appears here. It&rsquo;s shown only once, so copy it then.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* ── Step 3 — Or: connect a desktop assistant via local install ── */}
