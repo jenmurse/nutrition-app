@@ -1106,7 +1106,7 @@ const SettingsPage = () => {
                   <span className="ed-label">Generate a token</span>
                 </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
-                  Each person in your household needs their own token. Keep it private.
+                  Each person in your household needs their own token. Generate one below and keep it private.
                 </p>
                 <div className="flex items-center gap-[8px] mb-[16px]">
                   <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${hasMcpToken ? 'bg-[var(--ok)]' : 'bg-[var(--rule)]'}`} aria-hidden="true" />
@@ -1159,7 +1159,7 @@ const SettingsPage = () => {
                   <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">02</span>
                   <span className="ed-label">Easiest — add by URL</span>
                 </div>
-                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]">
                   No install. In Claude, ChatGPT, or any assistant that supports custom connectors, choose &ldquo;add a connector&rdquo; and paste this URL. Works on the web and on mobile too.
                 </p>
                 {newMcpToken ? (() => {
@@ -1186,9 +1186,15 @@ const SettingsPage = () => {
                     </>
                   );
                 })() : (
-                  <div className="bg-[var(--bg-2)] border border-[var(--rule)] border-dashed px-[16px] py-[14px]" style={{ maxWidth: 480 }}>
+                  <div className="bg-[var(--bg-2)] border border-[var(--rule)] border-dashed px-[16px] py-[14px]">
                     <p className="text-[13px] text-[var(--fg-2)] leading-[1.6]">
-                      Generate a token in <strong className="text-[var(--fg)]">step 1</strong> above — your connector URL, with a Copy button, appears here. It&rsquo;s shown only once, so copy it then.
+                      Generate a token in <strong className="text-[var(--fg)]">step 1</strong> above and your connector URL, along with a button to copy it, appears here. It&rsquo;s shown only once, so copy it and save it somewhere secure.
+                    </p>
+                    <p className="text-[12px] text-[var(--muted)] italic leading-[1.6] mt-[10px]">
+                      Example:{' '}
+                      <span className="font-mono not-italic break-all">
+                        {(typeof window !== 'undefined' ? window.location.origin : 'https://withgoodmeasure.com')}/api/mcp/connect/[your-token-here]
+                      </span>
                     </p>
                   </div>
                 )}
