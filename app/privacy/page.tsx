@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           <h1 style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: "clamp(28px, 3vw, 40px)", letterSpacing: "-0.03em", lineHeight: 1.1, color: "var(--fg)", marginBottom: 24 }}>Your data, simply explained.</h1>
 
           <p style={{ fontFamily: "var(--font-sans)", fontWeight: 400, fontSize: 15, lineHeight: 1.7, color: "var(--fg-2)", maxWidth: 560, marginBottom: 0 }}>
-            Good Measure is a personal nutrition and meal planning tool made by Mer So Studio, LLC, available on the web, the App Store, and Google Play. This policy explains what data we collect, how it&rsquo;s used, and how you can control it. It applies to all three.
+            Good Measure is a personal nutrition and meal planning tool made by Mer So Studio, LLC, available on the web. This policy explains what data we collect, how it&rsquo;s used, and how you can control it.
           </p>
 
           <p style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", marginTop: 16 }}>
@@ -40,6 +40,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section heading="Where your data lives">
+            {/* TODO (backend migration): replace Railway → Supabase, remove Cloudflare R2 if images move to Supabase Storage */}
             <p style={bodyStyle}>
               Good Measure runs on{" "}
               <a href="https://railway.app" target="_blank" rel="noopener noreferrer" style={linkStyle}>Railway</a>
@@ -55,15 +56,11 @@ export default function PrivacyPage() {
             <p style={bodyStyle}>
               You can sign in with an email magic link, with{" "}
               <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Sign in with Apple</strong>, or with{" "}
-              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Google</strong>. When you use Apple or Google, they confirm your identity and share only your name and email with us. We don&rsquo;t receive your password, and we don&rsquo;t post anything or read anything else from those accounts. On the App Store and Google Play, your sign-in token is stored securely on your device (in the system keychain) so you stay signed in.
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Google</strong>. When you use Apple or Google, they confirm your identity and share only your name and email with us. We don&rsquo;t receive your password, and we don&rsquo;t post anything or read anything else from those accounts.
             </p>
           </Section>
 
-          <Section heading="On your phone and tablet">
-            <p style={bodyStyle}>
-              The mobile apps store a local copy of your recipes, pantry, and current plan on your device so the app works offline and loads quickly. This cache lives only on your device and is cleared when you delete the app. If we add reminders (for example, a nudge to start a recipe&rsquo;s prep), we&rsquo;ll ask your permission for notifications first &mdash; they&rsquo;re always optional. The apps request no other device permissions and contain no third-party advertising or analytics SDKs.
-            </p>
-          </Section>
+          {/* TODO (native launch): add "On your phone and tablet" section covering offline cache, keychain token, notification permissions, no third-party SDKs */}
 
           <Section heading="How long we keep it">
             <p style={bodyStyle}>
@@ -116,6 +113,7 @@ export default function PrivacyPage() {
 
           <Section heading="Contact">
             <p style={bodyStyle}>
+              {/* TODO (DNS move): change to hello@withgoodmeasure.com once Cloudflare Email Routing is set up */}
               Questions about your data? Email{" "}
               <a href="mailto:hello@mersostudio.com" style={{ ...linkStyle, textDecoration: "underline" }}>hello@mersostudio.com</a>
             </p>

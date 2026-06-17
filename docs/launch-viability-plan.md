@@ -297,9 +297,10 @@ the in-app chat is live and used. Don't blindly match the calorie-tracker price 
 
 No $59/mo "Control"-style tier — wrong identity.
 
-> **Open pricing question for §9:** does the in-app AI sit inside one Pro tier (metered),
-> or is "bring your own AI via MCP" the unlimited path and in-app AI the metered
-> convenience? The second is more defensible given the cost data.
+> ✅ **Pricing question closed** (June 16, 2026) — see `briefs/monetization-decision.md`.
+> Two tiers: Free (single person, manual planning, ~5 optimizer runs) + Pro ($7/mo or
+> $60/yr: household, unlimited optimizer, day templates, MCP/AI). In-app chat cut
+> entirely — MCP (bring your own Claude) is the whole AI story and lives in Pro.
 
 ---
 
@@ -463,15 +464,9 @@ The system prompt and the tool definitions are byte-identical on every call. Cac
 
 ## 9. Open questions to resolve before briefs
 
-1. AI provider + cost ceiling for the in-app chat. Per-user cap? Soft limits on free?
-2. Does the in-app chat need full write parity with MCP at launch, or read + a subset
-   of writes (add/swap meal, fill week) to start? *(Lean: the subset — read + add meal,
-   swap meal, fill week covers the entire landing-page promise with a far smaller, safer
-   surface.)*
-3. **Pricing structure** (the real fork, per §5): in-app AI metered inside one Pro tier,
-   vs. "bring-your-own-AI via MCP" as the unlimited path + in-app AI as metered
-   convenience? Subscription only, or subscription + lifetime (lifetime priced against
-   non-AI features only)?
+1. ~~AI provider + cost ceiling for the in-app chat.~~ **Cut** — in-app chat removed (June 2026, `SHOW_CHAT = false`). MCP is the whole AI story. Moot.
+2. ~~Does the in-app chat need full write parity with MCP at launch?~~ **Cut** — same reason.
+3. ~~**Pricing structure** (the real fork, per §5)~~ **Closed** (June 16, 2026) — see `briefs/monetization-decision.md`. Two tiers, Pro at $7/mo or $60/yr, no metered chat, no lifetime option.
 4. RLS before or after the first paid users (it is a public-launch blocker either way)?
 5. Playbook: how many stories gate the `/playbook` nav entry going live (was ≥4)?
 6. **Distribution** (the risk the research surfaced): what is the smallest sustainable

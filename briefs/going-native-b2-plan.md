@@ -98,7 +98,7 @@ The cost goal (kill Railway, flat ~$25) is met by **both** of these. They differ
 
 | Phase | Work | Est. |
 |---|---|---|
-| 0 | Decisions locked (bundle ID, app name reserved, variant A/B, monetization direction) | days |
+| 0 | Decisions locked (bundle ID, app name reserved, variant A/B, monetization direction) | days — **monetization decided** (see `monetization-decision.md`); positioning decided (see `positioning-social-decision.md`). Remaining: bundle ID, app name reserved, variant A/B. |
 | 1 | Backend migration: data → Supabase, recipe images → Storage, auth providers (Apple), token_hash verify | 1–2 wk |
 | 2 | RLS (if Variant B) or serverless API deploy (if Variant A); port server logic to Edge Functions | 1–3 wk |
 | 3 | Capacitor scaffolding, plugins, icons/splash, iPad layout pass | 1–2 wk |

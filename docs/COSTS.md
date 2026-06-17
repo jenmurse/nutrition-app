@@ -13,7 +13,7 @@ Last updated: June 16, 2026.
 | Service | Plan | Monthly cost | What it covers |
 |---|---|---|---|
 | **Railway** (app + Postgres) | Hobby | $5 base + ~$2–3 usage = **~$7–8/mo** | Next.js server, Prisma, Postgres database, all on Railway's internal network |
-| **Cloudflare R2** (image storage) | Free tier | **$0/mo** | Recipe images. 10 GB storage / 1M writes / 10M reads free per month |
+| **Cloudflare R2** (image storage) | Free tier | **$0/mo** | Recipe images. 10 GB storage / 1M writes / 10M reads free per month. **Note: bucket is currently public (UUID filenames only protection). Moving to Supabase Storage with RLS would make images private per-household — the B2 migration plan includes this.** |
 | **Supabase** (auth only) | Free tier | **$0/mo** | Email + Google OAuth. 50K MAU on free tier — won't approach |
 | **cron-job.org** (warm-up pings) | Free tier | **$0/mo** | Pings `/api/warm` every 5 min to prevent Railway cold starts |
 | **Claude API tokens** | n/a — MCP architecture | **$0/mo** | See "AI costs" section below — user's own Claude covers it |
@@ -156,67 +156,22 @@ This is speculative until/unless it happens, but worth knowing what the next thr
 
 ---
 
-## Pricing model — open thinking
+## Pricing model — decided (June 16, 2026)
 
-Good Measure is currently free for friends and family. When/if it goes public, there are several pricing axes worth considering. None of these are decided.
+> **Closed.** See `briefs/monetization-decision.md` for the full rationale. Summary below.
 
-### What costs us money to operate per active user
+Two tiers, switching on at **native launch** (friends and family stay on `comp` until then):
 
-| Cost source | Per-user impact |
-|---|---|
-| Railway compute | ~$0 marginal per user at small scale; trends with concurrent traffic |
-| Postgres storage | Negligible — recipes + plans + chat history rarely exceed ~10MB/user |
-| R2 image storage | Tiny — most users have a few dozen recipe photos |
-| **Anthropic API tokens (chat)** | **The big variable.** Measured on Sonnet 4.6 (June 2026): ~$0.02/turn average. Heavy users (~5 sessions × 8 turns/day = ~40 turns/day) could burn **$15–25/month**. Median users (~10 turns/day) ~**$3–6/month**. Light users ~$0.50–1/month. See AI / Claude costs § In-app chat costs — measured for the data. |
+| Tier | Price | What's included |
+|---|---|---|
+| **Free** | $0 | Single person, pantry, recipes, nutrition to the gram, manual weekly planning, shopping list, ~5 day-optimizer runs (lifetime cap) |
+| **Pro** | **$7/mo or $60/yr** | Everything in Free + household (multi-person), unlimited day optimizer, day templates, MCP/AI layer (recipe Optimization + Meal Prep tabs, MCP settings) |
 
-The chat is the only feature whose per-user cost scales meaningfully with usage. Everything else is a flat overhead.
-
-### Pricing model options
-
-**Option 1 — Free with usage cap, MCP as escape valve (simplest)**
-- App + chat: free forever
-- Chat capped at $X/day (e.g. $0.50 worth of tokens ≈ 50–100 turns)
-- Hit cap → nudge to install MCP for unlimited (uses their own Claude Pro/Max subscription, costs us $0)
-- Pros: no payments infrastructure, easiest to ship, MCP architectural bet pays off
-- **Critical gap: MCP doesn't work on iOS/Android.** Once the native apps ship, mobile users have NO unlimited path. They're stuck at the cap with no escape. This is a real product limitation, not just a UX wrinkle.
-
-**Option 2 — Free trial + one-time + monthly tiers (Jen's proposal)**
-- **Free trial:** ~20 messages to try the chat
-- **Lifetime pass ($30–50 one-time):** capped chat (e.g. 100/month)
-- **Pro ($5–10/month):** unlimited chat
-- Pros: revenue, accessible entry, recurring + one-time options match different mental models
-- Cons: payments infrastructure (Stripe, etc.), tier mechanics, billing edge cases, refunds — material work
-
-**Option 3 — Subscription only**
-- App + chat: $5–10/month, unlimited (or generously capped)
-- Pros: simplest revenue model, recurring is sustainable for an indie app
-- Cons: friction to try, no free tier, comparables (MyFitnessPal $20/mo, Cronometer $8/mo, Mealime $6/mo) — would sit mid-tier
-
-**Option 4 — Free app, paid AI feature**
-- Recipes + planner + pantry + nutrition tracking: free forever
-- Chat: free trial → $5/mo or $30 one-time for capped → $10/mo unlimited
-- Like MyFitnessPal where logging is free but Premium adds features
-- Pros: free path stays generous, AI is the optional paid layer
-- Cons: still needs payments infrastructure
-
-### The mobile-vs-MCP wrinkle
-
-The MCP escape valve only works on desktop. iOS sandboxing prevents running MCP servers on phones, and Android has no Claude mobile app that supports MCP either. **Once the Capacitor wrap ships, mobile users have no unlimited path.** That means:
-
-- If most users will end up on mobile (likely for a daily-use app), the MCP escape valve is *only* serving desktop power users
-- Mobile heavy users need a paid tier — there's no other ceiling-removal mechanism
-- This argues *for* implementing paid tiers (Option 2, 3, or 4) at public launch, not against
-
-The MCP integration remains valuable as a free unlimited option for desktop power users and developers (a meaningful audience for an editorial product like this), but it can't be the *only* answer.
-
-### Decisions to make before public launch
-
-These all depend on having Move 1 (usage logging) live for a few weeks first, so the cap and tier prices can be grounded in real data:
-
-1. Cap size for the free tier (gut: $0.50/day worth of tokens for the in-app chat, but verify with data)
-2. Whether to monetize at all
-3. If yes: one-time vs subscription vs both
-4. If no: how the project sustains as usage grows
+- **No ads, ever** — conflicts with the stated no-tracking privacy stance and pays poorly at this scale.
+- **No in-app chat** — cut entirely (June 2026, `SHOW_CHAT = false`). MCP (bring your own Claude) is the whole AI story.
+- **No metered AI** — MCP egress is the only real variable cost, and it sits inside the paid tier, so who-pays = who-costs.
+- **Fallback price if conversion disappoints:** $5/mo + $48/yr. Do not go below that floor.
+- **Apple/Google take 15%** (under $1M/yr), so Pro nets ~$51/user/yr at $60/yr. Break-even ≈ 10–18 paying subscribers.
 
 ---
 
