@@ -51,6 +51,22 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(row, { status: 201 });
 }
 
+/** PATCH — edit a code's label. Body: { id, label } */
+export async function PATCH(req: NextRequest) {
+  if (!authed(req)) return unauthorized();
+  const body = await req.json().catch(() => ({}));
+  const id = Number(body.id);
+  if (!Number.isInteger(id) || id < 1) {
+    return NextResponse.json({ error: "Valid id required" }, { status: 400 });
+  }
+  const label = typeof body.label === "string" ? body.label.trim() : "";
+  const row = await prisma.signupCode
+    .update({ where: { id }, data: { label: label || null } })
+    .catch(() => null);
+  if (!row) return NextResponse.json({ error: "Code not found" }, { status: 404 });
+  return NextResponse.json(row);
+}
+
 /** DELETE — remove a code by id (?id=123). */
 export async function DELETE(req: NextRequest) {
   if (!authed(req)) return unauthorized();

@@ -44,6 +44,24 @@ export default function AdminCodesPage() {
   const [formError, setFormError] = useState("");
   const [copied, setCopied] = useState<number | null>(null);
 
+  // Inline label editing
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+
+  const startEdit = (c: SignupCode) => { setEditingId(c.id); setEditLabel(c.label ?? ""); };
+  const cancelEdit = () => { setEditingId(null); setEditLabel(""); };
+
+  const saveLabel = async (id: number) => {
+    const next = editLabel.trim();
+    setEditingId(null);
+    setCodes((prev) => prev.map((c) => (c.id === id ? { ...c, label: next || null } : c)));
+    await fetch("/api/admin/codes", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify({ id, label: next }),
+    }).catch(() => { /* optimistic; reload to recover */ });
+  };
+
   const load = async (pw: string) => {
     setError("");
     setLoading(true);
@@ -263,7 +281,38 @@ export default function AdminCodesPage() {
                           fontFamily: "var(--font-mono)", letterSpacing: "0.14em" }}>COPIED</span>
                       )}
                     </td>
-                    <td style={tdStyle}>{c.label || <span style={{ color: "var(--muted)" }}>—</span>}</td>
+                    <td style={tdStyle}>
+                      {editingId === c.id ? (
+                        <input
+                          autoFocus
+                          value={editLabel}
+                          onChange={(e) => setEditLabel(e.target.value)}
+                          onBlur={() => saveLabel(c.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveLabel(c.id);
+                            if (e.key === "Escape") cancelEdit();
+                          }}
+                          aria-label="Edit label"
+                          style={{
+                            font: "inherit", fontSize: "12px", padding: "4px 6px",
+                            border: "1px solid var(--accent)", background: "var(--bg)",
+                            color: "var(--fg)", width: "100%", maxWidth: "180px",
+                          }}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => startEdit(c)}
+                          title="Click to edit label"
+                          style={{
+                            background: "none", border: "none", cursor: "text", font: "inherit",
+                            color: c.label ? "var(--fg)" : "var(--muted)", padding: "2px 0", textAlign: "left",
+                          }}
+                        >
+                          {c.label || "+ label"}
+                        </button>
+                      )}
+                    </td>
                     <td style={tdStyle}>{planBadge(c.plan)}</td>
                     <td style={{ ...tdStyle, fontFamily: "var(--font-mono)", fontSize: "11px",
                       color: spent ? "var(--muted)" : "var(--fg)" }}>
