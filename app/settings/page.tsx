@@ -193,6 +193,7 @@ const SettingsPage = () => {
   const [mcpTokenLoading, setMcpTokenLoading] = useState(false);
   const [revokingMcpToken, setRevokingMcpToken] = useState(false);
   const [mcpCopied, setMcpCopied] = useState(false);
+  const [mcpUrlCopied, setMcpUrlCopied] = useState(false);
   const [configBlockCopied, setConfigBlockCopied] = useState(false);
   const [configBlockMode, setConfigBlockMode] = useState<'firstTime' | 'addToExisting'>('firstTime');
 
@@ -1152,14 +1153,49 @@ const SettingsPage = () => {
                 )}
               </div>
 
-              {/* ── Step 2 — Connect to your AI assistant ── */}
+              {/* ── Step 2 — Easiest: add by URL (hosted remote connector) ── */}
               <div>
                 <div className="flex items-baseline gap-[10px] mb-[16px]">
                   <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">02</span>
-                  <span className="ed-label">Connect to your AI assistant</span>
+                  <span className="ed-label">Easiest — add by URL</span>
+                </div>
+                <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[16px]" style={{ maxWidth: 480 }}>
+                  No install. In Claude, ChatGPT, or any assistant that supports custom connectors, choose &ldquo;add a connector&rdquo; and paste this URL. Works on the web and on mobile too.
+                </p>
+                {(() => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                  const url = `${origin}/api/mcp/connect/${newMcpToken ?? 'YOUR_TOKEN_HERE'}`;
+                  return (
+                    <>
+                      <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--cta)] px-[16px] py-[12px]">
+                        <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{url}</code>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(url); setMcpUrlCopied(true); setTimeout(() => setMcpUrlCopied(false), 2000); }}
+                          disabled={!newMcpToken}
+                          className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--cta)] hover:opacity-70 bg-transparent border-0 cursor-pointer transition-opacity shrink-0 disabled:opacity-40"
+                          aria-label="Copy connector URL"
+                        >
+                          {mcpUrlCopied ? 'Copied!' : 'Copy'}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-[var(--muted)] leading-[1.6] mt-[8px]" style={{ maxWidth: 480 }}>
+                        {newMcpToken
+                          ? 'The URL contains your token — keep it private; anyone with it has your household access. Revoke in step 1 to disable it.'
+                          : 'Generate (or regenerate) a token in step 1 to fill in your URL — the token is only shown once.'}
+                      </p>
+                    </>
+                  );
+                })()}
+              </div>
+
+              {/* ── Step 3 — Or: connect a desktop assistant via local install ── */}
+              <div>
+                <div className="flex items-baseline gap-[10px] mb-[16px]">
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">03</span>
+                  <span className="ed-label">Or — desktop assistant (local install)</span>
                 </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[20px]">
-                  {APP_NAME} works with any MCP-compatible assistant. Open your assistant&apos;s config file at the path below.
+                  Prefer a local stdio server (some Cursor / VS Code setups)? {APP_NAME} works with any MCP-compatible assistant — open your assistant&apos;s config file at the path below.
                 </p>
                 <div className="border border-[var(--rule)]">
                   <div className="hidden sm:grid grid-cols-[160px_1fr] border-b border-[var(--rule)]">
@@ -1185,7 +1221,7 @@ const SettingsPage = () => {
               {/* ── Step 3 — Add to config file ── */}
               <div>
                 <div className="flex items-baseline gap-[10px] mb-[16px]">
-                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">03</span>
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">04</span>
                   <span className="ed-label">Paste this into your config file</span>
                 </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[14px]">
@@ -1279,7 +1315,7 @@ const SettingsPage = () => {
               {/* ── Step 4 — After connecting ── */}
               <div>
                 <div className="flex items-baseline gap-[10px] mb-[16px]">
-                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">04</span>
+                  <span className="font-mono text-[9px] text-[var(--muted)] tracking-[0.06em] shrink-0">05</span>
                   <span className="ed-label">After connecting</span>
                 </div>
                 <p className="text-[13px] text-[var(--fg-2)] leading-[1.6] mb-[12px]">
