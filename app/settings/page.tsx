@@ -1199,13 +1199,15 @@ const SettingsPage = () => {
                       <p className="text-[13px] text-[var(--fg-2)] leading-[1.6]">
                         Generate a token in{' '}<strong className="text-[var(--fg)]">step 1</strong>{' '}above and your connector URL, along with a button to copy it, appears here. It&rsquo;s shown only once, so copy it and save it somewhere secure.
                       </p>
-                      <p className="text-[11px] text-[var(--muted)] italic leading-[1.6] mt-[10px]">
-                        Example:{' '}
-                        <span className="font-mono not-italic break-all">
-                          {(typeof window !== 'undefined' ? window.location.origin : 'https://withgoodmeasure.com')}/api/mcp/connect/[your-token-here]
-                        </span>
-                      </p>
                     </div>
+                  )}
+                  {!newMcpToken && (
+                    <p className="text-[11px] text-[var(--muted)] italic leading-[1.6] mt-[10px]">
+                      Example:{' '}
+                      <span className="font-mono not-italic break-all">
+                        {(typeof window !== 'undefined' ? window.location.origin : 'https://withgoodmeasure.com')}/api/mcp/connect/[your-token-here]
+                      </span>
+                    </p>
                   )}
                 </div>
 
