@@ -17,21 +17,9 @@
  * Prints the code and the ready-to-share signup URL.
  */
 import { PrismaClient } from "@prisma/client";
+import { SIGNUP_PLANS as PLANS, randomSignupCode, type SignupPlan as Plan } from "../lib/signupCodes";
 
 const prisma = new PrismaClient();
-
-const PLANS = ["comp", "free", "pro"] as const;
-type Plan = (typeof PLANS)[number];
-
-// Unambiguous alphabet (no 0/o/1/l/i) for a readable, shareable code.
-const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
-function randomCode(len = 6): string {
-  let out = "";
-  for (let i = 0; i < len; i++) {
-    out += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
-  }
-  return out;
-}
 
 async function main() {
   const [label, planArg, maxUsesArg, codeArg] = process.argv.slice(2);
@@ -53,7 +41,7 @@ async function main() {
     process.exit(1);
   }
 
-  const code = (codeArg ?? randomCode()).trim().toLowerCase();
+  const code = (codeArg ?? randomSignupCode()).trim().toLowerCase();
 
   const existing = await prisma.signupCode.findUnique({ where: { code } });
   if (existing) {
