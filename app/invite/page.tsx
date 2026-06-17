@@ -38,6 +38,14 @@ export default function InvitePage() {
       body: JSON.stringify({ code: inviteCode }),
     });
     const data = await res.json();
+    if (data.valid === true) {
+      // Persist the code so it survives the email-confirm / OAuth round-trip and
+      // can be consumed (and its plan applied) in /auth/callback. Mirrors the
+      // household invite_token cookie used on the login page.
+      document.cookie = `signup_code=${encodeURIComponent(
+        inviteCode.trim().toLowerCase()
+      )}; path=/; max-age=3600; SameSite=Lax`;
+    }
     return data.valid === true;
   };
 

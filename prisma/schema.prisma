@@ -55,6 +55,7 @@ model Person {
 model Household {
   id        Int      @id @default(autoincrement())
   name      String
+  plan      String   @default("comp") // "free" | "pro" | "comp" — entitlement flag. comp = friends & family full access. All gating (app UI, MCP, RLS) reads this one field.
   createdAt DateTime @default(now())
 
   members              HouseholdMember[]
@@ -443,6 +444,21 @@ model Waitlist {
   name      String
   email     String
   createdAt DateTime @default(now())
+}
+
+// Unique signup codes for friends-and-family / beta access. Replaces the single
+// shared INVITE_CODE env var. Each code can pre-assign the plan the new household
+// receives (comp / free / pro) and is consumed when a brand-new household is
+// created in auth/callback. See lib/entitlements.ts for the Plan type.
+model SignupCode {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique // lowercased; what the user types at /invite
+  label     String? // note to self: who it's for
+  plan      String    @default("comp") // plan assigned to the household this code creates
+  maxUses   Int       @default(1) // how many accounts this code may create
+  usedCount Int       @default(0)
+  expiresAt DateTime? // null = never expires
+  createdAt DateTime  @default(now())
 }
 
 // In-app AI chat history (per-person, server-persisted)

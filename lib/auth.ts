@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/db";
 import { headers } from "next/headers";
+import type { Plan } from "@/lib/entitlements";
 
 export type AuthResult =
-  | { personId: number; supabaseId: string; householdId: number; role: string }
+  | { personId: number; supabaseId: string; householdId: number; role: string; plan: Plan }
   | { error: string; status: number };
 
 /**
@@ -52,6 +53,7 @@ export async function getAuthenticatedHousehold(): Promise<AuthResult> {
     supabaseId,
     householdId: membership.householdId,
     role: membership.role,
+    plan: membership.household.plan as Plan,
   };
 }
 

@@ -63,9 +63,12 @@ export async function GET(request: Request) {
     }
   }
 
+  // Signup code stashed by the /invite page (carries the plan for a new household).
+  const signupCode = cookieStore.get("signup_code")?.value ?? null;
+
   if (user) {
     try {
-      const needsOnboarding = await provisionUser(user, inviteToken);
+      const needsOnboarding = await provisionUser(user, inviteToken, signupCode);
       console.log("[auth/callback] needsOnboarding:", needsOnboarding, "-> redirecting to:", needsOnboarding ? "/onboarding" : "/home");
       if (needsOnboarding) {
         redirectUrl = `${redirectBase}/onboarding`;
@@ -85,6 +88,8 @@ export async function GET(request: Request) {
   pendingCookies.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
   });
+  // One-shot: clear the signup code once we've reached the callback.
+  if (signupCode) response.cookies.set("signup_code", "", { path: "/", maxAge: 0 });
 
   return response;
 }
@@ -92,7 +97,8 @@ export async function GET(request: Request) {
 // Returns true if the user needs to go through onboarding.
 async function provisionUser(
   user: { id: string; email?: string; user_metadata?: Record<string, unknown> },
-  inviteToken: string | null
+  inviteToken: string | null,
+  signupCode: string | null
 ): Promise<boolean> {
   console.log("[provisionUser] start — supabaseId:", user.id, "email:", user.email);
   let person = await prisma.person.findUnique({
@@ -177,8 +183,23 @@ async function provisionUser(
         data: { usedAt: new Date(), usedBy: person.id },
       });
     } else {
+      // Fresh signup with no household invite \u2014 create their own household and
+      // apply the plan from the signup code that got them in (default comp).
+      let plan = "comp";
+      if (signupCode) {
+        const sc = await prisma.signupCode.findUnique({
+          where: { code: signupCode.toLowerCase() },
+        });
+        if (sc) {
+          plan = sc.plan;
+          await prisma.signupCode.update({
+            where: { id: sc.id },
+            data: { usedCount: { increment: 1 } },
+          });
+        }
+      }
       const household = await prisma.household.create({
-        data: { name: `${displayName}\u2019s Kitchen` },
+        data: { name: `${displayName}\u2019s Kitchen`, plan },
       });
       await prisma.householdMember.create({
         data: { personId: person.id, householdId: household.id, active: true, role: "owner" },
