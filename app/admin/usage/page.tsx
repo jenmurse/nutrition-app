@@ -217,8 +217,11 @@ export default function AdminUsagePage() {
     <div className="standalone-page" style={{ height: "100%", overflowY: "auto" }}>
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
-        <span className="standalone-back-link">
-          {summary.turns} turns · {data.period.days}d
+        <span style={{ display: "flex", gap: "18px", alignItems: "center" }}>
+          <Link href="/admin" className="standalone-back-link">← Admin</Link>
+          <span className="standalone-back-link">
+            {summary.turns} turns · {data.period.days}d
+          </span>
         </span>
       </header>
       <div className="standalone-body" style={{ paddingTop: "48px", maxWidth: "1100px" }}>

@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
+// Shared with the other admin pages so one login covers all of them in a tab.
+const PW_KEY = "gm-admin-pw";
 
 interface WaitlistEntry {
   id: string;
@@ -17,21 +20,35 @@ export default function AdminWaitlistPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const load = async (pw: string) => {
     setError("");
     setLoading(true);
     const res = await fetch("/api/admin/waitlist", {
-      headers: { "x-admin-password": password },
+      headers: { "x-admin-password": pw },
     });
     if (res.ok) {
-      const data = await res.json();
-      setEntries(data);
+      setEntries(await res.json());
       setAuthed(true);
+      try { sessionStorage.setItem(PW_KEY, pw); } catch { /* private mode */ }
     } else {
       setError("Wrong password.");
+      try { sessionStorage.removeItem(PW_KEY); } catch { /* */ }
     }
     setLoading(false);
+  };
+
+  // Try the cached password silently on mount (set by the admin hub or a sibling page).
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(PW_KEY);
+      if (cached) { setPassword(cached); load(cached).catch(() => { /* show form */ }); }
+    } catch { /* */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await load(password);
   };
 
   const formatDate = (iso: string) =>
@@ -73,7 +90,10 @@ export default function AdminWaitlistPage() {
     <div className="standalone-page">
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
-        <span className="standalone-back-link">{entries.length} {entries.length === 1 ? "person" : "people"}</span>
+        <span style={{ display: "flex", gap: "18px", alignItems: "center" }}>
+          <Link href="/admin" className="standalone-back-link">← Admin</Link>
+          <span className="standalone-back-link">{entries.length} {entries.length === 1 ? "person" : "people"}</span>
+        </span>
       </header>
       <div className="standalone-body" style={{ paddingTop: "48px" }}>
         <div className="standalone-eyebrow">Admin</div>

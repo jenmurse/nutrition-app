@@ -188,7 +188,10 @@ export default function AdminCodesPage() {
     <div className="standalone-page" style={{ height: "100%", overflowY: "auto" }}>
       <header className="standalone-topbar">
         <Link href="/" className="standalone-wordmark">Good Measure</Link>
-        <span className="standalone-back-link">{codes.length} codes</span>
+        <span style={{ display: "flex", gap: "18px", alignItems: "center" }}>
+          <Link href="/admin" className="standalone-back-link">← Admin</Link>
+          <span className="standalone-back-link">{codes.length} codes</span>
+        </span>
       </header>
       <div className="standalone-body" style={{ paddingTop: "48px", maxWidth: "900px" }}>
         <div className="standalone-eyebrow">Admin</div>

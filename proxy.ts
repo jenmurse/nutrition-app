@@ -57,7 +57,7 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/waitlist") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
     request.nextUrl.pathname.startsWith("/invite") ||
-    request.nextUrl.pathname.startsWith("/admin/") ||
+    request.nextUrl.pathname.startsWith("/admin") ||
     request.nextUrl.pathname.startsWith("/api/admin/") ||
     request.nextUrl.pathname.startsWith("/api/invite/") ||
     request.nextUrl.pathname.startsWith("/api/waitlist") ||
