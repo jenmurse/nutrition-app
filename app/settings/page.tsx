@@ -1167,6 +1167,11 @@ const SettingsPage = () => {
                   const url = `${origin}/api/mcp/connect/${newMcpToken ?? 'YOUR_TOKEN_HERE'}`;
                   return (
                     <>
+                      {newMcpToken && (
+                        <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--cta)] mb-[8px]">
+                          Copy this URL now — it won&apos;t be shown again
+                        </div>
+                      )}
                       <div className="flex items-center gap-[10px] bg-[var(--bg-2)] border border-[var(--cta)] px-[16px] py-[12px]">
                         <code className="font-mono text-[11px] text-[var(--fg)] break-all flex-1">{url}</code>
                         <button
@@ -1180,7 +1185,7 @@ const SettingsPage = () => {
                       </div>
                       <p className="text-[11px] text-[var(--muted)] leading-[1.6] mt-[8px]" style={{ maxWidth: 480 }}>
                         {newMcpToken
-                          ? 'The URL contains your token — keep it private; anyone with it has your household access. Revoke in step 1 to disable it.'
+                          ? 'The URL contains your token — keep it private; anyone with it has your household access. Save it in your password manager if you’ll add it to more than one assistant. Revoke in step 1 to disable it.'
                           : 'Generate (or regenerate) a token in step 1 to fill in your URL — the token is only shown once.'}
                       </p>
                     </>
