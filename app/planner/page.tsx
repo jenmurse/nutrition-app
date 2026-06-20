@@ -559,20 +559,61 @@ function PlannerPage() {
   }
 
   // ── Apply template flow ─────────────────────────────────────
+  // Other household members (excluding the current person), annotated with
+  // whether they already have a plan for the loaded week. Members without a
+  // plan can still be picked — applying creates one for them on the fly.
+  const otherMembers = persons
+    .filter((p) => p.id !== selectedPersonId)
+    .map((p) => {
+      const existing = otherPersonPlans.find((o) => o.personId === p.id);
+      return { personId: p.id, name: p.name, color: p.color, planId: existing?.planId ?? null };
+    });
+
   function startApplyTemplate(template: DayTemplate, date: Date) {
     if (!plan) return;
     const existingCount = plan.mealLogs.filter(
       (l) => parseUTCDate(l.date).toDateString() === date.toDateString()
     ).length;
     closeDayMenu();
-    if (existingCount > 0) {
+    // Show the dialog when there's a replace/append decision to make OR other
+    // members to also apply to. Otherwise apply straight to the current person.
+    if (existingCount > 0 || otherMembers.length > 0) {
       setApplyTpl({ template, date, existingCount });
     } else {
-      // No existing meals → just apply directly (replace mode is fine, deletes 0)
-      doApplyTemplate(template, date, "replace");
+      doApplyTemplate(template, date, "replace", []);
     }
   }
-  async function doApplyTemplate(template: DayTemplate, date: Date, mode: "replace" | "append") {
+
+  // Resolve a person's plan id for the loaded week, creating an empty plan if
+  // they don't have one yet. New plans inherit the person's global goals
+  // automatically (per-plan goals fall back to global), so targets render right.
+  async function resolvePlanIdForPerson(personId: number): Promise<number | null> {
+    const known = otherMembers.find((m) => m.personId === personId);
+    if (known?.planId != null) return known.planId;
+    if (!plan) return null;
+    const weekStartDate =
+      typeof plan.weekStartDate === "string" ? plan.weekStartDate : plan.weekStartDate.toISOString();
+    try {
+      const r = await fetch("/api/meal-plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekStartDate, personId }),
+      });
+      if (!r.ok) throw new Error("Failed to create plan");
+      const created: { id: number } = await r.json();
+      return created.id;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  async function doApplyTemplate(
+    template: DayTemplate,
+    date: Date,
+    mode: "replace" | "append",
+    alsoPersonIds: number[]
+  ) {
     if (!plan) return;
     // flushSync — force React to commit + render synchronously so the dialog +
     // menu backdrops are removed from DOM before any async work.
@@ -581,31 +622,59 @@ function PlannerPage() {
       setDayMenu(null);
     });
     scrubOverlays();
-    const planId = plan.id;
     const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+    // Build the target plan list: always the current person, plus any selected
+    // members (creating plans for those who don't have one this week).
+    const targets: Array<{ name: string; planId: number }> = [
+      { name: selectedPersonName, planId: plan.id },
+    ];
+    let createdPlans = 0;
+    for (const pid of alsoPersonIds) {
+      const member = otherMembers.find((m) => m.personId === pid);
+      const hadPlan = member?.planId != null;
+      const resolved = await resolvePlanIdForPerson(pid);
+      if (resolved == null) {
+        toast.error(`Couldn't reach ${member?.name ?? "member"}'s plan`);
+        continue;
+      }
+      if (!hadPlan) createdPlans++;
+      targets.push({ name: member?.name ?? "", planId: resolved });
+    }
+
     try {
-      const r = await fetch(`/api/day-templates/${template.id}/apply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, date: dateISO, mode }),
-      });
-      if (!r.ok) throw new Error("Failed");
-      const result: {
-        applied: number;
-        created?: number;
-        merged?: number;
-        skipped: number;
-        templateName: string;
-      } = await r.json();
-      const parts: string[] = [`Applied "${result.templateName}"`];
-      if ((result.merged ?? 0) > 0) {
-        parts.push(`${result.merged} merged into existing`);
+      let totalMerged = 0;
+      let totalSkipped = 0;
+      let templateName = template.name;
+      for (const t of targets) {
+        const r = await fetch(`/api/day-templates/${template.id}/apply`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ planId: t.planId, date: dateISO, mode }),
+        });
+        if (!r.ok) throw new Error("Failed");
+        const result: {
+          applied: number;
+          merged?: number;
+          skipped: number;
+          templateName: string;
+        } = await r.json();
+        totalMerged += result.merged ?? 0;
+        totalSkipped += result.skipped;
+        templateName = result.templateName;
       }
-      if (result.skipped > 0) {
-        parts.push(`${result.skipped} skipped (deleted recipe)`);
-      }
+
+      const parts: string[] = [
+        targets.length > 1
+          ? `Applied "${templateName}" to ${targets.length} people`
+          : `Applied "${templateName}"`,
+      ];
+      if (createdPlans > 0) parts.push(`${createdPlans} new plan${createdPlans === 1 ? "" : "s"} created`);
+      if (totalMerged > 0) parts.push(`${totalMerged} merged into existing`);
+      if (totalSkipped > 0) parts.push(`${totalSkipped} skipped (deleted recipe)`);
       const msg = parts.length === 1 ? parts[0] : `${parts[0]} — ${parts.slice(1).join(", ")}`;
       toast.success(msg);
+      if (createdPlans > 0) clientCache.invalidate("/api/meal-plans");
       await refreshPlan();
     } catch (e) {
       console.error(e);
@@ -843,9 +912,15 @@ function PlannerPage() {
       toast.error("No plan covers this week. Create a new one.");
       return;
     }
-    const params = new URLSearchParams(searchParams?.toString());
-    params.set("planId", String(pick.id));
-    router.push(`/planner?${params.toString()}`);
+    if (pick.id === plan?.id) return;
+    // Mirror goToPlan: router.push to the same path with a different searchParam
+    // is unreliable (no-op on some clicks), so drive it via history + a direct load.
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("planId", String(pick.id));
+      window.history.replaceState(null, "", `/planner?${params.toString()}`);
+    }
+    loadPlanDetails(pick.id);
   }
 
   function openNewPlanDialog() {
@@ -2765,8 +2840,9 @@ function PlannerPage() {
         createPortal(
           <ApplyTemplateConfirm
             state={applyTpl}
+            otherMembers={otherMembers}
             onClose={() => setApplyTpl(null)}
-            onApply={(mode) => doApplyTemplate(applyTpl.template, applyTpl.date, mode)}
+            onApply={(mode, alsoIds) => doApplyTemplate(applyTpl.template, applyTpl.date, mode, alsoIds)}
           />,
           document.body
         )}
@@ -3839,17 +3915,20 @@ function ApplyTemplateSheet({
 }
 
 // ──────────────────────────────────────────────────────────────
-// ApplyTemplateConfirm — three options: Cancel / Append / Replace
+// ApplyTemplateConfirm — pick target members, then Cancel / Append / Replace
 // ──────────────────────────────────────────────────────────────
 function ApplyTemplateConfirm({
   state,
+  otherMembers,
   onClose,
   onApply,
 }: {
   state: ApplyConfirmState;
+  otherMembers: Array<{ personId: number; name: string; color: string; planId: number | null }>;
   onClose: () => void;
-  onApply: (mode: "replace" | "append") => void;
+  onApply: (mode: "replace" | "append", alsoPersonIds: number[]) => void;
 }) {
+  const [selected, setSelected] = useState<Set<number>>(new Set());
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
@@ -3857,22 +3936,73 @@ function ApplyTemplateConfirm({
   }, [onClose]);
 
   const dayName = state.date.toLocaleString("default", { weekday: "long" });
+  const hasExisting = state.existingCount > 0;
+  const itemCount = state.template.items.length;
+  const ids = Array.from(selected);
+
+  function toggle(pid: number) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(pid)) next.delete(pid);
+      else next.add(pid);
+      return next;
+    });
+  }
 
   return (
     <>
       <div className="mx-newplan-backdrop" onClick={onClose} aria-hidden="true" />
-      <div className="mx-newplan-dialog" style={{ width: 440 }} role="dialog" aria-modal="true" aria-label="Apply template">
+      <div className="mx-newplan-dialog" style={{ width: 460 }} role="dialog" aria-modal="true" aria-label="Apply template">
         <div className="mx-newplan-eyebrow">APPLY TEMPLATE</div>
-        <h2 className="mx-newplan-title">Replace {dayName}'s meals?</h2>
-        <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: 20, fontSize: 13 }}>
-          {dayName} already has <strong style={{ color: "var(--fg)" }}>{state.existingCount} meal{state.existingCount === 1 ? "" : "s"}</strong>.
-          Applying "{state.template.name}" ({state.template.items.length} items) will replace them. Or append to keep both.
+        <h2 className="mx-newplan-title">Apply &ldquo;{state.template.name}&rdquo; to {dayName}?</h2>
+        <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: otherMembers.length > 0 ? 16 : 20, fontSize: 13 }}>
+          {hasExisting ? (
+            <>
+              {itemCount} item{itemCount === 1 ? "" : "s"}. {dayName} already has <strong style={{ color: "var(--fg)" }}>{state.existingCount} meal{state.existingCount === 1 ? "" : "s"}</strong>. Replace overwrites them; append merges on top.
+            </>
+          ) : (
+            <>Adds {itemCount} item{itemCount === 1 ? "" : "s"} to {dayName}.</>
+          )}
         </p>
+
+        {otherMembers.length > 0 && (
+          <div className="mx-picker-also" style={{ marginBottom: 22 }}>
+            <span className="mx-picker-also-label">Also apply to</span>
+            <div className="mx-picker-also-chips">
+              {otherMembers.map((m) => {
+                const on = selected.has(m.personId);
+                const noPlan = m.planId == null;
+                return (
+                  <button
+                    key={m.personId}
+                    type="button"
+                    className={`mx-picker-also-chip${on ? " on" : ""}`}
+                    onClick={() => toggle(m.personId)}
+                    aria-pressed={on}
+                    title={noPlan ? `${m.name} has no plan this week — applying will create one` : undefined}
+                  >
+                    <span className="mx-picker-also-dot" style={{ background: m.color || "var(--accent)" }} aria-hidden="true" />
+                    {m.name}
+                    {noPlan && (
+                      <span style={{ marginLeft: 6, opacity: 0.6, fontSize: 10, letterSpacing: "0.04em" }}>· creates plan</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mx-newplan-actions">
           <button type="button" className="ed-btn-text" onClick={onClose}>Cancel</button>
-          <button type="button" className="ed-btn-text" style={{ color: "var(--fg)" }} onClick={() => onApply("append")}>Append instead</button>
-          <button type="button" className="ed-btn-primary" onClick={() => onApply("replace")}>Replace</button>
+          {hasExisting ? (
+            <>
+              <button type="button" className="ed-btn-text" style={{ color: "var(--fg)" }} onClick={() => onApply("append", ids)}>Append</button>
+              <button type="button" className="ed-btn-primary" onClick={() => onApply("replace", ids)}>Replace</button>
+            </>
+          ) : (
+            <button type="button" className="ed-btn-primary" onClick={() => onApply("append", ids)}>Apply</button>
+          )}
         </div>
       </div>
     </>
@@ -4047,8 +4177,8 @@ function ManageTemplatesSheet({
                       </>
                     ) : (
                       <>
-                        <button type="button" onClick={() => setRenaming({ id: t.id, value: t.name })}>Rename</button>
-                        <button type="button" className="danger" onClick={() => onDelete(t)}>Delete</button>
+                        <button type="button" onClick={() => setRenaming({ id: t.id, value: t.name })}>RENAME</button>
+                        <button type="button" className="danger" onClick={() => onDelete(t)}>DELETE</button>
                       </>
                     )}
                   </div>
