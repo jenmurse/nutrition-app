@@ -2274,7 +2274,7 @@ function PlannerPage() {
                     key={slot}
                     type="button"
                     className={`mx-mob-slot${first ? "" : " empty"}`}
-                    onClick={(e) => openPicker(slot, selectedDay, e as unknown as React.MouseEvent<HTMLDivElement>)}
+                    onClick={(e) => { if (logs.length === 0) openPicker(slot, selectedDay, e as unknown as React.MouseEvent<HTMLDivElement>); }}
                     aria-label={first ? `${SLOT_LABELS[slot]}: ${first.recipe?.name ?? first.ingredient?.name ?? "meal"}` : `Add ${SLOT_LABELS[slot]}`}
                   >
                     <div className="mx-mob-slot-label">
@@ -2486,13 +2486,13 @@ function PlannerPage() {
                           else onSlotDrop(slot, e);
                         }}
                         key={`${slot}-${d.toISOString()}`}
-                        onClick={(e) => openPicker(slot, d, e)}
+                        onClick={(e) => { if (logs.length === 0) openPicker(slot, d, e); }}
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
-                            openPicker(slot, d, e as unknown as React.MouseEvent<HTMLDivElement>);
+                            if (logs.length === 0) openPicker(slot, d, e as unknown as React.MouseEvent<HTMLDivElement>);
                           }
                         }}
                         aria-label={first ? `${SLOT_LABELS[slot]} ${d.toDateString()}: ${first.recipe?.name ?? first.ingredient?.name ?? "meal"}` : `Add ${SLOT_LABELS[slot]} for ${d.toDateString()}`}
@@ -2979,13 +2979,12 @@ function PlannerPage() {
                 type="button"
                 className="mx-action-item"
                 onClick={() => { const { slot, date, rect } = mealAction; closeMealAction(); openPickerAt(slot, date, rect); }}
-              >Add another here</button>
+              >Add another</button>
               <button
                 type="button"
                 className="mx-action-item"
                 onClick={async () => { const { slot, date, rect } = mealAction; const id = freshLog.id; closeMealAction(); await removeLogById(id); openPickerAt(slot, date, rect); }}
               >Replace</button>
-              <div className="mx-action-divider" />
               <button
                 type="button"
                 className="mx-action-item is-destructive"
