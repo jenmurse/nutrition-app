@@ -1191,6 +1191,17 @@ function PlannerPage() {
     return ALL_SLOTS.filter((s) => eligible.has(s));
   }, [plan]);
 
+  // Mobile only shows slots that have meals on the selected day — no ghost rows
+  // just because another day in the week has a snack/dessert.
+  const mobileSlotRows: SlotType[] = useMemo(() => {
+    if (!plan || !selectedDay) return [...BASE_SLOTS];
+    const dayKey = selectedDay.toDateString();
+    return ALL_SLOTS.filter((slot) => {
+      if (BASE_SLOTS.includes(slot as (typeof BASE_SLOTS)[number])) return true;
+      return plan.mealLogs.some((l) => l.mealType === slot && parseUTCDate(l.date).toDateString() === dayKey);
+    });
+  }, [plan, selectedDay]);
+
   const dailyTotals = useMemo(() => {
     const arr = plan?.weeklySummary?.dailyNutritions ?? [];
     return arr.map((d) => ({
@@ -2255,8 +2266,8 @@ function PlannerPage() {
                 })}
               </div>
 
-              {/* Slot rows for the active day */}
-              {slotRows.map((slot) => {
+              {/* Slot rows for the active day — only slots with meals on this day */}
+              {mobileSlotRows.map((slot) => {
                 const key = `${selectedDay.toDateString()}|${slot}`;
                 const logs = cellMap.get(key) ?? [];
                 const first = logs[0];
@@ -2329,10 +2340,10 @@ function PlannerPage() {
               })}
 
               {/* Need more? */}
-              {ADD_SLOTS.some((s) => !slotRows.includes(s)) && (
+              {ADD_SLOTS.some((s) => !mobileSlotRows.includes(s)) && (
                 <div className="mx-mob-addslot">
                   <span className="mx-mob-addslot-label">Need more?</span>
-                  {ADD_SLOTS.filter((s) => !slotRows.includes(s)).map((s) => (
+                  {ADD_SLOTS.filter((s) => !mobileSlotRows.includes(s)).map((s) => (
                     <button
                       key={s}
                       type="button"
