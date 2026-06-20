@@ -598,9 +598,23 @@ function PlannerPage() {
     const cached = createdPlanCache.current.get(personId);
     if (cached != null) return cached;
     if (!plan) return null;
-    const weekStartDate =
-      typeof plan.weekStartDate === "string" ? plan.weekStartDate : plan.weekStartDate.toISOString();
+    const weekStartTime = parseUTCDate(plan.weekStartDate).getTime();
     try {
+      // Fresh server check first: otherMembers can be stale (e.g. a plan was
+      // just created by a prior apply), and creating again would spawn a
+      // duplicate plan for the same person+week that the meal silently lands in.
+      const listRes = await fetch(`/api/meal-plans?personId=${personId}`);
+      if (listRes.ok) {
+        const list: Array<{ id: number; weekStartDate: string }> = await listRes.json();
+        const match = list.find((pl) => parseUTCDate(pl.weekStartDate).getTime() === weekStartTime);
+        if (match) {
+          createdPlanCache.current.set(personId, match.id);
+          return match.id;
+        }
+      }
+      // None for this week yet — create one.
+      const weekStartDate =
+        typeof plan.weekStartDate === "string" ? plan.weekStartDate : plan.weekStartDate.toISOString();
       const r = await fetch("/api/meal-plans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -613,6 +627,8 @@ function PlannerPage() {
       return created.id;
     } catch (e) {
       console.error(e);
+      const name = persons.find((p) => p.id === personId)?.name ?? "that member";
+      toast.error(`Couldn't reach ${name}'s plan`);
       return null;
     }
   }
