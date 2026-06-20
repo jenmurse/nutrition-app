@@ -20,7 +20,8 @@ function parseUTCDate(dateStr: string | Date): Date {
 
 const BASE_SLOTS = ["breakfast", "lunch", "dinner"] as const;
 const ADD_SLOTS = ["snack", "side", "dessert", "beverage"] as const;
-const ALL_SLOTS = [...BASE_SLOTS, ...ADD_SLOTS] as const;
+// Canonical display order — optional slots are always inserted at their fixed position.
+const ALL_SLOTS = ["breakfast", "lunch", "snack", "dinner", "side", "dessert", "beverage"] as const;
 type SlotType = (typeof ALL_SLOTS)[number];
 
 // Browse-all overlay retired June 2026 — the redesigned picker shows all
@@ -1183,20 +1184,12 @@ function PlannerPage() {
 
   const slotRows: SlotType[] = useMemo(() => {
     if (!plan) return [...BASE_SLOTS];
-    // Eligible: base slots + any extra that has at least one meal logged.
-    // Rows are derived from the actual MealLog data so the matrix is
-    // consistent across devices.
     const eligible = new Set<SlotType>(BASE_SLOTS);
     for (const extra of ADD_SLOTS) {
-      const hasAny = plan.mealLogs.some((l) => l.mealType === extra);
-      if (hasAny) eligible.add(extra);
+      if (plan.mealLogs.some((l) => l.mealType === extra)) eligible.add(extra);
     }
-    const ordered: SlotType[] = slotOrder.filter((s) => eligible.has(s));
-    for (const s of ALL_SLOTS) {
-      if (eligible.has(s) && !ordered.includes(s)) ordered.push(s);
-    }
-    return ordered;
-  }, [plan, slotOrder]);
+    return ALL_SLOTS.filter((s) => eligible.has(s));
+  }, [plan]);
 
   const dailyTotals = useMemo(() => {
     const arr = plan?.weeklySummary?.dailyNutritions ?? [];
@@ -2429,19 +2422,8 @@ function PlannerPage() {
                 const isDropTarget = dropBeforeSlot === slot;
                 return (
                 <React.Fragment key={slot}>
-                  <div
-                    className={`mx-slot-label${isDragging ? " is-dragging" : ""}${isDropTarget ? " is-drop-before" : ""}`}
-                    draggable
-                    onDragStart={(e) => onSlotDragStart(slot, e)}
-                    onDragOver={(e) => onSlotDragOver(slot, e)}
-                    onDragLeave={() => onSlotDragLeave(slot)}
-                    onDrop={(e) => onSlotDrop(slot, e)}
-                    onDragEnd={onSlotDragEnd}
-                  >
-                    <span className="mx-slot-handle" aria-hidden="true">
-                      <span className="mx-slot-grip">⋮⋮</span>
-                      <span>{SLOT_LABELS[slot]}</span>
-                    </span>
+                  <div className="mx-slot-label">
+                    <span>{SLOT_LABELS[slot]}</span>
                     {isRemovable && slotRowEmpty && (
                       <button
                         type="button"
@@ -2469,22 +2451,13 @@ function PlannerPage() {
                     const isTodayCol = d.toDateString() === today.toDateString();
                     return (
                       <div
-                        className={`mx-cell is-clickable${isOpen ? " is-target" : ""}${isDropTarget && dragKind === "slot" ? " is-drop-before" : ""}${isCellTarget ? " is-cell-target" : ""}${isCellDragging ? " is-cell-dragging" : ""}${isTodayCol ? " is-today-col" : ""}`}
+                        className={`mx-cell is-clickable${isOpen ? " is-target" : ""}${isCellTarget ? " is-cell-target" : ""}${isCellDragging ? " is-cell-dragging" : ""}${isTodayCol ? " is-today-col" : ""}`}
                         draggable={!!first && logs.length === 1}
                         onDragStart={(e) => first && logs.length === 1 ? onCellDragStart(d, slot, first.id, e) : undefined}
                         onDragEnd={onCellDragEnd}
-                        onDragOver={(e) => {
-                          if (dragKind === "cell") onCellDragOver(d, slot, e);
-                          else onSlotDragOver(slot, e);
-                        }}
-                        onDragLeave={() => {
-                          if (dragKind === "cell") onCellDragLeave(d, slot);
-                          else onSlotDragLeave(slot);
-                        }}
-                        onDrop={(e) => {
-                          if (dragKind === "cell") onCellDrop(d, slot, e);
-                          else onSlotDrop(slot, e);
-                        }}
+                        onDragOver={(e) => { if (dragKind === "cell") onCellDragOver(d, slot, e); }}
+                        onDragLeave={() => { if (dragKind === "cell") onCellDragLeave(d, slot); }}
+                        onDrop={(e) => { if (dragKind === "cell") onCellDrop(d, slot, e); }}
                         key={`${slot}-${d.toISOString()}`}
                         onClick={(e) => { if (logs.length === 0) openPicker(slot, d, e); }}
                         role="button"
