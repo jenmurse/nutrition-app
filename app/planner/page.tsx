@@ -3410,6 +3410,62 @@ function AlsoAddToRow({
 // ──────────────────────────────────────────────────────────────
 // DayOverflowMenu — the ⋯ menu on day-column headers (+ mobile toolbar)
 // ──────────────────────────────────────────────────────────────
+// Distinct people who authored at least one template (for the person filter).
+function templatePeopleFrom(templates: DayTemplate[]): Array<{ id: number; name: string; color: string }> {
+  const seen = new Map<number, { id: number; name: string; color: string }>();
+  for (const t of templates) {
+    if (t.person && !seen.has(t.person.id)) seen.set(t.person.id, t.person);
+  }
+  return Array.from(seen.values());
+}
+
+function filterTemplates(
+  templates: DayTemplate[],
+  search: string,
+  personFilter: number | "all"
+): DayTemplate[] {
+  let list = personFilter === "all" ? templates : templates.filter((t) => t.personId === personFilter);
+  const q = search.trim().toLowerCase();
+  if (q) list = list.filter((t) => t.name.toLowerCase().includes(q));
+  return list;
+}
+
+// Chips to narrow a template list to one author. Hidden when fewer than two
+// people have templates (nothing to filter).
+function TemplatePersonFilter({
+  people,
+  value,
+  onChange,
+}: {
+  people: Array<{ id: number; name: string; color: string }>;
+  value: number | "all";
+  onChange: (v: number | "all") => void;
+}) {
+  if (people.length < 2) return null;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      <button
+        type="button"
+        className={`mx-picker-also-chip${value === "all" ? " on" : ""}`}
+        onClick={() => onChange("all")}
+        aria-pressed={value === "all"}
+      >All</button>
+      {people.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          className={`mx-picker-also-chip${value === p.id ? " on" : ""}`}
+          onClick={() => onChange(p.id)}
+          aria-pressed={value === p.id}
+        >
+          <span className="mx-picker-also-dot" style={{ background: p.color || "var(--accent)" }} aria-hidden="true" />
+          {p.name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function DayOverflowMenu({
   menu,
   templates,
@@ -3459,17 +3515,19 @@ function DayOverflowMenu({
   const [manageSearch, setManageSearch] = useState("");
   const [renaming, setRenaming] = useState<{ id: number; value: string } | null>(null);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return templates;
-    const q = search.toLowerCase();
-    return templates.filter((t) => t.name.toLowerCase().includes(q));
-  }, [templates, search]);
+  // Person filter — shared across the apply + manage lists in this menu.
+  const [personFilter, setPersonFilter] = useState<number | "all">("all");
+  const tplPeople = useMemo(() => templatePeopleFrom(templates), [templates]);
 
-  const manageFiltered = useMemo(() => {
-    if (!manageSearch.trim()) return templates;
-    const q = manageSearch.toLowerCase();
-    return templates.filter((t) => t.name.toLowerCase().includes(q));
-  }, [templates, manageSearch]);
+  const filtered = useMemo(
+    () => filterTemplates(templates, search, personFilter),
+    [templates, search, personFilter]
+  );
+
+  const manageFiltered = useMemo(
+    () => filterTemplates(templates, manageSearch, personFilter),
+    [templates, manageSearch, personFilter]
+  );
 
   function isMobileSheet() {
     return typeof window !== "undefined" && window.innerWidth < 768;
@@ -3604,6 +3662,11 @@ function DayOverflowMenu({
                     />
                   </div>
                 )}
+                {tplPeople.length >= 2 && (
+                  <div style={{ padding: "4px 14px 8px" }}>
+                    <TemplatePersonFilter people={tplPeople} value={personFilter} onChange={setPersonFilter} />
+                  </div>
+                )}
                 {templates.length === 0 ? (
                   <div className="mx-day-menu-empty">No templates yet. Save one to start.</div>
                 ) : filtered.length === 0 ? (
@@ -3698,6 +3761,11 @@ function DayOverflowMenu({
                       value={manageSearch}
                       onChange={(e) => setManageSearch(e.target.value)}
                     />
+                  </div>
+                )}
+                {tplPeople.length >= 2 && (
+                  <div style={{ padding: "4px 14px 8px" }}>
+                    <TemplatePersonFilter people={tplPeople} value={personFilter} onChange={setPersonFilter} />
                   </div>
                 )}
                 {templates.length === 0 ? (
@@ -3897,6 +3965,8 @@ function ApplyTemplateSheet({
   onApply: (t: DayTemplate) => void;
 }) {
   const [search, setSearch] = useState("");
+  const [personFilter, setPersonFilter] = useState<number | "all">("all");
+  const tplPeople = useMemo(() => templatePeopleFrom(templates), [templates]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -3904,11 +3974,10 @@ function ApplyTemplateSheet({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return templates;
-    const q = search.toLowerCase();
-    return templates.filter((t) => t.name.toLowerCase().includes(q));
-  }, [templates, search]);
+  const filtered = useMemo(
+    () => filterTemplates(templates, search, personFilter),
+    [templates, search, personFilter]
+  );
 
   return (
     <>
@@ -3927,6 +3996,11 @@ function ApplyTemplateSheet({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {tplPeople.length >= 2 && (
+            <div style={{ marginTop: 12 }}>
+              <TemplatePersonFilter people={tplPeople} value={personFilter} onChange={setPersonFilter} />
+            </div>
+          )}
         </div>
         <div className="mx-manage-list">
           {templates.length === 0 ? (
@@ -4073,9 +4147,12 @@ function ManageTemplatesSheet({
   onReorder: (nextOrder: number[]) => Promise<void>;
 }) {
   const [search, setSearch] = useState("");
+  const [personFilter, setPersonFilter] = useState<number | "all">("all");
   const [renaming, setRenaming] = useState<{ id: number; value: string } | null>(null);
   const [dragId, setDragId] = useState<number | null>(null);
   const [dropBeforeId, setDropBeforeId] = useState<number | null>(null);
+
+  const tplPeople = useMemo(() => templatePeopleFrom(templates), [templates]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -4083,11 +4160,10 @@ function ManageTemplatesSheet({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return templates;
-    const q = search.toLowerCase();
-    return templates.filter((t) => t.name.toLowerCase().includes(q));
-  }, [templates, search]);
+  const filtered = useMemo(
+    () => filterTemplates(templates, search, personFilter),
+    [templates, search, personFilter]
+  );
 
   async function commitRename() {
     if (!renaming) return;
@@ -4097,9 +4173,9 @@ function ManageTemplatesSheet({
     if (ok) setRenaming(null);
   }
 
-  // Reordering is disabled while a search filter is active — moving within the
-  // filtered view would be ambiguous against the underlying full order.
-  const isFiltered = search.trim().length > 0;
+  // Reordering is disabled while a search or person filter is active — moving
+  // within the filtered view would be ambiguous against the full order.
+  const isFiltered = search.trim().length > 0 || personFilter !== "all";
   const canReorder = !isFiltered && templates.length > 1;
 
   function onRowDragStart(id: number, e: React.DragEvent<HTMLElement>) {
@@ -4154,6 +4230,11 @@ function ManageTemplatesSheet({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {tplPeople.length >= 2 && (
+            <div style={{ marginTop: 12 }}>
+              <TemplatePersonFilter people={tplPeople} value={personFilter} onChange={setPersonFilter} />
+            </div>
+          )}
         </div>
 
         <div className="mx-manage-list">
