@@ -633,15 +633,63 @@ function PlannerPage() {
     }
   }
 
-  // Map the "also add to" person selection to plan ids, creating plans for any
-  // selected members who don't have one for this week yet.
-  async function resolveAlsoPlanIds(): Promise<number[]> {
-    const ids: number[] = [];
-    for (const pid of alsoForPersons) {
+  // Additively sync the picker cell's contents to each selected "also add to"
+  // member (creating their plan if needed). Only adds items the member doesn't
+  // already have in that slot, so it's safe to run regardless of order or repeats.
+  // Called on picker close, which makes the member selection order-independent.
+  async function mirrorPickerCellToMembers(slot: SlotType, date: Date, personIds: number[]) {
+    if (!plan || personIds.length === 0) return;
+    const cellKey = `${date.toDateString()}|${slot}`;
+    const sourceLogs = cellMap.get(cellKey) ?? [];
+    if (sourceLogs.length === 0) return;
+    const dateISO = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    let mirroredCount = 0;
+    for (const pid of personIds) {
       const planId = await resolvePlanIdForPerson(pid);
-      if (planId != null) ids.push(planId);
+      if (planId == null) continue;
+      // Fetch the member's existing meals for this day+slot to avoid duplicates.
+      let existing: MealLog[] = [];
+      try {
+        const r = await fetch(`/api/meal-plans/${planId}`);
+        if (r.ok) {
+          const detail: { mealLogs?: MealLog[] } = await r.json();
+          existing = (detail.mealLogs ?? []).filter(
+            (l) => parseUTCDate(l.date).toDateString() === date.toDateString() && l.mealType === slot
+          );
+        }
+      } catch {}
+      const hasRecipe = new Set(existing.filter((l) => l.recipeId != null).map((l) => l.recipeId));
+      const hasIngredient = new Set(existing.filter((l) => l.ingredientId != null).map((l) => l.ingredientId));
+      const hasLabel = new Set(
+        existing.filter((l) => l.recipeId == null && l.ingredientId == null).map((l) => l.externalLabel ?? "")
+      );
+      const toAdd = sourceLogs.filter((l) => {
+        if (l.recipeId != null) return !hasRecipe.has(l.recipeId);
+        if (l.ingredientId != null) return !hasIngredient.has(l.ingredientId);
+        return !hasLabel.has(l.externalLabel ?? "");
+      });
+      let added = 0;
+      for (const l of toAdd) {
+        const body =
+          l.recipeId != null
+            ? { recipeId: l.recipeId, date: dateISO, mealType: slot, servings: l.servings ?? 1 }
+            : l.ingredientId != null
+            ? { ingredientId: l.ingredientId, date: dateISO, mealType: slot, quantity: l.quantity ?? 1, unit: l.unit }
+            : { externalLabel: l.externalLabel ?? "", date: dateISO, mealType: slot };
+        try {
+          const rr = await fetch(`/api/meal-plans/${planId}/meals`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+          if (rr.ok) added++;
+        } catch {}
+      }
+      if (added > 0) mirroredCount++;
     }
-    return ids;
+    if (mirroredCount > 0) {
+      toast.success(`Also added to ${mirroredCount} other plan${mirroredCount === 1 ? "" : "s"}`);
+    }
   }
 
   async function doApplyTemplate(
@@ -1226,10 +1274,18 @@ function PlannerPage() {
   }
 
   function closePicker() {
+    const p = picker;
+    const members = Array.from(alsoForPersons);
     setPicker(null);
     setPickerQuery("");
     setEatingOutOpen(false);
     setEatingOutLabel("");
+    setAlsoForPersons(new Set());
+    // Mirror the cell's final contents to selected members on close, so picking
+    // members before OR after recipes both work.
+    if (p && members.length > 0) {
+      void mirrorPickerCellToMembers(p.slot, p.date, members);
+    }
   }
 
   // Recipes filtered for the active picker.
@@ -1322,22 +1378,7 @@ function PlannerPage() {
         body: JSON.stringify(body),
       });
       if (!postRes.ok) throw new Error("Failed");
-
-      // Mirror to any "also add to" plans (best-effort; failures are toasted but don't fail the main add)
-      if (alsoForPersons.size > 0) {
-        const otherPlanIds = await resolveAlsoPlanIds();
-        await Promise.all(
-          otherPlanIds.map((otherPlanId) =>
-            fetch(`/api/meal-plans/${otherPlanId}/meals`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body),
-            }).then((r) => { if (!r.ok) throw new Error(); }).catch(() => {
-              toast.error("Couldn't mirror to another plan");
-            })
-          )
-        );
-      }
+      // "Also add to" mirroring happens once, on picker close (order-independent).
       await refreshPlan();
     } catch (err) {
       console.error(err);
@@ -1374,21 +1415,7 @@ function PlannerPage() {
         body: JSON.stringify(body),
       });
       if (!r.ok) throw new Error("Failed");
-      // Mirror to "also add to" plans if selected
-      if (alsoForPersons.size > 0) {
-        const otherPlanIds = await resolveAlsoPlanIds();
-        await Promise.all(
-          otherPlanIds.map((otherPlanId) =>
-            fetch(`/api/meal-plans/${otherPlanId}/meals`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body),
-            }).then((rr) => { if (!rr.ok) throw new Error(); }).catch(() => {
-              toast.error("Couldn't mirror to another plan");
-            })
-          )
-        );
-      }
+      // "Also add to" mirroring happens once, on picker close (order-independent).
       await refreshPlan();
     } catch (err) {
       console.error(err);
@@ -1445,21 +1472,7 @@ function PlannerPage() {
         body: JSON.stringify(body),
       });
       if (!r.ok) throw new Error("Failed");
-
-      if (alsoForPersons.size > 0) {
-        const otherPlanIds = await resolveAlsoPlanIds();
-        await Promise.all(
-          otherPlanIds.map((otherPlanId) =>
-            fetch(`/api/meal-plans/${otherPlanId}/meals`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body),
-            }).then((r) => { if (!r.ok) throw new Error(); }).catch(() => {
-              toast.error("Couldn't mirror to another plan");
-            })
-          )
-        );
-      }
+      // "Also add to" mirroring happens once, on picker close (order-independent).
       await refreshPlan();
     } catch (err) {
       console.error(err);
@@ -2607,8 +2620,8 @@ function PlannerPage() {
                       aria-label="Search recipes and pantry items"
                     />
 
-                    {/* "Also add to" sits ABOVE the list so you choose who to mirror
-                        picks to BEFORE picking — recipe taps add immediately. */}
+                    {/* "Also add to" — mirroring is applied on picker close, so it
+                        works whether you pick members before or after recipes. */}
                     {otherMembers.length > 0 && (
                       <AlsoAddToRow
                         people={otherMembers}
