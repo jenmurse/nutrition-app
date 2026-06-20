@@ -1,8 +1,10 @@
 # Going Native — B2 Plan (Supabase backend + Capacitor iOS/Android)
 
 **Date:** June 16, 2026
-**Status:** Planned — ready to build. Supersedes the Track-1/2/3 analysis in [`_archived/native-app-tracks.md`](_archived/native-app-tracks.md) (kept for background).
+**Status:** Backend phases COMPLETE (June 19–20). Native shell not yet started. Supersedes the Track-1/2/3 analysis in [`_archived/native-app-tracks.md`](_archived/native-app-tracks.md) (kept for background).
 **Trigger met:** DUNS resolved + Apple Developer account approved.
+
+> **Update (June 20, 2026):** Phases 1, 2, 4, 5 from §7 are done — backend migrated to Supabase Pro, app live on Vercel serverless (Variant A), Railway + R2 retired, MCP connector built, email live. **The remaining work is the Capacitor native shell (Phase 3) → TestFlight (Phase 6) → Android (Phase 7).** The execution plan for that lives in [`capacitor-build-handoff.md`](capacitor-build-handoff.md) — read it, not this brief's phase table, for what's actually left. Key finding: the app is SSR + API routes, so Capacitor wraps the live site via `server.url` (no static export / frontend rewrite).
 
 ---
 
