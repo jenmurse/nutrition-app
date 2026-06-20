@@ -2036,33 +2036,26 @@ input[type="number"]:focus {
 /* "Need more?" footer row */
 .mx-addslot {
   grid-column: 1 / -1;
-  padding: 14px 40px;
+  padding: 10px 40px;
   border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
-}
-.mx-addslot-label {
-  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
 }
 .mx-addslot-btn {
   background: transparent;
-  border: 1px solid var(--rule);
+  border: none;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   cursor: pointer;
-  padding: 5px 10px;
-  transition: border-color 120ms var(--ease-out), color 120ms var(--ease-out);
+  padding: 0;
+  transition: color 120ms var(--ease-out);
 }
-.mx-addslot-btn:hover { border-color: var(--fg); color: var(--fg); }
+.mx-addslot-btn:hover { color: var(--fg); }
 .mx-addslot-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* Totals row */
@@ -3284,31 +3277,23 @@ input[type="number"]:focus {
 }
 
 .mx-mob-addslot {
-  padding: 14px 18px;
+  padding: 12px 18px;
   border-bottom: 1px solid var(--rule);
-  display: flex; flex-wrap: wrap; gap: 8px;
+  display: flex; flex-wrap: wrap; gap: 20px;
   align-items: center;
-}
-.mx-mob-addslot-label {
-  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-right: 4px;
 }
 .mx-mob-addslot-btn {
   background: transparent;
-  border: 1px solid var(--rule);
+  border: none;
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
   cursor: pointer;
-  padding: 5px 9px;
+  padding: 0;
 }
-.mx-mob-addslot-btn:hover { border-color: var(--fg); color: var(--fg); }
+.mx-mob-addslot-btn:hover { color: var(--fg); }
 
 .mx-mob-totals {
   padding: 14px 18px;
