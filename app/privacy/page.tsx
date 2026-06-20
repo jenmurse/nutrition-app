@@ -112,7 +112,7 @@ export default function PrivacyPage() {
             <p style={bodyStyle}>
               {/* TODO (DNS move): change to hello@withgoodmeasure.com once Cloudflare Email Routing is set up */}
               Questions about your data? Email{" "}
-              <a href="mailto:hello@mersostudio.com" style={{ ...linkStyle, textDecoration: "underline" }}>hello@mersostudio.com</a>
+              <a href="mailto:hello@withgoodmeasure.com" style={{ ...linkStyle, textDecoration: "underline" }}>hello@withgoodmeasure.com</a>
             </p>
           </Section>
 
