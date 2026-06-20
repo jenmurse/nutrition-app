@@ -2154,7 +2154,7 @@ function PlannerPage() {
           )}
 
           {plan && isMobile && selectedDay && (
-            <>
+            <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
               {/* Mobile second toolbar — abbreviated range + arrows + TODAY + VIEW + ⋯ + NEW */}
               <div className="mx-mob-tb">
                 <span className="mx-mob-week">{shortRangeLabel}</span>
@@ -2396,7 +2396,7 @@ function PlannerPage() {
                   </div>
                 );
               })()}
-            </>
+            </div>
           )}
 
           {plan && !isMobile && renderStrip("desktop")}

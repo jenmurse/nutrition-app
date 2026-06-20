@@ -3310,9 +3310,9 @@ input[type="number"]:focus {
 .mx-mob-addslot-btn:hover { color: var(--fg); }
 
 .mx-mob-totals {
+  flex: 1;
   padding: 14px 18px;
   background: var(--bg-2);
-  border-bottom: 1px solid var(--rule);
 }
 .mx-mob-totals-head {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
