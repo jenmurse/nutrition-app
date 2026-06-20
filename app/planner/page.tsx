@@ -203,7 +203,12 @@ function PlannerPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [otherPersonPlans, setOtherPersonPlans] = useState<Array<{ personId: number; planId: number; name: string; color: string }>>([]);
-  const [alsoForPlans, setAlsoForPlans] = useState<Set<number>>(new Set());
+  // "Also add to" / "Also apply to" selection, keyed by personId (not planId) so
+  // members without a plan for the week can still be picked — a plan is created
+  // for them on demand. createdPlanCache remembers plans created this session so
+  // repeated adds to the same planless member don't spawn duplicate plans.
+  const [alsoForPersons, setAlsoForPersons] = useState<Set<number>>(new Set());
+  const createdPlanCache = useRef<Map<number, number>>(new Map());
   const [newPlanOpen, setNewPlanOpen] = useState(false);
   // ── Day template state ──────────────────────────────────────
   const [templates, setTemplates] = useState<DayTemplate[]>([]);
@@ -590,6 +595,8 @@ function PlannerPage() {
   async function resolvePlanIdForPerson(personId: number): Promise<number | null> {
     const known = otherMembers.find((m) => m.personId === personId);
     if (known?.planId != null) return known.planId;
+    const cached = createdPlanCache.current.get(personId);
+    if (cached != null) return cached;
     if (!plan) return null;
     const weekStartDate =
       typeof plan.weekStartDate === "string" ? plan.weekStartDate : plan.weekStartDate.toISOString();
@@ -601,11 +608,24 @@ function PlannerPage() {
       });
       if (!r.ok) throw new Error("Failed to create plan");
       const created: { id: number } = await r.json();
+      createdPlanCache.current.set(personId, created.id);
+      clientCache.invalidate("/api/meal-plans");
       return created.id;
     } catch (e) {
       console.error(e);
       return null;
     }
+  }
+
+  // Map the "also add to" person selection to plan ids, creating plans for any
+  // selected members who don't have one for this week yet.
+  async function resolveAlsoPlanIds(): Promise<number[]> {
+    const ids: number[] = [];
+    for (const pid of alsoForPersons) {
+      const planId = await resolvePlanIdForPerson(pid);
+      if (planId != null) ids.push(planId);
+    }
+    return ids;
   }
 
   async function doApplyTemplate(
@@ -777,9 +797,11 @@ function PlannerPage() {
     return () => { cancelled = true; };
   }, [plan, persons, selectedPersonId]);
 
-  // Reset "Also for" toggles when the active plan or person changes
+  // Reset "Also for" toggles (and any plans we created on the fly) when the
+  // active plan or person changes — a different week has different plans.
   useEffect(() => {
-    setAlsoForPlans(new Set());
+    setAlsoForPersons(new Set());
+    createdPlanCache.current.clear();
   }, [plan?.id, selectedPersonId]);
 
   // ── Load pantry items (ingredients) for the picker ───────────
@@ -1286,9 +1308,10 @@ function PlannerPage() {
       if (!postRes.ok) throw new Error("Failed");
 
       // Mirror to any "also add to" plans (best-effort; failures are toasted but don't fail the main add)
-      if (alsoForPlans.size > 0) {
+      if (alsoForPersons.size > 0) {
+        const otherPlanIds = await resolveAlsoPlanIds();
         await Promise.all(
-          Array.from(alsoForPlans).map((otherPlanId) =>
+          otherPlanIds.map((otherPlanId) =>
             fetch(`/api/meal-plans/${otherPlanId}/meals`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1336,9 +1359,10 @@ function PlannerPage() {
       });
       if (!r.ok) throw new Error("Failed");
       // Mirror to "also add to" plans if selected
-      if (alsoForPlans.size > 0) {
+      if (alsoForPersons.size > 0) {
+        const otherPlanIds = await resolveAlsoPlanIds();
         await Promise.all(
-          Array.from(alsoForPlans).map((otherPlanId) =>
+          otherPlanIds.map((otherPlanId) =>
             fetch(`/api/meal-plans/${otherPlanId}/meals`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1406,9 +1430,10 @@ function PlannerPage() {
       });
       if (!r.ok) throw new Error("Failed");
 
-      if (alsoForPlans.size > 0) {
+      if (alsoForPersons.size > 0) {
+        const otherPlanIds = await resolveAlsoPlanIds();
         await Promise.all(
-          Array.from(alsoForPlans).map((otherPlanId) =>
+          otherPlanIds.map((otherPlanId) =>
             fetch(`/api/meal-plans/${otherPlanId}/meals`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -2657,15 +2682,15 @@ function PlannerPage() {
                       )}
                     </div>
 
-                    {otherPersonPlans.length > 0 && (
+                    {otherMembers.length > 0 && (
                       <AlsoAddToRow
-                        people={otherPersonPlans}
-                        selected={alsoForPlans}
-                        onToggle={(planId) => {
-                          setAlsoForPlans((prev) => {
+                        people={otherMembers}
+                        selected={alsoForPersons}
+                        onToggle={(personId) => {
+                          setAlsoForPersons((prev) => {
                             const next = new Set(prev);
-                            if (next.has(planId)) next.delete(planId);
-                            else next.add(planId);
+                            if (next.has(personId)) next.delete(personId);
+                            else next.add(personId);
                             return next;
                           });
                         }}
@@ -3266,9 +3291,9 @@ function AlsoAddToRow({
   selected,
   onToggle,
 }: {
-  people: Array<{ personId: number; planId: number; name: string; color: string }>;
+  people: Array<{ personId: number; planId: number | null; name: string; color: string }>;
   selected: Set<number>;
-  onToggle: (planId: number) => void;
+  onToggle: (personId: number) => void;
 }) {
   // Switch to pulldown when chips would crowd the picker (~3+ others)
   const useCompact = people.length > 3;
@@ -3292,7 +3317,7 @@ function AlsoAddToRow({
   }, [open]);
 
   if (useCompact) {
-    const selectedCount = people.filter((p) => selected.has(p.planId)).length;
+    const selectedCount = people.filter((p) => selected.has(p.personId)).length;
     return (
       <div className="mx-picker-also">
         <span className="mx-picker-also-label">Also add to</span>
@@ -3312,18 +3337,21 @@ function AlsoAddToRow({
           {open && (
             <div className="mx-picker-also-menu" role="listbox" aria-label="Mirror picks to other plans">
               {people.map((p) => {
-                const on = selected.has(p.planId);
+                const on = selected.has(p.personId);
+                const noPlan = p.planId == null;
                 return (
                   <button
-                    key={p.planId}
+                    key={p.personId}
                     type="button"
                     role="option"
                     aria-selected={on}
                     className={`mx-picker-also-mitem${on ? " on" : ""}`}
-                    onClick={() => onToggle(p.planId)}
+                    onClick={() => onToggle(p.personId)}
+                    title={noPlan ? `${p.name} has no plan this week — adding will create one` : undefined}
                   >
                     <span className="mx-picker-also-dot" style={{ background: p.color || "var(--accent)" }} aria-hidden="true" />
                     <span className="mx-picker-also-mname">{p.name}</span>
+                    {noPlan && <span style={{ marginLeft: "auto", opacity: 0.6, fontSize: 10, letterSpacing: "0.04em" }}>creates plan</span>}
                     {on && <span aria-hidden="true">✓</span>}
                   </button>
                 );
@@ -3341,17 +3369,20 @@ function AlsoAddToRow({
       <span className="mx-picker-also-label">Also add to</span>
       <div className="mx-picker-also-chips">
         {people.map((p) => {
-          const on = selected.has(p.planId);
+          const on = selected.has(p.personId);
+          const noPlan = p.planId == null;
           return (
             <button
-              key={p.planId}
+              key={p.personId}
               type="button"
               className={`mx-picker-also-chip${on ? " on" : ""}`}
-              onClick={() => onToggle(p.planId)}
+              onClick={() => onToggle(p.personId)}
               aria-pressed={on}
+              title={noPlan ? `${p.name} has no plan this week — adding will create one` : undefined}
             >
               <span className="mx-picker-also-dot" style={{ background: p.color || "var(--accent)" }} aria-hidden="true" />
               {p.name}
+              {noPlan && <span style={{ marginLeft: 6, opacity: 0.6, fontSize: 10, letterSpacing: "0.04em" }}>· creates plan</span>}
             </button>
           );
         })}
