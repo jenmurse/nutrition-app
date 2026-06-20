@@ -2380,7 +2380,7 @@ function PlannerPage() {
                 return (
                   <div className="mx-mob-totals">
                     <div className="mx-mob-totals-head">
-                      {DAY_NAMES[selectedDay.getDay()]} totals
+                      Daily totals
                     </div>
                     <div className="mx-mob-totals-grid">
                       {cells.map((r) => (
