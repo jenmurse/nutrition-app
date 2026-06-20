@@ -2130,7 +2130,7 @@ function PlannerPage() {
         >+ NEW PLAN</button>
       </div>
 
-      <div className="list-scroll flex-1 overflow-y-auto relative">
+      <div className="list-scroll flex-1 overflow-y-auto relative" style={{ display: "flex", flexDirection: "column" }}>
         {loading && !plan && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="font-mono text-[13px] text-[var(--muted)] animate-loading">
@@ -2139,7 +2139,7 @@ function PlannerPage() {
           </div>
         )}
 
-        <div className="animate-page-enter" style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
+        <div className="animate-page-enter" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {plan && <PlannerTips className="pl-tip-wrap" />}
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
