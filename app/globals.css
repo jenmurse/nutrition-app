@@ -3207,7 +3207,7 @@ input[type="number"]:focus {
   padding: 16px 18px;
   border-bottom: 1px solid var(--rule);
   cursor: pointer;
-  background: transparent;
+  background: var(--bg);
   border-top: 0; border-left: 0; border-right: 0;
   width: 100%;
   text-align: left;
@@ -3288,6 +3288,7 @@ input[type="number"]:focus {
   border-bottom: 1px solid var(--rule);
   display: flex; flex-wrap: wrap; gap: 16px;
   align-items: center;
+  background: var(--bg);
 }
 .mx-mob-addslot-label {
   font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
@@ -4998,6 +4999,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
 }
 .pl-shop-close:hover { color: var(--fg); border-color: var(--fg); }
 @media (max-width: 767px) { .pl-shop-close { display: none; } }
+@media (max-width: 767px) { .planner-scroll { background: var(--bg-2); } }
 .pl-shop-eyebrow {
   font-family: var(--font-mono);
   font-size: 9px;

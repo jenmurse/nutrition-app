@@ -2130,7 +2130,7 @@ function PlannerPage() {
         >+ NEW PLAN</button>
       </div>
 
-      <div className="list-scroll flex-1 overflow-y-auto relative" style={{ display: "flex", flexDirection: "column" }}>
+      <div className="list-scroll planner-scroll flex-1 overflow-y-auto relative" style={{ display: "flex", flexDirection: "column" }}>
         {loading && !plan && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="font-mono text-[13px] text-[var(--muted)] animate-loading">
