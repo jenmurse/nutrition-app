@@ -1324,8 +1324,10 @@ function PlannerPage() {
       if (!postRes.ok) throw new Error("Failed");
 
       // Mirror to any "also add to" plans (best-effort; failures are toasted but don't fail the main add)
+      toast(`[dbg] also-selected: ${alsoForPersons.size}`);
       if (alsoForPersons.size > 0) {
         const otherPlanIds = await resolveAlsoPlanIds();
+        toast(`[dbg] resolved plans: ${otherPlanIds.join(",") || "none"}`);
         await Promise.all(
           otherPlanIds.map((otherPlanId) =>
             fetch(`/api/meal-plans/${otherPlanId}/meals`, {
