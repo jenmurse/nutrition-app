@@ -4997,6 +4997,7 @@ table th.ed-label { display: table-cell; margin-bottom: 0; }
   transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
 }
 .pl-shop-close:hover { color: var(--fg); border-color: var(--fg); }
+@media (max-width: 767px) { .pl-shop-close { display: none; } }
 .pl-shop-eyebrow {
   font-family: var(--font-mono);
   font-size: 9px;

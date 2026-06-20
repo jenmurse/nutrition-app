@@ -2139,7 +2139,7 @@ function PlannerPage() {
           </div>
         )}
 
-        <div className="animate-page-enter" style={{ minHeight: "100%" }}>
+        <div className="animate-page-enter" style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
           {plan && <PlannerTips className="pl-tip-wrap" />}
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
@@ -2154,7 +2154,7 @@ function PlannerPage() {
           )}
 
           {plan && isMobile && selectedDay && (
-            <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
               {/* Mobile second toolbar — abbreviated range + arrows + TODAY + VIEW + ⋯ + NEW */}
               <div className="mx-mob-tb">
                 <span className="mx-mob-week">{shortRangeLabel}</span>
