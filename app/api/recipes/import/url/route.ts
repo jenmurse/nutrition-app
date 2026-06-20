@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
 import { matchIngredients, type ParsedIngredient, type ParsedRecipe } from "../../../../../lib/ingredientMatcher";
 import { withAuth } from "@/lib/apiUtils";
-import { uploadToR2 } from "@/lib/r2";
+import { uploadImage } from "@/lib/storage";
 import { randomUUID } from "crypto";
 
 async function uploadImageFromUrl(imageUrl: string): Promise<string | null> {
@@ -14,7 +14,7 @@ async function uploadImageFromUrl(imageUrl: string): Promise<string | null> {
     const buffer = Buffer.from(await res.arrayBuffer());
     const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
     const filename = `${randomUUID()}.${ext}`;
-    return await uploadToR2(filename, buffer, contentType);
+    return await uploadImage(filename, buffer, contentType);
   } catch {
     return null;
   }
