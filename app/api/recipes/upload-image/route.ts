@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/apiUtils";
-import { uploadToR2 } from "@/lib/r2";
+import { uploadImage } from "@/lib/storage";
 import { randomUUID } from "crypto";
 
 export const POST = withAuth(async (_auth, request: NextRequest) => {
@@ -13,6 +13,6 @@ export const POST = withAuth(async (_auth, request: NextRequest) => {
   const filename = `${randomUUID()}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const publicUrl = await uploadToR2(filename, buffer, contentType);
+  const publicUrl = await uploadImage(filename, buffer, contentType);
   return NextResponse.json({ url: publicUrl });
 }, "Image upload failed");

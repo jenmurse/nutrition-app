@@ -40,15 +40,12 @@ export default function PrivacyPage() {
           </Section>
 
           <Section heading="Where your data lives">
-            {/* TODO (backend migration): replace Railway → Supabase, remove Cloudflare R2 if images move to Supabase Storage */}
             <p style={bodyStyle}>
               Good Measure runs on{" "}
-              <a href="https://railway.app" target="_blank" rel="noopener noreferrer" style={linkStyle}>Railway</a>
-              {" "}(United States). Authentication is handled by{" "}
-              <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" style={linkStyle}>Supabase</a>.
-              {" "}Images are stored on{" "}
-              <a href="https://developers.cloudflare.com/r2" target="_blank" rel="noopener noreferrer" style={linkStyle}>Cloudflare R2</a>.
-              {" "}All data stays within these services and is never sold or shared with third parties.
+              <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" style={linkStyle}>Supabase</a>
+              {" "}and{" "}
+              <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" style={linkStyle}>Vercel</a>
+              {" "}(United States). All data stays within these services and is never sold or shared with third parties.
             </p>
           </Section>
 

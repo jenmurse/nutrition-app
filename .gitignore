@@ -73,3 +73,6 @@ _exports/
 migration_data.sql
 tsconfig.tsbuildinfo
 npm_recovery_codes.txt
+
+# Postgres dumps
+*.dump

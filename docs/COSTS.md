@@ -2,50 +2,42 @@
 
 Running ledger of what Good Measure costs to operate, what's covered by free tiers, and what changes when usage grows or the app opens to the public.
 
-Last updated: June 16, 2026.
-
-> **Planned change (June 16, 2026):** the going-native **B2 plan** (`briefs/going-native-b2-plan.md`) consolidates the backend onto **Supabase Pro (~$25/mo flat)** and **retires Railway** (and the warm-up cron with it). Landing/privacy move to Vercel (free tier), recipe images move R2 → Supabase Storage. The "Today" table below still reflects the *current* Railway-based setup; it will be rewritten when the migration ships. See the brief's §8 for the full forward-looking cost analysis.
+Last updated: June 19, 2026.
 
 ---
 
 ## Today (invite-only, friends-and-family scale)
 
+Stack migrated to Supabase Pro + Vercel on June 19, 2026. Railway retired.
+
 | Service | Plan | Monthly cost | What it covers |
 |---|---|---|---|
-| **Railway** (app + Postgres) | Hobby | $5 base + ~$2–3 usage = **~$7–8/mo** | Next.js server, Prisma, Postgres database, all on Railway's internal network |
-| **Cloudflare R2** (image storage) | Free tier | **$0/mo** | Recipe images. 10 GB storage / 1M writes / 10M reads free per month. **Note: bucket is currently public (UUID filenames only protection). Moving to Supabase Storage with RLS would make images private per-household — the B2 migration plan includes this.** |
-| **Supabase** (auth only) | Free tier | **$0/mo** | Email + Google OAuth. 50K MAU on free tier — won't approach |
-| **cron-job.org** (warm-up pings) | Free tier | **$0/mo** | Pings `/api/warm` every 5 min to prevent Railway cold starts |
+| **Supabase Pro** (Postgres + auth + storage) | Pro | **$25 plan + ~$0 compute** = **~$25/mo** | Database, auth (email + Google + Apple OAuth), Storage (recipe images — pending R2 migration). Spend caps ON. Micro Compute add-on ($10) covered by $10 credit. Currently $34.62/mo because quiet-surface project also uses Micro Compute — drops to ~$25 once quiet-surface moves off Supabase. |
+| **Cloudflare R2** (image storage) | Free tier | **$0/mo** | Recipe images still here pending migration to Supabase Storage. Will be retired once migration script runs. |
+| **Vercel** (Next.js app) | Free tier (Hobby) | **$0/mo** | Next.js app + API routes. Serverless, scales to zero. Upgrade to Pro ($20/mo) if commercial use policy requires it at launch. |
+| **Resend** (email) | Free tier | **$0/mo** | Auth emails via Supabase SMTP. 3,000/mo free — well above current usage. |
 | **Claude API tokens** | n/a — MCP architecture | **$0/mo** | See "AI costs" section below — user's own Claude covers it |
 | **Domain** (`withgoodmeasure.com`) | Annual | **~$1.25/mo** | ~$15/year prorated |
 | **npm** (`good-measure-mcp` package) | Free | **$0/mo** | Public package, free hosting |
 | **GitHub** (code hosting) | Free | **$0/mo** | Personal account, public repos free, private repos free at this scale |
-| | | **~$8–9/mo total** | |
-
-**One-time credits in play:**
-- Railway welcome credit: $65, covers ~13 months of the $5 base fee. Effectively free until mid-2027.
+| | | **~$26–27/mo total** | |
 
 ---
 
-## Cost detail — Railway
+## Cost detail — Supabase Pro
 
-Railway charges $5/month base for the Hobby plan, plus usage above that. Resource pricing:
+Supabase Pro is $25/mo flat with spend caps, covering:
+- **Postgres:** 8 GB database, 250 GB egress, PITR (7 days)
+- **Auth:** 100K MAU (well above current usage)
+- **Storage:** 100 GB (more than enough for recipe images once R2 is migrated)
+- **Edge Functions:** 2M invocations/mo (not used yet)
+- **Realtime:** 500 concurrent connections (not used yet)
 
-| Resource | Rate |
-|---|---|
-| vCPU | $0.000463/vCPU-minute (≈ $20/vCPU-month if running 24/7) |
-| Memory | $0.000231/GB-minute (≈ $10/GB-month if running 24/7) |
-| Network egress (out to public internet) | $0.10/GB |
-| Postgres internal network | $0 (app ↔ DB always free) |
+There are no separate meters for CPU or memory at the Pro level. If usage spikes beyond the plan's included quotas, spend caps prevent surprise bills and the dashboard alerts instead.
 
-**Good Measure's actual usage** (approximate, steady-state):
-- ~0.1 vCPU active
-- ~512 MB RAM allocated
-- Running 24/7 thanks to the warm-up cron
-
-That translates to roughly $3 vCPU + $1 RAM = **~$4/mo above the base $5**, putting total Railway billing at ~$8/mo. Slightly more during heavy use (planner recalcs, photo uploads, etc.).
-
-**Why running 24/7 costs more:** if the app were allowed to sleep when nobody's using it, those CPU/RAM meters would stop. The warm-up cron prevents sleep — buying snappier first-load UX in exchange for ~$2–3/mo extra usage. See `LOADING-PERFORMANCE.md` § "/api/warm keep-alive endpoint" for the trade-off.
+**Supabase vs Railway comparison:**
+- Railway Hobby was ~$8–9/mo but required a warm-up cron, had cold starts, and mixed compute + DB on one platform.
+- Supabase Pro is ~$25/mo flat, no cold starts, DB + auth + storage all included, spend caps prevent overruns.
 
 ---
 
@@ -128,31 +120,29 @@ At friend-and-family scale (~10 active users), in-app chat costs are sustainable
 
 ## What changes if Good Measure goes public
 
-The biggest unknowns are traffic volume and concurrent users. Conservative projection for an app that gets 1,000 monthly active users:
+Conservative projection for 1,000 monthly active users:
 
 | Service | Then | Why it changes |
 |---|---|---|
-| **Railway** | Likely move to **Pro ($20/mo flat + usage)** | Hobby plan has resource caps. Pro removes them, eliminates sleep behavior (so warm-up cron becomes unnecessary), and gives priority support. |
-| **Cloudflare R2** | Still free for a while | 10 GB free tier holds for thousands of recipes |
-| **Supabase Auth** | Still free | Free tier is 50K MAU — way above any realistic friends-and-family-to-public ramp |
-| **CAPTCHA** (Cloudflare Turnstile) | **$0/mo** | Free for all use — needs to be added before public launch |
-| **Sentry** or similar error monitoring | Optional, ~$0–26/mo | Free tier covers 5K errors/mo; pay if needed |
-| **Analytics** (Plausible / PostHog / Vercel) | Optional, $0–9/mo | Plausible $9/mo cheapest paid; PostHog and Vercel Analytics have free tiers |
-| **Email transactional** (Resend) | Likely free | 3,000 emails/month on free tier; only matters if account-related emails ramp up |
-| | | **~$25–60/mo at 1K MAU** |
+| **Supabase Pro** | Still **$25/mo** (maybe compute bump) | 100K MAU auth free; 250 GB egress covers lots of text data. MCP users drive the most egress — gated to Pro tier, so heavy users pay. |
+| **Vercel** | Upgrade to **Pro ($20/mo)** | Free tier is for personal/hobby — commercial use requires Pro. At $20/mo + function usage. |
+| **Cloudflare R2** | Retired by then (→ Supabase Storage) | R2 goes away once the image migration script runs. |
+| **Resend** | Likely free still | 3K/mo free tier is generous; only pays off at aggressive email volume |
+| **CAPTCHA** (Cloudflare Turnstile) | **$0/mo** | Free for all use — add before public launch |
+| **Sentry** or similar error monitoring | Optional, ~$0–26/mo | Free tier covers 5K errors/mo |
+| **Analytics** (Plausible / PostHog / Vercel) | Optional, $0–9/mo | Plausible $9/mo; PostHog and Vercel Analytics have free tiers |
+| | | **~$45–65/mo at 1K MAU** |
 
 ---
 
 ## What changes if growth keeps going (10K+ MAU)
 
-This is speculative until/unless it happens, but worth knowing what the next thresholds are:
-
-- **Railway Pro → larger compute**: scale vertical to bigger containers. Could hit $50–150/mo for app + DB.
-- **Supabase Pro** ($25/mo) once over 50K MAU
-- **Cloudflare R2** storage starts costing: $0.015/GB above 10 GB. 1K active users × ~5 photos each × ~1 MB = 5 GB still free.
+- **Supabase:** compute add-ons kick in; egress may exceed 250 GB. At $0.09/GB overage and heavy MCP use, could add $20–100/mo.
+- **Vercel Pro** stays flat at $20/mo until function invocations or bandwidth spike.
+- **Supabase Storage:** 100 GB included in Pro. 10K users × 5 recipes × 1 MB = ~50 GB — still inside.
 - **Sentry Team** ($26/mo) if error volume justifies it
 - **Plausible Business** ($19/mo) for higher pageview tier
-- **Custom infra**: at some point a dedicated Postgres instance, queue worker, etc. but that's many months / years out
+- **Custom infra**: at some point dedicated Postgres, queue worker, etc. — many months out
 
 ---
 
@@ -177,9 +167,9 @@ Two tiers, switching on at **native launch** (friends and family stay on `comp` 
 
 ## Decisions pending
 
-1. **Railway → Supabase Pro consolidation** (B2 plan). Supersedes the old "stay on Hobby vs Railway Pro" question — the plan retires Railway entirely and moves the backend to Supabase Pro (~$25/mo flat, spend caps on). Happens as part of going native. See `briefs/going-native-b2-plan.md`.
+1. **R2 → Supabase Storage image migration.** R2 bucket still exists; DB image URLs still point there. Run `scripts/migrate-images-to-supabase.ts` once, then swap `lib/r2.ts` → `lib/storage.ts`, then delete the R2 bucket. See `briefs/migration-runbook.md` Phase 2.
 
-2. **Warm-up cron retires with Railway.** Once the backend is on Supabase Pro (which never pauses), the cron-job.org warm-up ping is obsolete — delete it then.
+2. **`hello@withgoodmeasure.com` email.** Apex domain now uses an A record (Vercel), so MX records are no longer blocked by a CNAME conflict. Options: Cloudflare Email Routing (free forward) or Google Workspace/Fastmail ($6–12/mo). Unblocks updating the contact email from `hello@mersostudio.com` in `app/privacy/page.tsx`.
 
 3. **Native app billing**:
    - Apple Developer Program: **$99/year** ✅ account approved June 16, 2026 (DUNS resolved)
@@ -192,9 +182,9 @@ Two tiers, switching on at **native launch** (friends and family stay on `comp` 
 
 ## How to keep this doc current
 
-- **When you change Railway plan**: update Railway row + delete/update the cron note
-- **When traffic crosses a free-tier threshold**: update the projection table
 - **When you add a paid service**: add a row, note what it covers
-- **Quarterly**: check Railway Usage tab against the projection, update if drift
+- **When Supabase usage climbs**: check the Supabase dashboard Usage tab and update the projections
+- **When traffic crosses a free-tier threshold**: update the projection table
+- **Quarterly**: check Supabase + Vercel dashboards against the projections, update if drift
 
 The full architectural rationale lives in `INFRASTRUCTURE.md` § Cost expectations. This doc is the bottom-line summary intended for quick reference and budget planning.

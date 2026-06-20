@@ -2,32 +2,26 @@
 
 Internal reference for architecture, costs, and optimizations.
 
-> **Heads-up (June 16, 2026):** the **B2 going-native plan** (`briefs/going-native-b2-plan.md`) will reshape this stack — backend consolidates onto **Supabase Pro** (Postgres + auth + storage + edge functions), **Railway is retired**, landing/privacy move to Vercel, recipe images move R2 → Supabase Storage, and MCP becomes a hosted remote connector. The diagram below is the *current* (pre-migration) stack and will be updated when the migration ships.
+## 1. Current Stack (as of June 2026)
 
----
-
-## 1. Current Stack (as of April 2026)
+Backend migrated from Railway + Cloudflare R2 to Supabase Pro + Vercel on June 19, 2026.
 
 ```
-User → Railway (Next.js app, persistent Node.js server)
+User → Vercel (Next.js app, serverless functions)
            ↓ auth checks    ↓ data queries    ↓ image storage
-      Supabase Auth    Railway Postgres    Cloudflare R2
+      Supabase Auth    Supabase Postgres    Supabase Storage
 ```
 
 | Layer | Service | Notes |
 |---|---|---|
-| Frontend + API | Railway (Next.js) | Persistent Node.js server, not serverless |
-| Database | Railway (Postgres) | Internal network — no egress cost between app and DB |
-| File storage | Cloudflare R2 | Zero egress fees, S3-compatible, `recipe-images` bucket |
-| Auth | Supabase Auth | Free tier only — issues JWTs, never touches DB egress |
+| Frontend + API | Vercel (Next.js) | Serverless functions, scales to zero, free Hobby tier |
+| Database | Supabase Pro (Postgres) | Managed Postgres, pooled connection via `DATABASE_URL` (port 6543) |
+| File storage | Supabase Storage (`recipe-images`) | **Public bucket** — recipe images are food photos with UUID filenames (unguessable). Signed URLs deferred to the full RLS pass. R2 bucket still exists but DB URLs now point to Supabase; delete R2 when ready. |
+| Auth | Supabase Auth (Pro) | Email + Google OAuth + Sign in with Apple |
 
-### Why this stack
+### Architecture note
 
-Previously the app ran on Vercel + Supabase, which created two billing meters on every request:
-- Vercel Fast Origin Transfer (data between CDN edge and serverless functions)
-- Supabase DB egress (data leaving the DB)
-
-Moving app + DB to Railway puts them on the same internal network. Data between them costs nothing. Auth stays on Supabase because JWT payloads (~1 KB) are negligible.
+Prisma connects to Supabase Postgres via the pooler (port 6543) for serverless — each Vercel function invocation gets a pooled connection. `DIRECT_URL` uses port 5432 for Prisma migrations only.
 
 ---
 
