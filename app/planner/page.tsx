@@ -2139,7 +2139,7 @@ function PlannerPage() {
           </div>
         )}
 
-        <div className="animate-page-enter" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div className="animate-page-enter" style={{ flex: 1, minHeight: "min-content", display: "flex", flexDirection: "column" }}>
           {plan && <PlannerTips className="pl-tip-wrap" />}
           {!loading && !plan && plans.length === 0 && (
             <div className="mx-empty">
