@@ -2342,6 +2342,7 @@ function PlannerPage() {
               {/* Need more? */}
               {ADD_SLOTS.some((s) => !mobileSlotRows.includes(s)) && (
                 <div className="mx-mob-addslot">
+                  <span className="mx-mob-addslot-label">Add</span>
                   {ADD_SLOTS.filter((s) => !mobileSlotRows.includes(s)).map((s) => (
                     <button
                       key={s}
@@ -2524,6 +2525,7 @@ function PlannerPage() {
 
               {ADD_SLOTS.some((s) => !slotRows.includes(s)) && (
                 <div className="mx-addslot">
+                  <span className="mx-addslot-label">Add</span>
                   {ADD_SLOTS.filter((s) => !slotRows.includes(s)).map((s) => (
                     <button
                       key={s}

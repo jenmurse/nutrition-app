@@ -2043,6 +2043,13 @@ input[type="number"]:focus {
   gap: 16px;
   flex-wrap: wrap;
 }
+.mx-addslot-label {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .mx-addslot-btn {
   background: transparent;
   border: none;
@@ -2050,7 +2057,7 @@ input[type="number"]:focus {
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--fg-2);
   cursor: pointer;
   padding: 0;
   transition: color 120ms var(--ease-out);
@@ -3279,8 +3286,15 @@ input[type="number"]:focus {
 .mx-mob-addslot {
   padding: 12px 18px;
   border-bottom: 1px solid var(--rule);
-  display: flex; flex-wrap: wrap; gap: 20px;
+  display: flex; flex-wrap: wrap; gap: 16px;
   align-items: center;
+}
+.mx-mob-addslot-label {
+  font-family: var(--font-mono), 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .mx-mob-addslot-btn {
   background: transparent;
@@ -3289,7 +3303,7 @@ input[type="number"]:focus {
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--fg-2);
   cursor: pointer;
   padding: 0;
 }
