@@ -166,6 +166,13 @@ type ApplyConfirmState = {
   existingCount: number;
 };
 
+type MealActionState = {
+  log: MealLog;
+  slot: SlotType;
+  date: Date;
+  rect: { top: number; left: number; bottom: number; right: number };
+};
+
 export default function PlannerPageWrapper() {
   return (
     <Suspense>
@@ -228,6 +235,7 @@ function PlannerPage() {
   // Eating-out inline input within the picker (open + draft label).
   const [eatingOutOpen, setEatingOutOpen] = useState(false);
   const [eatingOutLabel, setEatingOutLabel] = useState("");
+  const [mealAction, setMealAction] = useState<MealActionState | null>(null);
 
   // ── View options (persisted per device) ──────────────────────
   useEffect(() => {
@@ -1273,6 +1281,20 @@ function PlannerPage() {
     });
   }
 
+  function openPickerAt(slot: SlotType, date: Date, rect: { top: number; left: number; bottom: number; right: number }) {
+    setPickerQuery("");
+    setPicker({ slot, date, rect });
+  }
+
+  function openMealAction(log: MealLog, slot: SlotType, date: Date, el: HTMLElement) {
+    const r = el.getBoundingClientRect();
+    setMealAction({ log, slot, date, rect: { top: r.top, left: r.left, bottom: r.bottom, right: r.right } });
+  }
+
+  function closeMealAction() {
+    setMealAction(null);
+  }
+
   function closePicker() {
     const p = picker;
     const members = Array.from(alsoForPersons);
@@ -2275,7 +2297,16 @@ function PlannerPage() {
                       logs.map((log, idx) => {
                         const isEatingOut = log.recipeId == null && log.ingredientId == null && log.externalLabel != null;
                         return (
-                        <div key={log.id} className="mx-mob-log-row" style={idx > 0 ? { marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--rule)" } : undefined}>
+                        <div
+                          key={log.id}
+                          className="mx-mob-log-row"
+                          role="button"
+                          tabIndex={0}
+                          style={idx > 0 ? { marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--rule)" } : undefined}
+                          onClick={(e) => { e.stopPropagation(); openMealAction(log, slot, selectedDay!, e.currentTarget as HTMLElement); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); openMealAction(log, slot, selectedDay!, e.currentTarget as HTMLElement); } }}
+                          aria-label={`${log.recipe?.name ?? log.ingredient?.name ?? "Eating out"} — options`}
+                        >
                           <div className="mx-mob-log-content">
                             <div className={`mx-mob-slot-name${isEatingOut ? " is-eatout" : ""}`}>
                               {isEatingOut
@@ -2294,14 +2325,6 @@ function PlannerPage() {
                               </div>
                             )}
                           </div>
-                          <span
-                            className="mx-mob-log-remove"
-                            role="button"
-                            tabIndex={0}
-                            onClick={(e) => { e.stopPropagation(); removeLogById(log.id); }}
-                            onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); removeLogById(log.id); } }}
-                            aria-label={`Remove ${log.recipe?.name ?? log.ingredient?.name ?? "meal"}`}
-                          >✕</span>
                         </div>
                         );
                       })
@@ -2478,7 +2501,15 @@ function PlannerPage() {
                           logs.map((log) => {
                             const isEatingOut = log.recipeId == null && log.ingredientId == null && log.externalLabel != null;
                             return (
-                            <div className="mx-cell-item" key={log.id}>
+                            <div
+                              className="mx-cell-item"
+                              key={log.id}
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => { e.stopPropagation(); openMealAction(log, slot, d, e.currentTarget as HTMLElement); }}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); openMealAction(log, slot, d, e.currentTarget as HTMLElement); } }}
+                              aria-label={`${log.recipe?.name ?? log.ingredient?.name ?? "Eating out"} — options`}
+                            >
                               <div className={`mx-cell-name${isEatingOut ? " is-eatout" : ""}`}>
                                 {isEatingOut
                                   ? (log.externalLabel ? `Eating out — ${log.externalLabel}` : "Eating out")
@@ -2495,12 +2526,6 @@ function PlannerPage() {
                                     : ""}
                                 </div>
                               )}
-                              <button
-                                type="button"
-                                className="mx-cell-item-remove"
-                                onClick={(e) => { e.stopPropagation(); removeLogById(log.id); }}
-                                aria-label={`Remove ${log.recipe?.name ?? log.ingredient?.name ?? "meal"}`}
-                              >✕</button>
                             </div>
                             );
                           })
@@ -2915,6 +2940,92 @@ function PlannerPage() {
           />,
           document.body
         )}
+
+      {/* ── Meal action menu ─────────────────────────────────── */}
+      {mealAction && typeof window !== "undefined" && createPortal(
+        (() => {
+          const freshLog = plan?.mealLogs.find((l) => l.id === mealAction.log.id) ?? mealAction.log;
+          const isEatingOut = freshLog.recipeId == null && freshLog.ingredientId == null && freshLog.externalLabel != null;
+          const isIngredient = freshLog.ingredientId != null;
+          const name = isEatingOut
+            ? (freshLog.externalLabel ? `Eating out — ${freshLog.externalLabel}` : "Eating out")
+            : (freshLog.recipe?.name ?? freshLog.ingredient?.name ?? "Unnamed");
+          const stepValue = isIngredient ? (freshLog.quantity ?? 1) : (freshLog.servings ?? 1);
+          const stepUnit = isIngredient
+            ? ingredientDisplayUnit(freshLog.ingredient ?? { defaultUnit: freshLog.unit ?? "", customUnitName: null })
+            : (freshLog.recipe?.servingUnit ?? "serving");
+
+          const actionItems = (
+            <>
+              <div className="mx-action-header">
+                <span className="mx-action-name">{name}</span>
+                {!isEatingOut && (
+                  <PickerStepper
+                    value={stepValue}
+                    unit={stepUnit}
+                    onCommit={(v) => setAmount(freshLog, v)}
+                    onBump={(d) => bumpAmount(freshLog, d)}
+                  />
+                )}
+              </div>
+              {freshLog.recipeId != null && (
+                <button
+                  type="button"
+                  className="mx-action-item"
+                  onClick={() => { closeMealAction(); window.open(`/recipes/${freshLog.recipeId}`, "_blank"); }}
+                >View recipe →</button>
+              )}
+              <button
+                type="button"
+                className="mx-action-item"
+                onClick={() => { const { slot, date, rect } = mealAction; closeMealAction(); openPickerAt(slot, date, rect); }}
+              >Add another here</button>
+              <button
+                type="button"
+                className="mx-action-item"
+                onClick={async () => { const { slot, date, rect } = mealAction; const id = freshLog.id; closeMealAction(); await removeLogById(id); openPickerAt(slot, date, rect); }}
+              >Replace</button>
+              <div className="mx-action-divider" />
+              <button
+                type="button"
+                className="mx-action-item is-destructive"
+                onClick={() => { const id = freshLog.id; closeMealAction(); removeLogById(id); }}
+              >Remove</button>
+            </>
+          );
+
+          if (isMobile) {
+            return (
+              <>
+                <div className="mx-picker-backdrop" onClick={closeMealAction} />
+                <div className="mx-action-sheet" role="menu" aria-label="Meal options">
+                  <div className="mx-action-sheet-handle" aria-hidden="true" />
+                  {actionItems}
+                </div>
+              </>
+            );
+          }
+
+          const ACTION_W = 240;
+          const winW = window.innerWidth;
+          const winH = window.innerHeight;
+          const posLeft = Math.min(mealAction.rect.left, winW - ACTION_W - 8);
+          const spaceBelow = winH - mealAction.rect.bottom;
+          const posStyle: React.CSSProperties = spaceBelow >= 200 || spaceBelow >= mealAction.rect.top
+            ? { top: mealAction.rect.bottom + 4, left: posLeft, width: ACTION_W }
+            : { bottom: winH - mealAction.rect.top + 4, left: posLeft, width: ACTION_W };
+
+          return (
+            <>
+              <div className="mx-picker-backdrop" onClick={closeMealAction} />
+              <div className="mx-action" role="menu" style={posStyle} aria-label="Meal options">
+                {actionItems}
+              </div>
+            </>
+          );
+        })(),
+        document.body
+      )}
 
       {/* ── Day optimizer surface ─────────────────────────────── */}
       {optimizeState && plan && selectedPersonId != null && typeof window !== "undefined" &&
