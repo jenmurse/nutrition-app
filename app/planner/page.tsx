@@ -1324,10 +1324,8 @@ function PlannerPage() {
       if (!postRes.ok) throw new Error("Failed");
 
       // Mirror to any "also add to" plans (best-effort; failures are toasted but don't fail the main add)
-      toast.info(`[dbg] also-selected: ${alsoForPersons.size}`);
       if (alsoForPersons.size > 0) {
         const otherPlanIds = await resolveAlsoPlanIds();
-        toast.info(`[dbg] resolved plans: ${otherPlanIds.join(",") || "none"}`);
         await Promise.all(
           otherPlanIds.map((otherPlanId) =>
             fetch(`/api/meal-plans/${otherPlanId}/meals`, {
@@ -2609,6 +2607,23 @@ function PlannerPage() {
                       aria-label="Search recipes and pantry items"
                     />
 
+                    {/* "Also add to" sits ABOVE the list so you choose who to mirror
+                        picks to BEFORE picking — recipe taps add immediately. */}
+                    {otherMembers.length > 0 && (
+                      <AlsoAddToRow
+                        people={otherMembers}
+                        selected={alsoForPersons}
+                        onToggle={(personId) => {
+                          setAlsoForPersons((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(personId)) next.delete(personId);
+                            else next.add(personId);
+                            return next;
+                          });
+                        }}
+                      />
+                    )}
+
                     <div className="mx-picker-list">
                       {!hasAny && (
                         <div className="mx-picker-empty">
@@ -2699,21 +2714,6 @@ function PlannerPage() {
                         </>
                       )}
                     </div>
-
-                    {otherMembers.length > 0 && (
-                      <AlsoAddToRow
-                        people={otherMembers}
-                        selected={alsoForPersons}
-                        onToggle={(personId) => {
-                          setAlsoForPersons((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(personId)) next.delete(personId);
-                            else next.add(personId);
-                            return next;
-                          });
-                        }}
-                      />
-                    )}
 
                     {/* Eating-out section — same "HEAD + row" pattern as Recipes/Pantry */}
                     <div className="mx-picker-section-head">Other</div>
